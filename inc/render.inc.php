@@ -40,6 +40,7 @@ class Render
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<!-- Bootstrap -->
 			<link href="style/bootstrap.min.css" rel="stylesheet" media="screen">
+			<link href="style/default.css" rel="stylesheet" media="screen">
 	',
 		self::$header
 		,

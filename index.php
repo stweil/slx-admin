@@ -5,6 +5,8 @@ require_once('inc/render.inc.php');
 
 Render::setTitle('Wurstgesicht');
 
+Render::parse('main-menu', false);
+
 Render::openTag('h1', array('class' => 'wurst kacke'));
 Render::closeTag('h1');
 
