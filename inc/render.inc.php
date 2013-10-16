@@ -46,10 +46,12 @@ class Render
 		,
 	'	</head>
 		<body>
+		<div class="container">
 	',
 		self::$body
 		,
-	'	<script src="script/jquery.js"></script>
+	'	</div>
+		<script src="script/jquery.js"></script>
 		<script src="script/bootstrap.min.js"></script></body>
 	</html>'
 		;
@@ -74,9 +76,25 @@ class Render
 	/**
 	 * Add the given template to the output, using the given params for placeholders in the template
 	 */
-	public static function parse($template, $params)
+	public static function addTemplate($template, $params = false)
 	{
 		self::$body .= self::$mustache->render(self::getTemplate($template), $params);
+	}
+
+	/**
+	 * Add error message to page
+	 */
+	public static function addError($message)
+	{
+		self::addTemplate('messagebox-error', array('message' => $message));
+	}
+
+	/**
+	 * Parse template with given params and return; do not add to body
+	 */
+	public static function parse($template, $params = false)
+	{
+		return self::$mustache->render(self::getTemplate($template), $params);
 	}
 
 	/**

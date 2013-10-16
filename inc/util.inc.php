@@ -17,5 +17,12 @@ class Util
 		}
 		exit(0);
 	}
+
+	public static function redirect($location)
+	{
+		session_write_close();
+		Header('Location: ' . $location);
+		exit(0);
+	}
 }
 

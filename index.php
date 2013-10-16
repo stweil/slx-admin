@@ -1,16 +1,32 @@
 <?php
 
-require_once('inc/session.inc.php');
+error_reporting(E_ALL);
+
+require_once('inc/user.inc.php');
 require_once('inc/render.inc.php');
+require_once('inc/menu.inc.php');
+require_once('inc/util.inc.php');
 
-Render::setTitle('Wurstgesicht');
+if (empty($_REQUEST['do'])) {
+	// No specific module - set default
+	$module = 'main';
+} else {
+	$module = preg_replace('/[^a-z]/', '', $_REQUEST['do']);
+}
 
-Render::parse('main-menu', false);
+$module = 'modules/' . $module . '.inc.php';
 
-Render::openTag('h1', array('class' => 'wurst kacke'));
-Render::closeTag('h1');
+if (!file_exists($module)) {
+	Util::traceError('Invalid module: ' . $module);
+}
 
-Render::parse('helloworld', array('wurst' => 'käse & bier'));
+require_once($module);
+unset($module);
+
+$menu = new Menu;
+Render::addTemplate('main-menu', $menu);
+
+render_module();
 
 Render::output();
 
