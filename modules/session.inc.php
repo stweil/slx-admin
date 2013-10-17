@@ -14,25 +14,22 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 		Util::redirect('?do=main');
 	}
 	// Login credentials wrong
-	Util::redirect('?do=session&action=fail');
+	Message::addError('loginfail');
 }
 
 if ($_REQUEST['action'] === 'logout') {
-	// Log user out (or do nothing if not logged in)
-	exit(0);
+	if (Util::verifyToken()) {
+		// Log user out (or do nothing if not logged in)
+		User::logout();
+		Util::redirect('?do=main');
+	}
 }
 
 function render_module()
 {
-	if (!isset($_GET['action'])) Util::traceError('No action on render');
-	if ($_GET['action'] === 'login') {
+	if ($_REQUEST['action'] === 'login') {
 		Render::setTitle('Anmelden');
 		Render::addTemplate('page-login');
-		return;
-	}
-	if ($_GET['action'] === 'fail') {
-		Render::setTitle('Fehler');
-		Render::addError('Benutzer oder Passwort falsch');
 		return;
 	}
 }

@@ -20,9 +20,17 @@ class Util
 
 	public static function redirect($location)
 	{
-		session_write_close();
+		Session::save();
 		Header('Location: ' . $location);
 		exit(0);
+	}
+
+	public static function verifyToken()
+	{
+		if (Session::get('token') === false) return true;
+		if (isset($_REQUEST['token']) && Session::get('token') === $_REQUEST['token']) return true;
+		Message::addError('token');
+		return false;
 	}
 }
 

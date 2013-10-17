@@ -9,12 +9,10 @@ class Menu
 	public function loginPanel()
 	{
 		if (User::getName() === false) return Render::parse('menu-login');
-		return Render::parse('menu-logout', array('user' => User::getName()));
-	}
-
-	public function token()
-	{
-		return 123;
+		return Render::parse('menu-logout', array(
+			'user' => User::getName(),
+			'token' => Session::get('token')
+		));
 	}
 
 }

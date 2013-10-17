@@ -1,5 +1,7 @@
 <?php
 
+User::load();
+
 function render_module()
 {
 	Render::setTitle('Wurstgesicht');
