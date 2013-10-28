@@ -19,19 +19,21 @@ class Session
 			. $_SERVER['REMOTE_ADDR']
 			. mt_rand(0, 65535)
 			. $_SERVER['REMOTE_PORT']
+			. mt_rand(0, 65535)
 			. $_SERVER['HTTP_USER_AGENT']
+			. mt_rand(0, 65535)
 			. microtime(true)
 			. mt_rand(0, 65535)
 		);
 	}
 
-	public static function createSession()
+	public static function create()
 	{
 		self::generateSessionId();
 		self::$data = array();
 	}
 
-	public static function loadSession()
+	public static function load()
 	{
 		// Try to load session id from cookie
 		if (!self::loadSessionId()) return false;

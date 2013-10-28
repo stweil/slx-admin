@@ -14,13 +14,16 @@ class User
 	public static function getName()
 	{
 		if (self::$user === false) return false;
-		return self::$user['name'];
+		return self::$user['fullname'];
 	}
 
 	public static function load()
 	{
-		if (Session::loadSession()) {
-			self::$user['name'] = 'Hans';
+		if (Session::load()) {
+			$uid = Session::get('uid');
+			if ($uid === false || $uid < 1) self::logout();
+			self::$user = Database::queryFirst('SELECT * FROM user WHERE userid = :uid LIMIT 1', array(':uid' => $uid));
+			if (self::$user === false) self::logout();
 			return true;
 		}
 		return false;
@@ -28,14 +31,14 @@ class User
 
 	public static function login($user, $pass)
 	{
-		if ($user == 'test' && $pass == 'test') {
-			Session::createSession();;
-			Session::set('uid', 1);
-			Session::set('token', md5(rand() . time() . rand() . $_SERVER['REMOTE_ADDR'] . rand() . $_SERVER['REMOTE_PORT'] . rand() . $_SERVER['HTTP_USER_AGENT']));
-			Session::save();
-			return true;
-		}
-		return false;
+		$ret = Database::queryFirst('SELECT userid, passwd FROM user WHERE login = :user LIMIT 1', array(':user' => $user));
+		if ($ret === false) return false;
+		if (crypt($pass, $ret['passwd']) !== $ret['passwd']) return false;
+		Session::create();
+		Session::set('uid', $ret['userid']);
+		Session::set('token', md5(rand() . time() . rand() . $_SERVER['REMOTE_ADDR'] . rand() . $_SERVER['REMOTE_PORT'] . rand() . $_SERVER['HTTP_USER_AGENT']));
+		Session::save();
+		return true;
 	}
 
 	public static function logout()

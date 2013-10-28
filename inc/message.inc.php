@@ -2,13 +2,18 @@
 
 // TODO: Move to extra file
 $error_text = array(
-	'loginfail'      => 'Benutzername oder Kennwort falsch',
-	'token'          => 'Ungültiges Token. CSRF Angriff?',
+	'loginfail'         => 'Benutzername oder Kennwort falsch',
+	'token'             => 'Ungültiges Token. CSRF Angriff?',
+	'adduser-disabled'  => 'Keine ausreichenden Rechte, um weitere Benutzer hinzuzufügen',
+	'password-mismatch' => 'Passwort und Passwortbestätigung stimmen nicht überein',
+	'empty-field'       => 'Ein benötigtes Feld wurde nicht ausgefüllt',
+	'adduser-success'   => 'Benutzer erfolgreich hinzugefügt',
 );
 
 class Message
 {
 	private static $list = array();
+	private static $flushed = false;
 
 	public static function addError($id)
 	{
@@ -16,6 +21,7 @@ class Message
 			'type' => 'error',
 			'id'    => $id
 		);
+		if (self::$flushed) self::renderList();
 	}
 
 	public static function addWarning($id)
@@ -24,6 +30,7 @@ class Message
 			'type' => 'warning',
 			'id'    => $id
 		);
+		if (self::$flushed) self::renderList();
 	}
 
 	public static function addInfo($id)
@@ -32,6 +39,7 @@ class Message
 			'type' => 'info',
 			'id'    => $id
 		);
+		if (self::$flushed) self::renderList();
 	}
 
 	public static function addSuccess($id)
@@ -40,6 +48,7 @@ class Message
 			'type' => 'success',
 			'id'    => $id
 		);
+		if (self::$flushed) self::renderList();
 	}
 
 	public static function renderList()
@@ -48,6 +57,8 @@ class Message
 		foreach (self::$list as $item) {
 			Render::addTemplate('messagebox-' . $item['type'], array('message' => $error_text[$item['id']]));
 		}
+		self::$list = array();
+		self::$flushed = true;
 	}
 
 }
