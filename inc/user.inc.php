@@ -17,6 +17,12 @@ class User
 		return self::$user['fullname'];
 	}
 
+	public static function hasPermission($permission)
+	{
+		if (self::$user === false) return false;
+		return (self::$user['permissions'] & Permission::get($permission)) != 0;
+	}
+
 	public static function load()
 	{
 		if (Session::load()) {

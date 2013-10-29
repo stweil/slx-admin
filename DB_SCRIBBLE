@@ -1,0 +1,69 @@
+CREATE DATABASE openslx;
+CREATE USER openslx@localhost;
+SET PASSWORD FOR openslx@localhost = Password('geheim');
+GRANT ALL ON openslx.* TO openslx@localhost;
+
+
+
+CREATE TABLE IF NOT EXISTS `permission` (
+  `mask` int(10) unsigned NOT NULL,
+  `identifier` varchar(32) NOT NULL,
+  `description` text NOT NULL,
+  PRIMARY KEY (`mask`),
+  UNIQUE KEY `identifier` (`identifier`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `permission` (`mask`, `identifier`, `description`) VALUES
+(1, 'superadmin', 'SuperAdmin - Dieser Benutzer darf alle Einstellungen sehen und ändern, unabhängig davon, ob ihr die Rechte dafür explizit gewährt wurden.'),
+(2, 'baseconfig_global', 'Basiskonfiguration global und für jeden Poolraum ändern.'),
+(4, 'baseconfig_local', 'Basiskonfiguration für dem Benutzer zugewiesene Poolräume ändern.');
+
+
+
+CREATE TABLE IF NOT EXISTS `setting` (
+  `setting` varchar(28) NOT NULL,
+  `defaultvalue` text NOT NULL,
+  `permissions` int(10) unsigned NOT NULL,
+  `description` text NOT NULL,
+  PRIMARY KEY (`setting`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `setting` (`setting`, `defaultvalue`, `permissions`, `description`) VALUES
+('SLX_BIOS_CLOCK', 'off', 2, 'Legt fest, ob und wie die interne Uhr des Rechners im Bezug auf die Systemzeit des /MiniLinux/ gesetzt werden soll.\r\n*off* = Die interne Uhr des Rechners wird nicht verändert.\r\n*local* = Die interne Uhr wird auf die Lokalzeit gesetzt. Bevorzugt wenn z.B. noch eine native Windows-Installation auf dem PC vorhanden ist.\r\n*utc* = Die interne Uhr wird auf die /Koordinierte Weltzeit/ gesetzt. Dies ist die gängige Einstellung in einem reinen Linux-Umfeld.'),
+('SLX_NET_DOMAIN', '', 2, 'DNS-Domäne, in die sich die Clients eingliedern, sofern der DHCP Server keine solche vorgibt.'),
+('SLX_NTP_SERVER', '0.de.pool.ntp.org 1.de.pool.ntp.org', 2, 'Adresse des NTP-Zeitservers. Es können mehrere Server mit Leerzeichen getrennt angegeben werden.\r\nDie Server werden der Reihe nach angefragt, bis ein antwortender Server gefunden wird.'),
+('SLX_PROXY_BLACKLIST', '', 2, 'Adressen bzw. Adressbereiche, für die der Proxyserver nicht verwendet werden soll (z.B. der Adressbereich der Einrichtung). Gültige Angaben sind einzelne IP-Adressen, sowie IP-Bereiche in CIDR-Notation (z.B. 1.2.0.0/16). Mehrere Angaben können durch Leerzeichen getrennt werden.'),
+('SLX_PROXY_IP', '', 2, 'Die Adresse des zu verwendenden Proxy Servers.'),
+('SLX_PROXY_MODE', 'off', 2, 'Legt fest, ob zum Zugriff aufs Internet ein Proxy-Server benötigt wird.\r\n*off* = keinen Proxy benutzen.\r\n*on* = Proxy immer benutzen.\r\n*auto* = Proxy nur benutzen, wenn sich der Client-PC in einem privaten Adressbereich befindet.'),
+('SLX_PROXY_PORT', '', 2, 'Der Port des zu verwendenden Proxy Servers.'),
+('SLX_PROXY_TYPE', 'socks5', 2, 'Art des Proxys.\r\n*socks4*, *socks5*,\r\n*http-connect* (HTTP Proxy mit Unterstützung der CONNECT-Methode),\r\n*http-relay* (Klassischer HTTP Proxy)'),
+('SLX_VM_NFS', '', 2, 'Serveradresse und mount point des NFS Servers, auf dem die virtuellen Maschinen liegen.\r\nBeispiel: *vm-store.example.com:/data/images*');
+
+
+
+CREATE TABLE IF NOT EXISTS `setting_distro` (
+  `distroid` int(10) unsigned NOT NULL,
+  `setting` varchar(28) NOT NULL,
+  `value` text NOT NULL,
+  PRIMARY KEY (`distroid`,`setting`),
+  KEY `setting` (`setting`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `setting_global` (
+  `setting` varchar(28) NOT NULL,
+  `value` text NOT NULL,
+  PRIMARY KEY (`setting`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `user` (
+  `userid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `login` varchar(100) NOT NULL,
+  `passwd` varchar(150) NOT NULL,
+  `fullname` varchar(100) DEFAULT NULL,
+  `phone` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `permissions` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`userid`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+

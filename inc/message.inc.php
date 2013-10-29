@@ -8,6 +8,8 @@ $error_text = array(
 	'password-mismatch' => 'Passwort und Passwortbestätigung stimmen nicht überein',
 	'empty-field'       => 'Ein benötigtes Feld wurde nicht ausgefüllt',
 	'adduser-success'   => 'Benutzer erfolgreich hinzugefügt',
+	'no-permission'     => 'Keine ausreichenden Rechte, um auf diese Seite zuzugreifen',
+	'settings-updated'  => 'Einstellungen wurden aktualisiert',
 );
 
 class Message

@@ -8,6 +8,7 @@ require_once('inc/menu.inc.php');
 require_once('inc/util.inc.php');
 require_once('inc/message.inc.php');
 require_once('inc/db.inc.php');
+require_once('inc/permission.inc.php');
 
 if (empty($_REQUEST['do'])) {
 	// No specific module - set default

@@ -27,10 +27,13 @@ if (isset($_POST['action']) && $_POST['action'] === 'adduser') {
 
 function render_module()
 {
+	// A user was added. Show success message and bail out
 	if (isset($adduser_success)) {
 		Message::addInfo('adduser-success');
 		return;
 	}
+	// No user was added, check if current user is allowed to add a new user
+	// Currently you can only add users if there is no user yet. :)
 	if (Database::queryFirst('SELECT userid FROM user LIMIT 1') !== false) {
 		Message::addError('adduser-disabled');
 	} else {

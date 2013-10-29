@@ -1,0 +1,25 @@
+<div class="container">
+	<h1>Basiskonfiguration</h1>
+	<form action="?do=baseconfig" method="post">
+		{{#settings}}
+		<div class="row well well-sm">
+			<div class="col-md-3">{{setting}}</div>
+			<div class="col-md-3">
+				{{#big}}
+				<textarea name="setting[{{setting}}]" class="form-control" cols="30" rows="3">{{value}}</textarea>
+				{{/big}}
+				{{^big}}
+				<input type="text" name="setting[{{setting}}]" class="form-control" size="30" value="{{value}}">
+				{{/big}}
+			</div>
+			<div class="col-md-6">
+				<a class="btn btn-default" data-toggle="collapse" data-target="#help-{{setting}}">Hilfe &raquo;</a>
+				<div class="collapse" id="help-{{setting}}">{{{description}}}</div>
+			</div>
+		</div>
+		{{/settings}}
+		<input type="hidden" name="token" value="{{token}}">
+		<button class="btn btn-lg btn-primary" type="submit">Speichern</button>
+		<button class="btn btn-lg btn-primary" type="reset">Zurücksetzen</button>
+	</form>
+</div>
