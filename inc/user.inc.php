@@ -39,7 +39,7 @@ class User
 	{
 		$ret = Database::queryFirst('SELECT userid, passwd FROM user WHERE login = :user LIMIT 1', array(':user' => $user));
 		if ($ret === false) return false;
-		if (crypt($pass, $ret['passwd']) !== $ret['passwd']) return false;
+		if (!Crypto::verify($pass, $ret['passwd'])) return false;
 		Session::create();
 		Session::set('uid', $ret['userid']);
 		Session::set('token', md5(rand() . time() . rand() . $_SERVER['REMOTE_ADDR'] . rand() . $_SERVER['REMOTE_PORT'] . rand() . $_SERVER['HTTP_USER_AGENT']));

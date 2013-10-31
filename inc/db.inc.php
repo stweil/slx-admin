@@ -1,11 +1,18 @@
 <?php
 
+/**
+ * Handle communication with the database
+ * This is a very thin layer between you and PDO.
+ */
 class Database
 {
 	private static $dbh = false;
 	private static $statements = array();
 
-	public static function init()
+	/**
+	 * Connect to the DB if not already connected.
+	 */
+	private static function init()
 	{
 		if (self::$dbh !== false) return;
 		try {
@@ -15,6 +22,10 @@ class Database
 		}
 	}
 
+	/**
+	 * If you just need the first row of a query you can use this.
+	 * Will return an associative array, or false if no row matches the query
+	 */
 	public static function queryFirst($query, $args = array())
 	{
 		$res = self::simpleQuery($query, $args);
@@ -22,6 +33,10 @@ class Database
 		return $res->fetch(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * Execute the given query and return the number of rows affected.
+	 * Mostly useful for UPDATEs or INSERTs
+	 */
 	public static function exec($query, $args = array())
 	{
 		$res = self::simpleQuery($query, $args);
@@ -29,6 +44,12 @@ class Database
 		return $res->rowCount();
 	}
 
+	/**
+	 * Execute the given query and return the corresponding PDOStatement object
+	 * Note that this will re-use PDOStatements, so if you run the same
+	 * query again with different params, do not rely on the first PDOStatement
+	 * still being valid. If you need to do something fancy, use Database::prepare
+	 */
 	public static function simpleQuery($query, $args = array())
 	{
 		self::init();
@@ -44,6 +65,10 @@ class Database
 		return self::$statements[$query];
 	}
 
+	/**
+	 * Simply calls PDO::prepare and returns the PDOStatement.
+	 * You must call PDOStatement::execute manually on it.
+	 */
 	public static function prepare($query)
 	{
 		self:init();

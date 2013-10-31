@@ -6,13 +6,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'adduser') {
 	// Check required fields
 	if (empty($_POST['user']) || empty($_POST['pass1']) || empty($_POST['pass2']) || empty($_POST['fullname']) || empty($_POST['phone']) || empty($_POST['email'])) {
 		Message::addError('empty-field');
+		Util::redirect('?do=adduser');
 	} elseif ($_POST['pass1'] !== $_POST['pass2']) {
 		Message::addError('password-mismatch');
+		Util::redirect('?do=adduser');
 	} else {
-		$salt = substr(str_replace('+', '.', base64_encode(pack('N4', mt_rand(), mt_rand(), mt_rand(), mt_rand()))), 0, 22);
 		$data = array(
 			'user'       => $_POST['user'],
-			'pass'       => crypt($_POST['pass1'], '$6$' . $salt),
+			'pass'       => Crypto::hash6($_POST['pass1']),
 			'fullname'   => $_POST['fullname'],
 			'phone'      => $_POST['phone'],
 			'email'      => $_POST['email'],
