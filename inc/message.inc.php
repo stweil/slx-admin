@@ -2,16 +2,19 @@
 
 // TODO: Move to extra file
 $error_text = array(
-	'loginfail'         => 'Benutzername oder Kennwort falsch',
-	'token'             => 'Ungültiges Token. CSRF Angriff?',
-	'adduser-disabled'  => 'Keine ausreichenden Rechte, um weitere Benutzer hinzuzufügen',
-	'password-mismatch' => 'Passwort und Passwortbestätigung stimmen nicht überein',
-	'empty-field'       => 'Ein Feld wurde nicht ausgefüllt',
-	'adduser-success'   => 'Benutzer erfolgreich hinzugefügt',
-	'no-permission'     => 'Keine ausreichenden Rechte, um auf diese Seite zuzugreifen',
-	'settings-updated'  => 'Einstellungen wurden aktualisiert',
-	'debug-mode'        => 'Der Debug-Modus ist aktiv!',
-	'value-invalid'     => 'Der Wert {{1}} ist ungültig für die Option {{0}} und wurde ignoriert',
+	'loginfail'           => 'Benutzername oder Kennwort falsch',
+	'token'               => 'Ungültiges Token. CSRF Angriff?',
+	'adduser-disabled'    => 'Keine ausreichenden Rechte, um weitere Benutzer hinzuzufügen',
+	'password-mismatch'   => 'Passwort und Passwortbestätigung stimmen nicht überein',
+	'empty-field'         => 'Ein Feld wurde nicht ausgefüllt',
+	'adduser-success'     => 'Benutzer erfolgreich hinzugefügt',
+	'no-permission'       => 'Keine ausreichenden Rechte, um auf diese Seite zuzugreifen',
+	'settings-updated'    => 'Einstellungen wurden aktualisiert',
+	'debug-mode'          => 'Der Debug-Modus ist aktiv!',
+	'value-invalid'       => 'Der Wert {{1}} ist ungültig für die Option {{0}} und wurde ignoriert',
+	'invalid-action'      => 'Ungültige Aktion: {{0}}',
+	'remote-timeout'      => 'Konnte Ressource {{0}} nicht herunterladen',
+	'remote-parse-failed' => 'Parsen der empfangenen Daten fehlgeschlagen',
 );
 
 class Message

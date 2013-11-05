@@ -52,7 +52,8 @@ class Render
 		,
 	'	</div>
 		<script src="script/jquery.js"></script>
-		<script src="script/bootstrap.min.js"></script></body>
+		<script src="script/bootstrap.min.js"></script>
+		<script src="script/custom.js"></script></body>
 	</html>'
 		;
 	}

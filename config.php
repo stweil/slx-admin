@@ -13,3 +13,8 @@ define('CONFIG_SQL_USER', 'openslx');
 define('CONFIG_SQL_PASS', 'geheim');
 //define('CONFIG_SQL_DB', 'openslx');
 
+define('CONFIG_TGZ_LIST_DIR', '/tmp/configs');
+define('CONFIG_HTTP_DIR', '/tmp/active-config');
+
+define('CONFIG_REMOTE_TGZ', 'http://127.0.0.1/fakeremote');
+

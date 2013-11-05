@@ -72,5 +72,29 @@ class Util
 		return nl2br($string);
 	}
 
+	/**
+	 * Download file, obey given timeout in seconds
+	 * Return data on success, false on failure
+	 */
+	function download($url, $timeout, &$code) {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HEADER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, ceil($timeout / 2));
+		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		$data = curl_exec($ch);
+		$data = explode("\r\n\r\n", $data, 2);
+		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $data[0], $out)) {
+			$code = (int)$out[1];
+		} else {
+			$code = 999;
+		}
+		curl_close($ch);
+		if (count($data) < 2) return '';
+		return $data[1];
+	}
+
 }
 
