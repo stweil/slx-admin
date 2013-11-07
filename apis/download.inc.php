@@ -21,13 +21,19 @@ case 'tgz':
 default:
 	die('Invalid download type');
 }
+@mkdir($local, 0755, true);
 
 if (file_exists($local . '/' . $file) && !isset($_REQUEST['exec'])) {
-	echo 'FILE EXISTS LOCALLY I SHOULD ASK FOR OVERWRITE NOW';
+	echo Render::parse('download-overwrite', array('file' => $file, 'id' => $id, 'query' => $_SERVER['REQUEST_URI']));;
 	exit(0);
 }
 
-sleep(2);
+$ret = Util::downloadToFile($local . '/' . $file, $remote . '/' . $file, 20, $code);
+if ($ret === false || $code < 200 || $code >= 300) {
+	@unlink($local . '/' . $file);
+	echo Render::parse('download-error', array('file' => $file, 'remote' => $remote, 'code' => $code));
+	exit(0);
+}
 
 // No execution - just return dialog
 echo Render::parse('download-complete', array('file' => $file));

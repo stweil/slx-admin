@@ -30,7 +30,7 @@ function list_configs()
 			'file' => $file
 		);
 	}
-	Render::addTemplate('tgz-list', array('files' => $files));
+	Render::addTemplate('page-tgz-list', array('files' => $files));
 }
 
 function list_remote_configs()
@@ -39,20 +39,20 @@ function list_remote_configs()
 		Message::addError('no-permission');
 		return;
 	}
-	$data = Util::download(CONFIG_REMOTE_TGZ . '/list', 4, $code);
+	$data = Util::download(CONFIG_REMOTE_TGZ . '/list.php', 4, $code);
 	if ($code !== 200) {
 		Message::addError('remote-timeout', CONFIG_REMOTE_TGZ);
 		return;
 	}
 	$list = json_decode($data, true);
 	if (!is_array($list)) {
-		Message::addError('remote-parse-failed');
+		Message::addError('remote-parse-failed', $data);
 		return;
 	}
 	$id = 0;
 	foreach ($list as &$item) {
-		$item['id'] = ++$id;
+		$item['id'] = 'download' . (++$id);
 	}
-	Render::addTemplate('remote-tgz-list', array('files' => $list));
+	Render::addTemplate('page-remote-tgz-list', array('files' => $list));
 }
 

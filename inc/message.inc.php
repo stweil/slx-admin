@@ -14,7 +14,7 @@ $error_text = array(
 	'value-invalid'       => 'Der Wert {{1}} ist ungültig für die Option {{0}} und wurde ignoriert',
 	'invalid-action'      => 'Ungültige Aktion: {{0}}',
 	'remote-timeout'      => 'Konnte Ressource {{0}} nicht herunterladen',
-	'remote-parse-failed' => 'Parsen der empfangenen Daten fehlgeschlagen',
+	'remote-parse-failed' => 'Parsen der empfangenen Daten fehlgeschlagen ({{0}})',
 );
 
 class Message

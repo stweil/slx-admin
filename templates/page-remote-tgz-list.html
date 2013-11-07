@@ -1,0 +1,11 @@
+<div class="container">
+	{{#files}}
+		<div class="panel panel-default">
+			<div class="panel-heading"><h4><a class="btn btn-success" href="#" onclick="this.style.display='none';loadContent('#{{id}}', 'api.php?do=download&amp;type=tgz&amp;file={{file}}&amp;id={{id}}')">Download</a> &raquo; {{file}}</h4></div>
+			<div class="panel-body" id="{{id}}">{{description}}</div>
+		</div>
+	{{/files}}
+	{{^files}}
+		<div class="row well well-sm">Keine Konfigurationspakete gefunden!</div>
+	{{/files}}
+</div>

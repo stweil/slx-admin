@@ -73,27 +73,80 @@ class Util
 	}
 
 	/**
-	 * Download file, obey given timeout in seconds
-	 * Return data on success, false on failure
+	 * Common initialization for download and downloadToFile
+	 * Return file handle to header file
 	 */
-	function download($url, $timeout, &$code) {
+	private static function initCurl($url, $timeout, &$head)
+	{
 		$ch = curl_init();
+		if ($ch === false) Util::traceError('Could not initialize cURL');
 		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, ceil($timeout / 2));
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+		curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 6);
+		$tmpfile = '/tmp/' . mt_rand() . '-' . time();
+		$head = fopen($tmpfile, 'w+b');
+		if ($head === false) Util::traceError("Could not open temporary head file $tmpfile for writing.");
+		curl_setopt($ch, CURLOPT_WRITEHEADER, $head);
+		return $ch;
+	}
+
+	/**
+	 * Read 10kb from the given file handle, seek to 0 first,
+	 * close the file after reading. Returns data read
+	 */
+	 private static function getContents($fh)
+	 {
+	 	fseek($fh, 0, SEEK_SET);
+		return fread($fh, 10000);
+	 }
+
+	/**
+	 * Download file, obey given timeout in seconds
+	 * Return data on success, false on failure
+	 */
+	public static function download($url, $timeout, &$code)
+	{
+		$ch = self::initCurl($url, $timeout, $head);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$data = curl_exec($ch);
-		$data = explode("\r\n\r\n", $data, 2);
-		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $data[0], $out)) {
+		$head = self::getContents($head);
+		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $head, $out)) {
 			$code = (int)$out[1];
 		} else {
 			$code = 999;
 		}
 		curl_close($ch);
-		if (count($data) < 2) return '';
-		return $data[1];
+		return $data;
+	}
+
+	/**
+	 * Download file, obey given timeout in seconds
+	 * Return true on success, false on failure
+	 */
+	public static function downloadToFile($target, $url, $timeout, &$code)
+	{
+		$fh = fopen($target, 'wb');
+		if ($fh === false) Util::traceError("Could not open $target for writing.");
+		$ch = self::initCurl($url, $timeout, $head);
+		curl_setopt($ch, CURLOPT_FILE, $fh);
+		$res = curl_exec($ch);
+		$head = self::getContents($head);
+		curl_close($ch);
+		fclose($fh);
+		if ($res === false) {
+			@unlink($target);
+			return false;
+		}
+		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $head, $out)) {
+			$code = (int)$out[1];
+		} else {
+			$code = 999;
+		}
+		return true;
 	}
 
 }
