@@ -2,6 +2,31 @@
 
 User::load();
 
+if (isset($_POST['action']) && $_POST['action'] === 'upload') {
+	if (!Util::verifyToken()) {
+		Util::redirect('?do=sysconfig');
+	}
+	if (!User::hasPermission('superadmin')) {
+		Message::addError('no-permission');
+		Util::redirect('?do=sysconfig');
+	}
+	if (!isset($_FILES['customtgz'])) {
+		Message::addError('missing-file');
+		Util::redirect('?do=sysconfig');
+	}
+	$dest = $_FILES['customtgz']['name'];
+	$dest = preg_replace('/[^a-z0-9\-_]/', '', $dest);
+	$dest = substr($dest, 0, 30);
+	if (substr($dest, -3) !== 'tgz') $dest .= '.tgz';
+	# TODO: Validate its a (compressed) tar?
+	if (move_uploaded_file($_FILES['customtgz']['tmp_name'], CONFIG_TGZ_LIST_DIR . '/' . $dest)) {
+		Message::addSuccess('upload-complete', $dest);
+	} else {
+		Message::addError('upload-failed', $dest);
+	}
+	Util::redirect('?do=sysconfig');
+}
+
 function render_module()
 {
 	if (!isset($_REQUEST['action'])) $_REQUEST['action'] = 'list';
@@ -30,7 +55,7 @@ function list_configs()
 			'file' => $file
 		);
 	}
-	Render::addTemplate('page-tgz-list', array('files' => $files));
+	Render::addTemplate('page-tgz-list', array('files' => $files, 'token' => Session::get('token')));
 }
 
 function list_remote_configs()

@@ -15,6 +15,9 @@ $error_text = array(
 	'invalid-action'      => 'Ungültige Aktion: {{0}}',
 	'remote-timeout'      => 'Konnte Ressource {{0}} nicht herunterladen',
 	'remote-parse-failed' => 'Parsen der empfangenen Daten fehlgeschlagen ({{0}})',
+	'missing-file'        => 'Es wurde keine Datei ausgewählt!',
+	'upload-complete'     => 'Upload von {{0}} war erfolgreich',
+	'upload-failed'       => 'Upload von {{0}} schlug fehl!',
 );
 
 class Message
