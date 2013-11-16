@@ -93,7 +93,7 @@ function list_remote_configs()
 	}
 	$data = Util::download(CONFIG_REMOTE_TGZ . '/list.php', 4, $code);
 	if ($code !== 200) {
-		Message::addError('remote-timeout', CONFIG_REMOTE_TGZ);
+		Message::addError('remote-timeout', CONFIG_REMOTE_TGZ . '/list.php', $code);
 		return;
 	}
 	$list = json_decode($data, true);
