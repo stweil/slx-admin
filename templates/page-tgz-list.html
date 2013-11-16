@@ -1,6 +1,18 @@
+<ol class="breadcrumb">
+	<li><a href="?do=main">Start</a></li>
+	<li class="active">SystemKonfiguration</li>
+</ol>
 <div class="container">
 	{{#files}}
-		<div class="row well well-sm">{{file}} <a class="btn btn-primary" href="?do=sysconfig&amp;action=activate&amp;file={{file}}&amp;token={{token}}">Aktivieren</a></div>
+		<div class="row well well-sm">
+			{{file}}
+			{{^current}}
+				<a class="btn btn-primary" href="?do=sysconfig&amp;action=activate&amp;file={{file}}&amp;token={{token}}">Aktivieren</a>
+			{{/current}}
+			{{#current}}
+				<span class="btn btn-success">Bereits aktiv</span>
+			{{/current}}
+		</div>
 	{{/files}}
 	{{^files}}
 		<div class="row well well-sm">Keine Konfigurationspakete gefunden!</div>

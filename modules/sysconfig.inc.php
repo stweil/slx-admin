@@ -76,10 +76,13 @@ function list_configs()
 		Message::addError('no-permission');
 		return;
 	}
+	$current = '<none>';
+	if (file_exists(CONFIG_HTTP_DIR . '/default/config.tgz')) $current = realpath(CONFIG_HTTP_DIR . '/default/config.tgz');
 	$files = array();
 	foreach (glob(CONFIG_TGZ_LIST_DIR . '/*.tgz') as $file) {
 		$files[] = array(
-			'file' => basename($file)
+			'file' => basename($file),
+			'current' => ($current === realpath($file))
 		);
 	}
 	Render::addTemplate('page-tgz-list', array('files' => $files, 'token' => Session::get('token')));

@@ -57,6 +57,8 @@ case 'ipxe':
 		'DEFAULT' => 'openslx'
 	));
 	if (false === file_put_contents(CONFIG_TFTP_DIR . '/pxelinux.cfg/default', $conf)) die('Error writing PXE Menu');
+	Database::exec("INSERT IGNORE INTO setting_global (setting, value) VALUES ('SLX_VM_NFS', :value)", array(':value' => "$ip:/srv/openslx/nfs"));
+	Database::exec("UPDATE setting_global SET value = :value WHERE setting = 'SLX_VM_NFS' AND value LIKE '%:/srv/openslx/nfs' LIMIT 1", array(':value' => "$ip:/srv/openslx/nfs"));
 	break;
 default:
 	die('Invalid exec type');
