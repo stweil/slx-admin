@@ -1,0 +1,68 @@
+DEFAULT vesamenu.c32
+
+NOESCAPE 1
+PROMPT 0
+
+MENU BACKGROUND openslx.png
+MENU WIDTH 78
+MENU MARGIN 9
+MENU PASSWORDMARGIN 9
+MENU ROWS 10
+MENU TABMSGROW 16
+MENU CMDLINEROW 16
+MENU ENDROW -1
+MENU PASSWORDROW 16
+MENU TIMEOUTROW 20
+MENU HELPMSGROW 16
+MENU HELPMSGENDROW -1
+MENU HSHIFT 0
+MENU VSHIFT 7
+
+menu color screen       37;40           #80ffffff #00000000 std
+menu color border       37;40           #40000000 #ff8093a1 std
+menu color title        1;37;40         #ffff8b00 #ff8093a1 std
+menu color unsel        37;40           #fff0f0f0 #ff8093a1 std
+menu color hotkey       1;37;40         #ffff8b00 #ff8093a1 std
+menu color sel          7;37;40         #ff1c2a33 #667799bb all
+menu color hotsel       1;7;37;40       #ffff8b00 #667799bb all
+menu color disabled     1;37;40         #ffff8b00 #ff8093a1 std
+menu color scrollbar    37;40           #40000000 #ee000000 std
+menu color tabmsg       37;40           #ffff8b00 #ff8093a1 std
+menu color cmdmark      1;37;40         #ffff8b00 #ff8093a1 std
+menu color cmdline      37;40           #fff0f0f0 #ff8093a1 std
+menu color pwdborder    37;40           #40000000 #ff8093a1 std
+menu color pwdheader    37;40           #ffff8b00 #ff8093a1 std
+menu color pwdentry     37;40           #ffff8b00 #ff8093a1 std
+menu color timeout_msg  37;40           #fff0f0f0 #ff8093a1 std
+menu color timeout      1;37;40         #ffff8b00 #ff8093a1 std
+menu color help         37;40           #ff1c2a33 #00000000 none
+MENU MSGCOLOR                           #ff1c2a33 #00000000 none
+
+
+TIMEOUT 10
+TOTALTIMEOUT 120
+MENU TITLE bwLehrpool ALPHA VERSION
+ONTIMEOUT {{{DEFAULT}}}
+
+
+
+LABEL shutdown
+       MENU HIDE
+       KERNEL kernel-shutdown
+       APPEND initrd=initramfs-shutdown quiet
+
+
+
+LABEL openslx
+        MENU LABEL bwLehrpool ^Kursumgebung
+        KERNEL http://{{{SERVER}}}/boot/default/kernel
+        INITRD http://{{{SERVER}}}/boot/default/initramfs-stage31
+        APPEND slxsrv={{{SERVER}}} slxbase=boot/default
+        IPAPPEND 3
+
+LABEL hddboot
+	MENU LABEL Von ^lokaler Festplatte booten
+	LOCALBOOT  0
+
+
+

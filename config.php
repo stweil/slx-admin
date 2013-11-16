@@ -4,7 +4,7 @@
 define('CONFIG_DEBUG', true);
 
 define('CONFIG_SESSION_DIR', '/tmp/openslx');
-define('CONFIG_SESSION_TIMEOUT', 86400);
+define('CONFIG_SESSION_TIMEOUT', 86400 * 3);
 
 //define('CONFIG_SQL_BACKEND', 'mysql');
 //define('CONFIG_SQL_HOST', 'localhost');
@@ -13,8 +13,13 @@ define('CONFIG_SQL_USER', 'openslx');
 define('CONFIG_SQL_PASS', 'geheim');
 //define('CONFIG_SQL_DB', 'openslx');
 
-define('CONFIG_TGZ_LIST_DIR', '/tmp/configs');
-define('CONFIG_HTTP_DIR', '/tmp/active-config');
+define('CONFIG_TGZ_LIST_DIR', '/opt/openslx/configs');
 
-define('CONFIG_REMOTE_TGZ', 'http://127.0.0.1/fakeremote');
+define('CONFIG_REMOTE_TGZ', 'http://mltk.boot.openslx.org/tgz');
+define('CONFIG_REMOTE_ML',  'http://mltk.boot.openslx.org/update');
+
+define('CONFIG_TFTP_DIR', '/srv/openslx/tftp');
+define('CONFIG_HTTP_DIR', '/srv/openslx/www/boot');
+
+define('CONFIG_IPXE_DIR', '/opt/openslx/ipxe');
 

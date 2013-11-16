@@ -27,6 +27,33 @@ if (isset($_POST['action']) && $_POST['action'] === 'upload') {
 	Util::redirect('?do=sysconfig');
 }
 
+if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'activate') {
+	if (!Util::verifyToken()) {
+		Util::redirect('?do=sysconfig');
+	}
+	if (!User::hasPermission('superadmin')) {
+		Message::addError('no-permission');
+		Util::redirect('?do=sysconfig');
+	}
+	if (!isset($_REQUEST['file'])) {
+		Message::addError('missing-file');
+		Util::redirect('?do=sysconfig');
+	}
+	$file = preg_replace('/[^a-z0-9\-_\.]/', '', $_REQUEST['file']);
+	$path = CONFIG_TGZ_LIST_DIR . '/' . $file;
+	if (!file_exists($path)) {
+		Message::addError('invalid-file', $file);
+		Util::redirect('?do=sysconfig');
+	}
+	mkdir(CONFIG_HTTP_DIR . '/default', 0755, true);
+	$linkname = CONFIG_HTTP_DIR . '/default/config.tgz';
+	@unlink($linkname);
+	if (file_exists($linkname)) Util::traceError('Could not delete old config.tgz link!');
+	if (!symlink($path, $linkname)) Util::traceError("Could not symlink to $path at $linkname!");
+	Message::addSuccess('config-activated');
+	Util::redirect('?do=sysconfig');
+}
+
 function render_module()
 {
 	if (!isset($_REQUEST['action'])) $_REQUEST['action'] = 'list';
@@ -52,7 +79,7 @@ function list_configs()
 	$files = array();
 	foreach (glob(CONFIG_TGZ_LIST_DIR . '/*.tgz') as $file) {
 		$files[] = array(
-			'file' => $file
+			'file' => basename($file)
 		);
 	}
 	Render::addTemplate('page-tgz-list', array('files' => $files, 'token' => Session::get('token')));

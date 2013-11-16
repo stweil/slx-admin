@@ -1,0 +1,24 @@
+<div class="container">
+	{{#files}}
+		<div class="panel panel-default">
+			<div class="panel-heading"><h4>
+				&raquo; {{file}}
+				{{^progress}}
+					{{#update}}
+						Neue Version! <a class="btn btn-success" href="#" onclick="this.style.display='none';loadContent('#{{id}}', 'api.php?do=download&amp;type=ml&amp;file={{file}}&amp;id={{id}}')">Download</a>
+					{{/update}}
+					{{^update}}
+						(Aktuell)
+					{{/update}}
+				{{/progress}}
+			</h4></div>
+			{{#progress}}
+				<script> setTimeout(function() { loadContent('#{{id}}', 'api.php?do=download&progress={{progress}}&id={{id}}&pid={{pid}}&file={{file}}'); }, 1000); // </script>
+			{{/progress}}
+			<div class="panel-body" id="{{id}}">{{description}}</div>
+		</div>
+	{{/files}}
+	{{^files}}
+		<div class="row well well-sm">Keine Konfigurationspakete gefunden!</div>
+	{{/files}}
+</div>

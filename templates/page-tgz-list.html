@@ -1,6 +1,6 @@
 <div class="container">
 	{{#files}}
-		<div class="row well well-sm">{{file}}</div>
+		<div class="row well well-sm">{{file}} <a class="btn btn-primary" href="?do=sysconfig&amp;action=activate&amp;file={{file}}&amp;token={{token}}">Aktivieren</a></div>
 	{{/files}}
 	{{^files}}
 		<div class="row well well-sm">Keine Konfigurationspakete gefunden!</div>

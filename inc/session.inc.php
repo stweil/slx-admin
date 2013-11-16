@@ -2,7 +2,7 @@
 
 require_once('config.php');
 
-@mkdir(CONFIG_SESSION_DIR, 0700);
+@mkdir(CONFIG_SESSION_DIR, 0700, true);
 @chmod(CONFIG_SESSION_DIR, 0700);
 if (!is_writable(CONFIG_SESSION_DIR)) die('Config error: Session Path not writable!');
 

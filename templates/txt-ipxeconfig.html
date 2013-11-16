@@ -1,0 +1,7 @@
+#!ipxe
+set use-cached 1
+dhcp net0
+set net0.dhcp/next-server {{{SERVER}}}
+set net0.dhcp/filename ipxelinux.0
+imgload pxelinux.0
+boot pxelinux.0

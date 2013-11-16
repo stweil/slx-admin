@@ -50,12 +50,12 @@ INSERT INTO `setting` (`setting`, `defaultvalue`, `permissions`, `validator`, `d
 ('SLX_PROXY_PORT', '', 2, 'regex:/^\\d*$/', 'Der Port des zu verwendenden Proxy Servers.'),
 ('SLX_PROXY_TYPE', 'socks5', 2, '', 'Art des Proxys.\r\n*socks4*, *socks5*,\r\n*http-connect* (HTTP Proxy mit Unterstützung der CONNECT-Methode),\r\n*http-relay* (Klassischer HTTP Proxy)'),
 ('SLX_ROOT_PASS', '', 2, 'function:linuxPassword', 'Das root-Passwort des Grundsystems. Wird nur für Diagnosezwecke am Client benötigt.\r\nFeld leer lassen, um root-Logins zu verbieten.\r\n/Hinweis/: Das Passwort wird crypt $6$ gehasht, daher wir das Passwort nach dem Speichern nicht mehr lesbar sein!'),
-('SLX_VM_NFS', '', 2, '', 'Serveradresse und mount point des NFS Servers, auf dem die virtuellen Maschinen liegen.\r\nBeispiel: *vm-store.example.com:/data/images*');
+('SLX_VM_NFS', '(SERVER):/srv/openslx/nfs', 2, '', 'Serveradresse und mount point des NFS Servers, auf dem die virtuellen Maschinen liegen. Um den integrierten NFS-Server zu nutzen, muss die Angabe *<IP_DIESES_SERVERS>:/srv/openslx/mnt* lauten.\r\nAnsonsten lässt sich ein beliebiger NFS-Server angeben. Beispiel: *vm-store.example.com:/data/images*');
 
 
 
 
-CRREATE TABLE IF NOT EXISTS `setting_distro` (
+CREATE TABLE IF NOT EXISTS `setting_distro` (
   `distroid` int(10) unsigned NOT NULL,
   `setting` varchar(28) NOT NULL,
   `value` text NOT NULL,
@@ -77,7 +77,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `phone` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `permissions` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`userid`)
+  PRIMARY KEY (`userid`),
+  UNIQUE KEY `login` (`login`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 

@@ -1,6 +1,11 @@
 <div class="jumbotron">
 	<h1>Willkommen, {{user}}</h1>
-	<p>Du hast es geschafft, dich einzuloggen. Starker Typ!</p>
-	<p>Du bist der Beste! Du bist der Größte! Ein Hoch auf {{user}}!</p>
+	<p>Dies ist die bwLehrpool Konfigurationsoberfläche, {{user}}</p>
+	{{#ipxe}}
+		<div class="alert alert-warning">
+			<p>Das iPXE-Modul des Servers ist veraltet oder nicht vorhanden.</p>
+			<a class="btn btn-large btn-primary" href="?do=ipxe">iPXE compilieren</a>
+		</div>
+	{{/ipxe}}
 </div>
 

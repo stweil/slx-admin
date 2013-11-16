@@ -10,6 +10,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'adduser') {
 	} elseif ($_POST['pass1'] !== $_POST['pass2']) {
 		Message::addError('password-mismatch');
 		Util::redirect('?do=adduser');
+	} elseif (Database::queryFirst('SELECT userid FROM user LIMIT 1') !== false) {
+		Message::addError('adduser-disabled');
+		Util::redirect('?do=session&action=login');
 	} else {
 		$data = array(
 			'user'       => $_POST['user'],
@@ -22,17 +25,18 @@ if (isset($_POST['action']) && $_POST['action'] === 'adduser') {
 		if (Database::exec('INSERT INTO user SET login = :user, passwd = :pass, fullname = :fullname, phone = :phone, email = :email', $data) != 1) {
 			Util::traceError('Could not create new user in DB');
 		}
-		$adduser_success = true;
+		// Make it superadmin if first user. This method sucks as it's a race condition but hey...
+		$ret = Database::queryFirst('SELECT Count(*) AS num FROM user');
+		if ($ret !== false && $ret['num'] == 1) {
+			Database::exec('UPDATE user SET permissions = 1');
+		}
+		Message::addInfo('adduser-success');
+		Util::redirect('?do=session&action=login');
 	}
 }
 
 function render_module()
 {
-	// A user was added. Show success message and bail out
-	if (isset($adduser_success)) {
-		Message::addInfo('adduser-success');
-		return;
-	}
 	// No user was added, check if current user is allowed to add a new user
 	// Currently you can only add users if there is no user yet. :)
 	if (Database::queryFirst('SELECT userid FROM user LIMIT 1') !== false) {

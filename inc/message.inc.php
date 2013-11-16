@@ -16,8 +16,11 @@ $error_text = array(
 	'remote-timeout'      => 'Konnte Ressource {{0}} nicht herunterladen',
 	'remote-parse-failed' => 'Parsen der empfangenen Daten fehlgeschlagen ({{0}})',
 	'missing-file'        => 'Es wurde keine Datei ausgewählt!',
+	'invalid-file'        => 'Die Datei {{0}} existiert nicht!',
 	'upload-complete'     => 'Upload von {{0}} war erfolgreich',
 	'upload-failed'       => 'Upload von {{0}} schlug fehl!',
+	'config-activated'    => 'Konfiguration wurde aktiviert',
+	'error-write'         => 'Fehler beim Schreiben von {{0}}',
 );
 
 class Message
