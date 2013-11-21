@@ -47,6 +47,8 @@ switch ($type) {
 case 'ipxe':
 	if (!isset($_REQUEST['ip'])) die('No IP given');
 	$ip = preg_replace('/[^0-9\.]/', '', $_REQUEST['ip']);
+	$default = $_REQUEST['default'];
+	if (!preg_match('/openslx|hddboot/', $default)) $default = 'openslx';
 	$command = '/opt/openslx/build_ipxe.sh "' . CONFIG_IPXE_DIR . '/last-ip" "' . $ip . '"';
 	$conf = Render::parse('txt-ipxeconfig', array(
 		'SERVER' => $ip
@@ -54,7 +56,8 @@ case 'ipxe':
 	if (false === file_put_contents('/opt/openslx/ipxe/ipxelinux.ipxe', $conf)) die('Error writing iPXE Config');
 	$conf = Render::parse('txt-pxeconfig', array(
 		'SERVER' => $ip,
-		'DEFAULT' => 'openslx'
+		'DEFAULT' => $default,
+		$default => 'MENU DEFAULT'
 	));
 	if (false === file_put_contents(CONFIG_TFTP_DIR . '/pxelinux.cfg/default', $conf)) die('Error writing PXE Menu');
 	Database::exec("INSERT IGNORE INTO setting_global (setting, value) VALUES ('SLX_VM_NFS', :value)", array(':value' => "$ip:/srv/openslx/nfs"));

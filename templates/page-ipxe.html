@@ -5,7 +5,11 @@
 		</div>
 		{{#ips}}
 			<div class="panel-body">{{ip}}
-				<a class="btn btn-success" href="#" onclick="this.style.display='none';loadContent('#compiler', 'api.php?do=exec&amp;type=ipxe&amp;ip={{ip}}&amp;id=compiler')">Kompilieren</a>{{#current}} (Aktuelle Konfiguration){{/current}}
+				<span>
+					<a class="btn btn-success" href="#" onclick="this.parentNode.style.display='none';loadContent('#compiler', 'api.php?do=exec&amp;type=ipxe&amp;ip={{ip}}&amp;id=compiler&amp;default=hddboot')">Kompilieren (HDD Default)</a>
+					<a class="btn btn-success" href="#" onclick="this.parentNode.style.display='none';loadContent('#compiler', 'api.php?do=exec&amp;type=ipxe&amp;ip={{ip}}&amp;id=compiler&amp;default=openslx')">Kompilieren (OpenSLX Default)</a>
+					{{#current}}(Aktuelle Konfiguration){{/current}}
+				</span>
 			</div>
 		{{/ips}}
 	</div>

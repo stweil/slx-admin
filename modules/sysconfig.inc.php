@@ -17,7 +17,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'upload') {
 	$dest = $_FILES['customtgz']['name'];
 	$dest = preg_replace('/[^a-z0-9\-_]/', '', $dest);
 	$dest = substr($dest, 0, 30);
-	if (substr($dest, -3) !== 'tgz') $dest .= '.tgz';
+	if (substr($dest, -3) === 'tgz') $dest = substr($dest, 0, -3);
+	$dest .= '.tgz';
 	# TODO: Validate its a (compressed) tar?
 	if (move_uploaded_file($_FILES['customtgz']['tmp_name'], CONFIG_TGZ_LIST_DIR . '/' . $dest)) {
 		Message::addSuccess('upload-complete', $dest);

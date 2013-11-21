@@ -39,8 +39,8 @@ menu color help         37;40           #ff1c2a33 #00000000 none
 MENU MSGCOLOR                           #ff1c2a33 #00000000 none
 
 
-TIMEOUT 10
-TOTALTIMEOUT 120
+TIMEOUT 100
+TOTALTIMEOUT 1200
 MENU TITLE bwLehrpool ALPHA VERSION
 ONTIMEOUT {{{DEFAULT}}}
 
@@ -54,15 +54,15 @@ LABEL shutdown
 
 
 LABEL openslx
-        MENU LABEL bwLehrpool ^Kursumgebung
-        KERNEL http://{{{SERVER}}}/boot/default/kernel
-        INITRD http://{{{SERVER}}}/boot/default/initramfs-stage31
-        APPEND slxsrv={{{SERVER}}} slxbase=boot/default
-        IPAPPEND 3
+	MENU LABEL bwLehrpool ^Kursumgebung
+	KERNEL http://{{{SERVER}}}/boot/default/kernel
+	INITRD http://{{{SERVER}}}/boot/default/initramfs-stage31
+	APPEND slxsrv={{{SERVER}}} slxbase=boot/default
+	IPAPPEND 3
+	{{{openslx}}}
 
 LABEL hddboot
 	MENU LABEL Von ^lokaler Festplatte booten
 	LOCALBOOT  0
-
-
+	{{{hddboot}}}
 

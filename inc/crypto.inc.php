@@ -10,7 +10,7 @@ class Crypto
 	 */
 	public static function hash6($password)
 	{
-		$salt = substr(str_replace('+', '.', base64_encode(pack('N4', mt_rand(), mt_rand(), mt_rand(), mt_rand()))), 0, 22);
+		$salt = substr(str_replace('+', '.', base64_encode(pack('N4', mt_rand(), mt_rand(), mt_rand(), mt_rand()))), 0, 16);
 		$hash = crypt($password, '$6$' . $salt);
 		if (strlen($hash) < 60) Util::traceError('Error hashing password using SHA-512');
 		return $hash;
