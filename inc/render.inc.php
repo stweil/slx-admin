@@ -32,6 +32,8 @@ class Render
 	public static function output()
 	{
 		Header('Content-Type: text/html; charset=utf-8');
+		$zip = (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false);
+		if ($zip) ob_start();
 		echo
 	'<!DOCTYPE html>
 	<html>
@@ -56,6 +58,14 @@ class Render
 		<script src="script/custom.js"></script></body>
 	</html>'
 		;
+		if ($zip) {
+			Header('Content-Encoding: gzip');
+			ob_implicit_flush(false);
+			$gzip_contents = ob_get_contents();
+			ob_end_clean();
+			echo "\x1f\x8b\x08\x00\x00\x00\x00\x00";
+			echo substr(gzcompress($gzip_contents, 5), 0, -4);
+		}
 	}
 
 	/**
