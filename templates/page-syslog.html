@@ -1,0 +1,27 @@
+<div class="container">
+	<h1>Client Log</h1>
+	<table class="table table-striped">
+		<thead>
+			<th></th>
+			<th>Wann</th>
+			<th>Client</th>
+			<th>Ereignis</th>
+			<th>Details</th>
+		</thead>
+		<tbody>
+		{{#list}}
+			<tr>
+				<td><span class="glyphicon glyphicon-off"></span></td>
+				<td class="text-right" nowrap="nowrap">{{date}}</td>
+				<td>{{clientip}}</td>
+				<td>{{description}}</td>
+				<td>{{#extra}}<a class="btn btn-default btn-xs pull-left" data-toggle="collapse" data-target="#extra{{logid}}">&raquo;</a>{{/extra}}</td>
+			</tr>
+			<tr class="collapse" id="extra{{logid}}">
+				<td colspan="5"><pre>{{extra}}</pre></td>
+			</tr>
+		{{/list}}
+		</tbody>
+	</table>
+</div>
+
