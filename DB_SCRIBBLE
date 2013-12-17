@@ -82,4 +82,16 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `login` (`login`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE `clientlog` (
+  `logid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `dateline` int(10) unsigned NOT NULL,
+  `logtypeid` varchar(30) NOT NULL,
+  `clientip` varchar(40) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `extra` text NOT NULL,
+  PRIMARY KEY (`logid`),
+  KEY `dateline` (`dateline`),
+  KEY `logtypeid` (`logtypeid`,`dateline`),
+  KEY `clientip` (`clientip`,`dateline`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
