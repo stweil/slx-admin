@@ -45,24 +45,23 @@ MENU TITLE bwLehrpool ALPHA VERSION
 ONTIMEOUT {{{DEFAULT}}}
 
 
-
 LABEL shutdown
-       MENU HIDE
-       KERNEL kernel-shutdown
-       APPEND initrd=initramfs-shutdown quiet
+	MENU HIDE
+	KERNEL kernel-shutdown
+	APPEND initrd=initramfs-shutdown quiet
 
+
+LABEL hddboot
+	MENU LABEL ^Lokales System starten
+	LOCALBOOT  0
+	{{{hddboot}}}
 
 
 LABEL openslx
-	MENU LABEL bwLehrpool ^Kursumgebung
+	MENU LABEL ^Virtuelles Labor starten
 	KERNEL http://{{{SERVER}}}/boot/default/kernel
 	INITRD http://{{{SERVER}}}/boot/default/initramfs-stage31
 	APPEND slxsrv={{{SERVER}}} slxbase=boot/default
 	IPAPPEND 3
 	{{{openslx}}}
-
-LABEL hddboot
-	MENU LABEL Von ^lokaler Festplatte booten
-	LOCALBOOT  0
-	{{{hddboot}}}
 
