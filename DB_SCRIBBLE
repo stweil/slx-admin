@@ -13,7 +13,7 @@ USE openslx;
 
 DROP TABLE IF EXISTS `permission`;
 
-CREATE TABLE IF NOT EXISTS `permission` (
+CREATE TABLE `permission` (
   `mask` int(10) unsigned NOT NULL,
   `identifier` varchar(32) NOT NULL,
   `description` text NOT NULL,
@@ -31,7 +31,7 @@ INSERT INTO `permission` (`mask`, `identifier`, `description`) VALUES
 
 DROP TABLE IF EXISTS `setting`;
 
-CREATE TABLE IF NOT EXISTS `setting` (
+CREATE TABLE `setting` (
   `setting` varchar(28) NOT NULL,
   `defaultvalue` text NOT NULL,
   `permissions` int(10) unsigned NOT NULL,
@@ -41,17 +41,21 @@ CREATE TABLE IF NOT EXISTS `setting` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `setting` (`setting`, `defaultvalue`, `permissions`, `validator`, `description`) VALUES
+('SLX_ADDONS', 'vmware', 2, '', 'Zu ladende Addons. Zur Zeit steht nur vmware zur Verfügung.'),
 ('SLX_BIOS_CLOCK', 'off', 2, 'regex:/^(off|local|utc)$/', 'Legt fest, ob und wie die interne Uhr des Rechners im Bezug auf die Systemzeit des /MiniLinux/ gesetzt werden soll.\r\n*off* = Die interne Uhr des Rechners wird nicht verändert.\r\n*local* = Die interne Uhr wird auf die Lokalzeit gesetzt. Bevorzugt wenn z.B. noch eine native Windows-Installation auf dem PC vorhanden ist.\r\n*utc* = Die interne Uhr wird auf die /Koordinierte Weltzeit/ gesetzt. Dies ist die gängige Einstellung in einem reinen Linux-Umfeld.'),
+('SLX_LOGOUT_TIMEOUT', '1800', 2, 'regex:/^\\d*$/', 'Zeit /in Sekunden/, die eine Benutzersitzung ohne Aktion sein darf, bevor sie beendet wird.\r\nFeld leer lassen, um die Funktion zu deaktivieren.'),
 ('SLX_NET_DOMAIN', '', 2, '', 'DNS-Domäne, in die sich die Clients eingliedern, sofern der DHCP Server keine solche vorgibt.'),
 ('SLX_NTP_SERVER', '0.de.pool.ntp.org 1.de.pool.ntp.org', 2, '', 'Adresse des NTP-Zeitservers. Es können mehrere Server mit Leerzeichen getrennt angegeben werden.\r\nDie Server werden der Reihe nach angefragt, bis ein antwortender Server gefunden wird.'),
-('SLX_ADDONS', 'vmware', 2, '', 'Zu ladende Addons. Zur Zeit steht nur vmware zur Verfügung.'),
 ('SLX_PROXY_BLACKLIST', '', 2, '', 'Adressen bzw. Adressbereiche, für die der Proxyserver nicht verwendet werden soll (z.B. der Adressbereich der Einrichtung). Gültige Angaben sind einzelne IP-Adressen, sowie IP-Bereiche in CIDR-Notation (z.B. 1.2.0.0/16). Mehrere Angaben können durch Leerzeichen getrennt werden.'),
 ('SLX_PROXY_IP', '', 2, '', 'Die Adresse des zu verwendenden Proxy Servers.'),
 ('SLX_PROXY_MODE', 'off', 2, 'regex:/^(off|on|auto|wpad)$/', 'Legt fest, ob zum Zugriff aufs Internet ein Proxy-Server benötigt wird.\r\n*off* = keinen Proxy benutzen.\r\n*on* = Proxy immer benutzen.\r\n*auto* = Proxy nur benutzen, wenn sich der Client-PC in einem privaten Adressbereich befindet.'),
 ('SLX_PROXY_PORT', '', 2, 'regex:/^\\d*$/', 'Der Port des zu verwendenden Proxy Servers.'),
 ('SLX_PROXY_TYPE', 'socks5', 2, '', 'Art des Proxys.\r\n*socks4*, *socks5*,\r\n*http-connect* (HTTP Proxy mit Unterstützung der CONNECT-Methode),\r\n*http-relay* (Klassischer HTTP Proxy)'),
+('SLX_REMOTE_LOG_SESSIONS', 'anonymous', 2, 'regex:/^(yes|anonymous|no)$/', 'Legt fest, ob Logins und Logouts der Benutzer an den Satelliten gemeldet werden sollen.\r\n*yes* = Mit Benutzerkennung loggen\r\n*anonymous* = Anonym loggen\r\n*no* = Nicht loggen'),
 ('SLX_ROOT_PASS', '', 2, 'function:linuxPassword', 'Das root-Passwort des Grundsystems. Wird nur für Diagnosezwecke am Client benötigt.\r\nFeld leer lassen, um root-Logins zu verbieten.\r\n/Hinweis/: Das Passwort wird crypt $6$ gehasht, daher wir das Passwort nach dem Speichern nicht mehr lesbar sein!'),
-('SLX_VM_NFS', '(SERVER):/srv/openslx/nfs', 2, '', 'Serveradresse und mount point des NFS Servers, auf dem die virtuellen Maschinen liegen. Um den integrierten NFS-Server zu nutzen, muss die Angabe *<IP_DIESES_SERVERS>:/srv/openslx/mnt* lauten.\r\nAnsonsten lässt sich ein beliebiger NFS-Server angeben. Beispiel: *vm-store.example.com:/data/images*');
+('SLX_SHUTDOWN_SCHEDULE', '22:10 00:00', 2, 'regex:/^(\\s*\\d{1,2}:\\d{1,2})*$/', 'Feste Uhrzeit, zu der sich die Rechner ausschalten, auch wenn noch ein Benutzer aktiv ist.\r\nMehrere Zeitpunkte können durch Leerzeichen getrennt angegeben werden.'),
+('SLX_SHUTDOWN_TIMEOUT', '1200', 2, 'regex:/^\\d*$/', 'Zeit in Sekunden, nach dem ein Rechner abgeschaltet wird, sofern kein Benutzer angemeldet ist.\r\nFeld leer lassen, um die Funktion zu deaktivieren.'),
+('SLX_VM_NFS', '', 2, '', 'Serveradresse und mount point des NFS Servers, auf dem die virtuellen Maschinen liegen.\r\nBeispiel: *vm-store.example.com:/data/images*');
 
 
 
