@@ -34,11 +34,11 @@ function render_module()
 		$day = date('d.m.Y', $row['dateline']);
 		// TODO: No output strings in source files!
 		if ($day === $today) {
-			$day = 'Heute ';
+			$day = 'Heute';
 		} elseif ($day === $yesterday) {
-			$day = 'Gestern ';
+			$day = 'Gestern';
 		}
-		$row['date'] = $day . date('H:i', $row['dateline']);
+		$row['date'] = $day . date(' H:i', $row['dateline']);
 		$lines[] = $row;
 	}
 	
