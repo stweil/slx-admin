@@ -43,3 +43,9 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
+.slx-default {
+  color: #888;
+  font-size: 90%;
+  font-style: italic;
+}

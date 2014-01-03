@@ -32,12 +32,10 @@ if (isset($_POST['setting']) && is_array($_POST['setting'])) {
 				$qry_values = ', :' . $item['name'];
 			}
 			// Load all existing config options to validate input
-			$settings = array();
 			$res = Database::simpleQuery('SELECT setting, validator FROM setting');
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-				$settings[$row['setting']] = $row['validator'];
-			}
-			foreach ($settings as $key => $validator) {
+				$key = $row['setting'];
+				$validator = $row['validator'];
 				$input = (isset($_POST['setting'][$key]) ? $_POST['setting'][$key] : '');
 				// Validate data first!
 				$value = Validator::validate($validator, $input);
@@ -81,6 +79,7 @@ function render_module()
 		ORDER BY setting ASC'); // TODO: Add setting groups and sort order
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		$row['description'] = Util::markup($row['description']);
+		if (is_null($row['value'])) $row['value'] = $row['defaultvalue'];
 		$row['big'] = false;
 		$settings[] = $row;
 	}

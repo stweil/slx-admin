@@ -3,13 +3,13 @@
 	<form action="?do=baseconfig" method="post">
 		{{#settings}}
 		<div class="row well well-sm">
-			<div class="col-md-3">{{setting}}</div>
+			<div class="col-md-3">{{setting}}<div class="slx-default">{{defaultvalue}}</div></div>
 			<div class="col-md-3">
 				{{#big}}
 				<textarea name="setting[{{setting}}]" class="form-control" cols="30" rows="3">{{value}}</textarea>
 				{{/big}}
 				{{^big}}
-				<input type="text" name="setting[{{setting}}]" class="form-control" size="30" value="{{value}}" placeholder="{{defaultvalue}}">
+				<input type="text" name="setting[{{setting}}]" class="form-control" size="30" value="{{value}}">
 				{{/big}}
 			</div>
 			<div class="col-md-6">

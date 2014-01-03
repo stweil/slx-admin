@@ -6,7 +6,7 @@ $res = Database::simpleQuery('SELECT setting.setting, setting.defaultvalue, sett
 	LEFT JOIN setting_global AS tbl USING (setting)
 	ORDER BY setting ASC'); // TODO: Add setting groups and sort order
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-	if (empty($row['value'])) $row['value'] = $row['defaultvalue'];
+	if (is_null($row['value'])) $row['value'] = $row['defaultvalue'];
 	echo $row['setting'] . "='" . str_replace("'", "'\"'\"'", $row['value']) . "'\n";
 }
 // Additional "intelligent" config
