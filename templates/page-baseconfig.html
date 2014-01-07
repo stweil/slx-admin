@@ -1,23 +1,43 @@
 <div class="container">
 	<h1>Basiskonfiguration</h1>
 	<form action="?do=baseconfig" method="post">
-		{{#settings}}
-		<div class="row well well-sm">
-			<div class="col-md-3">{{setting}}<div class="slx-default">{{defaultvalue}}</div></div>
-			<div class="col-md-3">
-				{{#big}}
-				<textarea name="setting[{{setting}}]" class="form-control" cols="30" rows="3">{{value}}</textarea>
-				{{/big}}
-				{{^big}}
-				<input type="text" name="setting[{{setting}}]" class="form-control" size="30" value="{{value}}">
-				{{/big}}
-			</div>
-			<div class="col-md-6">
-				<a class="btn btn-default" data-toggle="collapse" data-target="#help-{{setting}}">Hilfe &raquo;</a>
-				<div class="collapse" id="help-{{setting}}">{{{description}}}</div>
+		{{#categories}}
+		<div class="panel panel-default">
+			<div class="panel-heading">{{category_name}}</div>
+			<div class="list-group">
+				{{#settings}}
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-md-5">
+							{{setting}}
+							<div class="slx-default">{{defaultvalue}}</div>
+						</div>
+						<div class="col-md-5">
+							{{#big}}
+							<textarea name="setting[{{setting}}]" class="form-control" cols="30" rows="3">{{value}}</textarea>
+							{{/big}}
+							{{^big}}
+							<input type="text" name="setting[{{setting}}]" class="form-control" size="30" value="{{value}}">
+							{{/big}}
+						</div>
+						<div class="col-md-2">
+							<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}">Hilfe</a>
+						</div>
+					</div>
+				</div>
+					<div class="modal fade" id="help-{{setting}}" tabindex="-1" role="dialog">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">{{setting}}</div>
+								<div class="modal-body">{{{description}}}</div>
+								<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+							</div>
+						</div>
+					</div>
+				{{/settings}}
 			</div>
 		</div>
-		{{/settings}}
+		{{/categories}}
 		<input type="hidden" name="token" value="{{token}}">
 		<button class="btn btn-lg btn-primary" type="submit">Speichern</button>
 		<button class="btn btn-lg btn-primary" type="reset">Zurücksetzen</button>

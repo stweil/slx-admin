@@ -73,18 +73,21 @@ function render_module()
 	}
 	// List global config option
 	$settings = array();
-	$res = Database::simpleQuery('SELECT setting.setting, setting.defaultvalue, setting.permissions, setting.description, tbl.value
+	$res = Database::simpleQuery('SELECT cat_setting.name AS category_name, setting.setting, setting.defaultvalue, setting.permissions, setting.description, tbl.value
 		FROM setting
+		INNER JOIN cat_setting USING (catid)
 		LEFT JOIN setting_global AS tbl USING (setting)
-		ORDER BY setting ASC'); // TODO: Add setting groups and sort order
+		ORDER BY cat_setting.sortval ASC, setting.setting ASC'); // TODO: Add setting groups and sort order
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		$row['description'] = Util::markup($row['description']);
 		if (is_null($row['value'])) $row['value'] = $row['defaultvalue'];
 		$row['big'] = false;
-		$settings[] = $row;
+		$settings[$row['category_name']]['settings'][] = $row;
+		$settings[$row['category_name']]['category_name'] = $row['category_name'];
 	}
+	$settings = array_values($settings);
 	Render::addTemplate('page-baseconfig', array(
-		'settings'    => $settings,
+		'categories'  => $settings,
 		'token'       => Session::get('token'),
 	));
 }
