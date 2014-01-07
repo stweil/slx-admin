@@ -66,9 +66,9 @@ class Util
 	public static function markup($string)
 	{
 		$string = htmlspecialchars($string);
-		$string = preg_replace('#(^|[\n \-_/\.])\*(.+?)\*($|[ \-_/\.\!\?,])#is', '$1<b>$2</b>$3', $string);
-		$string = preg_replace('#(^|[\n \-\*/\.])_(.+?)_($|[ \-\*/\.\!\?,])#is', '$1<u>$2</u>$3', $string);
-		$string = preg_replace('#(^|[\n \-_\*\.])/(.+?)/($|[ \-_\*\.\!\?,])#is', '$1<i>$2</i>$3', $string);
+		$string = preg_replace('#(^|[\n \-_/\.])\*(.+?)\*($|[ \-_/\.\!\?,:])#is', '$1<b>$2</b>$3', $string);
+		$string = preg_replace('#(^|[\n \-\*/\.])_(.+?)_($|[ \-\*/\.\!\?,:])#is', '$1<u>$2</u>$3', $string);
+		$string = preg_replace('#(^|[\n \-_\*\.])/(.+?)/($|[ \-_\*\.\!\?,:])#is', '$1<i>$2</i>$3', $string);
 		return nl2br($string);
 	}
 
