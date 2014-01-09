@@ -42,6 +42,7 @@ class Render
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<!-- Bootstrap -->
 			<link href="style/bootstrap.min.css" rel="stylesheet" media="screen">
+			<link href="style/bootstrap-tagsinput.css" rel="stylesheet" media="screen">
 			<link href="style/default.css" rel="stylesheet" media="screen">
 	',
 		self::$header
@@ -55,6 +56,7 @@ class Render
 	'	</div>
 		<script src="script/jquery.js"></script>
 		<script src="script/bootstrap.min.js"></script>
+		<script src="script/bootstrap-tagsinput.min.js"></script>
 		<script src="script/custom.js"></script></body>
 	</html>'
 		;

@@ -49,3 +49,11 @@ body {
   font-size: 90%;
   font-style: italic;
 }
+
+.bootstrap-tagsinput {
+  width: 100%;
+  margin: 0px;
+  border-radius: 0;
+  height: 34px;
+}
+

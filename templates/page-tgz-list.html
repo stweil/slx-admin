@@ -17,8 +17,9 @@
 	{{^files}}
 		<div class="row well well-sm">Keine Konfigurationspakete gefunden!</div>
 	{{/files}}
-	<a class="btn btn-lg btn-primary" href="?do=sysconfig&amp;action=remotelist">Konfigurationen herunterladen</a>
-	<a class="btn btn-lg btn-primary" href="#" data-toggle="collapse" data-target="#uploadform">Eigene Konfiguration hochladen</a>
+	<a class="btn btn-md btn-primary" href="?do=sysconfig&amp;action=remotelist">Konfigurationsvolagen</a>
+	<a class="btn btn-md btn-primary" href="#" data-toggle="collapse" data-target="#uploadform">Eigene Konfiguration hochladen</a>
+	<a class="btn btn-md btn-primary" href="/boot/default/config.tgz">Aktive Konfiguration herunterladen</a>
 	<div class="collapse" id="uploadform">
 		<div class="well well-sm" style="margin: 5px 0px">
 			<form method="post" action="?do=sysconfig" enctype="multipart/form-data">

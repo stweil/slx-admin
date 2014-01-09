@@ -1,5 +1,7 @@
 <?php
 
+require_once('inc/paginate.inc.php');
+
 User::load();
 
 if (!User::isLoggedIn()) {
@@ -14,7 +16,7 @@ function render_module()
 	$not = '';
 	if (isset($_POST['filter'])) $filter = $_POST['filter'];
 	if (!empty($filter)) {
-		$parts = explode(' ', $filter);
+		$parts = explode(',', $filter);
 		$opt = array();
 		foreach ($parts as $part) {
 			$part = preg_replace('/[^a-z0-9_\-]/', '', trim($part));
@@ -29,7 +31,8 @@ function render_module()
 	$today = date('d.m.Y');
 	$yesterday = date('d.m.Y', time() - 86400);
 	$lines = array();
-	$res = Database::simpleQuery("SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog $opt ORDER BY logid DESC LIMIT 200");
+	$paginate = new Paginate("SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog $opt ORDER BY logid DESC", 50);
+	$res = $paginate->exec();
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		$day = date('d.m.Y', $row['dateline']);
 		// TODO: No output strings in source files!
@@ -42,7 +45,7 @@ function render_module()
 		$lines[] = $row;
 	}
 	
-	Render::addTemplate('page-syslog', array(
+	$paginate->render('page-syslog', array(
 		'token'    => Session::get('token'),
 		'filter'   => $filter,
 		'not'      => $not,

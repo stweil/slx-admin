@@ -1,0 +1,43 @@
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+CREATE TABLE `cat_setting` (
+	`catid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`name` varchar(250) NOT NULL,
+	`sortval` smallint(5) unsigned NOT NULL,
+	PRIMARY KEY (`catid`),
+	KEY `sortval` (`sortval`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+
+INSERT INTO `cat_setting` (`catid`, `name`, `sortval`) VALUES
+(0, 'Unkategorisiert', 20000),
+(1, 'Inaktivität und Abschaltung', 30),
+(2, 'Internetzugriff', 20),
+(3, 'Zeitsynchronisation', 100),
+(4, 'Grundsystem', 10);
+
+ALTER TABLE `setting` ADD `catid` INT( 10 ) UNSIGNED NOT NULL AFTER `setting` ;
+ALTER TABLE `setting` ADD FOREIGN KEY ( `catid` ) REFERENCES `openslx`.`cat_setting` (`catid`) ON DELETE RESTRICT ON UPDATE CASCADE ;
+
+INSERT INTO `setting` (`setting`, `catid`, `defaultvalue`, `permissions`, `validator`, `description`) VALUES
+	('SLX_LOGOUT_TIMEOUT', 1, '1800', 2, 'regex:/^\\d*$/', 'Zeit /in Sekunden/, die eine Benutzersitzung ohne Aktion sein darf, bevor sie beendet wird.\r\nFeld leer lassen, um die Funktion zu deaktivieren.'),
+	('SLX_REMOTE_LOG_SESSIONS', 0, 'anonymous', 2, 'regex:/^(yes|anonymous|no)$/', 'Legt fest, ob Logins und Logouts der Benutzer an den Satelliten gemeldet werden sollen.\r\n*yes* = Mit Benutzerkennung loggen\r\n*anonymous* = Anonym loggen\r\n*no* = Nicht loggen'),
+	('SLX_SHUTDOWN_SCHEDULE', 1, '22:10 00:00', 2, 'regex:/^(\\s*\\d{1,2}:\\d{1,2})*$/', 'Feste Uhrzeit, zu der sich die Rechner ausschalten, auch wenn noch ein Benutzer aktiv ist.\r\nMehrere Zeitpunkte können durch Leerzeichen getrennt angegeben werden.'),
+	('SLX_SHUTDOWN_TIMEOUT', 1, '1200', 2, 'regex:/^\\d*$/', 'Zeit in Sekunden, nach dem ein Rechner abgeschaltet wird, sofern kein Benutzer angemeldet ist.\r\nFeld leer lassen, um die Funktion zu deaktivieren.');
+
+UPDATE setting SET catid = 0 WHERE setting = 'SLX_ADDONS' LIMIT 1;
+UPDATE setting SET catid = 0 WHERE setting = 'SLX_REMOTE_LOG_SESSIONS' LIMIT 1;
+UPDATE setting SET catid = 1 WHERE setting = 'SLX_LOGOUT_TIMEOUT' LIMIT 1;
+UPDATE setting SET catid = 1 WHERE setting = 'SLX_SHUTDOWN_SCHEDULE' LIMIT 1;
+UPDATE setting SET catid = 1 WHERE setting = 'SLX_SHUTDOWN_TIMEOUT' LIMIT 1;
+UPDATE setting SET catid = 2 WHERE setting = 'SLX_NET_DOMAIN' LIMIT 1;
+UPDATE setting SET catid = 2 WHERE setting = 'SLX_PROXY_BLACKLIST' LIMIT 1;
+UPDATE setting SET catid = 2 WHERE setting = 'SLX_PROXY_IP' LIMIT 1;
+UPDATE setting SET catid = 2 WHERE setting = 'SLX_PROXY_MODE' LIMIT 1;
+UPDATE setting SET catid = 2 WHERE setting = 'SLX_PROXY_PORT' LIMIT 1;
+UPDATE setting SET catid = 2 WHERE setting = 'SLX_PROXY_TYPE' LIMIT 1;
+UPDATE setting SET catid = 3 WHERE setting = 'SLX_BIOS_CLOCK' LIMIT 1;
+UPDATE setting SET catid = 3 WHERE setting = 'SLX_NTP_SERVER' LIMIT 1;
+UPDATE setting SET catid = 4 WHERE setting = 'SLX_ROOT_PASS' LIMIT 1;
+UPDATE setting SET catid = 4 WHERE setting = 'SLX_VM_NFS' LIMIT 1;
+

@@ -1,0 +1,15 @@
+<ul class="pagination pagination-sm pull-right">
+	{{#pages}}
+		{{#current}}
+			<li class="active"><a href="{{url}}page={{page}}">{{text}} <span class="sr-only">(current)</span></a></li>
+		{{/current}}
+		{{^current}}
+			{{#text}}
+				<li><a href="{{url}}page={{page}}">{{text}}</a></li>
+			{{/text}}
+			{{^text}}
+				<li class="disabled"><a href="#">&hellip;</a></li>
+			{{/text}}
+		{{/current}}
+	{{/pages}}
+</ul>

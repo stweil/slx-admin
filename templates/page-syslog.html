@@ -3,7 +3,7 @@
 	<form method="post" action="?do=syslog">
 		<div class="input-group">
 			<span class="input-group-addon">Filter</span>
-			<input id="filterstring" type="text" class="form-control" placeholder="event-id" value="{{filter}}" name="filter">
+			<input id="filterstring" type="text" placeholder="event-id" value="{{filter}}" name="filter" data-role="tagsinput" />
 			<span class="input-group-addon">
 				<input type="checkbox" name="not" {{#not}}checked="checked"{{/not}}> not
 			</span>
@@ -12,6 +12,7 @@
 			</span>
 		</div>
 	</form>
+	{{{pagenav}}}
 	<table class="table table-striped table-condensed">
 		<thead>
 			<th></th>
@@ -23,7 +24,7 @@
 		<tbody>
 		{{#list}}
 			<tr>
-				<td><span class="glyphicon glyphicon-off" title="{{logtypeid}}" onclick="$('#filterstring').val($('#filterstring').val() + ' {{logtypeid}}')"></span></td>
+				<td><span class="glyphicon glyphicon-off" title="{{logtypeid}}" onclick="$('#filterstring').tagsinput('add', '{{logtypeid}}')"></span></td>
 				<td class="text-right" nowrap="nowrap">{{date}}</td>
 				<td>{{clientip}}</td>
 				<td>{{description}}</td>
@@ -35,5 +36,6 @@
 		{{/list}}
 		</tbody>
 	</table>
+	{{{pagenav}}}
 </div>
 
