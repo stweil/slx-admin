@@ -35,7 +35,7 @@ if (isset($_REQUEST['progress'])) {
 		}
 	}
 	fclose($fh);
-	if ($error === false && $pid > 0 && $percent != 100 && !posix_kill($pid, 0)) $error = 'Process died - ' . $line;
+	if ($error === false && $pid > 0 && $percent != 100 && !posix_kill($pid, 0)) $error = "Process $pid died - " . file_get_contents($log);
 	if ($error !== false) {
 		echo Render::parse('download-error', array('file' => $file, 'code' => $error));
 		unlink($log);
@@ -78,6 +78,11 @@ default:
 if (file_exists($local . '/' . $file) && !$overwrite) {
 	echo Render::parse('download-overwrite', array('file' => $file, 'id' => $id, 'query' => $_SERVER['REQUEST_URI']));
 	exit(0);
+}
+
+if (file_exists($local . '/' . $file) && !is_writable($local . '/' . $file)) {
+		echo Render::parse('download-error', array('file' => $local . '/' . $file, 'remote' => $remote, 'code' => 'Local file is not writable'));
+		exit(0);
 }
 
 if ($directExec) {
