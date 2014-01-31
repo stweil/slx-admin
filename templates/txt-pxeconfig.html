@@ -42,6 +42,7 @@ MENU MSGCOLOR                           #ff1c2a33 #00000000 none
 TIMEOUT 100
 TOTALTIMEOUT 1200
 MENU TITLE bwLehrpool ALPHA VERSION
+MENU CLEAR
 ONTIMEOUT {{{DEFAULT}}}
 
 
@@ -61,7 +62,14 @@ LABEL openslx
 	MENU LABEL ^Virtuelles Labor starten
 	KERNEL http://{{{SERVER}}}/boot/default/kernel
 	INITRD http://{{{SERVER}}}/boot/default/initramfs-stage31
-	APPEND slxsrv={{{SERVER}}} slxbase=boot/default
+	APPEND slxsrv={{{SERVER}}} slxbase=boot/default vga=current quiet splash
 	IPAPPEND 3
 	{{{openslx}}}
+
+LABEL openslx-debug
+	MENU LABEL ^Virtuelles Labor starten (nosplash)
+	KERNEL http://{{{SERVER}}}/boot/default/kernel
+	INITRD http://{{{SERVER}}}/boot/default/initramfs-stage31
+	APPEND slxsrv={{{SERVER}}} slxbase=boot/default
+	IPAPPEND 3
 
