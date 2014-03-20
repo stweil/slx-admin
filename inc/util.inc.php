@@ -101,7 +101,9 @@ class Util
 	 private static function getContents($fh)
 	 {
 	 	fseek($fh, 0, SEEK_SET);
-		return fread($fh, 10000);
+		$data = fread($fh, 10000);
+		fclose($fh);
+		return $data;
 	 }
 
 	/**
@@ -144,7 +146,7 @@ class Util
 		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $head, $out)) {
 			$code = (int)$out[1];
 		} else {
-			$code = 999;
+			$code = '999 ' . curl_error($ch);
 		}
 		return true;
 	}

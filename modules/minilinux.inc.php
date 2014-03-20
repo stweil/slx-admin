@@ -15,6 +15,7 @@ function render_module()
 	checkFile($files, 'initramfs-stage31');
 	checkFile($files, 'stage32.sqfs');
 	checkFile($files, 'vmware.sqfs');
+	checkFile($files, 'nvidia_libs.sqfs');
 	Render::addTemplate('page-minilinux', array('files' => $files, 'token' => Session::get('token')));
 }
 
@@ -65,7 +66,7 @@ function checkFile(&$files, $name)
 	$remoteMd5 = Util::download($remote, 3, $code);
 	$remoteMd5 = strtolower(preg_replace('/[^0-9a-f]/is', '', $remoteMd5));
 	if ($code != 200) {
-		Message::addError('remote-timeout', $remote);
+		Message::addError('remote-timeout', $remote, $code);
 		return false;
 	}
 	if ($existingMd5 === $remoteMd5) {
