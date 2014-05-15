@@ -39,6 +39,7 @@ class Render
 	<html>
 		<head>
 			<title>', RENDER_DEFAULT_TITLE, self::$title, '</title>
+			<meta charset="utf-8"> 
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<!-- Bootstrap -->
 			<link href="style/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -92,6 +93,23 @@ class Render
 	public static function addTemplate($template, $params = false)
 	{
 		self::$body .= self::$mustache->render(self::getTemplate($template), $params);
+	}
+	
+	/**
+	 * Add a dialog to the page output.
+	 * 
+	 * @param string $title Title of the dialog window
+	 * @param boolean $next URL to next dialog step, or false to hide the next button
+	 * @param string $template template used to fill the dialog body
+	 * @param array $params parameters for rendering the body template
+	 */
+	public static function addDialog($title, $next, $template, $params = false)
+	{
+		self::addTemplate('dialog-generic', array(
+			'title' => $title,
+			'next' => $next,
+			'body' => self::$mustache->render(self::getTemplate($template), $params)
+		));
 	}
 
 	/**

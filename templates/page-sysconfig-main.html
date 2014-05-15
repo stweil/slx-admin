@@ -1,0 +1,86 @@
+<ol class="breadcrumb">
+	<li><a href="?do=main">Start</a></li>
+	<li class="active">SystemKonfiguration</li>
+</ol>
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Verfügbare Systemkonfigurationen
+			<a class="btn btn-default" data-toggle="modal" data-target="#help-config"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</div>
+		<table class="table table-condensed">
+		{{#files}}
+			<tr>
+				<td class=col-md-8">{{file}}</td>
+				<td class="col-md-4">
+					{{^current}}
+						<a class="btn btn-primary" href="?do=sysconfig&amp;action=activate&amp;file={{file}}&amp;token={{token}}">Aktivieren</a>
+					{{/current}}
+					{{#current}}
+						<span class="btn btn-success">Bereits aktiv</span>
+					{{/current}}
+				</td>
+			</tr>
+		{{/files}}
+		</table>
+		{{^files}}
+		<div class="alert alert-warning">Keine Systemkonfigurationen gefunden!</div>
+		{{/files}}
+		<div class="panel-body">
+			<a class="btn btn-primary">Neue Konfiguration zusammenstellen</a>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Verfügbare Konfigurationsmodule
+			<a class="btn btn-default" data-toggle="modal" data-target="#help-module"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</div>
+		<table class="table table-condensed">
+		{{#modules}}
+			<tr>
+				<td>{{module}}</td>
+				<td nowrap>
+					<a class="btn btn-default btn-xs">Bearbeiten</a>
+					<a class="btn btn-danger btn-xs">Löschen</a>
+				</td>
+			</tr>
+		{{/modules}}
+		</table>
+		{{^modules}}
+		<div class="alert alert-warning">Keine Konfigurationsmodule gefunden!</div>
+		{{/modules}}
+		<div class="panel-body">
+			<a class="btn btn-primary" href="?do=sysconfig&amp;action=addmodule">Neues Modul erstellen</a>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="help-config" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">Systemkonfiguration</div>
+			<div class="modal-body">
+				Über eine Systemkonfiguration wird die grundlegende Lokalisierung des bwLehrpool-Systems
+				durchgeführt. Dazu gehören Aspekte wie das Authentifizierungsverfahren für Benutzer
+				(z.B. Active Directory, LDAP), Druckerkonfiguration, Home-Verzeichnisse, etc.<br>
+				Eine Systemkonfiguration setzt sich aus einem oder mehreren Konfigurationsmodulen zusammen,
+				welche im unteren Bereich dieser Seite verwaltet werden können.
+			</div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="help-module" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">Konfigurationsmodule</div>
+			<div class="modal-body">
+				Konfigurationsmodule sind die Bausteine, aus denen eine Systemkonfiguration erstellt wird.
+				Hier lassen sich sowohl generische Module durch einen Wizard anlegen, als auch komplett eigene
+				Module erstellen (fortgeschritten, Linuxkenntnisse erforderlich).
+			</div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+		</div>
+	</div>
+</div>

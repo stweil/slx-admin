@@ -1,0 +1,26 @@
+<form role="form" method="post" action="?do=sysconfig&amp;action=addmodule&amp;step={{step}}">
+	<input type="hidden" name="modid" value="{{modid}}">
+	<div class="input-group">
+		<span class="input-group-addon">Modulname</span>
+		<input type="text" name="title" class="form-control" placeholder="Mein Konfigurationsmodul" autofocus="autofocus">
+	</div>
+		<hr>
+	<p>Hier haben Sie die Möglichkeit, den Inhalt des Archivs noch einmal zu überprüfen, und
+		die Liste der zu übernehmenden Dateien bei Bedarf noch einschränken.</p>
+	<table class="table table-bordered table-condensed">
+	{{#files}}
+		<tr>
+			{{#isdir}}
+				<td class="fileEntry isdir" colspan="2">{{name}}</td>
+			{{/isdir}}
+			{{^isdir}}
+				<td class="fileEntry">{{name}}</td>
+				<td>{{size}}</td>
+			{{/isdir}}
+		</tr>
+	{{/files}}
+	</table>
+	<div class="pull-right">
+		<button type="submit" class="btn btn-primary">Weiter &raquo;</button>
+	</div>
+</form>

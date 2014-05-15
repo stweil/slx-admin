@@ -1,6 +1,7 @@
 <?php
 
 // TODO: Move to extra file
+global $error_text;
 $error_text = array(
 	'loginfail'           => 'Benutzername oder Kennwort falsch',
 	'token'               => 'Ungültiges Token. CSRF Angriff?',
@@ -21,11 +22,21 @@ $error_text = array(
 	'upload-failed'       => 'Upload von {{0}} schlug fehl!',
 	'config-activated'    => 'Konfiguration wurde aktiviert',
 	'error-write'         => 'Fehler beim Schreiben von {{0}}',
+	'error-read'          => 'Fehler beim Lesen von {{0}}',
+	'error-archive'       => 'Korruptes Archiv oder nicht unterstütztes Format',
+	'error-rename'        => 'Konnte {{0}} nicht in {{1}} umbenennen',
+	'error-nodir'         => 'Das Verzeichnis {{0}} existiert nicht.',
+	'empty-archive'       => 'Das Archiv enthält keine Dateien oder Verzeichnisse',
+	'error-extract'       => 'Konnte Archiv nicht nach {{0}} entpacken - {{1}}',
+	'module-added'        => 'Modul erfolgreich hinzugefügt',
+	'taskmanager-error'   => 'Verbindung zum Taskmanager fehlgeschlagen',
+	'task-error'          => 'Ausführung fehlgeschlagen: {{0}}',
 );
 
 class Message
 {
 	private static $list = array();
+	private static $alreadyDisplayed = array();
 	private static $flushed = false;
 
 	/**
@@ -83,6 +94,7 @@ class Message
 				$message = str_replace('{{' . $index . '}}', $text, $message);
 			}
 			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message));
+			self::$alreadyDisplayed[] = $item;
 		}
 		self::$list = array();
 		self::$flushed = true;
@@ -109,7 +121,7 @@ class Message
 	public static function toRequest()
 	{
 		$parts = array();
-		foreach (self::$list as $item) {
+		foreach (array_merge(self::$list, self::$alreadyDisplayed) as $item) {
 			$str = 'message[]=' . urlencode($item['type'] . '|' .$item['id']);
 			if (!empty($item['params'])) {
 				$str .= '|' . implode('|', $item['params']);

@@ -43,6 +43,16 @@ class Database
 		if ($res === false) return false;
 		return $res->rowCount();
 	}
+	
+	/**
+	 * Get id (promary key) of last row inserted.
+	 * 
+	 * @return int the id
+	 */
+	public static function lastInsertId()
+	{
+		return self::$dbh->lastInsertId();
+	}
 
 	/**
 	 * Execute the given query and return the corresponding PDOStatement object
@@ -53,16 +63,19 @@ class Database
 	public static function simpleQuery($query, $args = array())
 	{
 		self::init();
-		//if (empty($args)) Util::traceError('Query with zero arguments!');
-		if (!isset(self::$statements[$query])) {
-			self::$statements[$query] = self::$dbh->prepare($query);
-		} else {
-			self::$statements[$query]->closeCursor();
+		try {
+			if (!isset(self::$statements[$query])) {
+				self::$statements[$query] = self::$dbh->prepare($query);
+			} else {
+				self::$statements[$query]->closeCursor();
+			}
+			if (self::$statements[$query]->execute($args) === false) {
+				Util::traceError("Database Error: \n" . implode("\n", self::$statements[$query]->errorInfo()));
+			}
+			return self::$statements[$query];
+		} catch (Exception $e) {
+			return false;
 		}
-		if (self::$statements[$query]->execute($args) === false) {
-			Util::traceError("Database Error: \n" . implode("\n", self::$statements[$query]->errorInfo()));
-		}
-		return self::$statements[$query];
 	}
 
 	/**

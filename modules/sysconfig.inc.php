@@ -1,37 +1,29 @@
 <?php
 
+/*
+@include_once('Archive/Tar.php');
+if (!class_exists('Archive_Tar')) {
+	Message::addError('Broken php installation: pear extension Archive_Tar missing!');
+	Util::redirect('?do=main');
+}
+ */
+
 User::load();
 
-if (isset($_POST['action']) && $_POST['action'] === 'upload') {
-	if (!Util::verifyToken()) {
-		Util::redirect('?do=sysconfig');
-	}
-	if (!User::hasPermission('superadmin')) {
-		Message::addError('no-permission');
-		Util::redirect('?do=sysconfig');
-	}
-	if (!isset($_FILES['customtgz'])) {
-		Message::addError('missing-file');
-		Util::redirect('?do=sysconfig');
-	}
-	$dest = $_FILES['customtgz']['name'];
-	$dest = preg_replace('/[^a-z0-9\-_]/', '', $dest);
-	$dest = substr($dest, 0, 30);
-	if (substr($dest, -3) === 'tgz') $dest = substr($dest, 0, -3);
-	$dest .= '.tgz';
-	# TODO: Validate its a (compressed) tar?
-	if (move_uploaded_file($_FILES['customtgz']['tmp_name'], CONFIG_TGZ_LIST_DIR . '/' . $dest)) {
-		Message::addSuccess('upload-complete', $dest);
-	} else {
-		Message::addError('upload-failed', $dest);
-	}
-	Util::redirect('?do=sysconfig');
+// Read request vars
+$action = Request::any('action', 'list');
+$step = Request::any('step', 0);
+$nextStep = $step + 1;
+
+// Action: "addmodule" (upload new module)
+if ($action === 'addmodule') {
+	require_once 'modules/sysconfig/addmodule.inc.php';
+	$handler = AddModule_Base::get($step);
+	$handler->preprocess();
 }
 
-if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'activate') {
-	if (!Util::verifyToken()) {
-		Util::redirect('?do=sysconfig');
-	}
+// Action "activate" (set sysconfig as active)
+if ($action === 'activate') {
 	if (!User::hasPermission('superadmin')) {
 		Message::addError('no-permission');
 		Util::redirect('?do=sysconfig');
@@ -55,15 +47,19 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'activate') {
 	Util::redirect('?do=sysconfig');
 }
 
+/**
+ * Render module; called by main script when this module page should render
+ * its content.
+ */
 function render_module()
 {
-	if (!isset($_REQUEST['action'])) $_REQUEST['action'] = 'list';
-	switch ($_REQUEST['action']) {
-	case 'remotelist':
-		list_remote_configs();
+	global $action, $handler;
+	switch ($action) {
+	case 'addmodule':
+		$handler->render();
 		break;
 	case 'list':
-		list_configs();
+		rr_list_configs();
 		break;
 	default:
 		Message::addError('invalid-action', $_REQUEST['action']);
@@ -71,25 +67,23 @@ function render_module()
 	}
 }
 
-function list_configs()
+function rr_list_configs()
 {
 	if (!User::hasPermission('superadmin')) {
 		Message::addError('no-permission');
 		return;
 	}
-	$current = '<none>';
-	if (file_exists(CONFIG_HTTP_DIR . '/default/config.tgz')) $current = realpath(CONFIG_HTTP_DIR . '/default/config.tgz');
-	$files = array();
-	foreach (glob(CONFIG_TGZ_LIST_DIR . '/*.tgz') as $file) {
-		$files[] = array(
-			'file' => basename($file),
-			'current' => ($current === realpath($file))
+	$res = Database::simpleQuery("SELECT title FROM configtgz_module ORDER BY title ASC");
+	$modules = array();
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		$modules[] = array(
+			'module' => $row['title']
 		);
 	}
-	Render::addTemplate('page-tgz-list', array('files' => $files, 'token' => Session::get('token')));
+	Render::addTemplate('page-sysconfig-main', array('modules' => $modules, 'token' => Session::get('token')));
 }
 
-function list_remote_configs()
+function rr_list_remote_configs()
 {
 	if (!User::hasPermission('superadmin')) {
 		Message::addError('no-permission');
@@ -111,4 +105,3 @@ function list_remote_configs()
 	}
 	Render::addTemplate('page-remote-tgz-list', array('files' => $list));
 }
-

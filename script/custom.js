@@ -4,3 +4,14 @@ function loadContent(elem, source)
 	$(elem).load(source);
 }
 
+function selectDir(obj)
+{
+	dirname = $(obj).parent().parent().find('td.isdir').text() + '/';
+	console.log("CALLED! Dirname: " + dirname);
+	$('td.fileEntry').each(function() {
+		var text = $(this).text();
+		if (text.length < dirname.length) return;
+		if (text.substr(0, dirname.length) !== dirname) return;
+		$(this).parent().find('.fileBox')[0].checked = obj.checked;
+	});
+}

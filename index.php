@@ -2,37 +2,41 @@
 
 error_reporting(E_ALL);
 
-require_once('inc/user.inc.php');
-require_once('inc/render.inc.php');
-require_once('inc/menu.inc.php');
-require_once('inc/util.inc.php');
-require_once('inc/message.inc.php');
-require_once('inc/db.inc.php');
-require_once('inc/permission.inc.php');
-require_once('inc/crypto.inc.php');
-require_once('inc/validator.inc.php');
+// Autoload classes from ./inc which adhere to naming scheme <lowercasename>.inc.php
+function slxAutoloader($class) {
+	$file = 'inc/' . preg_replace('/[^a-z0-9]/', '', mb_strtolower($class)) . '.inc.php';
+	if (!file_exists($file)) return;
+	require_once $file;
+}
+
+spl_autoload_register('slxAutoloader');
 
 if (empty($_REQUEST['do'])) {
 	// No specific module - set default
-	$module = 'main';
+	$moduleName = 'main';
 } else {
-	$module = preg_replace('/[^a-z]/', '', $_REQUEST['do']);
+	$moduleName = preg_replace('/[^a-z]/', '', $_REQUEST['do']);
 }
 
-$module = 'modules/' . $module . '.inc.php';
+$modulePath = 'modules/' . $moduleName . '.inc.php';
 
-if (!file_exists($module)) {
-	Util::traceError('Invalid module: ' . $module);
+if (!file_exists($modulePath)) {
+	Util::traceError('Invalid module: ' . $moduleName);
 }
 
-// Display any messages
+// Deserialize any messages
 if (isset($_REQUEST['message'])) {
 	Message::fromRequest();
 }
 
+// CSRF/XSS
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Util::verifyToken()) {
+	Util::redirect('?do=' . $moduleName);
+}
+
 // Load module - it will execute pre-processing, or act upon request parameters
-require_once($module);
-unset($module);
+require_once($modulePath);
+unset($modulePath);
 
 // Main menu
 $menu = new Menu;

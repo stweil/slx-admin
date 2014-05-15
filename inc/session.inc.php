@@ -52,7 +52,11 @@ class Session
 	public static function set($key, $value)
 	{
 		if (self::$data === false) Util::traceError('Tried to set session data with no active session');
-		self::$data[$key] = $value;
+		if ($value === false) {
+			unset(self::$data[$key]);
+		} else {
+			self::$data[$key] = $value;
+		}
 	}
 	
 	private static function loadSessionId()

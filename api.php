@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 
 require_once('inc/user.inc.php');
 require_once('inc/util.inc.php');
-require_once('inc/db.inc.php');
+require_once('inc/database.inc.php');
 require_once('inc/permission.inc.php');
 require_once('inc/crypto.inc.php');
 require_once('inc/validator.inc.php');

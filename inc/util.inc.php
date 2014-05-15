@@ -150,6 +150,25 @@ class Util
 		}
 		return true;
 	}
+	
+	/**
+	 * Convert given number to human readable file size string.
+	 * Will append Bytes, KiB, etc. depending on magnitude of number.
+	 * 
+	 * @param type $bytes numeric value of the filesize to make readable
+	 * @param type $decimals number of decimals to show, -1 for automatic
+	 * @return type human readable string representing the given filesize
+	 */
+	public static function readableFileSize($bytes, $decimals = -1) {
+		static $sz = array('Byte', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB');
+		$factor = floor((strlen($bytes) - 1) / 3);
+		if ($factor == 0) {
+			$decimals = 0;
+		} elseif ($decimals === -1) {
+			$decimals = 2 - floor((strlen($bytes) - 1) % 3);
+		}
+		return sprintf("%.{$decimals}f ", $bytes / pow(1024, $factor)) . $sz[$factor];
+	}
 
 }
 
