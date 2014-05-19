@@ -50,6 +50,16 @@ body {
   font-style: italic;
 }
 
+.slx-ga {
+	min-width: 7em;
+}
+
+.slx-dialog {
+	width: 100%;
+	min-width: 600px;
+	max-width: 820px;
+}
+
 .bootstrap-tagsinput {
   width: 100%;
   margin: 0px;

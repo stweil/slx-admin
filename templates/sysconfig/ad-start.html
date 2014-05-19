@@ -1,0 +1,51 @@
+<p>
+	Zum Einrichten der Benutzerauthentifizierung über ein Active Directory wird neben der Adresse
+	des anzusprechenden Servers ein dedizierter Benutzer im AD benötigt, über welchen das AD angesprochen wird.
+	<br>
+	Dieser Benutzer benötigt keine besonderen Rechte, Sie können diesem Benutzer zur Sicherheit auch die
+	Rechte zum Anmelden entziehen. Der Benutzer muss lediglich ausreichende Berechtigungen haben, um einen
+	LDAP-Bind am AD durchzuführen, und nach Benutzern zu suchen.
+	<br>
+	Im Folgenden muss der <strong>Distinguished Name</strong> des Benutzers angegeben werden. Diesen können Sie ermitteln,
+	indem Sie das Kommandozeilenprogramm <strong>dsquery</strong> auf einem Domain Controller wie folgt aufrufen:
+</p>
+<pre>dsquery user -name &quot;Benutzername&quot;</pre>
+<p>
+	Nach Eingabe aller benötigten Daten wird im nächsten Schritt überprüft, ob die Kommunikation mit
+	dem AD möglich ist.
+</p>
+
+<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">Server</span>
+		<input name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
+		<span class="input-group-btn">
+			<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-question-sign"></span></button>
+		</span>
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">Suchbasis</span>
+		<input name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="dc=windows,dc=hs-beispiel,dc=de">
+		<span class="input-group-btn">
+			<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-question-sign"></span></button>
+		</span>
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">Bind DN</span>
+		<input name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="CN=bwlehrpool user,OU=Benutzer,OU=Gruppe XYZ,DC=windows,DC=hs-beispiel,DC=de">
+		<span class="input-group-btn">
+			<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-question-sign"></span></button>
+		</span>
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">Passwort</span>
+		<input name="bindpw" value="{{bindpw}}" type="text" class="form-control" placeholder="Paswort von 'bwlehrpool user'">
+		<span class="input-group-btn">
+			<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-question-sign"></span></button>
+		</span>
+	</div>
+	<br>
+	<div class="pull-right">
+		<button type="submit" class="btn btn-primary">Weiter &raquo;</button>
+	</div>
+</form>

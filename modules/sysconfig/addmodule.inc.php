@@ -8,30 +8,47 @@ abstract class AddModule_Base
 {
 
 	/**
+	 * Holds all the known configuration modules, with title, description, start class for their wizard, etc.
+	 * @var array
+	 */
+	protected static $moduleTypes = array();
+	
+	/**
+	 * Holds the instance for the currently executing step
+	 * @var \AddModule_Base
+	 */
+	private static $instance = false;
+
+	public static function addModule($id, $startClass, $title, $description, $sortOrder = 0)
+	{
+		self::$moduleTypes[] = array(
+			'startClass' => $startClass,
+			'title' => $title,
+			'description' => $description,
+			'sortOrder' => $sortOrder
+		);
+	}
+
+	/**
 	 * 
 	 * @param type $step
 	 * @return \AddModule_Base
 	 */
-	public static function get($step)
+	public static function setStep($step)
 	{
-		switch ($step) {
-			case 0: // Upload form
-				return new AddModule_UploadForm();
-			case 1: // Handle config module uploading
-				return new AddModule_ProcessUpload();
-			case 2: // ?
-				return new AddModule_CompressModule();
+		if (empty($step) || !class_exists($step) || get_parent_class($step) !== 'AddModule_Base') {
+			Message::addError('invalid-action', $step);
+			Util::redirect('?do=SysConfig');
 		}
-		Message::addError('invalid-action', $step);
-		Util::redirect('?do=sysconfig');
+		self::$instance = new $step();
 	}
-	
+
 	protected function tmError()
 	{
 		Message::addError('taskmanager-error');
-		Util::redirect('?do=sysconfig');
+		Util::redirect('?do=SysConfig');
 	}
-	
+
 	protected function taskError($status)
 	{
 		if (isset($status['data']['error'])) {
@@ -42,7 +59,7 @@ abstract class AddModule_Base
 			$error = 'Unbekannter Taskmanager-Fehler'; // TODO: No text
 		}
 		Message::addError('task-error', $error);
-		Util::redirect('?do=sysconfig');
+		Util::redirect('?do=SysConfig');
 	}
 
 	/**
@@ -51,146 +68,53 @@ abstract class AddModule_Base
 	 * early if something is wrong, or you received post
 	 * data etc.
 	 */
-	public function preprocess()
+	protected function preprocessInternal()
 	{
 		// void
 	}
 
 	/**
-	 * Do page rendering
+	 * Do page rendering.
 	 */
-	public function render()
+	protected function renderInternal()
 	{
 		// void
 	}
-
-}
-
-class AddModule_UploadForm extends AddModule_Base
-{
-
-	public function render()
+	
+	public static function preprocess()
 	{
-		global $nextStep;
-		Session::set('mod_temp', false);
-		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-upload', array('step' => $nextStep));
+		if (self::$instance === false) {
+			Util::traceError('No step instance yet');
+		}
+		self::$instance->preprocessInternal();
+	}
+	
+	public static function render()
+	{
+		if (self::$instance === false) {
+			Util::traceError('No step instance yet');
+		}
+		self::$instance->renderInternal();
 	}
 
 }
 
 /**
- * Some file has just been uploaded. Try to store it, then try to unpack/analyze it.
- * If this succeeds, we proceed to the next step where we present the user our findings
- * and ask what to do with this.
+ * Start dialog for adding module. Here the user
+ * selects which kind of module they want to add.
  */
-class AddModule_ProcessUpload extends AddModule_Base
+class AddModule_Start extends AddModule_Base
 {
-	
-	private $taskId = false;
 
-	public function preprocess()
+	protected function renderInternal()
 	{
-		if (!isset($_FILES['modulefile'])) {
-			Message::addError('missing-file');
-			return;
+		$title = $order = array();
+		foreach (AddModule_Base::$moduleTypes as $module) {
+			$title[] = $module['title'];
+			$order[] = $module['sortOrder'];
 		}
-		if ($_FILES['modulefile']['error'] != UPLOAD_ERR_OK) {
-			Message::addError('upload-failed', $_FILE['modulefile']['name']);
-			return;
-		}
-		$tempfile = $_FILES['modulefile']['tmp_name'] . '.tmp';
-		if (!move_uploaded_file($_FILES['modulefile']['tmp_name'], $tempfile)) {
-			Message:addError('error-write', $tempfile);
-			return;
-		}
-		$this->taskId = 'tgzmod' . mt_rand() . '-' . microtime(true);
-		Taskmanager::submit('ListArchive', array(
-			'id' => $this->taskId,
-			'file' => $tempfile
-		), true);
-		Session::set('mod_temp', $tempfile);
-	}
-	
-	public function render()
-	{
-		$status = Taskmanager::waitComplete($this->taskId);
-		Taskmanager::release($this->taskId);
-		$tempfile = Session::get('mod_temp');
-		if (!isset($status['statusCode'])) {
-			unlink($tempfile);
-			$this->tmError();
-		}
-		if ($status['statusCode'] != TASK_FINISHED) {
-			unlink($tempfile);
-			$this->taskError($status);
-		}
-		// Sort files for better display
-		$dirs = array();
-		foreach ($status['data']['entries'] as $file) {
-			if ($file['isdir']) continue;
-			$dirs[dirname($file['name'])][] = $file;
-		}
-		ksort($dirs);
-		$list = array();
-		foreach ($dirs as $dir => $files) {
-			$list[] = array(
-				'name' => $dir,
-				'isdir' => true
-			);
-			sort($files);
-			foreach ($files as $file) {
-				$file['size'] = Util::readableFileSize($file['size']);
-				$list[] = $file;
-			}
-		}
-		global $nextStep;
-		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-fileselect', array(
-			'step' => $nextStep,
-			'files' => $list,
-		));
-		Session::save();
+		array_multisort($order, SORT_ASC, $title, SORT_ASC, self::$moduleTypes);
+		Render::addDialog('Modul hinzufügen', false, 'sysconfig/start', array('modules' => self::$moduleTypes));
 	}
 
-}
-
-class AddModule_CompressModule extends AddModule_Base
-{
-	
-	private $taskId = false;
-	
-	public function preprocess()
-	{
-		$title = Request::post('title');
-		$tempfile = Session::get('mod_temp');
-		if (empty($title) || empty($tempfile) || !file_exists($tempfile)) {
-			Message::addError('empty-field');
-			return;
-		}
-		// Recompress using task manager
-		$this->taskId = 'tgzmod' . mt_rand() . '-' . microtime(true);
-		$destFile = CONFIG_TGZ_LIST_DIR . '/modules/mod-' . preg_replace('/[^a-z0-9_\-]+/is', '_', $title) . '-' . microtime(true) . '.tgz';
-		Taskmanager::submit('RecompressArchive', array(
-			'id' => $this->taskId,
-			'inputFiles' => array($tempfile),
-			'outputFile' => $destFile
-		), true);
-		$status = Taskmanager::waitComplete($this->taskId);
-		unlink($tempfile);
-		if (!isset($status['statusCode'])) {
-			$this->tmError();
-		}
-		if ($status['statusCode'] != TASK_FINISHED) {
-			$this->taskError($status);
-		}
-		// Seems ok, create entry in DB
-		$ret = Database::exec("INSERT INTO configtgz_module (title, moduletype, filename, contents) VALUES (:title, 'custom', :file, '')",
-			array('title' => $title, 'file' => $destFile));
-		if ($ret === false) {
-			unlink($destFile);
-			Util::traceError("Could not insert module into Database");
-		}
-		Message::addSuccess('module-added');
-		Util::redirect('?do=sysconfig');
-	}
-	
 }

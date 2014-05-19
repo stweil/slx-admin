@@ -25,6 +25,9 @@ class User
 
 	public static function load()
 	{
+		if (self::isLoggedIn()) {
+			return true;
+		}
 		if (Session::load()) {
 			$uid = Session::get('uid');
 			if ($uid === false || $uid < 1) self::logout();
@@ -50,7 +53,7 @@ class User
 	public static function logout()
 	{
 		Session::delete();
-		Header('Location: ?do=main&fromlogout');
+		Header('Location: ?do=Main&fromlogout');
 		exit(0);
 	}
 

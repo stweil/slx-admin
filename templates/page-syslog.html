@@ -1,6 +1,7 @@
 <div class="container">
 	<h1>Client Log</h1>
-	<form method="post" action="?do=syslog">
+	<form method="post" action="?do=SysLog">
+		<input type="hidden" name="token" value="{{token}}">
 		<div class="input-group">
 			<span class="input-group-addon">Filter</span>
 			<input id="filterstring" type="text" placeholder="event-id" value="{{filter}}" name="filter" data-role="tagsinput" />

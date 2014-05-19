@@ -6,13 +6,13 @@ if (isset($_POST['action']) && $_POST['action'] === 'adduser') {
 	// Check required fields
 	if (empty($_POST['user']) || empty($_POST['pass1']) || empty($_POST['pass2']) || empty($_POST['fullname']) || empty($_POST['phone']) || empty($_POST['email'])) {
 		Message::addError('empty-field');
-		Util::redirect('?do=adduser');
+		Util::redirect('?do=AddUser');
 	} elseif ($_POST['pass1'] !== $_POST['pass2']) {
 		Message::addError('password-mismatch');
-		Util::redirect('?do=adduser');
+		Util::redirect('?do=AddUser');
 	} elseif (Database::queryFirst('SELECT userid FROM user LIMIT 1') !== false) {
 		Message::addError('adduser-disabled');
-		Util::redirect('?do=session&action=login');
+		Util::redirect('?do=Session&action=login');
 	} else {
 		$data = array(
 			'user'       => $_POST['user'],
@@ -31,7 +31,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'adduser') {
 			Database::exec('UPDATE user SET permissions = 1');
 		}
 		Message::addInfo('adduser-success');
-		Util::redirect('?do=session&action=login');
+		Util::redirect('?do=Session&action=login');
 	}
 }
 

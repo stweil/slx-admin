@@ -1,5 +1,5 @@
 <ol class="breadcrumb">
-	<li><a href="?do=main">Start</a></li>
+	<li><a href="?do=Main">Start</a></li>
 	<li class="active">SystemKonfiguration</li>
 </ol>
 <div class="container">
@@ -14,7 +14,7 @@
 				<td class=col-md-8">{{file}}</td>
 				<td class="col-md-4">
 					{{^current}}
-						<a class="btn btn-primary" href="?do=sysconfig&amp;action=activate&amp;file={{file}}&amp;token={{token}}">Aktivieren</a>
+						<a class="btn btn-primary" href="?do=SysConfig&amp;action=activate&amp;file={{file}}&amp;token={{token}}">Aktivieren</a>
 					{{/current}}
 					{{#current}}
 						<span class="btn btn-success">Bereits aktiv</span>
@@ -40,8 +40,8 @@
 			<tr>
 				<td>{{module}}</td>
 				<td nowrap>
-					<a class="btn btn-default btn-xs">Bearbeiten</a>
-					<a class="btn btn-danger btn-xs">Löschen</a>
+					<a class="btn btn-default btn-xs"><span class="glyphicon glyphicon-edit"></span> Bearbeiten</a>
+					<a class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Löschen</a>
 				</td>
 			</tr>
 		{{/modules}}
@@ -50,7 +50,7 @@
 		<div class="alert alert-warning">Keine Konfigurationsmodule gefunden!</div>
 		{{/modules}}
 		<div class="panel-body">
-			<a class="btn btn-primary" href="?do=sysconfig&amp;action=addmodule">Neues Modul erstellen</a>
+			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">Neues Modul erstellen</a>
 		</div>
 	</div>
 </div>
