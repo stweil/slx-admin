@@ -7,18 +7,11 @@ class Page_SysConfig extends Page
 	{
 		User::load();
 
-		// Read request vars
 		$action = Request::any('action', 'list');
-		$step = Request::any('step', 0);
 
 		// Action: "addmodule" (upload new module)
 		if ($action === 'addmodule') {
-			if ($step === 0) $step = 'AddModule_Start';
-			require_once 'modules/sysconfig/addmodule.inc.php';
-			foreach (glob('modules/sysconfig/addmodule_*.inc.php') as $file) {
-				require_once $file;
-			}
-			AddModule_Base::setStep($step);
+			$this->initAddModule();
 			AddModule_Base::preprocess();
 		}
 
@@ -67,6 +60,17 @@ class Page_SysConfig extends Page
 			break;
 		}
 	}
+	
+	protected function doAjax()
+	{
+		$action = Request::any('action', 'list');
+
+		// Action: "addmodule" (upload new module)
+		if ($action === 'addmodule') {
+			$this->initAddModule();
+			AddModule_Base::ajax();
+		}
+	}
 
 	private function rr_list_configs()
 	{
@@ -82,6 +86,17 @@ class Page_SysConfig extends Page
 			);
 		}
 		Render::addTemplate('page-sysconfig-main', array('modules' => $modules, 'token' => Session::get('token')));
+	}
+	
+	private function initAddModule()
+	{
+		$step = Request::any('step', 0);
+		if ($step === 0) $step = 'AddModule_Start';
+		require_once 'modules/sysconfig/addmodule.inc.php';
+		foreach (glob('modules/sysconfig/addmodule_*.inc.php') as $file) {
+			require_once $file;
+		}
+		AddModule_Base::setStep($step);
 	}
 
 }

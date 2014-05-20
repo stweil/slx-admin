@@ -81,6 +81,14 @@ abstract class AddModule_Base
 		// void
 	}
 	
+	/**
+	 * Handle ajax stuff
+	 */
+	protected function ajaxInternal()
+	{
+		// void
+	}
+	
 	public static function preprocess()
 	{
 		if (self::$instance === false) {
@@ -95,6 +103,14 @@ abstract class AddModule_Base
 			Util::traceError('No step instance yet');
 		}
 		self::$instance->renderInternal();
+	}
+	
+	public static function ajax()
+	{
+		if (self::$instance === false) {
+			Util::traceError('No step instance yet');
+		}
+		self::$instance->ajaxInternal();
 	}
 
 }

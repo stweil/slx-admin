@@ -1,0 +1,28 @@
+<p>
+	Der AD-Proxy wird nun konfiguriert und gestartet...
+</p>
+
+<div id="zeug">
+	<div data-tm-id="{{tm-tgz}}" data-tm-log="message">Konfiguration erzeugen</div>
+	<div data-tm-id="{{tm-ldadp}}" data-tm-log="message" data-tm-callback="ldapCb">ldadp starten</div>
+</div>
+<br>
+<div id="back" class="pull-left" style="display:none">
+	<a href="?do=SysConfig&amp;action=addmodule&amp;step=AdModule_Start" class="btn btn-primary">Assistent neustarten</a>
+</div>
+<div id="finish" class="pull-right" style="display:none">
+	<a href="?do=SysConfig" class="btn btn-primary">Zur Systemkonfiguration</a>
+</div>
+<script type="text/javascript">
+function ldapCb(task)
+{
+	if (!task || !task.statusCode)
+		return;
+	 if (task.statusCode === 'TASK_FINISHED') {
+		$('#finish').attr('style', '');
+	}
+	if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'PARENT_FAILED') {
+		$('#back').attr('style', '');
+	}
+}
+</script>

@@ -16,6 +16,7 @@
 </p>
 
 <form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
+	<input type="hidden" name="token" value="{{token}}">
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">Server</span>
 		<input name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">

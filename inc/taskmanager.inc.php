@@ -12,21 +12,40 @@ class Taskmanager
 	{
 		if (self::$sock !== false) return;
 		self::$sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-		socket_set_option(self::$sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 0, 'usec' => 100000));
-		socket_set_option(self::$sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 100000));
+		socket_set_option(self::$sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 0, 'usec' => 300000));
+		socket_set_option(self::$sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 200000));
 		socket_connect(self::$sock, '127.0.0.1', 9215);
 	}
 
-	public static function submit($task, $data, $async)
+	public static function submit($task, $data, $async = false)
 	{
 		self::init();
 		$seq = (string)mt_rand();
-		$data = json_encode($data);
+		if (empty($data)) {
+			$data = '{}';
+		} else {
+			$data = json_encode($data);
+		}
 		$message = "$seq, $task, $data";
 		$sent = socket_send(self::$sock, $message, strlen($message), 0);
+		if ($sent != strlen($message)) {
+			Message::addError('taskmanager-error');
+			return false;
+		}
 		if ($async) return true;
 		$reply = self::readReply($seq);
-		if (!is_array($reply)) return false;
+		if ($reply === false) {
+			Message::addError('taskmanager-error');
+			return false;
+		}
+		if (!is_array($reply)) {
+			Message::addError('taskmanager-format');
+			return false;
+		}
+		if ($reply['statusCode'] === NO_SUCH_TASK) {
+			Message::addError('task-error', 'Ungültiger Task: ' . $task);
+			return false;
+		}
 		return $reply;
 	}
 

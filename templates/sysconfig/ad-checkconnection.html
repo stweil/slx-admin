@@ -1,0 +1,42 @@
+<p>
+	Die Verbindung zum angegebenen AD-Server wird nun überprüft. Bitte haben Sie einen Moment Geduld.
+</p>
+
+<div id="zeug">
+	<div data-tm-id="{{tm-search}}" data-tm-progress="progress">LDAP Test-Query</div>
+	<div data-tm-id="{{tm-dummy}}" data-tm-progress="progress" data-tm-callback="ldapCb">Dummy</div>
+</div>
+<br>
+<div class="pull-left">
+	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step=AdModule_Start">
+		<input type="hidden" name="token" value="{{token}}">
+		<input name="server" value="{{server}}" type="hidden">
+		<input name="searchbase" value="{{searchbase}}" type="hidden">
+		<input name="binddn" value="{{binddn}}" type="hidden">
+		<input name="bindpw" value="{{bindpw}}" type="hidden">
+		<button type="submit" class="btn btn-primary">&laquo; Zurück</button>
+	</form>
+</div>
+<div class="pull-right">
+	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
+		<input type="hidden" name="token" value="{{token}}">
+		<input name="server" value="{{server}}" type="hidden">
+		<input name="searchbase" value="{{searchbase}}" type="hidden">
+		<input name="binddn" value="{{binddn}}" type="hidden">
+		<input name="bindpw" value="{{bindpw}}" type="hidden">
+		<button id="nextbutton" type="submit" class="btn btn-primary">Überspringen &raquo;</button>
+	</form>
+</div>
+<script type="text/javascript">
+function ldapCb(task)
+{
+	if (!task || !task.statusCode)
+		return;
+	 if (task.statusCode === 'TASK_FINISHED') {
+		$('#nextbutton').html('Weiter &raquo;');
+	}
+	if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'PARENT_FAILED') {
+		$('#nextbutton').html('Trotzdem weiter &raquo;');
+	}
+}
+</script>

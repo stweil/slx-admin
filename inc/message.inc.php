@@ -30,6 +30,7 @@ $error_text = array(
 	'error-extract'       => 'Konnte Archiv nicht nach {{0}} entpacken - {{1}}',
 	'module-added'        => 'Modul erfolgreich hinzugefügt',
 	'taskmanager-error'   => 'Verbindung zum Taskmanager fehlgeschlagen',
+	'taskmanager-format'  => 'Taskmanager hat ungültige Daten zurückgeliefert',
 	'task-error'          => 'Ausführung fehlgeschlagen: {{0}}',
 );
 

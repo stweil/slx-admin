@@ -45,12 +45,16 @@ class Render
 			<link href="style/bootstrap.min.css" rel="stylesheet" media="screen">
 			<link href="style/bootstrap-tagsinput.css" rel="stylesheet" media="screen">
 			<link href="style/default.css" rel="stylesheet" media="screen">
+			<script type="text/javascript">
+			var TOKEN = "' . Session::get('token') . '";
+			</script>
+			</body>
 	',
 		self::$header
 		,
 	'	</head>
 		<body>
-		<div class="container">
+		<div class="container" id="mainpage">
 	',
 		self::$body
 		,
@@ -58,7 +62,7 @@ class Render
 		<script src="script/jquery.js"></script>
 		<script src="script/bootstrap.min.js"></script>
 		<script src="script/bootstrap-tagsinput.min.js"></script>
-		<script src="script/custom.js"></script></body>
+		<script src="script/taskmanager.js"></script>
 	</html>'
 		;
 		if ($zip) {
