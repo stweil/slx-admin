@@ -42,8 +42,12 @@ class Taskmanager
 			Message::addError('taskmanager-format');
 			return false;
 		}
-		if ($reply['statusCode'] === NO_SUCH_TASK) {
+		if (isset($reply['statusCode']) && $reply['statusCode'] === NO_SUCH_TASK) {
 			Message::addError('task-error', 'Ungültiger Task: ' . $task);
+			return false;
+		}
+		if (!isset($reply['id'])) {
+			Message::addError('taskmanager-format');
 			return false;
 		}
 		return $reply;

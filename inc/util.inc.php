@@ -25,9 +25,13 @@ class Util
 	 * Redirects the user via a '302 Moved' header.
 	 * An active session will be saved, any messages that haven't
 	 * been displayed yet will be appended to the redirect.
+	 * @param string $location Location to redirect to. "false" to redirect to same URL (useful after POSTs)
 	 */
-	public static function redirect($location)
+	public static function redirect($location = false)
 	{
+		if ($location === false) {
+			$location = preg_replace('/(&|\?)message\[\]\=[^&]*(&|$)/', '\1', $_SERVER['REQUEST_URI']);
+		}
 		Session::save();
 		$messages = Message::toRequest();
 		if (!empty($messages)) {
