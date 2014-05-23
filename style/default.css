@@ -70,3 +70,14 @@ body {
 .isdir {
 	font-weight: bold;
 }
+
+.slx-litehead {
+	margin: 5px 10px;
+	color: #aaa;
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.red {
+	color: red;
+}

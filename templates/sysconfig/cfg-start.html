@@ -1,0 +1,35 @@
+<form role="form" method="post" action="?do=SysConfig&amp;action=addconfig&amp;step={{step}}">
+	<input type="hidden" name="token" value="{{token}}">
+	<div class="input-group">
+		<span class="input-group-addon">Name</span>
+		<input type="text" name="title" class="form-control" placeholder="Meine Konfiguration" autofocus="autofocus">
+	</div>
+		<hr>
+	<p>Bitte wählen Sie, welche Module für diese Konfiguration verwendet werden sollen.</p>
+	{{#groups}}
+		<div class="panel panel-default">
+			<div class="slx-litehead">{{group}}</div>
+			<div class="panel-body">
+			{{#modules}}
+				<div class="input-group">
+					<span class="input-group-addon">
+						{{#unique}}
+						<input type="radio" name="module[{{groupid}}]" value="{{moduleid}}">
+						{{/unique}}
+						{{^unique}}
+						<input type="checkbox" name="module[{{moduleid}}]" value="{{moduleid}}">
+						{{/unique}}
+					</span>
+					<span class="form-control">{{title}}</span>
+					{{#missing}}
+					<span class="input-group-addon" title="Modul beschädigt! Bitte neu generieren."><span class="red glyphicon glyphicon-exclamation-sign"></span></span>
+					{{/missing}}
+				</div>
+			{{/modules}}
+			</div>
+		</div>
+	{{/groups}}
+	<div class="pull-right">
+		<button type="submit" class="btn btn-primary">Weiter &raquo;</button>
+	</div>
+</form>

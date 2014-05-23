@@ -1,0 +1,12 @@
+<p>
+	Die Konfiguration wurde erfolgreich erstellt.
+</p>
+
+<form role="form" method="post" action="?do=SysConfig">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="config">
+	<input type="hidden" name="activate" value="{{configid}}">
+	<div class="pull-left">
+		<button type="submit" class="btn btn-primary">Konfiguration aktivieren</button>
+	</div>
+</form>

@@ -13,7 +13,7 @@ class Page_ServerSetup extends Page
 			Message::addError('no-permission');
 			Util::redirect('?do=Main');
 		}
-
+		
 		$this->currentAddress = Property::getServerIp();
 		$newAddress = Request::post('ip', 'none');
 		
@@ -23,7 +23,7 @@ class Page_ServerSetup extends Page
 			Util::redirect('?do=Main');
 		}
 		
-		if ($this->taskStatus['statusCode'] === TASK_WAITING) {
+		if ($this->taskStatus['statusCode'] === TASK_WAITING) { // TODO: Async if just displaying
 			$this->taskStatus = Taskmanager::waitComplete($this->taskStatus['id']);
 		}
 		
@@ -54,6 +54,7 @@ class Page_ServerSetup extends Page
 			}
 			if ($valid) {
 				Property::setServerIp($newAddress);
+				Trigger::ipxe();
 			} else {
 				Message::addError('invalid-ip', $newAddress);
 			}
@@ -64,9 +65,13 @@ class Page_ServerSetup extends Page
 	
 	protected function doRender()
 	{
-		Render::addTemplate('page-serversetup', array(
+		Render::addTemplate('serversetup/ipaddress', array(
 			'ips' => $this->taskStatus['data']['addresses'],
 			'token' => Session::get('token')
+		));
+		Render::addTemplate('serversetup/ipxe', array(
+			'token' => Session::get('token'),
+			'taskid' => Property::getIPxeTaskId()
 		));
 	}
 }

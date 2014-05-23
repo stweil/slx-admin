@@ -8,26 +8,44 @@
 			Verfügbare Systemkonfigurationen
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-config"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</div>
-		<table class="table table-condensed">
-		{{#files}}
-			<tr>
-				<td class=col-md-8">{{file}}</td>
-				<td class="col-md-4">
-					{{^current}}
-						<a class="btn btn-primary" href="?do=SysConfig&amp;action=activate&amp;file={{file}}&amp;token={{token}}">Aktivieren</a>
-					{{/current}}
-					{{#current}}
-						<span class="btn btn-success">Bereits aktiv</span>
-					{{/current}}
-				</td>
-			</tr>
-		{{/files}}
-		</table>
-		{{^files}}
-		<div class="alert alert-warning">Keine Systemkonfigurationen gefunden!</div>
-		{{/files}}
 		<div class="panel-body">
-			<a class="btn btn-primary">Neue Konfiguration zusammenstellen</a>
+			<form method="post" action="?do=SysConfig">
+				<input type="hidden" name="token" value="{{token}}">
+				<input type="hidden" name="action" value="config">
+				<table>
+				{{#configs}}
+					<tr>
+						<td>{{config}}</td>
+						<td>
+							{{^current}}
+								<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
+									<span class="glyphicon glyphicon-flag"></span>
+									Aktivieren
+								</button>
+							{{/current}}
+							{{#current}}
+								<span class="btn btn-success btn-xs">
+									<span class="glyphicon glyphicon-ok"></span>
+									Aktiv
+								</span>
+							{{/current}}
+						</td>
+						<td>
+							<button class="btn btn-danger btn-xs" name="del" value="{{configid}}"><span class="glyphicon glyphicon-trash"></span> Löschen</button>
+						</td>
+					</tr>
+				{{/configs}}
+				</table>
+				{{^configs}}
+				<div class="alert alert-warning">
+					Keine Systemkonfigurationen gefunden.
+					<br>Erstellen Sie eine neue Konfiguration aus den unten aufgeführten Konfigurationsmodulen.
+				</div>
+				{{/configs}}
+			</form>
+		</div>
+		<div class="panel-footer">
+			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">Neue Konfiguration</a>
 		</div>
 	</div>
 	<div class="panel panel-default">
@@ -35,22 +53,30 @@
 			Verfügbare Konfigurationsmodule
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-module"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</div>
-		<table class="table table-condensed">
-		{{#modules}}
-			<tr>
-				<td>{{module}}</td>
-				<td nowrap>
-					<a class="btn btn-default btn-xs"><span class="glyphicon glyphicon-edit"></span> Bearbeiten</a>
-					<a class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Löschen</a>
-				</td>
-			</tr>
-		{{/modules}}
-		</table>
-		{{^modules}}
-		<div class="alert alert-warning">Keine Konfigurationsmodule gefunden!</div>
-		{{/modules}}
 		<div class="panel-body">
-			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">Neues Modul erstellen</a>
+			<form method="post" action="?do=SysConfig">
+				<input type="hidden" name="token" value="{{token}}">
+				<input type="hidden" name="action" value="module">
+				<table>
+				{{#modules}}
+					<tr>
+						<td>{{module}}</td>
+						<td>
+							<!-- a class="btn btn-default btn-xs"><span class="glyphicon glyphicon-edit"></span> Bearbeiten</a -->
+						</td>
+						<td>
+							<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}"><span class="glyphicon glyphicon-trash"></span> Löschen</button>
+						</td>
+					</tr>
+				{{/modules}}
+				</table>
+				{{^modules}}
+				<div class="alert alert-warning">Keine Konfigurationsmodule gefunden!</div>
+				{{/modules}}
+			</form>
+		</div>
+		<div class="panel-footer">
+			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">Neues Modul</a>
 		</div>
 	</div>
 </div>

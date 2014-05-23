@@ -19,8 +19,9 @@ $error_text = array(
 	'missing-file'        => 'Es wurde keine Datei ausgewählt!',
 	'invalid-file'        => 'Die Datei {{0}} existiert nicht!',
 	'upload-complete'     => 'Upload von {{0}} war erfolgreich',
-	'upload-failed'       => 'Upload von {{0}} schlug fehl!',
-	'config-activated'    => 'Konfiguration wurde aktiviert',
+	'upload-failed'       => 'Upload schlug fehl: {{0}}',
+	'config-activated'    => 'Konfiguration {{0}} wurde aktiviert',
+	'config-invalid'      => 'Konfiguration mit ID {{0}} existiert nicht',
 	'error-write'         => 'Fehler beim Schreiben von {{0}}',
 	'error-read'          => 'Fehler beim Lesen von {{0}}',
 	'error-archive'       => 'Korruptes Archiv oder nicht unterstütztes Format',
@@ -29,6 +30,8 @@ $error_text = array(
 	'empty-archive'       => 'Das Archiv enthält keine Dateien oder Verzeichnisse',
 	'error-extract'       => 'Konnte Archiv nicht nach {{0}} entpacken - {{1}}',
 	'module-added'        => 'Modul erfolgreich hinzugefügt',
+	'module-deleted'      => 'Modul {{0}} wurde gelöscht',
+	'module-in-use'       => 'Modul <b>{{0}}</b> wird noch durch Konfiguration <b>{{1}}</b> verwendet',
 	'taskmanager-error'   => 'Verbindung zum Taskmanager fehlgeschlagen',
 	'taskmanager-format'  => 'Taskmanager hat ungültige Daten zurückgeliefert',
 	'task-error'          => 'Ausführung fehlgeschlagen: {{0}}',
@@ -93,7 +96,7 @@ class Message
 		foreach (self::$list as $item) {
 			$message = $error_text[$item['id']];
 			foreach ($item['params'] as $index => $text) {
-				$message = str_replace('{{' . $index . '}}', $text, $message);
+				$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
 			}
 			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message));
 			self::$alreadyDisplayed[] = $item;

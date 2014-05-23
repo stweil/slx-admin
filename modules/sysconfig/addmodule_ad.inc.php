@@ -86,23 +86,14 @@ class AdModule_Finish extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$data = json_encode(array(
-			'server' => Request::post('server'),
-			'searchbase' => Request::post('searchbase'),
-			'binddn' => Request::post('binddn'),
-			'bindpw' => Request::post('bindpw'),
-		));
-		Database::exec("INSERT INTO configtgz_module (title, moduletype, filename, contents) "
-			. " VALUES (:title, 'AD_AUTH', '', :content)", array(
-				'title' => 'AD: ' . Request::post('server'),
-				'content' => $data));
-		$id = Database::lastInsertId();
-		$name = CONFIG_TGZ_LIST_DIR . '/modules/AD_AUTH_id_' . $id . '.' . mt_rand() . '.tgz';
-		Database::exec("UPDATE configtgz_module SET filename = :filename WHERE moduleid = :id LIMIT 1", array(
-			'id' => $id,
-			'filename' => $name
-		));
-		$tgz = Taskmanager::submit('DummyTask', array());
+		$config = ConfigModule::insertAdConfig('AD: ' . Request::post('server'),
+			Request::post('server'),
+			Request::post('searchbase'),
+			Request::post('binddn'),
+			Request::post('bindpw')
+		);
+		$config['proxyip'] = Property::getServerIp();
+		$tgz = Taskmanager::submit('CreateAdConfig', $config);
 		if (isset($tgz['id'])) {
 			$ldadp = Taskmanager::submit('DummyTask', array('parentTask' => $tgz['id']));
 		}
@@ -111,7 +102,7 @@ class AdModule_Finish extends AddModule_Base
 			return;
 		}
 		$this->taskIds = array(
-			'tm-module' => $tgz['id'],
+			'tm-config' => $tgz['id'],
 			'tm-ldadp' => $ldadp['id'] 
 		);
 	}

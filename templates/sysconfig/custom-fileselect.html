@@ -1,12 +1,12 @@
 <form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 	<input type="hidden" name="modid" value="{{modid}}">
+	<input type="hidden" name="token" value="{{token}}">
 	<div class="input-group">
 		<span class="input-group-addon">Modulname</span>
 		<input type="text" name="title" class="form-control" placeholder="Mein Konfigurationsmodul" autofocus="autofocus">
 	</div>
 		<hr>
-	<p>Hier haben Sie die Möglichkeit, den Inhalt des Archivs noch einmal zu überprüfen, und
-		die Liste der zu übernehmenden Dateien bei Bedarf noch einschränken.</p>
+	<p>Hier haben Sie die Möglichkeit, den Inhalt des Archivs noch einmal zu überprüfen.</p>
 	<table class="table table-bordered table-condensed">
 	{{#files}}
 		<tr>

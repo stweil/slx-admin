@@ -20,7 +20,10 @@ class CustomModule_UploadForm extends AddModule_Base
 	protected function renderInternal()
 	{
 		Session::set('mod_temp', false);
-		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-upload', array('step' => 'CustomModule_ProcessUpload'));
+		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-upload', array(
+			'token' => Session::get('token'),
+			'step' => 'CustomModule_ProcessUpload'
+			));
 	}
 
 }
@@ -42,7 +45,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 			Util::redirect('?do=SysConfig');
 		}
 		if ($_FILES['modulefile']['error'] != UPLOAD_ERR_OK) {
-			Message::addError('upload-failed', $_FILES['modulefile']['name']);
+			Message::addError('upload-failed', Util::uploadErrorString($_FILES['modulefile']['error']));
 			Util::redirect('?do=SysConfig');
 		}
 		$tempfile = $_FILES['modulefile']['tmp_name'] . '.tmp';
@@ -91,6 +94,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 			}
 		}
 		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-fileselect', array(
+			'token' => Session::get('token'),
 			'step' => 'CustomModule_CompressModule',
 			'files' => $list,
 		));
@@ -114,7 +118,7 @@ class CustomModule_CompressModule extends AddModule_Base
 		}
 		// Recompress using task manager
 		$this->taskId = 'tgzmod' . mt_rand() . '-' . microtime(true);
-		$destFile = CONFIG_TGZ_LIST_DIR . '/modules/mod-' . preg_replace('/[^a-z0-9_\-]+/is', '_', $title) . '-' . microtime(true) . '.tgz';
+		$destFile = CONFIG_TGZ_LIST_DIR . '/modules/mod-' . Util::sanitizeFilename($title) . '-' . microtime(true) . '.tgz';
 		Taskmanager::submit('RecompressArchive', array(
 			'id' => $this->taskId,
 			'inputFiles' => array($tempfile),
@@ -129,7 +133,7 @@ class CustomModule_CompressModule extends AddModule_Base
 			$this->taskError($status);
 		}
 		// Seems ok, create entry in DB
-		$ret = Database::exec("INSERT INTO configtgz_module (title, moduletype, filename, contents) VALUES (:title, 'custom', :file, '')",
+		$ret = Database::exec("INSERT INTO configtgz_module (title, moduletype, filepath, contents) VALUES (:title, 'custom', :file, '')",
 			array('title' => $title, 'file' => $destFile));
 		if ($ret === false) {
 			unlink($destFile);

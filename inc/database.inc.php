@@ -59,6 +59,7 @@ class Database
 	 * Note that this will re-use PDOStatements, so if you run the same
 	 * query again with different params, do not rely on the first PDOStatement
 	 * still being valid. If you need to do something fancy, use Database::prepare
+	 * @return \PDOStatement The query result object
 	 */
 	public static function simpleQuery($query, $args = array())
 	{

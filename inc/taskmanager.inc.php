@@ -66,12 +66,17 @@ class Taskmanager
 	
 	public static function waitComplete($taskId)
 	{
+		$done = false;
 		for ($i = 0; $i < 10; ++$i) {
 			$status = self::status($taskId);
 			if (!isset($status['statusCode'])) break;
-			if ($status['statusCode'] != TASK_PROCESSING && $status['statusCode'] != TASK_WAITING) break;
+			if ($status['statusCode'] != TASK_PROCESSING && $status['statusCode'] != TASK_WAITING) {
+				$done = true;
+				break;
+			}
 			usleep(150000);
 		}
+		if ($done) self::release ($taskId);
 		return $status;
 	}
 

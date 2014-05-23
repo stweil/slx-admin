@@ -7,6 +7,7 @@
 	so wird auf einem gebooteten Client diese Datei als <strong>/etc/beispiel.conf</strong> zu finden sein.</p>
 
 <form role="form" enctype="multipart/form-data" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
+	<input type="hidden" name="token" value="{{token}}">
 	<div class="input-group">
 		<span class="input-group-addon">Archiv</span>
 		<input class="form-control" type="file" name="modulefile">

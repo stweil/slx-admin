@@ -1,0 +1,21 @@
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			iPXE Menü
+		</div>
+		<div class="panel-body">
+			<p>
+				Das iPXE-Menü muss nach einer Änderung der IP-Adresse neu generiert werden. In der Regel geschieht dies
+				automatisch, der Vorgang kann hier allerdings auch manuell ausgelöst werden. In diesem Feld sehen Sie außerdem
+				die Log-Ausgaben der letzten Ausführung, falls noch im Cache.
+			</p>
+			<div data-tm-id="{{taskid}}" data-tm-log="output">Status</div>
+		</div>
+		<div class="panel-footer">
+			<form method="post">
+				<input type="hidden" name="token" value="{{token}}">
+				<button class="btn btn-primary" name="action" value="ipxe">Bootmenü erzeugen</button>
+			</form>
+		</div>
+	</div>
+</div>
