@@ -1,6 +1,7 @@
 <?php
 
 require_once 'inc/taskmanager.inc.php';
+require_once 'inc/property.inc.php';
 
 if (!is_array($_POST['ids'])) {
 	die('{"error" : "No Task ids given in POST data."}');
@@ -14,6 +15,12 @@ foreach ($_POST['ids'] as $id) {
 		continue;
 	}
 	$return[] = $status;
+	// HACK HACK - should be pluggable
+	if (isset($status['statusCode']) && $status['statusCode'] === TASK_FINISHED
+			&& $status['id'] === Property::getIPxeTaskId() && Property::getServerIp() !== Property::getIPxeIp()) {
+		Property::setIPxeIp(Property::getServerIp());
+	}
+	//
 	if (!isset($status['statusCode']) || ($status['statusCode'] !== TASK_WAITING && $status['statusCode'] !== TASK_PROCESSING)) {
 		Taskmanager::release($id);
 	}

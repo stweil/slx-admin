@@ -19,30 +19,38 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">Server</span>
-		<input name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
+		<input tabindex="1" name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
 		<span class="input-group-btn">
-			<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-question-sign"></span></button>
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
 	</div>
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">Suchbasis</span>
-		<input name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="dc=windows,dc=hs-beispiel,dc=de">
+		<input tabindex="2" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="dc=windows,dc=hs-beispiel,dc=de">
 		<span class="input-group-btn">
-			<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-question-sign"></span></button>
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
 	</div>
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">Bind DN</span>
-		<input name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="CN=bwlehrpool user,OU=Benutzer,OU=Gruppe XYZ,DC=windows,DC=hs-beispiel,DC=de">
+		<input tabindex="3" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="CN=bwlehrpool user,OU=Benutzer,OU=Gruppe XYZ,DC=windows,DC=hs-beispiel,DC=de">
 		<span class="input-group-btn">
-			<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-question-sign"></span></button>
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
 	</div>
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">Passwort</span>
-		<input name="bindpw" value="{{bindpw}}" type="text" class="form-control" placeholder="Paswort von 'bwlehrpool user'">
+		<input tabindex="4" name="bindpw" value="{{bindpw}}" type="text" class="form-control" placeholder="Paswort von 'bwlehrpool user'">
 		<span class="input-group-btn">
-			<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-question-sign"></span></button>
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span>
+	</div>
+	<br>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">Home</span>
+		<input tabindex="4" name="home" value="{{home}}" type="text" class="form-control" placeholder="\\server.example.com\%s">
+		<span class="input-group-btn">
+			<a class="btn btn-default" data-toggle="modal" data-target="#help-home"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
 	</div>
 	<br>
@@ -50,3 +58,24 @@
 		<button type="submit" class="btn btn-primary">Weiter &raquo;</button>
 	</div>
 </form>
+
+<div class="modal fade" id="help-home" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">Benutzerverzeichnis</div>
+			<div class="modal-body">
+				<p>
+					<b>Optionale Angabe</b>: Wenn die Clients für die Benutzer ein eigenes Verzeichnis
+					(Homeverzeichnis, Benutzerverzeichnis) von einem Server einbinden sollen, geben Sie
+					bitte hier das Format in <b>UNC-Notation</b> an, also z.B. <pre>\\fileserv.uni.example.com\users\%s</pre>
+					<b>%s</b> ist dabei ein Platzhalter für den Login-Namen des Benutzers.
+				</p>
+				<p>
+					Das Verzeichnis wird mit den gleichen Zugangsdaten eingebunden, die der Benutzer beim Login angibt.
+					(D.h. kein Kerberos Support o.ä.)
+				</p>
+			</div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+		</div>
+	</div>
+</div>

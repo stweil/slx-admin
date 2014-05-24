@@ -72,7 +72,7 @@ function tmResult(data, status)
 		}
 		var obj = $('div[data-tm-id="' + task.id + '"]');
 		if (!obj) continue;
-		if (task.statusCode === 'TASK_FINISHED') {
+		if (task.statusCode !== 'TASK_WAITING' && task.statusCode !== 'TASK_PROCESSING') {
 			obj.attr('data-tm-id', '');
 		}
 		var icon = obj.find('.data-tm-icon');

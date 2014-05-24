@@ -13,6 +13,9 @@ body {
   padding: 10px;
   margin: 0 auto;
 }
+.form-narrow {
+	max-width: 320px;
+}
 .form-signin .form-signin-heading,
 .form-signin .checkbox {
   margin-bottom: 10px;
@@ -72,7 +75,7 @@ body {
 }
 
 .slx-litehead {
-	margin: 5px 10px;
+	margin: 0px 10px 5px 10px;
 	color: #aaa;
 	text-transform: uppercase;
 	font-weight: bold;
@@ -80,4 +83,14 @@ body {
 
 .red {
 	color: red;
+}
+
+.slx-label {
+	font-weight: bold;
+	margin: auto;
+}
+
+.slx-table td {
+	padding-right: 5px;
+	padding-bottom: 2px;
 }

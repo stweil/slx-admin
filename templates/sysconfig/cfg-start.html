@@ -14,13 +14,13 @@
 				<div class="input-group">
 					<span class="input-group-addon">
 						{{#unique}}
-						<input type="radio" name="module[{{groupid}}]" value="{{moduleid}}">
+						<input type="radio" name="module[{{groupid}}]" value="{{moduleid}}" id="module{{moduleid}}">
 						{{/unique}}
 						{{^unique}}
-						<input type="checkbox" name="module[{{moduleid}}]" value="{{moduleid}}">
+						<input type="checkbox" name="module[{{moduleid}}]" value="{{moduleid}}" id="module{{moduleid}}">
 						{{/unique}}
 					</span>
-					<span class="form-control">{{title}}</span>
+					<label class="form-control" for="module{{moduleid}}">{{title}}</label>
 					{{#missing}}
 					<span class="input-group-addon" title="Modul beschädigt! Bitte neu generieren."><span class="red glyphicon glyphicon-exclamation-sign"></span></span>
 					{{/missing}}

@@ -1,23 +1,24 @@
 <div class="jumbotron">
 	<h1>Willkommen, {{user}}</h1>
 	<p>Dies ist die bwLehrpool Konfigurationsoberfläche.</p>
-	{{#ipxe}}
-		<div class="alert alert-warning">
-			<p>Das iPXE-Modul des Servers ist veraltet oder nicht vorhanden.</p>
-			<a class="btn btn-large btn-primary" href="?do=iPxe">iPXE compilieren</a>
-		</div>
-	{{/ipxe}}
-	{{#minilinux}}
-		<div class="alert alert-warning">
-			<p>Wichtige Dateien der MiniLinux-Installation fehlen.</p>
-			<a class="btn btn-large btn-primary" href="?do=MiniLinux">MiniLinux herunterladen</a>
-		</div>
-	{{/minilinux}}
-	{{#sysconfig}}
-		<div class="alert alert-warning">
-			<p>Es wurde noch keine Systemkonfiguration ausgewählt..</p>
-			<a class="btn btn-large btn-primary" href="?do=SysConfig">Systemkonfiguration festlegen</a>
-		</div>
-	{{/sysconfig}}
 </div>
-
+<ul class="list-group">
+{{#ipxe}}
+	<li class="list-group-item list-group-item-info">
+		Das Bootmenü ist veraltet oder wurde noch nicht generiert.
+		<a class="btn btn-sm btn-primary" href="?do=ServerSetup">Konfigurieren &raquo;</a>
+	</li>
+{{/ipxe}}
+{{#minilinux}}
+	<li class="list-group-item list-group-item-info">
+		Wichtige Dateien der MiniLinux-Installation fehlen.
+		<a class="btn btn-sm btn-primary" href="?do=MiniLinux">MiniLinux &raquo;</a>
+	</li>
+{{/minilinux}}
+{{#sysconfig}}
+	<li class="list-group-item list-group-item-info">
+		Es wurde noch keine Systemkonfiguration ausgewählt.
+		<a class="btn btn-sm btn-primary" href="?do=SysConfig">Systemkonfiguration &raquo;</a>
+	</li>
+{{/sysconfig}}
+</ul>

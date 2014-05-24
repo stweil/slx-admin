@@ -74,5 +74,15 @@ class Property
 	{
 		self::set('ipxe-task', $value);
 	}
+	
+	public static function getBootMenu()
+	{
+		return json_decode(self::get('ipxe-menu'), true);
+	}
+	
+	public static function setBootMenu($value)
+	{
+		self::set('ipxe-menu', json_encode($value));
+	}
 
 }

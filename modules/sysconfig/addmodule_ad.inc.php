@@ -22,6 +22,7 @@ class AdModule_Start extends AddModule_Base
 			'searchbase' => Request::post('searchbase'),
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
+			'home' => Request::post('home'),
 			'token' => Session::get('token')
 		));
 	}
@@ -43,23 +44,19 @@ class AdModule_CheckConnection extends AddModule_Base
 			AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
 			return;
 		}
-		/*
-		$data = Taskmanager::submit('LdapSearch', array(
-			'id' => $this->taskId,
-			'uri' => ''
+		$ldapSearch = Taskmanager::submit('LdapSearch', array(
+			'home' => Request::post('home'),
+			'server' => $server,
+			'searchbase' => $searchbase,
+			'binddn' => $binddn,
+			'bindpw' => $bindpw
 		));
-		*/
-		$ldapSearch = Taskmanager::submit('DummyTask', array());
-		if (isset($ldapSearch['id'])) {
-			$dummy = Taskmanager::submit('DummyTask', array('parentTask' => $ldapSearch['id']));
-		}
-		if (!isset($ldapSearch['id']) || !isset($dummy['id'])) {
+		if (!isset($ldapSearch['id'])) {
 			AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
 			return;
 		}
 		$this->taskIds = array(
-			'tm-search' => $ldapSearch['id'],
-			'tm-dummy' => $dummy['id']
+			'tm-search' => $ldapSearch['id']
 		);
 	}
 	
@@ -72,6 +69,7 @@ class AdModule_CheckConnection extends AddModule_Base
 				'binddn' => Request::post('binddn'),
 				'bindpw' => Request::post('bindpw'),
 				'token' => Session::get('token'),
+				'home' => Request::post('home'),
 				'step' => 'AdModule_Finish'
 			))
 		);
@@ -90,20 +88,17 @@ class AdModule_Finish extends AddModule_Base
 			Request::post('server'),
 			Request::post('searchbase'),
 			Request::post('binddn'),
-			Request::post('bindpw')
+			Request::post('bindpw'),
+			Request::post('home')
 		);
 		$config['proxyip'] = Property::getServerIp();
 		$tgz = Taskmanager::submit('CreateAdConfig', $config);
-		if (isset($tgz['id'])) {
-			$ldadp = Taskmanager::submit('DummyTask', array('parentTask' => $tgz['id']));
-		}
-		if (!isset($tgz['id']) || !isset($ldadp['id'])) {
+		if (!isset($tgz['id'])) {
 			AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
 			return;
 		}
 		$this->taskIds = array(
 			'tm-config' => $tgz['id'],
-			'tm-ldadp' => $ldadp['id'] 
 		);
 	}
 	

@@ -51,6 +51,8 @@ class Page_SysConfig extends Page
 	 */
 	protected function doRender()
 	{
+		Render::setTitle('Lokalisierung');
+		
 		$action = Request::any('action', 'list');
 		switch ($action) {
 		case 'addmodule':

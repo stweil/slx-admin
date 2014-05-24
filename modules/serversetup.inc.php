@@ -2,37 +2,77 @@
 
 class Page_ServerSetup extends Page
 {
+
 	private $taskStatus;
 	private $currentAddress;
-	
+	private $currentMenu;
+
 	protected function doPreprocess()
 	{
 		User::load();
-		
+
 		if (!User::hasPermission('superadmin')) {
 			Message::addError('no-permission');
 			Util::redirect('?do=Main');
 		}
 		
-		$this->currentAddress = Property::getServerIp();
-		$newAddress = Request::post('ip', 'none');
-		
-		$this->taskStatus = Taskmanager::submit('LocalAddressesList', array());
-		
-		if ($this->taskStatus === false) {
-			Util::redirect('?do=Main');
+		$this->currentMenu = Property::getBootMenu();
+
+		$action = Request::post('action');
+
+		if ($action === false) {
+			$this->currentAddress = Property::getServerIp();
+			$this->getLocalAddresses();
+		}
+
+		if ($action === 'ip') {
+			// New address is to be set
+			$this->getLocalAddresses();
+			$this->updateLocalAddress();
 		}
 		
+		if ($action === 'ipxe') {
+			// iPXE stuff changes
+			$this->updatePxeMenu();
+		}
+	}
+
+	protected function doRender()
+	{
+		Render::setTitle('Serverseitige Konfiguration');
+		
+		Render::addTemplate('serversetup/ipaddress', array(
+			'ips' => $this->taskStatus['data']['addresses'],
+			'token' => Session::get('token')
+		));
+		$data = $this->currentMenu;
+		$data['token'] = Session::get('token');
+		$data['taskid'] = Property::getIPxeTaskId();
+		if ($data['defaultentry'] === 'net') $data['active-net'] = 'checked';
+		if ($data['defaultentry'] === 'hdd') $data['active-hdd'] = 'checked';
+		if ($data['defaultentry'] === 'custom') $data['active-custom'] = 'checked';
+		Render::addTemplate('serversetup/ipxe', $data);
+	}
+	
+	// -----------------------------------------------------------------------------------------------
+
+	private function getLocalAddresses()
+	{
+		$this->taskStatus = Taskmanager::submit('LocalAddressesList', array());
+
+		if ($this->taskStatus === false) {
+			$this->taskStatus['data']['addresses'] = false;
+			return false;
+		}
+
 		if ($this->taskStatus['statusCode'] === TASK_WAITING) { // TODO: Async if just displaying
 			$this->taskStatus = Taskmanager::waitComplete($this->taskStatus['id']);
 		}
-		
+
 		$sortIp = array();
 		foreach (array_keys($this->taskStatus['data']['addresses']) as $key) {
-			$item =& $this->taskStatus['data']['addresses'][$key];
-			if (!isset($item['ip'])
-					|| !preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $item['ip'])
-					|| substr($item['ip'], 0, 4) === '127.') {
+			$item = & $this->taskStatus['data']['addresses'][$key];
+			if (!isset($item['ip']) || !preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $item['ip']) || substr($item['ip'], 0, 4) === '127.') {
 				unset($this->taskStatus['data']['addresses'][$key]);
 				continue;
 			}
@@ -43,35 +83,40 @@ class Page_ServerSetup extends Page
 		}
 		unset($item);
 		array_multisort($sortIp, SORT_STRING, $this->taskStatus['data']['addresses']);
+		return true;
+	}
 
-		if ($newAddress !== 'none') {
-			// New address is to be set - check if it is valid
-			$valid = false;
-			foreach ($this->taskStatus['data']['addresses'] as $item) {
-				if ($item['ip'] !== $newAddress) continue;
-				$valid = true;
-				break;
-			}
-			if ($valid) {
-				Property::setServerIp($newAddress);
-				Trigger::ipxe();
-			} else {
-				Message::addError('invalid-ip', $newAddress);
-			}
-			Util::redirect();
+	private function updateLocalAddress()
+	{
+		$newAddress = Request::post('ip', 'none');
+		$valid = false;
+		foreach ($this->taskStatus['data']['addresses'] as $item) {
+			if ($item['ip'] !== $newAddress)
+				continue;
+			$valid = true;
+			break;
 		}
-		
+		if ($valid) {
+			Property::setServerIp($newAddress);
+			Trigger::ipxe();
+		} else {
+			Message::addError('invalid-ip', $newAddress);
+		}
+		Util::redirect();
 	}
 	
-	protected function doRender()
+	private function updatePxeMenu()
 	{
-		Render::addTemplate('serversetup/ipaddress', array(
-			'ips' => $this->taskStatus['data']['addresses'],
-			'token' => Session::get('token')
-		));
-		Render::addTemplate('serversetup/ipxe', array(
-			'token' => Session::get('token'),
-			'taskid' => Property::getIPxeTaskId()
-		));
+		$timeout = Request::post('timeout', 10);
+		if (!is_numeric($timeout)) {
+			Message::addError('value-invalid', 'timeout', $timeout);
+		}
+		$this->currentMenu['defaultentry'] = Request::post('defaultentry', 'net');
+		$this->currentMenu['timeout'] = $timeout;
+		$this->currentMenu['custom'] = Request::post('custom', '');
+		Property::setBootMenu($this->currentMenu);
+		Trigger::ipxe(true);
+		Util::redirect('?do=ServerSetup');
 	}
+
 }

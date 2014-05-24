@@ -3,7 +3,7 @@
 class ConfigModule
 {
 	
-	public static function insertAdConfig($title, $server, $searchbase, $binddn, $bindpw)
+	public static function insertAdConfig($title, $server, $searchbase, $binddn, $bindpw, $home)
 	{
 		// TODO: Lock table, race condition if about 500 admins insert a config at the same time
 		Database::exec("INSERT INTO configtgz_module (title, moduletype, filepath, contents) "
@@ -31,6 +31,7 @@ class ConfigModule
 			'searchbase' => $searchbase,
 			'binddn' => $binddn,
 			'bindpw' => $bindpw,
+			'home' => $home,
 			'proxyport' => $port
 		);
 		$data = json_encode($ownEntry);

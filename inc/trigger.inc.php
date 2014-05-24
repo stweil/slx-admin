@@ -25,12 +25,12 @@ class Trigger
 		$last = Property::getIPxeTaskId();
 		if ($last !== false) {
 			$status = Taskmanager::status($last);
-			if (isset($status['statusCode']) && ($status['statusCode'] === TASK_WAITING || $status['statusCode'] === TASK_RUNNING))
+			if (isset($status['statusCode']) && ($status['statusCode'] === TASK_WAITING || $status['statusCode'] === TASK_PROCESSING))
 				return false; // Already compiling
 		}
-		$task = Taskmanager::submit('CompileIPxe', array(
-			'ip' => Property::getServerIp()
-		));
+		$data = Property::getBootMenu();
+		$data['ip'] = Property::getServerIp();
+		$task = Taskmanager::submit('CompileIPxe', $data);
 		if (!isset($task['id']))
 			return false;
 		Property::setIPxeTaskId($task['id']);
