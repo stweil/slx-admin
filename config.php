@@ -15,8 +15,7 @@ define('CONFIG_SQL_PASS', 'geheim');
 
 define('CONFIG_TGZ_LIST_DIR', '/opt/openslx/configs');
 
-define('CONFIG_REMOTE_TGZ', 'http://mltk.boot.openslx.org/tgz');
-define('CONFIG_REMOTE_ML',  'http://mltk.boot.openslx.org/update');
+define('CONFIG_REMOTE_ML',  'http://mltk.boot.openslx.org/update/new');
 
 define('CONFIG_TFTP_DIR', '/srv/openslx/tftp');
 define('CONFIG_HTTP_DIR', '/srv/openslx/www/boot');

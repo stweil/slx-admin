@@ -48,7 +48,6 @@ class Render
 			<script type="text/javascript">
 			var TOKEN = "' . Session::get('token') . '";
 			</script>
-			</body>
 	',
 		self::$header
 		,

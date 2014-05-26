@@ -36,5 +36,43 @@ class Trigger
 		Property::setIPxeTaskId($task['id']);
 		return $task['id'];
 	}
+	
+	public static function ldadp()
+	{
+		$res = Database::simpleQuery("SELECT moduleid, filepath FROM configtgz_module"
+			. " INNER JOIN configtgz_x_module USING (moduleid)"
+			. " INNER JOIN configtgz USING (configid)"
+			. " WHERE moduletype = 'AD_AUTH'");
+		// TODO: Multiconfig support
+		$id = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (readlink('/srv/openslx/www/boot/default/config.tgz') === $row['filepath']) {
+				$id[] = (int)$row['moduleid'];
+				break;
+			}
+		}
+		$task = Taskmanager::submit('LdadpLauncher', array(
+			'ids' => $id
+		));
+		if (!isset($task['id']))
+			return false;
+		return $task['id'];
+	}
+	
+	public static function mount()
+	{
+		$vmstore = Property::getVmStoreConfig();
+		if (!is_array($vmstore)) return;
+		$storetype = $vmstore['storetype'];
+		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
+		if ($storetype === 'cifs') $addr = $vmstore['nfsaddr'];
+		if ($storetype === 'internal') $addr = 'none';
+		$this->mountTask = Taskmanager::submit('MountVmStore', array(
+			'address' => $addr,
+			'type' => 'images',
+			'username' => $vmstore['cifsuser'],
+			'password' => $vmstore['cifspasswd']
+		));
+	}
 
 }

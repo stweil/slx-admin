@@ -2,12 +2,16 @@
 
 error_reporting(E_ALL);
 
-require_once('inc/user.inc.php');
-require_once('inc/util.inc.php');
-require_once('inc/database.inc.php');
-require_once('inc/permission.inc.php');
-require_once('inc/crypto.inc.php');
-require_once('inc/validator.inc.php');
+require_once 'config.php';
+
+// Autoload classes from ./inc which adhere to naming scheme <lowercasename>.inc.php
+function slxAutoloader($class) {
+	$file = 'inc/' . preg_replace('/[^a-z0-9]/', '', mb_strtolower($class)) . '.inc.php';
+	if (!file_exists($file)) return;
+	require_once $file;
+}
+spl_autoload_register('slxAutoloader');
+
 
 if (empty($_REQUEST['do'])) {
 	// No specific module - set default

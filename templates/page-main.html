@@ -3,6 +3,12 @@
 	<p>Dies ist die bwLehrpool Konfigurationsoberfläche.</p>
 </div>
 <ul class="list-group">
+{{#vmstore}}
+	<li class="list-group-item list-group-item-info">
+		Es ist noch kein Speicherort für die Virtuellen Maschinen festgelegt.
+		<a class="btn btn-sm btn-primary" href="?do=VmStore">Konfigurieren &raquo;</a>
+	</li>
+{{/vmstore}}
 {{#ipxe}}
 	<li class="list-group-item list-group-item-info">
 		Das Bootmenü ist veraltet oder wurde noch nicht generiert.

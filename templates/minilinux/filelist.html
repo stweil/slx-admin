@@ -1,0 +1,39 @@
+<div class="container">
+
+	{{#systems}}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4>{{title}}</h4>
+		</div>
+		<div class="panel-body" id="download-{{id}}">
+			<ul class="list-group">
+				{{#files}}
+				<li class="list-group-item" id="{{uid}}">
+					{{name}}
+					{{#changed}}<span class="btn btn-primary btn-sm" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">Aktualisieren</span>{{/changed}}
+				</li>
+				{{/files}}
+			</ul>
+		</div>
+	</div>
+	{{/systems}}
+	{{^systems}}
+	<div class="row well well-sm">Keine Konfigurationspakete gefunden!</div>
+	{{/systems}}
+</div>
+
+<script type="text/javascript">
+function slxUpdate(uid, id, name)
+{
+	$('#' + uid).load('?do=MiniLinux',
+		{ action : "download", token : TOKEN, id : id, name : name },
+		function(response, status, xhr) {
+			if (status === "error") {
+				var msg = "Fehler beim Abruf: ";
+				$('#' + uid).html(msg + xhr.status + " " + xhr.statusText);
+			} else {
+				setTimeout(tmInit, 50);
+			}
+		});
+}
+</script>

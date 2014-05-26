@@ -1,5 +1,7 @@
 <?php
 
+require_once 'config.php';
+
 /**
  * Page class which all "modules" must be extending from
  */

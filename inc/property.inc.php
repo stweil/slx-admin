@@ -84,5 +84,52 @@ class Property
 	{
 		self::set('ipxe-menu', json_encode($value));
 	}
+	
+	public static function getVersionCheckTaskId()
+	{
+		return self::get('versioncheck-task');
+	}
+	
+	public static function setVersionCheckTaskId($value)
+	{
+		self::set('versioncheck-task', $value);
+	}
+	
+	public static function getVersionCheckInformation()
+	{
+		$data = json_decode(self::get('versioncheck-data'), true);
+		if (isset($data['time']) && $data['time'] + 120 > time())
+			return $data;
+		$task = Taskmanager::submit('DownloadText', array(
+			'url' => CONFIG_REMOTE_ML . '/list.php'
+		));
+		if (!isset($task['id']))
+			return false;
+		if ($task['statusCode'] !== TASK_FINISHED) {
+			$task = Taskmanager::waitComplete($task['id']);
+		}
+		if ($task['statusCode'] !== TASK_FINISHED || !isset($task['data']['content'])) {
+			return $task['data']['error'];
+		}
+		$data = json_decode($task['data']['content'], true);
+		$data['time'] = time();
+		self::setVersionCheckInformation($data);
+		return $data;
+	}
+	
+	public static function setVersionCheckInformation($value)
+	{
+		self::set('versioncheck-data', json_encode($value));
+	}
+	
+	public static function getVmStoreConfig()
+	{
+		return json_decode(self::get('vmstore-config'), true);
+	}
+	
+	public static function setVmStoreConfig($value)
+	{
+		self::set('vmstore-config', json_encode($value));
+	}
 
 }

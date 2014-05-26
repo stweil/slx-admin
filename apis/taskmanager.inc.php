@@ -16,11 +16,15 @@ foreach ($_POST['ids'] as $id) {
 	}
 	$return[] = $status;
 	// HACK HACK - should be pluggable
-	if (isset($status['statusCode']) && $status['statusCode'] === TASK_FINISHED
-			&& $status['id'] === Property::getIPxeTaskId() && Property::getServerIp() !== Property::getIPxeIp()) {
+	if (isset($status['statusCode']) && $status['statusCode'] === TASK_FINISHED // iPXE Update
+			&& $id === Property::getIPxeTaskId() && Property::getServerIp() !== Property::getIPxeIp()) {
 		Property::setIPxeIp(Property::getServerIp());
 	}
-	//
+	if (isset($status['statusCode']) && $status['statusCode'] === TASK_FINISHED // MiniLinux Version check
+			&& $id === Property::getVersionCheckTaskId()) {
+		Property::setVersionCheckInformation(Property::getServerIp());
+	}
+	// -- END HACKS --
 	if (!isset($status['statusCode']) || ($status['statusCode'] !== TASK_WAITING && $status['statusCode'] !== TASK_PROCESSING)) {
 		Taskmanager::release($id);
 	}

@@ -1,13 +1,16 @@
 var tmItems = false;
 var tmErrors = 0;
 var TM_MAX_ERRORS = 5;
+var tmIsRunning = false;
 
 function tmInit()
 {
 	tmItems = $("div[data-tm-id]");
-	if (tmItems.length === 0) return;
+	if (tmItems.length === 0)
+		return;
 	tmItems.each(function(i, item) {
 		item = $(item);
+		if (item.find('.data-tm-icon').length !== 0) return;
 		if (item.is('[data-tm-progress]')) {
 			item.append('<div class="data-tm-progress"><div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div></div>');
 		}
@@ -16,7 +19,9 @@ function tmInit()
 		}
 		item.prepend('<span class="data-tm-icon" />');
 	});
-	setTimeout(tmUpdate, 100);
+	if (!tmIsRunning)
+		setTimeout(tmUpdate, 50);
+	tmIsRunning = true;
 }
 
 function tmUpdate()
@@ -25,19 +30,25 @@ function tmUpdate()
 	tmItems.each(function(i, item) {
 		item = $(item);
 		var id = item.attr('data-tm-id');
-		if (typeof id === 'undefined' || id === false || id === '') return;
+		if (typeof id === 'undefined' || id === false || id === '')
+			return;
 		active.push(id);
 	});
-	if (active.length === 0) return;
-	$.post('api.php?do=taskmanager', { 'ids[]' : active, token : TOKEN }, function (data, status) {
+	if (active.length === 0)
+		return;
+	$.post('api.php?do=taskmanager', {'ids[]': active, token: TOKEN}, function(data, status) {
 		// POST success
-		if (tmResult(data, status)) {
+		tmIsRunning = tmResult(data, status)
+		if (tmIsRunning) {
 			setTimeout(tmUpdate, 1000);
 		}
-	}, 'json').fail(function (jqXHR, textStatus, errorThrown) {
+	}, 'json').fail(function(jqXHR, textStatus, errorThrown) {
 		// POST failure
 		console.log("TaskManager Error: " + textStatus + " - " + errorThrown);
-		if (++tmErrors < TM_MAX_ERRORS) setTimeout(tmUpdate, 2000);
+		if (++tmErrors < TM_MAX_ERRORS)
+			setTimeout(tmUpdate, 2000);
+		else
+			tmIsRunning = false;
 	});
 }
 
@@ -60,7 +71,8 @@ function tmResult(data, status)
 	var counter = 0;
 	for (var idx in data.tasks) {
 		var task = data.tasks[idx];
-		if (!task.id) continue;
+		if (!task.id)
+			continue;
 		counter++;
 		if (lastRunOnError) {
 			task.statusCode = 'TASK_ERROR';
@@ -71,7 +83,8 @@ function tmResult(data, status)
 			--tmErrors;
 		}
 		var obj = $('div[data-tm-id="' + task.id + '"]');
-		if (!obj) continue;
+		if (!obj)
+			continue;
 		if (task.statusCode !== 'TASK_WAITING' && task.statusCode !== 'TASK_PROCESSING') {
 			obj.attr('data-tm-id', '');
 		}

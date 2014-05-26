@@ -20,7 +20,14 @@ class Page_Main extends Page
 		$ipxe = (Property::getServerIp() !== Property::getIPxeIp());
 		$sysconfig = !file_exists(CONFIG_HTTP_DIR . '/default/config.tgz');
 		$minilinux = !file_exists(CONFIG_HTTP_DIR . '/default/kernel') || !file_exists(CONFIG_HTTP_DIR . '/default/initramfs-stage31') || !file_exists(CONFIG_HTTP_DIR . '/default/stage32.sqfs');
-		Render::addTemplate('page-main', array('user' => User::getName(), 'ipxe' => $ipxe, 'sysconfig' => $sysconfig, 'minilinux' => $minilinux));
+		$vmstore = !is_array(Property::getVmStoreConfig());
+		Render::addTemplate('page-main', array(
+			'user' => User::getName(),
+			'ipxe' => $ipxe,
+			'sysconfig' => $sysconfig,
+			'minilinux' => $minilinux,
+			'vmstore' => $vmstore
+		));
 	}
 
 }

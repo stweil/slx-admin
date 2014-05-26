@@ -1,0 +1,89 @@
+<div class="container">
+	<form role="form" method="post" action="?do=VmStore">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="setstore">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				VM Speicherort <a class="btn btn-default" data-toggle="modal" data-target="#help-store"><span class="glyphicon glyphicon-question-sign"></span></a>
+			</div>
+			<div class="panel-body">
+				<p>Bitte wählen Sie, wo die Images der Virtuellen Maschinen gespeichert werden sollen.</p>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<input type="radio" name="storetype" value="internal" {{pre-internal}}> Intern
+					</div>
+					<div class="panel-body">
+						Keine Weitere Konfiguration notwendig
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<input type="radio" name="storetype" value="nfs" {{pre-nfs}}> NFS
+					</div>
+					<div class="panel-body">
+						<div class="input-group">
+							<span class="input-group-addon slx-ga">
+								NFS-Export
+							</span>
+							<input type="text" class="form-control" name="nfsaddr" value="{{nfsaddr}}" placeholder="1.2.3.4:/export/bwlp">
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<input type="radio" name="storetype" value="cifs" {{pre-cifs}}> CIFS
+					</div>
+					<div class="panel-body">
+						<div class="input-group">
+							<span class="input-group-addon slx-ga">
+								UNC-Pfad
+							</span>
+							<input type="text" class="form-control" name="cifsaddr" value="{{cifsaddr}}" placeholder="\\samba.server.example.com\bwlp">
+						</div>
+						<div class="input-group">
+							<span class="input-group-addon slx-ga">
+								Benutzername
+							</span>
+							<input type="text" class="form-control" name="cifsuser" value="{{cifsuser}}" placeholder="Benutzername">
+						</div>
+						<div class="input-group">
+							<span class="input-group-addon slx-ga">
+								Passwort
+							</span>
+							<input type="text" class="form-control" name="cifspasswd" value="{{cifspasswd}}" placeholder="Passwort">
+						</div>
+					</div>
+				</div>
+				<button class="btn btn-primary" type="submit">Speichern</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div class="modal fade" id="help-store" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">VM Speicherort</div>
+			<div class="modal-body">
+				<p>
+					Für Testzwecke können die VMs direkt auf dem Satellitenserver gespeichert werden. Sofern Sie
+					jedoch die ausgelieferte Satelliten-vmdk betreiben bedenken Sie bitte, dass Sie dann nur ca. 100GB
+					Speicher zur Verfügung haben.
+				</p>
+				<p>
+					Im Produktivbetrieb bietet es sich an, hierfür einen performanten Netzwerkspeicher zu benutzen.
+					Dieser Netzwerkspeicher kann per NFS oder CIFS/SMB eingebunden werden. In jedem Fall muss sichergestellt
+					werden, dass der Satellitenserver zum Hinzufügen neuer Virtueller Maschinen Schreibzugriff auf
+					diesen Netzwerkspeicher hat. Bei der Nutzung von NFSv3 kann dies IP-Basiert eingerichtet werden,
+					für die Nutzung von CIFS/SMB können Sie Zugangsdaten angaben, die zum Schreiben berechtigen.
+				</p>
+				<p>
+					Die bwLehrpool-Clients brauchen lediglich Lesezugriff auf den Netzwerkspeicher (und sollten aus
+					Sicherheitsgründen auch wirklich nur lesen können). Bei CIFS/SMB erreichen Sie dies am einfachsten,
+					indem Sie passwortlosen Gastzugriff mit Leserechten auf die Freigabe erlauben.
+				</p>
+			</div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+		</div>
+	</div>
+</div>
