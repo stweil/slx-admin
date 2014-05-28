@@ -93,6 +93,7 @@ class Message
 	public static function renderList()
 	{
 		global $error_text;
+		if (!self::$flushed) Render::openTag('div', array('class' => 'container'));
 		foreach (self::$list as $item) {
 			$message = $error_text[$item['id']];
 			foreach ($item['params'] as $index => $text) {
@@ -101,6 +102,7 @@ class Message
 			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message));
 			self::$alreadyDisplayed[] = $item;
 		}
+		if (!self::$flushed) Render::closeTag('div');
 		self::$list = array();
 		self::$flushed = true;
 	}

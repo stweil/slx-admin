@@ -37,10 +37,15 @@
 					Keine Systemkonfigurationen gefunden.
 					<br>Erstellen Sie eine neue Konfiguration aus den unten aufgeführten Konfigurationsmodulen.
 				</div>
+				{{^modules}}
+				<div class="alert alert-danger">
+					Bevor Sie eine Systemkonfiguration erstellen können, müssen Sie zunächst ein Konfigurationsmodul erzeugen.
+				</div>
+				{{/modules}}
 				{{/configs}}
 			</form>
 		</div>
-		<div class="panel-footer">
+		<div class="panel-footer">			
 			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">Neue Konfiguration</a>
 		</div>
 	</div>

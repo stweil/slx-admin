@@ -8,21 +8,6 @@ abstract class AddConfig_Base
 {
 
 	/**
-	 *
-	 * @var array Known module types
-	 */
-	protected static $types = array(
-		'AD_AUTH' => array(
-			'unique' => true,
-			'group' => 'Authentifizierung'
-		),
-		'custom' => array(
-			'unique' => false,
-			'group' => 'Generisch'
-		)
-	);
-
-	/**
 	 * Holds the instance for the currently executing step
 	 * @var \AddConfig_Base
 	 */
@@ -123,26 +108,27 @@ class AddConfig_Start extends AddConfig_Base
 
 	protected function renderInternal()
 	{
+		$mods = Page_SysConfig::getModuleTypes();
 		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath FROM configtgz_module"
 			. " ORDER BY title ASC");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (!isset(self::$types[$row['moduletype']])) {
-				self::$types[$row['moduletype']] = array(
+			if (!isset($mods[$row['moduletype']])) {
+				$mods[$row['moduletype']] = array(
 					'unique' => false,
 					'group' => 'Undefined moduletype in addconfig.inc.php'
 				);
 			}
-			if (!isset(self::$types[$row['moduletype']]['modules'])) {
-				self::$types[$row['moduletype']]['modules'] = array();
-				self::$types[$row['moduletype']]['groupid'] = $row['moduletype'];
+			if (!isset($mods[$row['moduletype']]['modules'])) {
+				$mods[$row['moduletype']]['modules'] = array();
+				$mods[$row['moduletype']]['groupid'] = $row['moduletype'];
 			}
 			if (empty($row['filepath']) || !file_exists($row['filepath'])) $row['missing'] = true;
-			self::$types[$row['moduletype']]['modules'][] = $row;
+			$mods[$row['moduletype']]['modules'][] = $row;
 		}
 		Render::addDialog('Konfiguration zusammenstellen', false, 'sysconfig/cfg-start', array(
 			'token' => Session::get('token'),
 			'step' => 'AddConfig_Finish',
-			'groups' => array_values(self::$types)
+			'groups' => array_values($mods)
 		));
 	}
 
@@ -195,7 +181,7 @@ class AddConfig_Finish extends AddConfig_Base
 
 	protected function renderInternal()
 	{
-		if (isset($this->task['statusCode']) && $this->task['statusCode'] === TASK_WAITING) {
+		if (isset($this->task['statusCode']) && ($this->task['statusCode'] === TASK_WAITING || $this->task['statusCode'] === TASK_PROCESSING)) {
 			$this->task = Taskmanager::waitComplete($this->task['id']);
 		}
 		if ($this->task === false) $this->tmError();

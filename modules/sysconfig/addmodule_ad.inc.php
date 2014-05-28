@@ -4,9 +4,10 @@
  * Wizard for setting up active directory integration for authentication.
  */
 
-AddModule_Base::addModule('active_directory', 'AdModule_Start', 'Active Directory Authentifizierung',
+Page_SysConfig::addModule('AD_AUTH', 'AdModule_Start', 'Active Directory Authentifizierung',
 	'Mit diesem Modul ist die Anmeldung an den Client PCs mit den Benutzerkonten eines Active Directory'
-	. ' möglich. Je nach Konfiguration ist auch die Nutzung eines Benutzerverzeichnisses auf dem Client möglich.'
+	. ' möglich. Je nach Konfiguration ist auch die Nutzung eines Benutzerverzeichnisses auf dem Client möglich.',
+	'Authentifizierung', true
 );
 
 class AdModule_Start extends AddModule_Base
@@ -88,8 +89,8 @@ class AdModule_Finish extends AddModule_Base
 			Request::post('server'),
 			Request::post('searchbase'),
 			Request::post('binddn'),
-			Request::post('bindpw'),
-			Request::post('home')
+			Request::post('bindpw', ''),
+			Request::post('home', '')
 		);
 		$config['proxyip'] = Property::getServerIp();
 		$tgz = Taskmanager::submit('CreateAdConfig', $config);

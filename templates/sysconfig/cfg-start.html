@@ -26,6 +26,9 @@
 					{{/missing}}
 				</div>
 			{{/modules}}
+			{{^modules}}
+			<a class="btn btn-primary btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{startClass}}">Neu..</a>
+			{{/modules}}
 			</div>
 		</div>
 	{{/groups}}

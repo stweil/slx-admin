@@ -32,7 +32,7 @@ function slxUpdate(uid, id, name)
 				var msg = "Fehler beim Abruf: ";
 				$('#' + uid).html(msg + xhr.status + " " + xhr.statusText);
 			} else {
-				setTimeout(tmInit, 50);
+				setTimeout(tmInit, 100);
 			}
 		});
 }

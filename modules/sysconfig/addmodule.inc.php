@@ -8,26 +8,10 @@ abstract class AddModule_Base
 {
 
 	/**
-	 * Holds all the known configuration modules, with title, description, start class for their wizard, etc.
-	 * @var array
-	 */
-	protected static $moduleTypes = array();
-	
-	/**
 	 * Holds the instance for the currently executing step
 	 * @var \AddModule_Base
 	 */
 	private static $instance = false;
-
-	public static function addModule($id, $startClass, $title, $description, $sortOrder = 0)
-	{
-		self::$moduleTypes[] = array(
-			'startClass' => $startClass,
-			'title' => $title,
-			'description' => $description,
-			'sortOrder' => $sortOrder
-		);
-	}
 
 	/**
 	 * 
@@ -125,12 +109,13 @@ class AddModule_Start extends AddModule_Base
 	protected function renderInternal()
 	{
 		$title = $order = array();
-		foreach (AddModule_Base::$moduleTypes as $module) {
+		$mods = Page_SysConfig::getModuleTypes();
+		foreach ($mods as $module) {
 			$title[] = $module['title'];
 			$order[] = $module['sortOrder'];
 		}
-		array_multisort($order, SORT_ASC, $title, SORT_ASC, self::$moduleTypes);
-		Render::addDialog('Modul hinzufügen', false, 'sysconfig/start', array('modules' => self::$moduleTypes));
+		array_multisort($order, SORT_ASC, $title, SORT_ASC, $mods);
+		Render::addDialog('Modul hinzufügen', false, 'sysconfig/start', array('modules' => array_values($mods)));
 	}
 
 }

@@ -6,6 +6,7 @@
  */
 class Database
 {
+
 	private static $dbh = false;
 	private static $statements = array();
 
@@ -14,7 +15,8 @@ class Database
 	 */
 	private static function init()
 	{
-		if (self::$dbh !== false) return;
+		if (self::$dbh !== false)
+			return;
 		try {
 			self::$dbh = new PDO(CONFIG_SQL_DSN, CONFIG_SQL_USER, CONFIG_SQL_PASS, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
 		} catch (PDOException $e) {
@@ -26,24 +28,31 @@ class Database
 	 * If you just need the first row of a query you can use this.
 	 * Will return an associative array, or false if no row matches the query
 	 */
-	public static function queryFirst($query, $args = array())
+	public static function queryFirst($query, $args = array(), $ignoreError = false)
 	{
-		$res = self::simpleQuery($query, $args);
-		if ($res === false) return false;
+		$res = self::simpleQuery($query, $args, $ignoreError);
+		if ($res === false)
+			return false;
 		return $res->fetch(PDO::FETCH_ASSOC);
 	}
+
 
 	/**
 	 * Execute the given query and return the number of rows affected.
 	 * Mostly useful for UPDATEs or INSERTs
+	 * 
+	 * @param string $query Query to run
+	 * @param array $args Arguments to query
+	 * @return int|boolean Number of rows affected, or false on error
 	 */
-	public static function exec($query, $args = array())
+	public static function exec($query, $args = array(), $ignoreError = false)
 	{
-		$res = self::simpleQuery($query, $args);
-		if ($res === false) return false;
+		$res = self::simpleQuery($query, $args, $ignoreError);
+		if ($res === false)
+			return false;
 		return $res->rowCount();
 	}
-	
+
 	/**
 	 * Get id (promary key) of last row inserted.
 	 * 
@@ -61,7 +70,7 @@ class Database
 	 * still being valid. If you need to do something fancy, use Database::prepare
 	 * @return \PDOStatement The query result object
 	 */
-	public static function simpleQuery($query, $args = array())
+	public static function simpleQuery($query, $args = array(), $ignoreError = false)
 	{
 		self::init();
 		try {
@@ -71,11 +80,15 @@ class Database
 				self::$statements[$query]->closeCursor();
 			}
 			if (self::$statements[$query]->execute($args) === false) {
+				if ($ignoreError)
+					return false;
 				Util::traceError("Database Error: \n" . implode("\n", self::$statements[$query]->errorInfo()));
 			}
 			return self::$statements[$query];
 		} catch (Exception $e) {
-			return false;
+				if ($ignoreError)
+					return false;
+				Util::traceError("Database Error: \n" . $e->getMessage());
 		}
 	}
 
@@ -90,4 +103,3 @@ class Database
 	}
 
 }
-

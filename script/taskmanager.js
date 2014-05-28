@@ -10,7 +10,8 @@ function tmInit()
 		return;
 	tmItems.each(function(i, item) {
 		item = $(item);
-		if (item.find('.data-tm-icon').length !== 0) return;
+		if (item.find('.data-tm-icon').length !== 0)
+			return;
 		if (item.is('[data-tm-progress]')) {
 			item.append('<div class="data-tm-progress"><div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div></div>');
 		}
@@ -38,17 +39,16 @@ function tmUpdate()
 		return;
 	$.post('api.php?do=taskmanager', {'ids[]': active, token: TOKEN}, function(data, status) {
 		// POST success
-		tmIsRunning = tmResult(data, status)
+		tmIsRunning = tmResult(data, status);
 		if (tmIsRunning) {
 			setTimeout(tmUpdate, 1000);
 		}
 	}, 'json').fail(function(jqXHR, textStatus, errorThrown) {
 		// POST failure
 		console.log("TaskManager Error: " + textStatus + " - " + errorThrown);
-		if (++tmErrors < TM_MAX_ERRORS)
+		tmIsRunning = (++tmErrors < TM_MAX_ERRORS);
+		if (tmIsRunning)
 			setTimeout(tmUpdate, 2000);
-		else
-			tmIsRunning = false;
 	});
 }
 

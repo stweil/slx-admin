@@ -60,13 +60,8 @@ class Page_VmStore extends Page
 		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
 		if ($storetype === 'cifs') $addr = $vmstore['nfsaddr'];
 		if ($storetype === 'internal') $addr = 'none';
-		$this->mountTask = Taskmanager::submit('MountVmStore', array(
-			'address' => $addr,
-			'type' => 'images',
-			'username' => $vmstore['cifsuser'],
-			'password' => $vmstore['cifspasswd']
-		));
 		Property::setVmStoreConfig($vmstore);
+		$this->mountTask = Trigger::mount();
 	}
 
 }

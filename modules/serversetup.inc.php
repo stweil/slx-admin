@@ -15,7 +15,7 @@ class Page_ServerSetup extends Page
 			Message::addError('no-permission');
 			Util::redirect('?do=Main');
 		}
-		
+
 		$this->currentMenu = Property::getBootMenu();
 
 		$action = Request::post('action');
@@ -30,7 +30,7 @@ class Page_ServerSetup extends Page
 			$this->getLocalAddresses();
 			$this->updateLocalAddress();
 		}
-		
+
 		if ($action === 'ipxe') {
 			// iPXE stuff changes
 			$this->updatePxeMenu();
@@ -40,7 +40,7 @@ class Page_ServerSetup extends Page
 	protected function doRender()
 	{
 		Render::setTitle('Serverseitige Konfiguration');
-		
+
 		Render::addTemplate('serversetup/ipaddress', array(
 			'ips' => $this->taskStatus['data']['addresses'],
 			'token' => Session::get('token')
@@ -48,12 +48,15 @@ class Page_ServerSetup extends Page
 		$data = $this->currentMenu;
 		$data['token'] = Session::get('token');
 		$data['taskid'] = Property::getIPxeTaskId();
-		if ($data['defaultentry'] === 'net') $data['active-net'] = 'checked';
-		if ($data['defaultentry'] === 'hdd') $data['active-hdd'] = 'checked';
-		if ($data['defaultentry'] === 'custom') $data['active-custom'] = 'checked';
+		if ($data['defaultentry'] === 'net')
+			$data['active-net'] = 'checked';
+		if ($data['defaultentry'] === 'hdd')
+			$data['active-hdd'] = 'checked';
+		if ($data['defaultentry'] === 'custom')
+			$data['active-custom'] = 'checked';
 		Render::addTemplate('serversetup/ipxe', $data);
 	}
-	
+
 	// -----------------------------------------------------------------------------------------------
 
 	private function getLocalAddresses()
@@ -104,10 +107,12 @@ class Page_ServerSetup extends Page
 		}
 		Util::redirect();
 	}
-	
+
 	private function updatePxeMenu()
 	{
 		$timeout = Request::post('timeout', 10);
+		if ($timeout === '')
+			$timeout = 10;
 		if (!is_numeric($timeout)) {
 			Message::addError('value-invalid', 'timeout', $timeout);
 		}

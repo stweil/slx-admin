@@ -2,6 +2,45 @@
 
 class Page_SysConfig extends Page
 {
+	
+	/**
+	 * Holds all the known configuration modules, with title, description, start class for their wizard, etc.
+	 * @var array
+	 */
+	protected static $moduleTypes = array();
+
+	/**
+	 * Add a known configuration module. Every addmoule_* file should call this
+	 * for its module provided.
+	 *
+	 * @param string $id Internal identifier for the module
+	 * @param string $startClass Class to start wizard for creating such a module
+	 * @param string $title Title of this module type
+	 * @param string $description Description for this module type
+	 * @param string $group Title for group this module type belongs to
+	 * @param bool $unique Can only one such module be added to a config?
+	 * @param int $sortOrder Lower comes first, alphabetical ordering otherwiese
+	 */
+	public static function addModule($id, $startClass, $title, $description, $group, $unique, $sortOrder = 0)
+	{
+		self::$moduleTypes[$id] = array(
+			'startClass' => $startClass,
+			'title' => $title,
+			'description' => $description,
+			'group' => $group,
+			'unique' => $unique,
+			'sortOrder' => $sortOrder
+		);
+	}
+	
+	/**
+	 * 
+	 * @return array All registered module types
+	 */
+	public static function getModuleTypes()
+	{
+		return self::$moduleTypes;
+	}
 
 	protected function doPreprocess()
 	{
@@ -13,6 +52,12 @@ class Page_SysConfig extends Page
 		}
 
 		$action = Request::any('action', 'list');
+		
+		// Load all addmodule classes, as they populate the $moduleTypes array
+		require_once 'modules/sysconfig/addmodule.inc.php';
+		foreach (glob('modules/sysconfig/addmodule_*.inc.php') as $file) {
+			require_once $file;
+		}
 
 		// Action: "addmodule" (upload new module)
 		if ($action === 'addmodule') {
@@ -181,10 +226,6 @@ class Page_SysConfig extends Page
 	{
 		$step = Request::any('step', 0);
 		if ($step === 0) $step = 'AddModule_Start';
-		require_once 'modules/sysconfig/addmodule.inc.php';
-		foreach (glob('modules/sysconfig/addmodule_*.inc.php') as $file) {
-			require_once $file;
-		}
 		AddModule_Base::setStep($step);
 	}
 	

@@ -39,7 +39,7 @@ class Trigger
 	
 	public static function ldadp()
 	{
-		$res = Database::simpleQuery("SELECT moduleid, filepath FROM configtgz_module"
+		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"
 			. " INNER JOIN configtgz_x_module USING (moduleid)"
 			. " INNER JOIN configtgz USING (configid)"
 			. " WHERE moduletype = 'AD_AUTH'");
@@ -65,7 +65,7 @@ class Trigger
 		if (!is_array($vmstore)) return;
 		$storetype = $vmstore['storetype'];
 		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
-		if ($storetype === 'cifs') $addr = $vmstore['nfsaddr'];
+		if ($storetype === 'cifs') $addr = $vmstore['cifsaddr'];
 		if ($storetype === 'internal') $addr = 'none';
 		$this->mountTask = Taskmanager::submit('MountVmStore', array(
 			'address' => $addr,
