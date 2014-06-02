@@ -48,6 +48,8 @@ class Page_ServerSetup extends Page
 		$data = $this->currentMenu;
 		$data['token'] = Session::get('token');
 		$data['taskid'] = Property::getIPxeTaskId();
+		if (!isset($data['defaultentry']))
+			$data['defaultentry'] = 'net';
 		if ($data['defaultentry'] === 'net')
 			$data['active-net'] = 'checked';
 		if ($data['defaultentry'] === 'hdd')

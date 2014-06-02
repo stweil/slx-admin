@@ -39,6 +39,7 @@ class Page_MiniLinux extends Page
 					$local = CONFIG_HTTP_DIR . '/' . $system['id'] . '/' . $file['name'];
 					if (!file_exists($local) || filesize($local) !== $file['size'] || md5_file($local) !== substr($file['md5'], 0, 32)) {
 						$file['changed'] = true;
+						$file['taskid'] = Property::getDownloadTask($file['md5']);
 					}
 				}
 			}
