@@ -111,7 +111,7 @@ class Property
 				'url' => CONFIG_REMOTE_ML . '/list.php'
 		));
 		if (!isset($task['id']))
-			return false;
+			return 'Could not start list download (' . Message::asString() . ')';
 		if ($task['statusCode'] !== TASK_FINISHED) {
 			$task = Taskmanager::waitComplete($task['id']);
 		}
@@ -126,7 +126,7 @@ class Property
 
 	public static function setVersionCheckInformation($value)
 	{
-		self::set('versioncheck-data', json_encode($value));
+		self::set('versioncheck-data', json_encode($value), 1);
 	}
 
 	public static function getVmStoreConfig()

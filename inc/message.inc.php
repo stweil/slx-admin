@@ -108,6 +108,26 @@ class Message
 	}
 
 	/**
+	 * Get all queued messages, flushing the queue.
+	 * Useful in api/ajax mode.
+	 */
+	public static function asString()
+	{
+		global $error_text;
+		$return = '';
+		foreach (self::$list as $item) {
+			$message = $error_text[$item['id']];
+			foreach ($item['params'] as $index => $text) {
+				$message = str_replace('{{' . $index . '}}', $text, $message);
+			}
+			$return .= '[' . $item['type'] . ']: ' . $message . "\n";
+			self::$alreadyDisplayed[] = $item;
+		}
+		self::$list = array();
+		return $return;
+	}
+
+	/**
 	 * Deserialize any messages from the current HTTP request and
 	 * place them in the message queue.
 	 */
