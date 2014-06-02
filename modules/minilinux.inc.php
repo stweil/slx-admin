@@ -42,10 +42,13 @@ class Page_MiniLinux extends Page
 					}
 					$taskId = Property::getDownloadTask($file['md5']);
 					if ($taskId !== false) {
-						$file['download'] = Render::parse('minilinux/download', array(
-							'task' => $taskId,
-							'name' => $file['name']
-						));
+						$task = Taskmanager::status($taskId);
+						if (isset($task['data']['progress'])) {
+							$file['download'] = Render::parse('minilinux/download', array(
+								'task' => $taskId,
+								'name' => $file['name']
+							));
+						}
 					}
 				}
 			}
