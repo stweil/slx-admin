@@ -109,6 +109,9 @@ class Page_SysConfig extends Page
 		case 'list':
 			$this->listConfigs();
 			break;
+		case 'module':
+			$this->listModuleContents();
+			break;
 		default:
 			Message::addError('invalid-action', $action);
 			break;
@@ -143,6 +146,64 @@ class Page_SysConfig extends Page
 			'configs' => $configs,
 			'modules' => $modules,
 			'token' => Session::get('token')
+		));
+	}
+	
+	private function listModuleContents()
+	{
+		// fetch the data
+		$moduleid = Request::post('list', 'MISSING');
+		$row = Database::queryFirst("SELECT title, filepath FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
+		if ($row == false) {
+			Message::addError('config-invalid', $moduleid);
+			Util::redirect('?do=SysConfig');
+		}
+		
+		// find files in that archive
+		$taskStatus = Taskmanager::submit('ListArchive', array(
+			'file' => $row['filepath']
+			));
+		
+		if (isset($taskStatus['id'])) {
+			
+			$status = Taskmanager::waitComplete($taskStatus['id']);
+			Taskmanager::release($taskStatus['id']);
+			if (!isset($status['statusCode'])) {
+				//
+				//$this->tmError();
+			}
+			if ($status['statusCode'] != TASK_FINISHED) {
+				$this->taskError($status);
+			}
+			// Sort files for better display
+			$dirs = array();
+			foreach ($status['data']['entries'] as $file) {
+				if ($file['isdir']) continue;
+				$dirs[dirname($file['name'])][] = $file;
+			}
+			ksort($dirs);
+			$list = array();
+			foreach ($dirs as $dir => $files) {
+				$list[] = array(
+						'name' => $dir,
+						'isdir' => true
+				);
+				sort($files);
+				foreach ($files as $file) {
+					$file['size'] = Util::readableFileSize($file['size']);
+					$list[] = $file;
+				}
+			}
+		} else {
+			// task failed, redirect 
+			Util::redirect('?do=SysConfig');
+		} 
+			
+		
+		// render the template
+		Render::addDialog('Inhalt von "' . $row['title'] . '"', false, 'sysconfig/custom-filelist', array(
+				'token' => Session::get('token'),
+				'files' => $list,
 		));
 	}
 	

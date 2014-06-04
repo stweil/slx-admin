@@ -1,0 +1,21 @@
+<form role="form" method="post" action="?do=SysConfig">
+	<input type="hidden" name="modid" value="{{modid}}">
+	<input type="hidden" name="token" value="{{token}}">
+
+	<table class="table table-bordered table-condensed">
+	{{#files}}
+		<tr>
+			{{#isdir}}
+				<td class="fileEntry isdir" colspan="2">{{name}}</td>
+			{{/isdir}}
+			{{^isdir}}
+				<td class="fileEntry">{{name}}</td>
+				<td>{{size}}</td>
+			{{/isdir}}
+		</tr>
+	{{/files}}
+	</table>
+	<div class="pull-left">
+		<button type="submit" class="btn btn-primary" action="?do=SysConfig">Zurück &laquo;</button>
+	</div>
+</form>
