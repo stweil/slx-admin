@@ -45,7 +45,7 @@ class Property
 			. " ON DUPLICATE KEY UPDATE value = VALUES(value), dateline = VALUES(dateline)", array(
 			'key' => $key,
 			'value' => $value,
-			'dateline' => time() + ($minage * 60)
+			'dateline' => ($minage === 0 ? 0 : time() + ($minage * 60))
 		));
 		if (self::$cache !== false) {
 			self::$cache[$key] = $value;
@@ -111,7 +111,7 @@ class Property
 				'url' => CONFIG_REMOTE_ML . '/list.php'
 		));
 		if (!isset($task['id']))
-			return false;
+			return 'Could not start list download (' . Message::asString() . ')';
 		if ($task['statusCode'] !== TASK_FINISHED) {
 			$task = Taskmanager::waitComplete($task['id']);
 		}
@@ -126,7 +126,7 @@ class Property
 
 	public static function setVersionCheckInformation($value)
 	{
-		self::set('versioncheck-data', json_encode($value));
+		self::set('versioncheck-data', json_encode($value), 1);
 	}
 
 	public static function getVmStoreConfig()
@@ -137,6 +137,16 @@ class Property
 	public static function setVmStoreConfig($value)
 	{
 		self::set('vmstore-config', json_encode($value));
+	}
+
+	public static function getDownloadTask($name)
+	{
+		return self::get('dl-' . $name);
+	}
+	
+	public static function setDownloadTask($name, $taskId)
+	{
+		self::set('dl-' . $name, $taskId, 5);
 	}
 
 }

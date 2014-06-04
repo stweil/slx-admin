@@ -10,7 +10,9 @@
 				{{#files}}
 				<li class="list-group-item" id="{{uid}}">
 					{{name}}
-					{{#changed}}<span class="btn btn-primary btn-sm" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">Aktualisieren</span>{{/changed}}
+					{{#changed}}<span class="btn btn-success btn-sm" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">Aktualisieren</span>{{/changed}}
+					{{^changed}}<span class="btn btn-default btn-sm" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">Erneut herunterladen</span>{{/changed}}
+					{{{download}}}
 				</li>
 				{{/files}}
 			</ul>
@@ -36,4 +38,5 @@ function slxUpdate(uid, id, name)
 			}
 		});
 }
+tmInit();
 </script>

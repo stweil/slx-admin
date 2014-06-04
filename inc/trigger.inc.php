@@ -67,7 +67,7 @@ class Trigger
 		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
 		if ($storetype === 'cifs') $addr = $vmstore['cifsaddr'];
 		if ($storetype === 'internal') $addr = 'none';
-		$this->mountTask = Taskmanager::submit('MountVmStore', array(
+		return Taskmanager::submit('MountVmStore', array(
 			'address' => $addr,
 			'type' => 'images',
 			'username' => $vmstore['cifsuser'],

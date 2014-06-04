@@ -40,6 +40,16 @@ class Page_MiniLinux extends Page
 					if (!file_exists($local) || filesize($local) !== $file['size'] || md5_file($local) !== substr($file['md5'], 0, 32)) {
 						$file['changed'] = true;
 					}
+					$taskId = Property::getDownloadTask($file['md5']);
+					if ($taskId !== false) {
+						$task = Taskmanager::status($taskId);
+						if (isset($task['data']['progress'])) {
+							$file['download'] = Render::parse('minilinux/download', array(
+								'task' => $taskId,
+								'name' => $file['name']
+							));
+						}
+					}
 				}
 			}
 			echo Render::parse('minilinux/filelist', array(
@@ -54,16 +64,16 @@ class Page_MiniLinux extends Page
 				echo "Invalid download request";
 				return;
 			}
-			$found = false;
+			$file = false;
 			foreach ($data['systems'] as &$system) {
 				if ($system['id'] !== $id) continue;
-				foreach ($system['files'] as &$file) {
-					if ($file['name'] !== $name) continue;
-					$found = true;
+				foreach ($system['files'] as &$f) {
+					if ($f['name'] !== $name) continue;
+					$file = $f;
 					break;
 				}
 			}
-			if (!$found) {
+			if ($file === false) {
 				echo "Nonexistent system/file: $id / $name";
 				return;
 			}
@@ -75,6 +85,7 @@ class Page_MiniLinux extends Page
 				echo 'Error launching download task: ' . $task['statusCode'];
 				return;
 			}
+			Property::setDownloadTask($file['md5'], $task['id']);
 			echo Render::parse('minilinux/download', array(
 				'name' => $name,
 				'task' => $task['id']

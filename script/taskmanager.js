@@ -20,8 +20,9 @@ function tmInit()
 		}
 		item.prepend('<span class="data-tm-icon" />');
 	});
-	if (!tmIsRunning)
+	if (!tmIsRunning) {
 		setTimeout(tmUpdate, 50);
+	}
 	tmIsRunning = true;
 }
 
@@ -35,8 +36,10 @@ function tmUpdate()
 			return;
 		active.push(id);
 	});
-	if (active.length === 0)
+	if (active.length === 0) {
+		tmIsRunning = false;
 		return;
+	}
 	$.post('api.php?do=taskmanager', {'ids[]': active, token: TOKEN}, function(data, status) {
 		// POST success
 		tmIsRunning = tmResult(data, status);
@@ -47,8 +50,9 @@ function tmUpdate()
 		// POST failure
 		console.log("TaskManager Error: " + textStatus + " - " + errorThrown);
 		tmIsRunning = (++tmErrors < TM_MAX_ERRORS);
-		if (tmIsRunning)
+		if (tmIsRunning) {
 			setTimeout(tmUpdate, 2000);
+		}
 	});
 }
 

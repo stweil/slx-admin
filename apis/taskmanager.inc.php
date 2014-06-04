@@ -20,10 +20,6 @@ foreach ($_POST['ids'] as $id) {
 			&& $id === Property::getIPxeTaskId() && Property::getServerIp() !== Property::getIPxeIp()) {
 		Property::setIPxeIp(Property::getServerIp());
 	}
-	if (isset($status['statusCode']) && $status['statusCode'] === TASK_FINISHED // MiniLinux Version check
-			&& $id === Property::getVersionCheckTaskId()) {
-		Property::setVersionCheckInformation(Property::getServerIp());
-	}
 	// -- END HACKS --
 	if (!isset($status['statusCode']) || ($status['statusCode'] !== TASK_WAITING && $status['statusCode'] !== TASK_PROCESSING)) {
 		Taskmanager::release($id);

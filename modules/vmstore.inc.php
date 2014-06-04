@@ -39,7 +39,7 @@ class Page_VmStore extends Page
 	
 	private function setStore()
 	{
-		foreach (array('storetype', 'nfsaddr', 'cifsaddr', 'cifsuser', 'cifspasswd') as $key) {
+		foreach (array('storetype', 'nfsaddr', 'cifsaddr', 'cifsuser', 'cifspasswd', 'cifsuserro', 'cifspasswdro') as $key) {
 			$vmstore[$key] = trim(Request::post($key, ''));
 		}
 		$storetype = $vmstore['storetype'];
