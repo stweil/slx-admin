@@ -32,7 +32,7 @@ class Render
 	public static function output()
 	{
 		Header('Content-Type: text/html; charset=utf-8');
-		$zip = (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false);
+		$zip = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false);
 		if ($zip) ob_start();
 		echo
 	'<!DOCTYPE html>
