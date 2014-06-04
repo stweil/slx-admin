@@ -126,7 +126,6 @@ class AddConfig_Start extends AddConfig_Base
 			$mods[$row['moduletype']]['modules'][] = $row;
 		}
 		Render::addDialog('Konfiguration zusammenstellen', false, 'sysconfig/cfg-start', array(
-			'token' => Session::get('token'),
 			'step' => 'AddConfig_Finish',
 			'groups' => array_values($mods)
 		));
@@ -198,7 +197,6 @@ class AddConfig_Finish extends AddConfig_Base
 			));
 		}
 		Render::addDialog('Konfiguration zusammenstellen', false, 'sysconfig/cfg-finish', array(
-			'token' => Session::get('token'),
 			'configid' => $confid
 		));
 	}

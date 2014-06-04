@@ -53,8 +53,7 @@ class Page_MiniLinux extends Page
 				}
 			}
 			echo Render::parse('minilinux/filelist', array(
-				'systems' => $data['systems'],
-				'token' => Session::get('token')
+				'systems' => $data['systems']
 			));
 			return;
 		case 'download':

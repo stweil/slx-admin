@@ -144,8 +144,7 @@ class Page_SysConfig extends Page
 		}
 		Render::addTemplate('page-sysconfig-main', array(
 			'configs' => $configs,
-			'modules' => $modules,
-			'token' => Session::get('token')
+			'modules' => $modules
 		));
 	}
 	
@@ -201,7 +200,6 @@ class Page_SysConfig extends Page
 		
 		// render the template
 		Render::addDialog('Inhalt von "' . $row['title'] . '"', false, 'sysconfig/custom-filelist', array(
-				'token' => Session::get('token'),
 				'files' => $list,
 		));
 	}

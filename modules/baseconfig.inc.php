@@ -89,8 +89,7 @@ class Page_BaseConfig extends Page
 		}
 		$settings = array_values($settings);
 		Render::addTemplate('page-baseconfig', array(
-			'categories'  => $settings,
-			'token'       => Session::get('token'),
+			'categories'  => $settings
 		));
 	}
 

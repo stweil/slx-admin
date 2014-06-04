@@ -33,7 +33,6 @@ class Page_VmStore extends Page
 		if (isset($vmstore['storetype'])) {
 			$vmstore['pre-' . $vmstore['storetype']] = 'checked';
 		}
-		$vmstore['token'] = Session::get('token');
 		Render::addTemplate('page-vmstore', $vmstore);
 	}
 	

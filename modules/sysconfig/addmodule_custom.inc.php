@@ -21,7 +21,6 @@ class CustomModule_UploadForm extends AddModule_Base
 	{
 		Session::set('mod_temp', false);
 		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-upload', array(
-			'token' => Session::get('token'),
 			'step' => 'CustomModule_ProcessUpload'
 			));
 	}
@@ -94,7 +93,6 @@ class CustomModule_ProcessUpload extends AddModule_Base
 			}
 		}
 		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-fileselect', array(
-			'token' => Session::get('token'),
 			'step' => 'CustomModule_CompressModule',
 			'files' => $list,
 		));

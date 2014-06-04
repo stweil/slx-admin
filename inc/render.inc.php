@@ -11,8 +11,10 @@ Mustache_Autoloader::register();
  * HTML rendering helper class
  */
 Render::init();
+
 class Render
 {
+
 	private static $mustache = false;
 	private static $body = '';
 	private static $header = '';
@@ -22,7 +24,8 @@ class Render
 
 	public static function init()
 	{
-		if (self::$mustache !== false) Util::traceError('Called Render::init() twice!');
+		if (self::$mustache !== false)
+			Util::traceError('Called Render::init() twice!');
 		self::$mustache = new Mustache_Engine;
 	}
 
@@ -33,9 +36,10 @@ class Render
 	{
 		Header('Content-Type: text/html; charset=utf-8');
 		$zip = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false);
-		if ($zip) ob_start();
+		if ($zip)
+			ob_start();
 		echo
-	'<!DOCTYPE html>
+		'<!DOCTYPE html>
 	<html>
 		<head>
 			<title>', RENDER_DEFAULT_TITLE, self::$title, '</title>
@@ -51,13 +55,13 @@ class Render
 	',
 		self::$header
 		,
-	'	</head>
+		'	</head>
 		<body>
 		<div class="container" id="mainpage">
 	',
 		self::$body
 		,
-	'	</div>
+		'	</div>
 		<script src="script/jquery.js"></script>
 		<script src="script/bootstrap.min.js"></script>
 		<script src="script/bootstrap-tagsinput.min.js"></script>
@@ -95,9 +99,9 @@ class Render
 	 */
 	public static function addTemplate($template, $params = false)
 	{
-		self::$body .= self::$mustache->render(self::getTemplate($template), $params);
+		self::$body .= self::parse($template, $params);
 	}
-	
+
 	/**
 	 * Add a dialog to the page output.
 	 * 
@@ -111,7 +115,7 @@ class Render
 		self::addTemplate('dialog-generic', array(
 			'title' => $title,
 			'next' => $next,
-			'body' => self::$mustache->render(self::getTemplate($template), $params)
+			'body' => self::parse($template, $params)
 		));
 	}
 
@@ -128,6 +132,8 @@ class Render
 	 */
 	public static function parse($template, $params = false)
 	{
+		if (is_array($params))
+			$params['token'] = Session::get('token');
 		return self::$mustache->render(self::getTemplate($template), $params);
 	}
 
@@ -153,9 +159,11 @@ class Render
 	 */
 	public static function closeTag($tag)
 	{
-		if (empty(self::$tags)) Util::traceError('Tried to close tag ' . $tag . ' when no open tags exist.');
+		if (empty(self::$tags))
+			Util::traceError('Tried to close tag ' . $tag . ' when no open tags exist.');
 		$last = array_pop(self::$tags);
-		if ($last !== $tag) Util::traceError('Tried to close tag ' . $tag . ' when last opened tag was ' . $last);
+		if ($last !== $tag)
+			Util::traceError('Tried to close tag ' . $tag . ' when last opened tag was ' . $last);
 		self::$body .= '</' . $tag . '>';
 	}
 
@@ -169,9 +177,10 @@ class Render
 		}
 		// Load from disk
 		$data = @file_get_contents('templates/' . $template . '.html');
-		if ($data === false) $data = '<b>Non-existent template ' . $template . ' requested!</b>';
-		self::$templateCache[$template] =& $data;
+		if ($data === false)
+			$data = '<b>Non-existent template ' . $template . ' requested!</b>';
+		self::$templateCache[$template] = & $data;
 		return $data;
 	}
-}
 
+}

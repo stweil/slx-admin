@@ -42,11 +42,9 @@ class Page_ServerSetup extends Page
 		Render::setTitle('Serverseitige Konfiguration');
 
 		Render::addTemplate('serversetup/ipaddress', array(
-			'ips' => $this->taskStatus['data']['addresses'],
-			'token' => Session::get('token')
+			'ips' => $this->taskStatus['data']['addresses']
 		));
 		$data = $this->currentMenu;
-		$data['token'] = Session::get('token');
 		$data['taskid'] = Property::getIPxeTaskId();
 		if (!isset($data['defaultentry']))
 			$data['defaultentry'] = 'net';

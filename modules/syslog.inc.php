@@ -59,7 +59,6 @@ class Page_SysLog extends Page
 		}
 
 		$paginate->render('page-syslog', array(
-			'token'    => Session::get('token'),
 			'filter'   => $filter,
 			'not'      => $not,
 			'list'     => $lines

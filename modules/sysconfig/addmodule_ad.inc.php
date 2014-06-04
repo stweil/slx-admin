@@ -23,8 +23,7 @@ class AdModule_Start extends AddModule_Base
 			'searchbase' => Request::post('searchbase'),
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
-			'home' => Request::post('home'),
-			'token' => Session::get('token')
+			'home' => Request::post('home')
 		));
 	}
 
@@ -69,7 +68,6 @@ class AdModule_CheckConnection extends AddModule_Base
 				'searchbase' => Request::post('searchbase'),
 				'binddn' => Request::post('binddn'),
 				'bindpw' => Request::post('bindpw'),
-				'token' => Session::get('token'),
 				'home' => Request::post('home'),
 				'step' => 'AdModule_Finish'
 			))
