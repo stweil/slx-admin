@@ -6,7 +6,7 @@
 			<div class="panel-heading">
 				VM Speicherort <a class="btn btn-default" data-toggle="modal" data-target="#help-store"><span class="glyphicon glyphicon-question-sign"></span></a>
 			</div>
-			<div class="panel-body">
+			<div class="panel-body slx-md-width">
 				<p>Bitte wählen Sie, wo die Images der Virtuellen Maschinen gespeichert werden sollen.</p>
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -21,12 +21,8 @@
 						<input type="radio" name="storetype" value="nfs" {{pre-nfs}}> NFS
 					</div>
 					<div class="panel-body">
-						<div class="input-group">
-							<span class="input-group-addon slx-ga">
-								NFS-Export
-							</span>
-							<input type="text" class="form-control" name="nfsaddr" value="{{nfsaddr}}" placeholder="1.2.3.4:/export/bwlp">
-						</div>
+						<label for="nfsaddr">NFS-Export</label>
+						<input type="text" class="form-control" name="nfsaddr" value="{{nfsaddr}}" placeholder="1.2.3.4:/export/bwlp" id="nfsaddr">
 					</div>
 				</div>
 				<div class="panel panel-default">
@@ -34,23 +30,31 @@
 						<input type="radio" name="storetype" value="cifs" {{pre-cifs}}> CIFS
 					</div>
 					<div class="panel-body">
-						<div class="input-group">
-							<span class="input-group-addon slx-ga">
-								UNC-Pfad
-							</span>
-							<input type="text" class="form-control" name="cifsaddr" value="{{cifsaddr}}" placeholder="\\samba.server.example.com\bwlp">
-						</div>
+						<label for="cifsaddr">UNC-Pfad</label>
+						<input type="text" class="form-control" name="cifsaddr" value="{{cifsaddr}}" placeholder="\\samba.server.example.com\bwlp" id="cifsaddr">
+						<br>
+						<label for="cifsuser">Lese/Schreib-Zugangsdaten</label>
 						<div class="input-group">
 							<span class="input-group-addon slx-ga">
 								Benutzername
 							</span>
-							<input type="text" class="form-control" name="cifsuser" value="{{cifsuser}}" placeholder="Benutzername">
-						</div>
-						<div class="input-group">
-							<span class="input-group-addon slx-ga">
+							<input type="text" class="form-control" name="cifsuser" value="{{cifsuser}}" placeholder="Benutzername" id="cifsuser">
+							<span class="input-group-addon">
 								Passwort
 							</span>
 							<input type="text" class="form-control" name="cifspasswd" value="{{cifspasswd}}" placeholder="Passwort">
+						</div>
+						<br>
+						<label for="cifsuserro">Nur-Lese-Zugangsdaten</label>
+						<div class="input-group">
+							<span class="input-group-addon slx-ga">
+								Benutzername
+							</span>
+							<input type="text" class="form-control" name="cifsuserro" value="{{cifsuserro}}" placeholder="Benutzername" id="cifsuserro">
+							<span class="input-group-addon">
+								Passwort
+							</span>
+							<input type="text" class="form-control" name="cifspasswdro" value="{{cifspasswdro}}" placeholder="Passwort">
 						</div>
 					</div>
 				</div>

@@ -99,3 +99,7 @@ body {
 .input-group {
 	margin-bottom: 2px;
 }
+
+.slx-md-width {
+	max-width: 600px;
+}
