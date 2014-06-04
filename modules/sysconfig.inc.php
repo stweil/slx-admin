@@ -169,11 +169,10 @@ class Page_SysConfig extends Page
 			$status = Taskmanager::waitComplete($taskStatus['id']);
 			Taskmanager::release($taskStatus['id']);
 			if (!isset($status['statusCode'])) {
-				//
 				//$this->tmError();
 			}
 			if ($status['statusCode'] != TASK_FINISHED) {
-				$this->taskError($status);
+				//$this->taskError($status);
 			}
 			// Sort files for better display
 			$dirs = array();
