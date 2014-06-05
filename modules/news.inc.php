@@ -2,8 +2,6 @@
 
 class Page_News extends Page
 {
-
-	private $latestNews = array();
 	
 	protected function doPreprocess()
 	{
@@ -22,6 +20,7 @@ class Page_News extends Page
 				'content' => $newsContent
 			));
 			// all done, redirect to main news page
+			Message::addSuccess('news-success');
 			Util::redirect('?do=News');
 		}
 		
@@ -42,16 +41,19 @@ class Page_News extends Page
 		}
 		
 		// fetch the latest news
-		$res = Database::simpleQuery('SELECT * FROM news ORDER BY dateline DESC LIMIT 1');
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		$row = Database::queryFirst('SELECT * FROM news ORDER BY dateline DESC LIMIT 1');
+		if ($row !== false) {
 			$latestTitle = $row['title'];
 			$latestContent = $row['content'];
 			$latestDate = $row['dateline'];
+		} else {
+			Message::addError('news-empty');
 		}
+			
 		// show it to the user
 		Render::addDialog('News Verwaltung', false, 'page-news', array(
 			'token' => Session::get('token'),
-			'latestDate' => DateTime::createFromFormat('U', $latestDate)->format('Y-m-d H:i:s'),
+			'latestDate' => date('Y-m-d H:i:s (T)', $latestDate),
 			'latestContent' => $latestContent,
 			'latestTitle' => $latestTitle
 		));

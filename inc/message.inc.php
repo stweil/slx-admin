@@ -35,7 +35,9 @@ $error_text = array(
 	'taskmanager-error'   => 'Verbindung zum Taskmanager fehlgeschlagen',
 	'taskmanager-format'  => 'Taskmanager hat ungültige Daten zurückgeliefert',
 	'task-error'          => 'Ausführung fehlgeschlagen: {{0}}',
-	'invalid-ip'          => 'Kein Interface ist auf die Adresse {{0}} konfiguriert'
+	'invalid-ip'          => 'Kein Interface ist auf die Adresse {{0}} konfiguriert',
+	'news-success'		  => 'News erfolgreich aktualisiert.',
+	'news-empty'		  => 'Es wurde keine News in der Datenbank gefunden.',
 );
 
 class Message
