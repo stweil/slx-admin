@@ -1,20 +1,28 @@
 <p>Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.
 </p>
 <form action="?do=News" method="post">
-	<div class="panel panel-default">
-		<div class="panel-heading">bwLehrpool News
-		</div>
-		<div class="panel-body">
+
 			<div class="form-group">
-				<span class="input-group-addon slx-ga"><strong>Titel</strong></span>
-				<input type="text" name="news-title" class="form-control" placeholder="Willkommen!" value="{{latestTitle}}">
-				<br></br>
-				<span class="input-group-addon slx-ga"><b>Inhalt</b></span>
-				<textarea name="news-content" class="form-control" rows="5" cols="30"  placeholder="Willkommen beim bwLehrpool-System!">{{latestContent}}</textarea>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<label for="news-title-id">Titel</label>
+					</div>
+					<div class="panel-body">
+						<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="Willkommen!" value="{{latestTitle}}">
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<label for="news-content-id">Inhalt</label>
+					</div>
+					<div class="panel-body">
+						<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="Willkommen beim bwLehrpool-System!">{{latestContent}}</textarea>
+					</div>
+				</div>
 			</div>
-		</div>
-		<div class="panel-footer">Letzte Aktualisierung: {{latestDate}}</div>
-	</div>
+
+		<div>Letzte Aktualisierung: {{latestDate}}</div>
+		<br>
 	<input type="hidden" name="token" value="{{token}}">
 	<button class="btn btn-sm btn-primary" type="submit">Speichern</button>
 </form>

@@ -20,6 +20,7 @@ if ($row !== false ) {
 	echo "</news>";
 
 } else {
+	// no news in DB, output a 'null' news xml
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 	echo "<news>null</news>";
 }

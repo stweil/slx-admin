@@ -51,7 +51,7 @@ class Page_News extends Page
 		}
 			
 		// show it to the user
-		Render::addDialog('News Verwaltung', false, 'page-news', array(
+		Render::addDialog('bwLehrpool News Verwaltung', false, 'page-news', array(
 			'token' => Session::get('token'),
 			'latestDate' => date('Y-m-d H:i:s (T)', $latestDate),
 			'latestContent' => $latestContent,
