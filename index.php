@@ -7,17 +7,43 @@ require_once 'config.php';
  */
 abstract class Page
 {
-	protected function doPreprocess() {}
-	protected function doRender() {}
-	protected function doAjax() {}
-	public static function preprocess() { self::$instance->doPreprocess(); }
-	public static function render() { self::$instance->doRender(); }
-	public static function ajax() { self::$instance->doAjax(); }
+
+	protected function doPreprocess()
+	{
+		
+	}
+
+	protected function doRender()
+	{
+		
+	}
+
+	protected function doAjax()
+	{
+		
+	}
+
+	public static function preprocess()
+	{
+		self::$instance->doPreprocess();
+	}
+
+	public static function render()
+	{
+		self::$instance->doRender();
+	}
+
+	public static function ajax()
+	{
+		self::$instance->doAjax();
+	}
+
 	/**
 	 *
 	 * @var \Page
 	 */
 	private static $instance = false;
+
 	public static function set($name)
 	{
 		$name = preg_replace('/[^A-Za-z]/', '', $name);
@@ -32,28 +58,35 @@ abstract class Page
 		}
 		self::$instance = new $className();
 	}
+
 }
 
 // Error reporting (hopefully goind to stderr, not being printed on pages)
 error_reporting(E_ALL);
 
 // Set variable if this is an ajax request
-$isAsync = (isset($_REQUEST['async']))
-	|| (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+if ((isset($_REQUEST['async'])) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')) {
+	define('AJAX', true);
+} else {
+	define('AJAX', false);
+}
 
 // Autoload classes from ./inc which adhere to naming scheme <lowercasename>.inc.php
-function slxAutoloader($class) {
+function slxAutoloader($class)
+{
 	$file = 'inc/' . preg_replace('/[^a-z0-9]/', '', mb_strtolower($class)) . '.inc.php';
-	if (!file_exists($file)) return;
+	if (!file_exists($file))
+		return;
 	require_once $file;
 }
+
 spl_autoload_register('slxAutoloader');
 
 // Now determine which module to run
 Page::set(empty($_REQUEST['do']) ? 'Main' : $_REQUEST['do']);
 
 // Deserialize any messages to display
-if (!$isAsync && isset($_REQUEST['message'])) {
+if (!AJAX && isset($_REQUEST['message'])) {
 	Message::fromRequest();
 }
 
@@ -61,7 +94,7 @@ if (!$isAsync && isset($_REQUEST['message'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	User::load();
 	if (!Util::verifyToken()) {
-		if ($isAsync) {
+		if (AJAX) {
 			die('CSRF/XSS? Missing token in POST request!');
 		} else {
 			Util::redirect('?do=Main');
@@ -70,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // AJAX Stuff? Just do so. Otherwise, run preprocessing
-if ($isAsync) {
+if (AJAX) {
 	Page::ajax();
 	exit(0);
 }

@@ -93,6 +93,19 @@ class Message
 	public static function renderList()
 	{
 		global $error_text;
+		// Ajax
+		if (AJAX) {
+			foreach (self::$list as $item) {
+				$message = $error_text[$item['id']];
+				foreach ($item['params'] as $index => $text) {
+					$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
+				}
+				echo Render::parse('messagebox-' . $item['type'], array('message' => $message));
+			}
+			self::$list = array();
+			return;
+		}
+		// Non-Ajax
 		if (!self::$flushed) Render::openTag('div', array('class' => 'container'));
 		foreach (self::$list as $item) {
 			$message = $error_text[$item['id']];
