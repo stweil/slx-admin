@@ -1,6 +1,6 @@
 <?php
 
-$targetVersion = 2;
+$targetVersion = 3;
 
 // #######################
 
@@ -21,7 +21,7 @@ if (!$function())
 
 $currentVersion++;
 
-$ret = Database::exec("INSERT INTO property (name, value) VALUES ('webif-version', :version)", array('version' => $currentVersion), true);
+$ret = Database::exec("INSERT INTO property (name, value) VALUES ('webif-version', :version) ON DUPLICATE KEY UPDATE value = VALUES(value)", array('version' => $currentVersion), false);
 if ($ret === false)
 	die('Writing version information back to DB failed. Next update will probably break.');
 
@@ -41,6 +41,7 @@ function update_1()
 {
 	$res = Database::simpleQuery("DESCRIBE property", array(), false);
 	$type = false;
+	if ($res === false) return;
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		if ($row['Field'] !== 'dateline') continue;
 		$type = $row['Type'];
@@ -54,5 +55,30 @@ function update_1()
 	return true;
 }
 
+// #######################
 
-// ################
+// ##### 2014-06-05
+// Add 'news' table to database schema
+function update_2()
+{
+	$res = Database::simpleQuery("show tables", array(), false);
+	$found = false;
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		if ($row['Tables_in_openslx'] !== 'news') continue;
+		$found = true;
+		break;
+	}
+	if ($found === false) {
+		// create table
+		Database::exec("CREATE TABLE `news` (
+			`newsid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+			`dateline` int(10) unsigned NOT NULL,
+			`title` varchar(200) DEFAULT NULL,
+			`content` text,
+			PRIMARY KEY (`newsid`),
+			KEY `dateline` (`dateline`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8
+		");
+	}
+	return true;
+}
