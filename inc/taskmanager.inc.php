@@ -18,7 +18,7 @@ class Taskmanager
 		socket_connect(self::$sock, '127.0.0.1', 9215);
 	}
 
-	public static function submit($task, $data, $async = false)
+	public static function submit($task, $data = false, $async = false)
 	{
 		self::init();
 		$seq = (string) mt_rand();
@@ -67,21 +67,30 @@ class Taskmanager
 		return $reply;
 	}
 
-	public static function waitComplete($taskId)
+	public static function waitComplete($task)
 	{
+		if (isset($task['id'])) {
+			if ($task['statusCode'] !== TASK_PROCESSING && $task['statusCode'] !== TASK_WAITING) {
+				self::release($task['id']);
+				return $task;
+			}
+			$task = $task['id'];
+		}
+		if (!is_string($task))
+			return false;
 		$done = false;
 		for ($i = 0; $i < 10; ++$i) {
-			$status = self::status($taskId);
+			$status = self::status($task);
 			if (!isset($status['statusCode']))
 				break;
-			if ($status['statusCode'] != TASK_PROCESSING && $status['statusCode'] != TASK_WAITING) {
+			if ($status['statusCode'] !== TASK_PROCESSING && $status['statusCode'] !== TASK_WAITING) {
 				$done = true;
 				break;
 			}
 			usleep(150000);
 		}
 		if ($done)
-			self::release($taskId);
+			self::release($task);
 		return $status;
 	}
 
@@ -92,6 +101,27 @@ class Taskmanager
 		if ($task['statusCode'] !== TASK_WAITING && $task['statusCode'] !== TASK_PROCESSING && $task['statusCode'] !== TASK_FINISHED)
 			return true;
 		return false;
+	}
+	
+	public static function addErrorMessage($task)
+	{
+		static $failure = false;
+		if ($task === false) {
+			if (!$failure) {
+				Message::addError('taskmanager-error');
+				$failure = true;
+			}
+			return;
+		}
+		if (!isset($task['statusCode'])) {
+			Message::addError('taskmanager-format');
+			return;
+		}
+		if (isset($task['data']['error'])) {
+			Message::addError('task-error', $task['statusCode'] . ' (' . $task['data']['error'] . ')');
+			return;
+		}
+		Message::addError('task-error', $task['statusCode']);
 	}
 
 	public static function release($taskId)

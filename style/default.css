@@ -103,3 +103,11 @@ body {
 .slx-md-width {
 	max-width: 600px;
 }
+
+.slx-storechart {
+	max-width: 140px;
+	margin: 5px;
+	padding: 3px;
+	float: left;
+	background-color: #eee;
+}

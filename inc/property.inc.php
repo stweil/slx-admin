@@ -133,6 +133,19 @@ class Property
 	{
 		return json_decode(self::get('vmstore-config'), true);
 	}
+	public static function getVmStoreUrl()
+	{
+		$store = self::getVmStoreConfig();
+		if (!isset($store['storetype']))
+			return false;
+		if ($store['storetype'] === 'nfs')
+			return $store['nfsaddr'];
+		if ($store['storetype'] === 'cifs')
+			return $store['cifsaddr'];
+		if ($store['storetype'] === 'internal')
+			return '<local>';
+		return '<unknown>';
+	}
 
 	public static function setVmStoreConfig($value)
 	{

@@ -1,0 +1,50 @@
+<div class="slx-storechart">
+	{{#system}}
+	<b>Systempartition</b>
+	<div id="circles-system"></div>
+	Kapazität: {{size}}
+	{{/system}}
+	{{^system}}
+	<b>Fehler beim Ermitteln des verfügbaren Speichers auf der Systempartition!</b>
+	{{/system}}
+</div>
+<div class="slx-storechart">
+	{{#store}}
+	<b>VM-Speicher</b>
+	<div id="circles-store"></div>
+	Kapazität: {{size}}
+	{{/store}}
+	{{^store}}
+	<b>Fehler beim Ermitteln des verfügbaren Speicherplatzes am VM-Speicherort. Bitte überprüfen Sie die Konfiguration.</b>
+	{{/store}}
+</div>
+<script type="text/javascript">
+	{{#store}}
+	Circles.create({
+	id:         'circles-store',
+			  radius:     60,
+			  value:      {{{percent}}},
+			  maxValue:   100,
+			  width:      10,
+			  text:       function(value){return value + '%'; },
+			  colors:     ['#D3B6C6', '#{{color}}'],
+			  duration:   400,
+			  wrpClass:   'circles-wrp',
+			  textClass:  'circles-text'
+			  });
+	{{/store}}
+	{{#system}}
+	Circles.create({
+	id:         'circles-system',
+			  radius:     60,
+			  value:      {{{percent}}},
+			  maxValue:   100,
+			  width:      10,
+			  text:       function(value){return value + '%'; },
+			  colors:     ['#D3B6C6', '#{{color}}'],
+			  duration:   400,
+			  wrpClass:   'circles-wrp',
+			  textClass:  'circles-text'
+			  });
+	{{/system}}
+</script>
