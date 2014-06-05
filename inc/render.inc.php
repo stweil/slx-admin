@@ -18,6 +18,7 @@ class Render
 	private static $mustache = false;
 	private static $body = '';
 	private static $header = '';
+	private static $footer = '';
 	private static $title = '';
 	private static $templateCache = array();
 	private static $tags = array();
@@ -66,7 +67,10 @@ class Render
 		<script src="script/bootstrap.min.js"></script>
 		<script src="script/bootstrap-tagsinput.min.js"></script>
 		<script src="script/taskmanager.js"></script>
-	</html>'
+	',
+		self::$footer
+		,
+		'</html>'
 		;
 		if ($zip) {
 			Header('Content-Encoding: gzip');
@@ -92,6 +96,34 @@ class Render
 	public static function addHeader($html)
 	{
 		self::$header .= $html . "\n";
+	}
+
+	/**
+	 * Add raw html data to the footer-section of the generated page (after the closing body tag)
+	 */
+	public static function addFooter($html)
+	{
+		self::$footer .= $html . "\n";
+	}
+
+	/**
+	 * Add given js script file from the script directory to the header
+	 *
+	 * @param string $file file name of script
+	 */
+	public static function addScriptTop($file)
+	{
+		self::addHeader('<script src="script/' . $file . '.js"></script>');
+	}
+
+	/**
+	 * Add given js script file from the script directory to the bottom
+	 *
+	 * @param string $file file name of script
+	 */
+	public static function addScriptBottom($file)
+	{
+		self::addFooter('<script src="script/' . $file . '.js"></script>');
 	}
 
 	/**
