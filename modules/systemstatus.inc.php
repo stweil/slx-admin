@@ -2,6 +2,7 @@
 
 class Page_SystemStatus extends Page
 {
+	private $rebootTask = false;
 
 	protected function doPreprocess()
 	{
@@ -10,13 +11,25 @@ class Page_SystemStatus extends Page
 		if (!User::isLoggedIn()) {
 			Util::redirect('?do=Main');
 		}
+		
+		if (Request::post('action') === 'reboot') {
+			if (Request::post('confirm') !== 'yep') {
+				Message::addError('reboot-unconfirmed');
+				Util::redirect('?do=SystemStatus');
+			}
+			$this->rebootTask = Taskmanager::submit('Reboot');
+		}
 	}
 
 	protected function doRender()
 	{
+		$data = array();
+		if (is_array($this->rebootTask) && isset($this->rebootTask['id'])) {
+			$data['rebootTask'] = $this->rebootTask['id'];
+		}
 		Render::addScriptTop('custom');
 		Render::addScriptBottom('circles.min');
-		Render::addTemplate('systemstatus/_page');
+		Render::addTemplate('systemstatus/_page', $data);
 	}
 
 	protected function doAjax()
@@ -155,7 +168,7 @@ class Page_SystemStatus extends Page
 			if (isset($status['data']['messages']))
 				$data['ldadpError'] = $status['data']['messages'];
 			else
-				$data['ldadpError'] = print_r($status, true); //'Taskmanager error';
+				$data['ldadpError'] = 'Taskmanager error';
 		}
 		// TODO: Dozentenmodul, tftp, ...
 		

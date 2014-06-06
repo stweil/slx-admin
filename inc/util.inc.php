@@ -15,7 +15,7 @@ class Util
 		echo "--------------------\nFlagrant system error:\n$message\n--------------------\n\n";
 		if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 			debug_print_backtrace();
-			echo "\n\n";
+			echo "\n\nSome variables for your entertainment:\n";
 			print_r($GLOBALS);
 		}
 		exit(0);

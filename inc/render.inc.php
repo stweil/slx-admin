@@ -164,7 +164,7 @@ class Render
 	 */
 	public static function parse($template, $params = false)
 	{
-		if (is_array($params))
+		if (is_array($params) || $params === false)
 			$params['token'] = Session::get('token');
 		return self::$mustache->render(self::getTemplate($template), $params);
 	}

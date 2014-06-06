@@ -96,7 +96,7 @@ class Taskmanager
 
 	public static function isFailed($task)
 	{
-		if (!isset($task['statusCode']) || !isset($task['id']))
+		if (!is_array($task) || !isset($task['statusCode']) || !isset($task['id']))
 			return true;
 		if ($task['statusCode'] !== TASK_WAITING && $task['statusCode'] !== TASK_PROCESSING && $task['statusCode'] !== TASK_FINISHED)
 			return true;

@@ -37,6 +37,10 @@ class Trigger
 		return $task['id'];
 	}
 	
+	/**
+	 * 
+	 * @return boolean|string false on error, id of task otherwise
+	 */
 	public static function ldadp()
 	{
 		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"

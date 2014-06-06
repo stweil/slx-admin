@@ -1,4 +1,8 @@
 <div class="container">
+	
+	{{#rebootTask}}
+	<div data-tm-id="{{rebootTask}}" data-tm-log="messages">Reboot...</div>
+	{{/rebootTask}}
 
 	<div class="row">
 
@@ -49,6 +53,26 @@
 					*dreh dreh dreh dreh*
 				</div>
 			</div>
+		</div>
+
+	</div>
+	
+	<div class="row">
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					Wartung
+				</div>
+				<div class="panel-body">
+					<form class="form-adduser" action="?do=SystemStatus" method="post">
+						<input type="hidden" name="token" value="{{token}}">
+						<input type="hidden" name="action" value="reboot">
+						<div>Server Reboot</div>
+						<label><input type="checkbox" name="confirm" value="yep"> Ja, ich bin sicher</label>
+						<button class="btn btn-warning btn-xs" type="submit">Reboot</button>
+					</form>
+				</div>
 		</div>
 
 	</div>
