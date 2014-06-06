@@ -1,28 +1,60 @@
-<p>Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.
-</p>
-<form action="?do=News" method="post">
-
-			<div class="form-group">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<label for="news-title-id">Titel</label>
-					</div>
-					<div class="panel-body">
-						<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="Willkommen!" value="{{latestTitle}}">
-					</div>
-				</div>
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<label for="news-content-id">Inhalt</label>
-					</div>
-					<div class="panel-body">
-						<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="Willkommen beim bwLehrpool-System!">{{latestContent}}</textarea>
-					</div>
-				</div>
+<p>Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.</p>
+<div class="panel panel-default">
+<div class="panel-heading">
+	<label>Aktive News</label>
+</div>
+<div class="panel-body">
+<form action="?do=News&amp;action=save" method="post">
+	<div class="form-group">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<label for="news-title-id">Titel</label>
 			</div>
-
-		<div>Letzte Aktualisierung: {{latestDate}}</div>
-		<br>
+			<div class="panel-body">
+				<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="Willkommen!" value="{{latestTitle}}">
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<label for="news-content-id">Inhalt</label>
+			</div>
+			<div class="panel-body">
+				<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="Willkommen beim bwLehrpool-System!">{{latestContent}}</textarea>
+			</div>
+		</div>
+	</div>
+	<div>Letzte Aktualisierung: {{latestDate}}</div>
+	<br>
+	<button class="btn btn-primary btn-sm" type="submit">Speichern</button>
 	<input type="hidden" name="token" value="{{token}}">
-	<button class="btn btn-sm btn-primary" type="submit">Speichern</button>
 </form>
+</div>
+</div>
+
+<div class="panel panel-default">
+<div class="panel-heading">
+	<label>Alte News</label>
+</div>
+<div class="panel-body">
+<table class="table table-stripped table-condensed">
+	<thead>
+		<th class="col-sm-2">Datum</th>
+		<th class="col-sm-2">Titel</th>
+		<th class="col-sm-8">Inhalt</th>
+		<th></th>
+		<th></th>
+	</thead>
+	<tbody>
+	{{#list}}
+		<tr {{#active}}class="active"{{/active}}>
+			<td class="text-left" nowrap="nowrap">{{date}}</td>
+			<td>{{title}}</td>
+			<td>{{content}}</td>
+			<td><a class="btn btn-primary btn-sm glyphicon glyphicon-share-alt" href="?do=news&amp;newsid={{newsid}}&amp;action=apply"> Übernehmen</a></td>
+			<td><a class="btn btn-danger btn-sm glyphicon glyphicon-remove" href="?do=news&amp;newsid={{newsid}}&amp;action=delete"> Löschen</a></td>
+		</tr>
+	{{/list}}
+	</tbody>
+</table>
+</div>
+</div>

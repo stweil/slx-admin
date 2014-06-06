@@ -2,28 +2,33 @@
 
 class Page_News extends Page
 {
+	private $newsId = false;
+	private $newsTitle = false;
+	private $newsContent = false;
+	private $newsDate = false;
 	
 	protected function doPreprocess()
 	{
 		// load user, we will need it later
 		User::load();
 		
-		// check if news content were set by the user
-		$newsTitle = Request::post('news-title');
-		$newsContent = Request::post('news-content');
-		if ($newsContent !== false && $newsTitle !== false) {
-			
-			// we got title and content, save it to DB
-			Database::exec("INSERT INTO news (dateline, title, content) VALUES (:dateline, :title, :content)", array(
-				'dateline' => time(),
-				'title' => $newsTitle,
-				'content' => $newsContent
-			));
-			// all done, redirect to main news page
-			Message::addSuccess('news-success');
-			Util::redirect('?do=News');
-		}
+		// get the newsid given per GET
+		$newsId = Request::get('newsid');
+		if ($newsId !== false) $this->newsId = $newsId;
 		
+		// check which action we need to do
+		$action = Request::get('action');
+		if ($action === 'save') {
+			// save to DB
+			$this->saveNews();
+		} elseif ($action === 'delete') {
+			// delete it
+			$this->delNews();
+		}
+	}
+
+	private function applyNews() {
+
 	}
 
 	protected function doRender()
@@ -40,24 +45,71 @@ class Page_News extends Page
 			return;
 		}
 		
-		// fetch the latest news
-		$row = Database::queryFirst('SELECT * FROM news ORDER BY dateline DESC LIMIT 1');
+		// check to see if we need to request a specific newsid
+		if ($this->newsId !== false) {
+			$whereClause = "WHERE newsid = $this->newsId ";
+		} else {
+			$whereClause = "";
+		}
+		
+		// fetch the news to be shown
+		$row = Database::queryFirst("SELECT * FROM news $whereClause ORDER BY dateline DESC LIMIT 1");
 		if ($row !== false) {
-			$latestTitle = $row['title'];
-			$latestContent = $row['content'];
-			$latestDate = $row['dateline'];
+			$this->newsTitle = $row['title'];
+			$this->newsContent = $row['content'];
+			$this->newsDate = $row['dateline'];
 		} else {
 			Message::addError('news-empty');
 		}
+		
+		// prepare the list of the older news
+		$lines = array();
+		$paginate = new Paginate("SELECT newsid, dateline, title, content FROM news ORDER BY dateline DESC", 10);
+		$res = $paginate->exec();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$day = date('d.m.Y', $row['dateline']);
+			$row['date'] = $day . date(' H:i', $row['dateline']);
 			
-		// show it to the user
-		Render::addDialog('bwLehrpool News Verwaltung', false, 'page-news', array(
-			'token' => Session::get('token'),
-			'latestDate' => date('Y-m-d H:i:s (T)', $latestDate),
-			'latestContent' => $latestContent,
-			'latestTitle' => $latestTitle
+			if ($row['newsid'] == $this->newsId) $row['active'] = "active";
+			$lines[] = $row;
+		}
+		
+		$paginate->render('page-news', array(
+				'token' => Session::get('token'),
+				'latestDate' => date('Y-m-d H:i:s (T)', $this->newsDate),
+				'latestContent' => $this->newsContent,
+				'latestTitle' => $this->newsTitle,
+				'list'     => $lines
 		));
 
+	}
+
+	private function saveNews()
+	{
+		// check if news content were set by the user
+		$newsTitle = Request::post('news-title');
+		$newsContent = Request::post('news-content');
+		if ($newsContent !== false && $newsTitle !== false) {
+				
+			// we got title and content, save it to DB
+			Database::exec("INSERT INTO news (dateline, title, content) VALUES (:dateline, :title, :content)", array(
+				'dateline' => time(),
+				'title' => $newsTitle,
+				'content' => $newsContent
+			));
+			// all done, redirect to main news page
+			Message::addSuccess('news-set-success');
+			Util::redirect('?do=News');
+		}
+	}
+	
+	private function delNews()
+	{
+		Database::exec("DELETE FROM news WHERE newsid = :newsid LIMIT 1", array(
+			'newsid' => $this->newsId
+		));
+		Message::addSuccess('news-del-success');
+		Util::redirect('?do=News');
 	}
 
 }
