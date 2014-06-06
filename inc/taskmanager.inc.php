@@ -67,9 +67,9 @@ class Taskmanager
 		return $reply;
 	}
 
-	public static function waitComplete($task)
+	public static function waitComplete($task, $timeout = 1500)
 	{
-		if (isset($task['id'])) {
+		if (is_array($task) && isset($task['id'])) {
 			if ($task['statusCode'] !== TASK_PROCESSING && $task['statusCode'] !== TASK_WAITING) {
 				self::release($task['id']);
 				return $task;
@@ -79,7 +79,7 @@ class Taskmanager
 		if (!is_string($task))
 			return false;
 		$done = false;
-		for ($i = 0; $i < 10; ++$i) {
+		for ($i = 0; $i < ($timeout / 150); ++$i) {
 			$status = self::status($task);
 			if (!isset($status['statusCode']))
 				break;
