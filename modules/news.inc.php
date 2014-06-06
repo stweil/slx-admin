@@ -17,18 +17,19 @@ class Page_News extends Page
 		if ($newsId !== false) $this->newsId = $newsId;
 		
 		// check which action we need to do
-		$action = Request::get('action');
-		if ($action === 'save') {
+		$action = Request::any('action', 'show');
+		if ($action === 'show') {
+			// show news
+			$this->showNews();
+		} elseif ($action === 'save') {
 			// save to DB
 			$this->saveNews();
 		} elseif ($action === 'delete') {
 			// delete it
 			$this->delNews();
+		} else {
+			Message::addError('invalid-action', $action);
 		}
-	}
-
-	private function applyNews() {
-
 	}
 
 	protected function doRender()
@@ -45,23 +46,7 @@ class Page_News extends Page
 			return;
 		}
 		
-		// check to see if we need to request a specific newsid
-		if ($this->newsId !== false) {
-			$whereClause = "WHERE newsid = $this->newsId ";
-		} else {
-			$whereClause = "";
-		}
-		
-		// fetch the news to be shown
-		$row = Database::queryFirst("SELECT * FROM news $whereClause ORDER BY dateline DESC LIMIT 1");
-		if ($row !== false) {
-			$this->newsTitle = $row['title'];
-			$this->newsContent = $row['content'];
-			$this->newsDate = $row['dateline'];
-		} else {
-			Message::addError('news-empty');
-		}
-		
+
 		// prepare the list of the older news
 		$lines = array();
 		$paginate = new Paginate("SELECT newsid, dateline, title, content FROM news ORDER BY dateline DESC", 10);
@@ -83,14 +68,34 @@ class Page_News extends Page
 		));
 
 	}
+	
+	private function showNews()
+	{
+		// check to see if we need to request a specific newsid
+		if ($this->newsId !== false) {
+			$whereClause = "WHERE newsid = $this->newsId ";
+		} else {
+			$whereClause = "";
+		}
+		
+		// fetch the news to be shown
+		$row = Database::queryFirst("SELECT * FROM news $whereClause ORDER BY dateline DESC LIMIT 1");
+		if ($row !== false) {
+			$this->newsTitle = $row['title'];
+			$this->newsContent = $row['content'];
+			$this->newsDate = $row['dateline'];
+		} else {
+			Message::addError('news-empty');
+		}
+		
+	}
 
 	private function saveNews()
 	{
 		// check if news content were set by the user
 		$newsTitle = Request::post('news-title');
 		$newsContent = Request::post('news-content');
-		if ($newsContent !== false && $newsTitle !== false) {
-				
+		if ($newsContent !== false && $newsTitle !== false) {	
 			// we got title and content, save it to DB
 			Database::exec("INSERT INTO news (dateline, title, content) VALUES (:dateline, :title, :content)", array(
 				'dateline' => time(),
