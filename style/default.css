@@ -111,3 +111,7 @@ body {
 	float: left;
 	background-color: #eee;
 }
+
+.slx-bold {
+	font-weight: bold;
+}

@@ -1,13 +1,63 @@
 <div class="container">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			Speicherplatz
+
+	<div class="row">
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					Speicherplatz
+				</div>
+				<div class="panel-body" id="diskstat">
+					*dreh dreh dreh dreh*
+				</div>
+			</div>
 		</div>
-		<div class="panel-body" id="diskstat">
-			*dreh dreh dreh dreh*
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					Dienste
+				</div>
+				<div class="panel-body" id="services">
+					*dreh dreh dreh dreh*
+				</div>
+			</div>
 		</div>
+
 	</div>
+
+
+	<div class="row">
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					Adresskonfiguration
+				</div>
+				<div class="panel-body" id="addresses">
+					*dreh dreh dreh dreh*
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					Systemlast
+				</div>
+				<div class="panel-body" id="systeminfo">
+					*dreh dreh dreh dreh*
+				</div>
+			</div>
+		</div>
+
+	</div>
+
 </div>
+
 <script type="text/javascript">
 	loadContent('#diskstat', '?do=SystemStatus&action=DiskStat');
+	loadContent('#addresses', '?do=SystemStatus&action=AddressList');
+	loadContent('#systeminfo', '?do=SystemStatus&action=SystemInfo');
+	loadContent('#services', '?do=SystemStatus&action=Services');
 </script>

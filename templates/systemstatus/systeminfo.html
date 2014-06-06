@@ -1,0 +1,90 @@
+<div class="slx-storechart">
+	<b>CPU-Last</b>
+	{{#cpuLoad}}
+	<div id="circles-cpuload"></div>
+	<div>Durchschnitt: {{cpuLoad}}%</div>
+	<div>Nur OS: {{cpuSystem}}%</div>
+	<div>Logische CPUs: {{cpuCount}}</div>
+	{{/cpuLoad}}
+	{{^cpuLoad}}
+	Konnte nicht ermittelt werden
+	{{/cpuLoad}}
+</div>
+			
+<div class="slx-storechart">
+	<b>RAM-Nutzung</b>
+	{{#memPercent}}
+	<div id="circles-mem"></div>
+	<div>Gesamt: {{memTotal}}</div>
+	<div>Frei: {{memFree}}</div>
+	{{/memPercent}}
+	{{^memPercent}}
+	Konnte nicht ermittelt werden
+	{{/memPercent}}
+</div>
+		
+<div class="slx-storechart">
+	<b>swap-Nutzung</b>
+	{{#swapPercent}}
+	<div id="circles-swap"></div>
+	<div>Gesamt: {{swapTotal}}</div>
+	<div>Belegt: {{swapUsed}}</div>
+	{{/swapPercent}}
+	{{^swapPercent}}
+	Konnte nicht ermittelt werden
+	{{/swapPercent}}
+</div>
+
+<div class="clearfix"></div>
+
+{{#swapWarning}}
+<div>
+	<b>Achtung!</b> Es wird swap-Speicher genutzt. Dies kann ein Hinweis darauf sein, dass der Satelliten-Server zu wenig physikalischen Speicher zur Verfügung hat. Im Falle von
+	Performance-Problemen oder Instabilität des Server sollten Sie erwägen, den Server mit mehr RAM auszustatten.
+</div>
+{{/swapWarning}}
+
+<script type="text/javascript">
+	{{#cpuLoad}}
+	Circles.create({
+	id:         'circles-cpuload',
+			  radius:     60,
+			  value:      {{{cpuLoad}}},
+			  maxValue:   100,
+			  width:      10,
+			  text:       function(value){return value + '%'; },
+			  colors:     ['#dbc', '#33f'],
+			  duration:   400,
+			  wrpClass:   'circles-wrp',
+			  textClass:  'circles-text'
+			  });
+	{{/cpuLoad}}
+	{{#memPercent}}
+	Circles.create({
+	id:         'circles-mem',
+			  radius:     60,
+			  value:      {{{memPercent}}},
+			  maxValue:   100,
+			  width:      10,
+			  text:       function(value){return value + '%'; },
+			  colors:     ['#dbc', '#33f'],
+			  duration:   400,
+			  wrpClass:   'circles-wrp',
+			  textClass:  'circles-text'
+			  });
+	{{/memPercent}}
+	{{#swapPercent}}
+	Circles.create({
+	id:         'circles-swap',
+			  radius:     60,
+			  value:      {{{swapPercent}}},
+			  maxValue:   100,
+			  width:      10,
+			  text:       function(value){return value + '%'; },
+			  colors:     ['#dbc', '#f33'],
+			  duration:   400,
+			  wrpClass:   'circles-wrp',
+			  textClass:  'circles-text'
+			  });
+	{{/swapPercent}}
+</script>
