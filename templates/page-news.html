@@ -1,62 +1,59 @@
-<p>Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.</p>
-<div class="panel panel-default">
-<div class="panel-heading">
-	<label>Aktive News</label>
-</div>
-<div class="panel-body">
-<form action="?do=News&amp;action=save" method="post">
-	<div class="form-group">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<label for="news-title-id">Titel</label>
-			</div>
-			<div class="panel-body">
-				<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="Willkommen!" value="{{latestTitle}}">
-			</div>
+<div class="container">
+	<p>Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.</p>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Aktive News
 		</div>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<label for="news-content-id">Inhalt</label>
-			</div>
-			<div class="panel-body">
-				<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="Willkommen beim bwLehrpool-System!">{{latestContent}}</textarea>
+		<div class="panel-body">
+			<form action="?do=News&amp;action=save" method="post">
+				<div class="form-group">
+					<label for="news-title-id">Titel</label>
+					<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="Willkommen!" value="{{latestTitle}}">
+				</div>
+				<div class="form-group">
+					<label for="news-content-id">Inhalt</label>
+					<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="Willkommen beim bwLehrpool-System!">{{latestContent}}</textarea>
+				</div>
+				<p>Letzte Aktualisierung: {{latestDate}}</p>
+				<button class="btn btn-primary btn-sm" type="submit">Speichern</button>
+				<input type="hidden" name="token" value="{{token}}">
+			</form>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Alte News
+		</div>
+		<div class="panel-body">
+			<div class="table-responsive">
+				<form method="post" action="?do=News&amp;action=delete">
+					<input type="hidden" name="token" value="{{token}}">
+					<table class="table table-stripped table-condensed">
+						<thead>
+							<tr>
+								<th>Datum</th>
+								<th>Titel</th>
+								<th>Inhalt</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{{#list}}
+							<tr {{#active}}class="active"{{/active}}>
+								<td class="text-left nowrap">{{date}}</td>
+								<td>{{title}}</td>
+								<td>{{content}}</td>
+								<td>
+									<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show"><span class="glyphicon glyphicon-share-alt"></span> Verwenden</a>
+									<button class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-remove"></span> Löschen</button>
+								</td>
+							</tr>
+							{{/list}}
+						</tbody>
+					</table>
+				</form>
 			</div>
 		</div>
 	</div>
-	<div>Letzte Aktualisierung: {{latestDate}}</div>
-	<br>
-	<button class="btn btn-primary btn-sm" type="submit">Speichern</button>
-	<input type="hidden" name="token" value="{{token}}">
-</form>
-</div>
-</div>
-
-<div class="panel panel-default">
-<div class="panel-heading">
-	<label>Alte News</label>
-</div>
-<div class="panel-body">
-<div class="table-responsive">
-<table class="table table-stripped table-condensed">
-	<thead>
-		<th class="col-sm-2">Datum</th>
-		<th class="col-sm-2">Titel</th>
-		<th class="col-sm-8">Inhalt</th>
-		<th></th>
-		<th></th>
-	</thead>
-	<tbody>
-	{{#list}}
-		<tr {{#active}}class="active"{{/active}}>
-			<td class="text-left" nowrap="nowrap">{{date}}</td>
-			<td>{{title}}</td>
-			<td>{{content}}</td>
-			<td><a class="btn btn-primary btn-sm glyphicon glyphicon-share-alt" href="?do=news&amp;newsid={{newsid}}&amp;action=show"> Übernehmen</a></td>
-			<td><a class="btn btn-danger btn-sm glyphicon glyphicon-remove" href="?do=news&amp;newsid={{newsid}}&amp;action=delete"> Löschen</a></td>
-		</tr>
-	{{/list}}
-	</tbody>
-</table>
-</div>
-</div>
 </div>
