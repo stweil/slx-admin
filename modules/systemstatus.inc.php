@@ -50,6 +50,8 @@ class Page_SystemStatus extends Page
 	protected function ajaxDiskStat()
 	{
 		$task = Taskmanager::submit('DiskStat');
+		if ($task === false)
+			return;
 		$task = Taskmanager::waitComplete($task, 3000);
 
 		if (!isset($task['data']['list']) || empty($task['data']['list'])) {
@@ -106,6 +108,8 @@ class Page_SystemStatus extends Page
 	protected function ajaxAddressList()
 	{
 		$task = Taskmanager::submit('LocalAddressesList');
+		if ($task === false)
+			return;
 		$task = Taskmanager::waitComplete($task, 3000);
 
 		if (!isset($task['data']['addresses']) || empty($task['data']['addresses'])) {
@@ -132,6 +136,7 @@ class Page_SystemStatus extends Page
 		$cpuInfo = file_get_contents('/proc/cpuinfo');
 		$memInfo = file_get_contents('/proc/meminfo');
 		$stat = file_get_contents('/proc/stat');
+		$uptime = file_get_contents('/proc/uptime');
 		$cpuCount = preg_match_all('/\bprocessor\s/', $cpuInfo, $out);
 		//$cpuCount = count($out);
 		$data = array(
@@ -140,7 +145,11 @@ class Page_SystemStatus extends Page
 			'memFree' => '???',
 			'swapTotal' => '???',
 			'swapUsed' => '???',
+			'uptime' => '???'
 		);
+		if (preg_match('/^(\d+)\D/', $uptime, $out)) {
+			$data['uptime'] = floor($out[1] / 86400) . ' Tag(e), ' . floor(($out[1] % 86400) / 3600) . ' Stunde(n)'; // TODO: i18n
+		}
 		if (preg_match('/\bMemTotal:\s+(\d+)\s.*\bMemFree:\s+(\d+)\s.*\bBuffers:\s+(\d+)\s.*\bCached:\s+(\d+)\s.*\bSwapTotal:\s+(\d+)\s.*\bSwapFree:\s+(\d+)\s/s', $memInfo, $out)) {
 			$data['memTotal'] = Util::readableFileSize($out[1] * 1024);
 			$data['memFree'] = Util::readableFileSize(($out[2] + $out[3] + $out[4]) * 1024);
@@ -164,6 +173,8 @@ class Page_SystemStatus extends Page
 		$data = array();
 		
 		$taskId = Trigger::ldadp();
+		if ($taskId === false)
+			return;
 		$status = Taskmanager::waitComplete($taskId, 10000);
 		
 		if (Taskmanager::isFailed($status)) {

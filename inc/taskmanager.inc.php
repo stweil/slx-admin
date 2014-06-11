@@ -30,26 +30,15 @@ class Taskmanager
 		$message = "$seq, $task, $data";
 		$sent = socket_send(self::$sock, $message, strlen($message), 0);
 		if ($sent != strlen($message)) {
-			Message::addError('taskmanager-error');
+			self::addErrorMessage(false);
 			return false;
 		}
 		if ($async)
 			return true;
 		$reply = self::readReply($seq);
-		if ($reply === false) {
-			Message::addError('taskmanager-error');
-			return false;
-		}
-		if (!is_array($reply)) {
-			Message::addError('taskmanager-format');
-			return false;
-		}
-		if (isset($reply['statusCode']) && $reply['statusCode'] === NO_SUCH_TASK) {
-			Message::addError('task-error', 'Ungültiger Task: ' . $task);
-			return false;
-		}
-		if (!isset($reply['id'])) {
-			Message::addError('taskmanager-format');
+		if ($reply === false || !is_array($reply) || !isset($reply['id'])
+				|| (isset($reply['statusCode']) && $reply['statusCode'] === NO_SUCH_TASK)) {
+			self::addErrorMessage(false);
 			return false;
 		}
 		return $reply;
@@ -102,7 +91,7 @@ class Taskmanager
 			return true;
 		return false;
 	}
-	
+
 	public static function addErrorMessage($task)
 	{
 		static $failure = false;
