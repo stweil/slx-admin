@@ -99,7 +99,7 @@ function tmResult(data, status)
 			} else if (task.statusCode === 'TASK_WAITING') {
 				icon.attr('class', 'data-tm-icon glyphicon glyphicon-pause');
 			} else if (task.statusCode === 'TASK_PROCESSING') {
-				icon.attr('class', 'data-tm-icon glyphicon glyphicon-play');
+				icon.attr('class', 'data-tm-icon glyphicon glyphicon-refresh slx-rotation');
 			} else if (task.statusCode === 'TASK_FINISHED') {
 				icon.attr('class', 'data-tm-icon glyphicon glyphicon-ok');
 			} else if (task.statusCode === 'TASK_ERROR') {
