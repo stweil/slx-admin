@@ -11,6 +11,7 @@ define('CONFIG_SESSION_TIMEOUT', 86400 * 3);
 define('CONFIG_SQL_DSN', 'mysql:dbname=openslx;host=localhost');
 define('CONFIG_SQL_USER', 'openslx');
 define('CONFIG_SQL_PASS', 'geheim');
+define('CONFIG_SQL_FORCE_UTF8', false);
 //define('CONFIG_SQL_DB', 'openslx');
 
 define('CONFIG_TGZ_LIST_DIR', '/opt/openslx/configs');
@@ -22,3 +23,4 @@ define('CONFIG_HTTP_DIR', '/srv/openslx/www/boot');
 
 define('CONFIG_IPXE_DIR', '/opt/openslx/ipxe');
 
+define('CONFIG_VMSTORE_DIR', '/srv/openslx/nfs');
