@@ -73,13 +73,14 @@ class Page_News extends Page
 	{
 		// check to see if we need to request a specific newsid
 		if ($this->newsId !== false) {
-			$whereClause = "WHERE newsid = $this->newsId ";
+			$row = Database::queryFirst("SELECT newsid, title, content, dateline FROM news WHERE newsid = :newsid LIMIT 1", array(
+				'newsid' => $this->newsId
+			));
 		} else {
-			$whereClause = "";
+			$row = Database::queryFirst("SELECT newsid, title, content, dateline FROM news ORDER BY dateline DESC LIMIT 1");
 		}
 		
 		// fetch the news to be shown
-		$row = Database::queryFirst("SELECT * FROM news $whereClause ORDER BY dateline DESC LIMIT 1");
 		if ($row !== false) {
 			$this->newsTitle = $row['title'];
 			$this->newsContent = $row['content'];
