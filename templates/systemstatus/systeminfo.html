@@ -1,38 +1,38 @@
 <div class="slx-storechart">
 	<b>CPU-Last</b>
-	{{#cpuLoad}}
+	{{#cpuLoadOk}}
 	<div id="circles-cpuload"></div>
 	<div>Durchschnitt: {{cpuLoad}}%</div>
 	<div>Nur OS: {{cpuSystem}}%</div>
 	<div>Logische CPUs: {{cpuCount}}</div>
-	{{/cpuLoad}}
-	{{^cpuLoad}}
+	{{/cpuLoadOk}}
+	{{^cpuLoadOk}}
 	Konnte nicht ermittelt werden
-	{{/cpuLoad}}
+	{{/cpuLoadOk}}
 </div>
 			
 <div class="slx-storechart">
 	<b>RAM-Nutzung</b>
-	{{#memPercent}}
+	{{#memTotal}}
 	<div id="circles-mem"></div>
 	<div>Gesamt: {{memTotal}}</div>
 	<div>Frei: {{memFree}}</div>
-	{{/memPercent}}
-	{{^memPercent}}
+	{{/memTotal}}
+	{{^memTotal}}
 	Konnte nicht ermittelt werden
-	{{/memPercent}}
+	{{/memTotal}}
 </div>
 		
 <div class="slx-storechart">
 	<b>swap-Nutzung</b>
-	{{#swapPercent}}
+	{{#memTotal}}
 	<div id="circles-swap"></div>
 	<div>Gesamt: {{swapTotal}}</div>
 	<div>Belegt: {{swapUsed}}</div>
-	{{/swapPercent}}
-	{{^swapPercent}}
+	{{/memTotal}}
+	{{^memTotal}}
 	Konnte nicht ermittelt werden
-	{{/swapPercent}}
+	{{/memTotal}}
 </div>
 
 <div class="clearfix"></div>
@@ -45,7 +45,7 @@
 {{/swapWarning}}
 
 <script type="text/javascript">
-	{{#cpuLoad}}
+	{{#cpuLoadOk}}
 	Circles.create({
 	id:         'circles-cpuload',
 			  radius:     60,
@@ -58,8 +58,8 @@
 			  wrpClass:   'circles-wrp',
 			  textClass:  'circles-text'
 			  });
-	{{/cpuLoad}}
-	{{#memPercent}}
+	{{/cpuLoadOk}}
+	{{#memTotal}}
 	Circles.create({
 	id:         'circles-mem',
 			  radius:     60,
@@ -72,8 +72,6 @@
 			  wrpClass:   'circles-wrp',
 			  textClass:  'circles-text'
 			  });
-	{{/memPercent}}
-	{{#swapPercent}}
 	Circles.create({
 	id:         'circles-swap',
 			  radius:     60,
@@ -86,5 +84,5 @@
 			  wrpClass:   'circles-wrp',
 			  textClass:  'circles-text'
 			  });
-	{{/swapPercent}}
+	{{/memTotal}}
 </script>

@@ -70,7 +70,7 @@ class Trigger
 		$storetype = $vmstore['storetype'];
 		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
 		if ($storetype === 'cifs') $addr = $vmstore['cifsaddr'];
-		if ($storetype === 'internal') $addr = 'none';
+		if ($storetype === 'internal') $addr = 'null';
 		return Taskmanager::submit('MountVmStore', array(
 			'address' => $addr,
 			'type' => 'images',

@@ -56,9 +56,6 @@ class Page_VmStore extends Page
 			Message::addError('value-invalid', 'nfsaddr', $vmstore['nfsaddr']);
 			Util::redirect('?do=VmStore');
 		}
-		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
-		if ($storetype === 'cifs') $addr = $vmstore['nfsaddr'];
-		if ($storetype === 'internal') $addr = 'none';
 		Property::setVmStoreConfig($vmstore);
 		$this->mountTask = Trigger::mount();
 	}

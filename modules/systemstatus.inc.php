@@ -9,6 +9,7 @@ class Page_SystemStatus extends Page
 		User::load();
 
 		if (!User::isLoggedIn()) {
+			Message::addError('no-permission');
 			Util::redirect('?do=Main');
 		}
 		
@@ -153,6 +154,7 @@ class Page_SystemStatus extends Page
 			$total = $out['user'] + $out['nice'] + $out['system'] + $out['idle'] + $out['iowait'] + $out['irq'] + $out['softirq'];
 			$data['cpuLoad'] = 100 - round(($out['idle'] / $total) * 100);
 			$data['cpuSystem'] = round((($out['iowait'] + $out['irq'] + $out['softirq']) / $total) * 100);
+			$data['cpuLoadOk'] = true;
 		}
 		echo Render::parse('systemstatus/systeminfo', $data);
 	}
