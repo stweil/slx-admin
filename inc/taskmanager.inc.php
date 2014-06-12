@@ -38,7 +38,7 @@ class Taskmanager
 		$reply = self::readReply($seq);
 		if ($reply === false || !is_array($reply) || !isset($reply['id'])
 				|| (isset($reply['statusCode']) && $reply['statusCode'] === NO_SUCH_TASK)) {
-			self::addErrorMessage(false);
+			self::addErrorMessage($reply);
 			return false;
 		}
 		return $reply;

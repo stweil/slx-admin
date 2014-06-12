@@ -41,10 +41,12 @@ class Page_SystemStatus extends Page
 			return;
 
 		$action = 'ajax' . Request::any('action');
-		if (method_exists($this, $action))
+		if (method_exists($this, $action)) {
 			$this->$action();
-		else
+			Message::renderList();
+		} else {
 			echo "Action $action not known in " . get_class();
+		}
 	}
 
 	protected function ajaxDiskStat()
@@ -56,7 +58,6 @@ class Page_SystemStatus extends Page
 
 		if (!isset($task['data']['list']) || empty($task['data']['list'])) {
 			Taskmanager::addErrorMessage($task);
-			Message::renderList();
 			return;
 		}
 		$store = Property::getVmStoreUrl();
@@ -114,7 +115,6 @@ class Page_SystemStatus extends Page
 
 		if (!isset($task['data']['addresses']) || empty($task['data']['addresses'])) {
 			Taskmanager::addErrorMessage($task);
-			Message::renderList();
 			return;
 		}
 
