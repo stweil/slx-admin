@@ -1,17 +1,32 @@
-<div class="container">
-
 	{{#systems}}
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4>{{title}}</h4>
 		</div>
 		<div class="panel-body" id="download-{{id}}">
+			{{#systemChanged}}
+			<p>
+				Mindestens eine Komponente von <b>{{title}}</b> kann aktualisiert werden. Für einen reibungslosen Betrieb
+				wird empfohlen, alle Komponenten auf dem aktuellen Stand zu halten.
+			</p>
+			<p><span class="btn btn-primary" onclick="slxUpdateAll(this, 'download-{{id}}')">Aktualisieren</span></p>
+			{{/systemChanged}}
+			{{^systemChanged}}
+			<p>Das System ist auf dem aktuellen Stand.</p>
+			{{/systemChanged}}
 			<ul class="list-group">
 				{{#files}}
 				<li class="list-group-item" id="{{uid}}">
-					{{name}}
-					{{#changed}}<span class="btn btn-success btn-sm" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">Aktualisieren</span>{{/changed}}
-					{{^changed}}<span class="btn btn-default btn-sm" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">Erneut herunterladen</span>{{/changed}}
+					<div class="row">
+						<div class="col-sm-2">{{name}}</div>
+						<div class="col-xs-2">
+							{{^fileChanged}}<span class="glyphicon glyphicon-ok"></span> <b>Aktuell</b>{{/fileChanged}}
+							{{#fileChanged}}<span class="glyphicon glyphicon-exclamation-sign"></span> <b>Veraltet</b>{{/fileChanged}}
+						</div>
+						<div class="col-xs-2">
+							{{#fileChanged}}<span class="btn btn-primary btn-xs update-button" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">Aktualisieren</span>{{/fileChanged}}
+						</div>
+					</div>
 					{{{download}}}
 				</li>
 				{{/files}}
@@ -22,11 +37,11 @@
 	{{^systems}}
 	<div class="row well well-sm">Keine Konfigurationspakete gefunden!</div>
 	{{/systems}}
-</div>
 
 <script type="text/javascript">
 function slxUpdate(uid, id, name)
 {
+	$('#' + uid).html('');
 	$('#' + uid).load('?do=MiniLinux',
 		{ action : "download", token : TOKEN, id : id, name : name },
 		function(response, status, xhr) {
@@ -37,6 +52,11 @@ function slxUpdate(uid, id, name)
 				setTimeout(tmInit, 100);
 			}
 		});
+}
+function slxUpdateAll(t, uid)
+{
+	$(t).hide(0);
+	$('#' + uid).find('.update-button').click();
 }
 tmInit();
 </script>
