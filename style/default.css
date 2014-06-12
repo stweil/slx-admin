@@ -116,6 +116,13 @@ body {
 	font-weight: bold;
 }
 
+.slx-ellipsis {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 240px;
+}
+
 .slx-rotation {
   animation-name: rotateThis;
   animation-duration: .75s;

@@ -42,8 +42,8 @@
 							{{#list}}
 							<tr {{#active}}class="active"{{/active}}>
 								<td class="text-left nowrap">{{date}}</td>
-								<td>{{title}}</td>
-								<td>{{content}}</td>
+								<td class="slx-ellipsis">{{title}}</td>
+								<td class="slx-ellipsis">{{content}}</td>
 								<td>
 									<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show"><span class="glyphicon glyphicon-share-alt"></span> Verwenden</a>
 									<button class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-remove"></span> Löschen</button>
