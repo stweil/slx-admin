@@ -11,9 +11,120 @@ USE openslx;
 
 
 
-DROP TABLE IF EXISTS `permission`;
+-- phpMyAdmin SQL Dump
+-- version 4.0.8
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Jun 13, 2014 at 05:09 PM
+-- Server version: 5.5.35-0ubuntu0.12.04.2
+-- PHP Version: 5.3.10-1ubuntu3.11
 
-CREATE TABLE `permission` (
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+--
+-- Database: `openslx`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cat_setting`
+--
+
+CREATE TABLE IF NOT EXISTS `cat_setting` (
+  `catid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(250) NOT NULL,
+  `sortval` smallint(5) unsigned NOT NULL,
+  PRIMARY KEY (`catid`),
+  KEY `sortval` (`sortval`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `clientlog`
+--
+
+CREATE TABLE IF NOT EXISTS `clientlog` (
+  `logid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `dateline` int(10) unsigned NOT NULL,
+  `logtypeid` varchar(30) NOT NULL,
+  `clientip` varchar(40) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `extra` text NOT NULL,
+  PRIMARY KEY (`logid`),
+  KEY `dateline` (`dateline`),
+  KEY `logtypeid` (`logtypeid`,`dateline`),
+  KEY `clientip` (`clientip`,`dateline`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `configtgz`
+--
+
+CREATE TABLE IF NOT EXISTS `configtgz` (
+  `configid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) NOT NULL,
+  `filepath` varchar(255) NOT NULL,
+  PRIMARY KEY (`configid`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `configtgz_module`
+--
+
+CREATE TABLE IF NOT EXISTS `configtgz_module` (
+  `moduleid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) NOT NULL,
+  `moduletype` varchar(16) NOT NULL,
+  `filepath` varchar(250) NOT NULL,
+  `contents` text NOT NULL,
+  PRIMARY KEY (`moduleid`),
+  KEY `title` (`title`),
+  KEY `moduletype` (`moduletype`,`title`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `configtgz_x_module`
+--
+
+CREATE TABLE IF NOT EXISTS `configtgz_x_module` (
+  `configid` int(10) unsigned NOT NULL,
+  `moduleid` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`configid`,`moduleid`),
+  KEY `moduleid` (`moduleid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `news`
+--
+
+CREATE TABLE IF NOT EXISTS `news` (
+  `newsid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `dateline` int(10) unsigned NOT NULL,
+  `title` varchar(200) DEFAULT NULL,
+  `content` text,
+  PRIMARY KEY (`newsid`),
+  KEY `dateline` (`dateline`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `permission`
+--
+
+CREATE TABLE IF NOT EXISTS `permission` (
   `mask` int(10) unsigned NOT NULL,
   `identifier` varchar(32) NOT NULL,
   `description` text NOT NULL,
@@ -21,44 +132,42 @@ CREATE TABLE `permission` (
   UNIQUE KEY `identifier` (`identifier`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `permission` (`mask`, `identifier`, `description`) VALUES
-(1, 'superadmin', 'SuperAdmin - Dieser Benutzer darf alle Einstellungen sehen und ändern, unabhängig davon, ob ihr die Rechte dafür explizit gewährt wurden.'),
-(2, 'baseconfig_global', 'Basiskonfiguration global und für jeden Poolraum ändern.'),
-(4, 'baseconfig_local', 'Basiskonfiguration für dem Benutzer zugewiesene Poolräume ändern.');
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `property`
+--
 
+CREATE TABLE IF NOT EXISTS `property` (
+  `name` varchar(50) NOT NULL,
+  `dateline` int(10) unsigned NOT NULL DEFAULT '0',
+  `value` text NOT NULL,
+  PRIMARY KEY (`name`),
+  KEY `dateline` (`dateline`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `setting`;
+--
+-- Table structure for table `setting`
+--
 
-CREATE TABLE `setting` (
+CREATE TABLE IF NOT EXISTS `setting` (
   `setting` varchar(28) NOT NULL,
+  `catid` int(10) unsigned NOT NULL,
   `defaultvalue` text NOT NULL,
   `permissions` int(10) unsigned NOT NULL,
   `validator` varchar(250) NOT NULL DEFAULT '',
   `description` text NOT NULL,
-  PRIMARY KEY (`setting`)
+  PRIMARY KEY (`setting`),
+  KEY `catid` (`catid`,`setting`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `setting` (`setting`, `defaultvalue`, `permissions`, `validator`, `description`) VALUES
-('SLX_ADDONS', 'vmware', 2, '', 'Zu ladende Addons. Zur Zeit steht nur vmware zur Verfügung.'),
-('SLX_BIOS_CLOCK', 'off', 2, 'regex:/^(off|local|utc)$/', 'Legt fest, ob und wie die interne Uhr des Rechners im Bezug auf die Systemzeit des /MiniLinux/ gesetzt werden soll.\r\n*off* = Die interne Uhr des Rechners wird nicht verändert.\r\n*local* = Die interne Uhr wird auf die Lokalzeit gesetzt. Bevorzugt wenn z.B. noch eine native Windows-Installation auf dem PC vorhanden ist.\r\n*utc* = Die interne Uhr wird auf die /Koordinierte Weltzeit/ gesetzt. Dies ist die gängige Einstellung in einem reinen Linux-Umfeld.'),
-('SLX_LOGOUT_TIMEOUT', '1800', 2, 'regex:/^\\d*$/', 'Zeit /in Sekunden/, die eine Benutzersitzung ohne Aktion sein darf, bevor sie beendet wird.\r\nFeld leer lassen, um die Funktion zu deaktivieren.'),
-('SLX_NET_DOMAIN', '', 2, '', 'DNS-Domäne, in die sich die Clients eingliedern, sofern der DHCP Server keine solche vorgibt.'),
-('SLX_NTP_SERVER', '0.de.pool.ntp.org 1.de.pool.ntp.org', 2, '', 'Adresse des NTP-Zeitservers. Es können mehrere Server mit Leerzeichen getrennt angegeben werden.\r\nDie Server werden der Reihe nach angefragt, bis ein antwortender Server gefunden wird.'),
-('SLX_PROXY_BLACKLIST', '', 2, '', 'Adressen bzw. Adressbereiche, für die der Proxyserver nicht verwendet werden soll (z.B. der Adressbereich der Einrichtung). Gültige Angaben sind einzelne IP-Adressen, sowie IP-Bereiche in CIDR-Notation (z.B. 1.2.0.0/16). Mehrere Angaben können durch Leerzeichen getrennt werden.'),
-('SLX_PROXY_IP', '', 2, '', 'Die Adresse des zu verwendenden Proxy Servers.'),
-('SLX_PROXY_MODE', 'off', 2, 'regex:/^(off|on|auto|wpad)$/', 'Legt fest, ob zum Zugriff aufs Internet ein Proxy-Server benötigt wird.\r\n*off* = keinen Proxy benutzen.\r\n*on* = Proxy immer benutzen.\r\n*auto* = Proxy nur benutzen, wenn sich der Client-PC in einem privaten Adressbereich befindet.'),
-('SLX_PROXY_PORT', '', 2, 'regex:/^\\d*$/', 'Der Port des zu verwendenden Proxy Servers.'),
-('SLX_PROXY_TYPE', 'socks5', 2, '', 'Art des Proxys.\r\n*socks4*, *socks5*,\r\n*http-connect* (HTTP Proxy mit Unterstützung der CONNECT-Methode),\r\n*http-relay* (Klassischer HTTP Proxy)'),
-('SLX_REMOTE_LOG_SESSIONS', 'anonymous', 2, 'regex:/^(yes|anonymous|no)$/', 'Legt fest, ob Logins und Logouts der Benutzer an den Satelliten gemeldet werden sollen.\r\n*yes* = Mit Benutzerkennung loggen\r\n*anonymous* = Anonym loggen\r\n*no* = Nicht loggen'),
-('SLX_ROOT_PASS', '', 2, 'function:linuxPassword', 'Das root-Passwort des Grundsystems. Wird nur für Diagnosezwecke am Client benötigt.\r\nFeld leer lassen, um root-Logins zu verbieten.\r\n/Hinweis/: Das Passwort wird crypt $6$ gehasht, daher wir das Passwort nach dem Speichern nicht mehr lesbar sein!'),
-('SLX_SHUTDOWN_SCHEDULE', '22:10 00:00', 2, 'regex:/^(\\s*\\d{1,2}:\\d{1,2})*$/', 'Feste Uhrzeit, zu der sich die Rechner ausschalten, auch wenn noch ein Benutzer aktiv ist.\r\nMehrere Zeitpunkte können durch Leerzeichen getrennt angegeben werden.'),
-('SLX_SHUTDOWN_TIMEOUT', '1200', 2, 'regex:/^\\d*$/', 'Zeit in Sekunden, nach dem ein Rechner abgeschaltet wird, sofern kein Benutzer angemeldet ist.\r\nFeld leer lassen, um die Funktion zu deaktivieren.'),
-('SLX_VM_NFS', '', 2, '', 'Serveradresse und mount point des NFS Servers, auf dem die virtuellen Maschinen liegen.\r\nBeispiel: *vm-store.example.com:/data/images*');
+-- --------------------------------------------------------
 
-
-
+--
+-- Table structure for table `setting_distro`
+--
 
 CREATE TABLE IF NOT EXISTS `setting_distro` (
   `distroid` int(10) unsigned NOT NULL,
@@ -68,11 +177,23 @@ CREATE TABLE IF NOT EXISTS `setting_distro` (
   KEY `setting` (`setting`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `setting_global`
+--
+
 CREATE TABLE IF NOT EXISTS `setting_global` (
   `setting` varchar(28) NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`setting`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user`
+--
 
 CREATE TABLE IF NOT EXISTS `user` (
   `userid` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -86,16 +207,86 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `login` (`login`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE `clientlog` (
-  `logid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `dateline` int(10) unsigned NOT NULL,
-  `logtypeid` varchar(30) NOT NULL,
-  `clientip` varchar(40) NOT NULL,
-  `description` varchar(255) NOT NULL,
-  `extra` text NOT NULL,
-  PRIMARY KEY (`logid`),
-  KEY `dateline` (`dateline`),
-  KEY `logtypeid` (`logtypeid`,`dateline`),
-  KEY `clientip` (`clientip`,`dateline`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+--
+-- Constraints for dumped tables
+--
 
+--
+-- Constraints for table `configtgz_x_module`
+--
+ALTER TABLE `configtgz_x_module`
+  ADD CONSTRAINT `configtgz_x_module_ibfk_1` FOREIGN KEY (`configid`) REFERENCES `configtgz` (`configid`) ON DELETE CASCADE,
+  ADD CONSTRAINT `configtgz_x_module_ibfk_2` FOREIGN KEY (`moduleid`) REFERENCES `configtgz_module` (`moduleid`);
+
+--
+-- Constraints for table `setting`
+--
+ALTER TABLE `setting`
+  ADD CONSTRAINT `setting_ibfk_1` FOREIGN KEY (`catid`) REFERENCES `cat_setting` (`catid`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `setting_distro`
+--
+ALTER TABLE `setting_distro`
+  ADD CONSTRAINT `setting_distro_ibfk_1` FOREIGN KEY (`setting`) REFERENCES `setting` (`setting`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+
+
+-- phpMyAdmin SQL Dump
+-- version 4.0.8
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Jun 13, 2014 at 05:11 PM
+-- Server version: 5.5.35-0ubuntu0.12.04.2
+-- PHP Version: 5.3.10-1ubuntu3.11
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+--
+-- Database: `openslx`
+--
+
+--
+-- Dumping data for table `cat_setting`
+--
+
+INSERT IGNORE INTO `cat_setting` (`catid`, `name`, `sortval`) VALUES
+(0, 'Unkategorisiert', 20000),
+(1, 'Inaktivität und Abschaltung', 30),
+(2, 'Internetzugriff', 20),
+(3, 'Zeitsynchronisation', 100),
+(4, 'Grundsystem', 10);
+
+--
+-- Dumping data for table `permission`
+--
+
+INSERT IGNORE INTO `permission` (`mask`, `identifier`, `description`) VALUES
+(1, 'superadmin', 'SuperAdmin - Dieser Benutzer darf alle Einstellungen sehen und ändern, unabhängig davon, ob ihr die Rechte dafür explizit gewährt wurden.'),
+(2, 'baseconfig_global', 'Basiskonfiguration global und für jeden Poolraum ändern.'),
+(4, 'baseconfig_local', 'Basiskonfiguration für dem Benutzer zugewiesene Poolräume ändern.');
+
+--
+-- Dumping data for table `setting`
+--
+
+INSERT IGNORE INTO `setting` (`setting`, `catid`, `defaultvalue`, `permissions`, `validator`, `description`) VALUES
+('SLX_ADDONS', 0, 'vmware', 2, '', 'Zu ladende Addons. Zur Zeit steht nur vmware zur Verfügung.'),
+('SLX_BIOS_CLOCK', 3, 'off', 2, 'regex:/^(off|local|utc)$/', 'Legt fest, ob und wie die interne Uhr des Rechners im Bezug auf die Systemzeit des /MiniLinux/ gesetzt werden soll.\r\n*off* = Die interne Uhr des Rechners wird nicht verändert.\r\n*local* = Die interne Uhr wird auf die Lokalzeit gesetzt. Bevorzugt wenn z.B. noch eine native Windows-Installation auf dem PC vorhanden ist.\r\n*utc* = Die interne Uhr wird auf die /Koordinierte Weltzeit/ gesetzt. Dies ist die gängige Einstellung in einem reinen Linux-Umfeld.'),
+('SLX_LOGOUT_TIMEOUT', 1, '1800', 2, 'regex:/^\\d*$/', 'Zeit /in Sekunden/, die eine Benutzersitzung ohne Aktion sein darf, bevor sie beendet wird.\r\nFeld leer lassen, um die Funktion zu deaktivieren.'),
+('SLX_NET_DOMAIN', 2, '', 2, '', 'DNS-Domäne, in die sich die Clients eingliedern, sofern der DHCP Server keine solche vorgibt.'),
+('SLX_NTP_SERVER', 3, '0.de.pool.ntp.org 1.de.pool.ntp.org', 2, '', 'Adresse des NTP-Zeitservers. Es können mehrere Server mit Leerzeichen getrennt angegeben werden.\r\nDie Server werden der Reihe nach angefragt, bis ein antwortender Server gefunden wird.'),
+('SLX_PROXY_BLACKLIST', 2, '', 2, '', 'Adressen bzw. Adressbereiche, für die der Proxyserver nicht verwendet werden soll (z.B. der Adressbereich der Einrichtung). Gültige Angaben sind einzelne IP-Adressen, sowie IP-Bereiche in CIDR-Notation (z.B. 1.2.0.0/16). Mehrere Angaben können durch Leerzeichen getrennt werden.'),
+('SLX_PROXY_IP', 2, '', 2, '', 'Die Adresse des zu verwendenden Proxy Servers.'),
+('SLX_PROXY_MODE', 2, 'off', 2, 'regex:/^(off|on|auto|wpad)$/', 'Legt fest, ob zum Zugriff aufs Internet ein Proxy-Server benötigt wird.\r\n*off* = keinen Proxy benutzen.\r\n*on* = Proxy immer benutzen.\r\n*auto* = Proxy nur benutzen, wenn sich der Client-PC in einem privaten Adressbereich befindet.'),
+('SLX_PROXY_PORT', 2, '', 2, 'regex:/^\\d*$/', 'Der Port des zu verwendenden Proxy Servers.'),
+('SLX_PROXY_TYPE', 2, 'socks5', 2, '', 'Art des Proxys.\r\n*socks4*, *socks5*,\r\n*http-connect* (HTTP Proxy mit Unterstützung der CONNECT-Methode),\r\n*http-relay* (Klassischer HTTP Proxy)'),
+('SLX_REMOTE_LOG_SESSIONS', 0, 'anonymous', 2, 'regex:/^(yes|anonymous|no)$/', 'Legt fest, ob Logins und Logouts der Benutzer an den Satelliten gemeldet werden sollen.\r\n*yes* = Mit Benutzerkennung loggen\r\n*anonymous* = Anonym loggen\r\n*no* = Nicht loggen'),
+('SLX_ROOT_PASS', 4, '', 2, 'function:linuxPassword', 'Das root-Passwort des Grundsystems. Wird nur für Diagnosezwecke am Client benötigt.\r\nFeld leer lassen, um root-Logins zu verbieten.\r\n/Hinweis/: Das Passwort wird crypt $6$ gehasht, daher wir das Passwort nach dem Speichern nicht mehr lesbar sein!'),
+('SLX_SHUTDOWN_SCHEDULE', 1, '22:10 00:00', 2, 'regex:/^(\\s*\\d{1,2}:\\d{1,2})*$/', 'Feste Uhrzeit, zu der sich die Rechner ausschalten, auch wenn noch ein Benutzer aktiv ist.\r\nMehrere Zeitpunkte können durch Leerzeichen getrennt angegeben werden.'),
+('SLX_SHUTDOWN_TIMEOUT', 1, '1200', 2, 'regex:/^\\d*$/', 'Zeit in Sekunden, nach dem ein Rechner abgeschaltet wird, sofern kein Benutzer angemeldet ist.\r\nFeld leer lassen, um die Funktion zu deaktivieren.');
+
+INSERT INTO property (name, dateline, value) VALUES ('webif-version', 0, 3);
