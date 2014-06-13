@@ -1,0 +1,31 @@
+{ "activeNews":{
+		"english":"Active News",
+		"german":"Aktive News",
+		"portuguese":"Novidades"
+		},
+"content":{
+		"english":"Content",
+		"german":"Inhalt",
+		"portuguese":"Conteúdo"
+		},
+"latestUpdate":{
+		"english":"Latest update",
+		"german":"Letzte Aktualisierung",
+		"portuguese":"Última atualização"
+		},
+"save":{
+		"english":"Save",
+		"german":"Speichern",
+		"portuguese":"Salvar"
+		},
+"title":{
+		"english":"Title",
+		"german":"Titel",
+		"portuguese":"Título"
+		},
+"welcome":{
+		"english":"Welcome",
+		"german":"Willkommen",
+		"portuguese":"Bem-vindo"
+		}
+}

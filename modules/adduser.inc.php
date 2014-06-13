@@ -47,9 +47,11 @@ class Page_AddUser extends Page
 		if (Database::queryFirst('SELECT userid FROM user LIMIT 1') !== false) {
 			Message::addError('adduser-disabled');
 		} else {
+
 			Render::setTitle('Benutzer anlegen');
 			Render::addTemplate('page-adduser', $_POST);
 		}
+		
 	}
 
 }

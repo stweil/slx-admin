@@ -2,21 +2,20 @@
 	<p>Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.</p>
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			Aktive News
+			{{activeNews}}
 		</div>
 		<div class="panel-body">
 			<form action="?do=News&amp;action=save" method="post">
 				<div class="form-group">
-					<label for="news-title-id">Titel</label>
-					<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="Willkommen!" value="{{latestTitle}}">
+					<label for="news-title-id">{{title}}</label>
+					<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="{{welcome}}" value="{{latestTitle}}">
 				</div>
 				<div class="form-group">
-					<label for="news-content-id">Inhalt</label>
-					<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="Willkommen beim bwLehrpool-System!">{{latestContent}}</textarea>
+					<label for="news-content-id">{{content}}</label>
+					<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="">{{latestContent}}</textarea>
 				</div>
-				<p>Letzte Aktualisierung: {{latestDate}}</p>
-				<button class="btn btn-primary btn-sm" type="submit"><span class="glyphicon glyphicon-save"></span> Speichern</button>
-				<a class="btn btn-primary btn-sm" href="?do=news&amp;action=clear"><span class="glyphicon glyphicon-trash"></span> Leeren</a>
+				<p>{{latestUpdate}}: {{latestDate}}</p>
+				<button class="btn btn-primary btn-sm" type="submit">{{save}}</button>
 				<input type="hidden" name="token" value="{{token}}">
 			</form>
 		</div>

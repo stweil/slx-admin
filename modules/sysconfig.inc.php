@@ -48,7 +48,7 @@ class Page_SysConfig extends Page
 		
 		if (!User::hasPermission('superadmin')) {
 			Message::addError('no-permission');
-			Util::redirect('?do=Main');
+			return;
 		}
 
 		$action = Request::any('action', 'list');
