@@ -14,6 +14,8 @@ define('CONFIG_SQL_PASS', 'geheim');
 define('CONFIG_SQL_FORCE_UTF8', false);
 //define('CONFIG_SQL_DB', 'openslx');
 
+define('LANG',str_replace("\n", "", file_get_contents('lang.txt')));
+
 define('CONFIG_TGZ_LIST_DIR', '/opt/openslx/configs');
 
 define('CONFIG_REMOTE_ML',  'http://mltk.boot.openslx.org/update/new');

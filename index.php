@@ -2,6 +2,9 @@
 
 require_once 'config.php';
 
+require_once 'dictionary.php';
+
+
 /**
  * Page class which all "modules" must be extending from
  */

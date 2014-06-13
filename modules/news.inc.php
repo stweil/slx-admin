@@ -50,12 +50,19 @@ class Page_News extends Page
 			$lines[] = $row;
 		}
 		
+		$dictionary = new Dictionary();
 		$paginate->render('page-news', array(
 				'token' => Session::get('token'),
 				'latestDate' => ($this->newsDate ? date('d.m.Y H:i', $this->newsDate) : '--'),
 				'latestContent' => $this->newsContent,
 				'latestTitle' => $this->newsTitle,
-				'list'     => $lines
+				'list'     => $lines,
+				'activeNews' => $dictionary->translate("activeNews"),
+				'title' => $dictionary->translate("title"),
+				'content' => $dictionary->translate("content"),
+				'save' => $dictionary->translate("save"),
+				'latestUpdate' => $dictionary->translate("latestUpdate"),
+				'welcome' => $dictionary->translate("welcome")
 		));
 
 	}
