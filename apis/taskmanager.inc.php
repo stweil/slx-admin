@@ -15,12 +15,6 @@ foreach ($_POST['ids'] as $id) {
 		continue;
 	}
 	$return[] = $status;
-	// HACK HACK - should be pluggable
-	if (isset($status['statusCode']) && $status['statusCode'] === TASK_FINISHED // iPXE Update
-			&& $id === Property::getIPxeTaskId() && Property::getServerIp() !== Property::getIPxeIp()) {
-		Property::setIPxeIp(Property::getServerIp());
-	}
-	// -- END HACKS --
 	if (!isset($status['statusCode']) || ($status['statusCode'] !== TASK_WAITING && $status['statusCode'] !== TASK_PROCESSING)) {
 		Taskmanager::release($id);
 	}

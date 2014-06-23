@@ -45,7 +45,6 @@ class Page_ServerSetup extends Page
 			'ips' => $this->taskStatus['data']['addresses']
 		));
 		$data = $this->currentMenu;
-		$data['taskid'] = Property::getIPxeTaskId();
 		if (!isset($data['defaultentry']))
 			$data['defaultentry'] = 'net';
 		if ($data['defaultentry'] === 'net')
@@ -101,7 +100,6 @@ class Page_ServerSetup extends Page
 		}
 		if ($valid) {
 			Property::setServerIp($newAddress);
-			Trigger::ipxe();
 		} else {
 			Message::addError('invalid-ip', $newAddress);
 		}
@@ -120,7 +118,7 @@ class Page_ServerSetup extends Page
 		$this->currentMenu['timeout'] = $timeout;
 		$this->currentMenu['custom'] = Request::post('custom', '');
 		Property::setBootMenu($this->currentMenu);
-		Trigger::ipxe(true);
+		Trigger::ipxe();
 		Util::redirect('?do=ServerSetup');
 	}
 

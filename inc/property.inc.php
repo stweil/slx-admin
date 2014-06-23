@@ -62,26 +62,6 @@ class Property
 		self::set('server-ip', $value);
 	}
 
-	public static function getIPxeIp()
-	{
-		return self::get('ipxe-ip', 'not-set');
-	}
-
-	public static function setIPxeIp($value)
-	{
-		self::set('ipxe-ip', $value);
-	}
-
-	public static function getIPxeTaskId()
-	{
-		return self::get('ipxe-task');
-	}
-
-	public static function setIPxeTaskId($value)
-	{
-		self::set('ipxe-task', $value);
-	}
-
 	public static function getBootMenu()
 	{
 		return json_decode(self::get('ipxe-menu'), true);

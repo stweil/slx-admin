@@ -5,7 +5,8 @@
 		</div>
 		<div class="panel-body">
 			<p>
-				Bitte wählen Sie die IP-Adresse, über die der Server von den Clients zum Booten angesprochen werden soll.
+				Bitte wählen Sie die primäre IP-Adresse des Servers aus. Dies ist für einige Dienste und Funktionen notwendig,
+				z.B. wenn Sie Authentifizierung über Active Directory nutzen wollen.
 			</p>
 			<form method="post" action="?do=ServerSetup">
 				<input type="hidden" name="action" value="ip">
@@ -27,10 +28,6 @@
 					</tr>
 					{{/ips}}
 				</table>
-				<p>
-					Das Bootmenü muss nach einer Änderung der IP-Adresse neu generiert werden. In der Regel geschieht dies
-					automatisch, der Vorgang kann in der Sektion <b>Bootmenü</b> allerdings auch manuell ausgelöst werden.
-				</p>
 			</form>
 		</div>
 	</div>
