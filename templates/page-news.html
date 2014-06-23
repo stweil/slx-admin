@@ -15,7 +15,8 @@
 					<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="Willkommen beim bwLehrpool-System!">{{latestContent}}</textarea>
 				</div>
 				<p>Letzte Aktualisierung: {{latestDate}}</p>
-				<button class="btn btn-primary btn-sm" type="submit">Speichern</button>
+				<button class="btn btn-primary btn-sm" type="submit"><span class="glyphicon glyphicon-save"></span> Speichern</button>
+				<a class="btn btn-primary btn-sm" href="?do=news&amp;action=clear"><span class="glyphicon glyphicon-trash"></span> Leeren</a>
 				<input type="hidden" name="token" value="{{token}}">
 			</form>
 		</div>

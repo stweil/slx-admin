@@ -20,7 +20,13 @@ class Page_News extends Page
 		
 		// check which action we need to do
 		$action = Request::any('action', 'show');
-		if ($action === 'show') {
+		if ($action === 'clear') {
+			// clear news input fields
+			$this->newsId = false;
+			$this->newsTitle = false;
+			$this->newsContent = false;
+			$this->newsDate = false;
+		} elseif ($action === 'show') {
 			// show news
 			if (!$this->loadNews(Request::any('newsid'))) {
 				Message::addError('news-empty');
@@ -86,7 +92,7 @@ class Page_News extends Page
 		// check if news content were set by the user
 		$newsTitle = Request::post('news-title');
 		$newsContent = Request::post('news-content');
-		if ($newsContent !== false && $newsTitle !== false) {	
+		if ($newsContent !== '' && $newsTitle !== '') {
 			// we got title and content, save it to DB
 			Database::exec("INSERT INTO news (dateline, title, content) VALUES (:dateline, :title, :content)", array(
 				'dateline' => time(),
@@ -96,6 +102,8 @@ class Page_News extends Page
 			// all done, redirect to main news page
 			Message::addSuccess('news-set-success');
 			Util::redirect('?do=News');
+		} else {
+			Message::addError('empty-field');
 		}
 	}
 	
