@@ -18,25 +18,59 @@ class Trigger
 	 * @param boolean $force force recompilation even if it seems up to date
 	 * @return boolean|string true if already up to date, false if launching task failed, task-id otherwise
 	 */
-	public static function ipxe($force = false)
+	public static function ipxe()
 	{
-		if (!$force && Property::getIPxeIp() === Property::getServerIp())
-			return true; // Nothing to do
-		$last = Property::getIPxeTaskId();
-		if ($last !== false) {
-			$status = Taskmanager::status($last);
-			if (isset($status['statusCode']) && ($status['statusCode'] === TASK_WAITING || $status['statusCode'] === TASK_PROCESSING))
-				return false; // Already compiling
-		}
 		$data = Property::getBootMenu();
-		$data['ip'] = Property::getServerIp();
 		$task = Taskmanager::submit('CompileIPxe', $data);
 		if (!isset($task['id']))
 			return false;
-		Property::setIPxeTaskId($task['id']);
 		return $task['id'];
 	}
 	
+	/**
+	 * Try to automatically determine the primary IP address of the server.
+	 * This only works if the server has either one public IPv4 address (and potentially
+	 * one or more non-public addresses), or one private address.
+	 */
+	public static function autoUpdateServerIp()
+	{
+		$task = Taskmanager::submit('LocalAddressesList');
+		if ($task === false)
+			return;
+		$task = Taskmanager::waitComplete($task, 10000);
+		if (!isset($task['data']['addresses']) || empty($task['data']['addresses']))
+			return;
+
+		$serverIp = Property::getServerIp();
+		$publicCandidate = 'none';
+		$privateCandidate = 'none';
+		foreach ($task['data']['addresses'] as $addr) {
+			if ($addr['ip'] === $serverIp)
+				return;
+			if (substr($addr['ip'], 0, 4) === '127.')
+				continue;
+			if (Util::isPublicIpv4($addr['ip'])) {
+				if ($publicCandidate === 'none')
+					$publicCandidate = $addr['ip'];
+				else
+					$publicCandidate = 'many';
+			} else {
+				if ($privateCandidate === 'none')
+					$privateCandidate = $addr['ip'];
+				else
+					$privateCandidate = 'many';
+			}
+		}
+		if ($publicCandidate !== 'none' && $publicCandidate !== 'many') {
+			Property::setServerIp($publicCandidate);
+			return;
+		}
+		if ($privateCandidate !== 'none' && $privateCandidate !== 'many') {
+			Property::setServerIp($privateCandidate);
+			return;
+		}
+	}
+
 	/**
 	 * 
 	 * @return boolean|string false on error, id of task otherwise
