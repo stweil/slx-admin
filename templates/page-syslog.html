@@ -14,29 +14,31 @@
 		</div>
 	</form>
 	{{{pagenav}}}
-	<table class="table table-striped table-condensed">
-		<thead>
-			<th></th>
-			<th>Wann</th>
-			<th>Client</th>
-			<th>Ereignis</th>
-			<th>Details</th>
-		</thead>
-		<tbody>
-		{{#list}}
-			<tr>
-				<td><span class="glyphicon glyphicon-off" title="{{logtypeid}}" onclick="$('#filterstring').tagsinput('add', '{{logtypeid}}')"></span></td>
-				<td class="text-right" nowrap="nowrap">{{date}}</td>
-				<td>{{clientip}}</td>
-				<td>{{description}}</td>
-				<td>{{#extra}}<a class="btn btn-default btn-xs pull-left" data-toggle="collapse" data-target="#extra{{logid}}">&raquo;</a>{{/extra}}</td>
-			</tr>
-			<tr class="collapse" id="extra{{logid}}">
-				<td colspan="5"><pre>{{extra}}</pre></td>
-			</tr>
-		{{/list}}
-		</tbody>
-	</table>
+	<div class="table-responsive">
+		<table class="table table-striped table-condensed">
+			<thead>
+				<th></th>
+				<th>Wann</th>
+				<th>Client</th>
+				<th>Ereignis</th>
+				<th>Details</th>
+			</thead>
+			<tbody>
+			{{#list}}
+				<tr>
+					<td><span class="glyphicon glyphicon-off" title="{{logtypeid}}" onclick="$('#filterstring').tagsinput('add', '{{logtypeid}}')"></span></td>
+					<td class="text-right" nowrap="nowrap">{{date}}</td>
+					<td>{{clientip}}</td>
+					<td>{{description}}</td>
+					<td>{{#extra}}<a class="btn btn-default btn-xs pull-left" data-toggle="collapse" data-target="#extra{{logid}}">&raquo;</a>{{/extra}}</td>
+				</tr>
+				<tr class="collapse" id="extra{{logid}}">
+					<td colspan="5"><pre>{{extra}}</pre></td>
+				</tr>
+			{{/list}}
+			</tbody>
+		</table>
+	</div>
 	{{{pagenav}}}
 </div>
 
