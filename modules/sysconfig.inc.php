@@ -142,7 +142,7 @@ class Page_SysConfig extends Page
 				'module' => $row['title']
 			);
 		}
-		Render::addTemplate('page-sysconfig-main', array(
+		Render::addTemplate('sysconfig/_page', array(
 			'configs' => $configs,
 			'modules' => $modules
 		));
