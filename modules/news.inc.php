@@ -54,7 +54,7 @@ class Page_News extends Page
 				Request::post('news-title') ? $this->newsTitle = Request::post('news-title') : $this->newsTitle = false;
 				Request::post('news-content') ? $this->newsContent = Request::post('news-content') : $this->newsContent = false;
 			} else {
-				Message::addSuccess('news-set-success');
+				Message::addSuccess('news-save-success');
 				Util::redirect('?do=News');
 			}
 		} elseif ($action === 'delete') {
