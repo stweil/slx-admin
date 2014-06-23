@@ -72,10 +72,12 @@ class Trigger
 	}
 
 	/**
-	 * 
+	 * Launch all ldadp instances that need to be running.
+	 *
+	 * @param string $parent if not NULL, this will be the parent task of the launch-task
 	 * @return boolean|string false on error, id of task otherwise
 	 */
-	public static function ldadp()
+	public static function ldadp($parent = NULL)
 	{
 		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"
 			. " INNER JOIN configtgz_x_module USING (moduleid)"
@@ -90,17 +92,50 @@ class Trigger
 			}
 		}
 		$task = Taskmanager::submit('LdadpLauncher', array(
-			'ids' => $id
+			'ids' => $id,
+			'parentTask' => $parent,
+			'failOnParentFail' => false
 		));
 		if (!isset($task['id']))
 			return false;
 		return $task['id'];
 	}
 	
+	/**
+	 * To be called if the server ip changes, as it's embedded in the AD module configs.
+	 * This will then recreate all AD tgz modules.
+	 */
+	public static function rebuildAdModules()
+	{
+		$res = Database::simpleQuery("SELECT moduleid, filepath, content FROM configtgz_module"
+			. " WHERE moduletype = 'AD_AUTH'");
+		if ($res->rowCount() === 0)
+			return;
+		
+		$task = Taskmanager::submit('LdadpLauncher', array('ids' => array())); // Stop all running instances
+		$parent = isset($task['id']) ? $task['id'] : NULL;
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$config = json_decode($row['contents']);
+			$config['proxyip'] = Property::getServerIp();
+			$config['moduleid'] = $row['moduleid'];
+			$config['filename'] = $row['filepath'];
+			$config['parentTask'] = $parent;
+			$config['failOnParentFail'] = false;
+			$task = Taskmanager::submit('CreateAdConfig', $config);
+			$parent = isset($task['id']) ? $task['id'] : NULL;
+		}
+		
+	}
+	
+	/**
+	 * Mount the VM store into the server.
+	 *
+	 * @return array task status of mount procedure, or false on error
+	 */
 	public static function mount()
 	{
 		$vmstore = Property::getVmStoreConfig();
-		if (!is_array($vmstore)) return;
+		if (!is_array($vmstore)) return false;
 		$storetype = $vmstore['storetype'];
 		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
 		if ($storetype === 'cifs') $addr = $vmstore['cifsaddr'];

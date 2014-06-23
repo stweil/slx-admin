@@ -40,7 +40,7 @@ class ConfigModule
 		Database::exec("UPDATE configtgz_module SET filepath = :filename, contents = :contents WHERE moduleid = :id LIMIT 1", array(
 			'id' => $id,
 			'filename' => $name,
-			'contents' => json_encode($ownEntry)
+			'contents' => $data
 		));
 		// Add archive file name to array before returning it
 		$ownEntry['moduleid'] = $id;
