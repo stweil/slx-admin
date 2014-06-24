@@ -3,7 +3,9 @@
 require_once 'config.php';
 
 require_once 'dictionary.php';
+Dictionary::build();
 
+require_once('inc/user.inc.php');
 
 /**
  * Page class which all "modules" must be extending from
@@ -115,8 +117,11 @@ if (AJAX) {
 Page::preprocess();
 
 // Generate Main menu
-$menu = new Menu;
-Render::addTemplate('main-menu', $menu);
+//$menu = new Menu;
+if(User::getName() === false) Render::addTemplate('main-menu-login');
+else Render::addTemplate('main-menu-logout',array(
+			'user' => User::getName()
+		));
 
 Message::renderList();
 
