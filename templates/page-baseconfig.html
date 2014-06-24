@@ -30,7 +30,7 @@
 							<div class="modal-content">
 								<div class="modal-header">{{setting}}</div>
 								<div class="modal-body">{{{description}}}</div>
-								<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+								<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{close}}</a></div>
 							</div>
 						</div>
 					</div>
@@ -39,8 +39,8 @@
 		</div>
 		{{/categories}}
 		<input type="hidden" name="token" value="{{token}}">
-		<button class="btn btn-lg btn-primary" type="submit">Speichern</button>
-		<button class="btn btn-lg btn-primary" type="reset">Zurücksetzen</button>
+		<button class="btn btn-lg btn-primary" type="submit">{{save}}</button>
+		<button class="btn btn-lg btn-primary" type="reset">{{reset}}</button>
 		<a class="btn btn-lg btn-primary" href="api.php?do=getconfig">Download</a>
 	</form>
 </div>
