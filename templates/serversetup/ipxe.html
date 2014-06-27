@@ -47,13 +47,17 @@
 			<div class="modal-body">
 				Hier haben Sie die Möglichkeit, eigenen Menü-Code zum angezeigten PXE-Menü hinzuzufügen,
 				um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Menüformat.
-				<br>Bespiel:
+				<br>Bespiele:
 				<pre>LABEL my-entry
 	MENU LABEL ^Mein Eintrag
 	KERNEL http://1.2.3.4/kernel
 	INITRD http://1.2.3.4/initramfs-stage31
 	APPEND custom=option
 	IPAPPEND 3</pre>
+				<pre>LABEL weiterleitung
+	MENU LABEL Anderer ^Server
+	KERNEL pxechn.c32
+	APPEND 1.2.3.4::pxelinux.0</pre>
 				Sie können ein oder mehrere Einträge erzeugen. Wenn Sie einen Eintrag erzeugen möchten, der
 				automatisch gestartet wird, wenn der Benutzer keine Auswahl tätigt, vergeben Sie als LABEL <strong>my-entry</strong>
 				und wählen Sie als <strong>Standard-Bootverhalten</strong> ebenfalls <strong>my-entry</strong>.
