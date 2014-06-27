@@ -15,8 +15,6 @@ class AdModule_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Session::set('ad_check', false);
-		Session::save();
 		Render::addDialog('Active Directory Authentifizierung', false, 'sysconfig/ad-start', array(
 			'step' => 'AdModule_CheckConnection',
 			'server' => Request::post('server'),
