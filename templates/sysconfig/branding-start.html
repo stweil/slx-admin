@@ -1,0 +1,19 @@
+<p>
+	Für beste Ergebnisse sollten Sie ihr Einrichtungslogo im SVG Format hochladen.
+	das SVG-Format ist ein Vektorgrafikformat, was zum Skalieren vorteilhaft ist.
+	Eine Gute Quelle für SVG-Logos von Unis und Hochschulen ist ihr jeweiliger Wikipedia-Artikel.
+</p>
+<form role="form" enctype="multipart/form-data" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
+	<input type="hidden" name="token" value="{{token}}">
+	<div class="form-group">
+		<label for="input-url">Bild von URL laden</label>
+		<input class="form-control" type="text" name="url" id="input-url">
+	</div>
+	oder
+	<div class="form-group">
+		<label for="input-file">Bild von lokalem Rechner hochladen</label>
+		<input class="form-control" type="file" name="file" id="input-file">
+	</div>
+	<button type="submit" class="btn btn-primary">Hochladen</button>
+</form>
+
