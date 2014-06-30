@@ -1,0 +1,712 @@
+{
+    "lang_activate": {
+        "english": "Activate",
+        "german": "Aktivieren",
+        "portuguese": "Ativar"
+    },
+    "lang_active": {
+        "english": "Active",
+        "german": "Aktiv",
+        "portuguese": "Ativo"
+    },
+    "lang_activeNews": {
+        "english": "Active News",
+        "german": "Aktive News",
+        "portuguese": "Novidades"
+    },
+    "lang_actual": {
+        "english": "Actual",
+        "german": "Aktuell",
+        "portuguese": "Atual"
+    },
+    "lang_add": {
+        "english": "Add",
+        "german": "Hinzufügen",
+        "portuguese": "Adicionar"
+    },
+    "lang_adStarted": {
+        "english": "The AD-proxy is now configured and started ...",
+        "german": "Der AD-Proxy wird nun konfiguriert und gestartet...",
+        "portuguese": "O AD-proxy está configurado e começou ..."
+    },
+    "lang_addressConfiguration": {
+        "english": "Address Configuration",
+        "german": "Adresskonfiguration",
+        "portuguese": "Configuração do Endereço"
+    },
+    "lang_attention": {
+        "english": "Attention!",
+        "german": "Achtung!",
+        "portuguese": "Atenção!"
+    },
+    "lang_availableMemoryError": {
+        "english": "Error when determining the available memory on the system partition!",
+        "german": "Fehler beim Ermitteln des verfügbaren Speichers auf der Systempartition!",
+        "portuguese": "Erro ao determinar a memória disponível na partição do sistema!"
+    },
+    "lang_availableModules": {
+        "english": "Available Configuration Modules",
+        "german": "Verfügbare Konfigurationsmodule",
+        "portuguese": "Módulos de Configuração Disponíveis"
+    },
+    "lang_availableSystem": {
+        "english": "Available System Configuration",
+        "german": "Verfügbare Systemkonfigurationen",
+        "portuguese": "Configurações de Sistema Disponíveis"
+    },
+    "lang_average": {
+        "english": "Average",
+        "german": "Durchschnitt",
+        "portuguese": "Média"
+    },
+    "lang_back": {
+        "english": "Back",
+        "german": "Zurück",
+        "portuguese": "Voltar"
+    },
+    "lang_basicConfiguration": {
+        "english": "Basic Configuration",
+        "german": "Basiskonfiguration",
+        "portuguese": "Configuração Básica"
+    },
+    "lang_bootAddress": {
+        "english": "Boot Address of the Server",
+        "german": "Boot-Adresse des Servers",
+        "portuguese": "Endereço Boot do Servidor"
+    },
+    "lang_bootBehavior": {
+        "english": "Default Boot Behavior",
+        "german": "Standard-Bootverhalten",
+        "portuguese": "Comportamento Padrão de Boot"
+    },
+    "lang_bootHint": {
+        "english": "The Boot menu must be recreated after changing the IP address. Usually this is done automatically, but the process can also be triggered manually in the section of the boot menu.",
+        "german": "Das Bootmenü muss nach einer Änderung der IP-Adresse neu generiert werden. In der Regel geschieht dies automatisch, der Vorgang kann in der Sektion Bootmenü allerdings auch manuell ausgelöst werden.",
+        "portuguese": "O menu de boot deve ser recriado após alterar o endereço IP. Geralmente isso é feito automaticamente, mas o processo também pode ser acionado manualmente na seção do menu de boot."
+    },
+    "lang_bootInfo": {
+        "english": "Here adjustments can be made to the appearance of the boot menu.",
+        "german": "Hier können Anpassungen am Erscheinungsbild des Bootmenüs vorgenommen werden.",
+        "portuguese": "Aqui ajustes podem ser feitos na aparência do menu de boot."
+    },
+    "lang_bootMenu": {
+        "english": "Boot Menu",
+        "german": "Bootmenü",
+        "portuguese": "Menu de Boot"
+    },
+    "lang_bootMenuCreate": {
+        "english": "Create Boot Menu",
+        "german": "Bootmenü erzeugen",
+        "portuguese": "Criar Menu de Boot"
+    },
+    "lang_bootMenuWarning": {
+        "english": "The boot menu is outdated or has not been generated. ",
+        "german": "Das Bootmenü ist veraltet oder wurde noch nicht generiert.",
+        "portuguese": "O menu de boot está desatualizado ou ainda não foi gerado."
+    },
+    "lang_canUpdate1": {
+        "english": "At least one component of",
+        "german": "Mindestens eine Komponente von",
+        "portuguese": "Pelo menos um componente de"
+    },
+    "lang_canUpdate2": {
+        "english": "can be updated. For a smooth operation, it is recommended to keep all components up to date.",
+        "german": "kann aktualisiert werden. Für einen reibungslosen Betrieb wird empfohlen, alle Komponenten auf dem aktuellen Stand zu halten.",
+        "portuguese": "pode ser atualizado. Para um bom funcionamento, recomenda-se manter todos os componentes atualizados."
+    },
+    "lang_capacity": {
+        "english": "Capacity",
+        "german": "Kapazität",
+        "portuguese": "Capacidade"
+    },
+    "lang_chooseIP": {
+        "english": "Please select the IP address that the client server will use to boot.",
+        "german": "Bitte wählen Sie die IP-Adresse, über die der Server von den Clients zum Booten angesprochen werden soll.",
+        "portuguese": "Por favor, selecione o endereço IP que o servidor do cliente utilizará realizar o boot."
+    },
+    "lang_client": {
+        "english": "Client",
+        "german": "Client",
+        "portuguese": "Cliente"
+    },
+    "lang_centralConfiguration": {
+        "english": "Central configurations available",
+        "german": "Zentral verfügbare Konfigurationen",
+        "portuguese": "Configurações centrais disponíveis"
+    },
+    "lang_client": {
+        "english": "Client",
+        "german": "Client",
+        "portuguese": "Cliente"
+    },
+    "lang_clientLog": {
+        "english": "Client Log",
+        "german": "Client Log",
+        "portuguese": "Log dos Clientes"
+    },
+    "lang_close": {
+        "english": "Close",
+        "german": "Schließen",
+        "portuguese": "Fechar"
+    },
+    "lang_configuration": {
+        "english": "Configuration",
+        "german": "Konfiguration",
+        "portuguese": "Configuração"
+    },
+    "lang_configurationActive": {
+        "english": "Enable configuration",
+        "german": "Konfiguration aktivieren",
+        "portuguese": "Ativar configuração"
+    },
+    "lang_configurationBasic": {
+        "english": "Basic Configuration",
+        "german": "Grundkonfiguration",
+        "portuguese": "Configuração Básica"
+    },
+    "lang_configurationChoose": {
+        "english": "Please select which modules will be used for this configuration.",
+        "german": "Bitte wählen Sie, welche Module für diese Konfiguration verwendet werden sollen.",
+        "portuguese": "Por favor, selecione qual os módulos serão usados ​​para esta configuração."
+    },
+    "lang_configurationCompilation": {
+        "english": "Compile configuration",
+        "german": "Konfiguration zusammenstellen",
+        "portuguese": "Compilar configuração"
+    },
+    "lang_configurationModuleNotFound": {
+        "english": "Configuration module not found!",
+        "german": "Keine Konfigurationsmodule gefunden!",
+        "portuguese": "Módulo de configuração não encontrado!"
+    },
+    "lang_configurationPackageNotFound": {
+        "english": "Configuration package not found!",
+        "german": "Keine Konfigurationspakete gefunden!",
+        "portuguese": "Pacote de configuração não encontrado!"
+    },
+    "lang_configurationSuccess": {
+        "english": "The configuration has been successfully created.",
+        "german": "Die Konfiguration wurde erfolgreich erstellt.",
+        "portuguese": "A configuração foi criada com sucesso."
+    },
+    "lang_configurationVariables": {
+        "english": "Configuration Variables",
+        "german": "KonfigurationsVariablen",
+        "portuguese": "Variáveis de Configuração"
+    },
+    "lang_configure": {
+        "english": "Configure",
+        "german": "Konfigurieren",
+        "portuguese": "Configurar"
+    },
+    "lang_confirmation": {
+        "english": "Confirmation",
+        "german": "Wiederholen",
+        "portuguese": "Confirmação"
+    },
+    "lang_connectionWait": {
+        "english": "The connection to the specified AD server is now checked. Please wait a moment.",
+        "german": "Die Verbindung zum angegebenen AD-Server wird nun überprüft. Bitte haben Sie einen Moment Geduld.",
+        "portuguese": "A conexão com o servidor AD especificado agora está checada. Por favor, aguarde um momento."
+    },
+    "lang_content": {
+        "english": "Content",
+        "german": "Inhalt",
+        "portuguese": "Conteúdo"
+    },
+    "lang_cpuLoad": {
+        "english": "CPU Load",
+        "german": "CPU-Last",
+        "portuguese": "Carga da CPU"
+    },
+    "lang_createUser": {
+        "english": "Create User",
+        "german": "Benutzer anlegen",
+        "portuguese": "Criar Usuário"
+    },
+    "lang_date": {
+        "english": "Date",
+        "german": "Datum",
+        "portuguese": "Data"
+    },
+    "lang_delete": {
+        "english": "Delete",
+        "german": "Löschen",
+        "portuguese": "Deletar"
+    },
+    "lang_details": {
+        "english": "Details",
+        "german": "Details",
+        "portuguese": "Detalhes"
+    },
+    "lang_enter": {
+        "english": "Enter",
+        "german": "Anmeldung",
+        "portuguese": "Entrar"
+    },
+    "lang_errorGetting": {
+        "english": "Error getting: ",
+        "german": "Fehler beim Abruf: ",
+        "portuguese": "Erro ao obter: "
+    },
+    "lang_event": {
+        "english": "Event",
+        "german": "Ereignis",
+        "portuguese": "Evento"
+    },
+    "lang_example": {
+        "english": "Example",
+        "german": "Beispiel",
+        "portuguese": "Por Exemplo"
+    },
+    "lang_filter": {
+        "english": "Filter",
+        "german": "Filter",
+        "portuguese": "Filtro"
+    },
+    "lang_free": {
+        "english": "Free",
+        "german": "Frei",
+        "portuguese": "Livre"
+    },
+    "lang_fullName": {
+        "english": "Full Name",
+        "german": "Vollständiger Name",
+        "portuguese": "Nome Completo"
+    },
+    "lang_generateModule": {
+        "english": "Generate Module",
+        "german": "Modul erzeugen",
+        "portuguese": "Gerar Módulo"
+    },
+    "lang_go": {
+        "english": "Go",
+        "german": "Los",
+        "portuguese": "Ir"
+    },
+    "lang_generic": {
+        "english": "Generic",
+        "german": "Generisch",
+        "portuguese": "Genérico"
+    },
+    "lang_help": {
+        "english": "Help",
+        "german": "Hilfe",
+        "portuguese": "Ajuda"
+    },
+    "lang_helpModuleConfiguration": {
+        "english": "Configuration modules are the building blocks from which a system configuration is created. Here you can create both generic modules by a wizard, as well as create completely custom modules (advanced Linux knowledge required).",
+        "german": "Konfigurationsmodule sind die Bausteine, aus denen eine Systemkonfiguration erstellt wird. Hier lassen sich sowohl generische Module durch einen Wizard anlegen, als auch komplett eigene Module erstellen (fortgeschritten, Linuxkenntnisse erforderlich).",
+        "portuguese": "Módulos de configuração são as peças fundamentais para a criação de uma configuração de sistema. Aqui você pode criar tanto módulos genéricos através de nossa interface, tanto quanto criar módulos  completamente customizados (é necessário conhecimento de Linux avançado)."
+    },
+    "lang_helpSystemConfiguration": {
+        "english": "The fundamental localization of the bwLehrpool system is done through a system configuration. These include aspects such as the authentication method for users (eg Active Directory, LDAP), printer configuration, home directories, etc. A system configuration is composed of one or more configuration modules, which can be managed at the bottom of this page.",
+        "german": "Über eine Systemkonfiguration wird die grundlegende Lokalisierung des bwLehrpool-Systems durchgeführt. Dazu gehören Aspekte wie das Authentifizierungsverfahren für Benutzer (z.B. Active Directory, LDAP), Druckerkonfiguration, Home-Verzeichnisse, etc. Eine Systemkonfiguration setzt sich aus einem oder mehreren Konfigurationsmodulen zusammen, welche im unteren Bereich dieser Seite verwaltet werden können.",
+        "portuguese": "A localização fundamental do sistema bwLehrpool é feita através de uma configuração de sistema. Isso inclui aspectos como o método de autenticação de usuários (por exemplo, Diretório Ativo, LDAP), configuração de impressora, diretórios home, etc. Uma configuração de sistema é composta por um ou mais módulo de configuração, que podem ser gerenciados na parte inferior da página."
+    },
+    "lang_iAmSure": {
+        "english": "Yes, I am sure",
+        "german": "Ja, ich bin sicher",
+        "portuguese": "Sim, tenho certeza"
+    },
+    "lang_intern": {
+        "english": "Intern",
+        "german": "Intern",
+        "portuguese": "Interno"
+    },
+    "lang_intro": {
+        "english": "This is the bwLehrpool configuration interface.",
+        "german": "Dies ist die bwLehrpool Konfigurationsoberfläche.",
+        "portuguese": "Esta é a interface de configuração do bwLehrpool."
+    },
+    "lang_introGuest": {
+        "english": "This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",
+        "german": "Dies ist das Administrations-Interface der lokalen bwLehrpool-Installation. Bitte authentifizieren Sie sich, um Einstellungen vorzunehmen.",
+        "portuguese": "Esta é a interface de administração da instalação local do bwLehrpool. Por favor, autentique-se para ajustar opções;"
+    },
+    "lang_latestUpdate": {
+        "english": "Latest update",
+        "german": "Letzte Aktualisierung",
+        "portuguese": "Última atualização"
+    },
+    "lang_listObtained": {
+        "english": "List is obtained...",
+        "german": "Liste wird abgerufen...",
+        "portuguese": "A lista é carregada..."
+    },
+    "lang_localHDD": {
+        "english": "Local HDD",
+        "german": "Lokale HDD",
+        "portuguese": "HDD Local"
+    },
+    "lang_localization": {
+        "english": "Localization",
+        "german": "Lokalisierung",
+        "portuguese": "Localização"
+    },
+    "lang_logicCPUs": {
+        "english": "Logic CPUs",
+        "german": "Logische CPUs",
+        "portuguese": "CPUs Lógicas"
+    },
+    "lang_login": {
+        "english": "Login",
+        "german": "Anmelden",
+        "portuguese": "Entrar"
+    },
+    "lang_logout": {
+        "english": "Logout",
+        "german": "Abmelden",
+        "portuguese": "Sair"
+    },
+    "lang_maintenance": {
+        "english": "Maintenance",
+        "german": "Wartung",
+        "portuguese": "Manutenção"
+    },
+    "lang_menuCustom": {
+        "english": "Custom Extra Menu",
+        "german": "Benutzerdefinierter Menüzusatz",
+        "portuguese": "Menu Adicional Customizado"
+    },
+    "lang_menuCustomHint1": {
+        "english": "Here you have the opportunity to add your own menu code to the displayed PXE menu, eg to refer to other PXE server. The format corresponds to the syslinux menu format.",
+        "german": "Hier haben Sie die Möglichkeit, eigenen Menü-Code zum angezeigten PXE-Menü hinzuzufügen, um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Menüformat.",
+        "portuguese": "Aqui você tem a oportunidade de adicionar seu próprio código de menu para o menu PXE exibido, por exemplo, para se referir a outro servidor PXE. O formato corresponde ao formato de menu syslinux."
+    },
+    "lang_menuCustomHint2": {
+        "english": "You can create one or more entries. If you want to create an entry that starts automatically when the user makes a selection, assign as",
+        "german": "Sie können ein oder mehrere Einträge erzeugen. Wenn Sie einen Eintrag erzeugen möchten, der automatisch gestartet wird, wenn der Benutzer keine Auswahl tätigt, vergeben Sie als",
+        "portuguese": "Você pode criar uma ou mais entradas. Se você quiser criar uma entrada que é iniciada automaticamente quando o usuário faz uma seleção, atribua como"
+    },
+    "lang_menuCustomHint3": {
+        "english": "and select as the default boot behavior my-entry as well.",
+        "german": "und wählen Sie als Standard-Bootverhalten ebenfalls my-entry.",
+        "portuguese": "e selecione como o comportamento de boot padrão também my-entry."
+    },
+    "lang_menuDisplayTime": {
+        "english": "Menu Display Time",
+        "german": "Anzeigedauer des Menüs",
+        "portuguese": "Tempo de Exibição do Menu"
+    },
+    "lang_minilinuxMissing": {
+        "english": "Important files from the mini Linux installation are missing.",
+        "german": "Wichtige Dateien der MiniLinux-Installation fehlen.",
+        "portuguese": "Arquivos importantes da instalação do minilinux estão faltando."
+    },
+    "lang_moduleAdd": {
+        "english": "Add Module",
+        "german": "Modul hinzufügen",
+        "portuguese": "Adicionar Módulo"
+    },
+    "lang_moduleChoose": {
+        "english": "Please select which type of configuration module you want to create.",
+        "german": "Bitte wählen Sie aus, welche Art Konfigurationsmodul Sie erstellen möchten.",
+        "portuguese": "Por favor, selecione qual tipo de módulo de configuração que você deseja criar."
+    },
+    "lang_moduleConfiguration": {
+        "english": "Module Configuration",
+        "german": "Konfigurationsmodule",
+        "portuguese": "Configuração de Módulo"
+    },
+    "lang_moduleName": {
+        "english": "Module Name",
+        "german": "Modulname",
+        "portuguese": "Nome do Módulo"
+    },
+    "lang_name": {
+        "english": "Name",
+        "german": "Name",
+        "portuguese": "Nome"
+    },
+    "lang_new": {
+        "english": "New",
+        "german": "Neu",
+        "portuguese": "Novo"
+    },
+    "lang_news": {
+        "english": "News",
+        "german": "News",
+        "portuguese": "Novidades"
+    },
+    "lang_newConfiguration": {
+        "english": "New Configuration",
+        "german": "Neue Konfiguration",
+        "portuguese": "Nova configuração"
+    },
+    "lang_newModule": {
+        "english": "New Module",
+        "german": "Neues Modul",
+        "portuguese": "Novo Módulo"
+    },
+    "lang_newsOld": {
+        "english": "Old News",
+        "german": "Alte News",
+        "portuguese": "Novidades Antigas"
+    },
+    "lang_newsIntro": {
+        "english": "Here you have the possibility to edit the news displayed to the bwLehrpool clients.",
+        "german": "Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.",
+        "portuguese": "Aqui você tem a possibilidade de editar as novidades que são mostradas para os clientes do bwLehrpool."
+    },
+    "lang_next": {
+        "english": "Next",
+        "german": "Weiter",
+        "portuguese": "Próximo"
+    },
+    "lang_noAdditionalInformation": {
+        "english": "No additional cofiguration required",
+        "german": "Keine Weitere Konfiguration notwendig",
+        "portuguese": "Nenhuma configuração adicional necessária"
+    },
+    "lang_not": {
+        "english": "not",
+        "german": "not",
+        "portuguese": "não"
+    },
+    "lang_notDetermined": {
+        "english": "Could not be determined",
+        "german": "Konnte nicht ermittelt werden",
+        "portuguese": "Não foi possível determinar"
+    },
+    "lang_occupied": {
+        "english": "Occupied",
+        "german": "Belegt",
+        "portuguese": "Ocupado"
+    },
+    "lang_onlyOS": {
+        "english": "OS Only",
+        "german": "Nur OS",
+        "portuguese": "Apenas SO"
+    },
+    "lang_outdated": {
+        "english": "Outdated",
+        "german": "Veraltet",
+        "portuguese": "Desatualizado"
+    },
+    "lang_password": {
+        "english": "Password",
+        "german": "Passwort",
+        "portuguese": "Senha"
+    },
+    "lang_ramUsage": {
+        "english": "RAM Usage",
+        "german": "RAM-Nutzung",
+        "portuguese": "Uso da RAM"
+    },
+    "lang_readOnly": {
+        "english": "Read-only Access",
+        "german": "Nur-Lese-Zugangsdaten",
+        "portuguese": "Acesso Somente Leitura"
+    },
+    "lang_readWrite": {
+        "english": "Read/Write Access",
+        "german": "Lese/Schreib-Zugangsdaten",
+        "portuguese": "Acesso Leitura/Escrita"
+    },
+    "lang_register": {
+        "english": "Register",
+        "german": "Registrieren",
+        "portuguese": "Registrar"
+    },
+    "lang_rememberID": {
+        "english": "Remeber ID",
+        "german": "Angemeldet bleiben",
+        "portuguese": "Lembrar ID"
+    },
+    "lang_reset": {
+        "english": "Reset",
+        "german": "Zurücksetzen",
+        "portuguese": "Limpar"
+    },
+    "lang_restartWizard": {
+        "english": "Restart Wizard",
+        "german": "Assistent neustarten",
+        "portuguese": "Reiniciar Assistente"
+    },
+    "lang_save": {
+        "english": "Save",
+        "german": "Speichern",
+        "portuguese": "Salvar"
+    },
+    "lang_seconds": {
+        "english": "Seconds",
+        "german": "Sekunden",
+        "portuguese": "Segundos"
+    },
+    "lang_server": {
+        "english": "Server",
+        "german": "Server",
+        "portuguese": "Servidor"
+    },
+    "lang_services": {
+        "english": "Services",
+        "german": "Dienste",
+        "portuguese": "Serviços"
+    },
+    "lang_set": {
+        "english": "Set",
+        "german": "Setzen",
+        "portuguese": "Conjunto"
+    },
+    "lang_settings": {
+        "english": "Settings",
+        "german": "Einstellungen",
+        "portuguese": "Opções"
+    },
+    "lang_show": {
+        "english": "Show",
+        "german": "Ansehen",
+        "portuguese": "Mostrar"
+    },
+    "lang_skip": {
+        "english": "Skip",
+        "german": "Überspringen",
+        "portuguese": "Pular"
+    },
+    "lang_space": {
+        "english": "Space",
+        "german": "Speicherplatz",
+        "portuguese": "Espaço"
+    },
+    "lang_system": {
+        "english": "System",
+        "german": "System",
+        "portuguese": "Sistema"
+    },
+    "lang_systemConfiguration": {
+        "english": "System Configuration",
+        "german": "Systemkonfiguration",
+        "portuguese": "Confguração do Sistema"
+    },
+    "lang_systemConfigurationAlert": {
+        "english": "Before you can create a system configuration, you must first create a configuration module.",
+        "german": "Bevor Sie eine Systemkonfiguration erstellen können, müssen Sie zunächst ein Konfigurationsmodul erzeugen.",
+        "portuguese": "Antes de criar uma configuração de sistema, você deve criar primeiro um módulo de configuração."
+    },
+    "lang_systemConfigurationNotChosen": {
+        "english": "A system configuration has not been chosen yet.",
+        "german": "Es wurde noch keine Systemkonfiguration ausgewählt.",
+        "portuguese": "Uma configuração de sistema ainda não foi escolhida."
+    },
+    "lang_systemConfigurationNotFound": {
+        "english": "No system configurations found.\n Create a new configuration from the configuration modules listed below.",
+        "german": "Keine Systemkonfigurationen gefunden.Erstellen Sie eine neue Konfiguration aus den unten aufgeführten Konfigurationsmodulen.",
+        "portuguese": "Nenhuma configuração de sistena encontrada. Crie uma nova configuração a partir dos módulos de configuração abaixo."
+    },
+    "lang_systemPartition": {
+        "english": "System Partition",
+        "german": "Systempartition",
+        "portuguese": "Partição do Sistema"
+    },
+    "lang_systemUpdated": {
+        "english": "The system is up to date.",
+        "german": "Das System ist auf dem aktuellen Stand.",
+        "portuguese": "O sistema está atualizado."
+    },
+    "lang_swapUsage": {
+        "english": "swap Usage",
+        "german": "swap-Nutzung",
+        "portuguese": "Uso do swap"
+    },
+    "lang_swapWarning": {
+        "english": "Memory swap is being used. This may be an indication that the satellite server does not have enough physical memory available. In the case of performance problems or server instability you should consider equipping the server with more RAM.",
+        "german": "Es wird swap-Speicher genutzt. Dies kann ein Hinweis darauf sein, dass dem Satelliten-Server zu wenig physikalischer Speicher zur Verfügung steht. Im Falle von Performance-Problemen oder Instabilität des Servers sollten Sie erwägen, den Server mit mehr RAM auszustatten.",
+        "portuguese": "Swap de memória está sendo usado. Isso pode ser uma indicação de que o servidor de satélite não tem memória física suficiente disponível. No caso de problemas de desempenho ou instabilidade do servidor você deve considerar equipar o servidor com mais memória RAM."
+    },
+    "lang_telephone": {
+        "english": "Telephone",
+        "german": "Telefon",
+        "portuguese": "Telefone"
+    },
+    "lang_title": {
+        "english": "Title",
+        "german": "Titel",
+        "portuguese": "Título"
+    },
+    "lang_to": {
+        "english": "To",
+        "german": "Zur",
+        "portuguese": "Para"
+    },
+    "lang_total": {
+        "english": "Total",
+        "german": "Gesamt",
+        "portuguese": "Total"
+    },
+    "lang_update": {
+        "english": "Update",
+        "german": "Aktualisieren",
+        "portuguese": "Atualizar"
+    },
+    "lang_upload": {
+        "english": "Upload",
+        "german": "Hochladen",
+        "portuguese": "Carregar"
+    },
+    "lang_uptimeOS": {
+        "english": "OS Uptime",
+        "german": "OS Uptime",
+        "portuguese": "Tempo de Atividade do SO"
+    },
+    "lang_username": {
+        "english": "Username",
+        "german": "Benutzerkennung",
+        "portuguese": "Nome de Usuário"
+    },
+    "lang_vmLocation": {
+        "english": "VM Location",
+        "german": "VM Speicherort",
+        "portuguese": "Localização da VM"
+    },
+    "lang_vmLocationChoose": {
+        "english": "Please choose where the images of virtual machines will be stored.",
+        "german": "Bitte wählen Sie, wo die Images der Virtuellen Maschinen gespeichert werden sollen.",
+        "portuguese": "Por favor, escolha aonde as imagens das máquinas virtuais serão armazenadas."
+    },
+   "lang_vmLocationConfiguration": {
+        "english": "VM location is configured",
+        "german": "VM Speicherort wird konfiguriert",
+        "portuguese": "Localização da VM está configurada"
+    },
+    "lang_vmLocationHelp1": {
+        "english": "For test purposes, the VMs can be stored directly on the Satellite server. However, if you operate the delivered satellite vmdk please remember that you have only about 100GB of memory.",
+        "german": "Für Testzwecke können die VMs direkt auf dem Satellitenserver gespeichert werden. Sofern Sie jedoch die ausgelieferte Satelliten-vmdk betreiben bedenken Sie bitte, dass Sie dann nur ca. 100GB Speicher zur Verfügung haben.",
+        "portuguese": "Para fins de teste, as VMs podem ser armazenados diretamente no servidor satélite. No entanto, se você operar o vmdk do satélite entregue por favor lembre-se que você tem apenas cerca de 100 GB de memória."
+    },
+    "lang_vmLocationHelp2": {
+        "english": "In productive operation, it makes sense for this to use a high-performance network storage. This network storage can be integrated via NFS or CIFS / SMB. In any case, it must be ensured that the satellite server has write access to this network storage to add a new Virtual Machine . When using NFSv3 this can be set up IP-based, for the use of CIFS / SMB, you can access data disclosures that would entitle them to write.",
+        "german": "Im Produktivbetrieb bietet es sich an, hierfür einen performanten Netzwerkspeicher zu benutzen. Dieser Netzwerkspeicher kann per NFS oder CIFS/SMB eingebunden werden. In jedem Fall muss sichergestellt werden, dass der Satellitenserver zum Hinzufügen neuer Virtueller Maschinen Schreibzugriff auf diesen Netzwerkspeicher hat. Bei der Nutzung von NFSv3 kann dies IP-Basiert eingerichtet werden, für die Nutzung von CIFS/SMB können Sie Zugangsdaten angaben, die zum Schreiben berechtigen.",
+        "portuguese": "Em operação, faz sentido para este usar um armazenamento de rede de alto desempenho. Este armazenamento de rede pode ser integrado através de NFS ou CIFS / SMB. Em qualquer caso, deve-se assegurar de que o servidor de satélite tenha acesso de gravação para este armazenamento de rede para poder adicionar uma nova máquina virtual. Ao utilizar NFSv3 este pode ser configurado com base em IP, para o uso de CIFS / SMB, você pode acessar as divulgações de dados que lhe permitiria escrever."
+    },
+    "lang_vmLocationHelp3": {
+        "english": "The bwLehrpool clients only need read access to the network storage (and for security reasons, really can only read). In CIFS / SMB You can do this most easily by allowing passwordless guest access with read access to the share.",
+        "german": "Die bwLehrpool-Clients brauchen lediglich Lesezugriff auf den Netzwerkspeicher (und sollten aus Sicherheitsgründen auch wirklich nur lesen können). Bei CIFS/SMB erreichen Sie dies am einfachsten, indem Sie passwortlosen Gastzugriff mit Leserechten auf die Freigabe erlauben.",
+        "portuguese": "Os clientes bwLehrpool só precisam ter acesso de leitura ao armazenamento de rede (e por razões de segurança, realmente só pode ler). Em CIFS / SMB Você pode fazer isso mais facilmente, permitindo o acesso a visitantes sem senha com acesso de leitura."
+    },
+    "lang_vmLocationNotSet": {
+        "english": "A location for the virtual machine is not set yet.",
+        "german": "Es ist noch kein Speicherort für die Virtuellen Maschinen festgelegt.",
+        "portuguese": "Uma localização para a máquina virtual ainda não foi escolhida."
+    },
+    "lang_vmStore": {
+        "english": "VM Store",
+        "german": "VM-Speicher",
+        "portuguese": "Loja da VM"
+    },
+    "lang_vmStoreError": {
+        "english": "Error when determining the available disk space on the VM location. Please check the configuration.",
+        "german": "Fehler beim Ermitteln des verfügbaren Speicherplatzes am VM-Speicherort. Bitte überprüfen Sie die Konfiguration.",
+        "portuguese": "Erro ao determinar o espaço em disco disponível no local da VM. Por favor, verifique a configuração."
+    },
+    "lang_welcome": {
+        "english": "Welcome",
+        "german": "Willkommen",
+        "portuguese": "Bem-vindo"
+    },
+    "lang_when": {
+        "english": "When",
+        "german": "Wann",
+        "portuguese": "Quando"
+    }
+}

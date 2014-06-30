@@ -11,7 +11,7 @@ Page_SysConfig::addModule('custom', 'CustomModule_UploadForm', 'Erweitertes Modu
 	. ' Nutzen Sie dieses Modul, um z.B. spezielle Konfigurationsdateien auf den Client PCs zu'
 	. ' verwenden, die sich nicht mit einem der anderen Wizards erstellen lässt.'
 	. ' Das Hinzufügen eines Erweiterten Moduls erfordert in der Regel zumindest grundlegende'
-	. ' Systemkenntnisse im Linuxbereich.', 'Generisch', false, 100
+	. ' Systemkenntnisse im Linuxbereich.', Dictionary::translate('lang_generic'), false, 100
 );
 
 class CustomModule_UploadForm extends AddModule_Base
