@@ -125,7 +125,7 @@ class AddConfig_Start extends AddConfig_Base
 			if (empty($row['filepath']) || !file_exists($row['filepath'])) $row['missing'] = true;
 			$mods[$row['moduletype']]['modules'][] = $row;
 		}
-		Render::addDialog('Konfiguration zusammenstellen', false, 'sysconfig/cfg-start', array(
+		Render::addDialog(Dictionary::translate("lang_configurationCompilation"), false, 'sysconfig/cfg-start', array(
 			'step' => 'AddConfig_Finish',
 			'groups' => array_values($mods)
 		));
