@@ -1,12 +1,11 @@
 <div class="container">
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			Boot-Adresse des Servers
+			{{lang_bootAddress}}
 		</div>
 		<div class="panel-body">
 			<p>
-				Bitte wählen Sie die primäre IP-Adresse des Servers aus. Dies ist für einige Dienste und Funktionen notwendig,
-				z.B. wenn Sie Authentifizierung über Active Directory nutzen wollen.
+				{{lang_chooseIP}}
 			</p>
 			<form method="post" action="?do=ServerSetup">
 				<input type="hidden" name="action" value="ip">
@@ -17,17 +16,20 @@
 						<td>{{ip}}</td>
 						{{#default}}
 						<td>
-							<span class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span> Aktiv</span>
+							<span class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span> {{lang_active}}</span>
 						</td>
 						{{/default}}
 						{{^default}}
 						<td>
-							<button class="btn btn-primary btn-xs" name="ip" value="{{ip}}"><span class="glyphicon glyphicon-flag"></span> Setzen</button>
+							<button class="btn btn-primary btn-xs" name="ip" value="{{ip}}"><span class="glyphicon glyphicon-flag"></span> {{lang_set}}</button>
 						</td>
 						{{/default}}
 					</tr>
 					{{/ips}}
 				</table>
+				<p>
+					{{lang_bootHint}}
+				</p>
 			</form>
 		</div>
 	</div>

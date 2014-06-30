@@ -1,7 +1,7 @@
 <ol class="breadcrumb">
 	<li><a href="?do=Main">Start</a></li>
-	<li><a href="?do=SysConfig">SystemKonfiguration</a></li>
-	<li class="active">Zentral verfügbare Konfigurationen</li>
+	<li><a href="?do=SysConfig">{{lang_systemConfiguration}}</a></li>
+	<li class="active">{{lang_centralConfiguration}}</li>
 </ol>
 <div class="container">
 	{{#files}}
@@ -11,6 +11,6 @@
 		</div>
 	{{/files}}
 	{{^files}}
-		<div class="row well well-sm">Keine Konfigurationspakete gefunden!</div>
+		<div class="row well well-sm">{{lang_configurationPackageNotFound}}</div>
 	{{/files}}
 </div>

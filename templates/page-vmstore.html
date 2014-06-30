@@ -4,16 +4,16 @@
 		<input type="hidden" name="action" value="setstore">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				VM Speicherort <a class="btn btn-default" data-toggle="modal" data-target="#help-store"><span class="glyphicon glyphicon-question-sign"></span></a>
+				{{lang_vmLocation}} <a class="btn btn-default" data-toggle="modal" data-target="#help-store"><span class="glyphicon glyphicon-question-sign"></span></a>
 			</div>
 			<div class="panel-body slx-md-width">
-				<p>Bitte wählen Sie, wo die Images der Virtuellen Maschinen gespeichert werden sollen.</p>
+				<p>{{lang_vmLocationChoose}}</p>
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<input type="radio" name="storetype" value="internal" {{pre-internal}}> Intern
+						<input type="radio" name="storetype" value="internal" {{pre-internal}}> {{lang_intern}}
 					</div>
 					<div class="panel-body">
-						Keine Weitere Konfiguration notwendig
+						{{lang_noAdditionalInformation}}
 					</div>
 				</div>
 				<div class="panel panel-default">
@@ -33,32 +33,32 @@
 						<label for="cifsaddr">UNC-Pfad</label>
 						<input type="text" class="form-control" name="cifsaddr" value="{{cifsaddr}}" placeholder="\\samba.server.example.com\bwlp" id="cifsaddr">
 						<br>
-						<label for="cifsuser">Lese/Schreib-Zugangsdaten</label>
+						<label for="cifsuser">{{lang_readWrite}}</label>
 						<div class="input-group">
 							<span class="input-group-addon slx-ga">
-								Benutzername
+								{{lang_username}}
 							</span>
-							<input type="text" class="form-control" name="cifsuser" value="{{cifsuser}}" placeholder="Benutzername" id="cifsuser">
+							<input type="text" class="form-control" name="cifsuser" value="{{cifsuser}}" placeholder="{{lang_username}}" id="cifsuser">
 							<span class="input-group-addon">
-								Passwort
+								{{lang_password}}
 							</span>
-							<input type="text" class="form-control" name="cifspasswd" value="{{cifspasswd}}" placeholder="Passwort">
+							<input type="text" class="form-control" name="cifspasswd" value="{{cifspasswd}}" placeholder="{{lang_password}}">
 						</div>
 						<br>
-						<label for="cifsuserro">Nur-Lese-Zugangsdaten</label>
+						<label for="cifsuserro">{{lang_readOnly}}</label>
 						<div class="input-group">
 							<span class="input-group-addon slx-ga">
-								Benutzername
+								{{lang_username}}
 							</span>
-							<input type="text" class="form-control" name="cifsuserro" value="{{cifsuserro}}" placeholder="Benutzername" id="cifsuserro">
+							<input type="text" class="form-control" name="cifsuserro" value="{{cifsuserro}}" placeholder="{{lang_username}}" id="cifsuserro">
 							<span class="input-group-addon">
-								Passwort
+								{{lang_password}}
 							</span>
-							<input type="text" class="form-control" name="cifspasswdro" value="{{cifspasswdro}}" placeholder="Passwort">
+							<input type="text" class="form-control" name="cifspasswdro" value="{{cifspasswdro}}" placeholder="{{lang_password}}">
 						</div>
 					</div>
 				</div>
-				<button class="btn btn-primary" type="submit">Speichern</button>
+				<button class="btn btn-primary" type="submit">{{lang_save}}</button>
 			</div>
 		</div>
 	</form>
@@ -67,27 +67,19 @@
 <div class="modal fade" id="help-store" tabindex="-1" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">VM Speicherort</div>
+			<div class="modal-header">{{lang_vmLocation}}</div>
 			<div class="modal-body">
 				<p>
-					Für Testzwecke können die VMs direkt auf dem Satellitenserver gespeichert werden. Sofern Sie
-					jedoch die ausgelieferte Satelliten-vmdk betreiben bedenken Sie bitte, dass Sie dann nur ca. 100GB
-					Speicher zur Verfügung haben.
+					{{lang_vmLocationHelp1}}
 				</p>
 				<p>
-					Im Produktivbetrieb bietet es sich an, hierfür einen performanten Netzwerkspeicher zu benutzen.
-					Dieser Netzwerkspeicher kann per NFS oder CIFS/SMB eingebunden werden. In jedem Fall muss sichergestellt
-					werden, dass der Satellitenserver zum Hinzufügen neuer Virtueller Maschinen Schreibzugriff auf
-					diesen Netzwerkspeicher hat. Bei der Nutzung von NFSv3 kann dies IP-Basiert eingerichtet werden,
-					für die Nutzung von CIFS/SMB können Sie Zugangsdaten angaben, die zum Schreiben berechtigen.
+					{{lang_vmLocationHelp2}}
 				</p>
 				<p>
-					Die bwLehrpool-Clients brauchen lediglich Lesezugriff auf den Netzwerkspeicher (und sollten aus
-					Sicherheitsgründen auch wirklich nur lesen können). Bei CIFS/SMB erreichen Sie dies am einfachsten,
-					indem Sie passwortlosen Gastzugriff mit Leserechten auf die Freigabe erlauben.
+					{{lang_vmLocationHelp3}}
 				</p>
 			</div>
-			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
 		</div>
 	</div>
 </div>

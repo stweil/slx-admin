@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			Verfügbare Systemkonfigurationen
+			{{lang_availableSystem}}
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-config"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</div>
 		<div class="panel-body">
@@ -16,42 +16,41 @@
 							{{^current}}
 								<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
 									<span class="glyphicon glyphicon-flag"></span>
-									Aktivieren
+									{{lang_activate}}
 								</button>
 							{{/current}}
 							{{#current}}
 								<span class="btn btn-success btn-xs">
 									<span class="glyphicon glyphicon-ok"></span>
-									Aktiv
+									{{lang_active}}
 								</span>
 							{{/current}}
 						</td>
 						<td>
-							<button class="btn btn-danger btn-xs" name="del" value="{{configid}}"><span class="glyphicon glyphicon-trash"></span> Löschen</button>
+							<button class="btn btn-danger btn-xs" name="del" value="{{configid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_close}}</button>
 						</td>
 					</tr>
 				{{/configs}}
 				</table>
 				{{^configs}}
 				<div class="alert alert-warning">
-					Keine Systemkonfigurationen gefunden.
-					<br>Erstellen Sie eine neue Konfiguration aus den unten aufgeführten Konfigurationsmodulen.
+					{{lang_systemConfigurationNotFound}}
 				</div>
 				{{^modules}}
 				<div class="alert alert-danger">
-					Bevor Sie eine Systemkonfiguration erstellen können, müssen Sie zunächst ein Konfigurationsmodul erzeugen.
+					{{lang_systemConfigurationAlert}}
 				</div>
 				{{/modules}}
 				{{/configs}}
 			</form>
 		</div>
 		<div class="panel-footer">			
-			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">Neue Konfiguration</a>
+			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">{{lang_newConfiguration}}</a>
 		</div>
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			Verfügbare Konfigurationsmodule
+			{{lang_availableModules}}
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-module"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</div>
 		<div class="panel-body">
@@ -63,22 +62,22 @@
 					<tr>
 						<td>{{module}}</td>
 						<td>
-							<button class="btn btn-default btn-xs" name="list" value="{{moduleid}}"><span class="glyphicon glyphicon-eye-open"></span> Ansehen</button>
+							<button class="btn btn-default btn-xs" name="list" value="{{moduleid}}"><span class="glyphicon glyphicon-eye-open"></span> {{lang_show}}</button>
 							<!-- a class="btn btn-default btn-xs"><span class="glyphicon glyphicon-edit"></span> Bearbeiten</a -->
 						</td>
 						<td>
-							<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}"><span class="glyphicon glyphicon-trash"></span> Löschen</button>
+							<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
 						</td>
 					</tr>
 				{{/modules}}
 				</table>
 				{{^modules}}
-				<div class="alert alert-warning">Keine Konfigurationsmodule gefunden!</div>
+				<div class="alert alert-warning">{{lang_configurationModuleNotFound}}</div>
 				{{/modules}}
 			</form>
 		</div>
 		<div class="panel-footer">
-			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">Neues Modul</a>
+			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">{{lang_newModule}}</a>
 		</div>
 	</div>
 </div>
@@ -86,15 +85,11 @@
 <div class="modal fade" id="help-config" tabindex="-1" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">Systemkonfiguration</div>
+			<div class="modal-header">{{lang_systemConfiguration}}</div>
 			<div class="modal-body">
-				Über eine Systemkonfiguration wird die grundlegende Lokalisierung des bwLehrpool-Systems
-				durchgeführt. Dazu gehören Aspekte wie das Authentifizierungsverfahren für Benutzer
-				(z.B. Active Directory, LDAP), Druckerkonfiguration, Home-Verzeichnisse, etc.<br>
-				Eine Systemkonfiguration setzt sich aus einem oder mehreren Konfigurationsmodulen zusammen,
-				welche im unteren Bereich dieser Seite verwaltet werden können.
+				{{lang_helpSystemConfiguration}}
 			</div>
-			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
 		</div>
 	</div>
 </div>
@@ -102,13 +97,11 @@
 <div class="modal fade" id="help-module" tabindex="-1" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">Konfigurationsmodule</div>
+			<div class="modal-header">{{lang_moduleConfiguration}}</div>
 			<div class="modal-body">
-				Konfigurationsmodule sind die Bausteine, aus denen eine Systemkonfiguration erstellt wird.
-				Hier lassen sich sowohl generische Module durch einen Wizard anlegen, als auch komplett eigene
-				Module erstellen (fortgeschritten, Linuxkenntnisse erforderlich).
+				{{lang_helpModuleConfiguration}}
 			</div>
-			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
 		</div>
 	</div>
 </div>

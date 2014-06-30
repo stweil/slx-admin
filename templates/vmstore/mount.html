@@ -2,15 +2,15 @@
 
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			VM Speicherort wird konfiguriert
+			{{lang_vmLocationConfiguration}}
 		</div>
 
 		<div class="panel-body">
-			<div data-tm-id="{{task}}" data-tm-log="messages" data-tm-callback="mountCb">Konfigurieren</div>
+			<div data-tm-id="{{task}}" data-tm-log="messages" data-tm-callback="mountCb">{{lang_configure}}</div>
 
 			<br>
 			<div id="finish" class="pull-right" style="display:none">
-				<a href="?do=VmStore" class="btn btn-primary">Zurück</a>
+				<a href="?do=VmStore" class="btn btn-primary">{{lang_back}}</a>
 			</div>
 			<script type="text/javascript">
 				function mountCb(task)

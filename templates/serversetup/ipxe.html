@@ -4,37 +4,37 @@
 		<input type="hidden" name="token" value="{{token}}">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				Bootmenü
+				{{lang_bootMenu}}
 			</div>
 			<div class="panel-body">
 				<p>
-					Hier können Anpassungen am Erscheinungsbild des Bootmenüs vorgenommen werden.
+					{{lang_bootInfo}}
 				</p>
 				<br>
 
 				<div class="form-group">
-					<strong>Standard-Bootverhalten</strong>
+					<strong>{{lang_bootBehavior}}</strong>
 					<label class="radio"><input type="radio" name="defaultentry" value="net" {{active-net}}> bwLehrpool</label>
-					<label class="radio"><input type="radio" name="defaultentry" value="hdd" {{active-hdd}}> Lokale HDD</label>
+					<label class="radio"><input type="radio" name="defaultentry" value="hdd" {{active-hdd}}> {{lang_localHDD}}</label>
 					<label class="radio"><input type="radio" name="defaultentry" value="custom" {{active-custom}}> &quot;my-entry&quot;</label>
 				</div>
 
 				<div class="form-group">
-					<strong>Anzeigedauer des Menüs</strong>
+					<strong>{{lang_menuDisplayTime}}</strong>
 					<div class="input-group form-narrow">
 						<input type="text" class="form-control" name="timeout" value="{{timeout}}" pattern="\d+">
-						<span class="input-group-addon">Sekunden</span>
+						<span class="input-group-addon">{{lang_seconds}}</span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<strong>Benutzerdefinierter Menüzusatz</strong> <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#help-custom"><span class="glyphicon glyphicon-question-sign"></span></a>
+					<strong>{{lang_menuCustom}}</strong> <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#help-custom"><span class="glyphicon glyphicon-question-sign"></span></a>
 					<textarea class="form-control" name="custom">{{custom}}</textarea>
 				</div>
 			</div>
 
 			<div class="panel-footer">
-				<button class="btn btn-primary" name="action" value="ipxe">Bootmenü erzeugen</button>
+				<button class="btn btn-primary" name="action" value="ipxe">{{lang_bootMenuCreate}}</button>
 			</div>
 		</div>
 	</form>
@@ -43,26 +43,20 @@
 <div class="modal fade" id="help-custom" tabindex="-1" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">Benutzerdefinierter Menüzusatz</div>
+			<div class="modal-header">{{lang_menuCustom}}</div>
 			<div class="modal-body">
-				Hier haben Sie die Möglichkeit, eigenen Menü-Code zum angezeigten PXE-Menü hinzuzufügen,
-				um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Menüformat.
-				<br>Bespiele:
+				{{lang_menuCustomHint1}}
+				<br>{{lang_example}}:
 				<pre>LABEL my-entry
-	MENU LABEL ^Mein Eintrag
+	MENU LABEL ^My Entry
 	KERNEL http://1.2.3.4/kernel
 	INITRD http://1.2.3.4/initramfs-stage31
 	APPEND custom=option
 	IPAPPEND 3</pre>
-				<pre>LABEL weiterleitung
-	MENU LABEL Anderer ^Server
-	KERNEL pxechn.c32
-	APPEND 1.2.3.4::pxelinux.0</pre>
-				Sie können ein oder mehrere Einträge erzeugen. Wenn Sie einen Eintrag erzeugen möchten, der
-				automatisch gestartet wird, wenn der Benutzer keine Auswahl tätigt, vergeben Sie als LABEL <strong>my-entry</strong>
-				und wählen Sie als <strong>Standard-Bootverhalten</strong> ebenfalls <strong>my-entry</strong>.
+				{{lang_menuCustomHint2}} LABEL <strong>my-entry</strong>
+				{{lang_menuCustomHint3}}
 			</div>
-			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">Schließen</a></div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
 		</div>
 	</div>
 </div>
