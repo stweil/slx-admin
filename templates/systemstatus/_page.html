@@ -9,7 +9,7 @@
 		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					Speicherplatz
+					{{lang_space}}
 				</div>
 				<div class="panel-body" id="diskstat">
 					<span class="glyphicon glyphicon-refresh slx-rotation"></span>
@@ -20,7 +20,7 @@
 		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					Dienste
+					{{lang_services}}
 				</div>
 				<div class="panel-body" id="services">
 					<span class="glyphicon glyphicon-refresh slx-rotation"></span>
@@ -36,7 +36,7 @@
 		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					Adresskonfiguration
+					{{lang_addressConfiguration}}
 				</div>
 				<div class="panel-body" id="addresses">
 					<span class="glyphicon glyphicon-refresh slx-rotation"></span>
@@ -47,7 +47,7 @@
 		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					System
+					{{lang_system}}
 				</div>
 				<div class="panel-body" id="systeminfo">
 					<span class="glyphicon glyphicon-refresh slx-rotation"></span>
@@ -62,14 +62,14 @@
 		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					Wartung
+					{{lang_maintenance}}
 				</div>
 				<div class="panel-body">
 					<form class="form-adduser" action="?do=SystemStatus" method="post">
 						<input type="hidden" name="token" value="{{token}}">
 						<input type="hidden" name="action" value="reboot">
 						<div>Server Reboot</div>
-						<label><input type="checkbox" name="confirm" value="yep"> Ja, ich bin sicher</label>
+						<label><input type="checkbox" name="confirm" value="yep"> {{lang_iAmSure}}</label>
 						<button class="btn btn-warning btn-xs" type="submit">Reboot</button>
 					</form>
 				</div>

@@ -1,11 +1,11 @@
 <form role="form" method="post" action="?do=SysConfig&amp;action=addconfig&amp;step={{step}}">
 	<input type="hidden" name="token" value="{{token}}">
 	<div class="input-group">
-		<span class="input-group-addon">Name</span>
-		<input type="text" name="title" class="form-control" placeholder="Meine Konfiguration" autofocus="autofocus">
+		<span class="input-group-addon">{{lang_name}}</span>
+		<input type="text" name="title" class="form-control" placeholder="{{lang_configuration}}" autofocus="autofocus">
 	</div>
 		<hr>
-	<p>Bitte wählen Sie, welche Module für diese Konfiguration verwendet werden sollen.</p>
+	<p>{{lang_configurationChoose}}</p>
 	{{#groups}}
 		<div class="panel panel-default">
 			<div class="slx-litehead">{{group}}</div>
@@ -27,12 +27,12 @@
 				</div>
 			{{/modules}}
 			{{^modules}}
-			<a class="btn btn-primary btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{startClass}}">Neu..</a>
+			<a class="btn btn-primary btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{startClass}}">{{lang_new}}..</a>
 			{{/modules}}
 			</div>
 		</div>
 	{{/groups}}
 	<div class="pull-right">
-		<button type="submit" class="btn btn-primary">Weiter &raquo;</button>
+		<button type="submit" class="btn btn-primary">{{lang_next}} &raquo;</button>
 	</div>
 </form>

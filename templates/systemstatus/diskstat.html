@@ -1,21 +1,21 @@
 <div class="slx-storechart">
 	{{#system}}
-	<b>Systempartition</b>
+	<b>{{lang_systemPartition}}</b>
 	<div id="circles-system"></div>
-	Kapazität: {{size}}
+	{{lang_capacity}}: {{size}}
 	{{/system}}
 	{{^system}}
-	<b>Fehler beim Ermitteln des verfügbaren Speichers auf der Systempartition!</b>
+	<b>{{lan_availableMemoryError}}</b>
 	{{/system}}
 </div>
 <div class="slx-storechart">
 	{{#store}}
-	<b>VM-Speicher</b>
+	<b>{{lang_vmStore}}</b>
 	<div id="circles-store"></div>
-	Kapazität: {{size}}
+	{{lang_capacity}}: {{size}}
 	{{/store}}
 	{{^store}}
-	<b>Fehler beim Ermitteln des verfügbaren Speicherplatzes am VM-Speicherort. Bitte überprüfen Sie die Konfiguration.</b>
+	<b>{{lang_vmStoreError}}</b>
 	{{/store}}
 </div>
 <div class="clearfix"></div>

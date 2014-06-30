@@ -1,5 +1,5 @@
 <div class="container">
-	<h1>Basiskonfiguration</h1>
+	<h1>{{lang_basicConfiguration}}</h1>
 	<form action="?do=BaseConfig" method="post">
 		{{#categories}}
 		<div class="panel panel-default">
@@ -21,7 +21,7 @@
 							{{/big}}
 						</div>
 						<div class="col-md-2">
-							<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}">Hilfe</a>
+							<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}">{{lang_help}}</a>
 						</div>
 					</div>
 				</div>
@@ -30,7 +30,7 @@
 							<div class="modal-content">
 								<div class="modal-header">{{setting}}</div>
 								<div class="modal-body">{{{description}}}</div>
-								<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{close}}</a></div>
+								<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
 							</div>
 						</div>
 					</div>
@@ -39,8 +39,8 @@
 		</div>
 		{{/categories}}
 		<input type="hidden" name="token" value="{{token}}">
-		<button class="btn btn-lg btn-primary" type="submit">{{save}}</button>
-		<button class="btn btn-lg btn-primary" type="reset">{{reset}}</button>
+		<button class="btn btn-lg btn-primary" type="submit">{{lang_save}}</button>
+		<button class="btn btn-lg btn-primary" type="reset">{{lang_reset}}</button>
 		<a class="btn btn-lg btn-primary" href="api.php?do=getconfig">Download</a>
 	</form>
 </div>

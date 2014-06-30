@@ -1,12 +1,12 @@
 <div class="container" id="systemlist">
-	<div class="panel panel-default">Liste wird abgerufen...</div>
+	<div class="panel panel-default">{{lang_listObtained}}</div>
 	<script type="text/javascript">
 		var slx_check = setInterval(function() {
 			if (typeof $ === 'undefined') return;
 			clearInterval(slx_check);
 			$('#systemlist').load('{{{listurl}}}', function( response, status, xhr ) {
 				if ( status === "error" ) {
-					var msg = "Fehler beim Abruf: ";
+					var msg = "{{lang_errorGetting}}";
 					$( "#systemlist" ).html( msg + xhr.status + " " + xhr.statusText );
 				}
 			})

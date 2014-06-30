@@ -1,41 +1,41 @@
 <div>
-	OS Uptime: {{uptime}}
+	{{lang_uptimeOS}}: {{uptime}}
 </div>
 
 <div class="slx-storechart">
-	<b>CPU-Last</b>
+	<b>{{lang_cpuLoad}}</b>
 	{{#cpuLoadOk}}
 	<div id="circles-cpuload"></div>
-	<div>Durchschnitt: {{cpuLoad}}%</div>
-	<div>Nur OS: {{cpuSystem}}%</div>
-	<div>Logische CPUs: {{cpuCount}}</div>
+	<div>{{lang_average}}: {{cpuLoad}}%</div>
+	<div>{{lang_onlyOS}}: {{cpuSystem}}%</div>
+	<div>{{lang_logicCPUs}}: {{cpuCount}}</div>
 	{{/cpuLoadOk}}
 	{{^cpuLoadOk}}
-	Konnte nicht ermittelt werden
+	{{lang_notDetermined}}
 	{{/cpuLoadOk}}
 </div>
 			
 <div class="slx-storechart">
-	<b>RAM-Nutzung</b>
+	<b>{{lang_ramUsage}}</b>
 	{{#memTotal}}
 	<div id="circles-mem"></div>
-	<div>Gesamt: {{memTotal}}</div>
-	<div>Frei: {{memFree}}</div>
+	<div>{{lang_total}}: {{memTotal}}</div>
+	<div>{{lang_free}}: {{memFree}}</div>
 	{{/memTotal}}
 	{{^memTotal}}
-	Konnte nicht ermittelt werden
+	{{lang_notDetermined}}
 	{{/memTotal}}
 </div>
 		
 <div class="slx-storechart">
-	<b>swap-Nutzung</b>
+	<b>{{lang_swapUsage}}</b>
 	{{#memTotal}}
 	<div id="circles-swap"></div>
-	<div>Gesamt: {{swapTotal}}</div>
-	<div>Belegt: {{swapUsed}}</div>
+	<div>{{lang_total}}: {{swapTotal}}</div>
+	<div>{{lang_occupied}}: {{swapUsed}}</div>
 	{{/memTotal}}
 	{{^memTotal}}
-	Konnte nicht ermittelt werden
+	{{lang_notDetermined}}
 	{{/memTotal}}
 </div>
 
@@ -43,8 +43,7 @@
 
 {{#swapWarning}}
 <div>
-	<b>Achtung!</b> Es wird swap-Speicher genutzt. Dies kann ein Hinweis darauf sein, dass dem Satelliten-Server zu wenig physikalischer Speicher zur Verfügung steht. Im Falle von
-	Performance-Problemen oder Instabilität des Servers sollten Sie erwägen, den Server mit mehr RAM auszustatten.
+	<b>{{lang_attention}}</b> {{lang_swapWarning}}
 </div>
 {{/swapWarning}}
 

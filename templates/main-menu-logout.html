@@ -11,25 +11,28 @@
 		</div>
 		<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
-				<li><a href="?do=SysLog">Client Logs</a></li>
+				<li><a href="?do=SysLog">{{lang_clientLog}}</a></li>
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown">{{settings}}<b class="caret"></b></a>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">{{lang_settings}}<b class="caret"></b></a>
 					<ul class="dropdown-menu">
-						<li class="dropdown-header">Client</li>
-						<li><a href="?do=SysConfig">{{localization}}</a></li>
+						<li class="dropdown-header">{{lang_client}}</li>
+						<li><a href="?do=SysConfig">{{lang_localization}}</a></li>
 						<li><a href="?do=MiniLinux">bwLehrpool Mini-Linux</a></li>
-						<li><a href="?do=BaseConfig">{{configurationVariables}}</a></li>
+						<li><a href="?do=BaseConfig">{{lang_configurationVariables}}</a></li>
 						<li class="divider"></li>
-						<li class="dropdown-header">Server</li>
-						<li><a href="?do=ServerSetup">{{configurationBasic}}</a></li>
-						<li><a href="?do=VmStore"></a>{{vmLocation}}</li>
+						<li class="dropdown-header">{{lang_server}}</li>
+						<li><a href="?do=ServerSetup">{{lang_configurationBasic}}</a></li>
+						<li><a href="?do=VmStore">{{lang_vmLocation}}</a></li>
 					</ul>
 				</li>
-				<li><a href="?do=News">{{news}}</a></li>
+				<li><a href="?do=News">{{lang_news}}</a></li>
 				<li><a href="?do=SystemStatus">Status</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="?do=Session&amp;action=logout&amp;token={{{token}}}"><b>{{user}}</b> ({{logout}})</a></li>
+				<li><a href="lang/lang.php?lang=english"><img src="lang/english.png"></a></li>
+				<li><a href="lang/lang.php?lang=german"><img src="lang/german.png"></a></li>
+				<li><a href="lang/lang.php?lang=portuguese"><img src="lang/portuguese.png"></a></li>
+				<li><a href="?do=Session&amp;action=logout&amp;token={{{token}}}"><b>{{user}}</b> ({{lang_logout}})</a></li>
 			</ul>
 		</div>
 	</div>
