@@ -1,17 +1,13 @@
-<p>Über ein benutzerdefiniertes Modul ist es möglich, beliebige Dateien
-	zum Linux-Grundsystem, das auf den Clients gebootet wird, hinzuzufügen.
-	Dazu kann ein Archiv mit einer Dateisystemstruktur hochgeladen werden, die
-	in dieser Form 1:1 in das gebootete Linux extrahiert wird.</p>
+<p>{{lang_customModuleInfo1}}</p>
 
-<p>Beispiel: Enthält das hochgeladene Archiv eine Datei <strong>etc/beispiel.conf</strong>,
-	so wird auf einem gebooteten Client diese Datei als <strong>/etc/beispiel.conf</strong> zu finden sein.</p>
+<p>{{lang_customModuleInfo2}}</p>
 
 <form role="form" enctype="multipart/form-data" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 	<input type="hidden" name="token" value="{{token}}">
 	<div class="input-group">
-		<span class="input-group-addon">Archiv</span>
+		<span class="input-group-addon">{{lang_file}}</span>
 		<input class="form-control" type="file" name="modulefile">
 	</div>
-	<p class="help-block">Unterstützte Archivformate: .tar.gz, .tar.bz2, .zip</p>
-	<button type="submit" class="btn btn-primary">Hochladen</button>
+	<p class="help-block">{{lang_supportedFiles}}: .tar.gz, .tar.bz2, .zip</p>
+	<button type="submit" class="btn btn-primary">{{lang_upload}}</button>
 </form>
