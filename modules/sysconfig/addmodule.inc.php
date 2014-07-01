@@ -40,7 +40,7 @@ abstract class AddModule_Base
 		} elseif (isset($status['statusCode'])) {
 			$error = $status['statusCode'];
 		} else {
-			$error = 'Unbekannter Taskmanager-Fehler'; // TODO: No text
+			$error = Dictionary::translate('lang_unknwonTaskManager'); // TODO: No text
 		}
 		Message::addError('task-error', $error);
 		Util::redirect('?do=SysConfig');
@@ -115,7 +115,7 @@ class AddModule_Start extends AddModule_Base
 			$order[] = $module['sortOrder'];
 		}
 		array_multisort($order, SORT_ASC, $title, SORT_ASC, $mods);
-		Render::addDialog('Modul hinzufügen', false, 'sysconfig/start', array('modules' => array_values($mods)));
+		Render::addDialog(Dictionary::translate('lang_moduleAdd'), false, 'sysconfig/start', array('modules' => array_values($mods)));
 	}
 
 }
