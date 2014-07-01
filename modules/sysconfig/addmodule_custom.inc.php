@@ -6,12 +6,8 @@
  * fancy is happening.
  */
 
-Page_SysConfig::addModule('custom', 'CustomModule_UploadForm', 'Erweitertes Modul',
-	'Mit einem Erweiterten Modul ist es möglich, beliebige Dateien zum Grundsystem hinzuzufügen.'
-	. ' Nutzen Sie dieses Modul, um z.B. spezielle Konfigurationsdateien auf den Client PCs zu'
-	. ' verwenden, die sich nicht mit einem der anderen Wizards erstellen lässt.'
-	. ' Das Hinzufügen eines Erweiterten Moduls erfordert in der Regel zumindest grundlegende'
-	. ' Systemkenntnisse im Linuxbereich.', Dictionary::translate('lang_generic'), false, 100
+Page_SysConfig::addModule('custom', 'CustomModule_UploadForm', Dictionary::translate('lang_generic'),
+	Dictionary::translate('lang_addCustomModuleInfo'), Dictionary::translate('lang_generic'), false, 100
 );
 
 class CustomModule_UploadForm extends AddModule_Base
@@ -20,7 +16,7 @@ class CustomModule_UploadForm extends AddModule_Base
 	protected function renderInternal()
 	{
 		Session::set('mod_temp', false);
-		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-upload', array(
+		Render::addDialog(Dictionary::translate('lang_addCustomModule'), false, 'sysconfig/custom-upload', array(
 			'step' => 'CustomModule_ProcessUpload'
 			));
 	}
@@ -92,7 +88,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 				$list[] = $file;
 			}
 		}
-		Render::addDialog('Eigenes Modul hinzufügen', false, 'sysconfig/custom-fileselect', array(
+		Render::addDialog(Dictionary::translate('lang_addCustomModule'), false, 'sysconfig/custom-fileselect', array(
 			'step' => 'CustomModule_CompressModule',
 			'files' => $list,
 		));

@@ -40,7 +40,7 @@ abstract class AddConfig_Base
 		} elseif (isset($status['statusCode'])) {
 			$error = $status['statusCode'];
 		} else {
-			$error = 'Unbekannter Taskmanager-Fehler'; // TODO: No text
+			$error = Dictionary::translate('lang_unknwonTaskManager'); // TODO: No text
 		}
 		Message::addError('task-error', $error);
 		Util::redirect('?do=SysConfig');
@@ -196,7 +196,7 @@ class AddConfig_Finish extends AddConfig_Base
 				'moduleid' => $moduleid
 			));
 		}
-		Render::addDialog('Konfiguration zusammenstellen', false, 'sysconfig/cfg-finish', array(
+		Render::addDialog(Dictionary::translate('lang_configurationCompilation'), false, 'sysconfig/cfg-finish', array(
 			'configid' => $confid
 		));
 	}

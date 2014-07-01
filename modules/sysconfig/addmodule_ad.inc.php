@@ -4,10 +4,8 @@
  * Wizard for setting up active directory integration for authentication.
  */
 
-Page_SysConfig::addModule('AD_AUTH', 'AdModule_Start', 'Active Directory Authentifizierung',
-	'Mit diesem Modul ist die Anmeldung an den Client PCs mit den Benutzerkonten eines Active Directory'
-	. ' möglich. Je nach Konfiguration ist auch die Nutzung eines Benutzerverzeichnisses auf dem Client möglich.',
-	'Authentifizierung', true
+Page_SysConfig::addModule('AD_AUTH', 'AdModule_Start', Dictionary::translate('lang_adAuthentication'),
+	Dictionary::translate('lang_adModule'),	Dictionary::translate('lang_authentication'), true
 );
 
 class AdModule_Start extends AddModule_Base
@@ -17,7 +15,7 @@ class AdModule_Start extends AddModule_Base
 	{
 		Session::set('ad_check', false);
 		Session::save();
-		Render::addDialog('Active Directory Authentifizierung', false, 'sysconfig/ad-start', array(
+		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-start', array(
 			'step' => 'AdModule_CheckConnection',
 			'server' => Request::post('server'),
 			'searchbase' => Request::post('searchbase'),
@@ -62,7 +60,7 @@ class AdModule_CheckConnection extends AddModule_Base
 	
 	protected function renderInternal()
 	{
-		Render::addDialog('Active Directory Authentifizierung', false, 'sysconfig/ad-checkconnection', 
+		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-checkconnection', 
 			array_merge($this->taskIds, array(
 				'server' => Request::post('server'),
 				'searchbase' => Request::post('searchbase'),
@@ -103,7 +101,7 @@ class AdModule_Finish extends AddModule_Base
 	
 	protected function renderInternal()
 	{
-		Render::addDialog('Active Directory Authentifizierung', false, 'sysconfig/ad-finish', 
+		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-finish', 
 			$this->taskIds
 		);
 	}
