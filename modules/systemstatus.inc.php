@@ -148,7 +148,7 @@ class Page_SystemStatus extends Page
 			'uptime' => '???'
 		);
 		if (preg_match('/^(\d+)\D/', $uptime, $out)) {
-			$data['uptime'] = floor($out[1] / 86400) . ' Tag(e), ' . floor(($out[1] % 86400) / 3600) . ' Stunde(n)'; // TODO: i18n
+			$data['uptime'] = floor($out[1] / 86400) . ' ' . Dictionary::translate('lang_days') . ', ' . floor(($out[1] % 86400) / 3600) . ' ' . Dictionary::translate('lang_hours'); // TODO: i18n
 		}
 		if (preg_match('/\bMemTotal:\s+(\d+)\s.*\bMemFree:\s+(\d+)\s.*\bBuffers:\s+(\d+)\s.*\bCached:\s+(\d+)\s.*\bSwapTotal:\s+(\d+)\s.*\bSwapFree:\s+(\d+)\s/s', $memInfo, $out)) {
 			$data['memTotal'] = Util::readableFileSize($out[1] * 1024);

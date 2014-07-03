@@ -75,7 +75,7 @@ class Page_BaseConfig extends Page
 		}
 		// List global config option
 		$settings = array();
-		$res = Database::simpleQuery('SELECT cat_setting.name AS category_name, setting.setting, setting.defaultvalue, setting.permissions, setting.description, tbl.value
+		$res = Database::simpleQuery('SELECT cat_setting.' . LANG . ' AS category_name, setting.setting, setting.defaultvalue, setting.permissions, setting.' . LANG . ' AS description, tbl.value
 			FROM setting
 			INNER JOIN cat_setting USING (catid)
 			LEFT JOIN setting_global AS tbl USING (setting)
