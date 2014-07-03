@@ -24,10 +24,50 @@
         "german": "Hinzufügen",
         "portuguese": "Adicionar"
     },
+    "lang_addCustomModule": {
+        "english": "Add Custom Module",
+        "german": "Eigenes Modul hinzufügen",
+        "portuguese": "Adicionar Módulo Customizado"
+    },
+    "lang_addCustomModuleInfo": {
+        "english": "With an extended module it is possible to add any files to the basic system that uses this module, for example to use specific configuration files, which can not be created with one of the other Wizards. Adding an Extended module usually requires at least basic knowledge of the Linux system.",
+        "german": "Mit einem Erweiterten Modul ist es möglich, beliebige Dateien zum Grundsystem hinzuzufügen Nutzen Sie dieses Modul, um z.B. spezielle Konfigurationsdateien auf den Client PCs zu verwenden, die sich nicht mit einem der anderen Wizards erstellen lässt. Das Hinzufügen eines Erweiterten Moduls erfordert in der Regel zumindest grundlegende Systemkenntnisse im Linuxbereich.",
+        "portuguese": "Com um módulo estendido, é possível adicionar os arquivos para o sistema básico que usa este módulo, por exemplo, para usar arquivos de configuração específicas, que não podem ser criados com um dos outros assistentes. Adicionar um módulo estendido normalmente exige pelo menos um conhecimento básico do sistema Linux."
+    },
+    "lang_adAuthentication": {
+        "english": "Active Directory Authentication",
+        "german": "Active Directory Authentifizierung",
+        "portuguese": "Autenticação do Active Directory"
+    },
+    "lang_adModule": {
+        "english": "This module makes possible the application to the client PCs with the user accounts of an Active Directory. Depending on the configuration, the use of a user directory on the client is possible.",
+        "german": "Mit diesem Modul ist die Anmeldung an den Client PCs mit den Benutzerkonten eines Active Directory möglich. Je nach Konfiguration ist auch die Nutzung eines Benutzerverzeichnisses auf dem Client möglich.",
+        "portuguese": "Este módulo possibilita a aplicação para os computadores clientes com as contas de usuário de um Active Directory. Dependendo da configuração, o uso de um diretório de usuário no cliente é possível."
+    },
     "lang_adStarted": {
         "english": "The AD-proxy is now configured and started ...",
         "german": "Der AD-Proxy wird nun konfiguriert und gestartet...",
         "portuguese": "O AD-proxy está configurado e começou ..."
+    },
+    "lang_adText1": {
+        "english": "To set up user authentication through Active Directory, a dedicated user is required in AD next to the address of the server, which is addressed by the AD.",
+        "german": "Zum Einrichten der Benutzerauthentifizierung über ein Active Directory wird neben der Adresse des anzusprechenden Servers ein dedizierter Benutzer im AD benötigt, über welchen das AD angesprochen wird.",
+        "portuguese": "Para configurar a autenticação de usuário por meio do Active Directory, um usuário dedicado é necessário no AD próximo ao endereço do servidor, que é endereçado pelo AD."
+    },
+    "lang_adText2": {
+        "english": "This user does not need special rights, you can follow this user to evade security and the rights to log on. The user only needs to have sufficient permissions to perform an LDAP Bind on AD, and search for users.",
+        "german": "Dieser Benutzer benötigt keine besonderen Rechte, Sie können diesem Benutzer zur Sicherheit auch die Rechte zum Anmelden entziehen. Der Benutzer muss lediglich ausreichende Berechtigungen haben, um einen LDAP-Bind am AD durchzuführen, und nach Benutzern zu suchen.",
+        "portuguese": "Este usuário não precisa de direitos especiais, você pode seguir este usuário para escapar da segurança e dos direitos para fazer logon. O usuário só precisa ter permissões suficientes para executar a ligação LDAP no AD, e procurar por usuários."
+    },
+    "lang_adText3": {
+        "english": "Next the distinguished name of the user must be specified. You can determine this by dsquery command line program on a domain controller as the following call:",
+        "german": "Im Folgenden muss der Distinguished Name des Benutzers angegeben werden. Diesen können Sie ermitteln, indem Sie das Kommandozeilenprogramm dsquery auf einem Domain Controller wie folgt aufrufen:",
+        "portuguese": "A seguir o nome distinto do usuário deve ser especificado. Você pode determinar isso pelo programa de linha de comando dsquery em um controlador de domínio como a seguinte chamada:"
+    },
+    "lang_adText4": {
+        "english": "After entering all required data in the next step, it checks whether communication is possible with the AD.",
+        "german": "Im Folgenden muss der Distinguished Name des Benutzers angegeben werden. Diesen können Sie ermitteln, indem Sie das Kommandozeilenprogramm dsquery auf einem Domain Controller wie folgt aufrufen:",
+        "portuguese": "Depois de inserir todos os dados necessários na próxima etapa, ela verifica se a comunicação é possível com o AD."
     },
     "lang_addressConfiguration": {
         "english": "Address Configuration",
@@ -38,6 +78,11 @@
         "english": "Attention!",
         "german": "Achtung!",
         "portuguese": "Atenção!"
+    },
+    "lang_authentication": {
+        "english": "Authentication",
+        "german": "Authentifizierung",
+        "portuguese": "Autenticação"
     },
     "lang_availableMemoryError": {
         "english": "Error when determining the available memory on the system partition!",
@@ -68,6 +113,11 @@
         "english": "Basic Configuration",
         "german": "Basiskonfiguration",
         "portuguese": "Configuração Básica"
+    },
+    "lang_bindDN": {
+        "english": "Bind DN",
+        "german": "Bind DN",
+        "portuguese": "Vincular DN"
     },
     "lang_bootAddress": {
         "english": "Boot Address of the Server",
@@ -118,6 +168,11 @@
         "english": "Capacity",
         "german": "Kapazität",
         "portuguese": "Capacidade"
+    },
+    "lang_checkFileContent": {
+        "english": "Here you have the possibility to check the contents of the archive again.",
+        "german": "Hier haben Sie die Möglichkeit, den Inhalt des Archivs noch einmal zu überprüfen.",
+        "portuguese": "Aqui você tem a possibilidade de verificar o conteúdo do arquivo novamente."
     },
     "lang_chooseIP": {
         "english": "Please select the IP address that the client server will use to boot.",
@@ -224,10 +279,25 @@
         "german": "Benutzer anlegen",
         "portuguese": "Criar Usuário"
     },
+    "lang_customModuleInfo1": {
+        "english": "About a custom module, it is possible to add arbitrary files to a Linux system that is booted clients. For this purpose, an archive can be uploaded using a file system structure that is extracted in this form 1:1 in the booted Linux.",
+        "german": "Über ein benutzerdefiniertes Modul ist es möglich, beliebige Dateien zum Linux-Grundsystem, das auf den Clients gebootet wird, hinzuzufügen. Dazu kann ein Archiv mit einer Dateisystemstruktur hochgeladen werden, die in dieser Form 1:1 in das gebootete Linux extrahiert wird.",
+        "portuguese": "Sobre um módulo personalizado, é possível adicionar arquivos arbitrários para um sistema Linux que é inicializado clientes. Para isso, um arquivo pode ser carregado através de uma estrutura do sistema de arquivos que é extraído desta forma 1:1 no Linux inicializado."
+    },
+    "lang_customModuleInfo2": {
+        "english": "Example: If the uploaded archive is the file etc/example.conf, this file will be located as /etc/example.conf to a booted client.",
+        "german": "Beispiel: Enthält das hochgeladene Archiv eine Datei etc/beispiel.conf, so wird auf einem gebooteten Client diese Datei als /etc/beispiel.conf zu finden sein.",
+        "portuguese": "Exemplo: Se o arquivo enviado for etc/examplo.conf, este arquivo estará localizado em /etc/examplo.conf para um cliente inicializado."
+    },
     "lang_date": {
         "english": "Date",
         "german": "Datum",
         "portuguese": "Data"
+    },
+    "lang_days": {
+        "english": "Day(s)",
+        "german": "Tage(s)",
+        "portuguese": "Dia(s)"
     },
     "lang_delete": {
         "english": "Delete",
@@ -258,6 +328,11 @@
         "english": "Example",
         "german": "Beispiel",
         "portuguese": "Por Exemplo"
+    },
+    "lang_file": {
+        "english": "File",
+        "german": "Archiv",
+        "portuguese": "Arquivo"
     },
     "lang_filter": {
         "english": "Filter",
@@ -303,6 +378,11 @@
         "english": "The fundamental localization of the bwLehrpool system is done through a system configuration. These include aspects such as the authentication method for users (eg Active Directory, LDAP), printer configuration, home directories, etc. A system configuration is composed of one or more configuration modules, which can be managed at the bottom of this page.",
         "german": "Über eine Systemkonfiguration wird die grundlegende Lokalisierung des bwLehrpool-Systems durchgeführt. Dazu gehören Aspekte wie das Authentifizierungsverfahren für Benutzer (z.B. Active Directory, LDAP), Druckerkonfiguration, Home-Verzeichnisse, etc. Eine Systemkonfiguration setzt sich aus einem oder mehreren Konfigurationsmodulen zusammen, welche im unteren Bereich dieser Seite verwaltet werden können.",
         "portuguese": "A localização fundamental do sistema bwLehrpool é feita através de uma configuração de sistema. Isso inclui aspectos como o método de autenticação de usuários (por exemplo, Diretório Ativo, LDAP), configuração de impressora, diretórios home, etc. Uma configuração de sistema é composta por um ou mais módulo de configuração, que podem ser gerenciados na parte inferior da página."
+    },
+    "lang_hours": {
+        "english": "Hour(s)",
+        "german": "Stunde(n)",
+        "portuguese": "Hora(s)"
     },
     "lang_iAmSure": {
         "english": "Yes, I am sure",
@@ -372,7 +452,7 @@
     "lang_menuCustomHint1": {
         "english": "Here you have the opportunity to add your own menu code to the displayed PXE menu, eg to refer to other PXE server. The format corresponds to the syslinux menu format.",
         "german": "Hier haben Sie die Möglichkeit, eigenen Menü-Code zum angezeigten PXE-Menü hinzuzufügen, um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Menüformat.",
-        "portuguese": "Aqui você tem a oportunidade de adicionar seu próprio código de menu para o menu PXE exibido, por exemplo, para se referir a outro servidor PXE. O formato corresponde ao formato de menu syslinux."
+        "portuguese": "Aqui você tem a oportunidade de adicionar seu pModul hinzufügenróprio código de menu para o menu PXE exibido, por exemplo, para se referir a outro servidor PXE. O formato corresponde ao formato de menu syslinux."
     },
     "lang_menuCustomHint2": {
         "english": "You can create one or more entries. If you want to create an entry that starts automatically when the user makes a selection, assign as",
@@ -529,6 +609,11 @@
         "german": "Speichern",
         "portuguese": "Salvar"
     },
+    "lang_searchBase": {
+        "english": "Search Base",
+        "german": "Suchbasis",
+        "portuguese": "Base de Pesquisa"
+    },
     "lang_seconds": {
         "english": "Seconds",
         "german": "Sekunden",
@@ -568,6 +653,11 @@
         "english": "Space",
         "german": "Speicherplatz",
         "portuguese": "Espaço"
+    },
+    "lang_supportedFiles": {
+        "english": "Supported File Formats",
+        "german": "Unterstützte Archivformate",
+        "portuguese": "Formatos de Arquivos Suportados"
     },
     "lang_system": {
         "english": "System",
@@ -634,6 +724,11 @@
         "german": "Gesamt",
         "portuguese": "Total"
     },
+    "lang_unknwonTaskManager": {
+        "english": "Unknown Task Manager error",
+        "german": "Unbekannter Taskmanager-Fehler",
+        "portuguese": "Erro desconhecido do Gerenciador de Tarefas"
+    },
     "lang_update": {
         "english": "Update",
         "german": "Aktualisieren",
@@ -648,6 +743,26 @@
         "english": "OS Uptime",
         "german": "OS Uptime",
         "portuguese": "Tempo de Atividade do SO"
+    },
+    "lang_userDirectory": {
+        "english": "User Directory",
+        "german": "Benutzerverzeichnis",
+        "portuguese": "Diretório de Usuário"
+    },
+    "lang_userDirectoryInfo1": {
+        "english": "Optional: If the clients should embed a separate directory (home directory, user directory) from a server for the user, please enter here the format in UNC notation, eg",
+        "german": "Optionale Angabe: Wenn die Clients für die Benutzer ein eigenes Verzeichnis (Homeverzeichnis, Benutzerverzeichnis) von einem Server einbinden sollen, geben Sie bitte hier das Format in UNC-Notation an, also z.B. ",
+        "portuguese": "Opcional: Se os clientes devem incorporar um diretório separado (diretório home, diretório de usuário) de um servidor para o usuário, digite aqui o formato em notação UNC, por exemplo,"
+    },
+    "lang_userDirectoryInfo2": {
+        "english": "%s is a placeholder for the user's login name.",
+        "german": "%s ist dabei ein Platzhalter für den Login-Namen des Benutzers.",
+        "portuguese": "%s é um marcador para o nome de login do usuário."
+    },
+    "lang_userDirectoryInfo3": {
+        "english": "The directory is loaded with the same credentials that the user specifies when login. (That is no Kerberos support, etc.)",
+        "german": "Das Verzeichnis wird mit den gleichen Zugangsdaten eingebunden, die der Benutzer beim Login angibt. (D.h. kein Kerberos Support o.ä.)",
+        "portuguese": "O diretório é carregado com as mesmas credenciais que o usuário especifica quando entra. (Isto é, não há suporte Kerberos, etc)"
     },
     "lang_username": {
         "english": "Username",
