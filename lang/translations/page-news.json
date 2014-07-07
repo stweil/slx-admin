@@ -1,0 +1,52 @@
+{
+    "lang_newsIntro": {
+        "english": "Here you have the possibility to edit the news displayed to the bwLehrpool clients.",
+        "german": "Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.",
+        "portuguese": "Aqui você tem a possibilidade de editar as novidades que são mostradas para os clientes do bwLehrpool."
+    },
+    "lang_activeNews": {
+        "english": "Active News",
+        "german": "Aktive News",
+        "portuguese": "Novidades"
+    },
+    "lang_latestUpdate": {
+        "english": "Latest update",
+        "german": "Letzte Aktualisierung",
+        "portuguese": "Última atualização"
+    },
+    "lang_title": {
+        "english": "Title",
+        "german": "Titel",
+        "portuguese": "Título"
+    },
+    "lang_content": {
+        "english": "Content",
+        "german": "Inhalt",
+        "portuguese": "Conteúdo"
+    },
+    "lang_save": {
+        "english": "Save",
+        "german": "Speichern",
+        "portuguese": "Salvar"
+    },
+    "lang_newsOld": {
+        "english": "Old News",
+        "german": "Alte News",
+        "portuguese": "Novidades Antigas"
+    },
+    "lang_date": {
+        "english": "Date",
+        "german": "Datum",
+        "portuguese": "Data"
+    },
+    "lang_show": {
+        "english": "Show",
+        "german": "Ansehen",
+        "portuguese": "Mostrar"
+    },
+    "lang_delete": {
+        "english": "Delete",
+        "german": "Löschen",
+        "portuguese": "Deletar"
+    }
+}

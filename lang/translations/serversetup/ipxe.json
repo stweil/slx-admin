@@ -1,0 +1,67 @@
+{
+    "lang_bootMenu": {
+        "english": "Boot Menu",
+        "german": "Bootmenü",
+        "portuguese": "Menu de Boot"
+    },
+    "lang_bootInfo": {
+        "english": "Here adjustments can be made to the appearance of the boot menu.",
+        "german": "Hier können Anpassungen am Erscheinungsbild des Bootmenüs vorgenommen werden.",
+        "portuguese": "Aqui ajustes podem ser feitos na aparência do menu de boot."
+    },
+    "lang_bootBehavior": {
+        "english": "Default Boot Behavior",
+        "german": "Standard-Bootverhalten",
+        "portuguese": "Comportamento Padrão de Boot"
+    },
+    "lang_localHDD": {
+        "english": "Local HDD",
+        "german": "Lokale HDD",
+        "portuguese": "HDD Local"
+    },
+    "lang_menuDisplayTime": {
+        "english": "Menu Display Time",
+        "german": "Anzeigedauer des Menüs",
+        "portuguese": "Tempo de Exibição do Menu"
+    },
+    "lang_seconds": {
+        "english": "Seconds",
+        "german": "Sekunden",
+        "portuguese": "Segundos"
+    },
+    "lang_menuCustom": {
+        "english": "Custom Extra Menu",
+        "german": "Benutzerdefinierter Menüzusatz",
+        "portuguese": "Menu Adicional Customizado"
+    },
+    "lang_bootMenuCreate": {
+        "english": "Create Boot Menu",
+        "german": "Bootmenü erzeugen",
+        "portuguese": "Criar Menu de Boot"
+    },
+    "lang_menuCustomHint1": {
+        "english": "Here you have the opportunity to add your own menu code to the displayed PXE menu, eg to refer to other PXE server. The format corresponds to the syslinux menu format.",
+        "german": "Hier haben Sie die Möglichkeit, eigenen Menü-Code zum angezeigten PXE-Menü hinzuzufügen, um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Menüformat.",
+        "portuguese": "Aqui você tem a oportunidade de adicionar seu próprio código de menu para o menu PXE exibido, por exemplo, para se referir a outro servidor PXE. O formato corresponde ao formato de menu syslinux."
+    },
+    "lang_menuCustomHint2": {
+        "english": "You can create one or more entries. If you want to create an entry that starts automatically when the user makes a selection, assign as",
+        "german": "Sie können ein oder mehrere Einträge erzeugen. Wenn Sie einen Eintrag erzeugen möchten, der automatisch gestartet wird, wenn der Benutzer keine Auswahl tätigt, vergeben Sie als",
+        "portuguese": "Você pode criar uma ou mais entradas. Se você quiser criar uma entrada que é iniciada automaticamente quando o usuário faz uma seleção, atribua como"
+    },
+    "lang_menuCustomHint3": {
+        "english": "and select as the default boot behavior my-entry as well.",
+        "german": "und wählen Sie als Standard-Bootverhalten ebenfalls my-entry.",
+        "portuguese": "e selecione como o comportamento de boot padrão também my-entry."
+    },
+    "lang_example": {
+        "english": "Example",
+        "german": "Beispiel",
+        "portuguese": "Por Exemplo"
+    },
+    "lang_close": {
+        "english": "Close",
+        "german": "Schließen",
+        "portuguese": "Fechar"
+    }
+}

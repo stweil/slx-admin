@@ -1,0 +1,32 @@
+{
+    "lang_createUser": {
+        "english": "Create User",
+        "german": "Benutzer anlegen",
+        "portuguese": "Criar Usuário"
+    },
+    "lang_username": {
+        "english": "Username",
+        "german": "Benutzerkennung",
+        "portuguese": "Nome de Usuário"
+    },
+    "lang_password": {
+        "english": "Password",
+        "german": "Passwort",
+        "portuguese": "Senha"
+    },
+    "lang_confirmation": {
+        "english": "Repeat Password",
+        "german": "Wiederholen",
+        "portuguese": "Repita Senha"
+    },
+    "lang_fullName": {
+        "english": "Full Name",
+        "german": "Vollständiger Name",
+        "portuguese": "Nome Completo"
+    },
+    "lang_telephone": {
+        "english": "Telephone",
+        "german": "Telefon",
+        "portuguese": "Telefone"
+    }
+}

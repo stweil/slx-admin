@@ -1,0 +1,27 @@
+{
+    "lang_adStarted": {
+        "english": "The AD-proxy is now configured and started ...",
+        "german": "Der AD-Proxy wird nun konfiguriert und gestartet...",
+        "portuguese": "O AD-proxy está configurado e começou ..."
+    },
+    "lang_generateModule": {
+        "english": "Generate Module",
+        "german": "Modul erzeugen",
+        "portuguese": "Gerar Módulo"
+    },
+    "lang_restartWizard": {
+        "english": "Restart Wizard",
+        "german": "Assistent neustarten",
+        "portuguese": "Reiniciar Assistente"
+    },
+    "lang_to": {
+        "english": "To",
+        "german": "Zur",
+        "portuguese": "Para"
+    },
+    "lang_systemConfiguration": {
+        "english": "System Configuration",
+        "german": "Systemkonfiguration",
+        "portuguese": "Confguração do Sistema"
+    }
+}

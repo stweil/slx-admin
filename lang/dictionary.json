@@ -150,7 +150,7 @@
         "portuguese": "Criar Menu de Boot"
     },
     "lang_bootMenuWarning": {
-        "english": "The boot menu is outdated or has not been generated. ",
+        "english": "The boot menu is outdated or has not been generated.",
         "german": "Das Bootmenü ist veraltet oder wurde noch nicht generiert.",
         "portuguese": "O menu de boot está desatualizado ou ainda não foi gerado."
     },
@@ -178,11 +178,6 @@
         "english": "Please select the IP address that the client server will use to boot.",
         "german": "Bitte wählen Sie die IP-Adresse, über die der Server von den Clients zum Booten angesprochen werden soll.",
         "portuguese": "Por favor, selecione o endereço IP que o servidor do cliente utilizará realizar o boot."
-    },
-    "lang_client": {
-        "english": "Client",
-        "german": "Client",
-        "portuguese": "Cliente"
     },
     "lang_centralConfiguration": {
         "english": "Central configurations available",
@@ -255,9 +250,9 @@
         "portuguese": "Configurar"
     },
     "lang_confirmation": {
-        "english": "Confirmation",
+        "english": "Repeat Password",
         "german": "Wiederholen",
-        "portuguese": "Confirmação"
+        "portuguese": "Repita Senha"
     },
     "lang_connectionWait": {
         "english": "The connection to the specified AD server is now checked. Please wait a moment.",
@@ -452,7 +447,7 @@
     "lang_menuCustomHint1": {
         "english": "Here you have the opportunity to add your own menu code to the displayed PXE menu, eg to refer to other PXE server. The format corresponds to the syslinux menu format.",
         "german": "Hier haben Sie die Möglichkeit, eigenen Menü-Code zum angezeigten PXE-Menü hinzuzufügen, um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Menüformat.",
-        "portuguese": "Aqui você tem a oportunidade de adicionar seu pModul hinzufügenróprio código de menu para o menu PXE exibido, por exemplo, para se referir a outro servidor PXE. O formato corresponde ao formato de menu syslinux."
+        "portuguese": "Aqui você tem a oportunidade de adicionar seu próprio código de menu para o menu PXE exibido, por exemplo, para se referir a outro servidor PXE. O formato corresponde ao formato de menu syslinux."
     },
     "lang_menuCustomHint2": {
         "english": "You can create one or more entries. If you want to create an entry that starts automatically when the user makes a selection, assign as",

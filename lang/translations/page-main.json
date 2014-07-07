@@ -1,0 +1,42 @@
+{
+    "lang_welcome": {
+        "english": "Welcome",
+        "german": "Willkommen",
+        "portuguese": "Bem-vindo"
+    },
+    "lang_intro": {
+        "english": "This is the bwLehrpool configuration interface.",
+        "german": "Dies ist die bwLehrpool Konfigurationsoberfläche.",
+        "portuguese": "Esta é a interface de configuração do bwLehrpool."
+    },
+    "lang_vmLocationNotSet": {
+        "english": "A location for the virtual machine is not set yet.",
+        "german": "Es ist noch kein Speicherort für die Virtuellen Maschinen festgelegt.",
+        "portuguese": "Uma localização para a máquina virtual ainda não foi escolhida."
+    },
+    "lang_configure": {
+        "english": "Configure",
+        "german": "Konfigurieren",
+        "portuguese": "Configurar"
+    },
+    "lang_bootMenuWarning": {
+        "english": "The boot menu is outdated or has not been generated.",
+        "german": "Das Bootmenü ist veraltet oder wurde noch nicht generiert.",
+        "portuguese": "O menu de boot está desatualizado ou ainda não foi gerado."
+    },
+    "lang_minilinuxMissing": {
+        "english": "Important files from the mini Linux installation are missing.",
+        "german": "Wichtige Dateien der MiniLinux-Installation fehlen.",
+        "portuguese": "Arquivos importantes da instalação do minilinux estão faltando."
+    },
+    "lang_systemConfigurationNotChosen": {
+        "english": "A system configuration has not been chosen yet.",
+        "german": "Es wurde noch keine Systemkonfiguration ausgewählt.",
+        "portuguese": "Uma configuração de sistema ainda não foi escolhida."
+    },
+    "lang_systemConfiguration": {
+        "english": "System Configuration",
+        "german": "Systemkonfiguration",
+        "portuguese": "Confguração do Sistema"
+    }
+}

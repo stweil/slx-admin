@@ -1,0 +1,67 @@
+{
+    "lang_uptimeOS": {
+        "english": "OS Uptime",
+        "german": "OS Uptime",
+        "portuguese": "Tempo de Atividade do SO"
+    },
+    "lang_cpuLoad": {
+        "english": "CPU Load",
+        "german": "CPU-Last",
+        "portuguese": "Carga da CPU"
+    },
+    "lang_average": {
+        "english": "Average",
+        "german": "Durchschnitt",
+        "portuguese": "Média"
+    },
+    "lang_onlyOS": {
+        "english": "OS Only",
+        "german": "Nur OS",
+        "portuguese": "Apenas SO"
+    },
+    "lang_logicCPUs": {
+        "english": "Logic CPUs",
+        "german": "Logische CPUs",
+        "portuguese": "CPUs Lógicas"
+    },
+    "lang_notDetermined": {
+        "english": "Could not be determined",
+        "german": "Konnte nicht ermittelt werden",
+        "portuguese": "Não foi possível determinar"
+    },
+    "lang_ramUsage": {
+        "english": "RAM Usage",
+        "german": "RAM-Nutzung",
+        "portuguese": "Uso da RAM"
+    },
+    "lang_total": {
+        "english": "Total",
+        "german": "Gesamt",
+        "portuguese": "Total"
+    },
+    "lang_free": {
+        "english": "Free",
+        "german": "Frei",
+        "portuguese": "Livre"
+    },
+    "lang_swapUsage": {
+        "english": "swap Usage",
+        "german": "swap-Nutzung",
+        "portuguese": "Uso do swap"
+    },
+    "lang_occupied": {
+        "english": "Occupied",
+        "german": "Belegt",
+        "portuguese": "Ocupado"
+    },
+    "lang_attention": {
+        "english": "Attention!",
+        "german": "Achtung!",
+        "portuguese": "Atenção!"
+    },
+    "lang_swapWarning": {
+        "english": "Memory swap is being used. This may be an indication that the satellite server does not have enough physical memory available. In the case of performance problems or server instability you should consider equipping the server with more RAM.",
+        "german": "Es wird swap-Speicher genutzt. Dies kann ein Hinweis darauf sein, dass dem Satelliten-Server zu wenig physikalischer Speicher zur Verfügung steht. Im Falle von Performance-Problemen oder Instabilität des Servers sollten Sie erwägen, den Server mit mehr RAM auszustatten.",
+        "portuguese": "Swap de memória está sendo usado. Isso pode ser uma indicação de que o servidor de satélite não tem memória física suficiente disponível. No caso de problemas de desempenho ou instabilidade do servidor você deve considerar equipar o servidor com mais memória RAM."
+    }
+}

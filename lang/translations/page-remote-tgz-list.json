@@ -1,0 +1,17 @@
+{
+    "lang_systemConfiguration": {
+        "english": "System Configuration",
+        "german": "Systemkonfiguration",
+        "portuguese": "Confguração do Sistema"
+    },
+    "lang_centralConfiguration": {
+        "english": "Central configurations available",
+        "german": "Zentral verfügbare Konfigurationen",
+        "portuguese": "Configurações centrais disponíveis"
+    },
+    "lang_configurationPackageNotFound": {
+        "english": "Configuration package not found!",
+        "german": "Keine Konfigurationspakete gefunden!",
+        "portuguese": "Pacote de configuração não encontrado!"
+    }
+}

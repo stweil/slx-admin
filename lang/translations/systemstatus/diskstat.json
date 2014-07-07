@@ -1,0 +1,22 @@
+{
+    "lang_systemPartition": {
+        "english": "System Partition",
+        "german": "Systempartition",
+        "portuguese": "Partição do Sistema"
+    },
+    "lang_capacity": {
+        "english": "Capacity",
+        "german": "Kapazität",
+        "portuguese": "Capacidade"
+    },
+    "lang_vmStore": {
+        "english": "VM Store",
+        "german": "VM-Speicher",
+        "portuguese": "Loja da VM"
+    },
+    "lang_vmStoreError": {
+        "english": "Error when determining the available disk space on the VM location. Please check the configuration.",
+        "german": "Fehler beim Ermitteln des verfügbaren Speicherplatzes am VM-Speicherort. Bitte überprüfen Sie die Konfiguration.",
+        "portuguese": "Erro ao determinar o espaço em disco disponível no local da VM. Por favor, verifique a configuração."
+    }
+}
