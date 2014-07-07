@@ -1,0 +1,27 @@
+{
+    "lang_bootAddress": {
+        "english": "Boot Address of the Server",
+        "german": "Boot-Adresse des Servers",
+        "portuguese": "Endereço Boot do Servidor"
+    },
+    "lang_chooseIP": {
+        "english": "Please select the IP address that the client server will use to boot.",
+        "german": "Bitte wählen Sie die IP-Adresse, über die der Server von den Clients zum Booten angesprochen werden soll.",
+        "portuguese": "Por favor, selecione o endereço IP que o servidor do cliente utilizará realizar o boot."
+    },
+    "lang_active": {
+        "english": "Active",
+        "german": "Aktiv",
+        "portuguese": "Ativo"
+    },
+    "lang_set": {
+        "english": "Set",
+        "german": "Setzen",
+        "portuguese": "Conjunto"
+    },
+    "lang_bootHint": {
+        "english": "The Boot menu must be recreated after changing the IP address. Usually this is done automatically, but the process can also be triggered manually in the section of the boot menu.",
+        "german": "Das Bootmenü muss nach einer Änderung der IP-Adresse neu generiert werden. In der Regel geschieht dies automatisch, der Vorgang kann in der Sektion Bootmenü allerdings auch manuell ausgelöst werden.",
+        "portuguese": "O menu de boot deve ser recriado após alterar o endereço IP. Geralmente isso é feito automaticamente, mas o processo também pode ser acionado manualmente na seção do menu de boot."
+    }
+}

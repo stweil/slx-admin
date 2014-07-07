@@ -1,0 +1,77 @@
+{
+    "lang_availableSystem": {
+        "english": "Available System Configuration",
+        "german": "Verfügbare Systemkonfigurationen",
+        "portuguese": "Configurações de Sistema Disponíveis"
+    },
+    "lang_activate": {
+        "english": "Activate",
+        "german": "Aktivieren",
+        "portuguese": "Ativar"
+    },
+    "lang_close": {
+        "english": "Close",
+        "german": "Schließen",
+        "portuguese": "Fechar"
+    },
+    "lang_systemConfigurationNotFound": {
+        "english": "No system configurations found.\n Create a new configuration from the configuration modules listed below.",
+        "german": "Keine Systemkonfigurationen gefunden.Erstellen Sie eine neue Konfiguration aus den unten aufgeführten Konfigurationsmodulen.",
+        "portuguese": "Nenhuma configuração de sistena encontrada. Crie uma nova configuração a partir dos módulos de configuração abaixo."
+    },
+    "lang_systemConfigurationAlert": {
+        "english": "Before you can create a system configuration, you must first create a configuration module.",
+        "german": "Bevor Sie eine Systemkonfiguration erstellen können, müssen Sie zunächst ein Konfigurationsmodul erzeugen.",
+        "portuguese": "Antes de criar uma configuração de sistema, você deve criar primeiro um módulo de configuração."
+    },
+    "lang_newConfiguration": {
+        "english": "New Configuration",
+        "german": "Neue Konfiguration",
+        "portuguese": "Nova configuração"
+    },
+    "lang_availableModules": {
+        "english": "Available Configuration Modules",
+        "german": "Verfügbare Konfigurationsmodule",
+        "portuguese": "Módulos de Configuração Disponíveis"
+    },
+    "lang_show": {
+        "english": "Show",
+        "german": "Ansehen",
+        "portuguese": "Mostrar"
+    },
+    "lang_delete": {
+        "english": "Delete",
+        "german": "Löschen",
+        "portuguese": "Deletar"
+    },
+    "lang_configurationModuleNotFound": {
+        "english": "Configuration module not found!",
+        "german": "Keine Konfigurationsmodule gefunden!",
+        "portuguese": "Módulo de configuração não encontrado!"
+    },
+    "lang_newModule": {
+        "english": "New Module",
+        "german": "Neues Modul",
+        "portuguese": "Novo Módulo"
+    },
+    "lang_systemConfiguration": {
+        "english": "System Configuration",
+        "german": "Systemkonfiguration",
+        "portuguese": "Confguração do Sistema"
+    },
+    "lang_helpSystemConfiguration": {
+        "english": "The fundamental localization of the bwLehrpool system is done through a system configuration. These include aspects such as the authentication method for users (eg Active Directory, LDAP), printer configuration, home directories, etc. A system configuration is composed of one or more configuration modules, which can be managed at the bottom of this page.",
+        "german": "Über eine Systemkonfiguration wird die grundlegende Lokalisierung des bwLehrpool-Systems durchgeführt. Dazu gehören Aspekte wie das Authentifizierungsverfahren für Benutzer (z.B. Active Directory, LDAP), Druckerkonfiguration, Home-Verzeichnisse, etc. Eine Systemkonfiguration setzt sich aus einem oder mehreren Konfigurationsmodulen zusammen, welche im unteren Bereich dieser Seite verwaltet werden können.",
+        "portuguese": "A localização fundamental do sistema bwLehrpool é feita através de uma configuração de sistema. Isso inclui aspectos como o método de autenticação de usuários (por exemplo, Diretório Ativo, LDAP), configuração de impressora, diretórios home, etc. Uma configuração de sistema é composta por um ou mais módulo de configuração, que podem ser gerenciados na parte inferior da página."
+    },
+    "lang_moduleConfiguration": {
+        "english": "Module Configuration",
+        "german": "Konfigurationsmodule",
+        "portuguese": "Configuração de Módulo"
+    },
+    "lang_helpModuleConfiguration": {
+        "english": "Configuration modules are the building blocks from which a system configuration is created. Here you can create both generic modules by a wizard, as well as create completely custom modules (advanced Linux knowledge required).",
+        "german": "Konfigurationsmodule sind die Bausteine, aus denen eine Systemkonfiguration erstellt wird. Hier lassen sich sowohl generische Module durch einen Wizard anlegen, als auch komplett eigene Module erstellen (fortgeschritten, Linuxkenntnisse erforderlich).",
+        "portuguese": "Módulos de configuração são as peças fundamentais para a criação de uma configuração de sistema. Aqui você pode criar tanto módulos genéricos através de nossa interface, tanto quanto criar módulos  completamente customizados (é necessário conhecimento de Linux avançado)."
+    }
+}

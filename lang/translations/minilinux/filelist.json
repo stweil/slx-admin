@@ -1,0 +1,37 @@
+{
+    "lang_canUpdate1": {
+        "english": "At least one component of",
+        "german": "Mindestens eine Komponente von",
+        "portuguese": "Pelo menos um componente de"
+    },
+    "lang_canUpdate2": {
+        "english": "can be updated. For a smooth operation, it is recommended to keep all components up to date.",
+        "german": "kann aktualisiert werden. Für einen reibungslosen Betrieb wird empfohlen, alle Komponenten auf dem aktuellen Stand zu halten.",
+        "portuguese": "pode ser atualizado. Para um bom funcionamento, recomenda-se manter todos os componentes atualizados."
+    },
+    "lang_update": {
+        "english": "Update",
+        "german": "Aktualisieren",
+        "portuguese": "Atualizar"
+    },
+    "lang_systemUpdated": {
+        "english": "The system is up to date.",
+        "german": "Das System ist auf dem aktuellen Stand.",
+        "portuguese": "O sistema está atualizado."
+    },
+    "lang_actual": {
+        "english": "Actual",
+        "german": "Aktuell",
+        "portuguese": "Atual"
+    },
+    "lang_outdated": {
+        "english": "Outdated",
+        "german": "Veraltet",
+        "portuguese": "Desatualizado"
+    },
+    "lang_configurationPackageNotFound": {
+        "english": "Configuration package not found!",
+        "german": "Keine Konfigurationspakete gefunden!",
+        "portuguese": "Pacote de configuração não encontrado!"
+    }
+}

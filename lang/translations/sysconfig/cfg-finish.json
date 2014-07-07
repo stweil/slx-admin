@@ -1,0 +1,12 @@
+{
+    "lang_configurationSuccess": {
+        "english": "The configuration has been successfully created.",
+        "german": "Die Konfiguration wurde erfolgreich erstellt.",
+        "portuguese": "A configuração foi criada com sucesso."
+    },
+    "lang_configurationActive": {
+        "english": "Enable configuration",
+        "german": "Konfiguration aktivieren",
+        "portuguese": "Ativar configuração"
+    }
+}

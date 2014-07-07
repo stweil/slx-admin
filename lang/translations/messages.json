@@ -1,0 +1,187 @@
+{
+    "loginfail":{
+        "english": "Username or Password incorrect",
+        "german": "Benutzername oder Kennwort falsch",
+        "portuguese": "Nome de usuário ou senha incorreta"
+    },
+    "token":{
+        "english": "Invalid token. CSRF attack?",
+        "german": "Ungültiges Token. CSRF Angriff?",
+        "portuguese": "Token inválido. Ataque CSRF?"
+    },
+    "adduser-disabled":{
+        "english": "Insufficient privileges to add more users",
+        "german": "Keine ausreichenden Rechte, um weitere Benutzer hinzuzufügen",
+        "portuguese": "Privilégios insuficientes para adicionar mais usuários"
+    },
+    "password-mismatch":{
+        "english": "Password and password confirmation do not match",
+        "german": "Passwort und Passwortbestätigung stimmen nicht überein",
+        "portuguese": "Senha e confirmação de senha não são iguais"
+    },
+    "empty-field":{
+        "english": "A field was not filled",
+        "german": "Ein Feld wurde nicht ausgefüllt",
+        "portuguese": "Um campo não foi preenchido"
+    },
+    "adduser-success":{
+        "english": "User successfully added",
+        "german": "Benutzer erfolgreich hinzugefügt",
+        "portuguese": "Usuário adicionado com sucesso"
+    },
+    "no-permission":{
+        "english": "No sufficient privileges to access this page",
+        "german": "Keine ausreichenden Rechte, um auf diese Seite zuzugreifen",
+        "portuguese": "Não há privilégios suficientes para acessar essa página"
+    },
+    "settings-updated":{
+        "english": "Settings have been updated",
+        "german": "Einstellungen wurden aktualisiert",
+        "portuguese": "As configurações foram atualizadas"
+    },
+    "debug-mode":{
+        "english": "The debug mode is active!",
+        "german": "Der Debug-Modus ist aktiv!",
+        "portuguese": "O modo de depuração está ativo!"
+    },
+    "value-invalid":{
+        "english": "The value {{1}} is invalid for option {{0}} and has been ignored",
+        "german": "Der Wert {{1}} ist ungültig für die Option {{0}} und wurde ignoriert",
+        "portuguese": "O valor {{1}} é inválido para opção {{0}} e foi ignorado"
+    },
+    "invalid-action":{
+        "english": "Invalid action: {{0}}",
+        "german": "Ungültige Aktion: {{0}}",
+        "portuguese": "Ação inválida: {{0}}"
+    },
+    "remote-timeout":{
+        "english": "Could  not download resource {{0}} ({{1}})",
+        "german": "Konnte Ressource {{0}} nicht herunterladen ({{1}})",
+        "portuguese": "Não foi possível baixar o recurso {{0}} ({{1}})"
+    },
+    "remote-parse-failed":{
+        "english": "Parsing the received data failed ({{0}})",
+        "german": "Parsen der empfangenen Daten fehlgeschlagen ({{0}})",
+        "portuguese": "Análise dos dados recebidos falhou ({{0}})"
+    },
+    "missing-file":{
+        "english": "There was no file selected!",
+        "german": "Es wurde keine Datei ausgewählt!",
+        "portuguese": "Não havia nenhum arquivo selecionado!"
+    },
+    "invalid-file":{
+        "english": "The file {{0}} does not exist!",
+        "german": "Die Datei {{0}} existiert nicht!",
+        "portuguese": "O arquivo {{0}} não existe!"
+    },
+    "upload-complete":{
+        "english": "Upload of {{0}} was successful",
+        "german": "Upload von {{0}} war erfolgreich",
+        "portuguese": "Envio de {{0}} foi bem sucedido"
+    },
+    "upload-failed":{
+        "english": "Upload failed: {{0}}",
+        "german": "Upload schlug fehl: {{0}}",
+        "portuguese": "Envio falhou: {{0}}"
+    },
+    "config-activated":{
+        "english": "Configuration {{0}} has been activated",
+        "german": "Konfiguration {{0}} wurde aktiviert",
+        "portuguese": "Configuração {{0}} foi ativada"
+    },
+    "config-invalid":{
+        "english": "Configuration with id {{0}} does not exist",
+        "german": "Konfiguration mit ID {{0}} existiert nicht",
+        "portuguese": "Configuração com id {{0}} não existe"
+    },
+    "error-write":{
+        "english": "Failed to write {{0}}",
+        "german": "Fehler beim Schreiben von {{0}}",
+        "portuguese": "Erro ao escrever {{0}}"
+    },
+    "error-read":{
+        "english": "Error reading {{0}}",
+        "german": "Fehler beim Lesen von {{0}}",
+        "portuguese": "Erro ao ler {{0}}"
+    },
+    "error-archive":{
+        "english": "Corrupted archive or unsupported format",
+        "german": "Korruptes Archiv oder nicht unterstütztes Format",
+        "portuguese": "Arquivo corrompido ou formato não suportado"
+    },
+    "error-rename":{
+        "english": "Could not rename {{0}} into {{1}}",
+        "german": "Konnte {{0}} nicht in {{1}} umbenennen",
+        "portuguese": "Não foi possível renomear {{0}} em {{1}}"
+    },
+    "error-nodir":{
+        "english": "The directory {{0}} does not exist.",
+        "german": "Das Verzeichnis {{0}} existiert nicht.",
+        "portuguese": "O diretório {{0}} não existe."
+    },
+    "empty-archive":{
+        "english": "The archive contains no files or directories",
+        "german": "Das Archiv enthält keine Dateien oder Verzeichnisse",
+        "portuguese": "O arquivo não contém arquivos ou diretórios"
+    },
+    "error-extract":{
+        "english": "Could not unpack archive {{0}} to {{1}}",
+        "german": "Konnte Archiv nicht nach {{0}} entpacken - {{1}}",
+        "portuguese": "Não foi possível descompactar arquivo {{0}} para {{1}}"
+    },
+    "module-added":{
+        "english": "Module successfully added",
+        "german": "Modul erfolgreich hinzugefügt",
+        "portuguese": "Módulo adicionado com sucesso"
+    },
+    "module-deleted":{
+        "english": "Module {{0}} was deleted",
+        "german": "Modul {{0}} wurde gelöscht",
+        "portuguese": "Módulo {{0}} foi excluído"
+    },
+    "module-in-use":{
+        "english": "Module {{0}} is still used by Configuration {{1}}",
+        "german": "Modul {{0}} wird noch durch Konfiguration {{1}} verwendet",
+        "portuguese": "Módulo {{0}} ainda é usado pela configuração {{1}}"
+    },
+    "taskmanager-error":{
+        "english": "Failed to connect to the Task Manager",
+        "german": "Verbindung zum Taskmanager fehlgeschlagen",
+        "portuguese": "Falha ao conectar-se ao Gerenciador de Tarefas"
+    },
+    "taskmanager-format":{
+        "english": "Task Manager has returned invalid data",
+        "german": "Taskmanager hat ungültige Daten zurückgeliefert",
+        "portuguese": "Gerenciador de Tarefas retornou dados inválidos"
+    },
+    "task-error":{
+        "english": "Execution failed: {{0}}",
+        "german": "Ausführung fehlgeschlagen: {{0}}",
+        "portuguese": "Falha na execução: {{0}}"
+    },
+    "invalid-ip":{
+        "english": "No interface is configured with the address {{0}}",
+        "german": "Kein Interface ist auf die Adresse {{0}} konfiguriert",
+        "portuguese": "Nenhuma interface está configurada com o endereço {{0}}"
+    },
+    "news-set-success":{
+        "english": "News updated successfully",
+        "german": "News erfolgreich aktualisiert",
+        "portuguese": "Notícia atualizada com sucesso"
+    },
+    "news-empty":{
+        "english": "There was no news found in the database",
+        "german": "Es wurde keine News in der Datenbank gefunden",
+        "portuguese": "Não havia notícias no banco de dados"
+    },
+    "news-del-success":{
+        "english": "News deleted",
+        "german": "News gelöscht",
+        "portuguese": "Notícia excluída"
+    },
+    "reboot-unconfirmed":{
+        "english": "Confirmation prompt to reboot not confirmed",
+        "german": "Sicherheitsabfrage zum Reboot nicht bestätigt",
+        "portuguese": "Confirmação para reinicializar não foi confirmado"
+    }
+}

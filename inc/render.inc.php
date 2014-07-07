@@ -163,7 +163,8 @@ class Render
 	 */
 	public static function parse($template, $params = false)
 	{
-		$dictionary = Dictionary::getArray();
+		$dictionary = Dictionary::getArrayTemplate($template);
+		//$dictionary = Dictionary::getArray();
 		if (is_array($params) || $params === false || is_null($params))
 			$params['token'] = Session::get('token');
 		return self::$mustache->render(self::getTemplate($template), array_merge($dictionary,$params));

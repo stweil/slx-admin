@@ -1,0 +1,32 @@
+{
+    "lang_space": {
+        "english": "Space",
+        "german": "Speicherplatz",
+        "portuguese": "Espaço"
+    },
+    "lang_services": {
+        "english": "Services",
+        "german": "Dienste",
+        "portuguese": "Serviços"
+    },
+    "lang_addressConfiguration": {
+        "english": "Address Configuration",
+        "german": "Adresskonfiguration",
+        "portuguese": "Configuração do Endereço"
+    },
+    "lang_system": {
+        "english": "System",
+        "german": "System",
+        "portuguese": "Sistema"
+    },
+    "lang_maintenance": {
+        "english": "Maintenance",
+        "german": "Wartung",
+        "portuguese": "Manutenção"
+    },
+    "lang_iAmSure": {
+        "english": "Yes, I am sure",
+        "german": "Ja, ich bin sicher",
+        "portuguese": "Sim, tenho certeza"
+    }
+}

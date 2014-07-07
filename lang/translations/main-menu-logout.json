@@ -1,0 +1,52 @@
+{
+    "lang_clientLog": {
+        "english": "Client Log",
+        "german": "Client Log",
+        "portuguese": "Log dos Clientes"
+    },
+    "lang_settings": {
+        "english": "Settings",
+        "german": "Einstellungen",
+        "portuguese": "Opções"
+    },
+    "lang_client": {
+        "english": "Client",
+        "german": "Client",
+        "portuguese": "Cliente"
+    },
+    "lang_localization": {
+        "english": "Localization",
+        "german": "Lokalisierung",
+        "portuguese": "Localização"
+    },
+    "lang_configurationVariables": {
+        "english": "Configuration Variables",
+        "german": "KonfigurationsVariablen",
+        "portuguese": "Variáveis de Configuração"
+    },
+    "lang_server": {
+        "english": "Server",
+        "german": "Server",
+        "portuguese": "Servidor"
+    },
+    "lang_configurationBasic": {
+        "english": "Basic Configuration",
+        "german": "Grundkonfiguration",
+        "portuguese": "Configuração Básica"
+    },
+    "lang_vmLocation": {
+        "english": "VM Location",
+        "german": "VM Speicherort",
+        "portuguese": "Localização da VM"
+    },
+    "lang_news": {
+        "english": "News",
+        "german": "News",
+        "portuguese": "Novidades"
+    },
+    "lang_logout": {
+        "english": "Logout",
+        "german": "Abmelden",
+        "portuguese": "Sair"
+    }
+}

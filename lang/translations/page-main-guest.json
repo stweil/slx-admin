@@ -1,0 +1,17 @@
+{
+    "lang_welcome": {
+        "english": "Welcome",
+        "german": "Willkommen",
+        "portuguese": "Bem-vindo"
+    },
+    "lang_introGuest": {
+        "english": "This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",
+        "german": "Dies ist das Administrations-Interface der lokalen bwLehrpool-Installation. Bitte authentifizieren Sie sich, um Einstellungen vorzunehmen.",
+        "portuguese": "Esta é a interface de administração da instalação local do bwLehrpool. Por favor, autentique-se para ajustar opções;"
+    },
+    "lang_login": {
+        "english": "Login",
+        "german": "Anmelden",
+        "portuguese": "Entrar"
+    }
+}

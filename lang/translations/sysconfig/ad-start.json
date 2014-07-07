@@ -1,0 +1,67 @@
+{
+    "lang_adText1": {
+        "english": "To set up user authentication through Active Directory, a dedicated user is required in AD next to the address of the server, which is addressed by the AD.",
+        "german": "Zum Einrichten der Benutzerauthentifizierung über ein Active Directory wird neben der Adresse des anzusprechenden Servers ein dedizierter Benutzer im AD benötigt, über welchen das AD angesprochen wird.",
+        "portuguese": "Para configurar a autenticação de usuário por meio do Active Directory, um usuário dedicado é necessário no AD próximo ao endereço do servidor, que é endereçado pelo AD."
+    },
+    "lang_adText2": {
+        "english": "This user does not need special rights, you can follow this user to evade security and the rights to log on. The user only needs to have sufficient permissions to perform an LDAP Bind on AD, and search for users.",
+        "german": "Dieser Benutzer benötigt keine besonderen Rechte, Sie können diesem Benutzer zur Sicherheit auch die Rechte zum Anmelden entziehen. Der Benutzer muss lediglich ausreichende Berechtigungen haben, um einen LDAP-Bind am AD durchzuführen, und nach Benutzern zu suchen.",
+        "portuguese": "Este usuário não precisa de direitos especiais, você pode seguir este usuário para escapar da segurança e dos direitos para fazer logon. O usuário só precisa ter permissões suficientes para executar a ligação LDAP no AD, e procurar por usuários."
+    },
+    "lang_adText3": {
+        "english": "Next the distinguished name of the user must be specified. You can determine this by dsquery command line program on a domain controller as the following call:",
+        "german": "Im Folgenden muss der Distinguished Name des Benutzers angegeben werden. Diesen können Sie ermitteln, indem Sie das Kommandozeilenprogramm dsquery auf einem Domain Controller wie folgt aufrufen:",
+        "portuguese": "A seguir o nome distinto do usuário deve ser especificado. Você pode determinar isso pelo programa de linha de comando dsquery em um controlador de domínio como a seguinte chamada:"
+    },
+    "lang_adText4": {
+        "english": "After entering all required data in the next step, it checks whether communication is possible with the AD.",
+        "german": "Im Folgenden muss der Distinguished Name des Benutzers angegeben werden. Diesen können Sie ermitteln, indem Sie das Kommandozeilenprogramm dsquery auf einem Domain Controller wie folgt aufrufen:",
+        "portuguese": "Depois de inserir todos os dados necessários na próxima etapa, ela verifica se a comunicação é possível com o AD."
+    },
+    "lang_searchBase": {
+        "english": "Search Base",
+        "german": "Suchbasis",
+        "portuguese": "Base de Pesquisa"
+    },
+    "lang_bindDN": {
+        "english": "Bind DN",
+        "german": "Bind DN",
+        "portuguese": "Vincular DN"
+    },
+    "lang_password": {
+        "english": "Password",
+        "german": "Passwort",
+        "portuguese": "Senha"
+    },
+    "lang_next": {
+        "english": "Next",
+        "german": "Weiter",
+        "portuguese": "Próximo"
+    },
+    "lang_userDirectory": {
+        "english": "User Directory",
+        "german": "Benutzerverzeichnis",
+        "portuguese": "Diretório de Usuário"
+    },
+    "lang_userDirectoryInfo1": {
+        "english": "Optional: If the clients should embed a separate directory (home directory, user directory) from a server for the user, please enter here the format in UNC notation, eg",
+        "german": "Optionale Angabe: Wenn die Clients für die Benutzer ein eigenes Verzeichnis (Homeverzeichnis, Benutzerverzeichnis) von einem Server einbinden sollen, geben Sie bitte hier das Format in UNC-Notation an, also z.B. ",
+        "portuguese": "Opcional: Se os clientes devem incorporar um diretório separado (diretório home, diretório de usuário) de um servidor para o usuário, digite aqui o formato em notação UNC, por exemplo,"
+    },
+    "lang_userDirectoryInfo2": {
+        "english": "%s is a placeholder for the user's login name.",
+        "german": "%s ist dabei ein Platzhalter für den Login-Namen des Benutzers.",
+        "portuguese": "%s é um marcador para o nome de login do usuário."
+    },
+    "lang_userDirectoryInfo3": {
+        "english": "The directory is loaded with the same credentials that the user specifies when login. (That is no Kerberos support, etc.)",
+        "german": "Das Verzeichnis wird mit den gleichen Zugangsdaten eingebunden, die der Benutzer beim Login angibt. (D.h. kein Kerberos Support o.ä.)",
+        "portuguese": "O diretório é carregado com as mesmas credenciais que o usuário especifica quando entra. (Isto é, não há suporte Kerberos, etc)"
+    },
+    "lang_close": {
+        "english": "Close",
+        "german": "Schließen",
+        "portuguese": "Fechar"
+    }
+}
