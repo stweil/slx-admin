@@ -1,0 +1,15 @@
+{
+	"lang_uptimeOS":"Tempo de Atividade do SO",
+	"lang_cpuLoad":"Carga da CPU",
+	"lang_average":"Média",
+	"lang_onlyOS":"Apenas SO",
+	"lang_logicCPUs":"CPUs Lógicas",
+	"lang_notDetermined":"Não foi possível determinar",
+	"lang_ramUsage":"Uso da RAM",
+	"lang_total":"Total",
+	"lang_free":"Livre",
+	"lang_swapUsage":"Uso do swap",
+	"lang_occupied":"Ocupado",
+	"lang_attention":"Atenção!",
+	"lang_swapWarning":"Swap de memória está sendo usado. Isso pode ser uma indicação de que o servidor de satélite não tem memória física suficiente disponível. No caso de problemas de desempenho ou instabilidade do servidor você deve considerar equipar o servidor com mais memória RAM."
+}

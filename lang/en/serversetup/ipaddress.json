@@ -1,0 +1,7 @@
+{
+	"lang_bootAddress":"Boot Address of the Server",
+	"lang_chooseIP":"Please select the IP address that the client server will use to boot.",
+	"lang_active":"Active",
+	"lang_set":"Set",
+	"lang_bootHint":"The Boot menu must be recreated after changing the IP address. Usually this is done automatically, but the process can also be triggered manually in the section of the boot menu."
+}

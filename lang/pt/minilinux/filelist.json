@@ -1,0 +1,9 @@
+{
+	"lang_canUpdate1":"Pelo menos um componente de",
+	"lang_canUpdate2":"pode ser atualizado. Para um bom funcionamento, recomenda-se manter todos os componentes atualizados.",
+	"lang_update":"Atualizar",
+	"lang_systemUpdated":"O sistema está atualizado.",
+	"lang_actual":"Atual",
+	"lang_outdated":"Desatualizado",
+	"lang_configurationPackageNotFound":"Pacote de configuração não encontrado!"
+}

@@ -1,0 +1,6 @@
+{
+	"lang_systemPartition":"Systempartition",
+	"lang_capacity":"Kapazität",
+	"lang_vmStore":"VM-Speicher",
+	"lang_vmStoreError":"Fehler beim Ermitteln des verfügbaren Speicherplatzes am VM-Speicherort. Bitte überprüfen Sie die Konfiguration."
+}

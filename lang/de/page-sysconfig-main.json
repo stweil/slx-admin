@@ -1,0 +1,17 @@
+{
+	"lang_availableSystem":"Verfügbare Systemkonfigurationen",
+	"lang_activate":"Aktivieren",
+	"lang_close":"Schließen",
+	"lang_systemConfigurationNotFound":"Keine Systemkonfigurationen gefunden.Erstellen Sie eine neue Konfiguration aus den unten aufgeführten Konfigurationsmodulen.",
+	"lang_systemConfigurationAlert":"Bevor Sie eine Systemkonfiguration erstellen können, müssen Sie zunächst ein Konfigurationsmodul erzeugen.",
+	"lang_newConfiguration":"Neue Konfiguration",
+	"lang_availableModules":"Verfügbare Konfigurationsmodule",
+	"lang_show":"Ansehen",
+	"lang_delete":"Löschen",
+	"lang_configurationModuleNotFound":"Keine Konfigurationsmodule gefunden!",
+	"lang_newModule":"Neues Modul",
+	"lang_systemConfiguration":"Systemkonfiguration",
+	"lang_helpSystemConfiguration":"Über eine Systemkonfiguration wird die grundlegende Lokalisierung des bwLehrpool-Systems durchgeführt. Dazu gehören Aspekte wie das Authentifizierungsverfahren für Benutzer (z.B. Active Directory, LDAP), Druckerkonfiguration, Home-Verzeichnisse, etc. Eine Systemkonfiguration setzt sich aus einem oder mehreren Konfigurationsmodulen zusammen, welche im unteren Bereich dieser Seite verwaltet werden können.",
+	"lang_moduleConfiguration":"Konfigurationsmodule",
+	"lang_helpModuleConfiguration":"Konfigurationsmodule sind die Bausteine, aus denen eine Systemkonfiguration erstellt wird. Hier lassen sich sowohl generische Module durch einen Wizard anlegen, als auch komplett eigene Module erstellen (fortgeschritten, Linuxkenntnisse erforderlich)."
+}

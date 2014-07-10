@@ -1,0 +1,12 @@
+{
+	"lang_unknwonTaskManager":"Erro desconhecido do Gerenciador de Tarefas",
+	"lang_configurationCompilation":"Compilar configuração",
+	"lang_moduleAdd":"Adicionar Módulo",
+	"lang_adAuthentication":"Autenticação do Active Directory",
+	"lang_adModule":"Este módulo possibilita a aplicação para os computadores clientes com as contas de usuário de um Active Directory. Dependendo da configuração, o uso de um diretório de usuário no cliente é possível.",
+	"lang_authentication":"Autenticação",
+	"lang_generic":"Genérico",
+	"lang_addCustomModuleInfo":"Com um módulo estendido, é possível adicionar os arquivos para o sistema básico que usa este módulo, por exemplo, para usar arquivos de configuração específicas, que não podem ser criados com um dos outros assistentes. Adicionar um módulo estendido normalmente exige pelo menos um conhecimento básico do sistema Linux.",
+	"lang_days":"Dia(s)",
+	"lang_hours":"Hora(s)"
+}

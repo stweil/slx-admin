@@ -1,0 +1,15 @@
+{
+	"lang_uptimeOS":"OS Uptime",
+	"lang_cpuLoad":"CPU-Last",
+	"lang_average":"Durchschnitt",
+	"lang_onlyOS":"Nur OS",
+	"lang_logicCPUs":"Logische CPUs",
+	"lang_notDetermined":"Konnte nicht ermittelt werden",
+	"lang_ramUsage":"RAM-Nutzung",
+	"lang_total":"Gesamt",
+	"lang_free":"Frei",
+	"lang_swapUsage":"swap-Nutzung",
+	"lang_occupied":"Belegt",
+	"lang_attention":"Achtung!",
+	"lang_swapWarning":"Es wird swap-Speicher genutzt. Dies kann ein Hinweis darauf sein, dass dem Satelliten-Server zu wenig physikalischer Speicher zur Verfügung steht. Im Falle von Performance-Problemen oder Instabilität des Servers sollten Sie erwägen, den Server mit mehr RAM auszustatten."
+}

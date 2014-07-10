@@ -1,0 +1,15 @@
+{
+	"lang_bootMenu":"Menu de Boot",
+	"lang_bootInfo":"Aqui ajustes podem ser feitos na aparência do menu de boot.",
+	"lang_bootBehavior":"Comportamento Padrão de Boot",
+	"lang_localHDD":"HDD Local",
+	"lang_menuDisplayTime":"Tempo de Exibição do Menu",
+	"lang_seconds":"Segundos",
+	"lang_menuCustom":"Menu Adicional Customizado",
+	"lang_bootMenuCreate":"Criar Menu de Boot",
+	"lang_menuCustomHint1":"Aqui você tem a oportunidade de adicionar seu próprio código de menu para o menu PXE exibido, por exemplo, para se referir a outro servidor PXE. O formato corresponde ao formato de menu syslinux.",
+	"lang_menuCustomHint2":"Você pode criar uma ou mais entradas. Se você quiser criar uma entrada que é iniciada automaticamente quando o usuário faz uma seleção, atribua como",
+	"lang_menuCustomHint3":"e selecione como o comportamento de boot padrão também my-entry.",
+	"lang_example":"Exemplo",
+	"lang_close":"Fechar"
+}
