@@ -30,7 +30,7 @@ class Page_News extends Page
 		// only admins should be able to edit news
 		if (!User::hasPermission('superadmin')) {
 			Message::addError('no-permission');
-			return;
+			Util::redirect('?do=Main');
 		}
 		
 		// check which action we need to do

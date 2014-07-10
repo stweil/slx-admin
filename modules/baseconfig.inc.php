@@ -66,7 +66,7 @@ class Page_BaseConfig extends Page
 	{
 		if (!User::hasPermission('superadmin')) {
 			Message::addError('no-permission');
-			return;
+			Util::redirect('?do=Main');
 		}
 		// Build left joins for specific settings
 		$joins = '';
