@@ -1,0 +1,15 @@
+{
+	"lang_adText1":"Zum Einrichten der Benutzerauthentifizierung über ein Active Directory wird neben der Adresse des anzusprechenden Servers ein dedizierter Benutzer im AD benötigt, über welchen das AD angesprochen wird.",
+	"lang_adText2":"Dieser Benutzer benötigt keine besonderen Rechte, Sie können diesem Benutzer zur Sicherheit auch die Rechte zum Anmelden entziehen. Der Benutzer muss lediglich ausreichende Berechtigungen haben, um einen LDAP-Bind am AD durchzuführen, und nach Benutzern zu suchen.",
+	"lang_adText3":"Im Folgenden muss der Distinguished Name des Benutzers angegeben werden. Diesen können Sie ermitteln, indem Sie das Kommandozeilenprogramm dsquery auf einem Domain Controller wie folgt aufrufen:",
+	"lang_adText4":"Nach Eingabe aller benötigten Daten wird im nächsten Schritt überprüft, ob die Kommunikation mit dem AD möglich ist.",
+	"lang_searchBase":"Suchbasis",
+	"lang_bindDN":"Bind DN",
+	"lang_password":"Passwort",
+	"lang_next":"Weiter",
+	"lang_userDirectory":"Benutzerverzeichnis",
+	"lang_userDirectoryInfo1":"Optionale Angabe: Wenn die Clients für die Benutzer ein eigenes Verzeichnis (Homeverzeichnis, Benutzerverzeichnis) von einem Server einbinden sollen, geben Sie bitte hier das Format in UNC-Notation an, also z.B. ",
+	"lang_userDirectoryInfo2":"%s ist dabei ein Platzhalter für den Login-Namen des Benutzers.",
+	"lang_userDirectoryInfo3":"Das Verzeichnis wird mit den gleichen Zugangsdaten eingebunden, die der Benutzer beim Login angibt. (D.h. kein Kerberos Support o.ä.)",
+	"lang_close":"Schließen"
+}

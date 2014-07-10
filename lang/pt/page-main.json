@@ -1,0 +1,10 @@
+{
+	"lang_welcome":"Bem-vindo",
+	"lang_intro":"Esta é a interface de configuração do bwLehrpool.",
+	"lang_vmLocationNotSet":"Uma localização para a máquina virtual ainda não foi escolhida.",
+	"lang_configure":"Configurar",
+	"lang_bootMenuWarning":"O menu de boot está desatualizado ou ainda não foi gerado.",
+	"lang_minilinuxMissing":"Arquivos importantes da instalação do minilinux estão faltando.",
+	"lang_systemConfigurationNotChosen":"Uma configuração de sistema ainda não foi escolhida.",
+	"lang_systemConfiguration":"Confguração do Sistema"
+}

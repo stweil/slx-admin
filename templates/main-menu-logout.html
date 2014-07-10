@@ -27,11 +27,17 @@
 				</li>
 				<li><a href="?do=News">{{lang_news}}</a></li>
 				<li><a href="?do=SystemStatus">Status</a></li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="lang/{{lang}}/flag.png"><b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li class="dropdown-header">{{lang_language}}</li>
+						<li><a href="index.php?lang=de"><img src="lang/de/flag.png"> Deutsch</a></li>
+						<li><a href="index.php?lang=en"><img src="lang/en/flag.png"> English</a></li>
+						<li><a href="index.php?lang=pt"><img src="lang/pt/flag.png"> Português</a></li>
+					</ul>
+				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="lang/lang.php?lang=english"><img src="lang/english.png"></a></li>
-				<li><a href="lang/lang.php?lang=german"><img src="lang/german.png"></a></li>
-				<li><a href="lang/lang.php?lang=portuguese"><img src="lang/portuguese.png"></a></li>
 				<li><a href="?do=Session&amp;action=logout&amp;token={{{token}}}"><b>{{user}}</b> ({{lang_logout}})</a></li>
 			</ul>
 		</div>

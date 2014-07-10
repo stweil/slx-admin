@@ -1,0 +1,6 @@
+{
+	"lang_systemPartition":"Partição do Sistema",
+	"lang_capacity":"Capacidade",
+	"lang_vmStore":"Armazenamento da VM",
+	"lang_vmStoreError":"Erro ao determinar o espaço em disco disponível no local da VM. Por favor, verifique a configuração."
+}

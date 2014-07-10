@@ -1,8 +1,9 @@
 <?php
 
+require_once 'lang/i18n.php';
+
 require_once 'config.php';
 
-require_once('lang/dictionary.php');
 Dictionary::build();
 
 require_once('inc/user.inc.php');

@@ -1,0 +1,15 @@
+{
+	"lang_vmLocation":"VM Speicherort",
+	"lang_vmLocationChoose":"Bitte wählen Sie, wo die Images der Virtuellen Maschinen gespeichert werden sollen.",
+	"lang_intern":"Intern",
+	"lang_noAdditionalInformation":"Keine Weitere Konfiguration notwendig",
+	"lang_readWrite":"Lese/Schreib-Zugangsdaten",
+	"lang_username":"Benutzerkennung",
+	"lang_password":"Passwort",
+	"lang_readOnly":"Nur-Lese-Zugangsdaten",
+	"lang_save":"Speichern",
+	"lang_close":"Schließen",
+	"lang_vmLocationHelp1":"Für Testzwecke können die VMs direkt auf dem Satellitenserver gespeichert werden. Sofern Sie jedoch die ausgelieferte Satelliten-vmdk betreiben bedenken Sie bitte, dass Sie dann nur ca. 100GB Speicher zur Verfügung haben.",
+	"lang_vmLocationHelp2":"Im Produktivbetrieb bietet es sich an, hierfür einen performanten Netzwerkspeicher zu benutzen. Dieser Netzwerkspeicher kann per NFS oder CIFS/SMB eingebunden werden. In jedem Fall muss sichergestellt werden, dass der Satellitenserver zum Hinzufügen neuer Virtueller Maschinen Schreibzugriff auf diesen Netzwerkspeicher hat. Bei der Nutzung von NFSv3 kann dies IP-Basiert eingerichtet werden, für die Nutzung von CIFS/SMB können Sie Zugangsdaten angaben, die zum Schreiben berechtigen.",
+	"lang_vmLocationHelp3":"Die bwLehrpool-Clients brauchen lediglich Lesezugriff auf den Netzwerkspeicher (und sollten aus Sicherheitsgründen auch wirklich nur lesen können). Bei CIFS/SMB erreichen Sie dies am einfachsten, indem Sie passwortlosen Gastzugriff mit Leserechten auf die Freigabe erlauben."
+}

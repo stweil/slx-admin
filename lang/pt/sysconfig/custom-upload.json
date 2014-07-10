@@ -1,0 +1,7 @@
+{
+	"lang_customModuleInfo1":"Sobre um módulo personalizado, é possível adicionar arquivos arbitrários para um sistema Linux que é inicializado clientes. Para isso, um arquivo pode ser carregado através de uma estrutura do sistema de arquivos que é extraído desta forma 1:1 no Linux inicializado.",
+	"lang_customModuleInfo2":"Exemplo: Se o arquivo enviado for etc/examplo.conf, este arquivo estará localizado em /etc/examplo.conf para um cliente inicializado.",
+	"lang_file":"Arquivo",
+	"lang_supportedFiles":"Formatos de Arquivos Suportados",
+	"lang_upload":"Carregar"
+}

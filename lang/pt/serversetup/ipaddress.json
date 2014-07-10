@@ -1,0 +1,7 @@
+{
+	"lang_bootAddress":"Endereço Boot do Servidor",
+	"lang_chooseIP":"Por favor, selecione o endereço IP que o servidor do cliente utilizará realizar o boot.",
+	"lang_active":"Ativo",
+	"lang_set":"Conjunto",
+	"lang_bootHint":"O menu de boot deve ser recriado após alterar o endereço IP. Geralmente isso é feito automaticamente, mas o processo também pode ser acionado manualmente na seção do menu de boot."
+}

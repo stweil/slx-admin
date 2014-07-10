@@ -66,7 +66,7 @@
     },
     "lang_adText4": {
         "english": "After entering all required data in the next step, it checks whether communication is possible with the AD.",
-        "german": "Im Folgenden muss der Distinguished Name des Benutzers angegeben werden. Diesen können Sie ermitteln, indem Sie das Kommandozeilenprogramm dsquery auf einem Domain Controller wie folgt aufrufen:",
+        "german": "Nach Eingabe aller benötigten Daten wird im nächsten Schritt überprüft, ob die Kommunikation mit dem AD möglich ist.",
         "portuguese": "Depois de inserir todos os dados necessários na próxima etapa, ela verifica se a comunicação é possível com o AD."
     },
     "lang_addressConfiguration": {
@@ -297,7 +297,7 @@
     "lang_delete": {
         "english": "Delete",
         "german": "Löschen",
-        "portuguese": "Deletar"
+        "portuguese": "Excluir"
     },
     "lang_details": {
         "english": "Details",
@@ -397,7 +397,7 @@
     "lang_introGuest": {
         "english": "This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",
         "german": "Dies ist das Administrations-Interface der lokalen bwLehrpool-Installation. Bitte authentifizieren Sie sich, um Einstellungen vorzunehmen.",
-        "portuguese": "Esta é a interface de administração da instalação local do bwLehrpool. Por favor, autentique-se para ajustar opções;"
+        "portuguese": "Esta é a interface de administração da instalação local do bwLehrpool. Por favor, autentique-se para ajustar opções."
     },
     "lang_latestUpdate": {
         "english": "Latest update",
@@ -800,9 +800,9 @@
         "portuguese": "Uma localização para a máquina virtual ainda não foi escolhida."
     },
     "lang_vmStore": {
-        "english": "VM Store",
+        "english": "VM Storage",
         "german": "VM-Speicher",
-        "portuguese": "Loja da VM"
+        "portuguese": "Armazenamento da VM"
     },
     "lang_vmStoreError": {
         "english": "Error when determining the available disk space on the VM location. Please check the configuration.",
