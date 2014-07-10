@@ -8,6 +8,7 @@ class Page_SysLog extends Page
 		User::load();
 
 		if (!User::isLoggedIn()) {
+			Message::addError('no-permission');
 			Util::redirect('?do=Main');
 		}
 	}
