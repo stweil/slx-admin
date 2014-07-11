@@ -54,8 +54,10 @@ class Util
 	 */
 	public static function verifyToken()
 	{
-		if (Session::get('token') === false) return true;
-		if (isset($_REQUEST['token']) && Session::get('token') === $_REQUEST['token']) return true;
+		if (Session::get('token') === false)
+			return true;
+		if (isset($_REQUEST['token']) && Session::get('token') === $_REQUEST['token'])
+			return true;
 		Message::addError('token');
 		return false;
 	}
@@ -77,85 +79,6 @@ class Util
 	}
 
 	/**
-	 * Common initialization for download and downloadToFile
-	 * Return file handle to header file
-	 */
-	private static function initCurl($url, $timeout, &$head)
-	{
-		$ch = curl_init();
-		if ($ch === false) Util::traceError('Could not initialize cURL');
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, ceil($timeout / 2));
-		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-		curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-		curl_setopt($ch, CURLOPT_MAXREDIRS, 6);
-		$tmpfile = '/tmp/' . mt_rand() . '-' . time();
-		$head = fopen($tmpfile, 'w+b');
-		if ($head === false) Util::traceError("Could not open temporary head file $tmpfile for writing.");
-		curl_setopt($ch, CURLOPT_WRITEHEADER, $head);
-		return $ch;
-	}
-
-	/**
-	 * Read 10kb from the given file handle, seek to 0 first,
-	 * close the file after reading. Returns data read
-	 */
-	 private static function getContents($fh)
-	 {
-	 	fseek($fh, 0, SEEK_SET);
-		$data = fread($fh, 10000);
-		fclose($fh);
-		return $data;
-	 }
-
-	/**
-	 * Download file, obey given timeout in seconds
-	 * Return data on success, false on failure
-	 */
-	public static function download($url, $timeout, &$code)
-	{
-		$ch = self::initCurl($url, $timeout, $head);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$data = curl_exec($ch);
-		$head = self::getContents($head);
-		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $head, $out)) {
-			$code = (int)$out[1];
-		} else {
-			$code = 999;
-		}
-		curl_close($ch);
-		return $data;
-	}
-
-	/**
-	 * Download file, obey given timeout in seconds
-	 * Return true on success, false on failure
-	 */
-	public static function downloadToFile($target, $url, $timeout, &$code)
-	{
-		$fh = fopen($target, 'wb');
-		if ($fh === false) Util::traceError("Could not open $target for writing.");
-		$ch = self::initCurl($url, $timeout, $head);
-		curl_setopt($ch, CURLOPT_FILE, $fh);
-		$res = curl_exec($ch);
-		$head = self::getContents($head);
-		curl_close($ch);
-		fclose($fh);
-		if ($res === false) {
-			@unlink($target);
-			return false;
-		}
-		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $head, $out)) {
-			$code = (int)$out[1];
-		} else {
-			$code = '999 ' . curl_error($ch);
-		}
-		return true;
-	}
-	
-	/**
 	 * Convert given number to human readable file size string.
 	 * Will append Bytes, KiB, etc. depending on magnitude of number.
 	 * 
@@ -163,7 +86,8 @@ class Util
 	 * @param type $decimals number of decimals to show, -1 for automatic
 	 * @return type human readable string representing the given filesize
 	 */
-	public static function readableFileSize($bytes, $decimals = -1) {
+	public static function readableFileSize($bytes, $decimals = -1)
+	{
 		static $sz = array('Byte', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB');
 		$factor = floor((strlen($bytes) - 1) / 3);
 		if ($factor == 0) {
@@ -173,12 +97,12 @@ class Util
 		}
 		return sprintf("%.{$decimals}f ", $bytes / pow(1024, $factor)) . $sz[$factor];
 	}
-	
+
 	public static function sanitizeFilename($name)
 	{
 		return preg_replace('/[^a-zA-Z0-9_\-]+/', '_', $name);
 	}
-	
+
 	/**
 	 * Create human readable error description from a $_FILES[<..>]['error'] code
 	 * 
@@ -217,5 +141,48 @@ class Util
 		return $message;
 	}
 
-}
+	/**
+	 * Is given string a public ipv4 address?
+	 *
+	 * @param string $ip_addr input to check
+	 * @return boolean true iff $ip_addr is a valid public ipv4 address
+	 */
+	public static function isPublicIpv4($ip_addr)
+	{
+		if (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $ip_addr))
+			return false;
 
+		$parts = explode(".", $ip_addr);
+		foreach ($parts as $part) {
+			if (!is_numeric($part) || $part > 255 || $part < 0)
+				return false;
+		}
+
+		if ($parts[0] == 0 || $parts[0] == 10 || $parts[0] == 127 || ($parts[0] > 223 && $parts[0] < 240))
+			return false;
+		if (($parts[0] == 192 && $parts[1] == 168) || ($parts[0] == 169 && $parts[1] == 254))
+			return false;
+		if ($parts[0] == 172 && $parts[1] > 15 && $parts[1] < 32)
+			return false;
+
+		return true;
+	}
+	
+	/**
+	 * Return contents of given file as string, but only read up to maxBytes bytes.
+	 *
+	 * @param string $file file to read
+	 * @param int $maxBytes maximum length to read
+	 * @return boolean success or failure
+	 */
+	public static function readFile($file, $maxBytes = 1000)
+	{
+		$fh = @fopen($file, 'rb');
+		if ($fh === false)
+			return false;
+		$data = fread($fh, $maxBytes);
+		fclose($fh);
+		return $data;
+	}
+
+}

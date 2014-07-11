@@ -130,7 +130,7 @@ class Page_SysConfig extends Page
 			$configs[] = array(
 				'configid' => $row['configid'],
 				'config' => $row['title'],
-				'current' => readlink('/srv/openslx/www/boot/default/config.tgz') === $row['filepath']
+				'current' => readlink(CONFIG_HTTP_DIR . '/default/config.tgz') === $row['filepath']
 			);
 		}
 		// Config modules
@@ -142,7 +142,7 @@ class Page_SysConfig extends Page
 				'module' => $row['title']
 			);
 		}
-		Render::addTemplate('page-sysconfig-main', array(
+		Render::addTemplate('sysconfig/_page', array(
 			'configs' => $configs,
 			'modules' => $modules
 		));

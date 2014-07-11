@@ -18,30 +18,66 @@ class Trigger
 	 * @param boolean $force force recompilation even if it seems up to date
 	 * @return boolean|string true if already up to date, false if launching task failed, task-id otherwise
 	 */
-	public static function ipxe($force = false)
+	public static function ipxe()
 	{
-		if (!$force && Property::getIPxeIp() === Property::getServerIp())
-			return true; // Nothing to do
-		$last = Property::getIPxeTaskId();
-		if ($last !== false) {
-			$status = Taskmanager::status($last);
-			if (isset($status['statusCode']) && ($status['statusCode'] === TASK_WAITING || $status['statusCode'] === TASK_PROCESSING))
-				return false; // Already compiling
-		}
 		$data = Property::getBootMenu();
-		$data['ip'] = Property::getServerIp();
 		$task = Taskmanager::submit('CompileIPxe', $data);
 		if (!isset($task['id']))
 			return false;
-		Property::setIPxeTaskId($task['id']);
 		return $task['id'];
 	}
 	
 	/**
-	 * 
+	 * Try to automatically determine the primary IP address of the server.
+	 * This only works if the server has either one public IPv4 address (and potentially
+	 * one or more non-public addresses), or one private address.
+	 */
+	public static function autoUpdateServerIp()
+	{
+		$task = Taskmanager::submit('LocalAddressesList');
+		if ($task === false)
+			return;
+		$task = Taskmanager::waitComplete($task, 10000);
+		if (!isset($task['data']['addresses']) || empty($task['data']['addresses']))
+			return;
+
+		$serverIp = Property::getServerIp();
+		$publicCandidate = 'none';
+		$privateCandidate = 'none';
+		foreach ($task['data']['addresses'] as $addr) {
+			if ($addr['ip'] === $serverIp)
+				return;
+			if (substr($addr['ip'], 0, 4) === '127.')
+				continue;
+			if (Util::isPublicIpv4($addr['ip'])) {
+				if ($publicCandidate === 'none')
+					$publicCandidate = $addr['ip'];
+				else
+					$publicCandidate = 'many';
+			} else {
+				if ($privateCandidate === 'none')
+					$privateCandidate = $addr['ip'];
+				else
+					$privateCandidate = 'many';
+			}
+		}
+		if ($publicCandidate !== 'none' && $publicCandidate !== 'many') {
+			Property::setServerIp($publicCandidate);
+			return;
+		}
+		if ($privateCandidate !== 'none' && $privateCandidate !== 'many') {
+			Property::setServerIp($privateCandidate);
+			return;
+		}
+	}
+
+	/**
+	 * Launch all ldadp instances that need to be running.
+	 *
+	 * @param string $parent if not NULL, this will be the parent task of the launch-task
 	 * @return boolean|string false on error, id of task otherwise
 	 */
-	public static function ldadp()
+	public static function ldadp($parent = NULL)
 	{
 		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"
 			. " INNER JOIN configtgz_x_module USING (moduleid)"
@@ -56,17 +92,50 @@ class Trigger
 			}
 		}
 		$task = Taskmanager::submit('LdadpLauncher', array(
-			'ids' => $id
+			'ids' => $id,
+			'parentTask' => $parent,
+			'failOnParentFail' => false
 		));
 		if (!isset($task['id']))
 			return false;
 		return $task['id'];
 	}
 	
+	/**
+	 * To be called if the server ip changes, as it's embedded in the AD module configs.
+	 * This will then recreate all AD tgz modules.
+	 */
+	public static function rebuildAdModules()
+	{
+		$res = Database::simpleQuery("SELECT moduleid, filepath, content FROM configtgz_module"
+			. " WHERE moduletype = 'AD_AUTH'");
+		if ($res->rowCount() === 0)
+			return;
+		
+		$task = Taskmanager::submit('LdadpLauncher', array('ids' => array())); // Stop all running instances
+		$parent = isset($task['id']) ? $task['id'] : NULL;
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$config = json_decode($row['contents']);
+			$config['proxyip'] = Property::getServerIp();
+			$config['moduleid'] = $row['moduleid'];
+			$config['filename'] = $row['filepath'];
+			$config['parentTask'] = $parent;
+			$config['failOnParentFail'] = false;
+			$task = Taskmanager::submit('CreateAdConfig', $config);
+			$parent = isset($task['id']) ? $task['id'] : NULL;
+		}
+		
+	}
+	
+	/**
+	 * Mount the VM store into the server.
+	 *
+	 * @return array task status of mount procedure, or false on error
+	 */
 	public static function mount()
 	{
 		$vmstore = Property::getVmStoreConfig();
-		if (!is_array($vmstore)) return;
+		if (!is_array($vmstore)) return false;
 		$storetype = $vmstore['storetype'];
 		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
 		if ($storetype === 'cifs') $addr = $vmstore['cifsaddr'];

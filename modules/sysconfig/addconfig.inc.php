@@ -134,8 +134,7 @@ class AddConfig_Start extends AddConfig_Base
 }
 
 /**
- * Start dialog for adding config. Ask for title,
- * show selection of modules.
+ * Success dialog if adding config worked.
  */
 class AddConfig_Finish extends AddConfig_Base
 {
