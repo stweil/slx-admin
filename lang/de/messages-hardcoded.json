@@ -9,5 +9,13 @@
 	"lang_addCustomModuleInfo":"Mit einem Erweiterten Modul ist es möglich, beliebige Dateien zum Grundsystem hinzuzufügen Nutzen Sie dieses Modul, um z.B. spezielle Konfigurationsdateien auf den Client PCs zu verwenden, die sich nicht mit einem der anderen Wizards erstellen lässt. Das Hinzufügen eines Erweiterten Moduls erfordert in der Regel zumindest grundlegende Systemkenntnisse im Linuxbereich.",
 	"lang_addCustomModule":"Eigenes Modul hinzufügen",
 	"lang_days":"Tag(e)",
-	"lang_hours":"Stunde(n)"
+	"lang_hours":"Stunde(n)",
+	"lang_specificLogo":"Einrichtungsspezifisches Logo",
+	"lang_institutionLogo":"Logo der Einrichtung",
+	"lang_infoLogo":"Dieses Modul dient dem Hinzufügen eines Logos der Hochschule/Universität, welches dann z.B. auf dem Anmeldebildschirm angezeigt wird.",
+	"lang_location":"Lokalisierung",
+	"lang_contentOf":"Inhalt von \"",
+	"lang_serverConfiguration":"Serverseitige Konfiguration",
+	"lang_login":"Anmelden",
+	"lang_createUser":"Benutzer anlegen"
 }

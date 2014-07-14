@@ -48,7 +48,7 @@ class Page_AddUser extends Page
 			Message::addError('adduser-disabled');
 		} else {
 
-			Render::setTitle('Benutzer anlegen');
+			Render::setTitle(Dictionary::translate('lang_createUser'));
 			Render::addTemplate('page-adduser', $_POST);
 		}
 		

@@ -1,9 +1,5 @@
 <p>
-	Unten sehen Sie zur Kontrolle noch einmal das ausgewählte Logo. Sollten Sie das Logo
-	nicht sehen können, prüfen Sie bitte, ob Sie ein valides SVG-Bild verwendet haben.
-	Alternativ ist es möglich, dass beim Verarbeiten des Bildes ein Fehler auftrat. Sie
-	können daher das Modul trotzdem speichern und testen, ob das Logo im bwLehrpool-System
-	angezeigt wird.
+	{{lang_brandingInfo}}
 </p>
 <div class="pull-left">
 	{{#svg}}
@@ -21,9 +17,9 @@
 	<form role="form" enctype="multipart/form-data" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 		<input type="hidden" name="token" value="{{token}}">
 		<div class="form-group">
-			<label for="title-id">Titel</label>
+			<label for="title-id">{{lang_title}}</label>
 			<input type="text" name="title" id ="title-id" class="form-control" placeholder="Name des Moduls">
 		</div>
-		<button type="submit" class="btn btn-primary">Speichern</button>
+		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
 	</form>
 </div>

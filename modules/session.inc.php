@@ -34,7 +34,7 @@ class Page_Session extends Page
 	protected function doRender()
 	{
 		if ($_REQUEST['action'] === 'login') {
-			Render::setTitle('Anmelden');
+			Render::setTitle(Dictionary::translate('lang_login'));
 			Render::addTemplate('page-login');
 			return;
 		}

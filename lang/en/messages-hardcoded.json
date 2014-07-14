@@ -9,5 +9,13 @@
 	"lang_addCustomModuleInfo":"With an extended module it is possible to add any files to the basic system that uses this module, for example to use specific configuration files, which can not be created with one of the other Wizards. Adding an Extended module usually requires at least basic knowledge of the Linux system.",
 	"lang_addCustomModule":"Add Custom Module",
 	"lang_days":"Day(s)",
-	"lang_hours":"Hour(s)"
+	"lang_hours":"Hour(s)",
+	"lang_specificLogo":"Institution Specific Logo",
+	"lang_institutionLogo":"Institution Logo",
+	"lang_infoLogo":"This module is used to add the logo of a College / University, which then, for example, is displayed on the login screen.",
+	"lang_location":"Location",
+	"lang_contentOf":"Content of \"",
+	"lang_serverConfiguration":"Server-side Configuration",
+	"lang_login":"Login",
+	"lang_createUser":"Create User"
 }

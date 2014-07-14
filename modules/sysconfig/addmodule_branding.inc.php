@@ -4,8 +4,7 @@
  * Wizard for including a branding logo.
  */
 
-Page_SysConfig::addModule('BRANDING', 'Branding_Start', 'Logo der Einrichtung', 'Dieses Modul dient dem Hinzufügen eines Logos der Hochschule/Universität, welches'
-	. ' dann z.B. auf dem Anmeldebildschirm angezeigt wird.', 'Branding', false
+Page_SysConfig::addModule('BRANDING', 'Branding_Start', Dictionary::translate('lang_institutionLogo'), Dictionary::translate('lang_institutionLogo'), 'Branding', false
 );
 
 class Branding_Start extends AddModule_Base
@@ -13,7 +12,7 @@ class Branding_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog('Einrichtungsspezifisches Logo', false, 'sysconfig/branding-start', array(
+		Render::addDialog(Dictionary::translate('lang_specificLogo'), false, 'sysconfig/branding-start', array(
 			'step' => 'Branding_ProcessFile',
 		));
 	}
@@ -76,7 +75,7 @@ class Branding_ProcessFile extends AddModule_Base
 			$png = base64_encode(file_get_contents($this->task['data']['pngFile']));
 		if (filesize($this->svgFile) < 1000000)
 			$svg = base64_encode(file_get_contents($this->svgFile));
-		Render::addDialog('Einrichtungsspezifisches Logo', false, 'sysconfig/branding-check', array(
+		Render::addDialog(Dictionary::translate('lang_specificLogo'), false, 'sysconfig/branding-check', array(
 			'png' => $png,
 			'svg' => $svg,
 			'error' => $this->task['data']['error'],

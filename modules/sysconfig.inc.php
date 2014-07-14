@@ -96,7 +96,7 @@ class Page_SysConfig extends Page
 	 */
 	protected function doRender()
 	{
-		Render::setTitle('Lokalisierung');
+		Render::setTitle(Dictionary::translate('lang_location'));
 		
 		$action = Request::any('action', 'list');
 		switch ($action) {
@@ -199,7 +199,7 @@ class Page_SysConfig extends Page
 			
 		
 		// render the template
-		Render::addDialog('Inhalt von "' . $row['title'] . '"', false, 'sysconfig/custom-filelist', array(
+		Render::addDialog(Dictionary::translate('lang_contentOf') . $row['title'] . '"', false, 'sysconfig/custom-filelist', array(
 				'files' => $list,
 		));
 	}

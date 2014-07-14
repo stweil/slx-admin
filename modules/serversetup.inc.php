@@ -39,7 +39,7 @@ class Page_ServerSetup extends Page
 
 	protected function doRender()
 	{
-		Render::setTitle('Serverseitige Konfiguration');
+		Render::setTitle(Dictionary::translate('lang_serverConfiguration'));
 
 		Render::addTemplate('serversetup/ipaddress', array(
 			'ips' => $this->taskStatus['data']['addresses']

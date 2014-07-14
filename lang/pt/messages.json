@@ -32,7 +32,7 @@
     "taskmanager-format": "Gerenciador de Tarefas retornou dados inválidos",
     "task-error": "Falha na execução: {{0}}",
     "invalid-ip": "Nenhuma interface está configurada com o endereço {{0}}",
-    "news-set-success": "Notícia atualizada com sucesso",
+    "news-save-success": "Notícia atualizada com sucesso",
     "news-empty": "Não havia notícias no banco de dados",
     "news-del-success": "Notícia excluída",
     "reboot-unconfirmed": "Confirmação para reinicializar não foi confirmada"
