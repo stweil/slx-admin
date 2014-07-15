@@ -14,7 +14,7 @@ define('CONFIG_SQL_PASS', 'geheim');
 define('CONFIG_SQL_FORCE_UTF8', false);
 //define('CONFIG_SQL_DB', 'openslx');
 
-define('LANG', $language);
+define ("SITE_LANGUAGES", serialize (array ("de", "en", "pt")));
 
 define('CONFIG_TGZ_LIST_DIR', '/opt/openslx/configs');
 

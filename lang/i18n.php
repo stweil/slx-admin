@@ -7,9 +7,11 @@ class Dictionary{
 		self::$messageArray = json_decode(file_get_contents("lang/" . LANG . "/messages.json"),true);
 	}	
 
-	public static function getArrayTemplate($template){
+	public static function getArrayTemplate($template,$lang = false){
 		$language = array('lang'=>LANG);
-		return array_merge($language,json_decode(file_get_contents("lang/" . LANG . "/" . $template . ".json"),true));
+		if(!$lang)
+			return array_merge($language,json_decode(file_get_contents("lang/" . LANG . "/" . $template . ".json"),true));
+		return array_merge($language,json_decode(file_get_contents("lang/" . $lang . "/" . $template . ".json"),true));
 	}
 
 	public static function translate($string){
@@ -23,7 +25,8 @@ class Dictionary{
 	
 }
 	//Array containing the allowed languages for the website
-	$langArray = array("de","en","pt");
+	$langArray = unserialize(SITE_LANGUAGES);
+	
 	
 	//Changes the language in case there is a request to
 	if(isset($_GET['lang']))
@@ -44,4 +47,6 @@ class Dictionary{
 	}else if(in_array($langBrowser,$langArray)){
 		$language = $langBrowser;
 	}
+	
+	define('LANG', $language);
 ?>

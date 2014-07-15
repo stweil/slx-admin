@@ -1,0 +1,34 @@
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Language Administration
+		</div>
+		<div class="panel-body">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>Template</th>
+						<th style='text-align:center;'>{{lang_german}}</th>
+						<th style='text-align:center;'>{{lang_english}}</th>
+						<th style='text-align:center;'>Português</th>
+					<tr>
+				</thead>
+				<tbody>
+					{{#table}}
+						<tr onclick="goTo('{{link}}');">
+							<td>{{template}}</td>
+							<td style='width:200px;text-align:center;'>{{de}}</td>
+							<td style='width:200px;text-align:center;'>{{en}}</td>
+							<td style='width:200px;text-align:center;'>{{pt}}</td>
+						</tr>
+					{{/table}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<script>
+function goTo(link){
+	window.location.href = "?do=Admin&template=" + link;
+}
+</script>

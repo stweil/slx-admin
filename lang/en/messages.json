@@ -35,5 +35,6 @@
     "news-save-success": "News updated successfully",
     "news-empty": "There was no news found in the database",
     "news-del-success": "News deleted",
-    "reboot-unconfirmed": "Confirmation prompt to reboot not confirmed"
+    "reboot-unconfirmed": "Confirmation prompt to reboot not confirmed",
+    "invalid-template":"Selected template is not valid"
 }

@@ -12,5 +12,6 @@
 	"lang_newModule":"Novo Módulo",
 	"lang_systemConfiguration":"Confguração do Sistema",
 	"lang_helpSystemConfiguration":"A localização fundamental do sistema bwLehrpool é feita através de uma configuração de sistema. Isso inclui aspectos como o método de autenticação de usuários (por exemplo, Diretório Ativo, LDAP), configuração de impressora, diretórios home, etc. Uma configuração de sistema é composta por um ou mais módulo de configuração, que podem ser gerenciados na parte inferior da página.",
+	"lang_moduleConfiguration":"Configuração do Módulo",
 	"lang_helpModuleConfiguration":"Módulos de configuração são as peças fundamentais para a criação de uma configuração de sistema. Aqui você pode criar tanto módulos genéricos através de nossa interface, tanto quanto criar módulos  completamente customizados (é necessário conhecimento de Linux avançado)."
 }

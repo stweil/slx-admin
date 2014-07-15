@@ -35,5 +35,6 @@
     "news-save-success": "Notícia atualizada com sucesso",
     "news-empty": "Não havia notícias no banco de dados",
     "news-del-success": "Notícia excluída",
-    "reboot-unconfirmed": "Confirmação para reinicializar não foi confirmada"
+    "reboot-unconfirmed": "Confirmação para reinicializar não foi confirmada",
+    "invalid-template":"Template selecionado não é válido"
 }

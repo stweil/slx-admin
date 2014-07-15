@@ -1,0 +1,37 @@
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{template}}
+		</div>
+		<div class="panel-body">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>Mustache Tag</th>
+						<th style='text-align:center;'>German JSON</th>
+						<th style='text-align:center;'>English JSON</th>
+						<th style='text-align:center;'>Portuguese JSON</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#tags}}
+						<tr>
+							<td>{{tag}}</td>
+							<td style='width:250px;text-align:center;'>
+								<input type="text" class="form-control" placeholder="German TAG" value="{{de}}">
+							</td>
+							<td style='width:250px;text-align:center;'>
+								<input type="text" class="form-control" placeholder="English TAG" value="{{en}}">
+							</td>
+							<td style='width:250px;text-align:center;'>
+								<input type="text" class="form-control" placeholder="Portuguese TAG" value="{{pt}}">
+							</td>
+						</tr>
+					{{/tags}}
+				</tbody>
+			</table>
+			<a class="btn btn-primary" href='?do=Admin' >Back</a> 
+			<a class="btn btn-primary" href='#' >Update</a>
+		</div>
+	</div>
+</div>

@@ -35,5 +35,6 @@
     "news-save-success": "News erfolgreich aktualisiert",
     "news-empty": "Es wurde keine News in der Datenbank gefunden",
     "news-del-success": "News gelöscht",
-    "reboot-unconfirmed": "Sicherheitsabfrage zum Reboot nicht bestätigt"
+    "reboot-unconfirmed": "Sicherheitsabfrage zum Reboot nicht bestätigt",
+    "invalid-template":"Ausgewählte Template ist nicht gültig"
 }
