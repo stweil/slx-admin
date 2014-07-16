@@ -1,0 +1,72 @@
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_messages}}
+		</div>
+		<div class="panel-body">
+			<p>{{lang_templateMessagesHelp}}
+			<form action="?do=Admin" method="post">
+		</div>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>{{lang_messages}}</th>
+					<th style='text-align:center;'>{{lang_germanJSON}}</th>
+					<th style='text-align:center;'>{{lang_englishJSON}}</th>
+					<th style='text-align:center;'>{{lang_portugueseJSON}}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#msgs}}
+					<tr>
+						<td>{{tag}}</td>
+						<td style='width:250px;text-align:center;'>
+							<input type="text" class="form-control" placeholder="{{lang_germanTAG}}" value="{{de}}" name="lang-de-{{tag}}">
+						</td>
+						<td style='width:250px;text-align:center;'>
+							<input type="text" class="form-control" placeholder="{{lang_englishTAG}}" value="{{en}}" name="lang-en-{{tag}}">
+						</td>
+						<td style='width:250px;text-align:center;'>
+							<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang-pt-{{tag}}">
+						</td>
+					</tr>
+				{{/msgs}}
+			</tbody>
+		</table>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>{{lang_messagesHardcoded}}</th>
+					<th style='text-align:center;'>{{lang_germanJSON}}</th>
+					<th style='text-align:center;'>{{lang_englishJSON}}</th>
+					<th style='text-align:center;'>{{lang_portugueseJSON}}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#msgsHC}}
+					<tr>
+						<td>{{tag}}</td>
+						<td style='width:250px;text-align:center;'>
+							<input type="text" class="form-control" placeholder="{{lang_germanTAG}}" value="{{de}}" name="lang-de-{{tag}}">
+						</td>
+						<td style='width:250px;text-align:center;'>
+							<input type="text" class="form-control" placeholder="{{lang_englishTAG}}" value="{{en}}" name="lang-en-{{tag}}">
+						</td>
+						<td style='width:250px;text-align:center;'>
+							<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang-pt-{{tag}}">
+						</td>
+					</tr>
+				{{/msgsHC}}
+			</tbody>
+		</table>
+		<div class="panel-body">
+			<a class="btn btn-primary" href='?do=Admin' >{{lang_back}}</a> 
+			<a class="btn btn-primary" href='?do=Admin' >{{lang_newTag}}</a> 
+			<input type="hidden" name="update" value="true">
+			<input type="hidden" name="path" value="{{path}}">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="submit" class="btn btn-primary" value="{{lang_update}}">
+			</form>
+		</div>
+	</div>
+</div>

@@ -1,13 +1,1 @@
-{
-	"lang_clientLog":"Client Log",
-	"lang_settings":"Settings",
-	"lang_client":"Client",
-	"lang_localization":"Localization",
-	"lang_configurationVariables":"Configuration Variables",
-	"lang_server":"Server",
-	"lang_configurationBasic":"Basic Configuration",
-	"lang_vmLocation":"VM Location",
-	"lang_news":"News",
-	"lang_logout":"Logout",
-	"lang_language":"Language"
-}
+{"lang_clientLog":"Client Log","lang_settings":"Settings","lang_client":"Client","lang_localization":"Localization","lang_configurationVariables":"Configuration Variables","lang_administration":"Administration","lang_server":"Server","lang_configurationBasic":"Basic Configuration","lang_vmLocation":"VM Location","lang_news":"News","lang_language":"Language","lang_logout":"Logout"}

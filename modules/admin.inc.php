@@ -4,53 +4,63 @@ class Page_Admin extends Page
 {
 
 	private $template = false;
+	private $path = false;
+	private $page = false;
+	private $update = false;
 	private $files = false;
 	private $table = false;
 	private $tags = false;
+	private $unusedTags = false;
 	
-	/**
-	 * Implementation of the abstract doPreprocess function
-	 *
-	 * Checks if the user is logged in and processes any
-	 * action if one was specified in the request.
-	 *
-	 */
 	protected function doPreprocess()
 	{
-		// load user, we will need it later
 		User::load();
 		
-		// only admins should be able to access the administration page
 		if (!User::hasPermission('superadmin')) {
 			Message::addError('no-permission');
 			Util::redirect('?do=Main');
 		}
 		
-		if(Request::any('template')){
-			$this->template = Request::any('template');
+		if(Request::get('template')){
+			$this->template = Request::get('template');
+		}
+		
+		if(Request::get('page')){
+			$this->page = Request::get('page');
+		}
+		
+		if(Request::post('update')){
+			$this->update = Request::post('update');
 		}
 		
 	}
 
-	/**
-	 * Implementation of the abstract doRender function
-	 *
-	 * Fetch the list of news from the database and paginate it.
-	 *
-	 */
 	protected function doRender()
 	{
-		if(!$this->template || !$this->templateAnalysis($this->template)){
+		if($this->update)	$this->updateJson();
+		
+		switch($this->page){
+		case 'messages':
+			Render::addTemplate('administration/messages', array(
+					'token' => Session::get('token')
+				));
+			break;
+		case 'templates':
+			if($this->templateAnalysis($this->template)){
+				Render::addTemplate('administration/template', array(
+					'token' => Session::get('token'),
+					'template' => $this->template,
+					'path' => $this->path,
+					'tags' => $this->tags
+				));
+				break;
+			}
+		default:
 			$this->initTable();
 			Render::addTemplate('administration/_page', array(
 				'token' => Session::get('token'),
 				'adminMessage' => $this->message,
 				'table' => $this->table
-			));
-		}else{
-			Render::addTemplate('administration/template', array(
-				'template' => $this->template,
-				'tags' => $this->tags
 			));
 		}
 		
@@ -66,14 +76,15 @@ class Page_Admin extends Page
 		foreach($this->files as $key => $value){
 			
 			$this->table[] = array(
-			'template' => $value,
-			'link' => $key,
-			'de' => $this->checkJson($de[$key],'de'),
-			'en' => $this->checkJson($en[$key],'en'),
-			'pt' => $this->checkJson($pt[$key],'pt')
+				'template' => $value,
+				'link' => $key,
+				'de' => $this->checkJson($de[$key],'de'),
+				'en' => $this->checkJson($en[$key],'en'),
+				'pt' => $this->checkJson($pt[$key],'pt')
 			);
 		}
 		
+		sort($this->table);
 	}
 	
 	private function listTemplates(){
@@ -104,29 +115,29 @@ class Page_Admin extends Page
 	}
 	
 	private function checkJson($path,$lang){
-		if($path){
+		if(!$path){
+			return "JSON file is missing";
+		}else{
 			$htmlTemplate = file_get_contents('templates/' . $path . '.html');
 			$json = Dictionary::getArrayTemplate($path,$lang);
 			$htmlCount = substr_count($htmlTemplate, 'lang_');
 			$matchCount = 0;
 			
 			foreach($json as $key => $value){
-				if($key != 'lang'){
+				if($key != 'lang' && $value != ''){
 					$key = $key . '}}';
 					$matchCount += substr_count($htmlTemplate, $key);
+					if(substr_count($htmlTemplate, $key) == 0) $matchCount++;
 				}
 			}
 			
 			$diff = $htmlCount - $matchCount;
-			
+		
 			//allright
 			if($diff == 0) return "OK";
 			if($diff > 0) return $diff . " JSON tag(s) are missing";
-			if($diff < 0) return ($diff * -1) . " extra JSON tag(s)";
-		}else{
-			return "JSON file is missing";
+			if($diff < 0) return ($diff * -1) . " JSON tag(s) are not being used";
 		}
-		
 	}
 	
 	private function templateAnalysis($path){
@@ -148,6 +159,8 @@ class Page_Admin extends Page
 			);
 		}
 		
+		$this->path = $path;
+		
 		return true;
 	}
 	
@@ -157,4 +170,34 @@ class Page_Admin extends Page
 		}
 		return '';	
 	}
+	
+	private function updateJson(){
+		$langArray = unserialize(SITE_LANGUAGES);
+		$json = array(
+			'de' => array(),
+			'en' => array(),
+			'pt' => array()
+		);
+		
+		foreach($_REQUEST as $key => $value){
+			$str = explode('-',$key);
+			$pre = $str[0];
+			$lang = $str[1];
+			$tag = $str[2];
+			if($pre == 'lang'){
+				if(in_array($lang,$langArray)){
+					$json[$lang][$tag] = $value;
+				}
+			}
+			
+		}
+		
+		foreach($json as $key => $array){
+			$path = 'lang/' . $key . '/' . $_POST['path'] . '.json';
+			$json = json_encode($array,true);
+			if(!file_put_contents($path,$json))
+				$this->message = "fail";
+		}
+	}
+	
 }
