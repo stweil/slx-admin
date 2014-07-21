@@ -5,8 +5,8 @@ class Page_News extends Page
 	/**
 	 * Member variables needed to represent a news entry.
 	 *
-	 * $newsId		int		ID of the news entry attributed by the database.
-	 * $newsTitle	string	Title of the entry.
+	 * @var newsId	int		ID of the news entry attributed by the database.
+	 * @var string	Title of the entry.
 	 * $newsContent	string	Content as text. (TODO: html-Support?)
 	 * $newsDate	string	Unix epoch date of the news' creation.
 	 */
