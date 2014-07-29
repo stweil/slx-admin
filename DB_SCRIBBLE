@@ -1,7 +1,8 @@
-CREATE DATABASE openslx;
-CREATE USER openslx@localhost;
-SET PASSWORD FOR openslx@localhost = Password('geheim');
-GRANT ALL ON openslx.* TO openslx@localhost;
+-- Entries commented out: satellite_install script won't like them
+-- CREATE DATABASE openslx;
+-- CREATE USER openslx@localhost;
+-- SET PASSWORD FOR openslx@localhost = Password('geheim');
+-- GRANT ALL ON openslx.* TO openslx@localhost;
 
 
 
