@@ -11,6 +11,7 @@ class Page_Admin extends Page
 	private $table = false;
 	private $tags = false;
 	private $unusedTags = false;
+	private $message = false;
 	
 	protected function doPreprocess()
 	{
@@ -42,7 +43,9 @@ class Page_Admin extends Page
 		switch($this->page){
 		case 'messages':
 			Render::addTemplate('administration/messages', array(
-					'token' => Session::get('token')
+					'token' => Session::get('token'),
+					'msgs' => $this->initMsg(false),
+					'msgsHC' => $this->initMsg(true)
 				));
 			break;
 		case 'templates':
@@ -120,20 +123,16 @@ class Page_Admin extends Page
 		}else{
 			$htmlTemplate = file_get_contents('templates/' . $path . '.html');
 			$json = Dictionary::getArrayTemplate($path,$lang);
-			$htmlCount = substr_count($htmlTemplate, 'lang_');
+			preg_match_all('/{{lang_(.*?)}}/s', $htmlTemplate, $matches);
+			$htmlCount = count(array_unique($matches[1]));
 			$matchCount = 0;
 			
 			foreach($json as $key => $value){
-				if($key != 'lang' && $value != ''){
-					$key = $key . '}}';
-					$matchCount += substr_count($htmlTemplate, $key);
-					if(substr_count($htmlTemplate, $key) == 0) $matchCount++;
-				}
+				if($key != 'lang' && $value != '')
+					$matchCount++;
 			}
 			
 			$diff = $htmlCount - $matchCount;
-		
-			//allright
 			if($diff == 0) return "OK";
 			if($diff > 0) return $diff . " JSON tag(s) are missing";
 			if($diff < 0) return ($diff * -1) . " JSON tag(s) are not being used";
@@ -147,15 +146,33 @@ class Page_Admin extends Page
 		}
 		$htmlTemplate = file_get_contents('templates/' . $path . '.html');
 		preg_match_all('/{{lang_(.*?)}}/s', $htmlTemplate, $matches);
-		
 		$tags = $matches[1];
+		$tags = array_flip($tags);
+		foreach ($tags as $key => $value)
+		{
+			$tags['lang_'.$key] = $value;
+			unset($tags[$key]);
+		}
 		
-		foreach($tags as $tag){
+		$langArray = array('en');
+		$json = array();
+		foreach($langArray as $lang){
+			$jsonTags = Dictionary::getArrayTemplate($path,$lang);
+			$json = array_merge($json,$jsonTags);
+		}
+		
+		
+		unset($json['lang']);
+		$test = array_merge($json,$tags);
+		file_put_contents('test_2.txt',print_r($test,true));
+		
+		foreach($test as $tag=>$value){
 			$this->tags[] = array(
-				'tag' => 'lang_' . $tag,
+				'tag' => $tag,
 				'de' => $this->checkJsonTag($path,$tag,'de/'),
 				'en' => $this->checkJsonTag($path,$tag,'en/'),
-				'pt' => $this->checkJsonTag($path,$tag,'pt/')
+				'pt' => $this->checkJsonTag($path,$tag,'pt/'),
+				'class' => $this->checkJsonTags($path,$tag)
 			);
 		}
 		
@@ -166,7 +183,21 @@ class Page_Admin extends Page
 	
 	private function checkJsonTag($path,$tag,$lang){
 		if($json = Dictionary::getArrayTemplate($path,$lang)){
-			return $json['lang_' . $tag];
+			return $json[$tag];
+		}
+		return '';	
+	}
+	
+	private function checkJsonTags($path,$tag){
+		$htmlTemplate = file_get_contents('templates/' . $path . '.html');
+		$htmlCount = substr_count($htmlTemplate, $tag);
+		if($htmlCount < 1) return "danger";
+		
+		$langArray = array('de/','en/','pt/');
+		foreach($langArray as $lang){
+			if($json = Dictionary::getArrayTemplate($path,$lang)){
+				if(!isset($json[$tag]) || $json[$tag] == '') return 'warning';
+			}
 		}
 		return '';	
 	}
@@ -180,7 +211,7 @@ class Page_Admin extends Page
 		);
 		
 		foreach($_REQUEST as $key => $value){
-			$str = explode('-',$key);
+			$str = explode('#',$key);
 			$pre = $str[0];
 			$lang = $str[1];
 			$tag = $str[2];
@@ -195,9 +226,31 @@ class Page_Admin extends Page
 		foreach($json as $key => $array){
 			$path = 'lang/' . $key . '/' . $_POST['path'] . '.json';
 			$json = json_encode($array,true);
-			if(!file_put_contents($path,$json))
-				$this->message = "fail";
+			if(!file_put_contents($path,$json)){
+				Message::addError('invalid-template');
+				return false;
+			}
 		}
+	}
+	
+	private function initMsg($isHardcoded){
+		$msgs = array();
+		$path = 'messages';
+		if($isHardcoded){
+			$path = 'messages-hardcoded';
+		}
+		$json = Dictionary::getArrayTemplate($path,$lang);
+		foreach($json as $key => $array){
+			if($key != 'lang')
+			$msgs[] = array(
+				'tag' => $key,
+				'de' => $this->checkJsonTag($path,$key,'de/'),
+				'en' => $this->checkJsonTag($path,$key,'en/'),
+				'pt' => $this->checkJsonTag($path,$key,'pt/')
+			);
+		}
+		
+		return $msgs;
 	}
 	
 }

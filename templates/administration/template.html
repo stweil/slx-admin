@@ -17,16 +17,16 @@
 					</thead>
 					<tbody>
 						{{#tags}}
-							<tr>
+							<tr class="{{class}}">
 								<td>{{tag}}</td>
 								<td style='width:250px;text-align:center;'>
-									<input type="text" class="form-control" placeholder="{{lang_germanTAG}}" value="{{de}}" name="lang-de-{{tag}}">
+									<input type="text" class="form-control" placeholder="{{lang_germanTAG}}" value="{{de}}" name="lang#de#{{tag}}">
 								</td>
 								<td style='width:250px;text-align:center;'>
-									<input type="text" class="form-control" placeholder="{{lang_englishTAG}}" value="{{en}}" name="lang-en-{{tag}}">
+									<input type="text" class="form-control" placeholder="{{lang_englishTAG}}" value="{{en}}" name="lang#en#{{tag}}">
 								</td>
 								<td style='width:250px;text-align:center;'>
-									<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang-pt-{{tag}}">
+									<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang#pt#{{tag}}">
 								</td>
 							</tr>
 						{{/tags}}

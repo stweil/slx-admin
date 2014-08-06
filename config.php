@@ -1,7 +1,7 @@
 <?php
 
 // This might leak sensitive information. Never enable in production!
-define('CONFIG_DEBUG', true);
+define('CONFIG_DEBUG', false);
 
 define('CONFIG_SESSION_DIR', '/tmp/openslx');
 define('CONFIG_SESSION_TIMEOUT', 86400 * 3);
