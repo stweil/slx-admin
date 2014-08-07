@@ -10,29 +10,36 @@
 					<thead>
 						<tr>
 							<th>Mustache Tag</th>
-							<th style='text-align:center;'>{{lang_germanJSON}}</th>
-							<th style='text-align:center;'>{{lang_englishJSON}}</th>
-							<th style='text-align:center;'>{{lang_portugueseJSON}}</th>
+							<th style='width:250px;text-align:center;'>{{lang_germanJSON}}</th>
+							<th style='width:250px;text-align:center;'>{{lang_englishJSON}}</th>
+							<th style='width:250px;text-align:center;'>{{lang_portugueseJSON}}</th>
+							<th style='width:100px;text-align:center;'></th>
 						</tr>
 					</thead>
 					<tbody>
 						{{#tags}}
-							<tr class="{{class}}">
+							<tr class="{{class}}" id="{{tag}}">
 								<td>{{tag}}</td>
-								<td style='width:250px;text-align:center;'>
+								<td style='text-align:center;'>
 									<input type="text" class="form-control" placeholder="{{lang_germanTAG}}" value="{{de}}" name="lang#de#{{tag}}">
 								</td>
-								<td style='width:250px;text-align:center;'>
+								<td style='text-align:center;'>
 									<input type="text" class="form-control" placeholder="{{lang_englishTAG}}" value="{{en}}" name="lang#en#{{tag}}">
 								</td>
-								<td style='width:250px;text-align:center;'>
+								<td style='text-align:center;'>
 									<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang#pt#{{tag}}">
+								</td>
+								<td style='text-align:center;'>
+									<a class="btn btn-danger btn-xs" href="?do=Admin&template={{path}}&delete={{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</a>
 								</td>
 							</tr>
 						{{/tags}}
+						<tr id="newTag">
+						</tr>
 					</tbody>
 				</table>
-				<a class="btn btn-primary" href='?do=Admin' >{{lang_back}}</a> 
+				<a class="btn btn-primary" href='?do=Admin' >{{lang_back}}</a>
+				<button class="btn btn-primary" type="button" onclick="addTag(true);" >{{lang_createTag}}</button> 
 				<input type="hidden" name="update" value="true">
 				<input type="hidden" name="path" value="{{path}}">
 				<input type="hidden" name="token" value="{{token}}">
@@ -41,3 +48,9 @@
 		</div>
 	</div>
 </div>
+<script>
+function addTag(){
+	var target = document.getElementById('newTag');
+	target.innerHTML = "<td> <input type='text' class='form-control' placeholder='{{lang_newTAG}}' name='newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_germanTAG}}' name='lang#de#newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_englishTAG}}' name='lang#en#newtag'> </td>	<td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_portugueseTAG}}' name='lang#pt#newtag'> </td><td></td>";
+}
+</script>
