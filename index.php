@@ -2,10 +2,6 @@
 
 require_once 'config.php';
 
-require_once 'lang/i18n.php';
-
-Dictionary::build();
-
 require_once('inc/user.inc.php');
 
 /**
@@ -119,10 +115,16 @@ Page::preprocess();
 
 // Generate Main menu
 //$menu = new Menu;
-if(User::getName() === false) Render::addTemplate('main-menu-login');
-else Render::addTemplate('main-menu-logout',array(
-			'user' => User::getName()
-		));
+if (User::getName() === false) {
+	Render::addTemplate('main-menu-login', array(
+		'url' => urlencode($_SERVER['REQUEST_URI'])
+	));
+} else {
+	Render::addTemplate('main-menu-logout', array(
+		'url' => urlencode($_SERVER['REQUEST_URI']),
+		'user' => User::getName()
+	));
+}
 
 Message::renderList();
 
