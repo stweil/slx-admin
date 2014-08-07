@@ -9,6 +9,7 @@ class Page_Admin extends Page
 	private $update = false;
 	private $files = false;
 	private $table = false;
+	private $delete = false;
 	private $tags = false;
 	private $unusedTags = false;
 	private $message = false;
@@ -30,6 +31,10 @@ class Page_Admin extends Page
 			$this->page = Request::get('page');
 		}
 		
+		if(Request::get('delete')){
+			$this->delete = Request::get('delete');
+		}
+		
 		if(Request::post('update')){
 			$this->update = Request::post('update');
 		}
@@ -39,6 +44,7 @@ class Page_Admin extends Page
 	protected function doRender()
 	{
 		if($this->update)	$this->updateJson();
+		if($this->delete && $this->template) $this->deleteTag($this->template,$this->delete);
 		
 		switch($this->page){
 		case 'messages':
@@ -128,8 +134,13 @@ class Page_Admin extends Page
 			$matchCount = 0;
 			
 			foreach($json as $key => $value){
-				if($key != 'lang' && $value != '')
-					$matchCount++;
+				if($key != 'lang'){
+					if(!in_array(preg_replace('/^lang_/', '', $key), $matches[1])){
+						$matchCount++;
+					}else if($value != ''){
+						$matchCount++;
+					}
+				}
 			}
 			
 			$diff = $htmlCount - $matchCount;
@@ -161,10 +172,8 @@ class Page_Admin extends Page
 			$json = array_merge($json,$jsonTags);
 		}
 		
-		
 		unset($json['lang']);
 		$test = array_merge($json,$tags);
-		file_put_contents('test_2.txt',print_r($test,true));
 		
 		foreach($test as $tag=>$value){
 			$this->tags[] = array(
@@ -217,7 +226,11 @@ class Page_Admin extends Page
 			$tag = $str[2];
 			if($pre == 'lang'){
 				if(in_array($lang,$langArray)){
-					$json[$lang][$tag] = $value;
+					if($tag != 'newtag')
+						$json[$lang][$tag] = $value;
+					else{
+						$json[$lang][$_REQUEST['newtag']] = $value;
+					}
 				}
 			}
 			
@@ -231,6 +244,7 @@ class Page_Admin extends Page
 				return false;
 			}
 		}
+		Message::addSuccess('updated-tags');
 	}
 	
 	private function initMsg($isHardcoded){
@@ -251,6 +265,18 @@ class Page_Admin extends Page
 		}
 		
 		return $msgs;
+	}
+	
+	private function deleteTag($path,$tag){
+		$langArray = unserialize(SITE_LANGUAGES);
+		foreach($langArray as $lang){
+			$json = Dictionary::getArrayTemplate($path,$lang);
+			unset($json[$tag]);
+			unset($json['lang']);
+			//file_put_contents('test.txt','lang/' . $lang . '/' . $path . '.json');
+			file_put_contents('lang/' . $lang . '/' . $path . '.json', json_encode($json));
+		}
+		Message::addSuccess('deleted-tag');
 	}
 	
 }

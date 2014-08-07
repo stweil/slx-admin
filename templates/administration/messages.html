@@ -14,6 +14,7 @@
 						<th style='text-align:center;width:260px;'>{{lang_germanJSON}}</th>
 						<th style='text-align:center;width:260px;'>{{lang_englishJSON}}</th>
 						<th style='text-align:center;width:260px;'>{{lang_portugueseJSON}}</th>
+						<th style='width:100px;text-align:center;'></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -29,13 +30,18 @@
 							<td style='width:250px;text-align:center;'>
 								<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang#pt#{{tag}}">
 							</td>
+							<td style='text-align:center;'>
+								<a class="btn btn-danger btn-xs" href="?do=Admin&template=messages&delete={{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</a>
+							</td>
 						</tr>
 					{{/msgs}}
+					<tr id="newTag">
+					</tr>
 				</tbody>
 			</table>
 			<div class="panel-body">
 				<a class="btn btn-primary" href='?do=Admin' >{{lang_back}}</a> 
-				<a class="btn btn-primary" href='?do=Admin' >{{lang_newTag}}</a> 
+				<button class="btn btn-primary" type="button" onclick="addTag(false);" >{{lang_newTag}}</button> 
 				<input type="hidden" name="update" value="true">
 				<input type="hidden" name="path" value="messages">
 				<input type="hidden" name="token" value="{{token}}">
@@ -50,6 +56,7 @@
 						<th style='text-align:center;width:260px;'>{{lang_germanJSON}}</th>
 						<th style='text-align:center;width:260px;'>{{lang_englishJSON}}</th>
 						<th style='text-align:center;width:260px;'>{{lang_portugueseJSON}}</th>
+						<th style='width:100px;text-align:center;'></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -65,13 +72,18 @@
 							<td style='width:250px;text-align:center;'>
 								<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang#pt#{{tag}}">
 							</td>
+							<td style='text-align:center;'>
+								<a class="btn btn-danger btn-xs" href="?do=Admin&template=messages-hardcoded&delete={{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</a>
+							</td>
 						</tr>
 					{{/msgsHC}}
+					<tr id="newTagCoded">
+					</tr>
 				</tbody>
 			</table>
 			<div class="panel-body">
 				<a class="btn btn-primary" href='?do=Admin' >{{lang_back}}</a> 
-				<a class="btn btn-primary" href='?do=Admin' >{{lang_newTag}}</a> 
+				<button class="btn btn-primary" type="button" onclick="addTag(true);" >{{lang_newTag}}</button> 
 				<input type="hidden" name="update" value="true">
 				<input type="hidden" name="path" value="messages-hardcoded">
 				<input type="hidden" name="token" value="{{token}}">
@@ -80,3 +92,13 @@
 			</div>
 	</div>
 </div>
+<script>
+function addTag(isHardcoded){
+	var target;
+	if(isHardcoded)
+		target = document.getElementById('newTagCoded');
+	else
+		target = document.getElementById('newTag');
+	target.innerHTML = "<td> <input type='text' class='form-control' placeholder='{{lang_newTAG}}' name='newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_germanTAG}}' name='lang#de#newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_englishTAG}}' name='lang#en#newtag'> </td>	<td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_portugueseTAG}}' name='lang#pt#newtag'> </td>";
+}
+</script>
