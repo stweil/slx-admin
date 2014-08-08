@@ -3,27 +3,32 @@
 class Dictionary{
 	private static $messageArray;
 	
+	//loads the messages and store them in the class
 	function build(){
 		self::$messageArray = json_decode(file_get_contents("lang/" . LANG . "/messages.json"),true);
 	}	
 
+	//return an array with the JSON tags from the user's language or a specified language
 	public static function getArrayTemplate($template,$lang = false){
 		$language = array('lang'=>LANG);
-		if(!$lang)
-			return array_merge($language,json_decode(file_get_contents("lang/" . LANG . "/" . $template . ".json"),true));
+		if(!$lang) $lang = LANG;
 		return array_merge($language,json_decode(file_get_contents("lang/" . $lang . "/" . $template . ".json"),true));
 	}
-
+	
+	//translate a hardcoded message
 	public static function translate($string){
 		$hardcoded = json_decode(file_get_contents("lang/" . LANG . "/messages-hardcoded.json"),true);
 		return $hardcoded[$string];
 	}
-
+	
+	//returns an array with the JSON message tags
 	public static function getMessages(){
 		return self::$messageArray;
 	}
 	
 }
+
+
 	//Array containing the allowed languages for the website
 	$langArray = unserialize(SITE_LANGUAGES);
 	

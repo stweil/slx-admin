@@ -4,9 +4,12 @@
 			{{lang_messages}}
 		</div>
 		<div class="panel-body">
-			<p>{{lang_templateMessagesHelp}}
+			<p>{{lang_templateMessagesHelp}}</p>
+			<div class="alert alert-info">
+				{{lang_templateHint}}
+			</div>
 		</div>
-		<form action="?do=Admin" method="post">
+		<form action="?do=Translation" method="post">
 			<table class="table table-hover">
 				<thead>
 					<tr>
@@ -31,7 +34,7 @@
 								<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang#pt#{{tag}}">
 							</td>
 							<td style='text-align:center;'>
-								<a class="btn btn-danger btn-xs" href="?do=Admin&template=messages&delete={{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</a>
+								<a class="btn btn-danger btn-xs" href="?do=Translation&template=messages&delete={{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</a>
 							</td>
 						</tr>
 					{{/msgs}}
@@ -40,15 +43,15 @@
 				</tbody>
 			</table>
 			<div class="panel-body">
-				<a class="btn btn-primary" href='?do=Admin' >{{lang_back}}</a> 
+				<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a> 
 				<button class="btn btn-primary" type="button" onclick="addTag(false);" >{{lang_newTag}}</button> 
 				<input type="hidden" name="update" value="true">
 				<input type="hidden" name="path" value="messages">
 				<input type="hidden" name="token" value="{{token}}">
-				<input type="submit" class="btn btn-primary" value="{{lang_update}}">
+				<input type="submit" class="btn btn-primary" value="{{lang_save}}">
 				</form>
 			</div>
-		<form action="?do=Admin" method="post">
+		<form action="?do=Translation" method="post">
 			<table class="table table-hover">
 				<thead>
 					<tr>
@@ -73,7 +76,7 @@
 								<input type="text" class="form-control" placeholder="{{lang_portugueseTAG}}" value="{{pt}}" name="lang#pt#{{tag}}">
 							</td>
 							<td style='text-align:center;'>
-								<a class="btn btn-danger btn-xs" href="?do=Admin&template=messages-hardcoded&delete={{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</a>
+								<a class="btn btn-danger btn-xs" href="?do=Translation&template=messages-hardcoded&delete={{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</a>
 							</td>
 						</tr>
 					{{/msgsHC}}
@@ -82,12 +85,12 @@
 				</tbody>
 			</table>
 			<div class="panel-body">
-				<a class="btn btn-primary" href='?do=Admin' >{{lang_back}}</a> 
+				<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a> 
 				<button class="btn btn-primary" type="button" onclick="addTag(true);" >{{lang_newTag}}</button> 
 				<input type="hidden" name="update" value="true">
 				<input type="hidden" name="path" value="messages-hardcoded">
 				<input type="hidden" name="token" value="{{token}}">
-				<input type="submit" class="btn btn-primary" value="{{lang_update}}">
+				<input type="submit" class="btn btn-primary" value="{{lang_save}}">
 				</form>
 			</div>
 	</div>
