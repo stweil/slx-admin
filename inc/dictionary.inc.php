@@ -58,7 +58,10 @@ class Dictionary
 		if ($content === false)
 			Util::traceError("Could not find language file $template for language $lang");
 		$language = array('lang' => $lang);
-		return array_merge($language, json_decode($content, true));
+		$json = json_decode($content, true);
+		if (!is_array($json))
+			return $language;
+		return array_merge($language, $json);
 	}
 
 	public static function translate($string)

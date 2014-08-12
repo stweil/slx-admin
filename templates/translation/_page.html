@@ -7,7 +7,7 @@
 			<p>{{lang_adminInfo}}</p>
 		</div>
 		<ul class="list-group">
-			<a href="?do=Admin&page=messages" class="list-group-item active">{{lang_editMessages}}</a>
+			<a href="?do=Translation&page=messages" class="list-group-item active">{{lang_editMessages}}</a>
 		</ul>
 	</div>
 	<div class="panel panel-default">
@@ -24,9 +24,9 @@
 				{{#table}}
 					<tr onclick="goTo('{{link}}');">
 						<td>{{template}}</td>
-						<td style='width:230px;text-align:center;'>{{de}}</td>
-						<td style='width:230px;text-align:center;'>{{en}}</td>
-						<td style='width:230px;text-align:center;'>{{pt}}</td>
+						<td style='width:230px;text-align:center;'>{{{de}}}</td>
+						<td style='width:230px;text-align:center;'>{{{en}}}</td>
+						<td style='width:230px;text-align:center;'>{{{pt}}}</td>
 					</tr>
 				{{/table}}
 			</tbody>
@@ -35,6 +35,6 @@
 </div>
 <script>
 function goTo(link){
-	window.location.href = "?do=Admin&page=templates&template=" + link;
+	window.location.href = "?do=Translation&page=templates&template=" + link;
 }
 </script>
