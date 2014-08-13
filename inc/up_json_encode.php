@@ -82,21 +82,26 @@ function up_json_encode($var, $options = 0, $_indent = "")
 	${'.json_last_error'} = JSON_ERROR_NONE;
 
 	#-- prepare JSON string
-	$obj = ($options & JSON_FORCE_OBJECT);
 	list($_space, $_tab, $_nl) = ($options & JSON_PRETTY_PRINT) ? array(" ", "    $_indent", "\n") : array("", "", "");
 	$json = "$_indent";
 
-	if ($options & JSON_NUMERIC_CHECK and is_string($var) and is_numeric($var)) {
+	if (($options & JSON_NUMERIC_CHECK) and is_string($var) and is_numeric($var)) {
 		$var = (strpos($var, ".") || strpos($var, "e")) ? floatval($var) : intval($var);
 	}
 
 	#-- add array entries
 	if (is_array($var) || ($obj = is_object($var))) {
-
+		$obj = is_object($var);
 		#-- check if array is associative
-		if (!$obj) {
-			$keys = array_keys((array) $var);
-			$obj = !($keys == array_keys($keys));	// keys must be in 0,1,2,3, ordering, but PHP treats integers==strings otherwise
+		if (!$obj && !($options & JSON_FORCE_OBJECT)) {
+			$keys = array_keys($var);
+			sort($keys);
+			for ($i = 0; $i < count($keys); ++$i) {
+				if (!is_numeric($keys[$i]) || (int)$keys[$i] !== $i)
+					$obj = true;
+			}
+		} else {
+			$obj = true;
 		}
 
 		#-- concat individual entries
@@ -104,7 +109,7 @@ function up_json_encode($var, $options = 0, $_indent = "")
 		$json = "";
 		foreach ((array) $var as $i => $v) {
 			$json .= ($empty++ ? ",$_nl" : "")	 // comma separators
-				. $_tab . ($obj ? (up_json_encode($i, $options & ~JSON_NUMERIC_CHECK, $_tab) . ":$_space") : "")	// assoc prefix
+				. $_tab . ($obj ? (up_json_encode((string)$i, $options & ~JSON_NUMERIC_CHECK, $_tab) . ":$_space") : "")	// assoc prefix
 				. (up_json_encode($v, $options, $_tab));	 // value
 		}
 
