@@ -54,10 +54,10 @@ class Dictionary
 		if ($lang === false)
 			$lang = LANG;
 		$file = "lang/" . $lang . "/" . $template . ".json";
-		$content = @file_get_contents($file);
-		if ($content === false)
-			Util::traceError("Could not find language file $template for language $lang");
 		$language = array('lang' => $lang);
+		$content = @file_get_contents($file);
+		if ($content === false) // File does not exist for language
+			return $language;
 		$json = json_decode($content, true);
 		if (!is_array($json))
 			return $language;
