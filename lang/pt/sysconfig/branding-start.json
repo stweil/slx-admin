@@ -1,7 +1,7 @@
 {
-	"lang_branding":"Para melhores resultados, você deve fazer o upload do logotipo em formato SVG. SVG é um formato de gráficos vetoriais, o que é vantajoso para a ampliação. Uma boa fonte para logotipos SVG das universidades e faculdades é o seu respectivo artigo da Wikipedia.",
-	"lang_or":"ou",
-	"lang_upload":"Enviar",
-	"lang_urlLoad":"Carregar imagem a partir de uma URL",
-	"lang_computerLoad":"Carregar imagem do computador local "
+    "lang_branding": "Para melhores resultados, voc\u00ea deve fazer o upload do logotipo em formato SVG. SVG \u00e9 um formato de gr\u00e1ficos vetoriais, o que \u00e9 vantajoso para a amplia\u00e7\u00e3o. Uma boa fonte para logotipos SVG das universidades e faculdades \u00e9 o seu respectivo artigo da Wikipedia.",
+    "lang_computerLoad": "Carregar imagem do computador local ",
+    "lang_or": "ou",
+    "lang_upload": "Enviar",
+    "lang_urlLoad": "Carregar imagem a partir de uma URL"
 }

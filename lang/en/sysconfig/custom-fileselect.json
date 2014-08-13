@@ -1,5 +1,5 @@
 {
-	"lang_moduleName":"Module Name",
-	"lang_checkFileContent":"Here you have the possibility to check the contents of the archive again.",
-	"lang_next":"Next"
+    "lang_checkFileContent": "Here you have the possibility to check the contents of the archive again.",
+    "lang_moduleName": "Module Name",
+    "lang_next": "Next"
 }

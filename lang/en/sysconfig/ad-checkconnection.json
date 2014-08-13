@@ -1,5 +1,5 @@
 {
-	"lang_connectionWait":"The connection to the specified AD server is now checked. Please wait a moment.",
-	"lang_back":"Back",
-	"lang_skip":"Skip"
+    "lang_back": "Back",
+    "lang_connectionWait": "The connection to the specified AD server is now checked. Please wait a moment.",
+    "lang_skip": "Skip"
 }

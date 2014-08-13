@@ -1,12 +1,12 @@
 {
-	"lang_newsIntro":"Hier haben Sie die Möglichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.",
-	"lang_activeNews":"Aktive News",
-	"lang_latestUpdate":"Letzte Aktualisierung",
-	"lang_title":"Titel",
-	"lang_content":"Inhalt",
-	"lang_save":"Speichern",
-	"lang_newsOld":"Alte News",
-	"lang_date":"Datum",
-	"lang_show":"Ansehen",
-	"lang_delete":"Löschen"
+    "lang_activeNews": "Aktive News",
+    "lang_content": "Inhalt",
+    "lang_date": "Datum",
+    "lang_delete": "L\u00f6schen",
+    "lang_latestUpdate": "Letzte Aktualisierung",
+    "lang_newsIntro": "Hier haben Sie die M\u00f6glichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.",
+    "lang_newsOld": "Alte News",
+    "lang_save": "Speichern",
+    "lang_show": "Ansehen",
+    "lang_title": "Titel"
 }

@@ -1,7 +1,7 @@
 {
-	"lang_bootAddress":"Boot-Adresse des Servers",
-	"lang_chooseIP":"Bitte wählen Sie die IP-Adresse, über die der Server von den Clients zum Booten angesprochen werden soll.",
-	"lang_active":"Aktiv",
-	"lang_set":"Setzen",
-	"lang_bootHint":"Das Bootmenü muss nach einer Änderung der IP-Adresse neu generiert werden. In der Regel geschieht dies automatisch, der Vorgang kann in der Sektion Bootmenü allerdings auch manuell ausgelöst werden."
+    "lang_active": "Aktiv",
+    "lang_bootAddress": "Boot-Adresse des Servers",
+    "lang_bootHint": "Das Bootmen\u00fc muss nach einer \u00c4nderung der IP-Adresse neu generiert werden. In der Regel geschieht dies automatisch, der Vorgang kann in der Sektion Bootmen\u00fc allerdings auch manuell ausgel\u00f6st werden.",
+    "lang_chooseIP": "Bitte w\u00e4hlen Sie die IP-Adresse, \u00fcber die der Server von den Clients zum Booten angesprochen werden soll.",
+    "lang_set": "Setzen"
 }

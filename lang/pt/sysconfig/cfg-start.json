@@ -1,7 +1,7 @@
 {
-	"lang_name":"Nome",
-	"lang_configuration":"Configuração",
-	"lang_configurationChoose":"Por favor, selecione qual os módulos serão usados ​​para esta configuração.",
-	"lang_new":"Nova",
-	"lang_next":"Próximo"
+    "lang_configuration": "Configura\u00e7\u00e3o",
+    "lang_configurationChoose": "Por favor, selecione qual os m\u00f3dulos ser\u00e3o usados \u200b\u200bpara esta configura\u00e7\u00e3o.",
+    "lang_name": "Nome",
+    "lang_new": "Nova",
+    "lang_next": "Pr\u00f3ximo"
 }

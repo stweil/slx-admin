@@ -1,1 +1,15 @@
-{"lang_templateAdminHelp":"","lang_germanJSON":"Deutsch JSON","lang_englishJSON":"Englisch JSON","lang_portugueseJSON":"Portugiesisch JSON","lang_germanTAG":"Deutsch TAG","lang_englishTAG":"Englisch TAG","lang_portugueseTAG":"Portugiesisch TAG","lang_back":"Z\u00fcruck","lang_createTag":"TAG schafen","lang_newTAG":"Neue Tag","lang_deleteTAG":"L\u00f6schen","lang_templateHint":"Hinweis: Gelbe Linie zeigt eine \u00dcbersetzung fehlt und roten Linien zeigen ein Tag wird nicht von das Template verwendet.","lang_save":"Speichern"}
+{
+    "lang_back": "Z\u00fcruck",
+    "lang_createTag": "TAG schafen",
+    "lang_deleteTAG": "L\u00f6schen",
+    "lang_englishJSON": "Englisch JSON",
+    "lang_englishTAG": "Englisch TAG",
+    "lang_germanJSON": "Deutsch JSON",
+    "lang_germanTAG": "Deutsch TAG",
+    "lang_newTAG": "Neue Tag",
+    "lang_portugueseJSON": "Portugiesisch JSON",
+    "lang_portugueseTAG": "Portugiesisch TAG",
+    "lang_save": "Speichern",
+    "lang_templateAdminHelp": "",
+    "lang_templateHint": "Hinweis: Gelbe Linie zeigt eine \u00dcbersetzung fehlt und roten Linien zeigen ein Tag wird nicht von das Template verwendet."
+}

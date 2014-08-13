@@ -1,10 +1,10 @@
 {
-	"lang_welcome":"Willkommen",
-	"lang_intro":"Dies ist die bwLehrpool Konfigurationsoberfläche.",
-	"lang_vmLocationNotSet":"Es ist noch kein Speicherort für die Virtuellen Maschinen festgelegt.",
-	"lang_configure":"Konfigurieren",
-	"lang_bootMenuWarning":"Das Bootmenü ist veraltet oder wurde noch nicht generiert.",
-	"lang_minilinuxMissing":"Wichtige Dateien der MiniLinux-Installation fehlen.",
-	"lang_systemConfigurationNotChosen":"Es wurde noch keine Systemkonfiguration ausgewählt.",
-	"lang_systemConfiguration":"Systemkonfiguration"
+    "lang_bootMenuWarning": "Das Bootmen\u00fc ist veraltet oder wurde noch nicht generiert.",
+    "lang_configure": "Konfigurieren",
+    "lang_intro": "Dies ist die bwLehrpool Konfigurationsoberfl\u00e4che.",
+    "lang_minilinuxMissing": "Wichtige Dateien der MiniLinux-Installation fehlen.",
+    "lang_systemConfiguration": "Systemkonfiguration",
+    "lang_systemConfigurationNotChosen": "Es wurde noch keine Systemkonfiguration ausgew\u00e4hlt.",
+    "lang_vmLocationNotSet": "Es ist noch kein Speicherort f\u00fcr die Virtuellen Maschinen festgelegt.",
+    "lang_welcome": "Willkommen"
 }

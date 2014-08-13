@@ -1,8 +1,8 @@
 {
-	"lang_space":"Espaço",
-	"lang_services":"Serviços",
-	"lang_addressConfiguration":"Configuração do Endereço",
-	"lang_system":"Sistema",
-	"lang_maintenance":"Manutenção",
-	"lang_iAmSure":"Sim, eu tenho certeza"
+    "lang_addressConfiguration": "Configura\u00e7\u00e3o do Endere\u00e7o",
+    "lang_iAmSure": "Sim, eu tenho certeza",
+    "lang_maintenance": "Manuten\u00e7\u00e3o",
+    "lang_services": "Servi\u00e7os",
+    "lang_space": "Espa\u00e7o",
+    "lang_system": "Sistema"
 }

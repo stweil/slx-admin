@@ -1,15 +1,15 @@
 {
-	"lang_bootMenu":"Bootmenü",
-	"lang_bootInfo":"Hier können Anpassungen am Erscheinungsbild des Bootmenüs vorgenommen werden.",
-	"lang_bootBehavior":"Standard-Bootverhalten",
-	"lang_localHDD":"Lokale HDD",
-	"lang_menuDisplayTime":"Anzeigedauer des Menüs",
-	"lang_seconds":"Sekunden",
-	"lang_menuCustom":"Benutzerdefinierter Menüzusatz",
-	"lang_bootMenuCreate":"Bootmenü erzeugen",
-	"lang_menuCustomHint1":"Hier haben Sie die Möglichkeit, eigenen Menü-Code zum angezeigten PXE-Menü hinzuzufügen, um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Menüformat.",
-	"lang_menuCustomHint2":"Sie können ein oder mehrere Einträge erzeugen. Wenn Sie einen Eintrag erzeugen möchten, der automatisch gestartet wird, wenn der Benutzer keine Auswahl tätigt, vergeben Sie als",
-	"lang_menuCustomHint3":"und wählen Sie als Standard-Bootverhalten ebenfalls my-entry.",
-	"lang_example":"Beispiel",
-	"lang_close":"Schließen"
+    "lang_bootBehavior": "Standard-Bootverhalten",
+    "lang_bootInfo": "Hier k\u00f6nnen Anpassungen am Erscheinungsbild des Bootmen\u00fcs vorgenommen werden.",
+    "lang_bootMenu": "Bootmen\u00fc",
+    "lang_bootMenuCreate": "Bootmen\u00fc erzeugen",
+    "lang_close": "Schlie\u00dfen",
+    "lang_example": "Beispiel",
+    "lang_localHDD": "Lokale HDD",
+    "lang_menuCustom": "Benutzerdefinierter Men\u00fczusatz",
+    "lang_menuCustomHint1": "Hier haben Sie die M\u00f6glichkeit, eigenen Men\u00fc-Code zum angezeigten PXE-Men\u00fc hinzuzuf\u00fcgen, um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Men\u00fcformat.",
+    "lang_menuCustomHint2": "Sie k\u00f6nnen ein oder mehrere Eintr\u00e4ge erzeugen. Wenn Sie einen Eintrag erzeugen m\u00f6chten, der automatisch gestartet wird, wenn der Benutzer keine Auswahl t\u00e4tigt, vergeben Sie als",
+    "lang_menuCustomHint3": "und w\u00e4hlen Sie als Standard-Bootverhalten ebenfalls my-entry.",
+    "lang_menuDisplayTime": "Anzeigedauer des Men\u00fcs",
+    "lang_seconds": "Sekunden"
 }

@@ -1,7 +1,7 @@
 {
-	"lang_name":"Name",
-	"lang_configuration":"Konfiguration",
-	"lang_configurationChoose":"Bitte wählen Sie, welche Module für diese Konfiguration verwendet werden sollen.",
-	"lang_new":"Neu",
-	"lang_next":"Weiter"
+    "lang_configuration": "Konfiguration",
+    "lang_configurationChoose": "Bitte w\u00e4hlen Sie, welche Module f\u00fcr diese Konfiguration verwendet werden sollen.",
+    "lang_name": "Name",
+    "lang_new": "Neu",
+    "lang_next": "Weiter"
 }

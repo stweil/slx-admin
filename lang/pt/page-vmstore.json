@@ -1,15 +1,15 @@
 {
-	"lang_vmLocation":"Localização da VM",
-	"lang_vmLocationChoose":"Por favor, escolha aonde as imagens das máquinas virtuais serão armazenadas.",
-	"lang_intern":"Iterna",
-	"lang_noAdditionalInformation":"Nenhuma configuração adicional necessária",
-	"lang_readWrite":"Acesso Leitura/Escrita",
-	"lang_username":"Nome de Usuário",
-	"lang_password":"Senha",
-	"lang_readOnly":"Acesso Somente Leitura",
-	"lang_save":"Salvar",
-	"lang_close":"Fechar",
-	"lang_vmLocationHelp1":"Para fins de teste, as VMs podem ser armazenados diretamente no servidor satélite. No entanto, se você operar o vmdk do satélite entregue por favor lembre-se que você tem apenas cerca de 100 GB de memória.",
-	"lang_vmLocationHelp2":"Em operação, faz sentido para este usar um armazenamento de rede de alto desempenho. Este armazenamento de rede pode ser integrado através de NFS ou CIFS / SMB. Em qualquer caso, deve-se assegurar de que o servidor de satélite tenha acesso de gravação para este armazenamento de rede para poder adicionar uma nova máquina virtual. Ao utilizar NFSv3 este pode ser configurado com base em IP, para o uso de CIFS / SMB, você pode acessar as divulgações de dados que lhe permitiria escrever.",
-	"lang_vmLocationHelp3":"Os clientes bwLehrpool só precisam ter acesso de leitura ao armazenamento de rede (e por razões de segurança, realmente só pode ler). Em CIFS / SMB Você pode fazer isso mais facilmente, permitindo o acesso a visitantes sem senha com acesso de leitura."
+    "lang_close": "Fechar",
+    "lang_intern": "Iterna",
+    "lang_noAdditionalInformation": "Nenhuma configura\u00e7\u00e3o adicional necess\u00e1ria",
+    "lang_password": "Senha",
+    "lang_readOnly": "Acesso Somente Leitura",
+    "lang_readWrite": "Acesso Leitura\/Escrita",
+    "lang_save": "Salvar",
+    "lang_username": "Nome de Usu\u00e1rio",
+    "lang_vmLocation": "Localiza\u00e7\u00e3o da VM",
+    "lang_vmLocationChoose": "Por favor, escolha aonde as imagens das m\u00e1quinas virtuais ser\u00e3o armazenadas.",
+    "lang_vmLocationHelp1": "Para fins de teste, as VMs podem ser armazenados diretamente no servidor sat\u00e9lite. No entanto, se voc\u00ea operar o vmdk do sat\u00e9lite entregue por favor lembre-se que voc\u00ea tem apenas cerca de 100 GB de mem\u00f3ria.",
+    "lang_vmLocationHelp2": "Em opera\u00e7\u00e3o, faz sentido para este usar um armazenamento de rede de alto desempenho. Este armazenamento de rede pode ser integrado atrav\u00e9s de NFS ou CIFS \/ SMB. Em qualquer caso, deve-se assegurar de que o servidor de sat\u00e9lite tenha acesso de grava\u00e7\u00e3o para este armazenamento de rede para poder adicionar uma nova m\u00e1quina virtual. Ao utilizar NFSv3 este pode ser configurado com base em IP, para o uso de CIFS \/ SMB, voc\u00ea pode acessar as divulga\u00e7\u00f5es de dados que lhe permitiria escrever.",
+    "lang_vmLocationHelp3": "Os clientes bwLehrpool s\u00f3 precisam ter acesso de leitura ao armazenamento de rede (e por raz\u00f5es de seguran\u00e7a, realmente s\u00f3 pode ler). Em CIFS \/ SMB Voc\u00ea pode fazer isso mais facilmente, permitindo o acesso a visitantes sem senha com acesso de leitura."
 }

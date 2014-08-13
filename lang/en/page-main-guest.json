@@ -1,5 +1,5 @@
 {
-	"lang_welcome":"Welcome",
-	"lang_introGuest":"This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",
-	"lang_login":"Login"
+    "lang_introGuest": "This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",
+    "lang_login": "Login",
+    "lang_welcome": "Welcome"
 }

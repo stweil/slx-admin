@@ -1,4 +1,4 @@
 {
-	"lang_configurationSuccess":"The configuration has been successfully created.",
-	"lang_configurationActive":"Enable configuration"
+    "lang_configurationActive": "Enable configuration",
+    "lang_configurationSuccess": "The configuration has been successfully created."
 }

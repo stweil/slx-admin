@@ -1,7 +1,7 @@
 {
-	"lang_basicConfiguration":"Basiskonfiguration",
-	"lang_help":"Hilfe",
-	"lang_close":"Schließen",
-	"lang_save":"Speichern",
-	"lang_reset":"Zurücksetzen"
+    "lang_basicConfiguration": "Basiskonfiguration",
+    "lang_close": "Schlie\u00dfen",
+    "lang_help": "Hilfe",
+    "lang_reset": "Zur\u00fccksetzen",
+    "lang_save": "Speichern"
 }

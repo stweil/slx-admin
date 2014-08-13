@@ -1,5 +1,5 @@
 {
-	"lang_connectionWait":"A conexão com o servidor AD especificado agora está checada. Por favor, aguarde um momento.",
-	"lang_back":"Voltar",
-	"lang_skip":"Pular"
+    "lang_back": "Voltar",
+    "lang_connectionWait": "A conex\u00e3o com o servidor AD especificado agora est\u00e1 checada. Por favor, aguarde um momento.",
+    "lang_skip": "Pular"
 }
