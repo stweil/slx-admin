@@ -98,10 +98,13 @@ class Page_Translation extends Page
 
 		//checks the JSON tags from every language
 		foreach ($files as $key => $value) {
+			$tmp = $this->checkJson($de[$key], 'de');
+			if ($tmp === false) // TODO: Pretty solution
+				continue;
 			$table[] = array(
 				'template' => $value,
 				'link' => $key,
-				'de' => $this->checkJson($de[$key], 'de'),
+				'de' => $tmp,
 				'en' => $this->checkJson($en[$key], 'en'),
 				'pt' => $this->checkJson($pt[$key], 'pt')
 			);
@@ -153,7 +156,7 @@ class Page_Translation extends Page
 	 * Checks the JSON tags from a template
 	 * @param string the template's path
 	 * @param string the selected language
-	 * @return string the information about the JSON tags
+	 * @return string|boolean the information about the JSON tags, false if template has no lang-tags
 	 */
 	private function checkJson($path, $lang)
 	{
@@ -163,7 +166,8 @@ class Page_Translation extends Page
 		}
 		//loads a template and find all its tags
 		$htmlTemplate = file_get_contents('templates/' . $path . '.html');
-		preg_match_all('/{{lang_(.*?)}}/s', $htmlTemplate, $matches);
+		if (preg_match_all('/{{lang_(.*?)}}/s', $htmlTemplate, $matches) == 0)
+			return false;
 		$htmlCount = count(array_unique($matches[1]));
 
 		//initialize the count variables
@@ -212,29 +216,29 @@ class Page_Translation extends Page
 
 		//finds every mustache tag within the html template
 		$htmlTemplate = file_get_contents('templates/' . $path . '.html');
-		preg_match_all('/{{lang_(.*?)}}/s', $htmlTemplate, $matches);
-		$tags = $matches[1];
-		$tags = array_flip($tags);
-		foreach ($tags as $key => $value) {
-			$tags['lang_' . $key] = $value;
-			unset($tags[$key]);
-		}
+		preg_match_all('/{{(lang_.*?)}}/s', $htmlTemplate, $matches);
+		$tags = array_flip($matches[1]);
 
 		//finds every JSON tag withing the JSON language files
 		$langArray = Dictionary::getLanguages();
 		$json = array();
 		foreach ($langArray as $lang) {
 			$jsonTags = Dictionary::getArrayTemplate($path, $lang);
-			if (is_array($jsonTags))
-				$json = array_merge($json, $jsonTags);
+			if (!is_array($jsonTags))
+				continue;
+			foreach (array_keys($jsonTags) as $key) {
+				if (substr($key, 5) === 'lang_')
+					$json[$key] = 123;
+			}
 		}
 		//remove unused tag
 		unset($json['lang']);
 		//merges the arrays to keep the unique tags
 		$test = array_merge($json, $tags);
-
+		//echo "TEST:\n";
+		//print_r($test);
 		//loads the content of every JSON tag from the specified language
-		foreach ($test as $tag => $value) {
+		foreach (array_keys($test) as $tag) {
 			$this->tags[] = array(
 				'tag' => $tag,
 				'de' => $this->checkJsonTag($path, $tag, 'de/'),
@@ -243,6 +247,8 @@ class Page_Translation extends Page
 				'class' => $this->checkJsonTags($path, $tag)
 			);
 		}
+		//echo "TAGS:\n";
+		//print_r($this->tags);
 
 		return true;
 	}
@@ -309,12 +315,19 @@ class Page_Translation extends Page
 			$tag = $str[2];
 			if ($pre !== 'lang')
 				continue;
-			if (in_array($lang, $langArray)) {
-				if ($tag !== 'newtag')
-					$json[$lang][$tag] = $value;
-				else {
-					$json[$lang][$_REQUEST['newtag']] = $value;
-				}
+			if (!isset($json[$lang])) {
+				Message::addWarning('i18n-invalid-lang', $lang);
+				continue;
+			}
+			if (empty($tag)) {
+				Message::addWarning('i18n-empty-tag');
+				continue;
+			}
+			if ($tag !== 'newtag') {
+				$json[$lang][$tag] = $value;
+				error_log("Setting \$json['$lang']['$tag'] = '$value';");
+			} else {
+				$json[$lang][$_REQUEST['newtag']] = $value;
 			}
 		}
 
@@ -325,7 +338,9 @@ class Page_Translation extends Page
 		foreach ($json as $key => $array) {
 			$path = 'lang/' . $key . '/' . $_POST['path'] . '.json'; // TODO: Wtf? Unvalidated user input -> filesystem access!
 			ksort($array); // Sort by key, so the diff on the output is cleaner
+			error_log("Converting " . print_r($array, true));
 			$json = up_json_encode($array, JSON_PRETTY_PRINT); // Also for better diffability of the json files, we pretty print
+			error_log("Result: $json");
 			//exits the function in case the action was unsuccessful
 			if (@file_put_contents($path, $json) === false) {
 				Message::addError('invalid-template');
