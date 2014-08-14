@@ -5,6 +5,8 @@ class Dictionary
 
 	private static $messageArray;
 	private static $languages;
+	private static $templateCache = array();
+	private static $hardcodedMessages = false;
 
 	public static function init()
 	{
@@ -53,7 +55,9 @@ class Dictionary
 	{
 		if ($lang === false)
 			$lang = LANG;
-		$file = "lang/" . $lang . "/" . $template . ".json";
+		$file = "lang/" . $lang . "/templates/" . $template . ".json";
+		if (isset(self::$templateCache[$file]))
+			return self::$templateCache[$file];
 		$language = array('lang' => $lang);
 		$content = @file_get_contents($file);
 		if ($content === false) // File does not exist for language
@@ -61,13 +65,16 @@ class Dictionary
 		$json = json_decode($content, true);
 		if (!is_array($json))
 			return $language;
-		return array_merge($language, $json);
+		return self::$templateCache[$file] = array_merge($language, $json);
 	}
 
 	public static function translate($string)
 	{
-		$hardcoded = json_decode(file_get_contents("lang/" . LANG . "/messages-hardcoded.json"), true);
-		return $hardcoded[$string];
+		if (self::$hardcodedMessages === false)
+			self::$hardcodedMessages = @json_decode(@file_get_contents("lang/" . LANG . "/messages-hardcoded.json"), true);
+		if (!isset(self::$hardcodedMessages[$string]))
+			return "(missing: $string :missing)";
+		return self::$hardcodedMessages[$string];
 	}
 
 	public static function getMessages()
@@ -83,3 +90,4 @@ class Dictionary
 }
 
 Dictionary::init();
+

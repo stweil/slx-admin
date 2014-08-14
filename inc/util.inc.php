@@ -103,6 +103,26 @@ class Util
 		return preg_replace('/[^a-zA-Z0-9_\-]+/', '_', $name);
 	}
 
+	public static function safePath($path, $prefix = '')
+	{
+		if (empty($path))
+			return false;
+		$path = trim($path);
+		if ($path{0} == '/' || preg_match('/[\x00-\x19\?\*]/', $path))
+			return false;
+		if (strpos($path, '..') !== false)
+			return false;
+		if (substr($path, 0, 2) !== './')
+			$path = "./$path";
+		if (empty($prefix))
+			return $path;
+		if (substr($prefix, 0, 2) !== './')
+			$prefix = "./$prefix";
+		if (substr($path, 0, strlen($prefix)) !== $prefix)
+			return false;
+		return $path;
+	}
+
 	/**
 	 * Create human readable error description from a $_FILES[<..>]['error'] code
 	 * 
