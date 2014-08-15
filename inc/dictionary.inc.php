@@ -3,7 +3,7 @@
 class Dictionary
 {
 
-	private static $messageArray;
+	private static $messageArray = array();
 	private static $languages;
 	private static $templateCache = array();
 	private static $hardcodedMessages = false;
@@ -48,14 +48,18 @@ class Dictionary
 		}
 
 		define('LANG', $language);
-		self::$messageArray = json_decode(file_get_contents("lang/" . LANG . "/messages.json"), true);
 	}
 
 	public static function getArrayTemplate($template, $lang = false)
 	{
+		return self::getArray('templates/' . $template, $lang);
+	}
+
+	public static function getArray($section, $lang = false)
+	{
 		if ($lang === false)
 			$lang = LANG;
-		$file = "lang/" . $lang . "/templates/" . $template . ".json";
+		$file = Util::safePath("lang/" . $lang . "/" . $section . ".json");
 		if (isset(self::$templateCache[$file]))
 			return self::$templateCache[$file];
 		$language = array('lang' => $lang);
@@ -71,17 +75,25 @@ class Dictionary
 	public static function translate($string)
 	{
 		if (self::$hardcodedMessages === false)
-			self::$hardcodedMessages = @json_decode(@file_get_contents("lang/" . LANG . "/messages-hardcoded.json"), true);
+			self::$hardcodedMessages = json_decode(file_get_contents("lang/" . LANG . "/messages-hardcoded.json"), true);
 		if (!isset(self::$hardcodedMessages[$string]))
 			return "(missing: $string :missing)";
 		return self::$hardcodedMessages[$string];
 	}
 
-	public static function getMessages()
+	public static function getMessage($id)
 	{
-		return self::$messageArray;
+		if (self::$messageArray === false)
+			self::$messageArray = json_decode(file_get_contents("lang/" . LANG . "/messages.json"), true);
+		if (!isset(self::$messageArray[$id]))
+			return "(missing: $id :missing)";
+		return self::$messageArray[$id];
 	}
 
+	/**
+	 * Get all supported languages as array
+	 * @return array List of languages (2 char id)
+	 */
 	public static function getLanguages()
 	{
 		return self::$languages;

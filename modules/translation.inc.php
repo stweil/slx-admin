@@ -144,6 +144,23 @@ class Page_Translation extends Page
 	}
 
 	/**
+	 * Finds and returns all PHP files of slxadmin
+	 * @return array of all php files
+	 */
+	private function listPhp()
+	{
+		$php = array();
+		$dir = '.';
+		$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+		foreach ($objects as $name => $object) {
+			if (substr($name, -4) === '.php') {
+				$php[] = $name;
+			}
+		}
+		return $php;
+	}
+
+	/**
 	 * Checks the JSON tags from a template
 	 * @param string the template's path
 	 * @param string the selected language
@@ -199,7 +216,8 @@ class Page_Translation extends Page
 	 */
 	private function templateAnalysis($path)
 	{
-		$templateFile = "templates/$path.html";
+		$path = "templates/$path";
+		$templateFile = "$path.html";
 		//checks if the template is valid
 		if (!file_exists($templateFile)) {
 			Message::addError('invalid-template', $templateFile);
@@ -215,7 +233,7 @@ class Page_Translation extends Page
 		$langArray = Dictionary::getLanguages();
 		$json = array();
 		foreach ($langArray as $lang) {
-			$jsonTags = Dictionary::getArrayTemplate($path, $lang);
+			$jsonTags = Dictionary::getArray($path, $lang);
 			if (!is_array($jsonTags))
 				continue;
 			foreach (array_keys($jsonTags) as $key) {
@@ -231,10 +249,10 @@ class Page_Translation extends Page
 		foreach (array_keys($test) as $tag) {
 			$this->tags[] = array(
 				'tag' => $tag,
-				'de' => $this->checkJsonTag($path, $tag, 'de/'),
-				'en' => $this->checkJsonTag($path, $tag, 'en/'),
-				'pt' => $this->checkJsonTag($path, $tag, 'pt/'),
-				'class' => $this->checkJsonTags($path, $tag)
+				'de' => $this->getJsonTag($path, $tag, 'de/'),
+				'en' => $this->getJsonTag($path, $tag, 'en/'),
+				'pt' => $this->getJsonTag($path, $tag, 'pt/'),
+				'class' => $this->getTagColor($path, $tag)
 			);
 		}
 		//print_r($this->tags);
@@ -249,9 +267,9 @@ class Page_Translation extends Page
 	 * @param string the specified language
 	 * @return string the tag's content
 	 */
-	private function checkJsonTag($path, $tag, $lang)
+	private function getJsonTag($path, $tag, $lang)
 	{
-		$json = Dictionary::getArrayTemplate($path, $lang);
+		$json = Dictionary::getArray($path, $lang);
 		if (is_array($json) && isset($json[$tag])) {
 			return $json[$tag];
 		}
@@ -264,18 +282,17 @@ class Page_Translation extends Page
 	 * @param string the selected tag
 	 * @return string the css class of the line
 	 */
-	private function checkJsonTags($path, $tag)
+	private function getTagColor($path, $tag)
 	{
 		//return danger in case the tag is not found in the template
-		$htmlTemplate = file_get_contents('templates/' . $path . '.html');
-		$htmlCount = substr_count($htmlTemplate, $tag);
-		if ($htmlCount < 1)
-			return "danger";
+		$htmlTemplate = file_get_contents($path . '.html');
+		if (strpos($htmlTemplate, '{{' . $tag . '}}') === false)
+			return 'danger';
 
 		//return warning in case at least one of the tag's values is empty
-		$langArray = array('de/', 'en/', 'pt/');
+		$langArray = Dictionary::getLanguages();
 		foreach ($langArray as $lang) {
-			if (($json = Dictionary::getArrayTemplate($path, $lang))) {
+			if (($json = Dictionary::getArray($path, $lang))) {
 				if (!isset($json[$tag]) || $json[$tag] == '')
 					return 'warning';
 			}
@@ -350,21 +367,36 @@ class Page_Translation extends Page
 	private function initMsg($isHardcoded)
 	{
 		$msgs = array();
-		//chooses the path
-		$path = 'messages';
+		// Get all php files, so we can find all strings that need to be translated
+		$php = $this->listPhp();
+		$tags = array();
+		//chooses the path and regex
 		if ($isHardcoded) {
 			$path = 'messages-hardcoded';
+			$expr = '/Dictionary\s*::\s*translate\s*\(\s*[\'"](.*?)[\'"]\s*[\)\,]/i';
+		} else {
+			$path = 'messages';
+			$expr = '/Message\s*::\s*add\w+\s*\(\s*[\'"](.*?)[\'"]\s*[\)\,]/i';
 		}
-		//loads the content of every JSON tag from the message file
-		$json = Dictionary::getArrayTemplate($path, LANG);
-		foreach ($json as $key => $array) {
-			if ($key != 'lang')
-				$msgs[] = array(
-					'tag' => $key,
-					'de' => $this->checkJsonTag($path, $key, 'de/'), // TODO: Hardcoded language list, use Dictionary::getLanguages()
-					'en' => $this->checkJsonTag($path, $key, 'en/'),
-					'pt' => $this->checkJsonTag($path, $key, 'pt/')
-				);
+		// Now find all tags in all php files. Only works for literal usage, not something like $foo = 'bar'; Dictionary::translate($foo);
+		foreach ($php as $file) {
+			$content = @file_get_contents($file);
+			if ($content === false || preg_match_all($expr, $content, $out) < 1)
+				continue;
+			foreach ($out[1] as $id) {
+				if (!isset($tags[$id]))
+					$tags[$id] = 0; // TODO: Display usage count next to it, even better would be list of php files it appears in, so a translator can get context
+				$tags[$id]++;
+			}
+		}
+		ksort($tags);
+		foreach ($tags as $tag => $usageCount) {
+			$msgs[] = array(
+				'tag' => $tag,
+				'de' => $this->getJsonTag($path, $tag, 'de/'), // TODO: Hardcoded language list, use Dictionary::getLanguages()
+				'en' => $this->getJsonTag($path, $tag, 'en/'),
+				'pt' => $this->getJsonTag($path, $tag, 'pt/')
+			);
 		}
 		return $msgs;
 	}

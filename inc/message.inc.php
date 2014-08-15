@@ -1,9 +1,5 @@
 <?php
 
-// TODO: Move to extra file
-global $error_text;
-$error_text = Dictionary::getMessages();
-
 class Message
 {
 	private static $list = array();
@@ -41,8 +37,6 @@ class Message
 	 */
 	private static function add($type, $id, $params)
 	{
-		global $error_text;
-		if (!isset($error_text[$id])) Util::traceError('Invalid message id: ' . $id);
 		self::$list[] = array(
 			'type'   => $type,
 			'id'     => $id,
@@ -58,11 +52,10 @@ class Message
 	 */
 	public static function renderList()
 	{
-		global $error_text;
 		// Ajax
 		if (AJAX) {
 			foreach (self::$list as $item) {
-				$message = $error_text[$item['id']];
+				$message = Dictionary::getMessage($item['id']);
 				foreach ($item['params'] as $index => $text) {
 					$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
 				}
@@ -74,7 +67,7 @@ class Message
 		// Non-Ajax
 		if (!self::$flushed) Render::openTag('div', array('class' => 'container'));
 		foreach (self::$list as $item) {
-			$message = $error_text[$item['id']];
+			$message = Dictionary::getMessage($item['id']);
 			foreach ($item['params'] as $index => $text) {
 				$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
 			}
@@ -92,10 +85,9 @@ class Message
 	 */
 	public static function asString()
 	{
-		global $error_text;
 		$return = '';
 		foreach (self::$list as $item) {
-			$message = $error_text[$item['id']];
+			$message = Dictionary::getMessage($item['id']);
 			foreach ($item['params'] as $index => $text) {
 				$message = str_replace('{{' . $index . '}}', $text, $message);
 			}
