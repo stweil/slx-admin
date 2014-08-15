@@ -10,7 +10,10 @@ define('CONFIG_SESSION_TIMEOUT', 86400 * 3);
 //define('CONFIG_SQL_HOST', 'localhost');
 define('CONFIG_SQL_DSN', 'mysql:dbname=openslx;host=localhost');
 define('CONFIG_SQL_USER', 'openslx');
-define('CONFIG_SQL_PASS', 'geheim');
+// This marker %MYSQL_OPENSLX_PASS% is meant for automated patching
+// via SSPS (satellite server preparation script) - do not change it
+// if you plan to run this script afterwards.
+define('CONFIG_SQL_PASS', '%MYSQL_OPENSLX_PASS%');
 define('CONFIG_SQL_FORCE_UTF8', false);
 //define('CONFIG_SQL_DB', 'openslx');
 
