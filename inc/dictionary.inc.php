@@ -3,7 +3,7 @@
 class Dictionary
 {
 
-	private static $messageArray = array();
+	private static $messageArray = false;
 	private static $languages;
 	private static $templateCache = array();
 	private static $hardcodedMessages = false;
