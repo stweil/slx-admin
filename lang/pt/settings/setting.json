@@ -1,0 +1,16 @@
+{
+    "SLX_ADDONS": "Para carregar addons. Atualmente apenas o vmware est\u00e1 dispon\u00edvel.",
+    "SLX_BIOS_CLOCK": "Especifica se e como o rel\u00f3gio interno do computador deve ser definido em rela\u00e7\u00e3o ao hor\u00e1rio do sistema do \/MiniLinux\/.\n*off* = O rel\u00f3gio interno do computador n\u00e3o \u00e9 alterado.\n*local* = O rel\u00f3gio interno est\u00e1 definido para a hora local. De prefer\u00eancia se, por exemplo, ainda existe uma instala\u00e7\u00e3o Windows nativo dispon\u00edvel no PC.\n*utc* = O rel\u00f3gio interno \u00e9 definido para o \/Tempo Universal Coordenado\/. Esta \u00e9 a configura\u00e7\u00e3o mais comum em um ambiente puramente Linux",
+    "SLX_LOGOUT_TIMEOUT": "Hora \/em segundos\/, em que uma sess\u00e3o de usu\u00e1rio pode permanecer sem a\u00e7\u00e3o antes de ser encerrada.\nDeixe o campo em branco para desativar a fun\u00e7\u00e3o.",
+    "SLX_NET_DOMAIN": "Dom\u00ednio DNS no qual o cliente se integra, desde que o servidor DHCP n\u00e3o especifique tal.",
+    "SLX_NTP_SERVER": "Endere\u00e7o do servidor de hor\u00e1rio NTP. V\u00e1rios servidores podem ser especificados separados por espa\u00e7os.\nOs servidores s\u00e3o consultados em seq\u00fc\u00eancia at\u00e9 que um servidor respondendo for encontrado.",
+    "SLX_PROXY_BLACKLIST": "Intervalos de endere\u00e7os em que o servidor proxy n\u00e3o \u00e9 usado (por exemplo, o intervalo de endere\u00e7o do dispositivo). As entradas v\u00e1lidas s\u00e3o endere\u00e7os IP individuais e intervalos de IP em nota\u00e7\u00e3o CIDR (por exemplo 1.2.0.0\/16). Sele\u00e7\u00f5es m\u00faltiplas podem ser separadas por espa\u00e7os.",
+    "SLX_PROXY_IP": "O endere\u00e7o de servidor proxy a ser usado.",
+    "SLX_PROXY_MODE": "Determina se um servidor proxy \u00e9 necess\u00e1rio para acessar a Internet.\n*off* = n\u00e3o utilizar proxy.\n*on* = sempre utilizar proxy.\n*auto* = apenas utilizar proxy quando o PC cliente estiver em um espa\u00e7o de endere\u00e7o privado.",
+    "SLX_PROXY_PORT": "A porta a ser utilizada pelo servidor proxy.",
+    "SLX_PROXY_TYPE": "Tipo do proxy.\n*socks4*, *socks5*,\n*http-connect* (Proxy HTTP com suporte ao m\u00e9todo CONNECT),\n*http-relay* (Cl\u00e1ssico proxy HTTP)",
+    "SLX_REMOTE_LOG_SESSIONS": "Determina se logins e logouts dos usu\u00e1rios devem ser reportados ao sat\u00e9lite.\n*yes* = Login com ID de usu\u00e1rio\n*anonymous* = login an\u00f4nimo\n*no* = sem login",
+    "SLX_ROOT_PASS": "A senha root do sistema base. Exigido somente para fins de diagn\u00f3stico no cliente.\nDeixar campo em branco para n\u00e3o permitir login com root.\n\/Dica\/: A senha \u00e9 criptografada com hash $6$, ent\u00e3o se torna ileg\u00edvel ap\u00f3s ser salva!",
+    "SLX_SHUTDOWN_SCHEDULE": "Hor\u00e1rio fixo para desligar o computador, at\u00e9 mesmo caso tenha um usu\u00e1rio ativo.\nM\u00faltiplos hor\u00e1rios podem ser especificados, separados por espa\u00e7os.",
+    "SLX_SHUTDOWN_TIMEOUT": "Tempo em segundos no qual um computador \u00e9 desligado, caso n\u00e3o tenha um usu\u00e1rio logado.\nDeixar em branco para desabilitar a fun\u00e7\u00e3o."
+}

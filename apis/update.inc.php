@@ -1,6 +1,6 @@
 <?php
 
-$targetVersion = 3;
+$targetVersion = 4;
 
 // #######################
 
@@ -33,7 +33,6 @@ if ($currentVersion < $targetVersion) {
 die("Updated to $currentVersion");
 
 // #######################
-
 // ##### 2014-05-28
 // Add dateline field to property table
 
@@ -41,9 +40,11 @@ function update_1()
 {
 	$res = Database::simpleQuery("DESCRIBE property", array(), false);
 	$type = false;
-	if ($res === false) return;
+	if ($res === false)
+		return;
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		if ($row['Field'] !== 'dateline') continue;
+		if ($row['Field'] !== 'dateline')
+			continue;
 		$type = $row['Type'];
 		break;
 	}
@@ -56,7 +57,6 @@ function update_1()
 }
 
 // #######################
-
 // ##### 2014-06-05
 // Add 'news' table to database schema
 function update_2()
@@ -64,7 +64,8 @@ function update_2()
 	$res = Database::simpleQuery("show tables", array(), false);
 	$found = false;
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		if ($row['Tables_in_openslx'] !== 'news') continue;
+		if ($row['Tables_in_openslx'] !== 'news')
+			continue;
 		$found = true;
 		break;
 	}
@@ -79,6 +80,40 @@ function update_2()
 			KEY `dateline` (`dateline`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8
 		");
+	}
+	return true;
+}
+
+// #######################
+// ##### 2014-08-18
+// Remove setting descriptions from DB, put into json files now
+function update_3()
+{
+	$res = Database::simpleQuery("DESCRIBE setting", array(), false);
+	if ($res !== false) {
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		switch ($row['Field']) {
+			case 'de':
+			case 'en':
+			case 'pt':
+			case 'description':
+				Database::exec("ALTER TABLE setting DROP {$row['Field']}");
+				break;
+		}
+	}
+	}
+	$res = Database::simpleQuery("DESCRIBE cat_setting", array(), false);
+	if ($res !== false) {
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		switch ($row['Field']) {
+			case 'de':
+			case 'en':
+			case 'pt':
+			case 'name':
+				Database::exec("ALTER TABLE cat_setting DROP {$row['Field']}");
+				break;
+		}
+	}
 	}
 	return true;
 }

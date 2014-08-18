@@ -5,7 +5,7 @@ class Dictionary
 
 	private static $messageArray = false;
 	private static $languages;
-	private static $templateCache = array();
+	private static $stringCache = array();
 	private static $hardcodedMessages = false;
 
 	public static function init()
@@ -60,8 +60,8 @@ class Dictionary
 		if ($lang === false)
 			$lang = LANG;
 		$file = Util::safePath("lang/" . $lang . "/" . $section . ".json");
-		if (isset(self::$templateCache[$file]))
-			return self::$templateCache[$file];
+		if (isset(self::$stringCache[$file]))
+			return self::$stringCache[$file];
 		$language = array('lang' => $lang);
 		$content = @file_get_contents($file);
 		if ($content === false) // File does not exist for language
@@ -69,16 +69,24 @@ class Dictionary
 		$json = json_decode($content, true);
 		if (!is_array($json))
 			return $language;
-		return self::$templateCache[$file] = array_merge($language, $json);
+		return self::$stringCache[$file] = array_merge($language, $json);
 	}
 
-	public static function translate($string)
+	public static function translate($section, $string = false)
 	{
-		if (self::$hardcodedMessages === false)
-			self::$hardcodedMessages = json_decode(file_get_contents("lang/" . LANG . "/messages-hardcoded.json"), true);
-		if (!isset(self::$hardcodedMessages[$string]))
-			return "(missing: $string :missing)";
-		return self::$hardcodedMessages[$string];
+		if ($string === false) {
+			// Fallback: General "hardcoded" messages
+			$string = $section;
+			if (self::$hardcodedMessages === false)
+				self::$hardcodedMessages = json_decode(file_get_contents("lang/" . LANG . "/messages-hardcoded.json"), true);
+			if (!isset(self::$hardcodedMessages[$string]))
+				return "(missing: $string :missing)";
+			return self::$hardcodedMessages[$string];
+		}
+		$strings = self::getArray($section);
+		if (!isset($strings[$string]))
+			return "(missing: '$string' in '$section')";
+		return $strings[$string];
 	}
 
 	public static function getMessage($id)

@@ -75,21 +75,21 @@ class Page_BaseConfig extends Page
 		}
 		// List global config option
 		$settings = array();
-		$res = Database::simpleQuery('SELECT cat_setting.' . LANG . ' AS category_name, setting.setting, setting.defaultvalue, setting.permissions, setting.' . LANG . ' AS description, tbl.value
+		$res = Database::simpleQuery('SELECT cat_setting.catid, setting.setting, setting.defaultvalue, setting.permissions, tbl.value
 			FROM setting
 			INNER JOIN cat_setting USING (catid)
 			LEFT JOIN setting_global AS tbl USING (setting)
 			ORDER BY cat_setting.sortval ASC, setting.setting ASC'); // TODO: Add setting groups and sort order
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['description'] = Util::markup($row['description']);
+			$row['description'] = Util::markup(Dictionary::translate('settings/setting', $row['setting']));
 			if (is_null($row['value'])) $row['value'] = $row['defaultvalue'];
 			$row['big'] = false;
-			$settings[$row['category_name']]['settings'][] = $row;
-			$settings[$row['category_name']]['category_name'] = $row['category_name'];
+			$settings[$row['catid']]['settings'][] = $row;
+			$settings[$row['catid']]['category_name'] = Dictionary::translate('settings/cat_setting', 'cat_' . $row['catid']);
 		}
-		$settings = array_values($settings);
+
 		Render::addTemplate('page-baseconfig', array(
-			'categories'  => $settings
+			'categories'  => array_values($settings)
 		));
 	}
 

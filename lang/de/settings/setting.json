@@ -1,0 +1,16 @@
+{
+    "SLX_ADDONS": "Zu ladende Addons. Zur Zeit steht nur vmware zur Verf\u00fcgung.",
+    "SLX_BIOS_CLOCK": "Legt fest, ob und wie die interne Uhr des Rechners im Bezug auf die Systemzeit des \/MiniLinux\/ gesetzt werden soll.\n*off* = Die interne Uhr des Rechners wird nicht ver\u00e4ndert.\n*local* = Die interne Uhr wird auf die Lokalzeit gesetzt. Bevorzugt wenn z.B. noch eine native Windows-Installation auf dem PC vorhanden ist.\n*utc* = Die interne Uhr wird auf die \/Koordinierte Weltzeit\/ gesetzt. Dies ist die g\u00e4ngige Einstellung in einem reinen Linux-Umfeld.",
+    "SLX_LOGOUT_TIMEOUT": "Zeit \/in Sekunden\/, die eine Benutzersitzung ohne Aktion sein darf, bevor sie beendet wird.\nFeld leer lassen, um die Funktion zu deaktivieren.",
+    "SLX_NET_DOMAIN": "DNS-Dom\u00e4ne, in die sich die Clients eingliedern, sofern der DHCP Server keine solche vorgibt.",
+    "SLX_NTP_SERVER": "Adresse des NTP-Zeitservers. Es k\u00f6nnen mehrere Server mit Leerzeichen getrennt angegeben werden.\nDie Server werden der Reihe nach angefragt, bis ein antwortender Server gefunden wird.",
+    "SLX_PROXY_BLACKLIST": "Adressen bzw. Adressbereiche, f\u00fcr die der Proxyserver nicht verwendet werden soll (z.B. der Adressbereich der Einrichtung). G\u00fcltige Angaben sind einzelne IP-Adressen, sowie IP-Bereiche in CIDR-Notation (z.B. 1.2.0.0\/16). Mehrere Angaben k\u00f6nnen durch Leerzeichen getrennt werden.",
+    "SLX_PROXY_IP": "Die Adresse des zu verwendenden Proxy Servers.",
+    "SLX_PROXY_MODE": "Legt fest, ob zum Zugriff aufs Internet ein Proxy-Server ben\u00f6tigt wird.\n*off* = keinen Proxy benutzen.\n*on* = Proxy immer benutzen.\n*auto* = Proxy nur benutzen, wenn sich der Client-PC in einem privaten Adressbereich befindet.",
+    "SLX_PROXY_PORT": "Der Port des zu verwendenden Proxy Servers.",
+    "SLX_PROXY_TYPE": "Art des Proxys.\n*socks4*, *socks5*,\n*http-connect* (HTTP Proxy mit Unterst\u00fctzung der CONNECT-Methode),\n*http-relay* (Klassischer HTTP Proxy)",
+    "SLX_REMOTE_LOG_SESSIONS": "Legt fest, ob Logins und Logouts der Benutzer an den Satelliten gemeldet werden sollen.\n*yes* = Mit Benutzerkennung loggen\n*anonymous* = Anonym loggen\n*no* = Nicht loggen",
+    "SLX_ROOT_PASS": "Das root-Passwort des Grundsystems. Wird nur f\u00fcr Diagnosezwecke am Client ben\u00f6tigt.\nFeld leer lassen, um root-Logins zu verbieten.\n\/Hinweis\/: Das Passwort wird crypt $6$ gehasht, daher wir das Passwort nach dem Speichern nicht mehr lesbar sein!",
+    "SLX_SHUTDOWN_SCHEDULE": "Feste Uhrzeit, zu der sich die Rechner ausschalten, auch wenn noch ein Benutzer aktiv ist.\nMehrere Zeitpunkte k\u00f6nnen durch Leerzeichen getrennt angegeben werden.",
+    "SLX_SHUTDOWN_TIMEOUT": "Zeit in Sekunden, nach dem ein Rechner abgeschaltet wird, sofern kein Benutzer angemeldet ist.\nFeld leer lassen, um die Funktion zu deaktivieren."
+}
