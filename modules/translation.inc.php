@@ -252,6 +252,9 @@ class Page_Translation extends Page
 			foreach ($jsonTags as $tag => $translation) {
 				if (substr($tag, 0, 5) === 'lang_') {
 					$tags[$tag]['langs'][$lang]['translation'] = $translation;
+					$tags[$tag]['tag'] = $tag;
+					if (!isset($tags[$tag]['missing']))
+						$tags[$tag]['missing'] = 0;
 					if (!empty($translation))
 						$tags[$tag]['missing']--;
 				}
