@@ -58,8 +58,13 @@ class Page_Translation extends Page
 				}
 				//renders the tag edition page
 				if ($this->templateAnalysis($this->template)) {
+					$langs = array();
+					foreach (Dictionary::getLanguages() as $lang) {
+						$langs[] = array('lang' => $lang);
+					}
 					Render::addTemplate('translation/template', array(
 						'template' => 'templates/' . $this->template,
+						'langs' => $langs,
 						'tags' => $this->tags
 					));
 					break;
@@ -224,38 +229,40 @@ class Page_Translation extends Page
 			return false;
 		}
 
+		// All languages
+		$langArray = Dictionary::getLanguages();
+
 		//finds every mustache tag within the html template
 		$htmlTemplate = file_get_contents($templateFile);
 		preg_match_all('/{{(lang_.*?)}}/s', $htmlTemplate, $matches);
-		$tags = array_flip($matches[1]);
+		$tags = array();
+		foreach ($matches[1] as $tagName) {
+			$tags[$tagName] = array('tag' => $tagName);
+			foreach ($langArray as $lang) {
+				$tags[$tagName]['langs'][$lang]['lang'] = $lang;
+				$tags[$tagName]['missing'] = count($langArray);
+			}
+		}
 
 		//finds every JSON tag withing the JSON language files
-		$langArray = Dictionary::getLanguages();
-		$json = array();
 		foreach ($langArray as $lang) {
 			$jsonTags = Dictionary::getArray($path, $lang);
 			if (!is_array($jsonTags))
 				continue;
-			foreach (array_keys($jsonTags) as $key) {
-				if (substr($key, 5) === 'lang_')
-					$json[$key] = 123;
+			foreach ($jsonTags as $tag => $translation) {
+				if (substr($tag, 0, 5) === 'lang_') {
+					$tags[$tag]['langs'][$lang]['translation'] = $translation;
+					if (!empty($translation))
+						$tags[$tag]['missing']--;
+				}
 			}
 		}
-		//remove unused tag
-		unset($json['lang']);
-		//merges the arrays to keep the unique tags
-		$test = array_merge($json, $tags);
-		//loads the content of every JSON tag from the specified language
-		foreach (array_keys($test) as $tag) {
-			$this->tags[] = array(
-				'tag' => $tag,
-				'de' => $this->getJsonTag($path, $tag, 'de/'),
-				'en' => $this->getJsonTag($path, $tag, 'en/'),
-				'pt' => $this->getJsonTag($path, $tag, 'pt/'),
-				'class' => $this->getTagColor($path, $tag)
-			);
+		// Finally remove $lang from the keys so mustache will iterate over them via {{#..}}
+		foreach ($tags as &$tag) {
+			$tag['langs'] = array_values($tag['langs']);
+			$tag['class'] = $this->getTagColor($tag['missing']);
 		}
-		//print_r($this->tags);
+		$this->tags = array_values($tags);
 
 		return true;
 	}
@@ -282,21 +289,15 @@ class Page_Translation extends Page
 	 * @param string the selected tag
 	 * @return string the css class of the line
 	 */
-	private function getTagColor($path, $tag)
+	private function getTagColor($missingCount)
 	{
 		//return danger in case the tag is not found in the template
-		$htmlTemplate = file_get_contents($path . '.html');
-		if (strpos($htmlTemplate, '{{' . $tag . '}}') === false)
+		if ($missingCount < 0)
 			return 'danger';
 
 		//return warning in case at least one of the tag's values is empty
-		$langArray = Dictionary::getLanguages();
-		foreach ($langArray as $lang) {
-			if (($json = Dictionary::getArray($path, $lang))) {
-				if (!isset($json[$tag]) || $json[$tag] == '')
-					return 'warning';
-			}
-		}
+		if ($missingCount > 0)
+			return 'warning';
 		//if it's ok don't change the class
 		return '';
 	}
