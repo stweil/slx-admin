@@ -9,6 +9,11 @@
 				{{lang_templateHint}}
 			</div>
 			<form action="?do=Translation" method="post">
+				<input type="hidden" name="path" value="{{path}}">
+				<input type="hidden" name="token" value="{{token}}">
+				<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a>
+				<button class="btn btn-primary" type="button" onclick="addTag()" >{{lang_createTag}}</button>
+				<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
 				<table class="table table-hover">
 					<thead>
 						<tr>
@@ -38,9 +43,7 @@
 					</tbody>
 				</table>
 				<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a>
-				<button class="btn btn-primary" type="button" onclick="addTag()" >{{lang_createTag}}</button> 
-				<input type="hidden" name="path" value="{{path}}">
-				<input type="hidden" name="token" value="{{token}}">
+				<button class="btn btn-primary" type="button" onclick="addTag()" >{{lang_createTag}}</button>
 				<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
 			</form>
 		</div>
