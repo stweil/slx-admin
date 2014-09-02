@@ -18,6 +18,7 @@
     "invalid-action": "Ung\u00fcltige Aktion: {{0}}",
     "invalid-file": "Die Datei {{0}} existiert nicht!",
     "invalid-ip": "Kein Interface ist auf die Adresse {{0}} konfiguriert",
+    "invalid-path": "",
     "invalid-template": "Ausgew\u00e4hlte Template ist nicht g\u00fcltig",
     "loginfail": "Benutzername oder Kennwort falsch",
     "missing-file": "Es wurde keine Datei ausgew\u00e4hlt!",

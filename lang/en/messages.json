@@ -18,6 +18,7 @@
     "invalid-action": "Invalid action: {{0}}",
     "invalid-file": "The file {{0}} does not exist!",
     "invalid-ip": "No interface is configured with the address {{0}}",
+    "invalid-path": "",
     "invalid-template": "Selected template is not valid",
     "loginfail": "Username or Password incorrect",
     "missing-file": "There was no file selected!",

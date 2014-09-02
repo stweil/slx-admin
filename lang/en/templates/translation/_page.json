@@ -1,8 +1,8 @@
 {
     "lang_adminInfo": "In this section you can change the JSON tags that contains the translated texts used by the site. To do this, select a template below to modify their respective tags. Alternatively, click the link below to change the messages of the site.",
+    "lang_editHardcoded": "Edit hardcoded strings",
     "lang_editMessages": "Edit Messages",
-    "lang_english": "English",
-    "lang_german": "German",
-    "lang_langAdministration": "Language Administration",
-    "lang_portuguese": "Portuguese"
+    "lang_editSettings": "Edit configuration variables related strings",
+    "lang_editTemplates": "Edit template strings",
+    "lang_langAdministration": "Language Administration"
 }

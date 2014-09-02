@@ -4,7 +4,8 @@ class Dictionary
 {
 
 	private static $messageArray = false;
-	private static $languages;
+	private static $languages = false;
+	private static $languagesLong = false;
 	private static $stringCache = array();
 	private static $hardcodedMessages = false;
 
@@ -62,14 +63,13 @@ class Dictionary
 		$file = Util::safePath("lang/" . $lang . "/" . $section . ".json");
 		if (isset(self::$stringCache[$file]))
 			return self::$stringCache[$file];
-		$language = array('lang' => $lang);
 		$content = @file_get_contents($file);
 		if ($content === false) // File does not exist for language
-			return $language;
+			return array();
 		$json = json_decode($content, true);
 		if (!is_array($json))
-			return $language;
-		return self::$stringCache[$file] = array_merge($language, $json);
+			return array();
+		return self::$stringCache[$file] = $json;
 	}
 
 	public static function translate($section, $string = false)
@@ -100,11 +100,29 @@ class Dictionary
 
 	/**
 	 * Get all supported languages as array
-	 * @return array List of languages (2 char id)
+	 * @param boolean $withName true = return assoc array containinc cc and name of all languages;
+	 *		false = regular array containing only the ccs
+	 * @return array List of languages
 	 */
-	public static function getLanguages()
+	public static function getLanguages($withName = false)
 	{
-		return self::$languages;
+		if (!$withName)
+			return self::$languages;
+		if (self::$languagesLong === false) {
+			self::$languagesLong = array();
+			foreach (self::$languages as $lang) {
+				if (file_exists("lang/$lang/name.txt")) {
+					$name = @file_get_contents("lang/$lang/name.txt");
+				} else {
+					$name = $lang;
+				}
+				self::$languagesLong[] = array(
+					'cc' => $lang,
+					'name' => $name
+				);
+			}
+		}
+		return self::$languagesLong;
 	}
 
 }

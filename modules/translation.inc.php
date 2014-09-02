@@ -26,54 +26,76 @@ class Page_Translation extends Page
 			Util::redirect('?do=Main');
 		}
 
+		if (Request::post('update')) {
+			$this->updateJson();
+			Util::redirect('?do=Translation');
+		}
+		if (Request::post('delete')) {
+			$this->deleteTag(Request::post('path'), Request::post('delete'));
+			Util::redirect('?do=Translation'); // TODO: Ajax post for delete so we stay on the page
+		}
+
 		$this->template = Request::get('template');
 		$this->page = Request::get('page');
-		$this->delete = Request::get('delete');
-		$this->update = Request::post('update');
 	}
 
 	protected function doRender()
 	{
-		//calls the update function
-		if ($this->update)
-			$this->updateJson();
-		//calls the tag deletion function
-		if ($this->delete && $this->template)
-			$this->deleteTag($this->template, $this->delete);
+		$langs = Dictionary::getLanguages(true);
 
 		//load the page accordingly to the link
 		switch ($this->page) {
 			case 'messages':
-				//renders the message edition page
-				Render::addTemplate('translation/messages', array(
-					'msgs' => $this->initMsg(false),
-					'msgsHC' => $this->initMsg(true)
+				//renders the message edit page
+				Render::addTemplate('translation/edit', array(
+					'path' => 'messages',
+					'langs' => $langs,
+					'tags' => $this->loadMessageEditArray()
 				));
 				break;
-			case 'templates':
+			case 'hardcoded':
+				//renders the hardcoded messages edit page
+				Render::addTemplate('translation/edit', array(
+					'path' => 'messages-hardcoded',
+					'langs' => $langs,
+					'tags' => $this->loadHardcodedStringEditArray()
+				));
+				break;
+			case 'settings':
+				//renders the settings related edit page
+				Render::addTemplate('translation/edit', array(
+					'path' => 'settings/cat_setting',
+					'langs' => $langs,
+					'tags' => $this->buildTranslationTable('settings/cat_setting')
+				));
+				Render::addTemplate('translation/edit', array(
+					'path' => 'settings/setting',
+					'langs' => $langs,
+					'tags' => $this->buildTranslationTable('settings/setting')
+				));
+				break;
+			case 'template':
 				$this->template = Util::safePath($this->template);
 				if ($this->template === false) {
 					Message::addError('invalid-path');
 					Util::redirect('?do=Translation');
 				}
 				//renders the tag edition page
-				if ($this->templateAnalysis($this->template)) {
-					$langs = array();
-					foreach (Dictionary::getLanguages() as $lang) {
-						$langs[] = array('lang' => $lang);
-					}
-					Render::addTemplate('translation/template', array(
-						'template' => 'templates/' . $this->template,
-						'langs' => $langs,
-						'tags' => $this->tags
-					));
-					break;
-				}
-			default:
-				//renders the template selection page
-				Render::addTemplate('translation/_page', array(
-					'table' => $this->initTable(),
+				Render::addTemplate('translation/edit', array(
+					'path' => 'templates/' . $this->template,
+					'langs' => $langs,
+					'tags' => $this->loadTemplateEditArray($this->template)
 				));
+				break;
+			case 'templates':
+				//renders the template selection page
+				Render::addTemplate('translation/template-list', array(
+					'table' => $this->loadTemplatesList(),
+				));
+				break;
+			default:
+				//renders main page with selection of what part to edit
+				Render::addTemplate('translation/_page');
 		}
 	}
 
@@ -81,29 +103,32 @@ class Page_Translation extends Page
 	 * Load the main table with all the website's templates and it's informations
 	 * @return array with the templates' information
 	 */
-	private function initTable()
+	private function loadTemplatesList()
 	{
 		$table = array();
 
 		//loads every template
 		$files = $this->listTemplates();
-		//loads every json from each language
-		$de = $this->listJson('de/templates/');
-		$en = $this->listJson('en/templates/');
-		$pt = $this->listJson('pt/templates/');
+		$langs = Dictionary::getLanguages(true);
 
 		//checks the JSON tags from every language
-		foreach ($files as $key => $value) {
+		foreach ($files as $file) {
+			$tags = $this->loadTemplateTags($file['path']);
 			// Don't list templates without lang tags
-			$tmp = $this->checkJson($de[$key], 'de');
-			if ($tmp === false) // TODO: Pretty solution
+			if (empty($tags))
 				continue;
+			$msgs = '';
+			foreach ($langs as $lang) {
+				$msg = $this->checkJson($file['path'], $lang['cc'], $tags);
+				if (!empty($msg))
+					$msgs .= "<div><span class='badge'>{$lang['name']}:</span>$msg</div>";
+			}
+			if (empty($msgs))
+				$msgs = 'OK';
 			$table[] = array(
-				'template' => $value,
-				'link' => $key,
-				'de' => $tmp,
-				'en' => $this->checkJson($en[$key], 'en'),
-				'pt' => $this->checkJson($pt[$key], 'pt')
+				'template' => $file['name'],
+				'link' => $file['name'],
+				'status' => $msgs
 			);
 		}
 		sort($table);
@@ -120,32 +145,14 @@ class Page_Translation extends Page
 		$dir = 'templates/';
 		$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
 		foreach ($objects as $name => $object) {
-			if (substr($name, -5)  === '.html') {
-				$key = substr($name, strlen($dir), -5);
-				$files[$key] = substr($name, strlen($dir));
+			if (substr($name, -5) === '.html') {
+				$files[] = array(
+					'path' => substr($name, 0, -5),
+					'name' => substr($name, strlen($dir), -5)
+				);
 			}
 		}
 		return $files;
-	}
-
-	/**
-	 * Finds and returns all the JSON files from a selected language
-	 * @param string the selected language (abbreviated)
-	 * @return array all the JSON files from the language
-	 */
-	private function listJson($lang)
-	{
-		$json = array();
-		$dir = 'lang/' . $lang;
-		$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
-		foreach ($objects as $name => $object) {
-			if (substr($name, -5) === '.json') {
-				$key = str_replace($dir, '', $name);
-				$key = substr($key, 0, -5);
-				$json[$key] = $key;
-			}
-		}
-		return $json;
 	}
 
 	/**
@@ -169,41 +176,38 @@ class Page_Translation extends Page
 	 * Checks the JSON tags from a template
 	 * @param string the template's path
 	 * @param string the selected language
+	 * @param string tags that should be in the json file
 	 * @return string|boolean the information about the JSON tags, false if template has no lang-tags
 	 */
-	private function checkJson($path, $lang)
+	private function checkJson($path, $lang, $expectedTags)
 	{
 		//if there was not a valid template's path
 		if (!$path) {
-			return "JSON file is missing";
+			return "Translation missing";
 		}
-		//loads a template and find all its tags
-		$htmlTemplate = @file_get_contents("templates/$path.html");
-		if (preg_match_all('/{{lang_(.*?)}}/s', $htmlTemplate, $matches) == 0)
-			return false;
-		$htmlCount = count(array_unique($matches[1]));
+		// How many tags do we expect in the translation
+		$htmlCount = count($expectedTags);
 
 		//initialize the count variables
 		$matchCount = 0;
 		$unusedCount = 0;
 
 		//loads the JSON tags and count the matches
-		$json = Dictionary::getArrayTemplate($path, $lang);
+		$json = Dictionary::getArray($path, $lang);
+		//return print_r($json) . "\nvs\n" . print_r($expectedTags);
 		foreach ($json as $key => $value) {
-			if ($key != 'lang') {
-				if (!in_array(preg_replace('/^lang_/', '', $key), $matches[1])) {
-					$unusedCount++;
-				} else if ($value != '') {
-					$matchCount++;
-				}
+			if (!in_array($key, $expectedTags)) {
+				$unusedCount++;
+			} else if (!empty($value)) {
+				$matchCount++;
 			}
 		}
 		$diff = $htmlCount - $matchCount;
 
+		if ($diff == 0 && $unusedCount == 0)
+			return '';
 		//build the return string
 		$str = "";
-		if ($diff == 0 && $unusedCount == 0)
-			$str .= "OK";
 		if ($diff > 0)
 			$str .= $diff . " JSON tag(s) are missing";
 		if ($diff > 0 && $unusedCount > 0)
@@ -214,14 +218,26 @@ class Page_Translation extends Page
 	}
 
 	/**
-	 * Builds the template page with the tags from its template and its JSON file
-	 * @param string the template's path
-	 * @param string the selected language
-	 * @return string the information about the JSON tags
+	 * Get array to pass to edit page with all the tags and translations for the given template
+	 * @param string $path the template's path
+	 * @return array the information about the JSON tags
 	 */
-	private function templateAnalysis($path)
+	private function loadTemplateEditArray($path)
 	{
 		$path = "templates/$path";
+		$tags = $this->loadTemplateTags($path);
+		if ($tags === false)
+			return false;
+		return $this->buildTranslationTable($path, $tags);
+	}
+
+	/**
+	 * Load array of tags used in given template.
+	 * @param string $path the path of the template, relative to templates/, without .html extension.
+	 * @return array all tags in template
+	 */
+	private function loadTemplateTags($path)
+	{
 		$templateFile = "$path.html";
 		//checks if the template is valid
 		if (!file_exists($templateFile)) {
@@ -229,18 +245,74 @@ class Page_Translation extends Page
 			return false;
 		}
 
-		// All languages
-		$langArray = Dictionary::getLanguages();
-
 		//finds every mustache tag within the html template
 		$htmlTemplate = file_get_contents($templateFile);
 		preg_match_all('/{{(lang_.*?)}}/s', $htmlTemplate, $matches);
+		if (!isset($matches[1]) || !is_array($matches[1]))
+			return array();
+		return array_unique($matches[1]);
+	}
+
+	/**
+	 * Load array of tags and translations of all messages
+	 * @return array the information about the JSON tags
+	 */
+	private function loadMessageEditArray()
+	{
+		$tags = $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"](.*?)[\'"]\s*[\)\,]/i');
+		if ($tags === false)
+			return false;
+		return $this->buildTranslationTable('messages', $tags);
+	}
+
+	/**
+	 * Load array of tags and translations of all strings found in the php files.
+	 * @return array the information about the JSON tags
+	 */
+	private function loadHardcodedStringEditArray()
+	{
+		$tags = $this->loadTagsFromPhp('/Dictionary\s*::\s*translate\s*\(\s*[\'"](.*?)[\'"]\s*[\)\,]/i');
+		if ($tags === false)
+			return false;
+		return $this->buildTranslationTable('messages-hardcoded', $tags);
+	}
+
+	/**
+	 * Load array of tags used in all the php files, by given regexp. Capture group 1 should return
+	 * the exact tag name.
+	 * @param string $regexp regular expression matching all tags in capture group 1
+	 * @return array of all tags found
+	 */
+	private function loadTagsFromPhp($regexp)
+	{
+		// Get all php files, so we can find all strings that need to be translated
+		$php = $this->listPhp();
 		$tags = array();
-		foreach ($matches[1] as $tagName) {
-			$tags[$tagName] = array('tag' => $tagName);
-			foreach ($langArray as $lang) {
-				$tags[$tagName]['langs'][$lang]['lang'] = $lang;
-				$tags[$tagName]['missing'] = count($langArray);
+		// Now find all tags in all php files. Only works for literal usage, not something like $foo = 'bar'; Dictionary::translate($foo);
+		foreach ($php as $file) {
+			$content = @file_get_contents($file);
+			if ($content === false || preg_match_all($regexp, $content, $out) < 1)
+				continue;
+			foreach ($out[1] as $id) {
+				$tags[$id] = true;
+			}
+		}
+		return array_keys($tags);
+	}
+
+	private function buildTranslationTable($path, $requiredTags = false)
+	{
+		// All languages
+		$langArray = Dictionary::getLanguages();
+
+		$tags = array();
+		if ($requiredTags !== false) {
+			foreach ($requiredTags as $tagName) {
+				$tags[$tagName] = array('tag' => $tagName);
+				foreach ($langArray as $lang) {
+					$tags[$tagName]['langs'][$lang]['lang'] = $lang;
+					$tags[$tagName]['missing'] = count($langArray);
+				}
 			}
 		}
 
@@ -250,40 +322,22 @@ class Page_Translation extends Page
 			if (!is_array($jsonTags))
 				continue;
 			foreach ($jsonTags as $tag => $translation) {
-				if (substr($tag, 0, 5) === 'lang_') {
-					$tags[$tag]['langs'][$lang]['translation'] = $translation;
-					$tags[$tag]['tag'] = $tag;
-					if (!isset($tags[$tag]['missing']))
-						$tags[$tag]['missing'] = 0;
-					if (!empty($translation))
-						$tags[$tag]['missing']--;
-				}
+				$tags[$tag]['langs'][$lang]['translation'] = $translation;
+				$tags[$tag]['langs'][$lang]['lang'] = $lang;
+				$tags[$tag]['tag'] = $tag;
+				if (!isset($tags[$tag]['missing']))
+					$tags[$tag]['missing'] = 0;
+				if (!empty($translation))
+					$tags[$tag]['missing'] --;
 			}
 		}
 		// Finally remove $lang from the keys so mustache will iterate over them via {{#..}}
 		foreach ($tags as &$tag) {
 			$tag['langs'] = array_values($tag['langs']);
-			$tag['class'] = $this->getTagColor($tag['missing']);
+			if ($requiredTags !== false)
+				$tag['class'] = $this->getTagColor($tag['missing']);
 		}
-		$this->tags = array_values($tags);
-
-		return true;
-	}
-
-	/**
-	 * Loads the content of a JSON tag
-	 * @param string the JSON's path
-	 * @param string the selected tag
-	 * @param string the specified language
-	 * @return string the tag's content
-	 */
-	private function getJsonTag($path, $tag, $lang)
-	{
-		$json = Dictionary::getArray($path, $lang);
-		if (is_array($json) && isset($json[$tag])) {
-			return $json[$tag];
-		}
-		return '';
+		return array_values($tags);
 	}
 
 	/**
@@ -316,15 +370,12 @@ class Page_Translation extends Page
 		}
 
 		//find the tag requests to change the file
-		foreach ($_REQUEST as $key => $value) {
+		foreach ($_POST as $key => $value) {
 			$str = explode('#', $key, 3);
-			if (count($str) !== 3)
+			if (count($str) !== 3 || $str[0] !== 'lang')
 				continue;
-			$pre = $str[0];
 			$lang = $str[1];
-			$tag = $str[2];
-			if ($pre !== 'lang')
-				continue;
+			$tag = trim($str[2]);
 			if (!isset($json[$lang])) {
 				Message::addWarning('i18n-invalid-lang', $lang);
 				continue;
@@ -351,9 +402,7 @@ class Page_Translation extends Page
 				Util::redirect('?do=Translation');
 			}
 			ksort($array); // Sort by key, so the diff on the output is cleaner
-			error_log("Converting " . print_r($array, true));
 			$json = up_json_encode($array, JSON_PRETTY_PRINT); // Also for better diffability of the json files, we pretty print
-			error_log("Result: $json");
 			//exits the function in case the action was unsuccessful
 			if (@file_put_contents($path, $json) === false) {
 				Message::addError('invalid-template');
@@ -364,48 +413,6 @@ class Page_Translation extends Page
 	}
 
 	/**
-	 * Load the main table with all the website's messages or hardcoded messages
-	 * @var boolean choose between hardcoded and non-hardcoded messages
-	 * @return array with the selected messages
-	 */
-	private function initMsg($isHardcoded)
-	{
-		$msgs = array();
-		// Get all php files, so we can find all strings that need to be translated
-		$php = $this->listPhp();
-		$tags = array();
-		//chooses the path and regex
-		if ($isHardcoded) {
-			$path = 'messages-hardcoded';
-			$expr = '/Dictionary\s*::\s*translate\s*\(\s*[\'"](.*?)[\'"]\s*[\)\,]/i';
-		} else {
-			$path = 'messages';
-			$expr = '/Message\s*::\s*add\w+\s*\(\s*[\'"](.*?)[\'"]\s*[\)\,]/i';
-		}
-		// Now find all tags in all php files. Only works for literal usage, not something like $foo = 'bar'; Dictionary::translate($foo);
-		foreach ($php as $file) {
-			$content = @file_get_contents($file);
-			if ($content === false || preg_match_all($expr, $content, $out) < 1)
-				continue;
-			foreach ($out[1] as $id) {
-				if (!isset($tags[$id]))
-					$tags[$id] = 0; // TODO: Display usage count next to it, even better would be list of php files it appears in, so a translator can get context
-				$tags[$id]++;
-			}
-		}
-		ksort($tags);
-		foreach ($tags as $tag => $usageCount) {
-			$msgs[] = array(
-				'tag' => $tag,
-				'de' => $this->getJsonTag($path, $tag, 'de/'), // TODO: Hardcoded language list, use Dictionary::getLanguages()
-				'en' => $this->getJsonTag($path, $tag, 'en/'),
-				'pt' => $this->getJsonTag($path, $tag, 'pt/')
-			);
-		}
-		return $msgs;
-	}
-
-	/**
 	 * Delete a specific JSON tag from a JSON files
 	 * @var string the JSON's file path
 	 * @var the JSON tag to be deleted
@@ -413,13 +420,15 @@ class Page_Translation extends Page
 	 */
 	private function deleteTag($path, $tag)
 	{
+		// JSON_PRETTY_PRINT is only available starting with php 5.4.0.... Use upgradephp's json_encode
+		require_once('inc/up_json_encode.php');
+
 		//delete the tag from every language file
 		$langArray = Dictionary::getLanguages();
 		foreach ($langArray as $lang) {
-			$json = Dictionary::getArrayTemplate($path, $lang);
+			$json = Dictionary::getArray($path, $lang);
 			unset($json[$tag]);
-			unset($json['lang']);
-			$result = file_put_contents('lang/' . $lang . '/' . $path . '.json', json_encode($json));
+			$result = file_put_contents('lang/' . $lang . '/' . $path . '.json', up_json_encode($json, JSON_PRETTY_PRINT));
 			//add warning and exit in case the action was unsuccessful
 			if ($result === false) {
 				Message::addWarning('unsuccessful-action');

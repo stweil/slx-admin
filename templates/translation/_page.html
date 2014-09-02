@@ -5,36 +5,12 @@
 		</div>
 		<div class="panel-body">
 			<p>{{lang_adminInfo}}</p>
+			<ul class="nav nav-pills nav-stacked">
+				<li><a href="?do=Translation&amp;page=templates">{{lang_editTemplates}}</a></li>
+				<li><a href="?do=Translation&amp;page=messages">{{lang_editMessages}}</a></li>
+				<li><a href="?do=Translation&amp;page=hardcoded">{{lang_editHardcoded}}</a></li>
+				<li><a href="?do=Translation&amp;page=settings">{{lang_editSettings}}</a></li>
+			</ul>
 		</div>
-		<ul class="list-group">
-			<a href="?do=Translation&page=messages" class="list-group-item active">{{lang_editMessages}}</a>
-		</ul>
-	</div>
-	<div class="panel panel-default">
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th>Template</th>
-					<th style='text-align:center;'>{{lang_german}}</th>
-					<th style='text-align:center;'>{{lang_english}}</th>
-					<th style='text-align:center;'>{{lang_portuguese}}</th>
-				<tr>
-			</thead>
-			<tbody>
-				{{#table}}
-					<tr onclick="goTo('{{link}}');">
-						<td>{{template}}</td>
-						<td style='width:230px;text-align:center;'>{{{de}}}</td>
-						<td style='width:230px;text-align:center;'>{{{en}}}</td>
-						<td style='width:230px;text-align:center;'>{{{pt}}}</td>
-					</tr>
-				{{/table}}
-			</tbody>
-		</table>
 	</div>
 </div>
-<script>
-function goTo(link){
-	window.location.href = "?do=Translation&page=templates&template=" + link;
-}
-</script>

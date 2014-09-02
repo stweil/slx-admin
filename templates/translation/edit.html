@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			{{template}}
+			{{path}}
 		</div>
 		<div class="panel-body">
 			<p>{{lang_templateAdminHelp}}</p>
@@ -24,12 +24,12 @@
 							<tr class="{{class}}" id="{{tag}}">
 								<td>{{tag}}</td>
 								{{#langs}}
-								<td style="text-align:center">
+								<td>
 									<input type="text" class="form-control" placeholder="{{placeholder}}" value="{{translation}}" name="lang#{{lang}}#{{tag}}">
 								</td>
 								{{/langs}}
-								<td style="text-align:center">
-									<a class="btn btn-danger btn-xs" href="?do=Translation&template={{template}}&delete={{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</a>
+								<td>
+									<button type="submit" class="btn btn-danger btn-xs" name="delete" value="{{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</button>
 								</td>
 							</tr>
 						{{/tags}}
@@ -39,10 +39,9 @@
 				</table>
 				<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a>
 				<button class="btn btn-primary" type="button" onclick="addTag()" >{{lang_createTag}}</button> 
-				<input type="hidden" name="update" value="true">
-				<input type="hidden" name="path" value="{{template}}">
+				<input type="hidden" name="path" value="{{path}}">
 				<input type="hidden" name="token" value="{{token}}">
-				<input type="submit" class="btn btn-primary" value="{{lang_save}}">
+				<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
 			</form>
 		</div>
 	</div>

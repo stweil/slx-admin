@@ -117,11 +117,13 @@ Page::preprocess();
 //$menu = new Menu;
 if (User::getName() === false) {
 	Render::addTemplate('main-menu-login', array(
-		'url' => urlencode($_SERVER['REQUEST_URI'])
+		'url' => urlencode($_SERVER['REQUEST_URI']),
+		'langs' => Dictionary::getLanguages(true)
 	));
 } else {
 	Render::addTemplate('main-menu-logout', array(
 		'url' => urlencode($_SERVER['REQUEST_URI']),
+		'langs' => Dictionary::getLanguages(true),
 		'user' => User::getName()
 	));
 }
