@@ -160,13 +160,29 @@ class Render
 
 	/**
 	 * Parse template with given params and return; do not add to body
+	 * @param string $template name of template, relative to templates/, without .html extension
+	 * @return string Rendered template
 	 */
 	public static function parse($template, $params = false)
 	{
+		// Get all translated strings for this template
 		$dictionary = Dictionary::getArrayTemplate($template);
+		// Load html snippet
+		$html = self::getTemplate($template);
+		// Now find all language tags in this array
+		preg_match_all('/{{(lang_.+?)}}/', $html, $out);
+		foreach ($out[1] as $tag) {
+			// Add untranslated strings to the dictionary, so their tag is seen in the rendered page
+			if (empty($dictionary[$tag]))
+				$dictionary[$tag] = '{{' . $tag . '}}';
+		}
+		// Always add token to parameter list
 		if (is_array($params) || $params === false || is_null($params))
 			$params['token'] = Session::get('token');
-		return self::$mustache->render(self::getTemplate($template), array_merge($dictionary,$params));
+		// Likewise, add currently selected language ( its two letter code) to params
+		$params['current_lang'] = LANG;
+		// Return rendered html
+		return self::$mustache->render($html, array_merge($dictionary,$params));
 	}
 
 	/**
