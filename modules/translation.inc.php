@@ -384,10 +384,16 @@ class Page_Translation extends Page
 				Message::addWarning('i18n-empty-tag');
 				continue;
 			}
+			$value = trim($value);
 			if ($tag !== 'newtag') {
-				$json[$lang][$tag] = $value;
+				if (empty($value)) {
+					unset($json[$lang][$tag]);
+				} else {
+					$json[$lang][$tag] = $value;
+				}
 			} else {
-				$json[$lang][$_REQUEST['newtag']] = $value;
+				if (!empty($value)) // TODO: Error message if new tag's name collides with existing
+					$json[$lang][$_REQUEST['newtag']] = $value;
 			}
 		}
 
