@@ -139,5 +139,9 @@ if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 	Render::closeTag('div');
 }
 
+if (defined('CONFIG_FOOTER')) {
+	Render::addTemplate('footer', array('text' => CONFIG_FOOTER));
+}
+
 // Send page to client.
 Render::output();
