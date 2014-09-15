@@ -9,6 +9,20 @@ class Database
 
 	private static $dbh = false;
 	private static $statements = array();
+	
+	/**
+	 * Get database schema version - used for checking for updates
+	 * @return int Version of db schema
+	 */
+	public static function getExpectedSchemaVersion()
+	{
+		return 5;
+	}
+	
+	public static function needSchemaUpdate()
+	{
+		return Property::getCurrentSchemaVersion() < self::getExpectedSchemaVersion();
+	}
 
 	/**
 	 * Connect to the DB if not already connected.

@@ -141,5 +141,10 @@ class Property
 	{
 		self::set('dl-' . $name, $taskId, 5);
 	}
+	
+	public static function getCurrentSchemaVersion()
+	{
+		return self::get('webif-version');
+	}
 
 }

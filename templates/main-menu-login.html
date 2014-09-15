@@ -37,6 +37,9 @@
 						{{/langs}}
 					</ul>
 				</li>
+				{{#dbupdate}}
+				<li><a href="api.php?do=update"><span class="slx-text-red"><span class="glyphicon glyphicon-exclamation-sign"></span> Update</span></a></li>
+				{{/dbupdate}}
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href="?do=Session&amp;action=login">{{lang_login}}</a></li>
