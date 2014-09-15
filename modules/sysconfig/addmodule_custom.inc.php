@@ -45,7 +45,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 		}
 		$tempfile = $_FILES['modulefile']['tmp_name'] . '.tmp';
 		if (!move_uploaded_file($_FILES['modulefile']['tmp_name'], $tempfile)) {
-			Message:addError('error-write', $tempfile);
+			Message::addError('error-write', $tempfile);
 			Util::redirect('?do=SysConfig');
 		}
 		$this->taskId = 'tgzmod' . mt_rand() . '-' . microtime(true);
