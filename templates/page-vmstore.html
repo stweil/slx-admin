@@ -19,6 +19,7 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<input type="radio" name="storetype" value="nfs" {{pre-nfs}}> NFS
+						<a class="btn btn-default btn-sm" data-toggle="modal" data-target="#help-nfs"><span class="glyphicon glyphicon-question-sign"></span></a>
 					</div>
 					<div class="panel-body">
 						<label for="nfsaddr">NFS-Export</label>
@@ -78,6 +79,31 @@
 				<p>
 					{{lang_vmLocationHelp3}}
 				</p>
+			</div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="help-nfs" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">NFS</div>
+			<div class="modal-body">
+				<p>
+					{{lang_nfsHelp1}}
+				</p>
+				<pre>
+/mnt/images    1.2.3.4(rw,no_root_squash,async,nolock)
+/mnt/images    *(ro,async,nolock)
+				</pre>
+				<p>
+					{{lang_nfsHelp2}}
+				</p>
+				<pre>
+/mnt/images    1.2.3.4(rw,all_squash,anon_uid=1234,async,nolock)
+/mnt/images    *(ro,async,nolock)
+				</pre>
 			</div>
 			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
 		</div>

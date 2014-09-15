@@ -1,4 +1,4 @@
 {
-    "lang_errorGetting": "",
-    "lang_listObtained": ""
+    "lang_errorGetting": "Error while downloading list!",
+    "lang_listObtained": "Downloading list..."
 }

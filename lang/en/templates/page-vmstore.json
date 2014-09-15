@@ -1,6 +1,8 @@
 {
     "lang_close": "Close",
     "lang_intern": "Intern",
+    "lang_nfsHelp1": "An NFSv3-Share is required. It should be readable by all the workstations, and writable for the satellite server. An example, assuming the satellite server has IP address 1.2.3.4:",
+    "lang_nfsHelp2": "Alternate configuration using all_squash. The exported directory should be owned (and be writable) by the user with uid 1234.",
     "lang_noAdditionalInformation": "No additional cofiguration required",
     "lang_password": "Password",
     "lang_readOnly": "Read-only Access",
