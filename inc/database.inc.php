@@ -32,7 +32,10 @@ class Database
 		if (self::$dbh !== false)
 			return;
 		try {
-			self::$dbh = new PDO(CONFIG_SQL_DSN, CONFIG_SQL_USER, CONFIG_SQL_PASS, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
+			if (CONFIG_SQL_FORCE_UTF8)
+				self::$dbh = new PDO(CONFIG_SQL_DSN, CONFIG_SQL_USER, CONFIG_SQL_PASS, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
+			else
+				self::$dbh = new PDO(CONFIG_SQL_DSN, CONFIG_SQL_USER, CONFIG_SQL_PASS);
 		} catch (PDOException $e) {
 			Util::traceError('Connecting to the local database failed: ' . $e->getMessage());
 		}

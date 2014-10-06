@@ -11,7 +11,7 @@ define('CONFIG_SQL_DSN', 'mysql:dbname=openslx;host=localhost');
 define('CONFIG_SQL_USER', 'openslx');
 define('CONFIG_SQL_PASS', '%MYSQL_OPENSLX_PASS%');
 // Set this to true if you mysql server doesn't default to UTF-8 on new connections
-define('CONFIG_SQL_FORCE_UTF8', false);
+define('CONFIG_SQL_FORCE_UTF8', true);
 
 define('CONFIG_TGZ_LIST_DIR', '/opt/openslx/configs');
 
