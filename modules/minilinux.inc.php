@@ -25,7 +25,7 @@ class Page_MiniLinux extends Page
 		$data = Property::getVersionCheckInformation();
 		if (!is_array($data) || !isset($data['systems'])) {
 			echo Render::parse('messagebox-error', array(
-				'message' => 'Failed to retrieve the list: ' . $data
+				'message' => 'Failed to retrieve the list: ' . print_r($data, true)
 			));
 			return;
 		}
