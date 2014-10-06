@@ -75,22 +75,46 @@ class Page_BaseConfig extends Page
 		}
 		// List global config option
 		$settings = array();
-		$res = Database::simpleQuery('SELECT cat_setting.catid, setting.setting, setting.defaultvalue, setting.permissions, tbl.value
+		$res = Database::simpleQuery('SELECT cat_setting.catid, setting.setting, setting.defaultvalue, setting.permissions, setting.validator, tbl.value
 			FROM setting
 			INNER JOIN cat_setting USING (catid)
 			LEFT JOIN setting_global AS tbl USING (setting)
-			ORDER BY cat_setting.sortval ASC, setting.setting ASC'); // TODO: Add setting groups and sort order
+			ORDER BY cat_setting.sortval ASC, setting.setting ASC');
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$row['description'] = Util::markup(Dictionary::translate('settings/setting', $row['setting']));
 			if (is_null($row['value'])) $row['value'] = $row['defaultvalue'];
-			$row['big'] = false;
+			$row['item'] = $this->makeInput($row['validator'], $row['setting'], $row['value']);
 			$settings[$row['catid']]['settings'][] = $row;
 			$settings[$row['catid']]['category_name'] = Dictionary::translate('settings/cat_setting', 'cat_' . $row['catid']);
 		}
 
-		Render::addTemplate('page-baseconfig', array(
+		Render::addTemplate('baseconfig/_page', array(
 			'categories'  => array_values($settings)
 		));
+	}
+	
+	/**
+	 * Create html snippet for setting, based on given validator
+	 * @param type $validator
+	 * @return boolean
+	 */
+	private function makeInput($validator, $setting, $current)
+	{
+		$parts = explode(':', $validator, 2);
+		if ($parts[0] === 'list') {
+			$items = explode('|', $parts[1]);
+			$ret = '<select name="setting[' . $setting . ']" class="form-control">';
+			foreach ($items as $item) {
+				if ($item === $current) {
+					$ret .= '<option selected="selected">' . $item . '</option>';
+				} else {
+					$ret .= '<option>' . $item . '</option>';
+				}
+			}
+			return $ret . '</select>';
+		}
+		// Fallback: single line input
+		return '<input type="text" name="setting[' . $setting . ']" class="form-control" size="30" value="' . $current . '">';
 	}
 
 }

@@ -18,6 +18,8 @@ class Validator
 		case 'regex':
 			if (preg_match($data[1], $value)) return $value;
 			return false;
+		case 'list':
+			return self::validateList($data[1], $value);
 		case 'function':
 			return self::$data[1]($value);
 		default:
@@ -37,6 +39,19 @@ class Validator
 		if (empty($value)) return '';
 		if (preg_match('/^\$6\$.+\$./', $value)) return $value;
 		return Crypto::hash6($value);
+	}
+	
+	/**
+	 * Validate value against list.
+	 * @param string $list The list as a string of items, separated by "|"
+	 * @param string $value The value to validate
+	 * @return boolean|string The value, if in list, false otherwise
+	 */
+	private static function validateList($list, $value)
+	{
+		$list = explode('|', $list);
+		if (in_array($value, $list)) return $value;
+		return false;
 	}
 
 }

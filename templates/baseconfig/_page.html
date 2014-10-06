@@ -13,12 +13,7 @@
 							<div class="slx-default">{{defaultvalue}}</div>
 						</div>
 						<div class="col-md-5">
-							{{#big}}
-							<textarea name="setting[{{setting}}]" class="form-control" cols="30" rows="3">{{value}}</textarea>
-							{{/big}}
-							{{^big}}
-							<input type="text" name="setting[{{setting}}]" class="form-control" size="30" value="{{value}}">
-							{{/big}}
+							{{{item}}}
 						</div>
 						<div class="col-md-2">
 							<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}">{{lang_help}}</a>
