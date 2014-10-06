@@ -31,22 +31,25 @@ class Trigger
 	 * Try to automatically determine the primary IP address of the server.
 	 * This only works if the server has either one public IPv4 address (and potentially
 	 * one or more non-public addresses), or one private address.
+	 * 
+	 * @return boolean true if current configured IP address is still valid, or if a new address could
+	 * successfully be determined, false otherwise
 	 */
 	public static function autoUpdateServerIp()
 	{
 		$task = Taskmanager::submit('LocalAddressesList');
 		if ($task === false)
-			return;
+			return false;
 		$task = Taskmanager::waitComplete($task, 10000);
 		if (!isset($task['data']['addresses']) || empty($task['data']['addresses']))
-			return;
+			return false;
 
 		$serverIp = Property::getServerIp();
 		$publicCandidate = 'none';
 		$privateCandidate = 'none';
 		foreach ($task['data']['addresses'] as $addr) {
 			if ($addr['ip'] === $serverIp)
-				return;
+				return true;
 			if (substr($addr['ip'], 0, 4) === '127.')
 				continue;
 			if (Util::isPublicIpv4($addr['ip'])) {
@@ -63,12 +66,13 @@ class Trigger
 		}
 		if ($publicCandidate !== 'none' && $publicCandidate !== 'many') {
 			Property::setServerIp($publicCandidate);
-			return;
+			return true;
 		}
 		if ($privateCandidate !== 'none' && $privateCandidate !== 'many') {
 			Property::setServerIp($privateCandidate);
-			return;
+			return true;
 		}
+		return false;
 	}
 
 	/**

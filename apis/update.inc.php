@@ -2,6 +2,12 @@
 
 $targetVersion = Database::getExpectedSchemaVersion();
 
+function fatal($message)
+{
+	EventLog::failure($message);
+	die("$message\n");
+}
+
 // #######################
 
 $res = Database::queryFirst("SELECT value FROM property WHERE name = 'webif-version' LIMIT 1", array(), true);
@@ -16,16 +22,16 @@ while ($currentVersion < $targetVersion) {
 	$function = 'update_' . $currentVersion;
 
 	if (!function_exists($function))
-		die("Don't know how to update from version $currentVersion to $targetVersion :-(");
+		fatal("Don't know how to update from version $currentVersion to $targetVersion :-(");
 
 	if (!$function())
-		die("Update from $currentVersion to $targetVersion failed! :-(");
+		fatal("Update from $currentVersion to $targetVersion failed! :-(");
 
 	$currentVersion++;
 
 	$ret = Database::exec("INSERT INTO property (name, value) VALUES ('webif-version', :version) ON DUPLICATE KEY UPDATE value = VALUES(value)", array('version' => $currentVersion), false);
 	if ($ret === false)
-		die('Writing version information back to DB failed. Next update will probably break.');
+		fatal('Writing version information back to DB failed. Next update will probably break.');
 
 	if ($currentVersion < $targetVersion) {
 		echo("Updated to $currentVersion...\n");
