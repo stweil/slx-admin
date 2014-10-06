@@ -12,12 +12,20 @@ function slxAutoloader($class) {
 }
 spl_autoload_register('slxAutoloader');
 
+function isLocalExecution()
+{
+	return !isset($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] === '127.0.0.1';
+}
 
-if (empty($_REQUEST['do'])) {
+
+if (!empty($_REQUEST['do'])) {
+	$module = preg_replace('/[^a-z]/', '', $_REQUEST['do']);
+} elseif (!empty($argv[1])) {
+	$module = preg_replace('/[^a-z]/', '', $argv[1]);
+} else {
 	// No specific module - set default
 	$module = 'main';
-} else {
-	$module = preg_replace('/[^a-z]/', '', $_REQUEST['do']);
+	
 }
 
 $module = 'apis/' . $module . '.inc.php';

@@ -1,6 +1,6 @@
 <?php
 
-if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1')
+if (!isLocalExecution())
 	exit(0);
 
 Trigger::ldadp();
