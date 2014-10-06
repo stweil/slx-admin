@@ -136,7 +136,7 @@ function up_json_encode($var, $options = 0, $_indent = "")
 			"<" => $options & JSON_HEX_TAG ? "\\u003C" : "<",
 			">" => $options & JSON_HEX_TAG ? "\\u003E" : ">",
 			"'" => $options & JSON_HEX_APOS ? "\\u0027" : "'",
-			"\"" => $options & JSON_HEX_QUOT ? "\\u0022" : "\"",
+			"\"" => "\\u0022",
 			"&" => $options & JSON_HEX_AMP ? "\\u0026" : "&",
 		);
 		$var = strtr($var, $rewrite);
