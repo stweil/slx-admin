@@ -1,5 +1,7 @@
 {
     "lang_introGuest": "Dies ist das Administrations-Interface der lokalen bwLehrpool-Installation. Bitte authentifizieren Sie sich, um Einstellungen vorzunehmen.",
     "lang_login": "Anmelden",
+    "lang_noExistingAccount": "Es existiert noch kein Administrator-Zugang f\u00fcr diesen Satelliten-Server.",
+    "lang_register": "Registrieren",
     "lang_welcome": "Willkommen"
 }

@@ -13,7 +13,9 @@ class Page_Main extends Page
 		// Render::setTitle('abc');
 
 		if (!User::isLoggedIn()) {
-			Render::addTemplate('page-main-guest');
+			Render::addTemplate('page-main-guest', array(
+				'register' => (Database::queryFirst('SELECT userid FROM user LIMIT 1') === false)
+			));
 			return;
 		}
 		// Logged in here
