@@ -5,13 +5,13 @@ class ConfigModule
 	
 	public static function insertAdConfig($title, $server, $searchbase, $binddn, $bindpw, $home)
 	{
-		// TODO: Lock table, race condition if about 500 admins insert a config at the same time
+		Database::exec("LOCK TABLE configtgz_module WRITE");
 		Database::exec("INSERT INTO configtgz_module (title, moduletype, filepath, contents) "
 			. " VALUES (:title, 'AD_AUTH', '', '')", array('title' => $title));
 		$id = Database::lastInsertId();
 		if (!is_numeric($id)) Util::traceError('Inserting new AD config to DB did not yield a numeric insert id');
 		// Entry created, now try to get a free port for the proxy
-		$res = Database::simpleQuery("SELECT moduleid, contents FROM configtgz_module");
+		$res = Database::simpleQuery("SELECT moduleid, contents FROM configtgz_module WHERE moduletype = 'AD_AUTH'");
 		$ports = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($row['moduleid'] == $id) {
@@ -42,10 +42,30 @@ class ConfigModule
 			'filename' => $moduleTgz,
 			'contents' => $data
 		));
+		Database::exec("UNLOCK TABLES");
 		// Add archive file name to array before returning it
 		$ownEntry['moduleid'] = $id;
 		$ownEntry['filename'] = $moduleTgz;
 		return $ownEntry;
+	}
+	
+	/**
+	 * Get all existing AD proxy configs.
+	 * 
+	 * @return array array of ad configs in DB with fields:
+	 *		moduleid, filename, server, searchbase, binddn, bindpw, home, proxyport
+	 */
+	public static function getAdConfigs()
+	{
+		$res = Database::simpleQuery("SELECT moduleid, filepath, contents FROM configtgz_module WHERE moduletype = 'AD_AUTH'");
+		$mods = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$data = json_decode($row['contents'], true);
+			$data['moduleid'] = $row['moduleid'];
+			$data['filename'] = $row['filepath'];
+			$mods[] = $data;
+		}
+		return $mods;
 	}
 	
 	public static function insertBrandingModule($title, $archive)

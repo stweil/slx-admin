@@ -10,7 +10,7 @@
  */
 class Trigger
 {
-	
+
 	/**
 	 * Compile iPXE pxelinux menu. Needs to be done whenever the server's IP
 	 * address changes.
@@ -26,7 +26,7 @@ class Trigger
 			return false;
 		return $task['id'];
 	}
-	
+
 	/**
 	 * Try to automatically determine the primary IP address of the server.
 	 * This only works if the server has either one public IPv4 address (and potentially
@@ -84,53 +84,53 @@ class Trigger
 	public static function ldadp($parent = NULL)
 	{
 		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"
-			. " INNER JOIN configtgz_x_module USING (moduleid)"
-			. " INNER JOIN configtgz USING (configid)"
-			. " WHERE moduletype = 'AD_AUTH'");
+				. " INNER JOIN configtgz_x_module USING (moduleid)"
+				. " INNER JOIN configtgz USING (configid)"
+				. " WHERE moduletype = 'AD_AUTH'");
 		// TODO: Multiconfig support
 		$id = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (readlink('/srv/openslx/www/boot/default/config.tgz') === $row['filepath']) {
-				$id[] = (int)$row['moduleid'];
+				$id[] = (int) $row['moduleid'];
 				break;
 			}
 		}
 		$task = Taskmanager::submit('LdadpLauncher', array(
-			'ids' => $id,
-			'parentTask' => $parent,
-			'failOnParentFail' => false
+				'ids' => $id,
+				'parentTask' => $parent,
+				'failOnParentFail' => false
 		));
 		if (!isset($task['id']))
 			return false;
 		return $task['id'];
 	}
-	
+
 	/**
 	 * To be called if the server ip changes, as it's embedded in the AD module configs.
 	 * This will then recreate all AD tgz modules.
 	 */
 	public static function rebuildAdModules()
 	{
-		$res = Database::simpleQuery("SELECT moduleid, filepath, content FROM configtgz_module"
-			. " WHERE moduletype = 'AD_AUTH'");
-		if ($res->rowCount() === 0)
-			return;
-		
 		$task = Taskmanager::submit('LdadpLauncher', array('ids' => array())); // Stop all running instances
+		$ads = ConfigModule::getAdConfigs();
+		if (empty($ads))
+			return;
+
 		$parent = isset($task['id']) ? $task['id'] : NULL;
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$config = json_decode($row['contents']);
-			$config['proxyip'] = Property::getServerIp();
-			$config['moduleid'] = $row['moduleid'];
-			$config['filename'] = $row['filepath'];
-			$config['parentTask'] = $parent;
-			$config['failOnParentFail'] = false;
-			$task = Taskmanager::submit('CreateAdConfig', $config);
-			$parent = isset($task['id']) ? $task['id'] : NULL;
+		foreach ($ads as $ad) {
+			$ad['parentTask'] = $parent;
+			$ad['failOnParentFail'] = false;
+			$task = Taskmanager::submit('CreateAdConfig', $ad);
+			if (isset($task['id']))
+				$parent = $task['id'];
 		}
-		
+		if (Taskmanager::waitComplete($parent, 2000) === false) {
+			EventLog::warning('Rebuilding LDAP-AD-Proxy config failed. AD Auth might not work properly.');
+			sleep(1);
+		}
+		Trigger::ldadp();
 	}
-	
+
 	/**
 	 * Mount the VM store into the server.
 	 *
@@ -139,17 +139,42 @@ class Trigger
 	public static function mount()
 	{
 		$vmstore = Property::getVmStoreConfig();
-		if (!is_array($vmstore)) return false;
+		if (!is_array($vmstore))
+			return false;
 		$storetype = $vmstore['storetype'];
-		if ($storetype === 'nfs') $addr = $vmstore['nfsaddr'];
-		if ($storetype === 'cifs') $addr = $vmstore['cifsaddr'];
-		if ($storetype === 'internal') $addr = 'null';
+		if ($storetype === 'nfs')
+			$addr = $vmstore['nfsaddr'];
+		if ($storetype === 'cifs')
+			$addr = $vmstore['cifsaddr'];
+		if ($storetype === 'internal')
+			$addr = 'null';
 		return Taskmanager::submit('MountVmStore', array(
-			'address' => $addr,
-			'type' => 'images',
-			'username' => $vmstore['cifsuser'],
-			'password' => $vmstore['cifspasswd']
+				'address' => $addr,
+				'type' => 'images',
+				'username' => $vmstore['cifsuser'],
+				'password' => $vmstore['cifspasswd']
 		));
+	}
+	
+	/**
+	 * Check and process all callbacks
+	 */
+	public static function checkCallbacks()
+	{
+		$res = Database::simpleQuery("SELECT taskid, cbfunction FROM callback");
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$status = Taskmanager::status($row['taskid']);
+			if (Taskmanager::isFailed($status) || Taskmanager::isFinished($status))
+				Database::exec("DELETE FROM callback WHERE taskid = :task AND cbfunction = :cb LIMIT 1", array('task' => $row['taskid'], 'cb' => $row['cbfunction']));
+			if (Taskmanager::isFinished($status)) {
+				$func = array('TaskmanagerCallback', preg_replace('/\W/', '', $row['cbfunction']));
+				if (!call_user_func_array('method_exists', $func)) {
+					Eventlog::warning("Callback {$row['cbfunction']} doesn't exist.");
+				} else {
+					call_user_func($func, $status);
+				}
+			}
+		}
 	}
 
 }

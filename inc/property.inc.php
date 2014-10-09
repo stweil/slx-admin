@@ -19,11 +19,11 @@ class Property
 	private static function get($key, $default = false)
 	{
 		if (self::$cache === false) {
-			if (mt_rand(1, 20) === 10) {
-				Database::exec("DELETE FROM property WHERE dateline <> 0 AND dateline < UNIX_TIMESTAMP()");
-			}
-			$res = Database::simpleQuery("SELECT name, value FROM property");
+			$NOW = time();
+			$res = Database::simpleQuery("SELECT name, dateline, value FROM property");
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				if ($row['dateline'] != 0 && $row['dateline'] < $NOW)
+					continue;
 				self::$cache[$row['name']] = $row['value'];
 			}
 		}
@@ -37,7 +37,7 @@ class Property
 	 *
 	 * @param string $key key of value to set
 	 * @param type $value the value to store for $key
-	 * @param int minage how long to keep this entry around at least, in minutes. 0 for infinite
+	 * @param int $minage how long to keep this entry around at least, in minutes. 0 for infinite
 	 */
 	private static function set($key, $value, $minage = 0)
 	{
@@ -59,6 +59,8 @@ class Property
 
 	public static function setServerIp($value)
 	{
+		if ($value !== self::getServerIp())
+			Event::serverIpChanged();
 		self::set('server-ip', $value);
 	}
 
@@ -113,6 +115,7 @@ class Property
 	{
 		return json_decode(self::get('vmstore-config'), true);
 	}
+
 	public static function getVmStoreUrl()
 	{
 		$store = self::getVmStoreConfig();
@@ -136,15 +139,25 @@ class Property
 	{
 		return self::get('dl-' . $name);
 	}
-	
+
 	public static function setDownloadTask($name, $taskId)
 	{
 		self::set('dl-' . $name, $taskId, 5);
 	}
-	
+
 	public static function getCurrentSchemaVersion()
 	{
 		return self::get('webif-version');
+	}
+
+	public static function setLastWarningId($id)
+	{
+		self::set('last-warn-event-id', $id);
+	}
+
+	public static function getLastWarningId()
+	{
+		return self::get('last-warn-event-id', 0);
 	}
 
 }

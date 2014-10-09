@@ -114,21 +114,13 @@ if (AJAX) {
 Page::preprocess();
 
 // Generate Main menu
-//$menu = new Menu;// TODO: Merge both templates again - having 99% copy&paste sucks...
-if (User::getName() === false) {
-	Render::addTemplate('main-menu-login', array(
-		'url' => urlencode($_SERVER['REQUEST_URI']),
-		'langs' => Dictionary::getLanguages(true),
-		'dbupdate' => Database::needSchemaUpdate()
-	));
-} else {
-	Render::addTemplate('main-menu-logout', array(
-		'url' => urlencode($_SERVER['REQUEST_URI']),
-		'langs' => Dictionary::getLanguages(true),
-		'dbupdate' => Database::needSchemaUpdate(),
-		'user' => User::getName()
-	));
-}
+Render::addTemplate('main-menu', array(
+	'url' => urlencode($_SERVER['REQUEST_URI']),
+	'langs' => Dictionary::getLanguages(true),
+	'dbupdate' => Database::needSchemaUpdate(),
+	'user' => User::getName(),
+	'warning' => User::getName() && User::getLastSeenEvent() < Property::getLastWarningId()
+));
 
 Message::renderList();
 

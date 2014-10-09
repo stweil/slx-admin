@@ -28,7 +28,7 @@ class Taskmanager
 	 * @param string $task name of task to start
 	 * @param array $data data to pass to the task. the structure depends on the task.
 	 * @param boolean $async if true, the function will not wait for the reply of the taskmanager, which means
-	 *		the return value is just true (and you won't know if the task could acutally be started)
+	 * 		the return value is just true (and you won't know if the task could acutally be started)
 	 * @return array struct representing the task status, or result of submit, false on communication error
 	 */
 	public static function submit($task, $data = false, $async = false)
@@ -49,8 +49,7 @@ class Taskmanager
 		if ($async)
 			return true;
 		$reply = self::readReply($seq);
-		if ($reply === false || !is_array($reply) || !isset($reply['id'])
-				|| (isset($reply['statusCode']) && $reply['statusCode'] === NO_SUCH_TASK)) {
+		if ($reply === false || !is_array($reply) || !isset($reply['id']) || (isset($reply['statusCode']) && $reply['statusCode'] === NO_SUCH_TASK)) {
 			self::addErrorMessage($reply);
 			return false;
 		}
@@ -117,7 +116,7 @@ class Taskmanager
 	/**
 	 * Check whether the given task can be considered failed.
 	 *
-	 * @param mixed $task task id or struct representing task
+	 * @param array $task struct representing task, obtained by ::status
 	 * @return boolean true if task failed, false if finished successfully or still waiting/running
 	 */
 	public static function isFailed($task)
@@ -125,6 +124,22 @@ class Taskmanager
 		if (!is_array($task) || !isset($task['statusCode']) || !isset($task['id']))
 			return true;
 		if ($task['statusCode'] !== TASK_WAITING && $task['statusCode'] !== TASK_PROCESSING && $task['statusCode'] !== TASK_FINISHED)
+			return true;
+		return false;
+	}
+
+	/**
+	 * Check whether the given task is finished, i.e. either failed or succeeded,
+	 * but is not running, still waiting for execution or simply unknown.
+	 *
+	 * @param array $task struct representing task, obtained by ::status
+	 * @return boolean true if task failed or finished, false if waiting for execution or currently executing, no valid task, etc.
+	 */
+	public static function isFinished($task)
+	{
+		if (!is_array($task) || !isset($task['statusCode']) || !isset($task['id']))
+			return false;
+		if ($task['statusCode'] === TASK_ERROR || $task['statusCode'] === TASK_FINISHED)
 			return true;
 		return false;
 	}

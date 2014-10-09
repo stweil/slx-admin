@@ -7,8 +7,10 @@
     "lang_language": "Language",
     "lang_localization": "Localization",
     "lang_login": "Login",
+    "lang_logout": "Logout",
     "lang_news": "News",
     "lang_server": "Server",
     "lang_settings": "Settings",
-    "lang_vmLocation": "VM Location"
+    "lang_vmLocation": "VM Location",
+    "lang_warning": "Warning"
 }

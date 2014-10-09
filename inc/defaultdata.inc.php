@@ -25,6 +25,7 @@ class DefaultData
 			2 => 20, // Internet access
 			3 => 100, // Timesync
 			4 => 10, // System config
+			5 => 15, // Public Shared folder
 		);
 		foreach ($cats as $cat => $sort) {
 			Database::exec("INSERT IGNORE INTO cat_setting (catid, sortval) VALUES (:catid, :sortval)", array(
@@ -94,7 +95,7 @@ class DefaultData
 				'catid' => '2',
 				'defaultvalue' => 'off',
 				'permissions' => '2',
-				'validator' => 'list:off|on|auto|wpad'
+				'validator' => 'list:off|on|auto'
 			),
 			array(
 				'setting' => 'SLX_PROXY_PORT',
@@ -137,11 +138,25 @@ class DefaultData
 				'defaultvalue' => '1200',
 				'permissions' => '2',
 				'validator' => 'regex:/^\d*$/'
-			)
+			),
+			array(
+				'setting' => 'SLX_COMMON_SHARE_PATH',
+				'catid' => '5',
+				'defaultvalue' => '',
+				'permissions' => '2',
+				'validator' => 'function:networkShare'
+			),
+			array(
+				'setting' => 'SLX_COMMON_SHARE_AUTH',
+				'catid' => '5',
+				'defaultvalue' => 'guest',
+				'permissions' => '2',
+				'validator' => 'list:guest|user'
+			),
 		);
 		foreach ($data as $entry) {
 			Database::exec("INSERT IGNORE INTO setting (setting, catid, defaultvalue, permissions, validator)"
-				. "VALUES (:setting, :catid, :defaultvalue, :permissions, :validator)");
+				. "VALUES (:setting, :catid, :defaultvalue, :permissions, :validator)", $entry);
 		}
 	}
 

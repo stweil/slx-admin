@@ -39,7 +39,47 @@ while ($currentVersion < $targetVersion) {
 }
 
 Message::addSuccess('db-update-done');
+Eventlog::info("Database updated to version $currentVersion");
 Util::redirect('index.php?do=Main');
+
+////////////////
+
+function tableHasColumn($table, $column)
+{
+	$table = preg_replace('/\W/', '', $table);
+	$column = preg_replace('/\W/', '', $column);
+	$res = Database::simpleQuery("DESCRIBE `$table`", array(), false);
+	if ($res !== false) {
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ((is_array($column) && in_array($row['Field'], $column)) || (is_string($column) && $row['Field'] === $column))
+				return true;
+		}
+	}
+	return false;
+}
+
+function tableDropColumn($table, $column)
+{
+	$table = preg_replace('/\W/', '', $table);
+	$column = preg_replace('/\W/', '', $column);
+	$res = Database::simpleQuery("DESCRIBE `$table`", array(), false);
+	if ($res !== false) {
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ((is_array($column) && in_array($row['Field'], $column)) || (is_string($column) && $row['Field'] === $column))
+				Database::exec("ALTER TABLE `$table` DROP `{$row['Field']}`");
+		}
+	}
+}
+
+function tableExists($table)
+{
+	$res = Database::simpleQuery("SHOW TABLES", array(), false);
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		if ($row['Tables_in_openslx'] === $table)
+			return true;
+	}
+	return false;
+}
 
 // The update functions. Number at the end refers to current version, the function will update to the next version
 // #######################
@@ -48,17 +88,7 @@ Util::redirect('index.php?do=Main');
 
 function update_1()
 {
-	$res = Database::simpleQuery("DESCRIBE property", array(), false);
-	$type = false;
-	if ($res === false)
-		return;
-	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		if ($row['Field'] !== 'dateline')
-			continue;
-		$type = $row['Type'];
-		break;
-	}
-	if ($type === false) {
+	if (!tableHasColumn('property', 'dateline')) {
 		Database::exec("ALTER TABLE `property` ADD `dateline` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `name` , ADD INDEX ( `dateline` )");
 	} else {
 		Database::exec("ALTER TABLE `property` CHANGE `dateline` `dateline` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0'");
@@ -71,17 +101,9 @@ function update_1()
 // Add 'news' table to database schema
 function update_2()
 {
-	$res = Database::simpleQuery("show tables", array(), false);
-	$found = false;
-	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		if ($row['Tables_in_openslx'] !== 'news')
-			continue;
-		$found = true;
-		break;
-	}
-	if ($found === false) {
+	if (!tableExists('news')) {
 		// create table
-		Database::exec("CREATE TABLE `news` (
+		Database::exec("CREATE TABLE IF NOT EXISTS `news` (
 			`newsid` int(10) unsigned NOT NULL AUTO_INCREMENT,
 			`dateline` int(10) unsigned NOT NULL,
 			`title` varchar(200) DEFAULT NULL,
@@ -99,32 +121,8 @@ function update_2()
 // Remove setting descriptions from DB, put into json files now
 function update_3()
 {
-	$res = Database::simpleQuery("DESCRIBE setting", array(), false);
-	if ($res !== false) {
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			switch ($row['Field']) {
-				case 'de':
-				case 'en':
-				case 'pt':
-				case 'description':
-					Database::exec("ALTER TABLE setting DROP {$row['Field']}");
-					break;
-			}
-		}
-	}
-	$res = Database::simpleQuery("DESCRIBE cat_setting", array(), false);
-	if ($res !== false) {
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			switch ($row['Field']) {
-				case 'de':
-				case 'en':
-				case 'pt':
-				case 'name':
-					Database::exec("ALTER TABLE cat_setting DROP {$row['Field']}");
-					break;
-			}
-		}
-	}
+	tableDropColumn('setting', array('de', 'en', 'pt', 'description'));
+	tableDropColumn('cat_setting', array('de', 'en', 'pt', 'name'));
 	return true;
 }
 
@@ -133,27 +131,10 @@ function update_3()
 // Remove description column from permission table, add eventlog table
 function update_4()
 {
-	$res = Database::simpleQuery("DESCRIBE permission", array(), false);
-	if ($res !== false) {
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			switch ($row['Field']) {
-				case 'description':
-					Database::exec("ALTER TABLE permission DROP {$row['Field']}");
-					break;
-			}
-		}
-	}
-	$res = Database::simpleQuery("show tables", array(), false);
-	$found = false;
-	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		if ($row['Tables_in_openslx'] !== 'eventlog')
-			continue;
-		$found = true;
-		break;
-	}
-	if ($found === false) {
+	tableDropColumn('permission', 'description');
+	if (!tableExists('eventlog')) {
 		// create table
-		Database::exec("CREATE TABLE `eventlog` (
+		Database::exec("CREATE TABLE IF NOT EXISTS `eventlog` (
 			`logid` int(10) unsigned NOT NULL AUTO_INCREMENT,
 			`dateline` int(10) unsigned NOT NULL,
 			`logtypeid` varchar(30) NOT NULL,
@@ -162,6 +143,28 @@ function update_4()
 			KEY `dateline` (`dateline`),
 			KEY `logtypeid` (`logtypeid`,`dateline`)
 		) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+		");
+	}
+	return true;
+}
+
+// #######################
+// ##### 2014-08-18
+// Add details column to eventlog table, add callback table
+function update_5()
+{
+	if (!tableHasColumn('eventlog', 'extra'))
+		Database::exec("ALTER TABLE `eventlog` ADD `extra` TEXT NOT NULL");
+	if (!tableHasColumn('user', 'lasteventid'))
+		Database::exec("ALTER TABLE `user` ADD `lasteventid` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0'");
+	if (!tableExists('callback')) {
+		Database::exec("CREATE TABLE IF NOT EXISTS `callback` (
+			`taskid` varchar(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+			`dateline` int(10) unsigned NOT NULL,
+			`cbfunction` varchar(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+			PRIMARY KEY (`taskid`,`cbfunction`),
+			KEY `dateline` (`dateline`)
+		 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 		");
 	}
 	return true;

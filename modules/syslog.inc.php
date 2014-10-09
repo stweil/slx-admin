@@ -50,11 +50,10 @@ class Page_SysLog extends Page
 		$res = $paginate->exec();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$day = date('d.m.Y', $row['dateline']);
-			// TODO: No output strings in source files!
 			if ($day === $today) {
-				$day = 'Heute';
+				$day = Dictionary::translate('today');
 			} elseif ($day === $yesterday) {
-				$day = 'Gestern';
+				$day = Dictionary::translate('yesterday');
 			}
 			$row['date'] = $day . date(' H:i', $row['dateline']);
 			$lines[] = $row;

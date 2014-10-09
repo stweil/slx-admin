@@ -222,7 +222,7 @@ class Page_SysConfig extends Page
 			Message::addError('task-error', $task['data']['error']);
 		} elseif ($task['statusCode'] === TASK_FINISHED) {
 			Message::addSuccess('config-activated', $row['title']);
-			Trigger::ldadp(); // TODO: Feedback
+			Event::activeConfigChanged();
 		}
 		Util::redirect('?do=SysConfig');
 	}

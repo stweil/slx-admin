@@ -16,7 +16,7 @@ class Database
 	 */
 	public static function getExpectedSchemaVersion()
 	{
-		return 5;
+		return 6;
 	}
 	
 	public static function needSchemaUpdate()

@@ -66,12 +66,12 @@ class Page_Translation extends Page
 				Render::addTemplate('translation/edit', array(
 					'path' => 'settings/cat_setting',
 					'langs' => $langs,
-					'tags' => $this->buildTranslationTable('settings/cat_setting')
+					'tags' => $this->loadCategoriesArray()
 				));
 				Render::addTemplate('translation/edit', array(
 					'path' => 'settings/setting',
 					'langs' => $langs,
-					'tags' => $this->buildTranslationTable('settings/setting')
+					'tags' => $this->loadSettingsArray()
 				));
 				break;
 			case 'template':
@@ -442,6 +442,36 @@ class Page_Translation extends Page
 			}
 		}
 		Message::addSuccess('deleted-tag');
+	}
+	
+	/**
+	 * Load all settings categories for editing.
+	 * 
+	 * @return array
+	 */
+	private function loadCategoriesArray()
+	{
+		$want = array();
+		$res = Database::simpleQuery("SELECT catid FROM cat_setting ORDER BY catid ASC");
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$want[] = 'cat_' . $row['catid'];
+		}
+		return $this->buildTranslationTable('settings/cat_setting', $want);
+	}
+	
+	/**
+	 * Load all settings categories for editing.
+	 * 
+	 * @return array
+	 */
+	private function loadSettingsArray()
+	{
+		$want = array();
+		$res = Database::simpleQuery("SELECT setting FROM setting ORDER BY setting ASC");
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$want[] = $row['setting'];
+		}
+		return $this->buildTranslationTable('settings/setting', $want);
 	}
 
 }

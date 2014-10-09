@@ -3,5 +3,6 @@
     "cat_1": "Inactivity and Shutdown",
     "cat_2": "Internet Access",
     "cat_3": "Time Synchronization",
-    "cat_4": "Basic System"
+    "cat_4": "Basic System",
+    "cat_5": "Common network share"
 }
