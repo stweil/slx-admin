@@ -4,13 +4,16 @@
     "lang_clientLog": "Client Log",
     "lang_configurationBasic": "Grundkonfiguration",
     "lang_configurationVariables": "KonfigurationsVariablen",
+    "lang_eventLog": "Server Log",
     "lang_language": "Sprachen",
     "lang_localization": "Lokalisierung",
     "lang_login": "Anmelden",
     "lang_logout": "Abmelden",
     "lang_news": "News",
     "lang_server": "Server",
+    "lang_serverStatus": "Server Status",
     "lang_settings": "Einstellungen",
+    "lang_status": "Status",
     "lang_vmLocation": "VM Speicherort",
     "lang_warning": "Warnung"
 }

@@ -407,6 +407,7 @@ class Page_Translation extends Page
 				Message::addError('invalid-path');
 				Util::redirect('?do=Translation');
 			}
+			@mkdir(dirname($path), 0755, true);
 			ksort($array); // Sort by key, so the diff on the output is cleaner
 			$json = up_json_encode($array, JSON_PRETTY_PRINT); // Also for better diffability of the json files, we pretty print
 			//exits the function in case the action was unsuccessful
