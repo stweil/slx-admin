@@ -87,7 +87,15 @@ body {
 }
 
 .red {
-	color: red;
+	color: #c00;
+}
+
+.orange {
+	color: #c70;
+}
+
+.green {
+	color: #0c0;
 }
 
 .slx-label {
@@ -139,6 +147,6 @@ body {
   to   { transform: scale( 1 ) rotate( 360deg ); }
 }
 
-.slx-text-red {
+.slx-warning-badge {
   color: #ff0;
 }

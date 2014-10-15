@@ -13,7 +13,7 @@
 			<tr>
 				<td><span class="glyphicon glyphicon-{{icon}}" title="{{logtypeid}}"></span></td>
 				<td class="text-right" nowrap="nowrap">{{date}}</td>
-				<td>{{description}}</td>
+				<td class="{{color}}">{{description}}</td>
 				<td>{{#extra}}
 					<a class="btn btn-default btn-xs pull-left" onclick="$('#details-body').html($('#extra-{{logid}}').html())" data-toggle="modal" data-target="#myModal">&raquo;</a>
 					<div class="hidden" id="extra-{{logid}}">{{extra}}</div>

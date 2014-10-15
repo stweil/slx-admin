@@ -30,6 +30,7 @@ class Page_EventLog extends Page
 			}
 			$row['date'] = $day . date(' H:i', $row['dateline']);
 			$row['icon'] = $this->typeToIcon($row['logtypeid']);
+			$row['color'] = $this->typeToColor($row['logtypeid']);
 			$lines[] = $row;
 		}
 
@@ -49,6 +50,20 @@ class Page_EventLog extends Page
 				return 'remove';
 			default:
 				return 'question-sign';
+		}
+	}
+
+	private function typeToColor($type)
+	{
+		switch ($type) {
+			case 'info':
+				return 'green';
+			case 'warning':
+				return 'orange';
+			case 'error':
+				return 'red';
+			default:
+				return '';
 		}
 	}
 
