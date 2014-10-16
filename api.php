@@ -1,22 +1,25 @@
 <?php
 
 error_reporting(E_ALL);
+chdir(dirname($_SERVER['SCRIPT_FILENAME']));
 
 require_once 'config.php';
 
 // Autoload classes from ./inc which adhere to naming scheme <lowercasename>.inc.php
-function slxAutoloader($class) {
+function slxAutoloader($class)
+{
 	$file = 'inc/' . preg_replace('/[^a-z0-9]/', '', mb_strtolower($class)) . '.inc.php';
-	if (!file_exists($file)) return;
+	if (!file_exists($file))
+		return;
 	require_once $file;
 }
+
 spl_autoload_register('slxAutoloader');
 
 function isLocalExecution()
 {
 	return !isset($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] === '127.0.0.1';
 }
-
 
 if (!empty($_REQUEST['do'])) {
 	$module = preg_replace('/[^a-z]/', '', $_REQUEST['do']);
@@ -25,7 +28,6 @@ if (!empty($_REQUEST['do'])) {
 } else {
 	// No specific module - set default
 	$module = 'main';
-	
 }
 
 $module = 'apis/' . $module . '.inc.php';
