@@ -13,32 +13,32 @@
 <form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 	<input type="hidden" name="token" value="{{token}}">
 	<div class="input-group">
-		<span class="input-group-addon slx-ga">Server    </span>
+		<span class="input-group-addon slx-ga">Server *</span>
 		<input tabindex="1" name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
-		<span class="input-group-btn">
+		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
-		</span>
+		</span-->
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">{{lang_bindDN}} *</span>
+		<input tabindex="2" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="domain\bwlp *ODER* CN=bwlp,OU=Benutzer,DC=domain,DC=hs-beispiel,DC=de">
+		<!--span class="input-group-btn">
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span-->
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">{{lang_password}} *</span>
+		<input tabindex="3" name="bindpw" value="{{bindpw}}" type="text" class="form-control" placeholder="{{lang_password}}">
+		<!--span class="input-group-btn">
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span-->
 	</div>
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">{{lang_searchBase}}</span>
-		<input tabindex="2" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="dc=windows,dc=hs-beispiel,dc=de">
-		<span class="input-group-btn">
+		<input tabindex="4" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="dc=windows,dc=hs-beispiel,dc=de">
+		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
-		</span>
-	</div>
-	<div class="input-group">
-		<span class="input-group-addon slx-ga">{{lang_bindDN}}</span>
-		<input tabindex="3" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="CN=bwlehrpool user,OU=Benutzer,OU=Gruppe XYZ,DC=windows,DC=hs-beispiel,DC=de">
-		<span class="input-group-btn">
-			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
-		</span>
-	</div>
-	<div class="input-group">
-		<span class="input-group-addon slx-ga">{{lang_password}}</span>
-		<input tabindex="4" name="bindpw" value="{{bindpw}}" type="text" class="form-control" placeholder="{{lang_password}}">
-		<span class="input-group-btn">
-			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
-		</span>
+		</span-->
 	</div>
 	<br>
 	<div class="input-group">

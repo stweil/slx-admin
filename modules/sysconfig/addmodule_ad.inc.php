@@ -4,8 +4,7 @@
  * Wizard for setting up active directory integration for authentication.
  */
 
-Page_SysConfig::addModule('AD_AUTH', 'AdModule_Start', Dictionary::translate('lang_adAuthentication'),
-	Dictionary::translate('lang_adModule'),	Dictionary::translate('lang_authentication'), true
+Page_SysConfig::addModule('AD_AUTH', 'AdModule_Start', Dictionary::translate('lang_adAuthentication'), Dictionary::translate('lang_adModule'), Dictionary::translate('lang_authentication'), true
 );
 
 class AdModule_Start extends AddModule_Base
@@ -29,25 +28,45 @@ class AdModule_Start extends AddModule_Base
 
 class AdModule_CheckConnection extends AddModule_Base
 {
+
 	private $taskIds;
+	private $originalBindDn;
 
 	protected function preprocessInternal()
 	{
 		$server = Request::post('server');
-		$searchbase = Request::post('searchbase');
+		$searchbase = Request::post('searchbase', '');
 		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
-		if (empty($server) || empty($searchbase) || empty($binddn)) {
+		if (empty($server) || empty($binddn)) {
 			Message::addError('empty-field');
 			AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
 			return;
 		}
+		$parent = null;
+		$this->originalBindDn = '';
+		if (preg_match('#^\w+[/\\\\](\w+)$#', $binddn, $out)) {
+			$user = $out[1];
+			$this->originalBindDn = str_replace('/', '\\', $binddn);
+			$selfSearch = Taskmanager::submit('LdapSearch', array(
+					'server' => $server,
+					'searchbase' => $searchbase,
+					'binddn' => $this->originalBindDn,
+					'bindpw' => $bindpw,
+					'username' => $user
+			));
+			if (!isset($selfSearch['id'])) {
+				AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
+				return;
+			}
+			$parent = $selfSearch['id'];
+		}
 		$ldapSearch = Taskmanager::submit('LdapSearch', array(
-			'home' => Request::post('home'),
-			'server' => $server,
-			'searchbase' => $searchbase,
-			'binddn' => $binddn,
-			'bindpw' => $bindpw
+				'parentTask' => $parent,
+				'server' => $server,
+				'searchbase' => $searchbase,
+				'binddn' => $binddn,
+				'bindpw' => $bindpw
 		));
 		if (!isset($ldapSearch['id'])) {
 			AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
@@ -56,18 +75,20 @@ class AdModule_CheckConnection extends AddModule_Base
 		$this->taskIds = array(
 			'tm-search' => $ldapSearch['id']
 		);
+		if (isset($selfSearch['id']))
+			$this->taskIds['self-search'] = $selfSearch['id'];
 	}
-	
+
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-checkconnection', 
-			array_merge($this->taskIds, array(
-				'server' => Request::post('server'),
-				'searchbase' => Request::post('searchbase'),
-				'binddn' => Request::post('binddn'),
-				'bindpw' => Request::post('bindpw'),
-				'home' => Request::post('home'),
-				'step' => 'AdModule_Finish'
+		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-checkconnection', array_merge($this->taskIds, array(
+			'server' => Request::post('server'),
+			'searchbase' => Request::post('searchbase'),
+			'binddn' => Request::post('binddn'),
+			'bindpw' => Request::post('bindpw'),
+			'home' => Request::post('home'),
+			'originalbinddn' => $this->originalBindDn,
+			'step' => 'AdModule_Finish'
 			))
 		);
 	}
@@ -81,12 +102,22 @@ class AdModule_Finish extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$config = ConfigModule::insertAdConfig('AD: ' . Request::post('server'),
-			Request::post('server'),
-			Request::post('searchbase'),
-			Request::post('binddn'),
-			Request::post('bindpw', ''),
-			Request::post('home', '')
+		$binddn = Request::post('binddn');
+		$searchbase = Request::post('searchbase');
+		if (empty($searchbase)) {
+			$originalBindDn = Request::post('originalbinddn');
+			if (!preg_match('#^(\w+)[/\\\\]\w+$#', $originalBindDn, $out)) {
+				Message::addError('value-invalid', 'binddn', $originalBindDn);
+				Util::redirect('?do=SysConfig&action=addmodule&step=AdModule_Start');
+			}
+			$i = mb_stripos($binddn, '=' . $out[1] . ',');
+			if ($i === false) {
+				Message::addError('value-invalid', $binddn, $out[1]);
+				Util::redirect('?do=SysConfig&action=addmodule&step=AdModule_Start');
+			}
+			$searchbase = mb_substr($binddn, $i + 1);
+		}
+		$config = ConfigModule::insertAdConfig('AD: ' . Request::post('server'), Request::post('server'), $searchbase, $binddn, Request::post('bindpw', ''), Request::post('home', '')
 		);
 		$config['proxyip'] = Property::getServerIp();
 		$tgz = Taskmanager::submit('CreateAdConfig', $config);
@@ -98,11 +129,10 @@ class AdModule_Finish extends AddModule_Base
 			'tm-config' => $tgz['id'],
 		);
 	}
-	
+
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-finish', 
-			$this->taskIds
+		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-finish', $this->taskIds
 		);
 	}
 

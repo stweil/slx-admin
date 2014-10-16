@@ -1,7 +1,7 @@
 {
-    "lang_adText1": "Zum Einrichten der Benutzerauthentifizierung \u00fcber ein Active Directory wird neben der Adresse des anzusprechenden Servers ein dedizierter Benutzer im AD ben\u00f6tigt, \u00fcber welchen das AD angesprochen wird.",
+    "lang_adText1": "Zum Einrichten der Benutzerauthentifizierung \u00fcber ein Active Directory wird neben der Adresse des anzusprechenden Servers ein dedizierter Benutzer im AD ben\u00f6tigt, \u00fcber welchen das AD angesprochen wird. Der Benutzer sollte in der gleichen Dom\u00e4ne sein, wie die Benutzer, die sich sp\u00e4ter an den Arbeitsstationen anmelden werden. Ansonsten ist es notwendig, die Suchbasis anzugeben.",
     "lang_adText2": "Dieser Benutzer ben\u00f6tigt keine besonderen Rechte, Sie k\u00f6nnen diesem Benutzer zur Sicherheit auch die Rechte zum Anmelden entziehen. Der Benutzer muss lediglich ausreichende Berechtigungen haben, um einen LDAP-Bind am AD durchzuf\u00fchren, und nach Benutzern zu suchen.",
-    "lang_adText3": "Im Folgenden muss der Distinguished Name des Benutzers angegeben werden. Diesen k\u00f6nnen Sie ermitteln, indem Sie das Kommandozeilenprogramm dsquery auf einem Domain Controller wie folgt aufrufen:",
+    "lang_adText3": "Normalerweise k\u00f6nnen Sie als Bind DN die Kurzform im Format dom\u00e4ne\\benutzer angeben. Wenn dies nicht funktioniert, m\u00fcssen Sie den DN des Benutzers ermitteln. Z.B. unter Eingabe des folgenden Befehls auf einem DC:",
     "lang_adText4": "Nach Eingabe aller ben\u00f6tigten Daten wird im n\u00e4chsten Schritt \u00fcberpr\u00fcft, ob die Kommunikation mit dem AD m\u00f6glich ist.",
     "lang_bindDN": "Bind DN",
     "lang_close": "Schlie\u00dfen",
@@ -9,7 +9,7 @@
     "lang_password": "Passwort",
     "lang_searchBase": "Suchbasis",
     "lang_userDirectory": "Benutzerverzeichnis",
-    "lang_userDirectoryInfo1": "Optionale Angabe: Wenn die Clients f\u00fcr die Benutzer ein eigenes Verzeichnis (Homeverzeichnis, Benutzerverzeichnis) von einem Server einbinden sollen, geben Sie bitte hier das Format in UNC-Notation an, also z.B. ",
+    "lang_userDirectoryInfo1": "Optionale Angabe: Wenn die Clients f\u00fcr die Benutzer ein eigenes Verzeichnis (Homeverzeichnis, Benutzerverzeichnis) von einem Server einbinden sollen, geben Sie bitte hier das Format in UNC-Notation an, also z.B.",
     "lang_userDirectoryInfo2": "%s ist dabei ein Platzhalter f\u00fcr den Login-Namen des Benutzers.",
     "lang_userDirectoryInfo3": "Das Verzeichnis wird mit den gleichen Zugangsdaten eingebunden, die der Benutzer beim Login angibt. (D.h. kein Kerberos Support o.\u00e4.)"
 }

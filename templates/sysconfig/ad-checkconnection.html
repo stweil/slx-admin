@@ -3,6 +3,7 @@
 </p>
 
 <div id="zeug">
+	<div data-tm-id="{{self-search}}" data-tm-log="messages" data-tm-callback="selfCb">LDAP Self-Query</div>
 	<div data-tm-id="{{tm-search}}" data-tm-log="messages" data-tm-callback="ldapCb">LDAP Test-Query</div>
 </div>
 <br>
@@ -22,22 +23,33 @@
 		<input type="hidden" name="token" value="{{token}}">
 		<input name="server" value="{{server}}" type="hidden">
 		<input name="searchbase" value="{{searchbase}}" type="hidden">
-		<input name="binddn" value="{{binddn}}" type="hidden">
+		<input id="setdn" name="binddn" value="{{binddn}}" type="hidden">
 		<input name="bindpw" value="{{bindpw}}" type="hidden">
 		<input name="home" value="{{home}}" type="hidden">
+		<input name="originalbinddn" value="{{binddn}}" type="hidden">
 		<button id="nextbutton" type="submit" class="btn btn-primary">{{lang_skip}} &raquo;</button>
 	</form>
 </div>
 <script type="text/javascript">
-function ldapCb(task)
-{
-	if (!task || !task.statusCode)
-		return;
-	 if (task.statusCode === 'TASK_FINISHED') {
-		$('#nextbutton').html('Weiter &raquo;');
+	function ldapCb(task)
+	{
+		if (!task || !task.statusCode)
+			return;
+		if (task.statusCode === 'TASK_FINISHED') {
+			$('#nextbutton').html('Weiter &raquo;');
+		}
+		if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'PARENT_FAILED') {
+			$('#nextbutton').html('Trotzdem weiter &raquo;');
+		}
 	}
-	if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'PARENT_FAILED') {
-		$('#nextbutton').html('Trotzdem weiter &raquo;');
+	function selfCb(task)
+	{
+		if (!task || !task.statusCode)
+			return;
+		if (task.statusCode === 'TASK_FINISHED' && task.data && task.data.dn) {
+			$('#setdn').val(task.data.dn);
+		} else {
+			$('#nextbutton').html('Trotzdem weiter &raquo;');
+		}
 	}
-}
 </script>
