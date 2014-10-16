@@ -20,12 +20,12 @@ class DefaultData
 	private static function addSettingCategories()
 	{
 		$cats = array(
-			0 => 20000, // Unassigned/no category
 			1 => 30, // Inactivity/Shutdown
 			2 => 20, // Internet access
 			3 => 100, // Timesync
 			4 => 10, // System config
 			5 => 15, // Public Shared folder
+			6 => 20000, // Unassigned/no category
 		);
 		foreach ($cats as $cat => $sort) {
 			Database::exec("INSERT IGNORE INTO cat_setting (catid, sortval) VALUES (:catid, :sortval)", array(
@@ -43,7 +43,7 @@ class DefaultData
 		$data = array(
 			array(
 				'setting' => 'SLX_ADDONS',
-				'catid' => '0',
+				'catid' => '6',
 				'defaultvalue' => 'vmware',
 				'permissions' => '2',
 				'validator' => ''
@@ -113,7 +113,7 @@ class DefaultData
 			),
 			array(
 				'setting' => 'SLX_REMOTE_LOG_SESSIONS',
-				'catid' => '0',
+				'catid' => '6',
 				'defaultvalue' => 'anonymous',
 				'permissions' => '2',
 				'validator' => 'list:yes|anonymous|no'
