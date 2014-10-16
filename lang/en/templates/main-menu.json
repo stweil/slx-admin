@@ -9,6 +9,7 @@
     "lang_localization": "Localization",
     "lang_login": "Login",
     "lang_logout": "Logout",
+    "lang_needsSetup": "Setup incomplete",
     "lang_news": "News",
     "lang_server": "Server",
     "lang_serverStatus": "Server status",

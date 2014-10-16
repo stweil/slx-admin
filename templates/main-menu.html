@@ -49,6 +49,9 @@
 				{{#warning}}
 				<li><a href="?do=EventLog"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_warning}}</span></a></li>
 				{{/warning}}
+				{{#needsSetup}}
+				<li><a href="?do=Main"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_needsSetup}}</span></a></li>
+				{{/needsSetup}}
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				{{#user}}

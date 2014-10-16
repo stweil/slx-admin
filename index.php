@@ -119,7 +119,8 @@ Render::addTemplate('main-menu', array(
 	'langs' => Dictionary::getLanguages(true),
 	'dbupdate' => Database::needSchemaUpdate(),
 	'user' => User::getName(),
-	'warning' => User::getName() && User::getLastSeenEvent() < Property::getLastWarningId()
+	'warning' => User::getName() !== false && User::getLastSeenEvent() < Property::getLastWarningId(),
+	'needsSetup' => User::getName() !== false && Property::getNeedsSetup()
 ));
 
 Message::renderList();

@@ -159,5 +159,15 @@ class Property
 	{
 		return self::get('last-warn-event-id', 0);
 	}
+	
+	public static function setNeedsSetup($value)
+	{
+		self::set('needs-setup', $value);
+	}
+	
+	public static function getNeedsSetup()
+	{
+		return self::get('needs-setup');
+	}
 
 }
