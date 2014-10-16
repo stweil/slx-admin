@@ -16,6 +16,7 @@ class EventLog
 	public static function failure($message, $details = '')
 	{
 		self::log('failure', $message, $details);
+		Property::setLastWarningId(Database::lastInsertId());
 	}
 	
 	public static function warning($message, $details = '')
@@ -27,7 +28,6 @@ class EventLog
 	public static function info($message, $details = '')
 	{
 		self::log('info', $message, $details);
-		Property::setLastWarningId(Database::lastInsertId());
 	}
 	
 }

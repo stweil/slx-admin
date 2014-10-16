@@ -4,7 +4,8 @@ $targetVersion = Database::getExpectedSchemaVersion();
 
 function fatal($message)
 {
-	EventLog::failure($message);
+	if (tableExists('eventlog'))
+		EventLog::failure($message);
 	die("$message\n");
 }
 
@@ -39,7 +40,8 @@ while ($currentVersion < $targetVersion) {
 }
 
 Message::addSuccess('db-update-done');
-Eventlog::info("Database updated to version $currentVersion");
+if (tableExists('eventlog'))
+	EventLog::info("Database updated to version $currentVersion");
 Util::redirect('index.php?do=Main');
 
 ////////////////
@@ -48,7 +50,7 @@ function tableHasColumn($table, $column)
 {
 	$table = preg_replace('/\W/', '', $table);
 	$column = preg_replace('/\W/', '', $column);
-	$res = Database::simpleQuery("DESCRIBE `$table`", array(), false);
+	$res = Database::simpleQuery("DESCRIBE `$table`", array(), true);
 	if ($res !== false) {
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ((is_array($column) && in_array($row['Field'], $column)) || (is_string($column) && $row['Field'] === $column))
@@ -62,7 +64,7 @@ function tableDropColumn($table, $column)
 {
 	$table = preg_replace('/\W/', '', $table);
 	$column = preg_replace('/\W/', '', $column);
-	$res = Database::simpleQuery("DESCRIBE `$table`", array(), false);
+	$res = Database::simpleQuery("DESCRIBE `$table`", array(), true);
 	if ($res !== false) {
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ((is_array($column) && in_array($row['Field'], $column)) || (is_string($column) && $row['Field'] === $column))
@@ -73,7 +75,7 @@ function tableDropColumn($table, $column)
 
 function tableExists($table)
 {
-	$res = Database::simpleQuery("SHOW TABLES", array(), false);
+	$res = Database::simpleQuery("SHOW TABLES", array(), true);
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		if ($row['Tables_in_openslx'] === $table)
 			return true;
