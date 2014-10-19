@@ -13,7 +13,7 @@ function escape($string)
 }
 
 // Dump config from DB
-$res = Database::simpleQuery('SELECT setting.setting, setting.defaultvalue, setting.permissions, setting.description, tbl.value
+$res = Database::simpleQuery('SELECT setting.setting, setting.defaultvalue, tbl.value
 	FROM setting
 	LEFT JOIN setting_global AS tbl USING (setting)
 	ORDER BY setting ASC'); // TODO: Add setting groups and sort order
