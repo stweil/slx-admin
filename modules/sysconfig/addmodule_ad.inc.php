@@ -105,8 +105,8 @@ class AdModule_Finish extends AddModule_Base
 		$binddn = Request::post('binddn');
 		$searchbase = Request::post('searchbase');
 		if (empty($searchbase)) {
-			$originalBindDn = Request::post('originalbinddn');
-			if (!preg_match('#^(\w+)[/\\\\]\w+$#', $originalBindDn, $out)) {
+			$originalBindDn = str_replace('\\', '/', trim(Request::post('originalbinddn')));
+			if (!preg_match('#^([^/]+)/[^/]+$#', $originalBindDn, $out)) {
 				Message::addError('value-invalid', 'binddn', $originalBindDn);
 				Util::redirect('?do=SysConfig&action=addmodule&step=AdModule_Start');
 			}
