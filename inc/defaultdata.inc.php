@@ -153,6 +153,13 @@ class DefaultData
 				'permissions' => '2',
 				'validator' => 'list:guest|user'
 			),
+			array(
+				'setting' => 'SLX_BENCHMARK_VM',
+				'catid' => '6',
+				'defaultvalue' => '',
+				'permissions' => '2',
+				'validator' => ''
+			),
 		);
 		foreach ($data as $entry) {
 			Database::exec("INSERT IGNORE INTO setting (setting, catid, defaultvalue, permissions, validator)"

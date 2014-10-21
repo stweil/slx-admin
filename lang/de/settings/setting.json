@@ -1,5 +1,6 @@
 {
     "SLX_ADDONS": "Zu ladende Addons. Zur Zeit steht nur vmware zur Verf\u00fcgung.",
+    "SLX_BENCHMARK_VM": "Tragen Sie hier den exakten Namen einer Veranstaltung, wie sie im *vmchooser* auftaucht ein, um diese VM nach dem Booten automatisch zu starten. Dies ist n\u00fctzlich f\u00fcr Bootzeitmessungen. Feld leer lassen, um Funktion zu deaktivieren.",
     "SLX_BIOS_CLOCK": "Legt fest, ob und wie die interne Uhr des Rechners im Bezug auf die Systemzeit des \/MiniLinux\/ gesetzt werden soll.*off* = Die interne Uhr des Rechners wird nicht ver\u00e4ndert.*local* = Die interne Uhr wird auf die Lokalzeit gesetzt. Bevorzugt wenn z.B. noch eine native Windows-Installation auf dem PC vorhanden ist.*utc* = Die interne Uhr wird auf die \/Koordinierte Weltzeit\/ gesetzt. Dies ist die g\u00e4ngige Einstellung in einem reinen Linux-Umfeld.",
     "SLX_COMMON_SHARE_AUTH": "Authentifizierungsmethode f\u00fcr das gemeinsame Netzlaufwerk. *guest* bedeutet, dass keine Authentifizierung notwendig ist, *user* bedeutet, dass die Credentials des angemeldeten Benutzers verwendet werden.",
     "SLX_COMMON_SHARE_PATH": "Netzwerkpfad des gemeinsamen Netzlaufwerks. Es werden NFS (keine Authentifizierung) und CIFS\/SMB (mit und ohne Authentifizierung) unterst\u00fctzt.",
