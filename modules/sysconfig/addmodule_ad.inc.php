@@ -16,6 +16,7 @@ class AdModule_Start extends AddModule_Base
 		Session::save();
 		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-start', array(
 			'step' => 'AdModule_CheckConnection',
+			'title' => Request::post('title'),
 			'server' => Request::post('server'),
 			'searchbase' => Request::post('searchbase'),
 			'binddn' => Request::post('binddn'),
@@ -82,6 +83,7 @@ class AdModule_CheckConnection extends AddModule_Base
 	protected function renderInternal()
 	{
 		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-checkconnection', array_merge($this->taskIds, array(
+			'title' => Request::post('title'),
 			'server' => Request::post('server'),
 			'searchbase' => Request::post('searchbase'),
 			'binddn' => Request::post('binddn'),
@@ -117,8 +119,10 @@ class AdModule_Finish extends AddModule_Base
 			}
 			$searchbase = mb_substr($binddn, $i + 1);
 		}
-		$config = ConfigModule::insertAdConfig('AD: ' . Request::post('server'), Request::post('server'), $searchbase, $binddn, Request::post('bindpw', ''), Request::post('home', '')
-		);
+		$title = Request::post('title');
+		if (empty($title))
+			$title = 'AD: ' . Request::post('server');
+		$config = ConfigModule::insertAdConfig($title, Request::post('server'), $searchbase, $binddn, Request::post('bindpw', ''), Request::post('home', ''));
 		$config['proxyip'] = Property::getServerIp();
 		$tgz = Taskmanager::submit('CreateAdConfig', $config);
 		if (!isset($tgz['id'])) {
@@ -132,8 +136,7 @@ class AdModule_Finish extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-finish', $this->taskIds
-		);
+		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-finish', $this->taskIds);
 	}
 
 }

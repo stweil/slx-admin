@@ -4,8 +4,7 @@
  * Wizard for including a branding logo.
  */
 
-Page_SysConfig::addModule('BRANDING', 'Branding_Start', Dictionary::translate('lang_institutionLogo'), Dictionary::translate('lang_institutionLogo'), 'Branding', false
-);
+Page_SysConfig::addModule('BRANDING', 'Branding_Start', Dictionary::translate('lang_institutionLogo'), Dictionary::translate('lang_institutionLogo'), 'Branding', true);
 
 class Branding_Start extends AddModule_Base
 {

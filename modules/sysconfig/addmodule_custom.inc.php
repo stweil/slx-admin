@@ -43,7 +43,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 			Message::addError('upload-failed', Util::uploadErrorString($_FILES['modulefile']['error']));
 			Util::redirect('?do=SysConfig');
 		}
-		$tempfile = $_FILES['modulefile']['tmp_name'] . '.tmp';
+		$tempfile = '/tmp/bwlp-' . mt_rand(1, 100000) . '-' . crc32($_SERVER['REMOTE_HOST']) . '.tmp';
 		if (!move_uploaded_file($_FILES['modulefile']['tmp_name'], $tempfile)) {
 			Message::addError('error-write', $tempfile);
 			Util::redirect('?do=SysConfig');
