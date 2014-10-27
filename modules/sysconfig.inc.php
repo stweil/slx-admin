@@ -133,12 +133,17 @@ class Page_SysConfig extends Page
 	private function listConfigs()
 	{
 		// Configs
-		$res = Database::simpleQuery("SELECT configid, title, filepath FROM configtgz ORDER BY title ASC");
+		$res = Database::simpleQuery("SELECT configtgz.configid, configtgz.title, configtgz.filepath, GROUP_CONCAT(configtgz_x_module.moduleid) AS modlist"
+			. " FROM configtgz"
+			. " INNER JOIN configtgz_x_module USING (configid)"
+			. " GROUP BY configid"
+			. " ORDER BY title ASC");
 		$configs = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$configs[] = array(
 				'configid' => $row['configid'],
 				'config' => $row['title'],
+				'modlist' => $row['modlist'],
 				'current' => readlink(CONFIG_HTTP_DIR . '/default/config.tgz') === $row['filepath']
 			);
 		}
