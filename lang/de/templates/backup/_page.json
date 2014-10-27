@@ -1,0 +1,9 @@
+{
+    "lang_backup": "Sichern",
+    "lang_backupDescription": "Hier k\u00f6nnen Sie die Konfiguration des Satellitenservers sichern. Dies beinhaltet die Datenbank \u00fcber alle Virtuellen Labore, Veranstaltungen, der konfigurierte VM-Store sowie die Konfiguration des MiniLinux.",
+    "lang_backupRestore": "Sichern und Wiederherstellen",
+    "lang_download": "Herunterladen",
+    "lang_file": "Datei",
+    "lang_restore": "Hochladen",
+    "lang_restoreDescription": "Hier k\u00f6nnen Sie ein Backup der Konfiguration wieder einspielen. Bitte beachten Sie, dass der Server dabei neu gestartet wird, daher sollten Sie dies m\u00f6glichst durchf\u00fchren, wenn das System nicht genutzt wird, und keine Dozenten Veranstaltungen oder Virtuelle Labore erstellen oder hoch-\/herunterladen. Bitte beachten Sie, dass dabei auch das urspr\u00fcngliche Passwort der Weboberfl\u00e4che wiederhergestellt wird."
+}

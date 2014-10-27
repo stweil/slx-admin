@@ -1,6 +1,7 @@
 {
     "adduser-disabled": "Keine ausreichenden Rechte, um weitere Benutzer hinzuzuf\u00fcgen",
     "adduser-success": "Benutzer erfolgreich hinzugef\u00fcgt",
+    "backup-failed": "Sicherung fehlgeschlagen!",
     "config-activated": "Konfiguration {{0}} wurde aktiviert",
     "config-invalid": "Konfiguration mit ID {{0}} existiert nicht",
     "db-update-done": "Datenbank wurde aktualisiert",

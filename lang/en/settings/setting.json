@@ -1,5 +1,6 @@
 {
     "SLX_ADDONS": "To load addons. There currently only vmware is available.",
+    "SLX_BENCHMARK_VM": "If non-empty, this should be the exact display name of an entry in *vmchooser*, so it will be automatically started after bootup. Useful for benchmarking.",
     "SLX_BIOS_CLOCK": "Specifies whether and how the internal clock of the computer should be set in relation to the system time of the \/MiniLinux\/.*off* = The internal clock of the computer is not changed.*local* = The internal clock is set to local time. Preferably if, for example, there is still a native Windows installation available on the PC.*utc* = The internal clock is set to the \/Coordinated Universal Time\/. This is the most common setup in a pure Linux environment.",
     "SLX_COMMON_SHARE_AUTH": "Athentication method for the common network share. *guest* means no authentication (public share), *user* means the user's credentials will be used.",
     "SLX_COMMON_SHARE_PATH": "Path of network share. Supported are NFS (no authentication only) and CIFS\/SMB (with and without authentication).",

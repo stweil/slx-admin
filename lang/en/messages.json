@@ -1,6 +1,7 @@
 {
     "adduser-disabled": "Insufficient privileges to add more users",
     "adduser-success": "User successfully added",
+    "backup-failed": "Backup failed!",
     "config-activated": "Configuration {{0}} has been activated",
     "config-invalid": "Configuration with id {{0}} does not exist",
     "db-update-done": "Database successfully updated",
