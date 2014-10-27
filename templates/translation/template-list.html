@@ -1,31 +1,30 @@
-<div class="container">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			{{lang_langAdministration}}
-		</div>
-		<div class="panel-body">
-			<p>{{lang_adminInfo}}</p>
-		</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_langAdministration}}
 	</div>
-	<div class="panel panel-default">
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th>Template</th>
-					<th>{{lang_status}}</th>
-				<tr>
-			</thead>
-			<tbody>
-				{{#table}}
-					<tr onclick="goTo('{{link}}');">
-						<td>{{template}}</td>
-						<td>{{{status}}}</td>
-					</tr>
-				{{/table}}
-			</tbody>
-		</table>
+	<div class="panel-body">
+		<p>{{lang_adminInfo}}</p>
 	</div>
 </div>
+<div class="panel panel-default">
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th>Template</th>
+				<th>{{lang_status}}</th>
+			<tr>
+		</thead>
+		<tbody>
+			{{#table}}
+				<tr onclick="goTo('{{link}}');">
+					<td>{{template}}</td>
+					<td>{{{status}}}</td>
+				</tr>
+			{{/table}}
+		</tbody>
+	</table>
+</div>
+
 <script>
 function goTo(link){
 	window.location.href = "?do=Translation&page=template&template=" + link;

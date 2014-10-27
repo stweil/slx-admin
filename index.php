@@ -129,9 +129,7 @@ Message::renderList();
 Page::render();
 
 if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
-	Render::openTag('div', array('class' => 'container'));
 	Message::addWarning('debug-mode');
-	Render::closeTag('div');
 }
 
 if (defined('CONFIG_FOOTER')) {

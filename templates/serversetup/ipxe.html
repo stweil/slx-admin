@@ -1,44 +1,42 @@
-<div class="container">
-	<form method="post" action="?do=ServerSetup">
-		<input type="hidden" name="action" value="ipxe">
-		<input type="hidden" name="token" value="{{token}}">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_bootMenu}}
+<form method="post" action="?do=ServerSetup">
+	<input type="hidden" name="action" value="ipxe">
+	<input type="hidden" name="token" value="{{token}}">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_bootMenu}}
+		</div>
+		<div class="panel-body">
+			<p>
+				{{lang_bootInfo}}
+			</p>
+			<br>
+
+			<div class="form-group">
+				<strong>{{lang_bootBehavior}}</strong>
+				<label class="radio"><input type="radio" name="defaultentry" value="net" {{active-net}}> bwLehrpool</label>
+				<label class="radio"><input type="radio" name="defaultentry" value="hdd" {{active-hdd}}> {{lang_localHDD}}</label>
+				<label class="radio"><input type="radio" name="defaultentry" value="custom" {{active-custom}}> &quot;my-entry&quot;</label>
 			</div>
-			<div class="panel-body">
-				<p>
-					{{lang_bootInfo}}
-				</p>
-				<br>
 
-				<div class="form-group">
-					<strong>{{lang_bootBehavior}}</strong>
-					<label class="radio"><input type="radio" name="defaultentry" value="net" {{active-net}}> bwLehrpool</label>
-					<label class="radio"><input type="radio" name="defaultentry" value="hdd" {{active-hdd}}> {{lang_localHDD}}</label>
-					<label class="radio"><input type="radio" name="defaultentry" value="custom" {{active-custom}}> &quot;my-entry&quot;</label>
-				</div>
-
-				<div class="form-group">
-					<strong>{{lang_menuDisplayTime}}</strong>
-					<div class="input-group form-narrow">
-						<input type="text" class="form-control" name="timeout" value="{{timeout}}" pattern="\d+">
-						<span class="input-group-addon">{{lang_seconds}}</span>
-					</div>
-				</div>
-
-				<div class="form-group">
-					<strong>{{lang_menuCustom}}</strong> <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#help-custom"><span class="glyphicon glyphicon-question-sign"></span></a>
-					<textarea class="form-control" name="custom">{{custom}}</textarea>
+			<div class="form-group">
+				<strong>{{lang_menuDisplayTime}}</strong>
+				<div class="input-group form-narrow">
+					<input type="text" class="form-control" name="timeout" value="{{timeout}}" pattern="\d+">
+					<span class="input-group-addon">{{lang_seconds}}</span>
 				</div>
 			</div>
 
-			<div class="panel-footer">
-				<button class="btn btn-primary" name="action" value="ipxe">{{lang_bootMenuCreate}}</button>
+			<div class="form-group">
+				<strong>{{lang_menuCustom}}</strong> <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#help-custom"><span class="glyphicon glyphicon-question-sign"></span></a>
+				<textarea class="form-control" name="custom">{{custom}}</textarea>
 			</div>
 		</div>
-	</form>
-</div>
+
+		<div class="panel-footer">
+			<button class="btn btn-primary" name="action" value="ipxe">{{lang_bootMenuCreate}}</button>
+		</div>
+	</div>
+</form>
 
 <div class="modal fade" id="help-custom" tabindex="-1" role="dialog">
 	<div class="modal-dialog">

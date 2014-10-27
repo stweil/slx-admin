@@ -10,6 +10,7 @@
 <div class="pull-left">
 	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step=AdModule_Start">
 		<input type="hidden" name="token" value="{{token}}">
+		<input name="title" value="{{title}}" type="hidden">
 		<input name="server" value="{{server}}" type="hidden">
 		<input name="searchbase" value="{{searchbase}}" type="hidden">
 		<input name="binddn" value="{{binddn}}" type="hidden">
@@ -21,6 +22,7 @@
 <div class="pull-right">
 	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 		<input type="hidden" name="token" value="{{token}}">
+		<input name="title" value="{{title}}" type="hidden">
 		<input name="server" value="{{server}}" type="hidden">
 		<input name="searchbase" value="{{searchbase}}" type="hidden">
 		<input id="setdn" name="binddn" value="{{binddn}}" type="hidden">

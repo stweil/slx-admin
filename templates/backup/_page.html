@@ -1,0 +1,29 @@
+<h1>{{lang_backupRestore}}</h1>
+
+<form action="?do=Backup" method="post">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="backup">
+	<div class="panel panel-default">
+		<div class="panel-heading">{{lang_backup}}</div>
+		<div class="panel-body">
+			<p>{{lang_backupDescription}}</p>
+			<button class="btn btn-primary" type="submit">{{lang_download}}</button>
+		</div>
+	</div>
+</form>
+
+<form action="?do=Backup" method="post" enctype="multipart/form-data">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="restore">
+	<div class="panel panel-default">
+		<div class="panel-heading">{{lang_restore}}</div>
+		<div class="panel-body">
+			<p>{{lang_restoreDescription}}</p>
+			<div class="input-group">
+				<span class="input-group-addon">{{lang_file}}</span>
+				<input class="form-control" type="file" name="backupfile">
+			</div>
+			<button class="btn btn-primary" type="submit">{{lang_restore}}</button>
+		</div>
+	</div>
+</form>

@@ -1,0 +1,17 @@
+<form method="post" action="?do=SysConfig">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="module">
+	<table class="slx-table">
+		{{#modules}}
+		<tr>
+			<td>{{module}}</td>
+			<td>
+				<button class="btn btn-default btn-xs" name="list" value="{{moduleid}}"><span class="glyphicon glyphicon-eye-open"></span> {{lang_show}}</button>
+			</td>
+		</tr>
+		{{/modules}}
+	</table>
+	{{^modules}}
+	<div class="alert alert-warning">{{lang_noContent}}</div>
+	{{/modules}}
+</form>

@@ -1,41 +1,39 @@
-<div class="container">
-	<h1>{{lang_basicConfiguration}}</h1>
-	<form action="?do=BaseConfig" method="post">
-		{{#categories}}
-		<div class="panel panel-default">
-			<div class="panel-heading">{{category_name}}</div>
-			<div class="list-group">
-				{{#settings}}
-				<div class="list-group-item">
-					<div class="row">
-						<div class="col-md-5">
-							{{setting}}
-							<div class="slx-default">{{defaultvalue}}</div>
-						</div>
-						<div class="col-md-5">
-							{{{item}}}
-						</div>
-						<div class="col-md-2">
-							<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}">{{lang_help}}</a>
+<h1>{{lang_basicConfiguration}}</h1>
+<form action="?do=BaseConfig" method="post">
+	{{#categories}}
+	<div class="panel panel-default">
+		<div class="panel-heading">{{category_name}}</div>
+		<div class="list-group">
+			{{#settings}}
+			<div class="list-group-item">
+				<div class="row">
+					<div class="col-md-5">
+						{{setting}}
+						<div class="slx-default">{{defaultvalue}}</div>
+					</div>
+					<div class="col-md-5">
+						{{{item}}}
+					</div>
+					<div class="col-md-2">
+						<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}">{{lang_help}}</a>
+					</div>
+				</div>
+			</div>
+				<div class="modal fade" id="help-{{setting}}" tabindex="-1" role="dialog">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">{{setting}}</div>
+							<div class="modal-body">{{{description}}}</div>
+							<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
 						</div>
 					</div>
 				</div>
-					<div class="modal fade" id="help-{{setting}}" tabindex="-1" role="dialog">
-						<div class="modal-dialog">
-							<div class="modal-content">
-								<div class="modal-header">{{setting}}</div>
-								<div class="modal-body">{{{description}}}</div>
-								<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
-							</div>
-						</div>
-					</div>
-				{{/settings}}
-			</div>
+			{{/settings}}
 		</div>
-		{{/categories}}
-		<input type="hidden" name="token" value="{{token}}">
-		<button class="btn btn-lg btn-primary" type="submit">{{lang_save}}</button>
-		<button class="btn btn-lg btn-primary" type="reset">{{lang_reset}}</button>
-		<a class="btn btn-lg btn-primary" href="api.php?do=getconfig">Download</a>
-	</form>
-</div>
+	</div>
+	{{/categories}}
+	<input type="hidden" name="token" value="{{token}}">
+	<button class="btn btn-lg btn-primary" type="submit">{{lang_save}}</button>
+	<button class="btn btn-lg btn-primary" type="reset">{{lang_reset}}</button>
+	<a class="btn btn-lg btn-primary" href="api.php?do=getconfig">Download</a>
+</form>

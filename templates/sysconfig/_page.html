@@ -1,84 +1,85 @@
-<div class="container">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			{{lang_availableSystem}}
-			<a class="btn btn-default" data-toggle="modal" data-target="#help-config"><span class="glyphicon glyphicon-question-sign"></span></a>
-		</div>
-		<div class="panel-body">
-			<form method="post" action="?do=SysConfig">
-				<input type="hidden" name="token" value="{{token}}">
-				<input type="hidden" name="action" value="config">
-				<table class="slx-table">
-				{{#configs}}
-					<tr>
-						<td>{{config}}</td>
-						<td>
-							{{^current}}
-								<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
-									<span class="glyphicon glyphicon-flag"></span>
-									{{lang_activate}}
-								</button>
-							{{/current}}
-							{{#current}}
-								<span class="btn btn-success btn-xs">
-									<span class="glyphicon glyphicon-ok"></span>
-									{{lang_active}}
-								</span>
-							{{/current}}
-						</td>
-						<td>
-							<button class="btn btn-danger btn-xs" name="del" value="{{configid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
-						</td>
-					</tr>
-				{{/configs}}
-				</table>
-				{{^configs}}
-				<div class="alert alert-warning">
-					{{lang_systemConfigurationNotFound}}
-				</div>
-				{{^modules}}
-				<div class="alert alert-danger">
-					{{lang_systemConfigurationAlert}}
-				</div>
-				{{/modules}}
-				{{/configs}}
-			</form>
-		</div>
-		<div class="panel-footer">			
-			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">{{lang_newConfiguration}}</a>
-		</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_availableSystem}}
+		<a class="btn btn-default" data-toggle="modal" data-target="#help-config"><span class="glyphicon glyphicon-question-sign"></span></a>
 	</div>
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			{{lang_availableModules}}
-			<a class="btn btn-default" data-toggle="modal" data-target="#help-module"><span class="glyphicon glyphicon-question-sign"></span></a>
-		</div>
-		<div class="panel-body">
-			<form method="post" action="?do=SysConfig">
-				<input type="hidden" name="token" value="{{token}}">
-				<input type="hidden" name="action" value="module">
-				<table class="slx-table">
-				{{#modules}}
-					<tr>
-						<td>{{module}}</td>
-						<td>
-							<button class="btn btn-default btn-xs" name="list" value="{{moduleid}}"><span class="glyphicon glyphicon-eye-open"></span> {{lang_show}}</button>
-							<!-- a class="btn btn-default btn-xs"><span class="glyphicon glyphicon-edit"></span> Bearbeiten</a -->
-						</td>
-						<td>
-							<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
-						</td>
-					</tr>
-				{{/modules}}
-				</table>
-				{{^modules}}
-				<div class="alert alert-warning">{{lang_configurationModuleNotFound}}</div>
-				{{/modules}}
-			</form>
-		</div>
-		<div class="panel-footer">
-			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">{{lang_newModule}}</a>
-		</div>
+	<div class="panel-body">
+		<form method="post" action="?do=SysConfig">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="config">
+			<table class="slx-table">
+			{{#configs}}
+				<tr>
+					<td>{{config}}</td>
+					<td>
+						{{^current}}
+							<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
+								<span class="glyphicon glyphicon-flag"></span>
+								{{lang_activate}}
+							</button>
+						{{/current}}
+						{{#current}}
+							<span class="btn btn-success btn-xs">
+								<span class="glyphicon glyphicon-ok"></span>
+								{{lang_active}}
+							</span>
+						{{/current}}
+					</td>
+					<td>
+						<button class="btn btn-default btn-xs" name="list" value="{{configid}}"><span class="glyphicon glyphicon-eye-open"></span> {{lang_show}}</button>
+					</td>
+					<td>
+						<button class="btn btn-danger btn-xs" name="del" value="{{configid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+					</td>
+				</tr>
+			{{/configs}}
+			</table>
+			{{^configs}}
+			<div class="alert alert-warning">
+				{{lang_systemConfigurationNotFound}}
+			</div>
+			{{^modules}}
+			<div class="alert alert-danger">
+				{{lang_systemConfigurationAlert}}
+			</div>
+			{{/modules}}
+			{{/configs}}
+		</form>
+	</div>
+	<div class="panel-footer">			
+		<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">{{lang_newConfiguration}}</a>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_availableModules}}
+		<a class="btn btn-default" data-toggle="modal" data-target="#help-module"><span class="glyphicon glyphicon-question-sign"></span></a>
+	</div>
+	<div class="panel-body">
+		<form method="post" action="?do=SysConfig">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="module">
+			<table class="slx-table">
+			{{#modules}}
+				<tr>
+					<td>{{module}}</td>
+					<td>
+						<button class="btn btn-default btn-xs" name="list" value="{{moduleid}}"><span class="glyphicon glyphicon-eye-open"></span> {{lang_show}}</button>
+						<!-- a class="btn btn-default btn-xs"><span class="glyphicon glyphicon-edit"></span> Bearbeiten</a -->
+					</td>
+					<td>
+						<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+					</td>
+				</tr>
+			{{/modules}}
+			</table>
+			{{^modules}}
+			<div class="alert alert-warning">{{lang_configurationModuleNotFound}}</div>
+			{{/modules}}
+		</form>
+	</div>
+	<div class="panel-footer">
+		<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">{{lang_newModule}}</a>
 	</div>
 </div>
 

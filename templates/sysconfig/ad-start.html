@@ -13,29 +13,33 @@
 <form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 	<input type="hidden" name="token" value="{{token}}">
 	<div class="input-group">
+		<span class="input-group-addon slx-ga">{{lang_moduleTitle}}</span>
+		<input tabindex="1" name="title" value="{{title}}" type="text" class="form-control">
+	</div>
+	<div class="input-group">
 		<span class="input-group-addon slx-ga">Server *</span>
-		<input tabindex="1" name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
+		<input tabindex="2" name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">{{lang_bindDN}} *</span>
-		<input tabindex="2" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="domain\bwlp *ODER* CN=bwlp,OU=Benutzer,DC=domain,DC=hs-beispiel,DC=de">
+		<input tabindex="3" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="domain\bwlp *ODER* CN=bwlp,OU=Benutzer,DC=domain,DC=hs-beispiel,DC=de">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">{{lang_password}} *</span>
-		<input tabindex="3" name="bindpw" value="{{bindpw}}" type="text" class="form-control" placeholder="{{lang_password}}">
+		<input tabindex="4" name="bindpw" value="{{bindpw}}" type="text" class="form-control" placeholder="{{lang_password}}">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">{{lang_searchBase}}</span>
-		<input tabindex="4" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="dc=windows,dc=hs-beispiel,dc=de">
+		<input tabindex="5" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="dc=windows,dc=hs-beispiel,dc=de">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
@@ -43,7 +47,7 @@
 	<br>
 	<div class="input-group">
 		<span class="input-group-addon slx-ga">Home</span>
-		<input tabindex="4" name="home" value="{{home}}" type="text" class="form-control" placeholder="\\server.example.com\%s">
+		<input tabindex="6" name="home" value="{{home}}" type="text" class="form-control" placeholder="\\server.example.com\%s">
 		<span class="input-group-btn">
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-home"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
@@ -60,7 +64,10 @@
 			<div class="modal-header">{{lang_userDirectory}}</div>
 			<div class="modal-body">
 				<p>
-					{{lang_userDirectoryInfo1}} <pre>\\fileserv.uni.example.com\users\%s</pre>
+					{{lang_userDirectoryInfo1}}
+				</p>
+				<pre>\\fileserv.uni.example.com\users\%s</pre>
+				<p>
 					{{lang_userDirectoryInfo2}}
 				</p>
 				<p>

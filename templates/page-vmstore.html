@@ -1,69 +1,67 @@
-<div class="container">
-	<form role="form" method="post" action="?do=VmStore">
-		<input type="hidden" name="token" value="{{token}}">
-		<input type="hidden" name="action" value="setstore">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_vmLocation}} <a class="btn btn-default" data-toggle="modal" data-target="#help-store"><span class="glyphicon glyphicon-question-sign"></span></a>
-			</div>
-			<div class="panel-body slx-md-width">
-				<p>{{lang_vmLocationChoose}}</p>
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<input type="radio" name="storetype" value="internal" {{pre-internal}}> {{lang_intern}}
-					</div>
-					<div class="panel-body">
-						{{lang_noAdditionalInformation}}
-					</div>
-				</div>
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<input type="radio" name="storetype" value="nfs" {{pre-nfs}}> NFS
-						<a class="btn btn-default btn-sm" data-toggle="modal" data-target="#help-nfs"><span class="glyphicon glyphicon-question-sign"></span></a>
-					</div>
-					<div class="panel-body">
-						<label for="nfsaddr">NFS-Export</label>
-						<input type="text" class="form-control" name="nfsaddr" value="{{nfsaddr}}" placeholder="1.2.3.4:/export/bwlp" id="nfsaddr">
-					</div>
-				</div>
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<input type="radio" name="storetype" value="cifs" {{pre-cifs}}> CIFS
-					</div>
-					<div class="panel-body">
-						<label for="cifsaddr">UNC-Pfad</label>
-						<input type="text" class="form-control" name="cifsaddr" value="{{cifsaddr}}" placeholder="\\samba.server.example.com\bwlp" id="cifsaddr">
-						<br>
-						<label for="cifsuser">{{lang_readWrite}}</label>
-						<div class="input-group">
-							<span class="input-group-addon slx-ga">
-								{{lang_username}}
-							</span>
-							<input type="text" class="form-control" name="cifsuser" value="{{cifsuser}}" placeholder="{{lang_username}}" id="cifsuser">
-							<span class="input-group-addon">
-								{{lang_password}}
-							</span>
-							<input type="text" class="form-control" name="cifspasswd" value="{{cifspasswd}}" placeholder="{{lang_password}}">
-						</div>
-						<br>
-						<label for="cifsuserro">{{lang_readOnly}}</label>
-						<div class="input-group">
-							<span class="input-group-addon slx-ga">
-								{{lang_username}}
-							</span>
-							<input type="text" class="form-control" name="cifsuserro" value="{{cifsuserro}}" placeholder="{{lang_username}}" id="cifsuserro">
-							<span class="input-group-addon">
-								{{lang_password}}
-							</span>
-							<input type="text" class="form-control" name="cifspasswdro" value="{{cifspasswdro}}" placeholder="{{lang_password}}">
-						</div>
-					</div>
-				</div>
-				<button class="btn btn-primary" type="submit">{{lang_save}}</button>
-			</div>
+<form role="form" method="post" action="?do=VmStore">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="setstore">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_vmLocation}} <a class="btn btn-default" data-toggle="modal" data-target="#help-store"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</div>
-	</form>
-</div>
+		<div class="panel-body slx-md-width">
+			<p>{{lang_vmLocationChoose}}</p>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<input type="radio" name="storetype" value="internal" {{pre-internal}}> {{lang_intern}}
+				</div>
+				<div class="panel-body">
+					{{lang_noAdditionalInformation}}
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<input type="radio" name="storetype" value="nfs" {{pre-nfs}}> NFS
+					<a class="btn btn-default btn-sm" data-toggle="modal" data-target="#help-nfs"><span class="glyphicon glyphicon-question-sign"></span></a>
+				</div>
+				<div class="panel-body">
+					<label for="nfsaddr">NFS-Export</label>
+					<input type="text" class="form-control" name="nfsaddr" value="{{nfsaddr}}" placeholder="1.2.3.4:/export/bwlp" id="nfsaddr">
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<input type="radio" name="storetype" value="cifs" {{pre-cifs}}> CIFS
+				</div>
+				<div class="panel-body">
+					<label for="cifsaddr">UNC-Pfad</label>
+					<input type="text" class="form-control" name="cifsaddr" value="{{cifsaddr}}" placeholder="\\samba.server.example.com\bwlp" id="cifsaddr">
+					<br>
+					<label for="cifsuser">{{lang_readWrite}}</label>
+					<div class="input-group">
+						<span class="input-group-addon slx-ga">
+							{{lang_username}}
+						</span>
+						<input type="text" class="form-control" name="cifsuser" value="{{cifsuser}}" placeholder="{{lang_username}}" id="cifsuser">
+						<span class="input-group-addon">
+							{{lang_password}}
+						</span>
+						<input type="text" class="form-control" name="cifspasswd" value="{{cifspasswd}}" placeholder="{{lang_password}}">
+					</div>
+					<br>
+					<label for="cifsuserro">{{lang_readOnly}}</label>
+					<div class="input-group">
+						<span class="input-group-addon slx-ga">
+							{{lang_username}}
+						</span>
+						<input type="text" class="form-control" name="cifsuserro" value="{{cifsuserro}}" placeholder="{{lang_username}}" id="cifsuserro">
+						<span class="input-group-addon">
+							{{lang_password}}
+						</span>
+						<input type="text" class="form-control" name="cifspasswdro" value="{{cifspasswdro}}" placeholder="{{lang_password}}">
+					</div>
+				</div>
+			</div>
+			<button class="btn btn-primary" type="submit">{{lang_save}}</button>
+		</div>
+	</div>
+</form>
 
 <div class="modal fade" id="help-store" tabindex="-1" role="dialog">
 	<div class="modal-dialog">

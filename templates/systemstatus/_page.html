@@ -1,80 +1,77 @@
-<div class="container">
-	
-	{{#rebootTask}}
-	<div data-tm-id="{{rebootTask}}" data-tm-log="messages">Reboot...</div>
-	{{/rebootTask}}
+{{#rebootTask}}
+<div data-tm-id="{{rebootTask}}" data-tm-log="messages">Reboot...</div>
+{{/rebootTask}}
 
-	<div class="row">
+<div class="row">
 
-		<div class="col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					{{lang_space}}
-				</div>
-				<div class="panel-body" id="diskstat">
-					<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-				</div>
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				{{lang_space}}
+			</div>
+			<div class="panel-body" id="diskstat">
+				<span class="glyphicon glyphicon-refresh slx-rotation"></span>
 			</div>
 		</div>
-
-		<div class="col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					{{lang_services}}
-				</div>
-				<div class="panel-body" id="services">
-					<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-				</div>
-			</div>
-		</div>
-
 	</div>
 
-
-	<div class="row">
-
-		<div class="col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					{{lang_addressConfiguration}}
-				</div>
-				<div class="panel-body" id="addresses">
-					<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-				</div>
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				{{lang_services}}
+			</div>
+			<div class="panel-body" id="services">
+				<span class="glyphicon glyphicon-refresh slx-rotation"></span>
 			</div>
 		</div>
-
-		<div class="col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					{{lang_system}}
-				</div>
-				<div class="panel-body" id="systeminfo">
-					<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-				</div>
-			</div>
-		</div>
-
 	</div>
-	
-	<div class="row">
 
-		<div class="col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					{{lang_maintenance}}
-				</div>
-				<div class="panel-body">
-					<form class="form-adduser" action="?do=SystemStatus" method="post">
-						<input type="hidden" name="token" value="{{token}}">
-						<input type="hidden" name="action" value="reboot">
-						<div>Server Reboot</div>
-						<label><input type="checkbox" name="confirm" value="yep"> {{lang_iAmSure}}</label>
-						<button class="btn btn-warning btn-xs" type="submit">Reboot</button>
-					</form>
-				</div>
+</div>
+
+
+<div class="row">
+
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				{{lang_addressConfiguration}}
+			</div>
+			<div class="panel-body" id="addresses">
+				<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+			</div>
 		</div>
+	</div>
 
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				{{lang_system}}
+			</div>
+			<div class="panel-body" id="systeminfo">
+				<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<div class="row">
+
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				{{lang_maintenance}}
+			</div>
+			<div class="panel-body">
+				<form class="form-adduser" action="?do=SystemStatus" method="post">
+					<input type="hidden" name="token" value="{{token}}">
+					<input type="hidden" name="action" value="reboot">
+					<div>Server Reboot</div>
+					<label><input type="checkbox" name="confirm" value="yep"> {{lang_iAmSure}}</label>
+					<button class="btn btn-warning btn-xs" type="submit">Reboot</button>
+				</form>
+			</div>
+		</div>
 	</div>
 
 </div>

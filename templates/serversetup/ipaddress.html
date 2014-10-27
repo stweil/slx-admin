@@ -1,36 +1,34 @@
-<div class="container">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			{{lang_bootAddress}}
-		</div>
-		<div class="panel-body">
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_bootAddress}}
+	</div>
+	<div class="panel-body">
+		<p>
+			{{lang_chooseIP}}
+		</p>
+		<form method="post" action="?do=ServerSetup">
+			<input type="hidden" name="action" value="ip">
+			<input type="hidden" name="token" value="{{token}}">
+			<table class="slx-table">
+				{{#ips}}
+				<tr>
+					<td>{{ip}}</td>
+					{{#default}}
+					<td>
+						<span class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span> {{lang_active}}</span>
+					</td>
+					{{/default}}
+					{{^default}}
+					<td>
+						<button class="btn btn-primary btn-xs" name="ip" value="{{ip}}"><span class="glyphicon glyphicon-flag"></span> {{lang_set}}</button>
+					</td>
+					{{/default}}
+				</tr>
+				{{/ips}}
+			</table>
 			<p>
-				{{lang_chooseIP}}
+				{{lang_bootHint}}
 			</p>
-			<form method="post" action="?do=ServerSetup">
-				<input type="hidden" name="action" value="ip">
-				<input type="hidden" name="token" value="{{token}}">
-				<table class="slx-table">
-					{{#ips}}
-					<tr>
-						<td>{{ip}}</td>
-						{{#default}}
-						<td>
-							<span class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span> {{lang_active}}</span>
-						</td>
-						{{/default}}
-						{{^default}}
-						<td>
-							<button class="btn btn-primary btn-xs" name="ip" value="{{ip}}"><span class="glyphicon glyphicon-flag"></span> {{lang_set}}</button>
-						</td>
-						{{/default}}
-					</tr>
-					{{/ips}}
-				</table>
-				<p>
-					{{lang_bootHint}}
-				</p>
-			</form>
-		</div>
+		</form>
 	</div>
 </div>
