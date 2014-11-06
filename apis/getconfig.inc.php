@@ -25,7 +25,7 @@ while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 // Additional "intelligent" config
 
 // Remote log URL
-echo "SLX_REMOTE_LOG='http://" . escape($_SERVER['SERVER_ADDR']) . "/slxadmin/api.php?do=clientlog'\n";
+echo "SLX_REMOTE_LOG='http://" . escape($_SERVER['SERVER_ADDR']) . escape($_SERVER['SCRIPT_NAME']) . "?do=clientlog'\n";
 // vm list url
 echo "SLX_VMCHOOSER_BASE_URL='http://" . escape($_SERVER['SERVER_ADDR']) . "/vmchooser/'\n";
 
