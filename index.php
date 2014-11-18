@@ -2,6 +2,14 @@
 
 require_once 'config.php';
 
+if (CONFIG_SQL_PASS === '%MYSQL_OPENSLX_PASS%') {
+	Header('Content-Type: text/plain; charset=utf-8');
+	die("The server has not been configured yet. Please log in to the server via console/SSH and follow the instructions."
+		. "\n\n"
+		. "Der Server wurde noch nicht konfiguriert. Bitte loggen Sie sich auf der Konsole oder per SSH auf dem Server ein"
+		. " und folgen Sie den Instruktionen.");
+}
+
 require_once('inc/user.inc.php');
 
 /**

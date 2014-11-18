@@ -30,7 +30,7 @@ class Util
 	public static function redirect($location = false)
 	{
 		if ($location === false) {
-			$location = preg_replace('/(&|\?)message\[\]\=[^&]*(&|$)/', '\1', $_SERVER['REQUEST_URI']);
+			$location = preg_replace('/(&|\?)message\[\]\=[^&]*/', '\1', $_SERVER['REQUEST_URI']);
 		}
 		Session::save();
 		$messages = Message::toRequest();
@@ -186,23 +186,6 @@ class Util
 			return false;
 
 		return true;
-	}
-	
-	/**
-	 * Return contents of given file as string, but only read up to maxBytes bytes.
-	 *
-	 * @param string $file file to read
-	 * @param int $maxBytes maximum length to read
-	 * @return boolean success or failure
-	 */
-	public static function readFile($file, $maxBytes = 1000)
-	{
-		$fh = @fopen($file, 'rb');
-		if ($fh === false)
-			return false;
-		$data = fread($fh, $maxBytes);
-		fclose($fh);
-		return $data;
 	}
 
 }

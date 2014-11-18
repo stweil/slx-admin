@@ -177,4 +177,53 @@ class Trigger
 		}
 	}
 
+	private static function triggerDaemons($action, $parent, &$taskids)
+	{
+		$task = Taskmanager::submit('SyncdaemonLauncher', array(
+				'operation' => $action,
+				'parentTask' => $parent,
+				'failOnParentFail' => false
+		));
+		if (isset($task['id'])) {
+			$taskids['syncid'] = $task['id'];
+			$parent = $task['id'];
+		}
+		$task = Taskmanager::submit('DozmodLauncher', array(
+				'operation' => $action,
+				'parentTask' => $parent,
+				'failOnParentFail' => false
+		));
+		if (isset($task['id'])) {
+			$taskids['dmsdid'] = $task['id'];
+			$parent = $task['id'];
+		}
+		return $parent;
+	}
+
+	public static function stopDaemons($parent, &$taskids)
+	{
+		$parent = self::triggerDaemons('stop', $parent, $taskids);
+		$task = Taskmanager::submit('LdadpLauncher', array(
+				'ids' => array(),
+				'parentTask' => $parent,
+				'failOnParentFail' => false
+		));
+		if (isset($task['id'])) {
+			$taskids['ldadpid'] = $task['id'];
+			$parent = $task['id'];
+		}
+		return $parent;
+	}
+	
+	public static function startDaemons($parent, &$taskids)
+	{
+		$parent = self::triggerDaemons('start', $parent, $taskids);
+		$taskid = self::ldadp($parent);
+		if ($taskid !== false) {
+			$taskids['ldadpid'] = $taskid;
+			$parent = $taskid;
+		}
+		return $parent;
+	}
+
 }

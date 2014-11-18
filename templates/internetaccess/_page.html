@@ -1,0 +1,38 @@
+<h1>{{lang_internetAccess}}</h1>
+
+<form action="?do=InternetAccess" method="post">
+	<input type="hidden" name="token" value="{{token}}">
+	<div class="panel panel-default">
+		<div class="panel-heading">{{lang_internetAccess}}</div>
+		<div class="panel-body">
+			<p>{{lang_description}}</p>
+			<div class="input-group">
+				<span class="input-group-addon slx-ga">{{lang_proxyType}}</span>
+				<select name="PROXY_CONF" class="form-control">
+					<option value="AUTO" {{selected_AUTO}}>{{lang_automatic}} (dns-wpad)</option>
+					<option value="NO" {{selected_NO}}>{{lang_no}}</option>
+					<option value="YES" {{selected_YES}}>{{lang_manual}}</option>
+				</select>
+			</div>
+			<br>
+			<p>{{lang_manualProxyConfig}}</p>
+			<div class="input-group">
+				<span class="input-group-addon slx-ga">{{lang_proxyAddress}} *</span>
+				<input name="PROXY_ADDR" value="{{PROXY_ADDR}}" type="text" class="form-control">
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon slx-ga">{{lang_proxyPort}} *</span>
+				<input name="PROXY_PORT" value="{{PROXY_PORT}}" type="text" class="form-control">
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon slx-ga">{{lang_proxyUsername}}</span>
+				<input name="PROXY_USERNAME" value="{{PROXY_USERNAME}}" type="text" class="form-control">
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon slx-ga">{{lang_proxyPassword}}</span>
+				<input name="PROXY_PASSWORD" value="{{PROXY_PASSWORD}}" type="text" class="form-control">
+			</div>
+			<button class="btn btn-primary" type="submit">{{lang_save}}</button>
+		</div>
+	</div>
+</form>

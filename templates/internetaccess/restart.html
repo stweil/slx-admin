@@ -1,0 +1,22 @@
+<div class="panel panel-default">
+	<div class="panel-heading">{{lang_serviceRestart}}</div>
+	<div class="panel-body">
+		<div data-tm-id="{{syncid}}" data-tm-log="messages" data-tm-callback="restartCb">{{lang_restarting}} syncdaemon</div>
+		<div data-tm-id="{{dmsdid}}" data-tm-log="messages" data-tm-callback="restartCb">{{lang_restarting}} dmsd</div>
+		<div data-tm-id="{{ldadpid}}" data-tm-log="messages" data-tm-callback="restartCb">{{lang_restarting}} ldadp</div>
+		<div id="restartfailed" class="alert alert-danger" style="display:none">
+			{{lang_restartFailed}}
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	function restartCb(task)
+	{
+		if (!task || !task.statusCode)
+			return;
+		if (task.statusCode === 'TASK_ERROR') {
+			$('#restartfailed').show('slow');
+		}
+	}
+</script>
