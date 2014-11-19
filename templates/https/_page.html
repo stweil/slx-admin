@@ -1,0 +1,54 @@
+<h1>{{lang_httpsSettings}}</h1>
+
+<form action="?do=Https" method="post">
+	<input type="hidden" name="token" value="{{token}}">
+	<div class="panel panel-default">
+		<div class="panel-heading">{{lang_httpsSettings}}</div>
+		<div class="panel-body">
+			<p>{{lang_description}}</p>
+			<div class="input-group" onclick="$('#moff').prop('checked', true)">
+				<span class="input-group-addon"><input id="moff" type="radio" name="mode" value="off"></span>
+				<span class="form-control">
+					{{lang_noHttps}}
+				</span>
+			</div>
+			<div class="input-group" onclick="$('#mrandom').prop('checked', true)">
+				<span class="input-group-addon"><input id="mrandom" type="radio" name="mode" value="random"></span>
+				<span class="form-control">
+					{{lang_randomCert}}
+				</span>
+			</div>
+			<div class="input-group" onclick="$('#mcustom').prop('checked', true);
+					$('#wcustom').show()">
+				<span class="input-group-addon"><input id="mcustom" type="radio" name="mode" value="custom"></span>
+				<span class="form-control">
+					{{lang_customCert}}
+				</span>
+			</div>
+			<div class="well well-sm" style="display:none" id="wcustom">
+				{{lang_certificate}}
+				<pre class="small">
+-----BEGIN CERTIFICATE-----
+MIIFfTCCA...
+.....
+-----END CERTIFICATE-----</pre>
+				<textarea name="certificate" class="form-control small" cols="101" rows="10"></textarea>
+				<hr>
+				{{lang_privateKey}}
+				<pre class="small">
+-----BEGIN PRIVATE KEY-----
+MIIFfTCCA...
+.....
+-----END PRIVATE KEY-----</pre>
+				<textarea name="privatekey" class="form-control small" cols="101" rows="10"></textarea>
+				<hr>
+				{{lang_caChain}}
+				<textarea name="cachain" class="form-control small" cols="101" rows="10"></textarea>
+				<hr>
+			</div>
+			<div class="pull-right">
+				<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+			</div>
+		</div>
+	</div>
+</form>

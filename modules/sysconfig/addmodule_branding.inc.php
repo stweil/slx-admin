@@ -105,7 +105,7 @@ class Branding_ProcessFile extends AddModule_Base
 				Message::addError('remote-timeout', $url, $code);
 				return false;
 			}
-			$content = Util::readFile($svgName, 25000);
+			$content = FileUtil::readFile($svgName, 25000);
 			// Is svg file?
 			if (strpos($content, '<svg') !== false)
 				return true; // Found an svg tag - don't try to find links to the actual image

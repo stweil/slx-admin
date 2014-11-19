@@ -22,9 +22,9 @@ class Page_InternetAccess extends Page
 				Message::addSuccess('settings-updated');
 				Taskmanager::release(Taskmanager::submit('ReloadProxy'));
 				$taskids = array();
-				Trigger::stopDaemons(NULL, &$taskids);
+				Trigger::stopDaemons(NULL, $taskids);
 				$taskids = array();
-				Trigger::startDaemons(NULL, &$taskids);
+				Trigger::startDaemons(NULL, $taskids);
 				Session::set('ia-restart', $taskids);
 				Util::redirect('?do=InternetAccess&show=update');
 			}

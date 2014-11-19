@@ -84,7 +84,7 @@ class Page_Backup extends Page
 			Util::redirect('?do=Backup');
 		}
 		// Got uploaded file, now shut down all the daemons etc.
-		$parent = $this->stopDaemons(null);
+		$parent = Trigger::stopDaemons(null, &$this->templateData);
 		// Unmount store
 		$task = Taskmanager::submit('MountVmStore', array(
 				'address' => 'null',
@@ -114,38 +114,6 @@ class Page_Backup extends Page
 		));
 		if (isset($task['id']))
 			$this->templateData['rebootid'] = $task['id'];
-	}
-
-	private function stopDaemons($parent)
-	{
-		$task = Taskmanager::submit('SyncdaemonLauncher', array(
-				'operation' => 'stop',
-				'parentTask' => $parent,
-				'failOnParentFail' => false
-		));
-		if (isset($task['id'])) {
-			$this->templateData['syncid'] = $task['id'];
-			$parent = $task['id'];
-		}
-		$task = Taskmanager::submit('DozmodLauncher', array(
-				'operation' => 'stop',
-				'parentTask' => $parent,
-				'failOnParentFail' => false
-		));
-		if (isset($task['id'])) {
-			$this->templateData['dmsdid'] = $task['id'];
-			$parent = $task['id'];
-		}
-		$task = Taskmanager::submit('LdadpLauncher', array(
-				'ids' => array(),
-				'parentTask' => $parent,
-				'failOnParentFail' => false
-		));
-		if (isset($task['id'])) {
-			$this->templateData['ldadpid'] = $task['id'];
-			$parent = $task['id'];
-		}
-		return $parent;
 	}
 
 }

@@ -1,0 +1,11 @@
+{
+    "lang_caChain": "Here you can paste an optional certificate chain. It should only be required if you have a certificate that was not directly signed by a certificate authority known by the browsers. It should contain one or more certificate blocks, looking just like the certificate above.",
+    "lang_certificate": "Please paste your certificate below. It has to be in base64 encoded x509 format (sometimes called pem). It should look something like this:",
+    "lang_customCert": "Supply own certificate",
+    "lang_description": "Here you can set whether the web interface should be accessible via https. You can chose if you want to use a random self signed certificate, or supply your own.",
+    "lang_httpsSettings": "HTTPS settings",
+    "lang_noHttps": "Disable HTTPS",
+    "lang_privateKey": "Please paste the private key belonging to the certificate here. It has to be in \u0022pem\u0022 format too, which should look like this:",
+    "lang_randomCert": "Geenrate new self-signed certificate",
+    "lang_save": "Save"
+}

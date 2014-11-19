@@ -65,11 +65,13 @@ class Page_MiniLinux extends Page
 				return;
 			}
 			$file = false;
+			$gpg = false;
 			foreach ($data['systems'] as &$system) {
 				if ($system['id'] !== $id) continue;
 				foreach ($system['files'] as &$f) {
 					if ($f['name'] !== $name) continue;
 					$file = $f;
+					if (isset($f['gpg'])) $gpg = $f['gpg'];
 					break;
 				}
 			}
@@ -79,7 +81,8 @@ class Page_MiniLinux extends Page
 			}
 			$task = Taskmanager::submit('DownloadFile', array(
 				'url' => CONFIG_REMOTE_ML . '/' . $id . '/' . $name,
-				'destination' => CONFIG_HTTP_DIR . '/' . $id . '/' . $name
+				'destination' => CONFIG_HTTP_DIR . '/' . $id . '/' . $name,
+				'gpg' => $gpg
 			));
 			if (!isset($task['id'])) {
 				echo 'Error launching download task: ' . $task['statusCode'];
