@@ -51,7 +51,7 @@ function tmUpdate()
 		console.log("TaskManager Error: " + textStatus + " - " + errorThrown);
 		tmIsRunning = (++tmErrors < TM_MAX_ERRORS);
 		if (tmIsRunning) {
-			setTimeout(tmUpdate, 2000);
+			setTimeout(tmUpdate, 3000);
 		}
 	});
 }

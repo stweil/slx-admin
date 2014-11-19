@@ -23,3 +23,5 @@ define('CONFIG_HTTP_DIR', '/srv/openslx/www/boot');
 define('CONFIG_IPXE_DIR', '/opt/openslx/ipxe');
 
 define('CONFIG_VMSTORE_DIR', '/srv/openslx/nfs');
+
+define('CONFIG_PROXY_CONF', '/opt/openslx/proxy/config');
