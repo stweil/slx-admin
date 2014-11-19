@@ -24,7 +24,7 @@ class DefaultData
 			2 => 20, // Internet access
 			3 => 100, // Timesync
 			4 => 10, // System config
-			5 => 15, // Public Shared folder
+			//5 => 15, // Public Shared folder
 			6 => 20000, // Unassigned/no category
 		);
 		foreach ($cats as $cat => $sort) {
@@ -109,7 +109,7 @@ class DefaultData
 				'catid' => '2',
 				'defaultvalue' => 'socks5',
 				'permissions' => '2',
-				'validator' => ''
+				'validator' => 'list:socks4|socks5|http-connect|http-relay'
 			),
 			array(
 				'setting' => 'SLX_REMOTE_LOG_SESSIONS',
@@ -139,6 +139,7 @@ class DefaultData
 				'permissions' => '2',
 				'validator' => 'regex:/^\d*$/'
 			),
+			/*
 			array(
 				'setting' => 'SLX_COMMON_SHARE_PATH',
 				'catid' => '5',
@@ -153,6 +154,7 @@ class DefaultData
 				'permissions' => '2',
 				'validator' => 'list:guest|user'
 			),
+			*/
 			array(
 				'setting' => 'SLX_BENCHMARK_VM',
 				'catid' => '6',

@@ -19,24 +19,29 @@
 						<tr>
 							<th>Mustache Tag</th>
 							{{#langs}}
-							<th>{{lang}}</th>
+							<th>{{name}}</th>
 							{{/langs}}
 							<th></th>
 						</tr>
 					</thead>
 					<tbody>
 						{{#tags}}
-							<tr class="{{class}}" id="{{tag}}">
-								<td>{{tag}}</td>
-								{{#langs}}
-								<td>
-									<input type="text" class="form-control" placeholder="{{placeholder}}" value="{{translation}}" name="lang#{{lang}}#{{tag}}">
-								</td>
-								{{/langs}}
-								<td>
-									<button type="submit" class="btn btn-danger btn-xs" name="delete" value="{{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</button>
-								</td>
-							</tr>
+						<tr class="{{class}}" id="{{tag}}">
+							<td>{{tag}}</td>
+							{{#langs}}
+							<td>
+								{{^big}}
+								<input type="text" class="form-control switchable" value="{{translation}}" ondblclick="mb(this)" name="lang#{{lang}}#{{tag}}">
+								{{/big}}
+								{{#big}}
+								<textarea rows="3" class="form-control" name="lang#{{lang}}#{{tag}}">{{translation}}</textarea>
+								{{/big}}
+							</td>
+							{{/langs}}
+							<td>
+								<button type="submit" class="btn btn-danger btn-xs" name="delete" value="{{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</button>
+							</td>
+						</tr>
 						{{/tags}}
 						<tr id="newTag">
 						</tr>
@@ -49,9 +54,18 @@
 		</div>
 	</div>
 </div>
-<script>
-function addTag(){
-	var target = document.getElementById('newTag');
-	target.innerHTML = "<td> <input type='text' class='form-control' placeholder='{{lang_newTAG}}' name='newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_germanTAG}}' name='lang#de#newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_englishTAG}}' name='lang#en#newtag'> </td>	<td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_portugueseTAG}}' name='lang#pt#newtag'> </td><td></td>";
-}
+<script type="text/javascript">
+	function addTag()
+	{
+		var target = document.getElementById('newTag');
+		target.innerHTML = "<td> <input type='text' class='form-control' placeholder='{{lang_newTAG}}' name='newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_germanTAG}}' name='lang#de#newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_englishTAG}}' name='lang#en#newtag'> </td>	<td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_portugueseTAG}}' name='lang#pt#newtag'> </td><td></td>";
+	}
+	
+	function mb(el)
+	{
+		var old = $(el);
+		var ta = $('<textarea name="' + el.name + '" class="form-control" rows="3"></textarea>');
+		ta.val(old.val());
+		old.replaceWith(ta);
+	}
 </script>
