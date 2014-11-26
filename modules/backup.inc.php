@@ -84,7 +84,7 @@ class Page_Backup extends Page
 			Util::redirect('?do=Backup');
 		}
 		// Got uploaded file, now shut down all the daemons etc.
-		$parent = Trigger::stopDaemons(null, &$this->templateData);
+		$parent = Trigger::stopDaemons(null, $this->templateData);
 		// Unmount store
 		$task = Taskmanager::submit('MountVmStore', array(
 				'address' => 'null',

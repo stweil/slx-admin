@@ -5,6 +5,9 @@ chdir(dirname($_SERVER['SCRIPT_FILENAME']));
 
 require_once 'config.php';
 
+if (CONFIG_SQL_PASS === '%MYSQL_OPENSLX_PASS%')
+	exit(0); // Ignore API calls if not configured yet
+
 // Autoload classes from ./inc which adhere to naming scheme <lowercasename>.inc.php
 function slxAutoloader($class)
 {

@@ -41,6 +41,11 @@ class Page_ServerSetup extends Page
 	{
 		Render::setTitle(Dictionary::translate('lang_serverConfiguration'));
 
+		$taskid = Request::any('taskid');
+		if ($taskid !== false && Taskmanager::isTask($taskid)) {
+			Render::addTemplate('serversetup/ipxe_update', array('taskid' => $taskid));
+		}
+
 		Render::addTemplate('serversetup/ipaddress', array(
 			'ips' => $this->taskStatus['data']['addresses']
 		));
@@ -100,6 +105,9 @@ class Page_ServerSetup extends Page
 		}
 		if ($valid) {
 			Property::setServerIp($newAddress);
+			global $tidIpxe;
+			if (isset($tidIpxe) && $tidIpxe !== false)
+				Util::redirect('?do=ServerSetup&taskid=' . $tidIpxe);
 		} else {
 			Message::addError('invalid-ip', $newAddress);
 		}
@@ -110,16 +118,19 @@ class Page_ServerSetup extends Page
 	{
 		$timeout = Request::post('timeout', 10);
 		if ($timeout === '')
-			$timeout = 10;
-		if (!is_numeric($timeout)) {
+			$timeout = 0;
+		if (!is_numeric($timeout) || $timeout < 0) {
 			Message::addError('value-invalid', 'timeout', $timeout);
 		}
 		$this->currentMenu['defaultentry'] = Request::post('defaultentry', 'net');
 		$this->currentMenu['timeout'] = $timeout;
 		$this->currentMenu['custom'] = Request::post('custom', '');
+		$this->currentMenu['masterpassword'] = Request::post('masterpassword', '');
+		if (!preg_match('/^\$[1456]\$.+\$/', $this->currentMenu['masterpassword']))
+			$this->currentMenu['masterpassword'] = Crypto::hash6($this->currentMenu['masterpassword']);
 		Property::setBootMenu($this->currentMenu);
-		Trigger::ipxe();
-		Util::redirect('?do=ServerSetup');
+		$id = Trigger::ipxe();
+		Util::redirect('?do=ServerSetup&taskid=' . $id);
 	}
 
 }

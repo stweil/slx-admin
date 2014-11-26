@@ -59,9 +59,10 @@ class Property
 
 	public static function setServerIp($value)
 	{
-		if ($value !== self::getServerIp())
-			Event::serverIpChanged();
+		if ($value === self::getServerIp())
+			return false;
 		self::set('server-ip', $value);
+		Event::serverIpChanged();
 	}
 
 	public static function getBootMenu()
@@ -159,12 +160,12 @@ class Property
 	{
 		return self::get('last-warn-event-id', 0);
 	}
-	
+
 	public static function setNeedsSetup($value)
 	{
 		self::set('needs-setup', $value);
 	}
-	
+
 	public static function getNeedsSetup()
 	{
 		return self::get('needs-setup');

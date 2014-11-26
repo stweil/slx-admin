@@ -40,7 +40,7 @@ class Validator
 	{
 		if (empty($value))
 			return '';
-		if (preg_match('/^\$6\$.+\$./', $value))
+		if (preg_match('/^\$[156]\$.+\$./', $value))
 			return $value;
 		return Crypto::hash6($value);
 	}

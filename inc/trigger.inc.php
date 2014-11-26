@@ -15,12 +15,12 @@ class Trigger
 	 * Compile iPXE pxelinux menu. Needs to be done whenever the server's IP
 	 * address changes.
 	 * 
-	 * @param boolean $force force recompilation even if it seems up to date
-	 * @return boolean|string true if already up to date, false if launching task failed, task-id otherwise
+	 * @return boolean|string false if launching task failed, task-id otherwise
 	 */
 	public static function ipxe()
 	{
 		$data = Property::getBootMenu();
+		$data['ipaddress'] = Property::getServerIp();
 		$task = Taskmanager::submit('CompileIPxe', $data);
 		if (!isset($task['id']))
 			return false;
@@ -155,7 +155,7 @@ class Trigger
 				'password' => $vmstore['cifspasswd']
 		));
 	}
-	
+
 	/**
 	 * Check and process all callbacks
 	 */
@@ -214,7 +214,7 @@ class Trigger
 		}
 		return $parent;
 	}
-	
+
 	public static function startDaemons($parent, &$taskids)
 	{
 		$parent = self::triggerDaemons('start', $parent, $taskids);

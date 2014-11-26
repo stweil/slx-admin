@@ -9,7 +9,7 @@
     "lang_menuCustom": "Menu Adicional Customizado",
     "lang_menuCustomHint1": "Aqui voc\u00ea tem a oportunidade de adicionar seu pr\u00f3prio c\u00f3digo de menu para o menu PXE exibido, por exemplo, para se referir a outro servidor PXE. O formato corresponde ao formato de menu syslinux.",
     "lang_menuCustomHint2": "Voc\u00ea pode criar uma ou mais entradas. Se voc\u00ea quiser criar uma entrada que \u00e9 iniciada automaticamente quando o usu\u00e1rio faz uma sele\u00e7\u00e3o, atribua como",
-    "lang_menuCustomHint3": "e selecione como o comportamento de boot padr\u00e3o tamb\u00e9m my-entry.",
+    "lang_menuCustomHint3": "e selecione como o comportamento de boot padr\u00e3o tamb\u00e9m custom.",
     "lang_menuDisplayTime": "Tempo de Exibi\u00e7\u00e3o do Menu",
     "lang_seconds": "Segundos"
 }

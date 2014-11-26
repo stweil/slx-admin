@@ -1,9 +1,8 @@
 {
-    "lang_administration": "Translations",
     "lang_backup": "Backup\/Restore",
     "lang_client": "Client",
     "lang_clientLog": "Client Log",
-    "lang_configurationBasic": "Basic Configuration",
+    "lang_configurationBasic": "PXE\/Boot",
     "lang_configurationVariables": "Configuration Variables",
     "lang_eventLog": "Server Log",
     "lang_internetAccess": "Internet access",
@@ -12,11 +11,12 @@
     "lang_login": "Login",
     "lang_logout": "Logout",
     "lang_needsSetup": "Setup incomplete",
-    "lang_news": "News",
+    "lang_news": "vmChooser news",
     "lang_server": "Server",
     "lang_serverStatus": "Server status",
     "lang_settings": "Settings",
     "lang_status": "Status",
+    "lang_translations": "Translations",
     "lang_vmLocation": "VM Location",
     "lang_warning": "Warning"
 }

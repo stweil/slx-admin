@@ -4,12 +4,15 @@
     "lang_bootMenu": "Bootmen\u00fc",
     "lang_bootMenuCreate": "Bootmen\u00fc erzeugen",
     "lang_close": "Schlie\u00dfen",
+    "lang_customEntry": "Eigener Eintrag",
     "lang_example": "Beispiel",
     "lang_localHDD": "Lokale HDD",
+    "lang_masterPassword": "Master-Passwort",
+    "lang_masterPasswordHelp": "Das Master-Passwort wird ben\u00f6tigt, um einen Booteintrag direkt am Client tempor\u00e4r durch Dr\u00fccken der Tab-Taste zu editieren. Da dies f\u00fcr Manipulation am Client genutzt werden kann, sollte diese Funktion unbedingt mit einem Passwort gesch\u00fctzt werden.",
     "lang_menuCustom": "Benutzerdefinierter Men\u00fczusatz",
     "lang_menuCustomHint1": "Hier haben Sie die M\u00f6glichkeit, eigenen Men\u00fc-Code zum angezeigten PXE-Men\u00fc hinzuzuf\u00fcgen, um z.B. auf weitere PXE-Server zu verweisen. Das Format entspricht dem syslinux Men\u00fcformat.",
     "lang_menuCustomHint2": "Sie k\u00f6nnen ein oder mehrere Eintr\u00e4ge erzeugen. Wenn Sie einen Eintrag erzeugen m\u00f6chten, der automatisch gestartet wird, wenn der Benutzer keine Auswahl t\u00e4tigt, vergeben Sie als",
-    "lang_menuCustomHint3": "und w\u00e4hlen Sie als Standard-Bootverhalten ebenfalls my-entry.",
+    "lang_menuCustomHint3": "und w\u00e4hlen Sie als Standard-Bootverhalten ebenfalls custom.",
     "lang_menuDisplayTime": "Anzeigedauer des Men\u00fcs",
     "lang_seconds": "Sekunden"
 }

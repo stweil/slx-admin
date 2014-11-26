@@ -15,7 +15,7 @@
 				<strong>{{lang_bootBehavior}}</strong>
 				<label class="radio"><input type="radio" name="defaultentry" value="net" {{active-net}}> bwLehrpool</label>
 				<label class="radio"><input type="radio" name="defaultentry" value="hdd" {{active-hdd}}> {{lang_localHDD}}</label>
-				<label class="radio"><input type="radio" name="defaultentry" value="custom" {{active-custom}}> &quot;my-entry&quot;</label>
+				<label class="radio"><input type="radio" name="defaultentry" value="custom" {{active-custom}}> {{lang_customEntry}} (&quot;custom&quot;)</label>
 			</div>
 
 			<div class="form-group">
@@ -27,8 +27,16 @@
 			</div>
 
 			<div class="form-group">
+				<strong>{{lang_masterPassword}}</strong>
+				<div class="form-narrow">
+					<input type="text" class="form-control" name="masterpassword" value="{{masterpassword}}">
+				</div>
+				<i>{{lang_masterPasswordHelp}}</i>
+			</div>
+
+			<div class="form-group">
 				<strong>{{lang_menuCustom}}</strong> <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#help-custom"><span class="glyphicon glyphicon-question-sign"></span></a>
-				<textarea class="form-control" name="custom">{{custom}}</textarea>
+				<textarea class="form-control" name="custom" rows="8">{{custom}}</textarea>
 			</div>
 		</div>
 
@@ -45,13 +53,13 @@
 			<div class="modal-body">
 				{{lang_menuCustomHint1}}
 				<br>{{lang_example}}:
-				<pre>LABEL my-entry
-	MENU LABEL ^My Entry
+				<pre>LABEL custom
+	MENU LABEL ^My Boot Entry
 	KERNEL http://1.2.3.4/kernel
 	INITRD http://1.2.3.4/initramfs-stage31
 	APPEND custom=option
 	IPAPPEND 3</pre>
-				{{lang_menuCustomHint2}} LABEL <strong>my-entry</strong>
+				{{lang_menuCustomHint2}} LABEL <strong>custom</strong>
 				{{lang_menuCustomHint3}}
 			</div>
 			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>

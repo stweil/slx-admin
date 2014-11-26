@@ -80,6 +80,20 @@ class Taskmanager
 	}
 
 	/**
+	 * Checks whether the given task id corresponds to a known task in the taskmanager.
+	 * Returns true iff the taskmanager is reachable and the status of the task
+	 * is different from NO_SUCH_TASK.
+	 *
+	 * @param string $taskid a task id
+	 * @return boolean true if taskid exists in taskmanager
+	 */
+	public static function isTask($taskid)
+	{
+		$task = self::status($taskid);
+		return isset($task['statusCode']) && $task['statusCode'] !== NO_SUCH_TASK;
+	}
+
+	/**
 	 * Wait for the given task's completion.
 	 *
 	 * @param type $task task to wait for
