@@ -18,5 +18,6 @@
     "lang_status": "Status",
     "lang_translations": "\u00dcbersetzungen",
     "lang_vmLocation": "VM Speicherort",
-    "lang_warning": "Warnung"
+    "lang_warning": "Warnung",
+    "lang_webInterface": "Web-Schnittstelle"
 }

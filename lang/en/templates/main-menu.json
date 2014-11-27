@@ -18,5 +18,6 @@
     "lang_status": "Status",
     "lang_translations": "Translations",
     "lang_vmLocation": "VM Location",
-    "lang_warning": "Warning"
+    "lang_warning": "Warning",
+    "lang_webInterface": "Web interface"
 }
