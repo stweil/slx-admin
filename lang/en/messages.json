@@ -35,6 +35,7 @@
     "reboot-unconfirmed": "Confirmation prompt to reboot not confirmed",
     "remote-parse-failed": "Parsing the received data failed ({{0}})",
     "remote-timeout": "Could  not download resource {{0}} ({{1}})",
+    "restore-done": "Restore done",
     "settings-updated": "Settings have been updated",
     "task-error": "Execution failed: {{0}}",
     "taskmanager-error": "Failed to connect to the Task Manager",

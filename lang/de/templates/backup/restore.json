@@ -3,5 +3,6 @@
     "lang_reboot": "Systemneustart",
     "lang_restoreConfig": "Konfiguration wiederherstellen",
     "lang_restoreFailed": "Wiederherstellung der Konfiguration fehlgeschlagen.",
-    "lang_stopping": "Stoppe"
+    "lang_stopping": "Stoppe",
+    "lang_waitReboot": "Warte auf Reboot."
 }

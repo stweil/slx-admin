@@ -78,7 +78,7 @@ class Page_Backup extends Page
 			Message::addError('upload-failed', Util::uploadErrorString($_FILES['backupfile']['error']));
 			Util::redirect('?do=Backup');
 		}
-		$tempfile = '/tmp/bwlp-' . mt_rand(1, 100000) . '-' . crc32($_SERVER['REMOTE_HOST']) . '.tgz';
+		$tempfile = '/tmp/bwlp-' . mt_rand(1, 100000) . '-' . crc32($_SERVER['REMOTE_ADDR']) . '.tgz';
 		if (!move_uploaded_file($_FILES['backupfile']['tmp_name'], $tempfile)) {
 			Message::addError('error-write', $tempfile);
 			Util::redirect('?do=Backup');
@@ -107,11 +107,22 @@ class Page_Backup extends Page
 			$this->templateData['restoreid'] = $task['id'];
 			$parent = $task['id'];
 		}
+		// TODO: Trigger::rebuildAdModules();
+		// Wait a bit
+		$task = Taskmanager::submit('SleepTask', array(
+				'seconds' => 3,
+				'parentTask' => $parent,
+				'failOnParentFail' => false
+		));
+		if (isset($task['id']))
+			$parent = $task['id'];
 		// Reboot
 		$task = Taskmanager::submit('Reboot', array(
 				'parentTask' => $parent,
 				'failOnParentFail' => false
 		));
+		// Leave this comment so the i18n scanner finds it:
+		// Message::addSuccess('restore-done');
 		if (isset($task['id']))
 			$this->templateData['rebootid'] = $task['id'];
 	}

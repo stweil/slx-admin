@@ -12,6 +12,9 @@
 		<div id="restorefailed" class="alert alert-danger" style="display:none">
 			{{lang_restoreFailed}}
 		</div>
+		<div id="waiting" style="display:none">
+			<span id="dots"></span>
+		</div>
 	</div>
 </div>
 
@@ -23,5 +26,33 @@
 		if (task.statusCode === 'TASK_ERROR') {
 			$('#restorefailed').show('slow');
 		}
+		if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'TASK_FINISHED') {
+			startRebootPoll();
+		}
+	}
+
+	function startRebootPoll()
+	{
+		$('#waiting').show();
+		$('#waiting').prepend('<span class="glyphicon glyphicon-refresh slx-rotation"></span>');
+		$('#dots').text('{{lang_waitReboot}}');
+		slxDotInterval = setInterval(function() { $('#dots').text($('#dots').text() + '..'); }, 3000);
+		setTimeout('rebootPoll()', 10000);
+	}
+	
+	function rebootPoll()
+	{
+		if (slxDotInterval !== false) {
+			clearInterval(slxDotInterval);
+			slxDotInterval = false;
+		}
+		$('#dots').text($('#dots').text() + '..');
+		slxTimeoutId = setTimeout('rebootPoll()', 3500);
+		$.ajax({url: "index.php?do=Main", timeout: 3000}).success(function(data, textStatus, jqXHR) {
+			if (textStatus !== "success" && textStatus !== "notmodified")
+				return;
+			clearTimeout(slxTimeoutId);
+			window.location.replace("index.php?do=Main&message[]=success%7Crestore-done");
+		});
 	}
 </script>
