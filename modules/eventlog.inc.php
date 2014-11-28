@@ -46,7 +46,7 @@ class Page_EventLog extends Page
 				return 'ok';
 			case 'warning':
 				return 'exclamation-sign';
-			case 'error':
+			case 'failure':
 				return 'remove';
 			default:
 				return 'question-sign';
@@ -60,7 +60,7 @@ class Page_EventLog extends Page
 				return 'green';
 			case 'warning':
 				return 'orange';
-			case 'error':
+			case 'failure':
 				return 'red';
 			default:
 				return '';

@@ -65,13 +65,13 @@ class Page_MiniLinux extends Page
 				return;
 			}
 			$file = false;
-			$gpg = false;
+			$gpg = 'missing';
 			foreach ($data['systems'] as &$system) {
 				if ($system['id'] !== $id) continue;
 				foreach ($system['files'] as &$f) {
 					if ($f['name'] !== $name) continue;
 					$file = $f;
-					if (isset($f['gpg'])) $gpg = $f['gpg'];
+					if (!empty($f['gpg'])) $gpg = $f['gpg'];
 					break;
 				}
 			}
