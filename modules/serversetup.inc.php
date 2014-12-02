@@ -125,9 +125,11 @@ class Page_ServerSetup extends Page
 		$this->currentMenu['defaultentry'] = Request::post('defaultentry', 'net');
 		$this->currentMenu['timeout'] = $timeout;
 		$this->currentMenu['custom'] = Request::post('custom', '');
-		$this->currentMenu['masterpassword'] = Request::post('masterpassword', '');
-		if (!preg_match('/^\$[1456]\$.+\$/', $this->currentMenu['masterpassword']))
-			$this->currentMenu['masterpassword'] = Crypto::hash6($this->currentMenu['masterpassword']);
+		$this->currentMenu['masterpasswordclear'] = Request::post('masterpassword', '');
+		if (empty($this->currentMenu['masterpasswordclear']))
+			$this->currentMenu['masterpassword'] = 'invalid';
+		else
+			$this->currentMenu['masterpassword'] = Crypto::hash6($this->currentMenu['masterpasswordclear']);
 		Property::setBootMenu($this->currentMenu);
 		$id = Trigger::ipxe();
 		Util::redirect('?do=ServerSetup&taskid=' . $id);

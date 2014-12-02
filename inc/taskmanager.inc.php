@@ -128,7 +128,8 @@ class Taskmanager
 	}
 
 	/**
-	 * Check whether the given task can be considered failed.
+	 * Check whether the given task can be considered failed. This
+	 * includes that the task id is invalid, etc.
 	 *
 	 * @param array $task struct representing task, obtained by ::status
 	 * @return boolean true if task failed, false if finished successfully or still waiting/running

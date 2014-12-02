@@ -7,15 +7,27 @@ if (!is_array($_POST['ids'])) {
 	die('{"error" : "No Task ids given in POST data."}');
 }
 
+$callbacks = false;
+
 $return = array();
 foreach ($_POST['ids'] as $id) {
+	// Get task status
 	$status = Taskmanager::status($id);
 	if ($status === false) {
 		$return[] = array('id' => $id, 'error' => 'No connection to TaskManager');
 		continue;
 	}
 	$return[] = $status;
-	if (!isset($status['statusCode']) || ($status['statusCode'] !== TASK_WAITING && $status['statusCode'] !== TASK_PROCESSING)) {
+	// Handle callbacks (if any)
+	if ($callbacks === false)
+		$callbacks = TaskmanagerCallback::getPendingCallbacks();
+	if (isset($callbacks[$id])) {
+		foreach ($callbacks[$id] as $callback) {
+			TaskmanagerCallback::handleCallback($callback, $status);
+		}
+	}
+	// Release task if done
+	if (Taskmanager::isFailed($status) || Taskmanager::isFinished($status)) {
 		Taskmanager::release($id);
 	}
 }

@@ -51,8 +51,12 @@
 		$.ajax({url: "index.php?do=Main", timeout: 3000}).success(function(data, textStatus, jqXHR) {
 			if (textStatus !== "success" && textStatus !== "notmodified")
 				return;
+			if (data.indexOf('Connecting to the local database failed') > -1)
+				return;
 			clearTimeout(slxTimeoutId);
-			window.location.replace("index.php?do=Main&message[]=success%7Crestore-done");
+			setTimeout(function() {
+				window.location.replace("index.php?do=Main&message[]=success%7Crestore-done");
+			}, 2000);
 		});
 	}
 </script>

@@ -96,6 +96,7 @@ class Page_Backup extends Page
 			$this->templateData['mountid'] = $task['id'];
 			$parent = $task['id'];
 		}
+		EventLog::info('Creating backup, v' . Database::getExpectedSchemaVersion() . ' on ' . Property::getServerIp());
 		// Finally run backup
 		$task = Taskmanager::submit('BackupRestore', array(
 				'mode' => 'restore',
@@ -106,8 +107,8 @@ class Page_Backup extends Page
 		if (isset($task['id'])) {
 			$this->templateData['restoreid'] = $task['id'];
 			$parent = $task['id'];
+			TaskmanagerCallback::addCallback($task, 'dbRestored');
 		}
-		// TODO: Trigger::rebuildAdModules();
 		// Wait a bit
 		$task = Taskmanager::submit('SleepTask', array(
 				'seconds' => 3,

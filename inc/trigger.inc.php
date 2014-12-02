@@ -65,11 +65,11 @@ class Trigger
 			}
 		}
 		if ($publicCandidate !== 'none' && $publicCandidate !== 'many') {
-			Property::setServerIp($publicCandidate);
+			Property::setServerIp($publicCandidate, true);
 			return true;
 		}
 		if ($privateCandidate !== 'none' && $privateCandidate !== 'many') {
-			Property::setServerIp($privateCandidate);
+			Property::setServerIp($privateCandidate, true);
 			return true;
 		}
 		return false;
@@ -109,26 +109,29 @@ class Trigger
 	 * To be called if the server ip changes, as it's embedded in the AD module configs.
 	 * This will then recreate all AD tgz modules.
 	 */
-	public static function rebuildAdModules()
+	public static function rebuildAdModules($parent = NULL)
 	{
-		$task = Taskmanager::submit('LdadpLauncher', array('ids' => array())); // Stop all running instances
+		$task = Taskmanager::submit('LdadpLauncher', array(
+				'parentTask' => $parent,
+				'failOnParentFail' => false,
+				'ids' => array()
+		)); // Stop all running instances
 		$ads = ConfigModule::getAdConfigs();
 		if (empty($ads))
-			return;
+			return false;
 
-		$parent = isset($task['id']) ? $task['id'] : NULL;
+		if (isset($task['id']))
+			$parent = $task['id'];
 		foreach ($ads as $ad) {
 			$ad['parentTask'] = $parent;
 			$ad['failOnParentFail'] = false;
+			$ad['proxyip'] = Property::getServerIp();
 			$task = Taskmanager::submit('CreateAdConfig', $ad);
 			if (isset($task['id']))
 				$parent = $task['id'];
 		}
-		if (Taskmanager::waitComplete($parent, 2000) === false) {
-			EventLog::warning('Rebuilding LDAP-AD-Proxy config failed. AD Auth might not work properly.');
-			sleep(1);
-		}
-		Trigger::ldadp();
+		Trigger::ldadp($parent);
+		return $parent;
 	}
 
 	/**
@@ -157,23 +160,20 @@ class Trigger
 	}
 
 	/**
-	 * Check and process all callbacks
+	 * Check and process all callbacks.
 	 */
 	public static function checkCallbacks()
 	{
-		$res = Database::simpleQuery("SELECT taskid, cbfunction FROM callback");
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$status = Taskmanager::status($row['taskid']);
-			if (Taskmanager::isFailed($status) || Taskmanager::isFinished($status))
-				Database::exec("DELETE FROM callback WHERE taskid = :task AND cbfunction = :cb LIMIT 1", array('task' => $row['taskid'], 'cb' => $row['cbfunction']));
-			if (Taskmanager::isFinished($status)) {
-				$func = array('TaskmanagerCallback', preg_replace('/\W/', '', $row['cbfunction']));
-				if (!call_user_func_array('method_exists', $func)) {
-					Eventlog::warning("Callback {$row['cbfunction']} doesn't exist.");
-				} else {
-					call_user_func($func, $status);
-				}
+		$callbackList = TaskmanagerCallback::getPendingCallbacks();
+		foreach ($callbackList as $taskid => $callbacks) {
+			$status = Taskmanager::status($taskid);
+			if ($status === false)
+				continue;
+			foreach ($callbacks as $callback) {
+				TaskmanagerCallback::handleCallback($callback, $status);
 			}
+			if (Taskmanager::isFailed($status) || Taskmanager::isFinished($status))
+				Taskmanager::release($status);
 		}
 	}
 

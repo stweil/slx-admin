@@ -57,7 +57,7 @@ class Page_EventLog extends Page
 	{
 		switch ($type) {
 			case 'info':
-				return 'green';
+				return '';
 			case 'warning':
 				return 'orange';
 			case 'failure':
