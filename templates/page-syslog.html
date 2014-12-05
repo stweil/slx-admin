@@ -24,7 +24,7 @@
 	<tbody>
 	{{#list}}
 		<tr>
-			<td><span class="glyphicon glyphicon-off" title="{{logtypeid}}" onclick="$('#filterstring').tagsinput('add', '{{logtypeid}}')"></span></td>
+			<td><span class="glyphicon {{icon}}" title="{{logtypeid}}" onclick="$('#filterstring').tagsinput('add', '{{logtypeid}}')"></span></td>
 			<td class="text-right" nowrap="nowrap">{{date}}</td>
 			<td>{{clientip}}</td>
 			<td>{{description}}</td>

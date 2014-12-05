@@ -56,6 +56,7 @@ class Page_SysLog extends Page
 				$day = Dictionary::translate('yesterday');
 			}
 			$row['date'] = $day . date(' H:i', $row['dateline']);
+			$row['icon'] = $this->eventToIconName($row['logtypeid']);
 			$lines[] = $row;
 		}
 
@@ -64,6 +65,23 @@ class Page_SysLog extends Page
 			'not'      => $not,
 			'list'     => $lines
 		));
+	}
+	
+	private function eventToIconName($event)
+	{
+		switch ($event) {
+		case 'session-open':
+			return 'glyphicon-log-in';
+		case 'session-close':
+			return 'glyphicon-log-out';
+		case 'partition-swap':
+			return 'glyphicon-info-sign';
+		case 'partition-temp':
+		case 'smartctl-realloc':
+			return 'glyphicon-exclamation-sign';
+		default:
+			return 'glyphicon-minus';
+		}
 	}
 
 }
