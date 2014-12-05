@@ -171,5 +171,15 @@ class Property
 	{
 		return self::get('needs-setup');
 	}
+	
+	public static function setPasswordFieldType($value)
+	{
+		return self::set('password-type', $value);
+	}
+	
+	public static function getPasswordFieldType()
+	{
+		return self::get('password-type', 'password');
+	}
 
 }

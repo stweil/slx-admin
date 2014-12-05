@@ -179,8 +179,10 @@ class Render
 		// Always add token to parameter list
 		if (is_array($params) || $params === false || is_null($params))
 			$params['token'] = Session::get('token');
-		// Likewise, add currently selected language ( its two letter code) to params
+		// Likewise, add currently selected language (its two letter code) to params
 		$params['current_lang'] = LANG;
+		// Add desired password field type
+		$params['password_type'] = Property::getPasswordFieldType();
 		// Return rendered html
 		return self::$mustache->render($html, array_merge($dictionary,$params));
 	}
