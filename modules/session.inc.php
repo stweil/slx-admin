@@ -19,6 +19,7 @@ class Page_Session extends Page
 				Util::redirect('?do=Main');
 			}
 			// Login credentials wrong
+			sleep(1);
 			Message::addError('loginfail');
 		}
 
