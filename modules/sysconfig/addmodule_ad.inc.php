@@ -114,7 +114,7 @@ class AdModule_Finish extends AddModule_Base
 			}
 			$i = mb_stripos($binddn, '=' . $out[1] . ',');
 			if ($i === false) {
-				Message::addError('value-invalid', $binddn, $out[1]);
+				Message::addError('value-invalid', 'binddn', $out[1]);
 				Util::redirect('?do=SysConfig&action=addmodule&step=AdModule_Start');
 			}
 			$searchbase = mb_substr($binddn, $i + 1);

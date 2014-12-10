@@ -39,20 +39,21 @@ class Page_BaseConfig extends Page
 				while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 					$key = $row['setting'];
 					$validator = $row['validator'];
-					$input = (isset($_POST['setting'][$key]) ? $_POST['setting'][$key] : '');
+					$displayValue = (isset($_POST['setting'][$key]) ? $_POST['setting'][$key] : '');
 					// Validate data first!
-					$value = Validator::validate($validator, $input);
-					if ($value === false) {
-						Message::addWarning('value-invalid', $key, $input);
+					$mangledValue = Validator::validate($validator, $displayValue);
+					if ($mangledValue === false) {
+						Message::addWarning('value-invalid', $key, $displayValue);
 						continue;
 					}
 					// Now put into DB
-					Database::exec("INSERT INTO setting_global (setting, value $qry_insert)
-						VALUES (:key, :value $qry_values)
-						ON DUPLICATE KEY UPDATE value = :value",
+					Database::exec("INSERT INTO setting_global (setting, value, displayvalue $qry_insert)
+						VALUES (:key, :value, :displayvalue $qry_values)
+						ON DUPLICATE KEY UPDATE value = :value, displayvalue = :displayvalue",
 						$this->qry_extra + array(
 							'key'      => $key,
-							'value'    => $value,
+							'value'    => $mangledValue,
+							'displayvalue' => $displayValue
 						)
 					);
 				}
@@ -75,15 +76,15 @@ class Page_BaseConfig extends Page
 		}
 		// List global config option
 		$settings = array();
-		$res = Database::simpleQuery('SELECT cat_setting.catid, setting.setting, setting.defaultvalue, setting.permissions, setting.validator, tbl.value
+		$res = Database::simpleQuery('SELECT cat_setting.catid, setting.setting, setting.defaultvalue, setting.permissions, setting.validator, tbl.displayvalue
 			FROM setting
 			INNER JOIN cat_setting USING (catid)
 			LEFT JOIN setting_global AS tbl USING (setting)
 			ORDER BY cat_setting.sortval ASC, setting.setting ASC');
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$row['description'] = Util::markup(Dictionary::translate('settings/setting', $row['setting']));
-			if (is_null($row['value'])) $row['value'] = $row['defaultvalue'];
-			$row['item'] = $this->makeInput($row['validator'], $row['setting'], $row['value']);
+			if (is_null($row['displayvalue'])) $row['displayvalue'] = $row['defaultvalue'];
+			$row['item'] = $this->makeInput($row['validator'], $row['setting'], $row['displayvalue']);
 			$settings[$row['catid']]['settings'][] = $row;
 			$settings[$row['catid']]['category_name'] = Dictionary::translate('settings/cat_setting', 'cat_' . $row['catid']);
 		}

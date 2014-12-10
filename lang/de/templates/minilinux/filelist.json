@@ -4,6 +4,7 @@
     "lang_canUpdate2": "kann aktualisiert werden. F\u00fcr einen reibungslosen Betrieb wird empfohlen, alle Komponenten auf dem aktuellen Stand zu halten.",
     "lang_configurationPackageNotFound": "Keine Konfigurationspakete gefunden!",
     "lang_outdated": "Veraltet",
+    "lang_redownload": "Erneut herunterladen",
     "lang_systemUpdated": "Das System ist auf dem aktuellen Stand.",
     "lang_update": "Aktualisieren"
 }

@@ -4,26 +4,31 @@
  * This class contains all the helper functions that
  * can be referenced by a config setting. Every function
  * here is supposed to validate the given config value
- * and wither return the validated and possibly sanitized
+ * and either return the validated and possibly sanitized
  * value, or false to indicate that the given value is invalid.
+ * The passed value is a reference, as it can also be modified
+ * by the validator to tweak the value that is being
+ * displayed in the web interface, compared to the returned
+ * value, which will only be used by the client directly,
+ * and is not displayed by the web interface.
  */
 class Validator
 {
 
-	public static function validate($condition, $value)
+	public static function validate($condition, &$displayValue)
 	{
 		if (empty($condition))
-			return $value;
+			return $displayValue;
 		$data = explode(':', $condition, 2);
 		switch ($data[0]) {
 			case 'regex':
-				if (preg_match($data[1], $value))
-					return $value;
+				if (preg_match($data[1], $displayValue))
+					return $displayValue;
 				return false;
 			case 'list':
-				return self::validateList($data[1], $value);
+				return self::validateList($data[1], $displayValue);
 			case 'function':
-				return self::$data[1]($value);
+				return self::$data[1]($displayValue);
 			default:
 				Util::traceError('Unknown validation method: ' . $data[0]);
 		}
@@ -36,42 +41,43 @@ class Validator
 	 * Otherwise it it assumed that the value is a plain text
 	 * password that is supposed to be hashed.
 	 */
-	private static function linuxPassword($value)
+	private static function linuxPassword(&$displayValue)
 	{
-		if (empty($value))
+		if (empty($displayValue))
 			return '';
-		if (preg_match('/^\$[156]\$.+\$./', $value))
-			return $value;
-		return Crypto::hash6($value);
+		if (preg_match('/^\$[156]\$.+\$./', $displayValue))
+			return $displayValue;
+		return Crypto::hash6($displayValue);
 	}
 
 	/**
 	 * "Fix" network share path for SMB shares where a backslash
 	 * is used instead of a slash.
-	 * @param string $value network path
+	 * @param string $displayValue network path
 	 * @return string cleaned up path
 	 */
-	private static function networkShare($value)
+	private static function networkShare(&$displayValue)
 	{
-		$value = trim($value);
-		if (substr($value, 0, 2) === '\\\\')
-			$value = str_replace('\\', '/', $value);
-		if (substr($value, 0, 2) === '//')
-			$value = str_replace(' ', '\\040', $value);
-		return $value;
+		$displayValue = trim($displayValue);
+		if (substr($displayValue, 0, 2) === '\\\\')
+			$displayValue = str_replace('\\', '/', $displayValue);
+		$returnValue = $displayValue;
+		if (substr($returnValue, 0, 2) === '//')
+			$returnValue = str_replace(' ', '\\040', $returnValue);
+		return $returnValue;
 	}
 
 	/**
 	 * Validate value against list.
 	 * @param string $list The list as a string of items, separated by "|"
-	 * @param string $value The value to validate
+	 * @param string $displayValue The value to validate
 	 * @return boolean|string The value, if in list, false otherwise
 	 */
-	private static function validateList($list, $value)
+	private static function validateList($list, &$displayValue)
 	{
 		$list = explode('|', $list);
-		if (in_array($value, $list))
-			return $value;
+		if (in_array($displayValue, $list))
+			return $displayValue;
 		return false;
 	}
 

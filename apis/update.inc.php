@@ -171,3 +171,17 @@ function update_5()
 	}
 	return true;
 }
+
+// #######################
+// ##### 2014-12-04
+// Add displayvalue column to setting_*
+function update_6()
+{
+	foreach (array('setting_global', 'setting_distro') as $table) {
+		if (!tableHasColumn($table, 'displayvalue')) {
+			Database::exec("ALTER TABLE $table ADD `displayvalue` TEXT NOT NULL");
+			Database::exec("UPDATE $table SET displayvalue = value");
+		}
+	}
+	return true;
+}

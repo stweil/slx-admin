@@ -24,6 +24,7 @@
 						</div>
 						<div class="col-xs-2">
 							{{#fileChanged}}<span class="btn btn-primary btn-xs update-button" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">{{lang_update}}</span>{{/fileChanged}}
+							{{^fileChanged}}<span class="btn btn-default btn-xs" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">{{lang_redownload}}</span>{{/fileChanged}}
 						</div>
 					</div>
 					{{{download}}}
