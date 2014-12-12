@@ -11,9 +11,9 @@ if ($row !== false ) {
 	echo "\t" . '<headline>' . "\n";
 	echo "\t\t" . $row['title'] . "\n";
 	echo "\t" . '</headline>' . "\n";
-	echo "\t" . "<content>" . "\n";
+	echo "\t" . "<info>" . "\n";
 	echo "\t\t" . $row['content'] . "\n";
-	echo "\t" . '</content>' . "\n";
+	echo "\t" . '</info>' . "\n";
 	echo "\t" . "<date>" . "\n";
 	echo "\t\t" . $row['dateline'] . "\n";
 	echo "\t" . "</date>" . "\n";
