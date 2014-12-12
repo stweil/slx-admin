@@ -4,8 +4,6 @@
  * Wizard for including a branding logo.
  */
 
-Page_SysConfig::addModule('BRANDING', 'Branding_Start', Dictionary::translate('lang_institutionLogo'), Dictionary::translate('lang_institutionLogo'), 'Branding', true);
-
 class Branding_Start extends AddModule_Base
 {
 
@@ -199,7 +197,7 @@ class Branding_Finish extends AddModule_Base
 			Message::addError('missing-file');
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		}
-		if (!ConfigModule::insertBrandingModule($title, $tgz))
+		if (!ConfigModule_Branding::insert($title, $tgz))
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		Session::set('logo_tgz', false);
 		Session::save();

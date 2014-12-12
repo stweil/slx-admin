@@ -6,11 +6,7 @@
  * fancy is happening.
  */
 
-Page_SysConfig::addModule('custom', 'CustomModule_UploadForm', Dictionary::translate('lang_generic'),
-	Dictionary::translate('lang_addCustomModuleInfo'), Dictionary::translate('lang_generic'), false, 100
-);
-
-class CustomModule_UploadForm extends AddModule_Base
+class CustomModule_Start extends AddModule_Base
 {
 
 	protected function renderInternal()

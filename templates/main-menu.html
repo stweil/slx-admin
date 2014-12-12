@@ -37,7 +37,7 @@
 					</ul>
 				</li>
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="lang/{{current_lang}}/flag.png"><b class="caret"></b></a>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="lang/{{current_lang}}/flag.png" alt="{{current_lang}}"><b class="caret"></b></a>
 					<ul class="dropdown-menu">
 						<li><a href="?do=Translation">{{lang_translations}}</a></li>
 						<li class="dropdown-header">{{lang_language}}</li>
@@ -58,7 +58,14 @@
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				{{#user}}
-				<li><a href="?do=Session&amp;action=logout&amp;token={{{token}}}"><b>{{user}}</b> ({{lang_logout}})</a></li>
+				<li>
+					<form method="post" action="?do=Session">
+						<input type="hidden" name="token" value="{{token}}">
+						<input type="hidden" name="action" value="logout">
+						<b>{{user}}</b>
+						<button class="btn btn-default btn-xs" type="submit">{{lang_logout}}</button>
+					</form>
+				</li>
 				{{/user}}
 				{{^user}}
 				<li><a href="?do=Session&amp;action=login">{{lang_login}}</a></li>

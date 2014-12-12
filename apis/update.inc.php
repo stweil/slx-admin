@@ -185,3 +185,16 @@ function update_6()
 	}
 	return true;
 }
+
+// #######################
+// ##### 2014-12-12
+// Rename config modules, add "has changed" column to modules
+function update_7()
+{
+	if (!tableHasColumn('configtgz_module', 'haschanged'))
+		Database::exec("ALTER TABLE configtgz_module ADD `haschanged` TINYINT DEFAULT '0'");
+	Database::exec("UPDATE configtgz_module SET moduletype = 'Branding' WHERE moduletype = 'BRANDING'");
+	Database::exec("UPDATE configtgz_module SET moduletype = 'AdAuth' WHERE moduletype = 'AD_AUTH'");
+	Database::exec("UPDATE configtgz_module SET moduletype = 'CustomModule' WHERE moduletype = 'custom'");
+	return true;
+}

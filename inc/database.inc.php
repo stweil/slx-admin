@@ -7,6 +7,10 @@
 class Database
 {
 
+	/**
+	 *
+	 * @var \PDO Database handle
+	 */
 	private static $dbh = false;
 	private static $statements = array();
 	
@@ -16,7 +20,7 @@ class Database
 	 */
 	public static function getExpectedSchemaVersion()
 	{
-		return 7;
+		return 8;
 	}
 	
 	public static function needSchemaUpdate()

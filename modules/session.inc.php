@@ -2,43 +2,37 @@
 
 class Page_Session extends Page
 {
-	
+
 	protected function doPreprocess()
 	{
-		if (!isset($_REQUEST['action'])) Util::traceError('No action on module init');
-
 		User::load();
 
-		if (isset($_POST['action']) && $_POST['action'] === 'login') {
+		if (Request::post('action') === 'login') {
 			// Login - see if already logged in
-			if (User::isLoggedIn()) {
+			if (User::isLoggedIn()) // and then just redirect
 				Util::redirect('?do=Main');
-			}
 			// Else, try to log in
-			if (User::login($_POST['user'], $_POST['pass'])) {
+			if (User::login(Request::post('user'), Request::post('pass')))
 				Util::redirect('?do=Main');
-			}
-			// Login credentials wrong
+			// Login credentials wrong - delay and show error message
 			sleep(1);
 			Message::addError('loginfail');
 		}
 
-		if ($_REQUEST['action'] === 'logout') {
-			if (Util::verifyToken()) {
-				// Log user out (or do nothing if not logged in)
-				User::logout();
-				Util::redirect('?do=Main');
-			}
+		if (Request::post('action') === 'logout') {
+			// Log user out (or do nothing if not logged in)
+			User::logout();
+			Util::redirect('?do=Main');
 		}
+
+		if (User::isLoggedIn())
+			Util::redirect('?do=Main');
 	}
 
 	protected function doRender()
 	{
-		if ($_REQUEST['action'] === 'login') {
-			Render::setTitle(Dictionary::translate('lang_login'));
-			Render::addTemplate('page-login');
-			return;
-		}
+		Render::setTitle(Dictionary::translate('lang_login'));
+		Render::addTemplate('page-login');
 	}
 
 }

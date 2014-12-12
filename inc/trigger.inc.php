@@ -83,10 +83,11 @@ class Trigger
 	 */
 	public static function ldadp($parent = NULL)
 	{
+		// TODO: Fetch list from ConfigModule_AdAuth (call loadDb first)
 		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"
 				. " INNER JOIN configtgz_x_module USING (moduleid)"
 				. " INNER JOIN configtgz USING (configid)"
-				. " WHERE moduletype = 'AD_AUTH'");
+				. " WHERE moduletype = 'AdAuth'");
 		// TODO: Multiconfig support
 		$id = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -103,35 +104,6 @@ class Trigger
 		if (!isset($task['id']))
 			return false;
 		return $task['id'];
-	}
-
-	/**
-	 * To be called if the server ip changes, as it's embedded in the AD module configs.
-	 * This will then recreate all AD tgz modules.
-	 */
-	public static function rebuildAdModules($parent = NULL)
-	{
-		$task = Taskmanager::submit('LdadpLauncher', array(
-				'parentTask' => $parent,
-				'failOnParentFail' => false,
-				'ids' => array()
-		)); // Stop all running instances
-		$ads = ConfigModule::getAdConfigs();
-		if (empty($ads))
-			return false;
-
-		if (isset($task['id']))
-			$parent = $task['id'];
-		foreach ($ads as $ad) {
-			$ad['parentTask'] = $parent;
-			$ad['failOnParentFail'] = false;
-			$ad['proxyip'] = Property::getServerIp();
-			$task = Taskmanager::submit('CreateAdConfig', $ad);
-			if (isset($task['id']))
-				$parent = $task['id'];
-		}
-		Trigger::ldadp($parent);
-		return $parent;
 	}
 
 	/**

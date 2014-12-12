@@ -109,7 +109,7 @@ class AddModule_Start extends AddModule_Base
 	protected function renderInternal()
 	{
 		$title = $order = array();
-		$mods = Page_SysConfig::getModuleTypes();
+		$mods = ConfigModules::getList();
 		foreach ($mods as $module) {
 			$title[] = $module['title'];
 			$order[] = $module['sortOrder'];

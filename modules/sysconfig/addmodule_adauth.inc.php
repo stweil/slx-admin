@@ -4,10 +4,7 @@
  * Wizard for setting up active directory integration for authentication.
  */
 
-Page_SysConfig::addModule('AD_AUTH', 'AdModule_Start', Dictionary::translate('lang_adAuthentication'), Dictionary::translate('lang_adModule'), Dictionary::translate('lang_authentication'), true
-);
-
-class AdModule_Start extends AddModule_Base
+class AdAuth_Start extends AddModule_Base
 {
 
 	protected function renderInternal()
@@ -15,7 +12,7 @@ class AdModule_Start extends AddModule_Base
 		Session::set('ad_check', false);
 		Session::save();
 		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-start', array(
-			'step' => 'AdModule_CheckConnection',
+			'step' => 'AdAuth_CheckConnection',
 			'title' => Request::post('title'),
 			'server' => Request::post('server'),
 			'searchbase' => Request::post('searchbase'),
@@ -27,7 +24,7 @@ class AdModule_Start extends AddModule_Base
 
 }
 
-class AdModule_CheckConnection extends AddModule_Base
+class AdAuth_CheckConnection extends AddModule_Base
 {
 
 	private $taskIds;
@@ -41,7 +38,7 @@ class AdModule_CheckConnection extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		if (empty($server) || empty($binddn)) {
 			Message::addError('empty-field');
-			AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		$parent = null;
@@ -57,7 +54,7 @@ class AdModule_CheckConnection extends AddModule_Base
 					'username' => $user
 			));
 			if (!isset($selfSearch['id'])) {
-				AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
+				AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 				return;
 			}
 			$parent = $selfSearch['id'];
@@ -70,7 +67,7 @@ class AdModule_CheckConnection extends AddModule_Base
 				'bindpw' => $bindpw
 		));
 		if (!isset($ldapSearch['id'])) {
-			AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		$this->taskIds = array(
@@ -90,14 +87,14 @@ class AdModule_CheckConnection extends AddModule_Base
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
 			'originalbinddn' => $this->originalBindDn,
-			'step' => 'AdModule_Finish'
+			'step' => 'AdAuth_Finish'
 			))
 		);
 	}
 
 }
 
-class AdModule_Finish extends AddModule_Base
+class AdAuth_Finish extends AddModule_Base
 {
 
 	private $taskIds;
@@ -107,26 +104,32 @@ class AdModule_Finish extends AddModule_Base
 		$binddn = Request::post('binddn');
 		$searchbase = Request::post('searchbase');
 		if (empty($searchbase)) {
+			// If no search base was given, determine it from the dn
 			$originalBindDn = str_replace('\\', '/', trim(Request::post('originalbinddn')));
 			if (!preg_match('#^([^/]+)/[^/]+$#', $originalBindDn, $out)) {
 				Message::addError('value-invalid', 'binddn', $originalBindDn);
-				Util::redirect('?do=SysConfig&action=addmodule&step=AdModule_Start');
-			}
+				Util::redirect('?do=SysConfig&action=addmodule&step=AdAuth_Start');
+			} // $out[1] is the domain
+			// Find the domain in the dn
 			$i = mb_stripos($binddn, '=' . $out[1] . ',');
 			if ($i === false) {
 				Message::addError('value-invalid', 'binddn', $out[1]);
-				Util::redirect('?do=SysConfig&action=addmodule&step=AdModule_Start');
+				Util::redirect('?do=SysConfig&action=addmodule&step=AdAuth_Start');
 			}
+			// Now find ',' before it so we get the key
+			$i = mb_strrpos(mb_substr($binddn, 0, $i), ',');
+			if ($i === false)
+				$i = -1;
 			$searchbase = mb_substr($binddn, $i + 1);
 		}
 		$title = Request::post('title');
 		if (empty($title))
 			$title = 'AD: ' . Request::post('server');
-		$config = ConfigModule::insertAdConfig($title, Request::post('server'), $searchbase, $binddn, Request::post('bindpw', ''), Request::post('home', ''));
+		$config = ConfigModule_AdAuth::insert($title, Request::post('server'), $searchbase, $binddn, Request::post('bindpw', ''), Request::post('home', ''));
 		$config['proxyip'] = Property::getServerIp();
 		$tgz = Taskmanager::submit('CreateAdConfig', $config);
 		if (!isset($tgz['id'])) {
-			AddModule_Base::setStep('AdModule_Start'); // Continues with AdModule_Start for render()
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		$this->taskIds = array(

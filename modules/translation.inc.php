@@ -271,7 +271,7 @@ class Page_Translation extends Page
 	 */
 	private function loadHardcodedStringEditArray()
 	{
-		$tags = $this->loadTagsFromPhp('/Dictionary\s*::\s*translate\s*\(\s*[\'"](.*?)[\'"]\s*\)/i');
+		$tags = $this->loadTagsFromPhp('/Dictionary\s*::\s*translate\s*\(\s*[\'"]([^\'"]*?)[\'"]\s*\)/i');
 		if ($tags === false)
 			return false;
 		return $this->buildTranslationTable('messages-hardcoded', $tags);

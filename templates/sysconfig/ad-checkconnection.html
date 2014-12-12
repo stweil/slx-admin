@@ -8,7 +8,7 @@
 </div>
 <br>
 <div class="pull-left">
-	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step=AdModule_Start">
+	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step=AdAuth_Start">
 		<input type="hidden" name="token" value="{{token}}">
 		<input name="title" value="{{title}}" type="hidden">
 		<input name="server" value="{{server}}" type="hidden">
@@ -29,7 +29,7 @@
 		<input name="bindpw" value="{{bindpw}}" type="hidden">
 		<input name="home" value="{{home}}" type="hidden">
 		<input name="originalbinddn" value="{{binddn}}" type="hidden">
-		<button id="nextbutton" type="submit" class="btn btn-primary">{{lang_skip}} &raquo;</button>
+		<button id="nextbutton" type="submit" class="btn btn-primary" style="display:none">{{lang_skip}} &raquo;</button>
 	</form>
 </div>
 <script type="text/javascript">
@@ -38,10 +38,13 @@
 		if (!task || !task.statusCode)
 			return;
 		if (task.statusCode === 'TASK_FINISHED') {
-			$('#nextbutton').html('Weiter &raquo;');
+			$('#nextbutton').html('Weiter &raquo;').show();
 		}
 		if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'PARENT_FAILED') {
 			$('#nextbutton').html('Trotzdem weiter &raquo;');
+		}
+		if (task.statusCode === 'TASK_ERROR') {
+			$('#nextbutton').show();
 		}
 	}
 	function selfCb(task)
