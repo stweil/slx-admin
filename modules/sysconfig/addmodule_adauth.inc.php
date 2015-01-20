@@ -125,15 +125,24 @@ class AdAuth_Finish extends AddModule_Base
 		$title = Request::post('title');
 		if (empty($title))
 			$title = 'AD: ' . Request::post('server');
-		$config = ConfigModule_AdAuth::insert($title, Request::post('server'), $searchbase, $binddn, Request::post('bindpw', ''), Request::post('home', ''));
-		$config['proxyip'] = Property::getServerIp();
-		$tgz = Taskmanager::submit('CreateAdConfig', $config);
-		if (!isset($tgz['id'])) {
+		$module = ConfigModule::getInstance('AdAuth');
+		$module->setData('server', Request::post('server'));
+		$module->setData('searchbase', $searchbase);
+		$module->setData('binddn', $binddn);
+		$module->setData('bindpw', Request::post('bindpw'));
+		$module->setData('home', Request::post('home'));
+		if (!$module->insert($title)) {
+			Message::addError('value-invalid', 'any', 'any');
+			$tgz = false;
+		} else {
+			$tgz = $module->generate(true);
+		}
+		if ($tgz === false) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		$this->taskIds = array(
-			'tm-config' => $tgz['id'],
+			'tm-config' => $tgz,
 		);
 	}
 

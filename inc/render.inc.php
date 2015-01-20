@@ -69,7 +69,8 @@ class Render
 	',
 		self::$footer
 		,
-		'</html>'
+		'</body>
+		</html>'
 		;
 		if ($zip) {
 			Header('Content-Encoding: gzip');
@@ -98,7 +99,7 @@ class Render
 	}
 
 	/**
-	 * Add raw html data to the footer-section of the generated page (after the closing body tag)
+	 * Add raw html data to the footer-section of the generated page (right before the closing body tag)
 	 */
 	public static function addFooter($html)
 	{

@@ -29,7 +29,7 @@ class Taskmanager
 	 * @param array $data data to pass to the task. the structure depends on the task.
 	 * @param boolean $async if true, the function will not wait for the reply of the taskmanager, which means
 	 * 		the return value is just true (and you won't know if the task could acutally be started)
-	 * @return array struct representing the task status, or result of submit, false on communication error
+	 * @return array struct representing the task status (as a result of submit); false on communication error
 	 */
 	public static function submit($task, $data = false, $async = false)
 	{
@@ -154,7 +154,7 @@ class Taskmanager
 	{
 		if (!is_array($task) || !isset($task['statusCode']) || !isset($task['id']))
 			return false;
-		if ($task['statusCode'] === TASK_ERROR || $task['statusCode'] === TASK_FINISHED)
+		if ($task['statusCode'] !== TASK_WAITING && $task['statusCode'] !== TASK_PROCESSING)
 			return true;
 		return false;
 	}

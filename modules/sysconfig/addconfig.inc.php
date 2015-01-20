@@ -108,7 +108,7 @@ class AddConfig_Start extends AddConfig_Base
 
 	protected function renderInternal()
 	{
-		$mods = ConfigModules::getList();
+		$mods = ConfigModule::getList();
 		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath FROM configtgz_module"
 			. " ORDER BY title ASC");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {

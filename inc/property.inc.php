@@ -41,12 +41,14 @@ class Property
 	 */
 	private static function set($key, $value, $minage = 0)
 	{
-		Database::exec("INSERT INTO property (name, value, dateline) VALUES (:key, :value, :dateline)"
-			. " ON DUPLICATE KEY UPDATE value = VALUES(value), dateline = VALUES(dateline)", array(
-			'key' => $key,
-			'value' => $value,
-			'dateline' => ($minage === 0 ? 0 : time() + ($minage * 60))
-		));
+		if (self::$cache === false || self::get($key) != $value) { // Simple compare, so it works for numbers accidentally casted to string somewhere
+			Database::exec("INSERT INTO property (name, value, dateline) VALUES (:key, :value, :dateline)"
+				. " ON DUPLICATE KEY UPDATE value = VALUES(value), dateline = VALUES(dateline)", array(
+				'key' => $key,
+				'value' => $value,
+				'dateline' => ($minage === 0 ? 0 : time() + ($minage * 60))
+			));
+		}
 		if (self::$cache !== false) {
 			self::$cache[$key] = $value;
 		}
@@ -180,6 +182,16 @@ class Property
 	public static function getPasswordFieldType()
 	{
 		return self::get('password-type', 'password');
+	}
+	
+	public static function setNeedsCallback($value)
+	{
+		return self::set('need-callback', $value, 5);
+	}
+	
+	public static function getNeedsCallback()
+	{
+		return self::get('need-callback', 0);
 	}
 
 }

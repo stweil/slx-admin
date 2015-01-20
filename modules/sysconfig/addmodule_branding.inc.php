@@ -46,8 +46,10 @@ class Branding_ProcessFile extends AddModule_Base
 			// URL - launch task that fetches the SVG file from it
 			if (strpos($url, '://') === false)
 				$url = "http://$url";
-			if (!$this->downloadSvg($this->svgFile, $url))
+			$title = false;
+			if (!$this->downloadSvg($this->svgFile, $url, $title))
 				Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
+			Session::set('logo_name', $title);
 		}
 		chmod($this->svgFile, 0644);
 		$this->tarFile = '/tmp/bwlp-' . time() . '-' . mt_rand() . '.tgz';
@@ -83,7 +85,7 @@ class Branding_ProcessFile extends AddModule_Base
 	}
 
 	/**
-	 * Downlaod an svg file from the given url. This function has "wikipedia support", it tries to detect
+	 * Download an svg file from the given url. This function has "wikipedia support", it tries to detect
 	 * URLs in wikipedia articles or thumbnails and then find the actual svg file.
 	 *
 	 * @param string $svgName file to download to
@@ -91,8 +93,9 @@ class Branding_ProcessFile extends AddModule_Base
 	 * @return boolean true of download succeded, false on download error (also returns true if downloaded file doesn't
 	 * 		seem to be svg!)
 	 */
-	private function downloadSvg($svgName, $url)
+	private function downloadSvg($svgName, $url, &$title)
 	{
+		$title = false;
 		// [wikipedia] Did someone paste a link to a thumbnail of the svg? Let's fix that...
 		if (preg_match('#^(.*)/thumb/(.*\.svg)/.*\.svg#', $url, $out)) {
 			$url = $out[1] . '/' . $out[2];
@@ -110,12 +113,14 @@ class Branding_ProcessFile extends AddModule_Base
 				
 			// [wikipedia] Try to be nice and detect links that might give a hint where the svg can be found
 			if (preg_match_all('#href="([^"]*upload.wikimedia.org/[^"]*/[^"]*/[^"]*\.svg|[^"]+/[^"]+:[^"]+\.svg[^"]*)"#', $content, $out, PREG_PATTERN_ORDER)) {
+				if ($title === false && preg_match('#<title>([^<]*)</title>#i', $content, $tout))
+					$title = trim($tout[1]);
 				foreach ($out[1] as $res) {
-					if (!strpos($res, 'action=edit')) {
-						$new = $this->internetCombineUrl($url, html_entity_decode($res, ENT_COMPAT, 'UTF-8'));
-						if ($new !== $url)
-							break;
-					}
+					if (strpos($res, 'action=edit') !== false)
+						continue;
+					$new = $this->internetCombineUrl($url, html_entity_decode($res, ENT_COMPAT, 'UTF-8'));
+					if ($new !== $url)
+						break;
 				}
 				if ($new === $url)
 					break;
@@ -124,7 +129,7 @@ class Branding_ProcessFile extends AddModule_Base
 			}
 			break;
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -141,7 +146,6 @@ class Branding_ProcessFile extends AddModule_Base
 			return $relative;
 
 		extract(parse_url($absolute));
-
 		$path = dirname($path);
 
 		if ($relative{0} === '/') {
@@ -188,18 +192,29 @@ class Branding_Finish extends AddModule_Base
 	protected function preprocessInternal()
 	{
 		$title = Request::post('title');
+		if ($title === false || empty($title))
+			$title = Session::get('logo_name');
 		if ($title === false || empty($title)) {
-			Message::addError('missing-file'); // TODO: Ask for title again instead of starting over
+			Message::addError('missing-title'); // TODO: Ask for title again instead of starting over
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		}
 		$tgz = Session::get('logo_tgz');
 		if ($tgz === false || !file_exists($tgz)) {
-			Message::addError('missing-file');
+			Message::addError('error-read', $tgz);
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		}
-		if (!ConfigModule_Branding::insert($title, $tgz))
+		$module = ConfigModule::getInstance('Branding');
+		if ($module === false) {
+			Message::addError('error-read', 'branding.inc.php');
+			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
+		}
+		$module->setData('tmpFile', $tgz);
+		if (!$module->insert($title))
+			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
+		elseif (!$module->generate(true))
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		Session::set('logo_tgz', false);
+		Session::set('logo_name', false);
 		Session::save();
 		// Yay
 		Message::addSuccess('module-added');

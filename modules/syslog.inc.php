@@ -42,6 +42,13 @@ class Page_SysLog extends Page
 			if (!empty($whereClause)) $whereClause = ' WHERE logtypeid ' . $not . ' IN (' . implode(', ', $whereClause) . ')';
 		}
 		if (!isset($whereClause) || empty($whereClause)) $whereClause = '';
+		if (Request::get('ip')) {
+			if (empty($whereClause))
+				$whereClause .= ' WHERE ';
+			else
+				$whereClause .= ' AND ';
+			$whereClause .= "clientip LIKE '" . preg_replace('/[^0-9\.\:]/', '', Request::get('ip')) . "%'";
+		}
 
 		$today = date('d.m.Y');
 		$yesterday = date('d.m.Y', time() - 86400);

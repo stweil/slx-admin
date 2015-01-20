@@ -80,6 +80,7 @@ if ((isset($_REQUEST['async'])) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
 } else {
 	define('AJAX', false);
 }
+define('API', false);
 
 // Autoload classes from ./inc which adhere to naming scheme <lowercasename>.inc.php
 function slxAutoloader($class)
@@ -142,6 +143,10 @@ if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 
 if (defined('CONFIG_FOOTER')) {
 	Render::addTemplate('footer', array('text' => CONFIG_FOOTER));
+}
+
+if (Property::getNeedsCallback()) {
+	Render::addTemplate('tm-callback-trigger');
 }
 
 // Send page to client.

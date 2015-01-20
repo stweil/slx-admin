@@ -249,34 +249,21 @@ class Page_SysConfig extends Page
 	private function delConfig()
 	{
 		$configid = Request::post('del', 'MISSING');
-		$row = Database::queryFirst("SELECT title, filepath FROM configtgz WHERE configid = :configid LIMIT 1", array('configid' => $configid));
-		if ($row === false) {
+		$module = ConfigModule::get($configid);
+		if ($module === false) {
 			Message::addError('config-invalid', $configid);
 			Util::redirect('?do=SysConfig');
 		}
-		$task = Taskmanager::submit('DeleteFile', array(
-				'file' => $row['filepath']
-		));
-		if (isset($task['statusCode']) && $task['statusCode'] === TASK_WAITING) {
-			$task = Taskmanager::waitComplete($task['id']);
-		}
-		if (!isset($task['statusCode']) || $task['statusCode'] === TASK_ERROR) {
-			Message::addWarning('task-error', $task['data']['error']);
-		} elseif ($task['statusCode'] === TASK_FINISHED) {
-			Message::addSuccess('module-deleted', $row['title']);
-		}
-		Database::exec("DELETE FROM configtgz WHERE configid = :configid LIMIT 1", array('configid' => $configid));
+		$module->delete();
 		Util::redirect('?do=SysConfig');
 	}
 
 	private function initAddModule()
 	{
-		ConfigModules::loadDb();
+		ConfigModule::loadDb();
 		require_once 'modules/sysconfig/addmodule.inc.php';
-		$step = Request::any('step', 0);
-		if ($step === 0) {
-			$step = 'AddModule_Start';
-		} elseif (!class_exists($step) && preg_match('/^([a-zA-Z0-9]+)_/', $step, $out)) {
+		$step = Request::any('step', 'AddModule_Start');
+		if (!class_exists($step) && preg_match('/^([a-zA-Z0-9]+)_/', $step, $out)) {
 			require_once 'modules/sysconfig/addmodule_' . strtolower($out[1]) . '.inc.php';
 		}
 		AddModule_Base::setStep($step);
@@ -284,7 +271,7 @@ class Page_SysConfig extends Page
 
 	private function initAddConfig()
 	{
-		ConfigModules::loadDb();
+		ConfigModule::loadDb();
 		require_once 'modules/sysconfig/addconfig.inc.php';
 		$step = Request::any('step', 0);
 		if ($step === 0)

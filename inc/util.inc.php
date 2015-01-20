@@ -216,4 +216,21 @@ SADFACE;
 		return true;
 	}
 
+	/**
+	 * Check whether $arrax contains all keys given in $keyList
+	 * @param array $array An array
+	 * @param array $keyList A list of strings which must all be valid keys in $array
+	 * @return boolean
+	 */
+	public static function hasAllKeys($array, $keyList)
+	{
+		if (!is_array($array))
+			return false;
+		foreach ($keyList as $key) {
+			if (!isset($array[$key]))
+				return false;
+		}
+		return true;
+	}
+
 }

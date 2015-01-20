@@ -20,7 +20,7 @@ class Database
 	 */
 	public static function getExpectedSchemaVersion()
 	{
-		return 8;
+		return 9;
 	}
 	
 	public static function needSchemaUpdate()
@@ -47,7 +47,8 @@ class Database
 
 	/**
 	 * If you just need the first row of a query you can use this.
-	 * Will return an associative array, or false if no row matches the query
+	 *
+	 * @return array|boolean Associative array representing row, or false if no row matches the query
 	 */
 	public static function queryFirst($query, $args = array(), $ignoreError = false)
 	{
@@ -64,6 +65,7 @@ class Database
 	 * 
 	 * @param string $query Query to run
 	 * @param array $args Arguments to query
+	 * @param boolean $ignoreError Ignore query errors and just return false
 	 * @return int|boolean Number of rows affected, or false on error
 	 */
 	public static function exec($query, $args = array(), $ignoreError = false)

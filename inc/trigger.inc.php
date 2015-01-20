@@ -136,6 +136,7 @@ class Trigger
 	 */
 	public static function checkCallbacks()
 	{
+		$tasksLeft = false;
 		$callbackList = TaskmanagerCallback::getPendingCallbacks();
 		foreach ($callbackList as $taskid => $callbacks) {
 			$status = Taskmanager::status($taskid);
@@ -146,7 +147,11 @@ class Trigger
 			}
 			if (Taskmanager::isFailed($status) || Taskmanager::isFinished($status))
 				Taskmanager::release($status);
+			else
+				$tasksLeft = true;
 		}
+		if (!$tasksLeft)
+			Property::setNeedsCallback(0);
 	}
 
 	private static function triggerDaemons($action, $parent, &$taskids)

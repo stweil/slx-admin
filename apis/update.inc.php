@@ -188,13 +188,26 @@ function update_6()
 
 // #######################
 // ##### 2014-12-12
-// Rename config modules, add "has changed" column to modules
+// Rename config modules
 function update_7()
 {
-	if (!tableHasColumn('configtgz_module', 'haschanged'))
-		Database::exec("ALTER TABLE configtgz_module ADD `haschanged` TINYINT DEFAULT '0'");
 	Database::exec("UPDATE configtgz_module SET moduletype = 'Branding' WHERE moduletype = 'BRANDING'");
 	Database::exec("UPDATE configtgz_module SET moduletype = 'AdAuth' WHERE moduletype = 'AD_AUTH'");
 	Database::exec("UPDATE configtgz_module SET moduletype = 'CustomModule' WHERE moduletype = 'custom'");
+	return true;
+}
+
+// #######################
+// ##### 2015-01-16
+// Extend config module db table, add argument feature to callbacks
+function update_8()
+{
+	tableDropColumn('configtgz_module', 'haschanged');
+	if (!tableHasColumn('configtgz_module', 'version'))
+		Database::exec("ALTER TABLE `configtgz_module` ADD `version` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0'");
+	if (!tableHasColumn('configtgz_module', 'status'))
+		Database::exec("ADD `status` ENUM( 'OK', 'MISSING', 'OUTDATED' ) NOT NULL DEFAULT 'MISSING'");
+	if (!tableHasColumn('callback', 'args'))
+		Database::exec("ALTER TABLE `callback` ADD `args` TEXT NOT NULL DEFAULT ''");
 	return true;
 }

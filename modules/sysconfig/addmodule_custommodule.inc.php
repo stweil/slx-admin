@@ -39,7 +39,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 			Message::addError('upload-failed', Util::uploadErrorString($_FILES['modulefile']['error']));
 			Util::redirect('?do=SysConfig');
 		}
-		$tempfile = '/tmp/bwlp-' . mt_rand(1, 100000) . '-' . crc32($_SERVER['REMOTE_HOST']) . '.tmp';
+		$tempfile = '/tmp/bwlp-' . mt_rand(1, 100000) . '-' . crc32($_SERVER['REMOTE_ADDR']) . '.tmp';
 		if (!move_uploaded_file($_FILES['modulefile']['tmp_name'], $tempfile)) {
 			Message::addError('error-write', $tempfile);
 			Util::redirect('?do=SysConfig');
@@ -108,7 +108,7 @@ class CustomModule_CompressModule extends AddModule_Base
 		}
 		// Recompress using task manager
 		$this->taskId = 'tgzmod' . mt_rand() . '-' . microtime(true);
-		$destFile = CONFIG_TGZ_LIST_DIR . '/modules/mod-' . Util::sanitizeFilename($title) . '-' . microtime(true) . '.tgz';
+		$destFile = tempnam(sys_get_temp_dir(), 'bwlp-') . '.tgz';
 		Taskmanager::submit('RecompressArchive', array(
 			'id' => $this->taskId,
 			'inputFiles' => array($tempfile),
@@ -122,13 +122,20 @@ class CustomModule_CompressModule extends AddModule_Base
 		if ($status['statusCode'] != TASK_FINISHED) {
 			$this->taskError($status);
 		}
-		// Seems ok, create entry in DB
-		$ret = Database::exec("INSERT INTO configtgz_module (title, moduletype, filepath, contents) VALUES (:title, 'custom', :file, '')",
-			array('title' => $title, 'file' => $destFile));
-		if ($ret === false) {
-			unlink($destFile);
-			Util::traceError("Could not insert module into Database");
+		// Seems ok, create entry
+		$module = ConfigModule::getInstance('CustomModule');
+		if ($module === false) {
+			Message::addError('error-read', 'custommodule.inc.php');
+			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		}
+		$module->setData('tmpFile', $destFile);
+		if (!$module->insert($title))
+			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
+		elseif (!$module->generate(true))
+			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
+		Session::set('mod_temp', false);
+		Session::save();
+		// Yay
 		Message::addSuccess('module-added');
 		Util::redirect('?do=SysConfig');
 	}
