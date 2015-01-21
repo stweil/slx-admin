@@ -206,7 +206,7 @@ function update_8()
 	if (!tableHasColumn('configtgz_module', 'version'))
 		Database::exec("ALTER TABLE `configtgz_module` ADD `version` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0'");
 	if (!tableHasColumn('configtgz_module', 'status'))
-		Database::exec("ADD `status` ENUM( 'OK', 'MISSING', 'OUTDATED' ) NOT NULL DEFAULT 'MISSING'");
+		Database::exec("ALTER TABLE `configtgz_module` ADD `status` ENUM( 'OK', 'MISSING', 'OUTDATED' ) NOT NULL DEFAULT 'MISSING'");
 	if (!tableHasColumn('callback', 'args'))
 		Database::exec("ALTER TABLE `callback` ADD `args` TEXT NOT NULL DEFAULT ''");
 	return true;

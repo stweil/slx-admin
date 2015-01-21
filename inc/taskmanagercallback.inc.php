@@ -25,15 +25,19 @@ class TaskmanagerCallback
 			EventLog::warning("addCallback: Not a valid task id: $task");
 			return;
 		}
-		if (is_null($args))
-			$args = '';
-		else
-			$args = serialize($args);
-		Database::exec("INSERT INTO callback (taskid, dateline, cbfunction, args) VALUES (:task, UNIX_TIMESTAMP(), :callback, :args)", array(
+		$data = array(
 			'task' => $task,
 			'callback' => $callback,
-			'args' => $args
-		));
+		);
+		if (Property::getCurrentSchemaVersion() >= 9) {
+			if (is_null($args))
+				$data['args'] = '';
+			else
+				$data['args'] = serialize($args);
+			Database::exec("INSERT INTO callback (taskid, dateline, cbfunction, args) VALUES (:task, UNIX_TIMESTAMP(), :callback, :args)", $data);
+		} else {
+			Database::exec("INSERT INTO callback (taskid, dateline, cbfunction) VALUES (:task, UNIX_TIMESTAMP(), :callback)", $data);
+		}
 		Property::setNeedsCallback(1);
 	}
 
@@ -44,6 +48,8 @@ class TaskmanagerCallback
 	 */
 	public static function getPendingCallbacks()
 	{
+		if (Property::getCurrentSchemaVersion() < 9)
+			return array();
 		$retval = array();
 		$res = Database::simpleQuery("SELECT taskid, cbfunction, args FROM callback");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
