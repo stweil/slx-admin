@@ -39,6 +39,16 @@ while ($currentVersion < $targetVersion) {
 	}
 }
 
+// TEMPORARY HACK; Rebuild AD configs.. move somewhere else
+$list = ConfigModule::getAll('AdAuth');
+if ($list === false) {
+	Message::addError('ad-config-failed');
+} else {
+	foreach ($list as $ad) {
+		$ad->generate(false);
+	}
+}
+
 Message::addSuccess('db-update-done');
 if (tableExists('eventlog'))
 	EventLog::info("Database updated to version $currentVersion");
@@ -209,5 +219,7 @@ function update_8()
 		Database::exec("ALTER TABLE `configtgz_module` ADD `status` ENUM( 'OK', 'MISSING', 'OUTDATED' ) NOT NULL DEFAULT 'MISSING'");
 	if (!tableHasColumn('callback', 'args'))
 		Database::exec("ALTER TABLE `callback` ADD `args` TEXT NOT NULL DEFAULT ''");
+	if (!tableHasColumn('configtgz', 'status'))
+		Database::exec("ALTER TABLE `configtgz` ADD `status` ENUM( 'OK', 'OUTDATED', 'MISSING' ) NOT NULL DEFAULT 'MISSING'");
 	return true;
 }

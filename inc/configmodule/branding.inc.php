@@ -19,9 +19,7 @@ class ConfigModule_Branding extends ConfigModule
 	protected function generateInternal($tgz, $parent)
 	{
 		if (!$this->validateConfig()) {
-			if ($this->archive() !== false && file_exists($this->archive()))
-				return true; // No new temp file given, old archive still exists, pretend it worked...
-			return false;
+			return $this->archive() !== false && file_exists($this->archive()); // No new temp file given, old archive still exists, pretend it worked...
 		}
 		$task = Taskmanager::submit('MoveFile', array(
 			'source' => $this->tmpFile,
@@ -44,7 +42,7 @@ class ConfigModule_Branding extends ConfigModule
 
 	public function setData($key, $value)
 	{
-		if ($key !== 'tmpFile' || !file_exists($value))
+		if ($key !== 'tmpFile' || !is_string($value) || !file_exists($value))
 			return false;
 		$this->tmpFile = $value;
 	}

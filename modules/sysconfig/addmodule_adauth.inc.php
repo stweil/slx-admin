@@ -11,7 +11,7 @@ class AdAuth_Start extends AddModule_Base
 	{
 		Session::set('ad_check', false);
 		Session::save();
-		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-start', array(
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-start', array(
 			'step' => 'AdAuth_CheckConnection',
 			'title' => Request::post('title'),
 			'server' => Request::post('server'),
@@ -79,7 +79,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-checkconnection', array_merge($this->taskIds, array(
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-checkconnection', array_merge($this->taskIds, array(
 			'title' => Request::post('title'),
 			'server' => Request::post('server'),
 			'searchbase' => Request::post('searchbase'),
@@ -148,7 +148,7 @@ class AdAuth_Finish extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('lang_adAuthentication'), false, 'sysconfig/ad-finish', $this->taskIds);
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-finish', $this->taskIds);
 	}
 
 }

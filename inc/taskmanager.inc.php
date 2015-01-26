@@ -216,7 +216,6 @@ class Taskmanager
 			if (++$tries > 10)
 				return false;
 		}
-		//error_log(socket_strerror(socket_last_error(self::$sock)));
 		return false;
 	}
 

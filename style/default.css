@@ -135,6 +135,17 @@ body {
 	max-width: 240px;
 }
 
+.slx-dyn-ellipsis {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	display: block;
+}
+
+.slx-nowrap {
+	white-space: nowrap;
+}
+
 .slx-rotation {
   animation-name: rotateThis;
   animation-duration: .75s;
@@ -154,10 +165,6 @@ body {
 .slx-footer {
   color: #999;
   padding: 5px;
-}
-
-.slx-bold {
-  font-weight: bold;
 }
 
 .slx-fade {

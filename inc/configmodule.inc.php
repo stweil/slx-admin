@@ -115,6 +115,33 @@ abstract class ConfigModule
 	}
 
 	/**
+	 * Get module instances from module type.
+	 *
+	 * @param int $moduleType module type to get
+	 * @return array The requested modules from DB, or false on error
+	 */
+	public static function getAll($moduleType)
+	{
+		$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version FROM configtgz_module "
+				. " WHERE moduletype = :moduletype", array('moduletype' => $moduleType));
+		if ($ret === false)
+			return false;
+		$list = array();
+		while ($row = $ret->fetch(PDO::FETCH_ASSOC)) {
+			$instance = self::getInstance($row['moduletype']);
+			if ($instance === false)
+				return false;
+			$instance->currentVersion = $row['version'];
+			$instance->moduleArchive = $row['filepath'];
+			$instance->moduleData = json_decode($row['contents'], true);
+			$instance->moduleId = $row['moduleid'];
+			$instance->moduleTitle = $row['title'];
+			$list[] = $instance;
+		}
+		return $list;
+	}
+
+	/**
 	 * Get the module version.
 	 * 
 	 * @return int module version
@@ -161,6 +188,16 @@ abstract class ConfigModule
 	public final function id()
 	{
 		return $this->moduleId;
+	}
+	
+	/**
+	 * Get module title.
+	 *
+	 * @return string
+	 */
+	public final function title()
+	{
+		return $this->moduleTitle;
 	}
 	
 	/**
@@ -243,8 +280,12 @@ abstract class ConfigModule
 		// Wait for generation if requested
 		if ($timeoutMs > 0 && isset($ret['id']) && !Taskmanager::isFinished($ret))
 			$ret = Taskmanager::waitComplete($ret, $timeoutMs);
-		if ($ret === true || (isset($ret['statusCode']) && $ret['statusCode'] === TASK_FINISHED))
-			return $this->markUpdated($tmpTgz); // Finished
+		if ($ret === true || (isset($ret['statusCode']) && $ret['statusCode'] === TASK_FINISHED)) {
+			// Already Finished
+			if (file_exists($this->moduleArchive) && !file_exists($tmpTgz))
+				$tmpTgz = false;
+			return $this->markUpdated($tmpTgz);
+		}
 		if (!is_array($ret) || !isset($ret['id']) || Taskmanager::isFailed($ret)) {
 			if (is_array($ret)) // Failed
 				Taskmanager::addErrorMessage($ret);
@@ -271,8 +312,8 @@ abstract class ConfigModule
 		if ($this->moduleId === 0)
 			Util::traceError('ConfigModule::delete called with invalid module id!');
 		$ret = Database::exec("DELETE FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array(
-				'moduleid' => $id
-			)) !== false;
+				'moduleid' => $this->moduleId
+			), true) !== false;
 		if ($ret !== false) {
 			if ($this->moduleArchive)
 				Taskmanager::submit('DeleteFile', array('file' => $this->moduleArchive), true);
@@ -281,6 +322,7 @@ abstract class ConfigModule
 			$this->moduleTitle = false;
 			$this->moduleArchive = false;
 		}
+		return $ret;
 	}
 
 	private final function markUpdated($tmpTgz)
@@ -312,11 +354,17 @@ abstract class ConfigModule
 			}
 		}
 		// Update DB entry
-		return Database::exec("UPDATE configtgz_module SET filepath = :filename, version = :version, status = 'OK' WHERE moduleid = :id LIMIT 1", array(
+		$retval = Database::exec("UPDATE configtgz_module SET filepath = :filename, version = :version, status = 'OK' WHERE moduleid = :id LIMIT 1", array(
 				'id' => $this->moduleId,
 				'filename' => $this->moduleArchive,
 				'version' => $this->moduleVersion()
 			)) !== false;
+		// Update related config.tgzs
+		$configs = ConfigTgz::getAllForModule($this->moduleId);
+		foreach ($configs as $config) {
+			$config->generate();
+		}
+		return $retval;
 	}
 
 	private final function markFailed()
@@ -356,11 +404,18 @@ abstract class ConfigModule
 	 */
 	public static function serverIpChanged()
 	{
-		self::loadDb();
+		self::loadDb(); // Quick hack: Hard code AdAuth, should be a property of the config module class....
+		$list = self::getAll('AdAuth');
+		error_log('Changed: Telling ' - count($list) . ' modules');
+		foreach ($list as $mod) {
+			$mod->event_serverIpChanged();
+		}
+		/* // TODO: Make this work
 		foreach (self::$moduleTypes as $module) {
 			$instance = new $module['moduleClass'];
 			$instance->event_serverIpChanged();
 		}
+		 */
 	}
 
 	/**

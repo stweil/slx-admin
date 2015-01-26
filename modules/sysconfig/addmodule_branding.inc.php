@@ -9,7 +9,7 @@ class Branding_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('lang_specificLogo'), false, 'sysconfig/branding-start', array(
+		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'sysconfig/branding-start', array(
 			'step' => 'Branding_ProcessFile',
 		));
 	}
@@ -74,7 +74,7 @@ class Branding_ProcessFile extends AddModule_Base
 			$png = base64_encode(file_get_contents($this->task['data']['pngFile']));
 		if (filesize($this->svgFile) < 1000000)
 			$svg = base64_encode(file_get_contents($this->svgFile));
-		Render::addDialog(Dictionary::translate('lang_specificLogo'), false, 'sysconfig/branding-check', array(
+		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'sysconfig/branding-check', array(
 			'png' => $png,
 			'svg' => $svg,
 			'error' => $this->task['data']['error'],
@@ -114,7 +114,7 @@ class Branding_ProcessFile extends AddModule_Base
 			// [wikipedia] Try to be nice and detect links that might give a hint where the svg can be found
 			if (preg_match_all('#href="([^"]*upload.wikimedia.org/[^"]*/[^"]*/[^"]*\.svg|[^"]+/[^"]+:[^"]+\.svg[^"]*)"#', $content, $out, PREG_PATTERN_ORDER)) {
 				if ($title === false && preg_match('#<title>([^<]*)</title>#i', $content, $tout))
-					$title = trim($tout[1]);
+					$title = trim(preg_replace('/\W*Wikipedia.*/', '', $tout[1]));
 				foreach ($out[1] as $res) {
 					if (strpos($res, 'action=edit') !== false)
 						continue;

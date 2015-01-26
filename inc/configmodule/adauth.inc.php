@@ -54,6 +54,7 @@ class ConfigModule_AdAuth extends ConfigModule
 	 */
 	public function event_serverIpChanged()
 	{
+		error_log('Calling generate on ' . $this->title());
 		$this->generate(false);
 	}
 

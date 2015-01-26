@@ -1,8 +1,6 @@
 {
-    "lang_adAuthentication": "Active Directory Authentifizierung",
-    "lang_addCustomModule": "Generisches Modul hinzuf\u00fcgen",
     "lang_configurationCompilation": "Konfiguration zusammenstellen",
-    "lang_contentOf": "Inhalt von \u0022",
+    "lang_contentOf": "Inhalt von",
     "lang_createUser": "Benutzer anlegen",
     "lang_days": "Tag(e)",
     "lang_hours": "Stunde(n)",
@@ -10,7 +8,6 @@
     "lang_login": "Anmelden",
     "lang_moduleAdd": "Modul hinzuf\u00fcgen",
     "lang_serverConfiguration": "Serverseitige Konfiguration",
-    "lang_specificLogo": "Einrichtungsspezifisches Logo",
     "lang_titleBackup": "Sichern und Wiederherstellen",
     "lang_titleEventLog": "Ereignisprotokoll",
     "lang_titleWebinterface": "Webschnittstelle",

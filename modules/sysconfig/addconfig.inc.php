@@ -138,65 +138,31 @@ class AddConfig_Start extends AddConfig_Base
  */
 class AddConfig_Finish extends AddConfig_Base
 {
-	private $task = false;
-	private $destFile = false;
-	private $title = false;
-	private $moduleids = array();
+	private $config = false;
 	
 	protected function preprocessInternal()
 	{
 		$modules = Request::post('module');
-		$this->title = Request::post('title');
+		$title = Request::post('title');
 		if (!is_array($modules)) {
 			Message::addError('missing-file');
 			Util::redirect('?do=SysConfig&action=addconfig');
 		}
-		if (empty($this->title)) {
-			Message::addError('empty-field');
+		if (empty($title)) {
+			Message::addError('missing-title');
 			Util::redirect('?do=SysConfig&action=addconfig');
 		}
-		// Get all input modules
-		$moduleids = '0'; // Passed directly in query. Make sure no SQL injection is possible
-		foreach ($modules as $module) {
-			$moduleids .= ',' . (int)$module; // Casting to int should make it safe
+		$this->config = ConfigTgz::insert($title, $modules);
+		if ($this->config === false || $this->config->generate() !== 'OK') {
+			Message::addError('unsuccessful-action');
+			Util::redirect('?do=SysConfig&action=addconfig');
 		}
-		$res = Database::simpleQuery("SELECT moduleid, filepath FROM configtgz_module WHERE moduleid IN ($moduleids)");
-		$files = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$files[] = $row['filepath'];
-			$this->moduleids[] = $row['moduleid'];
-		}
-		// Create output file name (config.tgz)
-		do {
-			$this->destFile = CONFIG_TGZ_LIST_DIR . '/config-' . Util::sanitizeFilename($this->title) . '-' . mt_rand() . '.tgz';
-		} while (file_exists($this->destFile));
-		// Hand over to tm
-		$this->task = Taskmanager::submit('RecompressArchive', array(
-			'inputFiles' => $files,
-			'outputFile' => $this->destFile
-		));
 	}
 
 	protected function renderInternal()
 	{
-		if (isset($this->task['statusCode']) && ($this->task['statusCode'] === TASK_WAITING || $this->task['statusCode'] === TASK_PROCESSING)) {
-			$this->task = Taskmanager::waitComplete($this->task['id']);
-		}
-		if ($this->task === false) $this->tmError();
-		if (!isset($this->task['statusCode']) || $this->task['statusCode'] !== TASK_FINISHED) $this->taskError($this->task);
-		Database::exec("INSERT INTO configtgz (title, filepath) VALUES (:title, :filepath)", array(
-			'title' => $this->title,
-			'filepath' => $this->destFile
-		));
-		$confid = Database::lastInsertId();
-		foreach ($this->moduleids as $moduleid) {
-			Database::exec("INSERT INTO configtgz_x_module (configid, moduleid) VALUES (:configid, :moduleid)", array(
-				'configid' => $confid,
-				'moduleid' => $moduleid
-			));
-		}
 		Render::addDialog(Dictionary::translate('lang_configurationCompilation'), false, 'sysconfig/cfg-finish', array(
-			'configid' => $confid
+			'configid' => $this->config->id()
 		));
 	}
 	

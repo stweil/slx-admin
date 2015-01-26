@@ -73,9 +73,10 @@ class Event
 	 */
 	public static function serverIpChanged()
 	{
-		global $tidAdModules, $tidIpxe;
-		$tidAdModules = Trigger::rebuildAdModules();
+		error_log('Server ip changed');
+		global $tidIpxe;
 		$tidIpxe = Trigger::ipxe();
+		ConfigModule::serverIpChanged();
 	}
 
 	/**

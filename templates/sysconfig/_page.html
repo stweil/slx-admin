@@ -9,10 +9,10 @@
 				<form method="post" action="?do=SysConfig">
 					<input type="hidden" name="token" value="{{token}}">
 					<input type="hidden" name="action" value="config">
-					<table class="slx-table">
+					<table id="conftable" class="slx-table" style="max-width:100px !important">
 						{{#configs}}
 						<tr class="slx-pointer" data-modlist="{{modlist}}" onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')">
-							<td>{{config}}</td>
+							<td class="modrow slx-width-ignore slx-nowrap"><div class="slx-dyn-ellipsis">{{config}}</div></td>
 							<td>
 								{{^current}}
 								<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
@@ -27,8 +27,18 @@
 								</span>
 								{{/current}}
 							</td>
+							<td class="slx-nowrap">
+								<button
+									{{#needrebuild}}
+									class="btn btn-primary btn-xs"
+									{{/needrebuild}}
+									{{^needrebuild}}
+									class="btn btn-default btn-xs"
+									{{/needrebuild}}
+									name="rebuild" value="{{configid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
+							</td>
 							<td>
-								<button class="btn btn-danger btn-xs" name="del" value="{{configid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+								<button class="btn btn-danger btn-xs" name="del" value="{{configid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
 							</td>
 						</tr>
 						{{/configs}}
@@ -61,16 +71,28 @@
 				<form method="post" action="?do=SysConfig">
 					<input type="hidden" name="token" value="{{token}}">
 					<input type="hidden" name="action" value="module">
-					<table class="slx-table">
+					<table id="modtable" class="slx-table" style="max-width:100px !important">
 						{{#modules}}
 						<tr>
-							<td data-id="{{moduleid}}" class="modrow">{{module}}</td>
-							<td>
-								<button class="btn btn-default btn-xs" name="list" value="{{moduleid}}"><span class="glyphicon glyphicon-eye-open"></span> {{lang_show}}</button>
+							<td class="badge slx-nowrap">{{moduletype}}</td>
+							<td data-id="{{moduleid}}" class="modrow slx-width-ignore slx-nowrap"><div class="slx-dyn-ellipsis">{{module}}</div></td>
+							<td class="slx-nowrap">
+								{{#iscustom}}
+								<button class="btn btn-default btn-xs" name="list" value="{{moduleid}}" title="{{lang_show}}"><span class="glyphicon glyphicon-eye-open"></span></button>
 								<!-- a class="btn btn-default btn-xs"><span class="glyphicon glyphicon-edit"></span> Bearbeiten</a -->
+								<button class="btn btn-default btn-xs" name="download" value="{{moduleid}}" title="{{lang_download}}"><span class="glyphicon glyphicon-download-alt"></span></button>
+								{{/iscustom}}
 							</td>
-							<td>
-								<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+							<td class="slx-nowrap">
+								<button
+									{{#needrebuild}}
+									class="btn btn-primary btn-xs"
+									{{/needrebuild}}
+									{{^needrebuild}}
+									class="btn btn-default btn-xs"
+									{{/needrebuild}}
+									name="rebuild" value="{{moduleid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
+								<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
 							</td>
 						</tr>
 						{{/modules}}

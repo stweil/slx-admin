@@ -25,6 +25,12 @@ class Page_SysConfig extends Page
 			if (Request::post('del', 'no') !== 'no') {
 				$this->delModule();
 			}
+			if (Request::post('download', 'no') !== 'no') {
+				$this->downloadModule();
+			}
+			if (Request::post('rebuild', 'no') !== 'no') {
+				$this->rebuildModule();
+			}
 		}
 
 		// Action: "addconfig" (compose config from one or more modules)
@@ -41,6 +47,10 @@ class Page_SysConfig extends Page
 			// Action "activate" (set sysconfig as active)
 			if (Request::post('activate', 'no') !== 'no') {
 				$this->activateConfig();
+			}
+			// Action "rebuild" (rebuild config.tgz from its modules)
+			if (Request::post('rebuild', 'no') !== 'no') {
+				$this->rebuildConfig();
 			}
 		}
 	}
@@ -88,7 +98,7 @@ class Page_SysConfig extends Page
 	private function listConfigs()
 	{
 		// Configs
-		$res = Database::simpleQuery("SELECT configtgz.configid, configtgz.title, configtgz.filepath, GROUP_CONCAT(configtgz_x_module.moduleid) AS modlist"
+		$res = Database::simpleQuery("SELECT configtgz.configid, configtgz.title, configtgz.filepath, configtgz.status, GROUP_CONCAT(configtgz_x_module.moduleid) AS modlist"
 			. " FROM configtgz"
 			. " INNER JOIN configtgz_x_module USING (configid)"
 			. " GROUP BY configid"
@@ -99,22 +109,31 @@ class Page_SysConfig extends Page
 				'configid' => $row['configid'],
 				'config' => $row['title'],
 				'modlist' => $row['modlist'],
-				'current' => readlink(CONFIG_HTTP_DIR . '/default/config.tgz') === $row['filepath']
+				'current' => readlink(CONFIG_HTTP_DIR . '/default/config.tgz') === $row['filepath'],
+				'needrebuild' => ($row['status'] !== 'OK')
 			);
 		}
 		// Config modules
-		$res = Database::simpleQuery("SELECT moduleid, title FROM configtgz_module ORDER BY title ASC");
+		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, status FROM configtgz_module ORDER BY title ASC");
 		$modules = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$modules[] = array(
 				'moduleid' => $row['moduleid'],
-				'module' => $row['title']
+				'moduletype' => $row['moduletype'],
+				'module' => $row['title'],
+				'iscustom' => ($row['moduletype'] === 'CustomModule' || $row['moduletype'] === 'Branding'),
+				'needrebuild' => ($row['status'] !== 'OK')
 			);
 		}
 		Render::addTemplate('sysconfig/_page', array(
 			'configs' => $configs,
 			'modules' => $modules
 		));
+		Render::addScriptTop('custom');
+		Render::addFooter('<script> $(window).load(function (e) {
+			forceTable($("#modtable"));
+			forceTable($("#conftable"));
+			}); // </script>');
 	}
 
 	private function listModuleContents($moduleid)
@@ -216,6 +235,25 @@ class Page_SysConfig extends Page
 		Util::redirect('?do=SysConfig');
 	}
 
+	private function rebuildConfig()
+	{
+		$configid = Request::post('rebuild', 'MISSING');
+		$config = ConfigTgz::get($configid);
+		if ($config === false) {
+			Message::addError('config-invalid', $configid);
+			Util::redirect('?do=SysConfig');
+		}
+		//$ret = $config->generate(false, 350); // TODO
+		$ret = $config->generate(false, 350) === 'OK'; // TODO
+		if ($ret === true)
+			Message::addSuccess('module-rebuilt', $config->title());
+		elseif ($ret === false)
+			Message::addError('module-rebuild-failed', $config->title());
+		else
+			Message::addInfo('module-rebuilding', $config->title());
+		Util::redirect('?do=SysConfig');
+	}
+
 	private function delModule()
 	{
 		$moduleid = Request::post('del', 'MISSING');
@@ -246,15 +284,46 @@ class Page_SysConfig extends Page
 		Util::redirect('?do=SysConfig');
 	}
 
+	private function downloadModule()
+	{
+		$moduleid = Request::post('download', 'MISSING');
+		$row = Database::queryFirst("SELECT title, filepath FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
+		if ($row === false) {
+			Message::addError('config-invalid', $moduleid);
+			Util::redirect('?do=SysConfig');
+		}
+		if (!Util::sendFile($row['filepath'], $row['title'] . '.tgz'))
+			Util::redirect('?do=SysConfig');
+		exit(0);
+	}
+
+	private function rebuildModule()
+	{
+		$moduleid = Request::post('rebuild', 'MISSING');
+		$module = ConfigModule::get($moduleid);
+		if ($module === false) {
+			Message::addError('config-invalid', $moduleid);
+			Util::redirect('?do=SysConfig');
+		}
+		$ret = $module->generate(false, 250);
+		if ($ret === true)
+			Message::addSuccess('module-rebuilt', $module->title());
+		elseif ($ret === false)
+			Message::addError('module-rebuild-failed', $module->title());
+		else
+			Message::addInfo('module-rebuilding', $module->title());
+		Util::redirect('?do=SysConfig');
+	}
+
 	private function delConfig()
 	{
 		$configid = Request::post('del', 'MISSING');
-		$module = ConfigModule::get($configid);
-		if ($module === false) {
+		$config = ConfigTgz::get($configid);
+		if ($config === false) {
 			Message::addError('config-invalid', $configid);
 			Util::redirect('?do=SysConfig');
 		}
-		$module->delete();
+		$config->delete();
 		Util::redirect('?do=SysConfig');
 	}
 

@@ -232,5 +232,45 @@ SADFACE;
 		}
 		return true;
 	}
+	
+	/**
+	 * Send a file to user for download.
+	 *
+	 * @param type $file path of local file
+	 * @param type $name name of file to send to user agent
+	 * @param type $delete delete the file when done?
+	 * @return boolean false: file could not be opened.
+	 *		true: error while reading the file
+	 *		- on success, the function does not return
+	 */
+	public static function sendFile($file, $name, $delete = false)
+	{
+		while ((@ob_get_level()) > 0)
+			@ob_end_clean();
+		$fh = @fopen($file, 'rb');
+		if ($fh === false) {
+			Message::addError('error-read', $file);
+			return false;
+		}
+		Header('Content-Type: application/octet-stream', true);
+		Header('Content-Disposition: attachment; filename=' . str_replace(array(' ', '=', ',', '/', '\\', ':', '?'), '_', iconv('UTF-8', 'ASCII//TRANSLIT', $name)));
+		Header('Content-Length: ' . @filesize($file));
+		while (!feof($fh)) {
+			$data = fread($fh, 16000);
+			if ($data === false) {
+				echo "\r\n\nDOWNLOAD INTERRUPTED!\n";
+				if ($delete)
+					@unlink($file);
+				return true;
+			}
+			echo $data;
+			@ob_flush();
+			@flush();
+		}
+		@fclose($fh);
+		if ($delete)
+			@unlink($file);
+		exit(0);
+	}
 
 }

@@ -12,7 +12,7 @@ class CustomModule_Start extends AddModule_Base
 	protected function renderInternal()
 	{
 		Session::set('mod_temp', false);
-		Render::addDialog(Dictionary::translate('lang_addCustomModule'), false, 'sysconfig/custom-upload', array(
+		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'sysconfig/custom-upload', array(
 			'step' => 'CustomModule_ProcessUpload'
 			));
 	}
@@ -84,7 +84,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 				$list[] = $file;
 			}
 		}
-		Render::addDialog(Dictionary::translate('lang_addCustomModule'), false, 'sysconfig/custom-fileselect', array(
+		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'sysconfig/custom-fileselect', array(
 			'step' => 'CustomModule_CompressModule',
 			'files' => $list,
 		));
