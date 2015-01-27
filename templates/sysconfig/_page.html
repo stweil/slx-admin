@@ -12,7 +12,7 @@
 					<table id="conftable" class="slx-table" style="max-width:100px !important">
 						{{#configs}}
 						<tr class="slx-pointer" data-modlist="{{modlist}}" onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')">
-							<td class="modrow slx-width-ignore slx-nowrap"><div class="slx-dyn-ellipsis">{{config}}</div></td>
+							<td class="slx-width-ignore slx-nowrap"><div class="slx-dyn-ellipsis">{{config}}</div></td>
 							<td>
 								{{^current}}
 								<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
@@ -92,6 +92,7 @@
 									class="btn btn-default btn-xs"
 									{{/needrebuild}}
 									name="rebuild" value="{{moduleid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
+								<button class="btn btn-success btn-xs" name="edit" value="{{moduleid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></button>
 								<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
 							</td>
 						</tr>
@@ -105,6 +106,28 @@
 			<div class="panel-footer">
 				<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">{{lang_newModule}}</a>
 			</div>
+		</div>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">{{lang_legend}}</div>
+	<div class="panel-body">
+		<p>
+			<span class="btn btn-default btn-xs" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></span>
+			{{lang_rebuildLong}}
+		</p>
+		<p>
+			<span class="btn btn-primary btn-xs" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></span>
+			{{lang_rebuildOutdatedLong}}
+		</p>
+		<p>
+			<span class="btn btn-success btn-xs" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></span>
+			{{lang_editLong}}
+		</p>
+		<div>
+			<span class="btn btn-danger btn-xs" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></span>
+			{{lang_deleteLong}}
 		</div>
 	</div>
 </div>

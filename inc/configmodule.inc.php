@@ -34,7 +34,7 @@ abstract class ConfigModule
 	}
 
 	/**
-	 * Get all known config modules.
+	 * Get all known config module types.
 	 *
 	 * @return array list of modules
 	 */
