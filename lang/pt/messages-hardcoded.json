@@ -1,5 +1,4 @@
 {
-    "lang_adAuthentication": "Autentica\u00e7\u00e3o do Active Directory",
     "lang_configurationCompilation": "Compilar configura\u00e7\u00e3o",
     "lang_contentOf": "Conte\u00fado de \u0022",
     "lang_createUser": "Criar Usu\u00e1rio",
@@ -9,6 +8,5 @@
     "lang_login": "Entrar",
     "lang_moduleAdd": "Adicionar M\u00f3dulo",
     "lang_serverConfiguration": "Configura\u00e7\u00e3o do servidor",
-    "lang_specificLogo": "Logotipo Espec\u00edfico da Institui\u00e7\u00e3o",
     "lang_unknwonTaskManager": "Erro desconhecido do Gerenciador de Tarefas"
 }

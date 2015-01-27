@@ -1,6 +1,4 @@
 {
-    "lang_adAuthentication": "Active Directory Authentication",
-    "lang_addCustomModule": "Add generic module",
     "lang_configurationCompilation": "Compile configuration",
     "lang_contentOf": "Content of \u0022",
     "lang_createUser": "Create User",
@@ -10,7 +8,6 @@
     "lang_login": "Login",
     "lang_moduleAdd": "Add Module",
     "lang_serverConfiguration": "Server-side Configuration",
-    "lang_specificLogo": "Institution Specific Logo",
     "lang_titleBackup": "Save and Restore",
     "lang_titleEventLog": "Event log",
     "lang_titleWebinterface": "Web Interface",
