@@ -12,6 +12,12 @@ abstract class AddModule_Base
 	 * @var \AddModule_Base
 	 */
 	private static $instance = false;
+	
+	/**
+	 * Instance of ConfigModule we're editing. False if not editing but creating.
+	 * @var \ConfigModule
+	 */
+	protected $edit = false;
 
 	/**
 	 * 
@@ -25,6 +31,14 @@ abstract class AddModule_Base
 			Util::redirect('?do=SysConfig');
 		}
 		self::$instance = new $step();
+		if (Request::any('edit')) {
+			self::$instance->edit = ConfigModule::get(Request::any('edit'));
+			if (self::$instance->edit === false)
+				Util::traceError('Invalid module id for editing');
+			if (!preg_match('/^' . self::$instance->edit->moduleType() . '_/', $step))
+				Util::traceError('Module to edit is of different type!');
+			Util::addRedirectParam('edit', self::$instance->edit->id());
+		}
 	}
 
 	protected function tmError()
@@ -40,7 +54,7 @@ abstract class AddModule_Base
 		} elseif (isset($status['statusCode'])) {
 			$error = $status['statusCode'];
 		} else {
-			$error = Dictionary::translate('lang_unknwonTaskManager'); // TODO: No text
+			$error = Dictionary::translate('lang_unknwonTaskManager');
 		}
 		Message::addError('task-error', $error);
 		Util::redirect('?do=SysConfig');

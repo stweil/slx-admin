@@ -2,6 +2,7 @@
 
 class Util
 {
+	private static $redirectParams = array();
 
 	/**
 	 * Displays an error message and stops script execution.
@@ -69,8 +70,20 @@ SADFACE;
 				$location .= '&' . $messages;
 			}
 		}
+		if (!empty(self::$redirectParams)) {
+			if (strpos($location, '?') === false) {
+				$location .= '?' . implode('&', self::$redirectParams);
+			} else {
+				$location .= '&' . implode('&', self::$redirectParams);
+			}
+		}
 		Header('Location: ' . $location);
 		exit(0);
+	}
+	
+	public static function addRedirectParam($key, $value)
+	{
+		self::$redirectParams[] = $key .= '=' . urlencode($value);
 	}
 
 	/**

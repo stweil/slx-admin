@@ -11,6 +11,7 @@ class Branding_Start extends AddModule_Base
 	{
 		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'sysconfig/branding-start', array(
 			'step' => 'Branding_ProcessFile',
+			'edit' => $this->edit ? $this->edit->id() : false
 		));
 	}
 
@@ -79,6 +80,8 @@ class Branding_ProcessFile extends AddModule_Base
 			'svg' => $svg,
 			'error' => $this->task['data']['error'],
 			'step' => 'Branding_Finish',
+			'edit' => $this->edit ? $this->edit->id() : false,
+			'title' => $this->edit ? $this->edit->title() : false
 			)
 		);
 		@unlink($this->svgFile);
@@ -145,12 +148,12 @@ class Branding_ProcessFile extends AddModule_Base
 		if (!empty($p["scheme"]))
 			return $relative;
 
-		extract(parse_url($absolute));
-		$path = dirname($path);
+		$parsed = parse_url($absolute);
+		$path = dirname($parsed['path']);
 
 		if ($relative{0} === '/') {
 			if ($relative{1} === '/')
-				return "$scheme:$relative";
+				return "{$parsed['scheme']}:$relative";
 			$cparts = array_filter(explode("/", $relative));
 		} else {
 			$aparts = array_filter(explode("/", $path));
@@ -169,17 +172,16 @@ class Branding_ProcessFile extends AddModule_Base
 		}
 		$path = implode("/", $cparts);
 		$url = "";
-		if ($scheme)
-			$url = "$scheme://";
-		if (!empty($user)) {
-			$url .= "$user";
-			if (!empty($pass)) {
-				$url .= ":$pass";
-			}
+		if (!empty($parsed['scheme']))
+			$url = $parsed['scheme'] . "://";
+		if (!empty($parsed['user'])) {
+			$url .= $parsed['user'];
+			if (!empty($parsed['pass']))
+				$url .= ":" . $parsed['pass'];
 			$url .= "@";
 		}
-		if ($host)
-			$url .= "$host/";
+		if ($parsed['host'])
+			$url .= $parsed['host'] . "/";
 		$url .= $path;
 		return $url;
 	}
@@ -203,21 +205,31 @@ class Branding_Finish extends AddModule_Base
 			Message::addError('error-read', $tgz);
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		}
-		$module = ConfigModule::getInstance('Branding');
+		if ($this->edit === false)
+			$module = ConfigModule::getInstance('Branding');
+		else
+			$module = $this->edit;
 		if ($module === false) {
 			Message::addError('error-read', 'branding.inc.php');
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		}
 		$module->setData('tmpFile', $tgz);
-		if (!$module->insert($title))
+		if ($this->edit !== false)
+			$ret = $module->update();
+		else
+			$ret = $module->insert($title);
+		if (!$ret)
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
-		elseif (!$module->generate(true))
+		elseif ($module->generate(true, NULL, 200) === false)
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		Session::set('logo_tgz', false);
 		Session::set('logo_name', false);
 		Session::save();
 		// Yay
-		Message::addSuccess('module-added');
+		if ($this->edit !== false)
+			Message::addSuccess('module-edited');
+		else
+			Message::addSuccess('module-added');
 		Util::redirect('?do=SysConfig');
 	}
 

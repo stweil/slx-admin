@@ -16,9 +16,10 @@
 <div>
 	<form role="form" enctype="multipart/form-data" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="edit" value="{{edit}}">
 		<div class="form-group">
 			<label for="title-id">{{lang_title}}</label>
-			<input type="text" name="title" id ="title-id" class="form-control" placeholder="Name des Moduls">
+			<input type="text" name="title" value="{{title}}" id ="title-id" class="form-control" placeholder="Name des Moduls">
 		</div>
 		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
 	</form>

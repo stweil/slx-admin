@@ -130,5 +130,20 @@ class TaskmanagerCallback
 			ConfigModule::generateSucceeded($args);
 		}
 	}
+	
+	/**
+	 * Generating a config.tgz has finished.
+	 *
+	 * @param array $task task obj
+	 * @param array $args has keys 'configid' and optionally 'deleteOnError'
+	 */
+	public static function cbConfTgzCreated($task, $args)
+	{
+		if (Taskmanager::isFailed($task)) {
+			ConfigTgz::generateFailed($task, $args);
+		} else {
+			ConfigTgz::generateSucceeded($args);
+		}
+	}
 
 }

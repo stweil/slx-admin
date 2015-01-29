@@ -48,4 +48,10 @@ class ConfigModule_CustomModule extends ConfigModule
 			return false;
 		$this->tmpFile = $value;
 	}
+
+	public function getData($key)
+	{
+		return false;
+	}
+
 }

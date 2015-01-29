@@ -127,7 +127,8 @@ class Page_SysConfig extends Page
 		}
 		Render::addTemplate('sysconfig/_page', array(
 			'configs' => $configs,
-			'modules' => $modules
+			'modules' => $modules,
+			'havemodules' => (count($modules) > 0)
 		));
 		Render::addScriptTop('custom');
 		Render::addFooter('<script> $(window).load(function (e) {
@@ -243,8 +244,7 @@ class Page_SysConfig extends Page
 			Message::addError('config-invalid', $configid);
 			Util::redirect('?do=SysConfig');
 		}
-		//$ret = $config->generate(false, 350); // TODO
-		$ret = $config->generate(false, 350) === 'OK'; // TODO
+		$ret = $config->generate(false, 350); // TODO
 		if ($ret === true)
 			Message::addSuccess('module-rebuilt', $config->title());
 		elseif ($ret === false)

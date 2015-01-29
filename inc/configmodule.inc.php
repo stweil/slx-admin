@@ -163,6 +163,14 @@ abstract class ConfigModule
 	 * @return boolean true if data was successfully set, false otherwise (i.e. invalid data being set)
 	 */
 	public abstract function setData($key, $value);
+	
+	/**
+	 * Get module specific data
+	 * 
+	 * @param string $key key, name or id of data to get
+	 * @return mixed Module specific data
+	 */
+	public abstract function getData($key);
 
 	/**
 	 * Module specific version of generate.
@@ -260,6 +268,28 @@ abstract class ConfigModule
 		));
 		return true;
 	}
+	
+	/**
+	 * Update the given module in database. This will not regenerate
+	 * the module's tgz.
+	 *
+	 * @return boolean true on success, false otherwise
+	 */
+	public final function update()
+	{
+		if ($this->moduleId === 0)
+			Util::traceError('ConfigModule::update called when moduleId == 0');
+		if (!$this->validateConfig())
+			return false;
+		// Update
+		Database::exec("UPDATE configtgz_module SET contents = :contents, status = :status "
+			. " WHERE moduleid = :moduleid LIMIT 1", array(
+			'moduleid' => $this->moduleId,
+			'contents' => json_encode($this->moduleData),
+			'status' => 'OUTDATED'
+		));
+		return true;
+	}
 
 	/**
 	 * Generate the module's tgz, don't wait for completion.
@@ -283,7 +313,7 @@ abstract class ConfigModule
 		if ($ret === true || (isset($ret['statusCode']) && $ret['statusCode'] === TASK_FINISHED)) {
 			// Already Finished
 			if (file_exists($this->moduleArchive) && !file_exists($tmpTgz))
-				$tmpTgz = false;
+				$tmpTgz = false; // If generateInternal succeeded and there's no tmpTgz, it means the file didn't have to be updated
 			return $this->markUpdated($tmpTgz);
 		}
 		if (!is_array($ret) || !isset($ret['id']) || Taskmanager::isFailed($ret)) {
@@ -362,6 +392,7 @@ abstract class ConfigModule
 		// Update related config.tgzs
 		$configs = ConfigTgz::getAllForModule($this->moduleId);
 		foreach ($configs as $config) {
+			$config->markOutdated();
 			$config->generate();
 		}
 		return $retval;
@@ -406,7 +437,6 @@ abstract class ConfigModule
 	{
 		self::loadDb(); // Quick hack: Hard code AdAuth, should be a property of the config module class....
 		$list = self::getAll('AdAuth');
-		error_log('Changed: Telling ' - count($list) . ' modules');
 		foreach ($list as $mod) {
 			$mod->event_serverIpChanged();
 		}

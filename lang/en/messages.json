@@ -28,6 +28,7 @@
     "missing-title": "No title given",
     "module-added": "Module successfully added",
     "module-deleted": "Module {{0}} was deleted",
+    "module-edited": "Module has been edited",
     "module-in-use": "Module {{0}} is still used by Configuration {{1}}",
     "module-rebuild-failed": "Rebuilding module failed",
     "module-rebuilding": "Module is rebuilding...",

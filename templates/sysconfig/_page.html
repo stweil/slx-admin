@@ -55,9 +55,11 @@
 					{{/configs}}
 				</form>
 			</div>
+			{{#havemodules}}
 			<div class="panel-footer">			
 				<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">{{lang_newConfiguration}}</a>
 			</div>
+			{{/havemodules}}
 		</div>
 	</div>
 
@@ -92,7 +94,7 @@
 									class="btn btn-default btn-xs"
 									{{/needrebuild}}
 									name="rebuild" value="{{moduleid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
-								<button class="btn btn-success btn-xs" name="edit" value="{{moduleid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></button>
+								<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{moduletype}}_Start&amp;edit={{moduleid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
 								<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
 							</td>
 						</tr>

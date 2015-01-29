@@ -47,4 +47,9 @@ class ConfigModule_Branding extends ConfigModule
 		$this->tmpFile = $value;
 	}
 
+	public function getData($key)
+	{
+		return false;
+	}
+
 }

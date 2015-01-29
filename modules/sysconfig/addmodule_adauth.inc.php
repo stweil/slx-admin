@@ -9,17 +9,28 @@ class AdAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Session::set('ad_check', false);
-		Session::save();
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-start', array(
-			'step' => 'AdAuth_CheckConnection',
-			'title' => Request::post('title'),
-			'server' => Request::post('server'),
-			'searchbase' => Request::post('searchbase'),
-			'binddn' => Request::post('binddn'),
-			'bindpw' => Request::post('bindpw'),
-			'home' => Request::post('home')
-		));
+		if ($this->edit !== false) {
+			$data = array(
+				'title' => $this->edit->title(),
+				'server' => $this->edit->getData('server'),
+				'searchbase' => $this->edit->getData('searchbase'),
+				'binddn' => $this->edit->getData('binddn'),
+				'bindpw' => $this->edit->getData('bindpw'),
+				'home' => $this->edit->getData('home'),
+				'edit' => $this->edit->id()
+			);
+		} else {
+			$data = array(
+				'title' => Request::post('title'),
+				'server' => Request::post('server'),
+				'searchbase' => Request::post('searchbase'),
+				'binddn' => Request::post('binddn'),
+				'bindpw' => Request::post('bindpw'),
+				'home' => Request::post('home')
+			);
+		}
+		$data['step'] = 'AdAuth_CheckConnection';
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-start', $data);
 	}
 
 }
@@ -80,6 +91,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 	protected function renderInternal()
 	{
 		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-checkconnection', array_merge($this->taskIds, array(
+			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => Request::post('server'),
 			'searchbase' => Request::post('searchbase'),
@@ -125,17 +137,24 @@ class AdAuth_Finish extends AddModule_Base
 		$title = Request::post('title');
 		if (empty($title))
 			$title = 'AD: ' . Request::post('server');
-		$module = ConfigModule::getInstance('AdAuth');
+		if ($this->edit === false)
+			$module = ConfigModule::getInstance('AdAuth');
+		else
+			$module = $this->edit;
 		$module->setData('server', Request::post('server'));
 		$module->setData('searchbase', $searchbase);
 		$module->setData('binddn', $binddn);
 		$module->setData('bindpw', Request::post('bindpw'));
 		$module->setData('home', Request::post('home'));
-		if (!$module->insert($title)) {
+		if ($this->edit !== false)
+			$ret = $module->update();
+		else
+			$ret = $module->insert($title);
+		if (!$ret) {
 			Message::addError('value-invalid', 'any', 'any');
 			$tgz = false;
 		} else {
-			$tgz = $module->generate(true);
+			$tgz = $module->generate(true, NULL, 200);
 		}
 		if ($tgz === false) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()

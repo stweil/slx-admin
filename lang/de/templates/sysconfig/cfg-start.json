@@ -2,6 +2,6 @@
     "lang_configuration": "Konfiguration",
     "lang_configurationChoose": "Bitte w\u00e4hlen Sie, welche Module f\u00fcr diese Konfiguration verwendet werden sollen.",
     "lang_name": "Name",
-    "lang_new": "Neu",
-    "lang_next": "Weiter"
+    "lang_next": "Weiter",
+    "lang_noModuleOfType": "Kein Modul dieser Art vorhanden."
 }

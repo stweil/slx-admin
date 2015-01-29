@@ -153,7 +153,7 @@ class AddConfig_Finish extends AddConfig_Base
 			Util::redirect('?do=SysConfig&action=addconfig');
 		}
 		$this->config = ConfigTgz::insert($title, $modules);
-		if ($this->config === false || $this->config->generate() !== 'OK') {
+		if ($this->config === false || $this->config->generate(true, 10000) !== true) {
 			Message::addError('unsuccessful-action');
 			Util::redirect('?do=SysConfig&action=addconfig');
 		}

@@ -131,7 +131,7 @@ class CustomModule_CompressModule extends AddModule_Base
 		$module->setData('tmpFile', $destFile);
 		if (!$module->insert($title))
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
-		elseif (!$module->generate(true))
+		elseif (!$module->generate(true, NULL, 200))
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		Session::set('mod_temp', false);
 		Session::save();
