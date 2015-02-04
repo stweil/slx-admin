@@ -13,7 +13,8 @@ class CustomModule_Start extends AddModule_Base
 	{
 		Session::set('mod_temp', false);
 		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'sysconfig/custom-upload', array(
-			'step' => 'CustomModule_ProcessUpload'
+			'step' => 'CustomModule_ProcessUpload',
+			'edit' => $this->edit ? $this->edit->id() : false
 			));
 	}
 
@@ -84,9 +85,17 @@ class CustomModule_ProcessUpload extends AddModule_Base
 				$list[] = $file;
 			}
 		}
+		if ($this->edit !== false)
+			$title = $this->edit->title();
+		elseif (isset($_FILES['modulefile']['name']))
+			$title = basename($_FILES['modulefile']['name']);
+		else
+			$title = '';
 		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'sysconfig/custom-fileselect', array(
 			'step' => 'CustomModule_CompressModule',
 			'files' => $list,
+			'edit' => $this->edit ? $this->edit->id() : false,
+			'title' => $title
 		));
 		Session::save();
 	}
@@ -123,20 +132,30 @@ class CustomModule_CompressModule extends AddModule_Base
 			$this->taskError($status);
 		}
 		// Seems ok, create entry
-		$module = ConfigModule::getInstance('CustomModule');
+		if ($this->edit === false)
+			$module = ConfigModule::getInstance('CustomModule');
+		else
+			$module = $this->edit;
 		if ($module === false) {
 			Message::addError('error-read', 'custommodule.inc.php');
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		}
 		$module->setData('tmpFile', $destFile);
-		if (!$module->insert($title))
+		if ($this->edit !== false)
+			$ret = $module->update();
+		else
+			$ret = $module->insert($title);
+		if (!$ret)
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		elseif (!$module->generate(true, NULL, 200))
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		Session::set('mod_temp', false);
 		Session::save();
 		// Yay
-		Message::addSuccess('module-added');
+		if ($this->edit !== false)
+			Message::addSuccess('module-edited');
+		else
+			Message::addSuccess('module-added');
 		Util::redirect('?do=SysConfig');
 	}
 	

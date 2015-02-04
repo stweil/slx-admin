@@ -13,15 +13,20 @@ function loadContent(elem, source)
 function forceTable(t)
 {
 	var pwidth = t.parent().innerWidth();
-	t.width(pwidth - 5);
 	var rows = t.find('tr');
+	var row = rows.first();
+	pwidth = Math.round(pwidth);
+	t.width(pwidth);
 	var sum = 0;
-	rows.first().find('td').each(function (index) {
+	row.find('td').each(function() {
 		if (!$(this).hasClass('slx-width-ignore'))
-			sum += $(this).outerWidth();
+			sum += $(this).outerWidth(true);
 	});
-	var w = pwidth - (sum + 30);
-	rows.find('.slx-dyn-ellipsis').each(function (index) {
-		$(this).width(w).css('width', w + 'px').css('max-width', w + 'px');
-	});
+	var w = Math.round(pwidth - sum);
+	do {
+		rows.find('.slx-dyn-ellipsis').each(function() {
+			$(this).width(w).css('width', w + 'px').css('max-width', w + 'px');
+		});
+		w -= 3;
+	} while (t.width() > pwidth);
 }

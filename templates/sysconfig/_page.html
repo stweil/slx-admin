@@ -30,10 +30,10 @@
 							<td class="slx-nowrap">
 								<button
 									{{#needrebuild}}
-									class="btn btn-primary btn-xs"
+									class="refconf btn btn-primary btn-xs"
 									{{/needrebuild}}
 									{{^needrebuild}}
-									class="btn btn-default btn-xs"
+									class="refconf btn btn-default btn-xs"
 									{{/needrebuild}}
 									name="rebuild" value="{{configid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
 							</td>
@@ -88,10 +88,10 @@
 							<td class="slx-nowrap">
 								<button
 									{{#needrebuild}}
-									class="btn btn-primary btn-xs"
+									class="refmod btn btn-primary btn-xs"
 									{{/needrebuild}}
 									{{^needrebuild}}
-									class="btn btn-default btn-xs"
+									class="refmod btn btn-default btn-xs"
 									{{/needrebuild}}
 									name="rebuild" value="{{moduleid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
 								<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{moduletype}}_Start&amp;edit={{moduleid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
@@ -187,4 +187,30 @@
 			$(e).addClass("slx-bold");
 		}
 	}
+	
+	var statusChecks = 0;
+	function checkBuildStatus() {
+		var mods = [];
+		var confs = [];
+		$(".refmod.btn-primary").each(function (index) {
+			mods.push($(this).val());
+		});
+		$(".refconf.btn-primary").each(function (index) {
+			confs.push($(this).val());
+		});
+		if (mods.length === 0 && confs.length === 0) return;
+		if (++statusChecks < 10) setTimeout(checkBuildStatus, 200 + 50 * statusChecks);
+		console.log("POSTING");
+		$.post('?do=SysConfig', { mods: mods.join(), confs: confs.join(), token: TOKEN, action: 'status' }, function (data) {
+			if (typeof data === 'undefined') return;
+			if (typeof data.mods === 'object') updateButtonColor($(".refmod.btn-primary"), data.mods);
+			if (typeof data.confs === 'object') updateButtonColor($(".refconf.btn-primary"), data.confs);
+		}, 'json');
+	}
+	function updateButtonColor(list,ids) {
+		list.each(function() {
+			if (ids.indexOf($(this).val()) >= 0) $(this).removeClass('btn-primary').addClass('btn-default');
+		});
+	}
+	setTimeout(checkBuildStatus, 300);
 // --></script>

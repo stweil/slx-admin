@@ -32,4 +32,5 @@ foreach ($_POST['ids'] as $id) {
 	}
 }
 
+Header('Content-Type: application/json');
 echo json_encode(array('tasks' => $return));

@@ -91,6 +91,41 @@ class Page_SysConfig extends Page
 		}
 		Message::addError('invalid-action', $action);
 	}
+	
+	protected function doAjax()
+	{
+		if (Request::post('action') === 'status') {
+			$mods = Request::post('mods');
+			$confs = Request::post('confs');
+			error_log('Hit. Mods: ' . $mods . ', Confs: ' . $confs);
+			$outMods = array();
+			$outConfs = array();
+			$mods = explode(',', $mods);
+			$confs = explode(',', $confs);
+			// Mods
+			$string = '0';
+			foreach ($mods as $mod) {
+				if (is_numeric($mod))
+					$string .= ',' . $mod;
+			}
+			$res = Database::simpleQuery("SELECT moduleid FROM configtgz_module WHERE moduleid in ($string) AND status = 'OK'");
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$outMods[] = $row['moduleid'];
+			}
+			// Confs
+			$string = '0';
+			foreach ($confs as $conf) {
+				if (is_numeric($conf))
+					$string .= ',' . $conf;
+			}
+			$res = Database::simpleQuery("SELECT configid FROM configtgz WHERE configid in ($string) AND status = 'OK'");
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$outConfs[] = $row['configid'];
+			}
+			Header('Content-Type: application/json');
+			die(json_encode(array('mods' => $outMods, 'confs' => $outConfs)));
+		}
+	}
 
 	/**
 	 * List all configurations and configuration modules.

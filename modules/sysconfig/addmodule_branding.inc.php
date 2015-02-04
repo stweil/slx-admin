@@ -58,7 +58,7 @@ class Branding_ProcessFile extends AddModule_Base
 				'tarFile' => $this->tarFile,
 				'svgFile' => $this->svgFile
 		));
-		$this->task = Taskmanager::waitComplete($this->task);
+		$this->task = Taskmanager::waitComplete($this->task, 5000);
 		if (Taskmanager::isFailed($this->task)) {
 			@unlink($this->svgFile);
 			Taskmanager::addErrorMessage($this->task);

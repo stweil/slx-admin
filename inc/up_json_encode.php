@@ -1,5 +1,10 @@
 <?php
 
+if (defined('JSON_PRETTY_PRINT'))
+	define('JSON_NATIVE', true);
+else
+	define('JSON_NATIVE', false);
+
 /**
  * api:		php
  * title:	upgrade.php
@@ -78,6 +83,8 @@ if (!defined("JSON_UNESCAPED_SLASHES")) {
 
 function up_json_encode($var, $options = 0, $_indent = "")
 {
+	if (defined('JSON_NATIVE') && JSON_NATIVE)
+		return json_encode($var, $options);
 	global ${'.json_last_error'};
 	${'.json_last_error'} = JSON_ERROR_NONE;
 

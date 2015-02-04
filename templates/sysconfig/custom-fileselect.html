@@ -1,9 +1,10 @@
 <form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 	<input type="hidden" name="modid" value="{{modid}}">
 	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="edit" value="{{edit}}">
 	<div class="input-group">
 		<span class="input-group-addon">{{lang_moduleName}}</span>
-		<input type="text" name="title" class="form-control" placeholder="Mein Konfigurationsmodul" autofocus="autofocus">
+		<input type="text" name="title" value="{{title}}" class="form-control" placeholder="Mein Konfigurationsmodul" autofocus="autofocus">
 	</div>
 	<div class="pull-right">
 		<button type="submit" class="btn btn-primary">{{lang_next}} &raquo;</button>
