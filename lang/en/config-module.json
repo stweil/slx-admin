@@ -1,0 +1,5 @@
+{
+    "group_sshconfig": "SSH",
+    "sshconfig_description": "Here you can set whether the sshd on the clients will start, and what options it will use.",
+    "sshconfig_title": "SSH daemon"
+}

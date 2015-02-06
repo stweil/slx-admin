@@ -165,12 +165,20 @@ abstract class ConfigModule
 	public abstract function setData($key, $value);
 	
 	/**
-	 * Get module specific data
+	 * Get module specific data.
+	 * Can be overridden by modules.
 	 * 
-	 * @param string $key key, name or id of data to get
+	 * @param string $key key, name or id of data to get, or false to get the raw moduleData array
 	 * @return mixed Module specific data
 	 */
-	public abstract function getData($key);
+	public function getData($key)
+	{
+		if ($key === false)
+			return $this->moduleData;
+		if (!is_array($this->moduleData) || !isset($this->moduleData[$key]))
+			return false;
+		return $this->moduleData[$key];
+	}
 
 	/**
 	 * Module specific version of generate.
@@ -275,16 +283,19 @@ abstract class ConfigModule
 	 *
 	 * @return boolean true on success, false otherwise
 	 */
-	public final function update()
+	public final function update($title)
 	{
 		if ($this->moduleId === 0)
 			Util::traceError('ConfigModule::update called when moduleId == 0');
+		if (empty($title))
+			$title = $this->moduleTitle;
 		if (!$this->validateConfig())
 			return false;
 		// Update
-		Database::exec("UPDATE configtgz_module SET contents = :contents, status = :status "
+		Database::exec("UPDATE configtgz_module SET title = :title, contents = :contents, status = :status "
 			. " WHERE moduleid = :moduleid LIMIT 1", array(
 			'moduleid' => $this->moduleId,
+			'title' => $title,
 			'contents' => json_encode($this->moduleData),
 			'status' => 'OUTDATED'
 		));

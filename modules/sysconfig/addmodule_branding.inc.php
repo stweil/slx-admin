@@ -215,12 +215,12 @@ class Branding_Finish extends AddModule_Base
 		}
 		$module->setData('tmpFile', $tgz);
 		if ($this->edit !== false)
-			$ret = $module->update();
+			$ret = $module->update($title);
 		else
 			$ret = $module->insert($title);
 		if (!$ret)
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
-		elseif ($module->generate(true, NULL, 200) === false)
+		elseif ($module->generate($this->edit === false, NULL, 200) === false)
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		Session::set('logo_tgz', false);
 		Session::set('logo_name', false);

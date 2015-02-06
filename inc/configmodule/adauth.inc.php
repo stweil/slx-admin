@@ -47,13 +47,6 @@ class ConfigModule_AdAuth extends ConfigModule
 		return true;
 	}
 
-	public function getData($key)
-	{
-		if (!is_array($this->moduleData) || !isset($this->moduleData[$key]))
-			return false;
-		return $this->moduleData[$key];
-	}
-
 	// ############## Callbacks #############################
 
 	/**

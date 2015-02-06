@@ -13,9 +13,6 @@ class Page_Translation extends Page
 	 */
 	private $template = false;
 	private $page = false;
-	private $update = false;
-	private $delete = false;
-	private $tags = false;
 
 	protected function doPreprocess()
 	{
@@ -72,6 +69,14 @@ class Page_Translation extends Page
 					'path' => 'settings/setting',
 					'langs' => $langs,
 					'tags' => $this->loadSettingsArray()
+				));
+				break;
+			case 'config-module':
+				//renders the hardcoded messages edit page
+				Render::addTemplate('translation/edit', array(
+					'path' => 'config-module',
+					'langs' => $langs,
+					'tags' => $this->buildTranslationTable('config-module')
 				));
 				break;
 			case 'template':
@@ -315,8 +320,7 @@ class Page_Translation extends Page
 				}
 			}
 		}
-
-		//finds every JSON tag withing the JSON language files
+		// Finds every JSON tag withing the JSON language files
 		foreach ($langArray as $lang) {
 			$jsonTags = Dictionary::getArray($path, $lang);
 			if (!is_array($jsonTags))
@@ -331,6 +335,13 @@ class Page_Translation extends Page
 					$tags[$tag]['missing'] = 0;
 				if (!empty($translation))
 					$tags[$tag]['missing'] --;
+			}
+		}
+		// Fill the blanks
+		foreach ($langArray as $lang) {
+			foreach (array_keys($tags) as $tagName) {
+				if (!isset($tags[$tagName]['langs'][$lang]))
+					$tags[$tagName]['langs'][$lang]['lang'] = $lang;
 			}
 		}
 		// Finally remove $lang from the keys so mustache will iterate over them via {{#..}}

@@ -113,7 +113,7 @@ class CustomModule_CompressModule extends AddModule_Base
 		$tempfile = Session::get('mod_temp');
 		if (empty($title) || empty($tempfile) || !file_exists($tempfile)) {
 			Message::addError('empty-field');
-			return;
+			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		}
 		// Recompress using task manager
 		$this->taskId = 'tgzmod' . mt_rand() . '-' . microtime(true);
@@ -142,12 +142,12 @@ class CustomModule_CompressModule extends AddModule_Base
 		}
 		$module->setData('tmpFile', $destFile);
 		if ($this->edit !== false)
-			$ret = $module->update();
+			$ret = $module->update($title);
 		else
 			$ret = $module->insert($title);
 		if (!$ret)
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
-		elseif (!$module->generate(true, NULL, 200))
+		elseif (!$module->generate($this->edit === false, NULL, 200))
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		Session::set('mod_temp', false);
 		Session::save();

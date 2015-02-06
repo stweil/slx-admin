@@ -1,11 +1,14 @@
 {
+    "adAuth_description": "Mit diesem Modul ist die Anmeldung an den Client-PCs mit den Benutzerkonten eines Active Directory m\u00f6glich. Je nach Konfiguration ist auch die Nutzung eines Benutzerverzeichnisses auf dem Client m\u00f6glich.",
     "adAuth_title": "Active Directory Authentifizierung",
-	 "adAuth_description": "Mit diesem Modul ist die Anmeldung an den Client-PCs mit den Benutzerkonten eines Active Directory m\u00f6glich. Je nach Konfiguration ist auch die Nutzung eines Benutzerverzeichnisses auf dem Client m\u00f6glich.",
-    "custom_title": "Generisches Modul hinzuf\u00fcgen",
-	 "custom_description": "Mit einem Erweiterten Modul ist es m\u00f6glich, beliebige Dateien zum Grundsystem hinzuzuf\u00fcgen Nutzen Sie dieses Modul, um z.B. spezielle Konfigurationsdateien auf den Client PCs zu verwenden, die sich nicht mit einem der anderen Wizards erstellen l\u00e4sst. Das Hinzuf\u00fcgen eines Erweiterten Moduls erfordert in der Regel zumindest grundlegende Systemkenntnisse im Linuxbereich.",
+    "branding_description": "Das Logo wird am Anmeldebildschirm und beim Starten des Systems angezeigt.",
     "branding_title": "Einrichtungsspezifisches Logo",
-	 "branding_description": "Das Logo wird am Anmeldebildschirm und beim Starten des Systems angezeigt.",
-	 "group_authentication": "Authentifizierung",
-	 "group_branding": "Einrichtungsspezifisches Logo",
-	 "group_generic": "Generisch"
+    "custom_description": "Mit einem Erweiterten Modul ist es m\u00f6glich, beliebige Dateien zum Grundsystem hinzuzuf\u00fcgen Nutzen Sie dieses Modul, um z.B. spezielle Konfigurationsdateien auf den Client PCs zu verwenden, die sich nicht mit einem der anderen Wizards erstellen l\u00e4sst. Das Hinzuf\u00fcgen eines Erweiterten Moduls erfordert in der Regel zumindest grundlegende Systemkenntnisse im Linuxbereich.",
+    "custom_title": "Generisches Modul hinzuf\u00fcgen",
+    "group_authentication": "Authentifizierung",
+    "group_branding": "Einrichtungsspezifisches Logo",
+    "group_generic": "Generisch",
+    "group_sshconfig": "SSH",
+    "sshconfig_description": "Mit diesem Modul l\u00e4sst sich steuern, ob und wie der sshd auf den gebooteten Clients startet, und welche Funktionen er zur Verf\u00fcgung stellt. Wenn Sie keinen sshd auf den Clients nutzen wollen, brauchen Sie kein solches Modul zu erstellen.",
+    "sshconfig_title": "SSH-D\u00e4mon"
 }

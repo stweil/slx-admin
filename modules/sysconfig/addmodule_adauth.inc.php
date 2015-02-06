@@ -147,14 +147,14 @@ class AdAuth_Finish extends AddModule_Base
 		$module->setData('bindpw', Request::post('bindpw'));
 		$module->setData('home', Request::post('home'));
 		if ($this->edit !== false)
-			$ret = $module->update();
+			$ret = $module->update($title);
 		else
 			$ret = $module->insert($title);
 		if (!$ret) {
 			Message::addError('value-invalid', 'any', 'any');
 			$tgz = false;
 		} else {
-			$tgz = $module->generate(true, NULL, 200);
+			$tgz = $module->generate($this->edit === false, NULL, 200);
 		}
 		if ($tgz === false) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()

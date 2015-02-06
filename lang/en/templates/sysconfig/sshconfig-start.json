@@ -1,0 +1,10 @@
+{
+    "lang_allowPass": "Allow password login",
+    "lang_allowPassInfo": "When active, logins via username and password are allowed. Otherwise, only pubkey authentication is possible.",
+    "lang_listenPort": "Listen port",
+    "lang_listenPortInfo": "Listen port for the sshd. Default is 22.",
+    "lang_moduleName": "Module name",
+    "lang_rootKey": "root pubkey",
+    "lang_rootKeyInfo": "Here you can add the public key of a keypair that you want to use for authentication as root-user. Leave this field blank to disable the feature.",
+    "lang_save": "Save"
+}
