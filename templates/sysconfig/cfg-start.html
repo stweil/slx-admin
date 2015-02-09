@@ -1,8 +1,9 @@
 <form role="form" method="post" action="?do=SysConfig&amp;action=addconfig&amp;step={{step}}">
 	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="edit" value="{{edit}}">
 	<div class="input-group">
 		<span class="input-group-addon">{{lang_name}} *</span>
-		<input type="text" name="title" class="form-control" placeholder="{{lang_configuration}}" autofocus="autofocus">
+		<input type="text" name="title" value="{{title}}" class="form-control" placeholder="{{lang_configuration}}" autofocus="autofocus">
 	</div>
 		<hr>
 	<p>{{lang_configurationChoose}}</p>
@@ -14,10 +15,10 @@
 				<div class="input-group">
 					<span class="input-group-addon">
 						{{#unique}}
-						<input type="radio" name="module[{{groupid}}]" value="{{moduleid}}" id="module{{moduleid}}">
+						<input type="radio" name="module[{{groupid}}]" value="{{moduleid}}" id="module{{moduleid}}" {{#active}}checked{{/active}}>
 						{{/unique}}
 						{{^unique}}
-						<input type="checkbox" name="module[{{moduleid}}]" value="{{moduleid}}" id="module{{moduleid}}">
+						<input type="checkbox" name="module[{{moduleid}}]" value="{{moduleid}}" id="module{{moduleid}}" {{#active}}checked{{/active}}>
 						{{/unique}}
 					</span>
 					<label class="form-control" for="module{{moduleid}}">{{title}}</label>

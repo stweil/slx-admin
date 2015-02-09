@@ -12,6 +12,12 @@ abstract class AddConfig_Base
 	 * @var \AddConfig_Base
 	 */
 	private static $instance = false;
+	
+	/**
+	 * Config being edited (if any)
+	 * @var \ConfigTgz
+	 */
+	protected $edit = false;
 
 	/**
 	 * 
@@ -25,6 +31,12 @@ abstract class AddConfig_Base
 			Util::redirect('?do=SysConfig');
 		}
 		self::$instance = new $step();
+		if (Request::any('edit')) {
+			self::$instance->edit = ConfigTgz::get(Request::any('edit'));
+			if (self::$instance->edit === false)
+				Util::traceError('Invalid config id for editing');
+			Util::addRedirectParam('edit', self::$instance->edit->id());
+		}
 	}
 
 	protected function tmError()
@@ -83,9 +95,10 @@ abstract class AddConfig_Base
 	
 	public static function render()
 	{
-		if (self::$instance === false) {
+		if (self::$instance === false)
 			Util::traceError('No step instance yet');
-		}
+		if (self::$instance->edit !== false)
+			Message::addInfo('replacing-config', self::$instance->edit->title());
 		self::$instance->renderInternal();
 	}
 	
@@ -110,7 +123,11 @@ class AddConfig_Start extends AddConfig_Base
 	{
 		$mods = ConfigModule::getList();
 		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath FROM configtgz_module"
-			. " ORDER BY title ASC");
+			. " ORDER BY title ASC"); // Move to ConfigModule
+		if ($this->edit === false)
+			$active = array();
+		else
+			$active = $this->edit->getModuleIds();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (!isset($mods[$row['moduletype']])) {
 				$mods[$row['moduletype']] = array(
@@ -123,11 +140,20 @@ class AddConfig_Start extends AddConfig_Base
 				$mods[$row['moduletype']]['groupid'] = $row['moduletype'];
 			}
 			if (empty($row['filepath']) || !file_exists($row['filepath'])) $row['missing'] = true;
+			$row['active'] = in_array($row['moduleid'], $active);
 			$mods[$row['moduletype']]['modules'][] = $row;
 		}
+		if ($this->edit !== false)
+			$title = $this->edit->title();
+		elseif (Request::any('title'))
+			$title = Request::any('title');
+		else
+			$title = '';
 		Render::addDialog(Dictionary::translate("lang_configurationCompilation"), false, 'sysconfig/cfg-start', array(
 			'step' => 'AddConfig_Finish',
-			'groups' => array_values($mods)
+			'groups' => array_values($mods),
+			'title' => $title,
+			'edit' => $this->edit->id()
 		));
 	}
 
@@ -152,8 +178,13 @@ class AddConfig_Finish extends AddConfig_Base
 			Message::addError('missing-title');
 			Util::redirect('?do=SysConfig&action=addconfig');
 		}
-		$this->config = ConfigTgz::insert($title, $modules);
-		if ($this->config === false || $this->config->generate(true, 10000) !== true) {
+		if ($this->edit === false) {
+			$this->config = ConfigTgz::insert($title, $modules);
+		} else {
+			$this->edit->update($title, $modules);
+			$this->config = $this->edit;
+		}
+		if ($this->config === false || $this->config->generate(true, 150) === false) {
 			Message::addError('unsuccessful-action');
 			Util::redirect('?do=SysConfig&action=addconfig');
 		}

@@ -37,6 +37,46 @@ class ConfigTgz
 		}
 		return true;
 	}
+	
+	public function getModuleIds()
+	{
+		$ret = array();
+		foreach ($this->modules as $module) {
+			$ret[] = $module['moduleid'];
+		}
+		return $ret;
+	}
+		
+	public function update($title, $moduleIds)
+	{
+		if (!is_array($moduleIds))
+			return false;
+		$this->configTitle = $title;
+		$this->modules = array();
+		// Get all modules to put in config
+		$idstr = '0'; // Passed directly in query. Make sure no SQL injection is possible
+		foreach ($moduleIds as $module) {
+			$idstr .= ',' . (int)$module; // Casting to int should make it safe
+		}
+		$res = Database::simpleQuery("SELECT moduleid, filepath, status FROM configtgz_module WHERE moduleid IN ($idstr)");
+		// Delete old connections
+		Database::exec("DELETE FROM configtgz_x_module WHERE configid = :configid", array('configid' => $this->configId));
+		// Make connection
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			Database::exec("INSERT INTO configtgz_x_module (configid, moduleid) VALUES (:configid, :moduleid)", array(
+				'configid' => $this->configId,
+				'moduleid' => $row['moduleid']
+			));
+			$this->modules[] = $row;
+		}
+		// Update name
+		Database::exec("UPDATE configtgz SET title = :title, status = :status WHERE configid = :configid LIMIT 1", array(
+			'configid' => $this->configId,
+			'title' => $title,
+			'status' => 'OUTDATED'
+		));
+		return true;
+	}
 		
 	public static function insert($title, $moduleIds)
 	{
