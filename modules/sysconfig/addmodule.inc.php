@@ -101,7 +101,7 @@ abstract class AddModule_Base
 			Util::traceError('No step instance yet');
 		}
 		if (self::$instance->edit !== false)
-			Message::addInfo('replacing-module', self::$instance->edit->title ());
+			Message::addInfo('replacing-module', self::$instance->edit->title());
 		self::$instance->renderInternal();
 	}
 	

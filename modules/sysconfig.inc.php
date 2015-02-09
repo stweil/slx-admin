@@ -92,12 +92,17 @@ class Page_SysConfig extends Page
 		Message::addError('invalid-action', $action);
 	}
 	
+	/**
+	 * If modules need updates (blue refresh buttons), we query their state
+	 * via ajax, in case they are about to generate. This happens for example
+	 * if you edit a module and a bunch of configs depend on it and will be
+	 * rebuilt.
+	 */
 	protected function doAjax()
 	{
 		if (Request::post('action') === 'status') {
 			$mods = Request::post('mods');
 			$confs = Request::post('confs');
-			error_log('Hit. Mods: ' . $mods . ', Confs: ' . $confs);
 			$outMods = array();
 			$outConfs = array();
 			$mods = explode(',', $mods);
@@ -149,7 +154,7 @@ class Page_SysConfig extends Page
 			);
 		}
 		// Config modules
-		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, status FROM configtgz_module ORDER BY title ASC");
+		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, status FROM configtgz_module ORDER BY moduletype ASC, title ASC");
 		$modules = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$modules[] = array(
