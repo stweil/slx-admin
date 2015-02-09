@@ -8,6 +8,7 @@
     "lang_delete": "L\u00f6schen",
     "lang_deleteLong": "Modul oder Konfiguration l\u00f6schen.",
     "lang_download": "Herunterladen",
+    "lang_downloadLong": "Dieses Modul \"so wie es ist\" herunterladen.",
     "lang_edit": "Bearbeiten",
     "lang_editLong": "Modul oder Konfiguration bearbeiten.",
     "lang_helpModuleConfiguration": "Konfigurationsmodule sind die Bausteine, aus denen eine Systemkonfiguration erstellt wird. Hier lassen sich sowohl generische Module durch einen Wizard anlegen, als auch komplett eigene Module erstellen (fortgeschritten, Linuxkenntnisse erforderlich).",
@@ -20,6 +21,7 @@
     "lang_rebuildLong": "Modul oder Konfiguration neu generieren. Das entsprechende Modul bzw. Konfiguration ist aktuell und sollte nicht neu generiert werden m\u00fcssen.",
     "lang_rebuildOutdatedLong": "Modul oder Konfiguration neu generieren. Das entsprechende Modul bzw. Konfiguration ist veraltet oder nicht vorhanden.",
     "lang_show": "Ansehen",
+    "lang_showLong": "Inhalt des Moduls anzeigen.",
     "lang_systemConfiguration": "Systemkonfiguration",
     "lang_systemConfigurationAlert": "Bevor Sie eine Systemkonfiguration erstellen k\u00f6nnen, m\u00fcssen Sie zun\u00e4chst ein Konfigurationsmodul erzeugen.",
     "lang_systemConfigurationNotFound": "Keine Systemkonfigurationen gefunden.Erstellen Sie eine neue Konfiguration aus den unten aufgef\u00fchrten Konfigurationsmodulen."

@@ -1,4 +1,13 @@
 {
+    "adAuth_description": "With this module you can enable logging in on the clients with Active Directory accounts. It's optionally possible to specify a network share used as the user's personal directory.",
+    "adAuth_title": "Active Directory authentication",
+    "branding_description": "The logo will be displayed on the login screen and during system startup.",
+    "branding_title": "Institution's logo",
+    "custom_description": "Using a custom module it is possible to add or override any system file on the client.\r\nYou can use this to make special customizations that aren't possible using one of the configuration wizards. Some basic knowledge about Linux is probably required for this.",
+    "custom_title": "Custom module",
+    "group_authentication": "Authentication",
+    "group_branding": "Branding",
+    "group_generic": "Generic",
     "group_sshconfig": "SSH",
     "sshconfig_description": "Here you can set whether the sshd on the clients will start, and what options it will use.",
     "sshconfig_title": "SSH daemon"

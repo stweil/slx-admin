@@ -41,6 +41,7 @@
     "reboot-unconfirmed": "Sicherheitsabfrage zum Reboot nicht best\u00e4tigt",
     "remote-parse-failed": "Parsen der empfangenen Daten fehlgeschlagen ({{0}})",
     "remote-timeout": "Konnte Ressource {{0}} nicht herunterladen ({{1}})",
+    "replacing-config": "Ersetzen von Konfiguration {{0}}",
     "replacing-module": "Ersetzen von Modul {{0}}",
     "restore-done": "Wiederherstellung abgeschlossen",
     "settings-updated": "Einstellungen wurden aktualisiert",

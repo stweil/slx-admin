@@ -8,6 +8,7 @@
     "lang_delete": "Delete",
     "lang_deleteLong": "Delete module or configuration.",
     "lang_download": "Download",
+    "lang_downloadLong": "Download module \"as is\".",
     "lang_edit": "Edit",
     "lang_editLong": "Edit module or configuration.",
     "lang_helpModuleConfiguration": "Configuration modules are the building blocks from which a system configuration is created. Here you can create both generic modules by a wizard, as well as create completely custom modules (advanced Linux knowledge required).",
@@ -20,6 +21,7 @@
     "lang_rebuildLong": "Rebuild module or configuration.",
     "lang_rebuildOutdatedLong": "Rebuild module or configuration. The module\/configuration is outdated or missing and should be regenerated.",
     "lang_show": "Show",
+    "lang_showLong": "Show content of module.",
     "lang_systemConfiguration": "System Configuration",
     "lang_systemConfigurationAlert": "Before you can create a system configuration, you must first create a configuration module.",
     "lang_systemConfigurationNotFound": "No system configurations found. Create a new configuration from the configuration modules listed below."

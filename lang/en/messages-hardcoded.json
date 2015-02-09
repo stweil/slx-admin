@@ -1,6 +1,7 @@
 {
+    "lang_clientSshConfig": "SSH configuration",
     "lang_configurationCompilation": "Compile configuration",
-    "lang_contentOf": "Content of \u0022",
+    "lang_contentOf": "Content of \"",
     "lang_createUser": "Create User",
     "lang_days": "Day(s)",
     "lang_hours": "Hour(s)",

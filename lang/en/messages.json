@@ -41,6 +41,7 @@
     "reboot-unconfirmed": "Confirmation prompt to reboot not confirmed",
     "remote-parse-failed": "Parsing the received data failed ({{0}})",
     "remote-timeout": "Could  not download resource {{0}} ({{1}})",
+    "replacing-config": "Replace config {{0}}",
     "replacing-module": "Replace module {{0}}",
     "restore-done": "Restore done",
     "settings-updated": "Settings have been updated",
