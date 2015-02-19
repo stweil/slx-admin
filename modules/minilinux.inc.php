@@ -18,6 +18,9 @@ class Page_MiniLinux extends Page
 		Render::addTemplate('page-minilinux', array(
 			'listurl' => '?do=MiniLinux&async=true&action=list'
 		));
+		Render::addFooter('<script> $(window).load(function (e) {
+			loadSystemList(0);
+			}); // </script>');
 	}
 	
 	protected function doAjax()
@@ -30,11 +33,31 @@ class Page_MiniLinux extends Page
 			return;
 		}
 		$action = Request::any('action');
+		$selectedVersion = (int)Request::any('version', 0);
 		switch ($action) {
 		case 'list':
 			$count = 0;
 			foreach ($data['systems'] as &$system) {
-				foreach ($system['files'] as &$file) {
+				// Get latest version, build simple array of all version numbers
+				$versionNumbers = array();
+				$selected = false;
+				foreach ($system['versions'] as $version) {
+					if (!is_numeric($version['version']) || $version['version'] < 1)
+						continue;
+					if ($selectedVersion === 0 && ($selected === false || $selected['version'] < $version['version']))
+						$selected = $version;
+					elseif ($version['version'] == $selectedVersion)
+						$selected = $version;
+					$versionNumbers[(int)$version['version']] = array(
+						'version' => $version['version']
+					);
+				}
+				if ($selected === false) continue; // No versions for this system!?
+				ksort($versionNumbers);
+				// Mark latest version as selected
+				$versionNumbers[(int)$selected['version']]['selected'] = true;
+				// Add status information to system and its files
+				foreach ($selected['files'] as &$file) {
 					$file['uid'] = 'dlid' . $count++;
 					$local = CONFIG_HTTP_DIR . '/' . $system['id'] . '/' . $file['name'];
 					if (!file_exists($local) || filesize($local) !== $file['size'] || filemtime($local) < $file['mtime']) {
@@ -52,10 +75,12 @@ class Page_MiniLinux extends Page
 						}
 					}
 				}
+				unset($system['versions']);
+				$system['files'] = $selected['files'];
+				$system['version'] = $selected['version'];
 			}
-			echo Render::parse('minilinux/filelist', array(
-				'systems' => $data['systems']
-			));
+			$data['versions'] = array_values($versionNumbers);
+			echo Render::parse('minilinux/filelist', $data);
 			return;
 		case 'download':
 			$id = Request::post('id');
@@ -68,11 +93,14 @@ class Page_MiniLinux extends Page
 			$gpg = 'missing';
 			foreach ($data['systems'] as &$system) {
 				if ($system['id'] !== $id) continue;
-				foreach ($system['files'] as &$f) {
-					if ($f['name'] !== $name) continue;
-					$file = $f;
-					if (!empty($f['gpg'])) $gpg = $f['gpg'];
-					break;
+				foreach ($system['versions'] as &$version) {
+					if ($version['version'] != $selectedVersion) continue;
+					foreach ($version['files'] as &$f) {
+						if ($f['name'] !== $name) continue;
+						$file = $f;
+						if (!empty($f['gpg'])) $gpg = $f['gpg'];
+						break;
+					}
 				}
 			}
 			if ($file === false) {
@@ -80,7 +108,7 @@ class Page_MiniLinux extends Page
 				return;
 			}
 			$task = Taskmanager::submit('DownloadFile', array(
-				'url' => CONFIG_REMOTE_ML . '/' . $id . '/' . $name,
+				'url' => CONFIG_REMOTE_ML . '/' . $id . '/' . $selectedVersion . '/' . $name,
 				'destination' => CONFIG_HTTP_DIR . '/' . $id . '/' . $name,
 				'gpg' => $gpg
 			));

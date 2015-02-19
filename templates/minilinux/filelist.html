@@ -4,6 +4,19 @@
 			<h4>{{title}}</h4>
 		</div>
 		<div class="panel-body" id="download-{{id}}">
+			<div class="input-group pull-right" style="max-width: 400px">
+				<span class="input-group-addon slx-ga">{{lang_desiredVersion}}</span>
+				<select id="versionbox" class="form-control" onchange="loadSystemList($('#versionbox').val())">
+					{{#versions}}
+					{{#selected}}
+					<option value="{{version}}" selected>{{version}}</option>
+					{{/selected}}
+					{{^selected}}
+					<option value="{{version}}">{{version}}</option>
+					{{/selected}}
+					{{/versions}}
+				</select>
+			</div>
 			{{#systemChanged}}
 			<p>
 				{{lang_canUpdate1}} <b>{{title}}</b> {{lang_canUpdate2}}
@@ -13,6 +26,8 @@
 			{{^systemChanged}}
 			<p>{{lang_systemUpdated}}</p>
 			{{/systemChanged}}
+			<hr>
+			<p><b>{{lang_filesInVersion}} {{version}}</b></p>
 			<ul class="list-group">
 				{{#files}}
 				<li class="list-group-item" id="{{uid}}">
@@ -43,7 +58,7 @@ function slxUpdate(uid, id, name)
 {
 	$('#' + uid).html('');
 	$('#' + uid).load('?do=MiniLinux',
-		{ action : "download", token : TOKEN, id : id, name : name },
+		{ action : "download", token : TOKEN, id : id, name : name, version : $('#versionbox').val() },
 		function(response, status, xhr) {
 			if (status === "error") {
 				var msg = "Fehler beim Abruf: ";
