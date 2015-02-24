@@ -18,6 +18,7 @@ class ConfigModule_AdAuth extends ConfigModule
 
 	protected function generateInternal($tgz, $parent)
 	{
+		Trigger::ldadp($this->id(), $parent);
 		$config = $this->moduleData;
 		$config['parentTask'] = $parent;
 		$config['failOnParentFail'] = false;

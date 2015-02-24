@@ -78,10 +78,11 @@ class Trigger
 	/**
 	 * Launch all ldadp instances that need to be running.
 	 *
+	 * @param int $exclude if not NULL, id of config module NOT to start
 	 * @param string $parent if not NULL, this will be the parent task of the launch-task
 	 * @return boolean|string false on error, id of task otherwise
 	 */
-	public static function ldadp($parent = NULL)
+	public static function ldadp($exclude = NULL, $parent = NULL)
 	{
 		// TODO: Fetch list from ConfigModule_AdAuth (call loadDb first)
 		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"
@@ -92,7 +93,9 @@ class Trigger
 		$id = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (readlink('/srv/openslx/www/boot/default/config.tgz') === $row['filepath']) {
-				$id[] = (int) $row['moduleid'];
+				if (!is_null($exclude) && (int)$row['moduleid'] === (int)$exclude)
+					continue;
+				$id[] = (int)$row['moduleid'];
 				break;
 			}
 		}
@@ -133,6 +136,8 @@ class Trigger
 
 	/**
 	 * Check and process all callbacks.
+	 * 
+	 * @return boolean Whether there are still callbacks pending
 	 */
 	public static function checkCallbacks()
 	{
@@ -150,8 +155,7 @@ class Trigger
 			else
 				$tasksLeft = true;
 		}
-		if (!$tasksLeft)
-			Property::setNeedsCallback(0);
+		return $tasksLeft;
 	}
 
 	private static function triggerDaemons($action, $parent, &$taskids)

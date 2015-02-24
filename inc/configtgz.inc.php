@@ -285,6 +285,7 @@ class ConfigTgz
 	{
 		if ($this->configId === 0)
 			Util::traceError('ConfigTgz::markUpdated called with invalid config id!');
+		Event::activeConfigChanged();
 		if ($this->areAllModulesUpToDate())
 			return $this->mark('OK');
 		return $this->mark('OUTDATED');

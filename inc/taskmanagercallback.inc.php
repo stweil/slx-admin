@@ -38,7 +38,6 @@ class TaskmanagerCallback
 		} else {
 			Database::exec("INSERT INTO callback (taskid, dateline, cbfunction) VALUES (:task, UNIX_TIMESTAMP(), :callback)", $data);
 		}
-		Property::setNeedsCallback(1);
 	}
 
 	/**
@@ -73,8 +72,9 @@ class TaskmanagerCallback
 			return;
 		if (Taskmanager::isFailed($status) || Taskmanager::isFinished($status)) {
 			$del = Database::exec("DELETE FROM callback WHERE taskid = :task AND cbfunction = :cb LIMIT 1", array('task' => $callback['taskid'], 'cb' => $callback['cbfunction']));
-			if ($del === 0) // No entry deleted, so someone else must have deleted it - race condition, do nothing
+			if ($del === 0) { // No entry deleted, so someone else must have deleted it - race condition, do nothing
 				return;
+			}
 		}
 		if (Taskmanager::isFinished($status)) {
 			$func = array('TaskmanagerCallback', preg_replace('/\W/', '', $callback['cbfunction']));

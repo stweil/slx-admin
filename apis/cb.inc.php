@@ -1,3 +1,6 @@
 <?php
 
-Trigger::checkCallbacks();
+if ( Trigger::checkCallbacks() )
+	echo "True";
+else
+	echo "False";

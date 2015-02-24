@@ -145,9 +145,7 @@ if (defined('CONFIG_FOOTER')) {
 	Render::addTemplate('footer', array('text' => CONFIG_FOOTER));
 }
 
-if (Property::getNeedsCallback()) {
-	Render::addTemplate('tm-callback-trigger');
-}
+Render::addTemplate('tm-callback-trigger');
 
 // Send page to client.
 Render::output();

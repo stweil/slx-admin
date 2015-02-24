@@ -1,5 +1,15 @@
 <script type="text/javascript">
-	setTimeout(function () {
-		$.post('api.php?do=cb', { token: TOKEN });
-	}, 500);
+	var slxCbCooldown = 0;
+	function slxCheckCallbacks() {
+		$.post('api.php?do=cb', { token: TOKEN }, function(data) {
+			if ( data.indexOf('True') >= 0 ) {
+				slxCbCooldown = 0;
+			} else {
+				slxCbCooldown++;
+			}
+			if (slxCbCooldown < 4)
+				setTimeout(slxCheckCallbacks, (slxCbCooldown + 1) * 1500);
+		}, 'text');
+	}
+	setTimeout(slxCheckCallbacks, 500);
 </script>

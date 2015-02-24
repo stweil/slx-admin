@@ -183,15 +183,5 @@ class Property
 	{
 		return self::get('password-type', 'password');
 	}
-	
-	public static function setNeedsCallback($value)
-	{
-		return self::set('need-callback', $value, 5);
-	}
-	
-	public static function getNeedsCallback()
-	{
-		return self::get('need-callback', 0);
-	}
 
 }

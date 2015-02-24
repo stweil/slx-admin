@@ -153,7 +153,7 @@ class AddConfig_Start extends AddConfig_Base
 			'step' => 'AddConfig_Finish',
 			'groups' => array_values($mods),
 			'title' => $title,
-			'edit' => $this->edit->id()
+			'edit' => ($this->edit !== false ? $this->edit->id() : false)
 		));
 	}
 
