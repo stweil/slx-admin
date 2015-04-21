@@ -5,6 +5,6 @@
     "lang_listenPortInfo": "Der Port, auf dem der sshd lauscht. Der offizielle Standard ist 22.",
     "lang_moduleName": "Modulname",
     "lang_rootKey": "root pubkey (\u00f6ffentlicher Schl\u00fcssel)",
-    "lang_rootKeyInfo": "Tragen Sie hier den \u00f6ffentlichen Schl\u00fcssel eines Schl\u00fcssel\u00fcpaars ein, mit dem Sie sich als root-Benutzer an den Clients anmelden wollen. Lassen Sie das Feld leer, um diese Funktion nicht zu verwenden.",
+    "lang_rootKeyInfo": "Tragen Sie hier den \u00f6ffentlichen Schl\u00fcssel eines Schl\u00fcsselpaars ein, mit dem Sie sich als root-Benutzer an den Clients anmelden wollen. Lassen Sie das Feld leer, um diese Funktion nicht zu verwenden.",
     "lang_save": "Speichern"
 }
