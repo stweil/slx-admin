@@ -73,6 +73,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 	protected function renderInternal()
 	{
 		$data = array(
+			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => Request::post('server'),
 			'searchbase' => Request::post('searchbase'),
@@ -159,7 +160,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
-			'ssl' => Request::post('ssl'),
+			'ssl' => Request::post('ssl') === 'on',
 			'fingerprint' => Request::post('fingerprint'),
 			'originalbinddn' => $this->originalBindDn,
 			'step' => 'AdAuth_Finish'
