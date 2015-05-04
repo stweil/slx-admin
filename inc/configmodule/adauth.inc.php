@@ -20,6 +20,10 @@ class ConfigModule_AdAuth extends ConfigModule
 	{
 		Trigger::ldadp($this->id(), $parent);
 		$config = $this->moduleData;
+		if (preg_match('/^([^\:]+)\:(\d+)$/', $config['server'], $out)) {
+			$config['server'] = $out[1];
+			$config['adport'] = $out[2];
+		}
 		$config['parentTask'] = $parent;
 		$config['failOnParentFail'] = false;
 		$config['proxyip'] = Property::getServerIp();

@@ -41,27 +41,28 @@ class AdAuth_CheckConnection extends AddModule_Base
 {
 
 	private $scanTask;
+	private $server;
 
 	protected function preprocessInternal()
 	{
-		$server = Request::post('server');
+		$this->server = Request::post('server');
 		$binddn = Request::post('binddn');
 		$ssl = Request::post('ssl', 'off') === 'on';
-		if (empty($server) || empty($binddn)) {
+		if (empty($this->server) || empty($binddn)) {
 			Message::addError('empty-field');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		if (preg_match('/^([^\:]+)\:(\d+)$/', $server, $out)) {
+		if (preg_match('/^([^\:]+)\:(\d+)$/', $this->server, $out)) {
 			$ports = array($out[2]);
-			$server = $out[1];
+			$this->server = $out[1];
 		} elseif ($ssl) {
 			$ports = array(636, 3269);
 		} else {
 			$ports = array(389, 3268);
 		}
 		$this->scanTask = Taskmanager::submit('PortScan', array(
-				'host' => $server,
+				'host' => $this->server,
 				'ports' => $ports
 		));
 		if (!isset($this->scanTask['id'])) {
@@ -75,7 +76,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 		$data = array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
-			'server' => Request::post('server'),
+			'server' => $this->server,
 			'searchbase' => Request::post('searchbase'),
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
@@ -103,6 +104,11 @@ class AdAuth_CheckCredentials extends AddModule_Base
 		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
+		if ($ssl && !Request::post('fingerprint')) {
+			Message::addError('error-read', 'fingerprint');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
 		if (empty($server) || empty($binddn) || empty($port)) {
 			Message::addError('empty-field');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
