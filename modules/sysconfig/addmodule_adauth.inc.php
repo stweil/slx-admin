@@ -17,6 +17,7 @@ class AdAuth_Start extends AddModule_Base
 				'binddn' => $this->edit->getData('binddn'),
 				'bindpw' => $this->edit->getData('bindpw'),
 				'home' => $this->edit->getData('home'),
+				'ssl' => $this->edit->getData('ssl'),
 				'edit' => $this->edit->id()
 			);
 		} else {
@@ -26,7 +27,8 @@ class AdAuth_Start extends AddModule_Base
 				'searchbase' => Request::post('searchbase'),
 				'binddn' => Request::post('binddn'),
 				'bindpw' => Request::post('bindpw'),
-				'home' => Request::post('home')
+				'home' => Request::post('home'),
+				'ssl' => Request::post('ssl')
 			);
 		}
 		$data['step'] = 'AdAuth_CheckConnection';
@@ -38,27 +40,86 @@ class AdAuth_Start extends AddModule_Base
 class AdAuth_CheckConnection extends AddModule_Base
 {
 
+	private $scanTask;
+
+	protected function preprocessInternal()
+	{
+		$server = Request::post('server');
+		$binddn = Request::post('binddn');
+		$ssl = Request::post('ssl', 'off') === 'on';
+		if (empty($server) || empty($binddn)) {
+			Message::addError('empty-field');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		if (preg_match('/^([^\:]+)\:(\d+)$/', $server, $out)) {
+			$ports = array($out[2]);
+			$server = $out[1];
+		} elseif ($ssl) {
+			$ports = array(636, 3269);
+		} else {
+			$ports = array(389, 3268);
+		}
+		$this->scanTask = Taskmanager::submit('PortScan', array(
+				'host' => $server,
+				'ports' => $ports
+		));
+		if (!isset($this->scanTask['id'])) {
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+	}
+
+	protected function renderInternal()
+	{
+		$data = array(
+			'title' => Request::post('title'),
+			'server' => Request::post('server'),
+			'searchbase' => Request::post('searchbase'),
+			'binddn' => Request::post('binddn'),
+			'bindpw' => Request::post('bindpw'),
+			'home' => Request::post('home'),
+			'ssl' => Request::post('ssl'),
+			'taskid' => $this->scanTask['id']
+		);
+		$data['step'] = 'AdAuth_CheckCredentials';
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-checkconnection', $data);
+	}
+
+}
+
+class AdAuth_CheckCredentials extends AddModule_Base
+{
+
 	private $taskIds;
 	private $originalBindDn;
 
 	protected function preprocessInternal()
 	{
 		$server = Request::post('server');
+		$port = Request::post('port');
 		$searchbase = Request::post('searchbase', '');
 		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
-		if (empty($server) || empty($binddn)) {
+		$ssl = Request::post('ssl', 'off') === 'on';
+		if (empty($server) || empty($binddn) || empty($port)) {
 			Message::addError('empty-field');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		$parent = null;
 		$this->originalBindDn = '';
+		$server .= ':' . $port;
+		if ($ssl) {
+			$uri = "ldaps://$server/";
+		} else {
+			$uri = "ldap://$server/";
+		}
 		if (preg_match('#^\w+[/\\\\](\w+)$#', $binddn, $out)) {
 			$user = $out[1];
 			$this->originalBindDn = str_replace('/', '\\', $binddn);
 			$selfSearch = Taskmanager::submit('LdapSearch', array(
-					'server' => $server,
+					'server' => $uri,
 					'searchbase' => $searchbase,
 					'binddn' => $this->originalBindDn,
 					'bindpw' => $bindpw,
@@ -72,7 +133,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 		}
 		$ldapSearch = Taskmanager::submit('LdapSearch', array(
 				'parentTask' => $parent,
-				'server' => $server,
+				'server' => $uri,
 				'searchbase' => $searchbase,
 				'binddn' => $binddn,
 				'bindpw' => $bindpw
@@ -90,14 +151,16 @@ class AdAuth_CheckConnection extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-checkconnection', array_merge($this->taskIds, array(
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-checkcredentials', array_merge($this->taskIds, array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
-			'server' => Request::post('server'),
+			'server' => Request::post('server') . ':' . Request::post('port'),
 			'searchbase' => Request::post('searchbase'),
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
+			'ssl' => Request::post('ssl'),
+			'fingerprint' => Request::post('fingerprint'),
 			'originalbinddn' => $this->originalBindDn,
 			'step' => 'AdAuth_Finish'
 			))
@@ -146,6 +209,10 @@ class AdAuth_Finish extends AddModule_Base
 		$module->setData('binddn', $binddn);
 		$module->setData('bindpw', Request::post('bindpw'));
 		$module->setData('home', Request::post('home'));
+		$module->setData('ssl', Request::post('ssl', 'off') === 'on');
+		if (Request::post('fingerprint')) {
+			$module->setData('fingerprint', Request::post('fingerprint'));
+		}
 		if ($this->edit !== false)
 			$ret = $module->update($title);
 		else
