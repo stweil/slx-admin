@@ -30,4 +30,12 @@ class EventLog
 		self::log('info', $message, $details);
 	}
 	
+	/**
+	 * DELETE ENTIRE EVENT LOG!
+	 */
+	public static function clear()
+	{
+		Database::exec("TRUNCATE eventlog");
+	}
+	
 }

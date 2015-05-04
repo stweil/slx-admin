@@ -33,6 +33,7 @@ class Page_AddUser extends Page
 				$ret = Database::queryFirst('SELECT Count(*) AS num FROM user');
 				if ($ret !== false && $ret['num'] == 1) {
 					Database::exec('UPDATE user SET permissions = 1');
+					EventLog::clear();
 					EventLog::info('Created first user ' . $_POST['user']);
 				} else {
 					EventLog::info(User::getName() . ' created user ' . $_POST['user']);
