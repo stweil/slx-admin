@@ -223,3 +223,19 @@ function update_8()
 		Database::exec("ALTER TABLE `configtgz` ADD `status` ENUM( 'OK', 'OUTDATED', 'MISSING' ) NOT NULL DEFAULT 'MISSING'");
 	return true;
 }
+
+function update_9()
+{
+	Database::exec("CREATE TABLE IF NOT EXISTS `statistic` (
+  `logid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `dateline` int(10) unsigned NOT NULL,
+  `typeid` varchar(30) NOT NULL,
+  `clientip` varchar(40) NOT NULL,
+  `username` varchar(30) NOT NULL,
+  `data` varchar(255) NOT NULL,
+  PRIMARY KEY (`logid`),
+  KEY `dateline` (`dateline`),
+  KEY `logtypeid` (`typeid`,`dateline`),
+  KEY `clientip` (`clientip`,`dateline`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
+}
