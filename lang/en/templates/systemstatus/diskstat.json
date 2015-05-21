@@ -1,5 +1,6 @@
 {
     "lang_capacity": "Capacity",
+    "lang_free": "Free",
     "lang_systemPartition": "System Partition",
     "lang_vmStore": "VM Store",
     "lang_vmStoreError": "Error when determining the available disk space on the VM location. Please check the configuration."

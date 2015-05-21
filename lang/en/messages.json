@@ -36,6 +36,7 @@
     "news-del-success": "News deleted",
     "news-empty": "There was no news found in the database",
     "news-save-success": "News updated successfully",
+    "no-image": "Could not find an SVG-image at the given URL",
     "no-permission": "No sufficient privileges to access this page",
     "password-mismatch": "Password and password confirmation do not match",
     "reboot-unconfirmed": "Confirmation prompt to reboot not confirmed",

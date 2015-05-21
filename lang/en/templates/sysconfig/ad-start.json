@@ -9,6 +9,8 @@
     "lang_next": "Next",
     "lang_password": "Password",
     "lang_searchBase": "Search Base",
+    "lang_ssl": "SSL",
+    "lang_sslDescription": "Use SSL encryption to talk to AD server",
     "lang_userDirectory": "User Directory",
     "lang_userDirectoryInfo1": "Optional: If the clients should embed a separate directory (home directory, user directory) from a server for the user, please enter here the format in UNC notation, eg",
     "lang_userDirectoryInfo2": "%s is a placeholder for the user's login name.",

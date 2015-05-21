@@ -36,6 +36,7 @@
     "news-del-success": "News gel\u00f6scht",
     "news-empty": "Es wurde keine News in der Datenbank gefunden",
     "news-save-success": "News erfolgreich aktualisiert",
+    "no-image": "Unter der angegebenen URL konnte kein SVG-Bild gefunden werden",
     "no-permission": "Keine ausreichenden Rechte, um auf diese Seite zuzugreifen",
     "password-mismatch": "Passwort und Passwortbest\u00e4tigung stimmen nicht \u00fcberein",
     "reboot-unconfirmed": "Sicherheitsabfrage zum Reboot nicht best\u00e4tigt",
