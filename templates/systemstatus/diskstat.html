@@ -2,7 +2,8 @@
 	{{#system}}
 	<b>{{lang_systemPartition}}</b>
 	<div id="circles-system"></div>
-	{{lang_capacity}}: {{size}}
+	<div>{{lang_capacity}}: {{size}}</div>
+	<div>{{lang_free}}: {{free}}</div>
 	{{/system}}
 	{{^system}}
 	<b>{{lan_availableMemoryError}}</b>
@@ -12,7 +13,8 @@
 	{{#store}}
 	<b>{{lang_vmStore}}</b>
 	<div id="circles-store"></div>
-	{{lang_capacity}}: {{size}}
+	<div>{{lang_capacity}}: {{size}}</div>
+	<div>{{lang_free}}: {{free}}</div>
 	{{/store}}
 	{{^store}}
 	<b>{{lang_vmStoreError}}</b>

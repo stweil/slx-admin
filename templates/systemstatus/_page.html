@@ -76,9 +76,21 @@
 
 </div>
 
+<h3>{{lang_advanced}}</h3>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_dmsdLog}}
+	</div>
+	<div class="panel-body" id="dmsd-log">
+		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+	</div>
+</div>
+
 <script type="text/javascript">
 	loadContent('#diskstat', '?do=SystemStatus&action=DiskStat');
 	loadContent('#addresses', '?do=SystemStatus&action=AddressList');
 	loadContent('#systeminfo', '?do=SystemStatus&action=SystemInfo');
 	loadContent('#services', '?do=SystemStatus&action=Services');
+	loadContent('#dmsd-log', '?do=SystemStatus&action=DmsdLog');
 </script>

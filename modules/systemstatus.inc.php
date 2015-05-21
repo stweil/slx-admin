@@ -2,6 +2,7 @@
 
 class Page_SystemStatus extends Page
 {
+
 	private $rebootTask = false;
 
 	protected function doPreprocess()
@@ -12,7 +13,7 @@ class Page_SystemStatus extends Page
 			Message::addError('no-permission');
 			Util::redirect('?do=Main');
 		}
-		
+
 		if (Request::post('action') === 'reboot') {
 			if (Request::post('confirm') !== 'yep') {
 				Message::addError('reboot-unconfirmed');
@@ -74,6 +75,7 @@ class Page_SystemStatus extends Page
 					$storeUsage = array(
 						'percent' => $entry['usedPercent'],
 						'size' => Util::readableFileSize($entry['sizeKb'] * 1024),
+						'free' => Util::readableFileSize($entry['freeKb'] * 1024),
 						'color' => $this->usageColor($entry['usedPercent'])
 					);
 				}
@@ -81,6 +83,7 @@ class Page_SystemStatus extends Page
 					$systemUsage = array(
 						'percent' => $entry['usedPercent'],
 						'size' => Util::readableFileSize($entry['sizeKb'] * 1024),
+						'free' => Util::readableFileSize($entry['freeKb'] * 1024),
 						'color' => $this->usageColor($entry['usedPercent'])
 					);
 				}
@@ -130,7 +133,7 @@ class Page_SystemStatus extends Page
 			'addresses' => $task['data']['addresses']
 		));
 	}
-	
+
 	protected function ajaxSystemInfo()
 	{
 		$cpuInfo = file_get_contents('/proc/cpuinfo');
@@ -167,16 +170,16 @@ class Page_SystemStatus extends Page
 		}
 		echo Render::parse('systemstatus/systeminfo', $data);
 	}
-	
+
 	protected function ajaxServices()
 	{
 		$data = array();
-		
+
 		$taskId = Trigger::ldadp();
 		if ($taskId === false)
 			return;
 		$status = Taskmanager::waitComplete($taskId, 10000);
-		
+
 		if (Taskmanager::isFailed($status)) {
 			if (isset($status['data']['messages']))
 				$data['ldadpError'] = $status['data']['messages'];
@@ -184,8 +187,25 @@ class Page_SystemStatus extends Page
 				$data['ldadpError'] = 'Taskmanager error';
 		}
 		// TODO: Dozentenmodul, tftp, ...
-		
+
 		echo Render::parse('systemstatus/services', $data);
+	}
+
+	protected function ajaxDmsdLog()
+	{
+		$fh = @fopen('/var/log/dmsd.log', 'r');
+		if ($fh === false) {
+			echo 'Error opening log file';
+			return;
+		}
+		fseek($fh, -6000, SEEK_END);
+		$data = fread($fh, 6000);
+		@fclose($fh);
+		if ($data === false) {
+			echo 'Error reading from log file';
+			return;
+		}
+		echo '<pre>', htmlspecialchars(substr($data, strpos($data, "\n") + 1)), '</pre>';
 	}
 
 	private function usageColor($percent)
