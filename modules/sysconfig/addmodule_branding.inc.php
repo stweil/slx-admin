@@ -132,6 +132,7 @@ class Branding_ProcessFile extends AddModule_Base
 			}
 			break;
 		}
+		Message::addError('no-image');
 		return false;
 	}
 
