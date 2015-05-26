@@ -238,4 +238,5 @@ function update_9()
   KEY `logtypeid` (`typeid`,`dateline`),
   KEY `clientip` (`clientip`,`dateline`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
+	return true;
 }
