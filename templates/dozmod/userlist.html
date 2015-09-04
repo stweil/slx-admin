@@ -1,0 +1,34 @@
+<h2>{{lang_userList}}</h2>
+
+<div class="table-responsive">
+	<form method="post" action="?do=DozMod">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="setuser">
+		<table class="table table-stripped table-condensed">
+			<thead>
+				<tr>
+					<th>{{lang_user}}</th>
+					<th>{{lang_organization}}</th>
+					<th>{{lang_lastLogin}}</th>
+					<th>{{lang_email}}</th>
+					<th><span class="glyphicon glyphicon-envelope" title="{{lang_emailNotifications}}"></span></th>
+					<th><span class="glyphicon glyphicon-king" title="{{lang_superUser}}"></span></th>
+					<th><span class="glyphicon glyphicon-ban-circle" title="{{lang_isBanned}}"></span></th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#users}}
+				<tr>
+					<td class="text-left slx-nowrap">{{lastname}}, {{firstname}}</td>
+					<td class="text-left slx-nowrap">{{orgname}}</td>
+					<td class="text-left slx-nowrap">{{lastlogin}}</td>
+					<td class="text-left slx-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>
+					<td><input type="checkbox" {{emailnotifications}}></td>
+					<td><input type="checkbox" {{issuperuser}}></td>
+					<td><input type="checkbox" {{isbanned}}></td>
+				</tr>
+				{{/users}}
+			</tbody>
+		</table>
+	</form>
+</div>
