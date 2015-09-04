@@ -97,7 +97,7 @@ class Page_Backup extends Page
 			$parent = $task['id'];
 		}
 		EventLog::info('Creating backup, v' . Database::getExpectedSchemaVersion() . ' on ' . Property::getServerIp());
-		// Finally run backup
+		// Finally run restore
 		$task = Taskmanager::submit('BackupRestore', array(
 				'mode' => 'restore',
 				'backupFile' => $tempfile,

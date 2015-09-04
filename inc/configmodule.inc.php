@@ -184,6 +184,7 @@ abstract class ConfigModule
 	 * Module specific version of generate.
 	 * 
 	 * @param string $tgz File name of tgz module to write final output to
+	 * @param string $parent Parent task of this task
 	 * @return array|boolean true if generation is completed immediately,
 	 * 		a task struct if some task needs to be run for generation,
 	 * 		false on error
@@ -307,6 +308,7 @@ abstract class ConfigModule
 	 * Updating the database etc. will happen later through a callback.
 	 *
 	 * @param boolean $deleteOnError if true, the db entry will be deleted if generation failed
+	 * @param string $parent Parent task of this task
 	 * @param int $timeoutMs maximum time in milliseconds we wait for completion
 	 * @return string|boolean task id if deferred generation was started,
 	 * 		true if generation succeeded (without using a task or within $timeoutMs)

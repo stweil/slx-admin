@@ -208,6 +208,36 @@ class Page_SystemStatus extends Page
 		echo '<pre>', htmlspecialchars(substr($data, strpos($data, "\n") + 1)), '</pre>';
 	}
 
+	protected function ajaxNetstat()
+	{
+		$taskId = Taskmanager::submit('Netstat');
+		if ($taskId === false)
+			return;
+		$status = Taskmanager::waitComplete($taskId, 3500);
+
+		if (isset($status['data']['messages']))
+			$data = $status['data']['messages'];
+		else
+			$data = 'Taskmanager error';
+
+		echo '<pre>', htmlspecialchars($data), '</pre>';
+	}
+
+	protected function ajaxPsList()
+	{
+		$taskId = Taskmanager::submit('PsList');
+		if ($taskId === false)
+			return;
+		$status = Taskmanager::waitComplete($taskId, 3500);
+
+		if (isset($status['data']['messages']))
+			$data = $status['data']['messages'];
+		else
+			$data = 'Taskmanager error';
+
+		echo '<pre>', htmlspecialchars($data), '</pre>';
+	}
+
 	private function usageColor($percent)
 	{
 		if ($percent <= 50) {

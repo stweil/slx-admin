@@ -31,6 +31,9 @@ class AdAuth_Start extends AddModule_Base
 				'ssl' => Request::post('ssl')
 			);
 		}
+		if (preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
+			$data['server'] = $out[1];
+		}
 		$data['step'] = 'AdAuth_CheckConnection';
 		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-start', $data);
 	}
@@ -211,14 +214,17 @@ class AdAuth_Finish extends AddModule_Base
 			$module = ConfigModule::getInstance('AdAuth');
 		else
 			$module = $this->edit;
+		$ssl = Request::post('ssl', 'off') === 'on';
 		$module->setData('server', Request::post('server'));
 		$module->setData('searchbase', $searchbase);
 		$module->setData('binddn', $binddn);
 		$module->setData('bindpw', Request::post('bindpw'));
 		$module->setData('home', Request::post('home'));
-		$module->setData('ssl', Request::post('ssl', 'off') === 'on');
-		if (Request::post('fingerprint')) {
-			$module->setData('fingerprint', Request::post('fingerprint'));
+		$module->setData('ssl', $ssl);
+		if ($ssl) {
+			$module->setData('fingerprint', Request::post('fingerprint', ''));
+		} else {
+			$module->setData('fingerprint', '');
 		}
 		if ($this->edit !== false)
 			$ret = $module->update($title);
@@ -228,7 +234,8 @@ class AdAuth_Finish extends AddModule_Base
 			Message::addError('value-invalid', 'any', 'any');
 			$tgz = false;
 		} else {
-			$tgz = $module->generate($this->edit === false, NULL, 200);
+			$parent = $this->stopOldInstance();
+			$tgz = $module->generate($this->edit === false, $parent);
 		}
 		if ($tgz === false) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
@@ -237,6 +244,24 @@ class AdAuth_Finish extends AddModule_Base
 		$this->taskIds = array(
 			'tm-config' => $tgz,
 		);
+	}
+	
+	private function stopOldInstance()
+	{
+		if ($this->edit === false)
+			return NULL;
+		$list = ConfigTgz::getAllForModule($this->edit->id());
+		if (!is_array($list))
+			return NULL;
+		$parent = NULL;
+		foreach ($list as $tgz) {
+			if (!$tgz->isActive())
+				continue;
+			$task = Trigger::ldadp($tgz->id(), $parent);
+			if (isset($task['id']))
+				$parent = $task['id'];
+		}
+		return $parent;
 	}
 
 	protected function renderInternal()

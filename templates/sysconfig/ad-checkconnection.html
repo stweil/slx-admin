@@ -51,12 +51,14 @@
 			var ports = task.data.ports;
 			for (var i = 0; i < ports.length; ++i) {
 				if (ports[i].open && ports[i].port && (!ssl || ports[i].certFingerprint.length > 10)) {
+					if ($.isNumeric($('#port').val()) && $('#port').val() < ports[i].port) continue; // Prefer the global LDAP ports over the specific AD ports
 					$('#port').val(ports[i].port);
 					if (ssl) $('#fingerprint').val(ports[i].certFingerprint);
-					$('#nextbutton').show();
-					$('#nextform').submit();
-					return;
 				}
+			}
+			if ($('#port').val() > 0) {
+				$('#nextbutton').show();
+				$('#nextform').submit();
 			}
 		}
 	}

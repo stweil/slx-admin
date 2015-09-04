@@ -38,6 +38,11 @@ class ConfigTgz
 		return true;
 	}
 	
+	public function isActive()
+	{
+		return readlink(CONFIG_HTTP_DIR . '/default/config.tgz') === $this->file;
+	}
+	
 	public function getModuleIds()
 	{
 		$ret = array();

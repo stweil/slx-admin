@@ -160,15 +160,6 @@ class Trigger
 
 	private static function triggerDaemons($action, $parent, &$taskids)
 	{
-		$task = Taskmanager::submit('SyncdaemonLauncher', array(
-				'operation' => $action,
-				'parentTask' => $parent,
-				'failOnParentFail' => false
-		));
-		if (isset($task['id'])) {
-			$taskids['syncid'] = $task['id'];
-			$parent = $task['id'];
-		}
 		$task = Taskmanager::submit('DozmodLauncher', array(
 				'operation' => $action,
 				'parentTask' => $parent,

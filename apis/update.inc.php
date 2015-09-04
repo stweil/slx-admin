@@ -224,6 +224,9 @@ function update_8()
 	return true;
 }
 
+// #######################
+// ##### 2015-05-21
+// Add statistics table, for future logging of eg. 
 function update_9()
 {
 	Database::exec("CREATE TABLE IF NOT EXISTS `statistic` (

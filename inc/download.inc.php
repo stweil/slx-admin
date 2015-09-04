@@ -59,6 +59,38 @@ class Download
 	}
 
 	/**
+	 * POST-Download file, obey given timeout in seconds
+	 * Return data on success, false on failure
+	 * @param string $url URL to fetch
+	 * @param array $params POST params to set in body, list of key-value-pairs
+	 * @param int $timeout timeout in seconds
+	 * @param int $code HTTP response code, or 999 on error
+	 */
+	public static function asStringPost($url, $params, $timeout, &$code)
+	{
+		$string = '';
+		foreach ($params as $k => $v) {
+			if (!empty($string)) {
+				$string .= '&';
+			}
+			$string .= $k . '=' . urlencode($v);
+		}
+		$ch = self::initCurl($url, $timeout, $head);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $string);
+		$data = curl_exec($ch);
+		$head = self::getContents($head);
+		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $head, $out)) {
+			$code = (int) $out[1];
+		} else {
+			$code = 999;
+		}
+		curl_close($ch);
+		return $data;
+	}
+
+	/**
 	 * Download a file from a URL to file.
 	 *
 	 * @param string $target destination path to download file to

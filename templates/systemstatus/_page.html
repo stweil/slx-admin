@@ -86,11 +86,31 @@
 		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
 	</div>
 </div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		netstat -tulpn
+	</div>
+	<div class="panel-body" id="netstat">
+		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		ps auxf
+	</div>
+	<div class="panel-body" id="pslist">
+		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+	</div>
+</div>
 
 <script type="text/javascript">
 	loadContent('#diskstat', '?do=SystemStatus&action=DiskStat');
 	loadContent('#addresses', '?do=SystemStatus&action=AddressList');
 	loadContent('#systeminfo', '?do=SystemStatus&action=SystemInfo');
 	loadContent('#services', '?do=SystemStatus&action=Services');
-	loadContent('#dmsd-log', '?do=SystemStatus&action=DmsdLog');
+	setTimeout(function() {
+		loadContent('#dmsd-log', '?do=SystemStatus&action=DmsdLog');
+		loadContent('#netstat', '?do=SystemStatus&action=Netstat');
+		loadContent('#pslist', '?do=SystemStatus&action=PsList');
+	}, 500);
 </script>
