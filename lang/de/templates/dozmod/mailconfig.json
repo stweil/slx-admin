@@ -1,0 +1,20 @@
+{
+    "lang_asteriskRequired": "Felder mit (*) sind erforderlich",
+    "lang_host": "Host",
+    "lang_mailConfig": "SMTP-Konfiguration zum Versenden von Mails",
+    "lang_mailConfigHeadline": "EMail-Konfiguration",
+    "lang_password": "Passwort",
+    "lang_port": "Port",
+    "lang_replyTo": "Reply-To Adresse (z.B. Helpdesk)",
+    "lang_save": "Konfiguration speichern",
+    "lang_senderAddress": "Absenderadresse",
+    "lang_senderName": "Absender Anzeigename",
+    "lang_ssl": "SSL-Modus",
+    "lang_sslExplicit": "Explizites SSL (\"STARTTLS\")",
+    "lang_sslImplicit": "Implizites SSL",
+    "lang_sslNone": "Kein SSL",
+    "lang_test": "Test-Mail senden",
+    "lang_testConfiguration": "Um die Konfiguration zu testen, geben Sie hier eine Empf\u00e4ngeradresse ein",
+    "lang_testRecipient": "Empf\u00e4nger",
+    "lang_username": "Benutzername (SMTP-Auth)"
+}

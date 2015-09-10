@@ -1,0 +1,11 @@
+{
+    "lang_canLogin": "Dieser Benutzer kann sich am Satelilten anmelden",
+    "lang_email": "EMail",
+    "lang_emailNotifications": "EMail-Benachrichtigungen aktiviert",
+    "lang_lastLogin": "Letzte Anmeldung",
+    "lang_organization": "Organisation",
+    "lang_superUser": "Ist SuperUser (darf alle Veranstaltungen und VMs bearbeiten\/l\u00f6schen)",
+    "lang_user": "Benutzername",
+    "lang_userList": "Benutzerliste",
+    "lang_userListHeader": "Dem Satelliten bekannte Benutzer"
+}

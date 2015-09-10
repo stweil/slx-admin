@@ -24,6 +24,7 @@
     "invalid-path": "Invalid path.",
     "invalid-template": "Selected template is not valid",
     "loginfail": "Username or Password incorrect",
+    "mail-config-saved": "Mail config saved",
     "missing-file": "There was no file selected!",
     "missing-title": "No title given",
     "module-added": "Module successfully added",

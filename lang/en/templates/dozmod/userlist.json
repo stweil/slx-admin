@@ -1,0 +1,11 @@
+{
+    "lang_canLogin": "This user can login to this satellite",
+    "lang_email": "E-Mail",
+    "lang_emailNotifications": "E-Mail notifications enabled",
+    "lang_lastLogin": "Last login",
+    "lang_organization": "Organization",
+    "lang_superUser": "Is super user (can edit\/delete all lectures and VMs)",
+    "lang_user": "User name",
+    "lang_userList": "User list",
+    "lang_userListHeader": "Users known to this satellite"
+}

@@ -16,8 +16,6 @@ class Page_DozMod extends Page
 
 		if ($action === 'mail') {
 			$this->mailHandler();
-		} else if ($action === 'setuser') {
-			$this->makeAdmin();
 		}
 	}
 
@@ -34,6 +32,7 @@ class Page_DozMod extends Page
 		Render::addTemplate('dozmod/mailconfig', $conf);
 		// User list for making people admin
 		$this->listUsers();
+		$this->listOrganizations();
 	}
 
 	private function cleanMailArray()
@@ -51,6 +50,21 @@ class Page_DozMod extends Page
 	}
 
 	protected function doAjax()
+	{
+		if (!User::hasPermission('superadmin'))
+			return;
+
+		$action = Request::post('action');
+		if ($action === 'mail') {
+			$this->handleTestMail();
+		} elseif ($action === 'setmail' || $action === 'setsu' || $action == 'setlogin') {
+			$this->setUserOption($action);
+		} elseif ($action === 'setorglogin') {
+			$this->setOrgOption($action);
+		}
+	}
+
+	private function handleTestMail()
 	{
 		$do = Request::post('button');
 		if ($do === 'test') {
@@ -94,7 +108,7 @@ class Page_DozMod extends Page
 				. ' ORDER BY lastname ASC, firstname ASC');
 		$rows = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['isbanned'] = $this->checked($row['canlogin'] == 0);
+			$row['canlogin'] = $this->checked($row['canlogin']);
 			$row['issuperuser'] = $this->checked($row['issuperuser']);
 			$row['emailnotifications'] = $this->checked($row['emailnotifications']);
 			$row['lastlogin'] = date('d.m.Y', $row['lastlogin']);
@@ -102,16 +116,72 @@ class Page_DozMod extends Page
 		}
 		Render::addTemplate('dozmod/userlist', array('users' => $rows));
 	}
-	
-	private function checked($val) {
+
+	private function listOrganizations()
+	{
+		$res = Database::simpleQuery('SELECT organizationid, displayname, canlogin FROM sat.organization'
+				. ' ORDER BY displayname ASC');
+		$rows = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['canlogin'] = $this->checked($row['canlogin']);
+			$rows[] = $row;
+		}
+		Render::addTemplate('dozmod/orglist', array('organizations' => $rows));
+	}
+
+	private function checked($val)
+	{
 		if ($val)
 			return 'checked="checked"';
 		return '';
 	}
 
-	private function makeAdmin()
+	private function setUserOption($option)
 	{
-		
+		$val = (string) Request::post('value', '-');
+		if ($val !== '1' && $val !== '0')
+			die('Nein');
+		if ($option === 'setmail') {
+			$field = 'emailnotifications';
+		} elseif ($option === 'setsu') {
+			$field = 'issuperuser';
+		} elseif ($option === 'setlogin') {
+			$field = 'canlogin';
+		} else {
+			die('Unknown');
+		}
+		$user = (string)Request::post('userid', '?');
+		$ret = Database::exec("UPDATE sat.user SET $field = :onoff WHERE userid = :userid", array(
+				'userid' => $user,
+				'onoff' => $val
+		));
+		error_log("Setting $field to $val for $user - affected: $ret");
+		if ($ret === false)
+			die('Error');
+		if ($ret == 0)
+			die(1 - $val);
+		die($val);
+	}
+
+	private function setOrgOption($option)
+	{
+		$val = (string) Request::post('value', '-');
+		if ($val !== '1' && $val !== '0')
+			die('Nein');
+		if ($option === 'setorglogin') {
+			$field = 'canlogin';
+		} else {
+			die('Unknown');
+		}
+		$ret = Database::exec("UPDATE sat.organization SET $field = :onoff WHERE organizationid = :organizationid", array(
+				'organizationid' => (string)Request::post('organizationid', ''),
+				'onoff' => $val
+		));
+		if ($ret === false)
+			die('Error');
+		if ($ret === 0)
+			die(1 - $val);
+		die($val);
 	}
 
 }

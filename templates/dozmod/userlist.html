@@ -1,34 +1,61 @@
 <h2>{{lang_userList}}</h2>
 
-<div class="table-responsive">
-	<form method="post" action="?do=DozMod">
-		<input type="hidden" name="token" value="{{token}}">
-		<input type="hidden" name="action" value="setuser">
-		<table class="table table-stripped table-condensed">
-			<thead>
-				<tr>
-					<th>{{lang_user}}</th>
-					<th>{{lang_organization}}</th>
-					<th>{{lang_lastLogin}}</th>
-					<th>{{lang_email}}</th>
-					<th><span class="glyphicon glyphicon-envelope" title="{{lang_emailNotifications}}"></span></th>
-					<th><span class="glyphicon glyphicon-king" title="{{lang_superUser}}"></span></th>
-					<th><span class="glyphicon glyphicon-ban-circle" title="{{lang_isBanned}}"></span></th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#users}}
-				<tr>
-					<td class="text-left slx-nowrap">{{lastname}}, {{firstname}}</td>
-					<td class="text-left slx-nowrap">{{orgname}}</td>
-					<td class="text-left slx-nowrap">{{lastlogin}}</td>
-					<td class="text-left slx-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>
-					<td><input type="checkbox" {{emailnotifications}}></td>
-					<td><input type="checkbox" {{issuperuser}}></td>
-					<td><input type="checkbox" {{isbanned}}></td>
-				</tr>
-				{{/users}}
-			</tbody>
-		</table>
-	</form>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_userListHeader}}
+	</div>
+	<div class="panel-body">
+		<div class="table-responsive">
+			<table class="table table-stripped table-condensed">
+				<thead>
+					<tr>
+						<th>{{lang_user}}</th>
+						<th>{{lang_organization}}</th>
+						<th>{{lang_lastLogin}}</th>
+						<th>{{lang_email}}</th>
+						<th><span class="glyphicon glyphicon-envelope" title="{{lang_emailNotifications}}"></span></th>
+						<th><span class="glyphicon glyphicon-king" title="{{lang_superUser}}"></span></th>
+						<th><span class="glyphicon glyphicon-ok" title="{{lang_canLogin}}"></span></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#users}}
+					<tr>
+						<td class="text-left slx-nowrap">{{lastname}}, {{firstname}}</td>
+						<td class="text-left slx-nowrap">{{orgname}}</td>
+						<td class="text-left slx-nowrap">{{lastlogin}}</td>
+						<td class="text-left slx-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>
+						<td><input onclick="setu('setmail', this, '{{userid}}')" type="checkbox" {{{emailnotifications}}}></td>
+						<td><input onclick="setu('setsu', this, '{{userid}}')" type="checkbox" {{{issuperuser}}}></td>
+						<td><input onclick="setu('setlogin', this, '{{userid}}')" type="checkbox" {{{canlogin}}}></td>
+					</tr>
+					{{/users}}
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
+
+<script type="text/javascript"><!--
+
+function setu(action, el, uid) {
+	var box = $(el);
+	var v = el.checked ? '1' : '0';
+	var old = el.checked == true;
+	box.css('display', 'none');
+	$.post('?do=DozMod', { token: TOKEN, action: action, userid: uid, value: v }).done(function (data) {
+		if (data != 1 && data != 0) {
+			el.checked = !old;
+			box.parent().css('background-color', 'red !important');
+		} else {
+			el.checked = (data == 1);
+		}
+		box.css('display', '');
+	}).fail(function() {
+		el.checked = !old;
+		box.parent().css('background-color', 'red !important');
+		box.css('display', '');
+	});
+}
+
+--> </script>

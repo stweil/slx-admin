@@ -1,0 +1,51 @@
+<h2>{{lang_organizationList}}</h2>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_organizationListHeader}}
+	</div>
+	<div class="panel-body">
+		<div class="table-responsive">
+			<table class="table table-stripped table-condensed">
+				<thead>
+					<tr>
+						<th>{{lang_organization}}</th>
+						<th><span class="glyphicon glyphicon-ok" title="{{lang_canLogin}}"></span></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#organizations}}
+					<tr>
+						<td class="text-left slx-nowrap">{{displayname}}</td>
+						<td><input onclick="seto('setorglogin', this, '{{organizationid}}')" type="checkbox" {{{canlogin}}}></td>
+					</tr>
+					{{/organizations}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript"><!--
+
+function seto(action, el, orgid) {
+	var box = $(el);
+	var v = el.checked ? '1' : '0';
+	var old = el.checked == true;
+	box.css('display', 'none');
+	$.post('?do=DozMod', { token: TOKEN, action: action, organizationid: orgid, value: v }).done(function (data) {
+		if (data != 1 && data != 0) {
+			el.checked = !old;
+			box.parent().css('background-color', 'red !important');
+		} else {
+			el.checked = (data == 1);
+		}
+		box.css('display', '');
+	}).fail(function() {
+		el.checked = !old;
+		box.parent().css('background-color', 'red !important');
+		box.css('display', '');
+	});
+}
+
+--> </script>
