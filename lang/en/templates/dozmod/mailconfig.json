@@ -3,6 +3,7 @@
     "lang_host": "Host",
     "lang_mailConfig": "SMTP configuration for sending mails",
     "lang_mailConfigHeadline": "email configuration",
+    "lang_mailDescription": "Fill in the following fields if you want to notify tutors\/professors\/lecturers about expiring VMs and lectures. If you leave one of the required fields blank, the feature will be disabled.",
     "lang_password": "Password",
     "lang_port": "Port",
     "lang_replyTo": "Reply-To address",

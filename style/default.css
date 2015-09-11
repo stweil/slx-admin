@@ -179,3 +179,7 @@ body {
 .slx-pointer {
   cursor: pointer;
 }
+
+.slx-strike {
+	text-decoration: line-through;
+}

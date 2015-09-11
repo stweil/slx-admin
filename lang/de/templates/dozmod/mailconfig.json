@@ -3,6 +3,7 @@
     "lang_host": "Host",
     "lang_mailConfig": "SMTP-Konfiguration zum Versenden von Mails",
     "lang_mailConfigHeadline": "EMail-Konfiguration",
+    "lang_mailDescription": "F\u00fcllen Sie die folgenden Felder aus, wenn sie m\u00f6chten, dass Dozenten Benachrichtigungen per Mail bekommen, falls eine von ihnen genutzte oder erstellte VM oder Veranstaltung abl\u00e4uft. Um diese Funktion zu deaktivieren, lassen Sie eines der mit (*) gekennzeichneten Felder leer. Wenn das hier angegebene E-Mail-Konto nur zum Versenden von Mails genutzt wird, sollten Sie einen Auto-Responder einrichten f\u00fcr den Fall, dass ein Dozent auf eine der automatisch generierten Mails antwortet (bzw. eine explizit angegebene Reply-To Adresse ignoriert).",
     "lang_password": "Passwort",
     "lang_port": "Port",
     "lang_replyTo": "Reply-To Adresse (z.B. Helpdesk)",

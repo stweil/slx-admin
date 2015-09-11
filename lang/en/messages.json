@@ -7,6 +7,7 @@
     "config-invalid": "Configuration with id {{0}} does not exist",
     "db-update-done": "Database successfully updated",
     "debug-mode": "The debug mode is active!",
+    "delete-images": "Delete: {{0}}",
     "deleted-tag": "Tag was successfully removed",
     "empty-archive": "The archive contains no files or directories",
     "empty-field": "A field was not filled",

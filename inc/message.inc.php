@@ -120,7 +120,7 @@ class Message
 		foreach (array_merge(self::$list, self::$alreadyDisplayed) as $item) {
 			$str = 'message[]=' . urlencode($item['type'] . '|' .$item['id']);
 			if (!empty($item['params'])) {
-				$str .= '|' . implode('|', $item['params']);
+				$str .= '|' . urlencode(implode('|', $item['params']));
 			}
 			$parts[] = $str;
 		}

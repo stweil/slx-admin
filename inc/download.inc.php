@@ -69,11 +69,13 @@ class Download
 	public static function asStringPost($url, $params, $timeout, &$code)
 	{
 		$string = '';
-		foreach ($params as $k => $v) {
-			if (!empty($string)) {
-				$string .= '&';
+		if (is_array($params)) {
+			foreach ($params as $k => $v) {
+				if (!empty($string)) {
+					$string .= '&';
+				}
+				$string .= $k . '=' . urlencode($v);
 			}
-			$string .= $k . '=' . urlencode($v);
 		}
 		$ch = self::initCurl($url, $timeout, $head);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -115,7 +117,7 @@ class Download
 			return false;
 		}
 		if (preg_match_all('#\bHTTP/\d+\.\d+ (\d+) #', $head, $out, PREG_SET_ORDER)) {
-			$code = (int) $out[count($out)-1][1];
+			$code = (int) $out[count($out) - 1][1];
 		} else {
 			$code = '999 ' . curl_error($ch);
 		}

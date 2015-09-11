@@ -17,10 +17,18 @@ class Page_DozMod extends Page
 		if ($action === 'mail') {
 			$this->mailHandler();
 		}
+		if ($action === 'delimages') {
+			$result = $this->handleDeleteImages();
+			if (!empty($result)) {
+				Message::addInfo('delete-images', $result);
+			}
+			Util::redirect('?do=DozMod');
+		}
 	}
 
 	protected function doRender()
 	{
+		$this->listDeletePendingImages();
 		// Mail config
 		$conf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'mailconfig'));
 		if ($conf != null) {
@@ -33,6 +41,38 @@ class Page_DozMod extends Page
 		// User list for making people admin
 		$this->listUsers();
 		$this->listOrganizations();
+	}
+
+	private function listDeletePendingImages()
+	{
+		$res = Database::simpleQuery("SELECT b.displayname,"
+				. " own.firstname, own.lastname, own.email,"
+				. " v.imageversionid, v.createtime, v.filesize, v.deletestate,"
+				. " lat.expiretime AS latexptime, lat.deletestate AS latdelstate"
+				. " FROM sat.imageversion v"
+				. " INNER JOIN sat.imagebase b ON (b.imagebaseid = v.imagebaseid)"
+				. " INNER JOIN sat.user own ON (b.ownerid = own.userid)"
+				. " LEFT JOIN sat.imageversion lat ON (b.latestversionid = lat.imageversionid)"
+				. " WHERE v.deletestate <> 'KEEP'"
+				. " ORDER BY b.displayname ASC, v.createtime ASC");
+		$NOW = time();
+		$rows = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($row['latexptime'] > $NOW && $row['latdelstate'] === 'KEEP') {
+				$row['hasNewerClass'] = 'glyphicon-ok green';
+			} else {
+				$row['hasNewerClass'] = 'glyphicon-remove red';
+			}
+			if ($row['deletestate'] === 'DO_DELETE') {
+				$row['name_extra_class'] = 'slx-strike';
+			}
+			$row['version'] = date('d.m.Y H:i:s', $row['createtime']);
+			$row['filesize'] = Util::readableFileSize($row['filesize']);
+			$rows[] = $row;
+		}
+		if (empty($rows))
+			return;
+		Render::addTemplate('dozmod/images-delete', array('images' => $rows));
 	}
 
 	private function cleanMailArray()
@@ -61,7 +101,31 @@ class Page_DozMod extends Page
 			$this->setUserOption($action);
 		} elseif ($action === 'setorglogin') {
 			$this->setOrgOption($action);
+		} elseif ($action === 'delimages') {
+			die($this->handleDeleteImages());
 		}
+	}
+
+	private function handleDeleteImages()
+	{
+		$images = Request::post('images', false);
+		if (is_array($images)) {
+			foreach ($images as $image => $val) {
+				if (strtolower($val) !== 'on')
+					continue;
+				Database::exec("UPDATE sat.imageversion SET deletestate = 'DO_DELETE'"
+					. " WHERE deletestate = 'SHOULD_DELETE' AND imageversionid = :imageversionid", array(
+					'imageversionid' => $image
+				));
+			}
+			if (!empty($images)) {
+				$ret = Download::asStringPost('http://127.0.0.1:9080/do/delete-images', false, 2, $code);
+				if ($code == 999) {
+					$ret .= "\nConnection to DMSD failed.";
+				}
+			}
+		}
+		return false;
 	}
 
 	private function handleTestMail()
@@ -96,8 +160,8 @@ class Page_DozMod extends Page
 				'value' => $data
 			));
 			Message::addSuccess('mail-config-saved');
-			Util::redirect('?do=DozMod');
 		}
+		Util::redirect('?do=DozMod');
 	}
 
 	private function listUsers()
@@ -150,7 +214,7 @@ class Page_DozMod extends Page
 		} else {
 			die('Unknown');
 		}
-		$user = (string)Request::post('userid', '?');
+		$user = (string) Request::post('userid', '?');
 		$ret = Database::exec("UPDATE sat.user SET $field = :onoff WHERE userid = :userid", array(
 				'userid' => $user,
 				'onoff' => $val
@@ -174,7 +238,7 @@ class Page_DozMod extends Page
 			die('Unknown');
 		}
 		$ret = Database::exec("UPDATE sat.organization SET $field = :onoff WHERE organizationid = :organizationid", array(
-				'organizationid' => (string)Request::post('organizationid', ''),
+				'organizationid' => (string) Request::post('organizationid', ''),
 				'onoff' => $val
 		));
 		if ($ret === false)

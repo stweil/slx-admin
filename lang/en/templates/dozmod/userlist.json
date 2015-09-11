@@ -7,5 +7,6 @@
     "lang_superUser": "Is super user (can edit\/delete all lectures and VMs)",
     "lang_user": "User name",
     "lang_userList": "User list",
+    "lang_userListDescription": "Here you can promote \"super users\", which will have all permissions in the \"Dozenzenmodul\". You can also ban users from accessing this server via the \"Dozentenmodul\".",
     "lang_userListHeader": "Users known to this satellite"
 }

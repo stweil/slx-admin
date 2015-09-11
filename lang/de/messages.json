@@ -7,6 +7,7 @@
     "config-invalid": "Konfiguration mit ID {{0}} existiert nicht",
     "db-update-done": "Datenbank wurde aktualisiert",
     "debug-mode": "Der Debug-Modus ist aktiv!",
+    "delete-images": "L\u00f6schung: {{0}}",
     "deleted-tag": "Tag wurde entfernt",
     "empty-archive": "Das Archiv enth\u00e4lt keine Dateien oder Verzeichnisse",
     "empty-field": "Ein Feld wurde nicht ausgef\u00fcllt",

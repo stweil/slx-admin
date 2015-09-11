@@ -1,0 +1,57 @@
+<h2>{{lang_heading}}</h2>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_subHeading}}
+	</div>
+	<div class="panel-body">
+		<p>{{lang_description}}</p>
+		<div class="table-responsive">
+			<form id="delform" method="post" action="?do=DozMod" onsubmit="return slxPostdel()">
+				<input type="hidden" name="token" value="{{token}}">
+				<input type="hidden" name="action" value="delimages">
+				<table class="table table-stripped table-condensed">
+					<thead>
+						<tr>
+							<th>{{lang_image}}</th>
+							<th>{{lang_version}}</th>
+							<th>{{lang_owner}}</th>
+							<th><span class="glyphicon glyphicon-upload" title="{{lang_hasNewer}}"></th>
+							<th>{{lang_size}}</th>
+							<th><span class="glyphicon glyphicon-trash" title="{{lang_delete}}"></span></th>
+						</tr>
+					</thead>
+					<tbody>
+						{{#images}}
+						<tr>
+							<td class="text-left slx-nowrap {{name_extra_class}}">{{displayname}}<br><span class="small">{{imageversionid}}</span></td>
+							<td class="text-left slx-nowrap">{{version}}</td>
+							<td class="text-left slx-nowrap"><a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a></td>
+							<td class="text-left slx-nowrap"><span class="glyphicon {{hasNewerClass}}"></span></td>
+							<td class="text-right slx-nowrap">{{filesize}}</td>
+							<td><input name="images[{{imageversionid}}]" type="checkbox" checked="checked"></td>
+						</tr>
+						{{/images}}
+					</tbody>
+				</table>
+				<button id="delbtn" class="btn btn-danger" type="submit" name="button" value="save">{{lang_delButton}}</button>
+			</form>
+			<pre style="display:none" id="deloutput"></pre>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript"><!--
+
+function slxPostdel() {
+	var f = $('#delform');
+	$('#delbtn').prop('disabled', true);
+	$.post('?do=DozMod', f.serialize()).done(function (data) {
+		$('#deloutput').text(data).css('display', '');
+	}).fail(function () {
+		$('#deloutput').text('ERROR').css('display', '');
+	});
+	return false;
+}
+
+--> </script>

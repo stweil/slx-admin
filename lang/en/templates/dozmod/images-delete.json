@@ -1,0 +1,12 @@
+{
+    "lang_delButton": "Permanently delete selected images",
+    "lang_delete": "Delete",
+    "lang_description": "This list shows images that reached their expire date, or where the image file in the file system is damaged or missing. You need to manually confirm the deletion of these files for safety reasons (software bugs, wrong system time, etc.).",
+    "lang_hasNewer": "Newer version exists",
+    "lang_heading": "Images marked for deletion",
+    "lang_image": "VM",
+    "lang_owner": "Owner",
+    "lang_size": "Size",
+    "lang_subHeading": "Expired or damaged images",
+    "lang_version": "Version timestamp"
+}
