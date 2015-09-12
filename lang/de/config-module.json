@@ -9,6 +9,8 @@
     "group_branding": "Einrichtungsspezifisches Logo",
     "group_generic": "Generisch",
     "group_sshconfig": "SSH",
+    "ldapAuth_description": "Mit diesem Modul l\u00e4sst sich eine generische LDAP-Authentifizierung einrichten.",
+    "ldapAuth_title": "LDAP Authentifizierung",
     "sshconfig_description": "Mit diesem Modul l\u00e4sst sich steuern, ob und wie der sshd auf den gebooteten Clients startet, und welche Funktionen er zur Verf\u00fcgung stellt. Wenn Sie keinen sshd auf den Clients nutzen wollen, brauchen Sie kein solches Modul zu erstellen.",
     "sshconfig_title": "SSH-D\u00e4mon"
 }

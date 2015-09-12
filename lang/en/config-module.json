@@ -9,6 +9,8 @@
     "group_branding": "Branding",
     "group_generic": "Generic",
     "group_sshconfig": "SSH",
+    "ldapAuth_description": "This module enables you to create a simple LDAP authentication module.",
+    "ldapAuth_title": "LDAP Authentication",
     "sshconfig_description": "Here you can set whether the sshd on the clients will start, and what options it will use.",
     "sshconfig_title": "SSH daemon"
 }

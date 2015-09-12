@@ -101,6 +101,8 @@ class Page_SystemStatus extends Page
 					$storeError = false;
 				}
 			}
+		} else {
+			$storeError = 'Storage not configured';
 		}
 		echo Render::parse('systemstatus/diskstat', array(
 			'store' => $storeUsage,

@@ -1,20 +1,20 @@
 <?php
 
 ConfigModule::registerModule(
-	'AdAuth', // ID
-	Dictionary::translate('config-module', 'adAuth_title'), // Title
-	Dictionary::translate('config-module', 'adAuth_description'), // Description
+	'LdapAuth', // ID
+	Dictionary::translate('config-module', 'ldapAuth_title'), // Title
+	Dictionary::translate('config-module', 'ldapAuth_description'), // Description
 	Dictionary::translate('config-module', 'group_authentication'), // Group
 	true // Only one per config?
 );
 
-class ConfigModule_AdAuth extends ConfigModule
+class ConfigModule_LdapAuth extends ConfigModule
 {
 
 	const VERSION = 1;
 
-	private static $REQUIRED_FIELDS = array('server', 'searchbase', 'binddn');
-	private static $OPTIONAL_FIELDS = array('bindpw', 'home', 'ssl', 'fingerprint');
+	private static $REQUIRED_FIELDS = array('server', 'searchbase');
+	private static $OPTIONAL_FIELDS = array('binddn', 'bindpw', 'home', 'ssl', 'fingerprint');
 
 	protected function generateInternal($tgz, $parent)
 	{
@@ -22,7 +22,7 @@ class ConfigModule_AdAuth extends ConfigModule
 		$config = $this->moduleData;
 		if (preg_match('/^([^\:]+)\:(\d+)$/', $config['server'], $out)) {
 			$config['server'] = $out[1];
-			$config['adport'] = $out[2];
+			$config['ldapport'] = $out[2];
 		}
 		$config['parentTask'] = $parent;
 		$config['failOnParentFail'] = false;
@@ -30,6 +30,7 @@ class ConfigModule_AdAuth extends ConfigModule
 		$config['proxyport'] = 3100 + $this->id();
 		$config['filename'] = $tgz;
 		$config['moduleid'] = $this->id();
+		$config['plainldap'] = true;
 		return Taskmanager::submit('CreateLdapConfig', $config);
 	}
 
@@ -55,7 +56,7 @@ class ConfigModule_AdAuth extends ConfigModule
 	// ############## Callbacks #############################
 
 	/**
-	 * Server IP changed - rebuild all AD modules.
+	 * Server IP changed - rebuild all LDAP modules.
 	 */
 	public function event_serverIpChanged()
 	{

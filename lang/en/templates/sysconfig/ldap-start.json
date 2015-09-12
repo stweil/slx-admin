@@ -1,0 +1,15 @@
+{
+    "lang_bindDN": "Bind domain",
+    "lang_close": "Close",
+    "lang_ldapText1": "Here you can create a configuration module to authenticate agains an LDAP server",
+    "lang_ldapText2": "An LDAP-Proxy will be launched on this server. This means the LDAP-Server must be reachable from it. The client PCs in the labs however don't have to be able to talk to the LDAP server \u2013 they will use the proxy running on this server.",
+    "lang_moduleTitle": "LDAP-authentication",
+    "lang_next": "Next",
+    "lang_password": "Password",
+    "lang_searchBase": "Search base",
+    "lang_ssl": "SSL",
+    "lang_sslDescription": "Use SSL to connect to the LDAP-Server. (The connection between clients and proxy uses SSL in either case.)",
+    "lang_userDirectory": "Home-Directory",
+    "lang_userDirectoryInfo1": "UNC-path to home directory of user. '%s' can be used as a placeholder for the account name.",
+    "lang_userDirectoryInfo2": "Currently, only CIFS\/SMB is supported."
+}

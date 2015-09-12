@@ -1,0 +1,29 @@
+<p>
+	{{lang_ldapStarted}}
+</p>
+
+<div id="zeug">
+	<div data-tm-id="{{tm-config}}" data-tm-log="error" data-tm-callback="ldapCb">{{lang_generateModule}}</div>
+</div>
+<br>
+<div id="back" class="pull-left" style="display:none">
+	<a href="?do=SysConfig&amp;action=addmodule&amp;step=LdapAuth_Start" class="btn btn-primary">{{lang_restartWizard}}</a>
+</div>
+<div id="finish" class="pull-right" style="display:none">
+	<a href="?do=SysConfig" class="btn btn-primary">{{lang_toSystemConfiguration}}</a>
+</div>
+<script type="text/javascript">
+function ldapCb(task)
+{
+	if (!task || !task.statusCode)
+		return;
+	 if (task.statusCode === 'TASK_FINISHED') {
+		$('#finish').attr('style', '');
+	}
+	if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'PARENT_FAILED') {
+		$('#back').attr('style', '');
+	}
+}
+if ('{{tm-config}}' == '')
+	$('#finish').attr('style', '');
+</script>

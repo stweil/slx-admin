@@ -1,0 +1,79 @@
+<p>
+	{{lang_ldapText1}}
+	<br>
+	{{lang_ldapText2}}
+</p>
+
+<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="edit" value="{{edit}}">
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">{{lang_moduleTitle}}</span>
+		<input tabindex="1" name="title" value="{{title}}" type="text" class="form-control">
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">Server *</span>
+		<input tabindex="2" name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
+		<!--span class="input-group-btn">
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span-->
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">{{lang_bindDN}}</span>
+		<input tabindex="3" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="domain\bwlp *ODER* CN=bwlp,OU=Benutzer,DC=domain,DC=hs-beispiel,DC=de">
+		<!--span class="input-group-btn">
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span-->
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">{{lang_password}}</span>
+		<input tabindex="4" name="bindpw" value="{{bindpw}}" type="{{password_type}}" class="form-control" placeholder="{{lang_password}}">
+		<!--span class="input-group-btn">
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span-->
+	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">{{lang_searchBase}} *</span>
+		<input tabindex="5" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="ou=users,dc=hochschule,dc=de">
+		<!--span class="input-group-btn">
+			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span-->
+	</div>
+	<br>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">Home</span>
+		<input tabindex="6" name="home" value="{{home}}" type="text" class="form-control" placeholder="\\server.example.com\%s">
+		<span class="input-group-btn">
+			<a class="btn btn-default" data-toggle="modal" data-target="#help-home"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span>
+	</div>
+	<br>
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" name="ssl" {{#ssl}}checked{{/ssl}}> {{lang_ssl}}
+		</label>
+	</div>
+	<div><i>{{lang_sslDescription}}</i></div>
+	<br>
+	<div class="pull-right">
+		<button type="submit" class="btn btn-primary">{{lang_next}} &raquo;</button>
+	</div>
+</form>
+
+<div class="modal fade" id="help-home" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">{{lang_userDirectory}}</div>
+			<div class="modal-body">
+				<p>
+					{{lang_userDirectoryInfo1}}
+				</p>
+				<pre>\\fileserv.uni.example.com\users\%s</pre>
+				<p>
+					{{lang_userDirectoryInfo2}}
+				</p>
+			</div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+		</div>
+	</div>
+</div>

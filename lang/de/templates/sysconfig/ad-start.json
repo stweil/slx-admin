@@ -10,7 +10,7 @@
     "lang_password": "Passwort",
     "lang_searchBase": "Suchbasis",
     "lang_ssl": "SSL",
-    "lang_sslDescription": "Die Verbindung zum AD-Server mit SSL sichern",
+    "lang_sslDescription": "Die Verbindung zum AD-Server mit SSL sichern. (Die Verbindung zwischen Client und Proxy wird in jedem Fall mit SSL abgewickelt.)",
     "lang_userDirectory": "Benutzerverzeichnis",
     "lang_userDirectoryInfo1": "Optionale Angabe: Wenn die Clients f\u00fcr die Benutzer ein eigenes Verzeichnis (Homeverzeichnis, Benutzerverzeichnis) von einem Server einbinden sollen, geben Sie bitte hier das Format in UNC-Notation an, also z.B.",
     "lang_userDirectoryInfo2": "%s ist dabei ein Platzhalter f\u00fcr den Login-Namen des Benutzers.",
