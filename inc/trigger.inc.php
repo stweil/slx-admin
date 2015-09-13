@@ -88,7 +88,7 @@ class Trigger
 		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"
 				. " INNER JOIN configtgz_x_module USING (moduleid)"
 				. " INNER JOIN configtgz USING (configid)"
-				. " WHERE moduletype = 'AdAuth'");
+				. " WHERE moduletype IN ('AdAuth', 'LdapAuth')");
 		// TODO: Multiconfig support
 		$id = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
