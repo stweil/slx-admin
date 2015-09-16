@@ -58,7 +58,7 @@ class DefaultData
 			array(
 				'setting' => 'SLX_LOGOUT_TIMEOUT',
 				'catid' => '1',
-				'defaultvalue' => '1800',
+				'defaultvalue' => '2700',
 				'permissions' => '2',
 				'validator' => 'regex:/^\d*$/'
 			),
