@@ -70,6 +70,7 @@
 					<label><input type="checkbox" name="confirm" value="yep"> {{lang_iAmSure}}</label>
 					<button class="btn btn-warning btn-xs" type="submit">Reboot</button>
 				</form>
+				<div id="dmsd-users"></div>
 			</div>
 		</div>
 	</div>
@@ -112,5 +113,6 @@
 		loadContent('#dmsd-log', '?do=SystemStatus&action=DmsdLog');
 		loadContent('#netstat', '?do=SystemStatus&action=Netstat');
 		loadContent('#pslist', '?do=SystemStatus&action=PsList');
+		loadContent('#dmsd-users', '?do=SystemStatus&action=DmsdUsers');
 	}, 500);
 </script>

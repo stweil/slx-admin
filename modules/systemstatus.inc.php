@@ -49,6 +49,22 @@ class Page_SystemStatus extends Page
 			echo "Action $action not known in " . get_class();
 		}
 	}
+	
+	protected function ajaxDmsdUsers()
+	{
+		$ret = Download::asStringPost('http://127.0.0.1:9080/status/fileserver', false, 2, $code);
+		if ($code != 200) {
+			Header('HTTP/1.1 502 Internal Server Error');
+			die('Internal Server Wurst');
+		}
+		$data = @json_decode($ret, true);
+		if (is_array($data)) {
+			$ret = 'Uploads: ' . $data['activeUploads'] . ', Downloads: ' . $data['activeDownloads'];
+		} else {
+			$ret = '???';
+		}
+		die($ret);
+	}
 
 	protected function ajaxDiskStat()
 	{
