@@ -23,6 +23,14 @@
 				<span class="input-group-addon">{{lang_file}}</span>
 				<input class="form-control" type="file" name="backupfile">
 			</div>
+			<div>
+				<label><input type="checkbox" name="restore_openslx" checked="checked"> {{lang_restoreSystemConfig}}</label>
+				<p><i>{{lang_systemExplanation}}</i></p>
+			</div>
+			<div>
+				<label><input type="checkbox" name="restore_dozmod" checked="checked"> {{lang_restoreDozmodConfig}}</label>
+				<p><i>{{lang_dozmodExplanation}}</i></p>
+			</div>
 			<button class="btn btn-primary" type="submit">{{lang_restore}}</button>
 		</div>
 	</div>

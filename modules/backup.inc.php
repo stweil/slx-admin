@@ -102,7 +102,9 @@ class Page_Backup extends Page
 				'mode' => 'restore',
 				'backupFile' => $tempfile,
 				'parentTask' => $parent,
-				'failOnParentFail' => false
+				'failOnParentFail' => false,
+				'restoreOpenslx' => Request::post('restore_openslx', 'off') === 'on',
+				'restoreDozmod' => Request::post('restore_dozmod', 'off') === 'on',
 		));
 		if (isset($task['id'])) {
 			$this->templateData['restoreid'] = $task['id'];
