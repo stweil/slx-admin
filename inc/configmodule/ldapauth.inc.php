@@ -22,7 +22,7 @@ class ConfigModule_LdapAuth extends ConfigModule
 		$config = $this->moduleData;
 		if (preg_match('/^([^\:]+)\:(\d+)$/', $config['server'], $out)) {
 			$config['server'] = $out[1];
-			$config['ldapport'] = $out[2];
+			$config['adport'] = $out[2]; // sic!
 		}
 		$config['parentTask'] = $parent;
 		$config['failOnParentFail'] = false;
