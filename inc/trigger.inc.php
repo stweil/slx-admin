@@ -119,7 +119,11 @@ class Trigger
 		$vmstore = Property::getVmStoreConfig();
 		if (!is_array($vmstore))
 			return false;
-		$storetype = $vmstore['storetype'];
+		if (isset($vmstore['storetype'])) {
+			$storetype = $vmstore['storetype'];
+		} else {
+			$storetype = 'unknown';
+		}
 		if ($storetype === 'nfs')
 			$addr = $vmstore['nfsaddr'];
 		if ($storetype === 'cifs')

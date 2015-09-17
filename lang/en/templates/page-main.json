@@ -3,6 +3,7 @@
     "lang_configure": "Configure",
     "lang_intro": "This is the bwLehrpool configuration interface.",
     "lang_minilinuxMissing": "Important files from the mini Linux installation are missing.",
+    "lang_numerOfImagesMarkedForDeletion": "Images marked for deletion",
     "lang_systemConfiguration": "System Configuration",
     "lang_systemConfigurationNotChosen": "A system configuration has not been chosen yet.",
     "lang_vmLocationNotSet": "A location for the virtual machine is not set yet.",

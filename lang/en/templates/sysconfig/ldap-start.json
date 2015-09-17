@@ -3,7 +3,7 @@
     "lang_close": "Close",
     "lang_ldapText1": "Here you can create a configuration module to authenticate agains an LDAP server",
     "lang_ldapText2": "An LDAP-Proxy will be launched on this server. This means the LDAP-Server must be reachable from it. The client PCs in the labs however don't have to be able to talk to the LDAP server \u2013 they will use the proxy running on this server.",
-    "lang_moduleTitle": "LDAP-authentication",
+    "lang_moduleTitle": "Module name",
     "lang_next": "Next",
     "lang_password": "Password",
     "lang_searchBase": "Search base",
