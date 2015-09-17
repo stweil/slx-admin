@@ -63,7 +63,7 @@ class Page_DozMod extends Page
 			} else {
 				$row['hasNewerClass'] = 'glyphicon-remove red';
 			}
-			if ($row['deletestate'] === 'DO_DELETE') {
+			if ($row['deletestate'] === 'WANT_DELETE') {
 				$row['name_extra_class'] = 'slx-strike';
 			}
 			$row['version'] = date('d.m.Y H:i:s', $row['createtime']);
@@ -113,7 +113,7 @@ class Page_DozMod extends Page
 			foreach ($images as $image => $val) {
 				if (strtolower($val) !== 'on')
 					continue;
-				Database::exec("UPDATE sat.imageversion SET deletestate = 'DO_DELETE'"
+				Database::exec("UPDATE sat.imageversion SET deletestate = 'WANT_DELETE'"
 					. " WHERE deletestate = 'SHOULD_DELETE' AND imageversionid = :imageversionid", array(
 					'imageversionid' => $image
 				));
@@ -123,6 +123,7 @@ class Page_DozMod extends Page
 				if ($code == 999) {
 					$ret .= "\nConnection to DMSD failed.";
 				}
+				return $ret;
 			}
 		}
 		return false;
