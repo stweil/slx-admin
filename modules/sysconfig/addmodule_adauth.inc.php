@@ -80,8 +80,8 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => $this->server,
-			'searchbase' => Request::post('searchbase'),
-			'binddn' => Request::post('binddn'),
+			'searchbase' => Util::normalizeDn(Request::post('searchbase')),
+			'binddn' => Util::normalizeDn(Request::post('binddn')),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl'),
@@ -206,6 +206,14 @@ class AdAuth_Finish extends AddModule_Base
 			if ($i === false)
 				$i = -1;
 			$searchbase = mb_substr($binddn, $i + 1);
+		} else {
+			$somedn = Request::post('somedn', false);
+			if (!empty($somedn)) {
+				$i = stripos($somedn, $searchbase);
+				if ($i !== false) {
+					$searchbase = substr($somedn, $i, strlen($searchbase));
+				}
+			}
 		}
 		$title = Request::post('title');
 		if (empty($title))

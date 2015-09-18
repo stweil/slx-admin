@@ -80,8 +80,8 @@ class LdapAuth_CheckConnection extends AddModule_Base
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => $this->server,
-			'searchbase' => Request::post('searchbase'),
-			'binddn' => Request::post('binddn'),
+			'searchbase' => Util::normalizeDn(Request::post('searchbase')),
+			'binddn' => Util::normalizeDn(Request::post('binddn')),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl'),
@@ -177,6 +177,13 @@ class LdapAuth_Finish extends AddModule_Base
 			$module = ConfigModule::getInstance('LdapAuth');
 		else
 			$module = $this->edit;
+		$somedn = Request::post('somedn', false);
+		if (!empty($somedn)) {
+			$i = stripos($somedn, $searchbase);
+			if ($i !== false) {
+				$searchbase = substr($somedn, $i, strlen($searchbase));
+			}
+		}
 		$ssl = Request::post('ssl', 'off') === 'on';
 		$module->setData('server', Request::post('server'));
 		$module->setData('searchbase', $searchbase);
