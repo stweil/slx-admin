@@ -164,8 +164,9 @@ class Trigger
 
 	private static function triggerDaemons($action, $parent, &$taskids)
 	{
-		$task = Taskmanager::submit('DozmodLauncher', array(
+		$task = Taskmanager::submit('Systemctl', array(
 				'operation' => $action,
+				'service' => 'dmsd',
 				'parentTask' => $parent,
 				'failOnParentFail' => false
 		));
