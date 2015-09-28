@@ -114,8 +114,14 @@ class Page_BaseConfig extends Page
 			}
 			return $ret . '</select>';
 		}
+		// Password field guessing
+		if (stripos($validator, 'password') !== false) {
+			$type = Property::getPasswordFieldType();
+		} else {
+			$type = 'text';
+		}
 		// Fallback: single line input
-		return '<input type="text" name="setting[' . $setting . ']" class="form-control" size="30" value="' . $current . '">';
+		return '<input type="' . $type . '" name="setting[' . $setting . ']" class="form-control" size="30" value="' . $current . '">';
 	}
 
 }
