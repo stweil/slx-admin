@@ -5,7 +5,7 @@
     "lang_description": "Here you can set whether the web interface should be accessible via https. You can chose if you want to use a random self signed certificate, or supply your own.",
     "lang_httpsSettings": "HTTPS settings",
     "lang_noHttps": "Disable HTTPS",
-    "lang_privateKey": "Please paste the private key belonging to the certificate here. It has to be in \u0022pem\u0022 format too, which should look like this:",
-    "lang_randomCert": "Geenrate new self-signed certificate",
+    "lang_privateKey": "Please paste the private key belonging to the certificate here. It has to be in \"pem\" format too, which should look like this:",
+    "lang_randomCert": "Genenrate new self-signed certificate",
     "lang_save": "Save"
 }

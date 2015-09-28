@@ -11,8 +11,8 @@
 					<input type="hidden" name="action" value="config">
 					<table id="conftable" class="slx-table" style="max-width:100px !important">
 						{{#configs}}
-						<tr class="slx-pointer" data-modlist="{{modlist}}" onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')">
-							<td class="slx-width-ignore slx-nowrap"><div class="slx-dyn-ellipsis">{{config}}</div></td>
+						<tr data-modlist="{{modlist}}" onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')">
+							<td class="slx-pointer slx-width-ignore slx-nowrap"><div class="slx-dyn-ellipsis">{{config}}</div></td>
 							<td>
 								{{^current}}
 								<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
@@ -21,7 +21,7 @@
 								</button>
 								{{/current}}
 								{{#current}}
-								<span class="btn btn-success btn-xs">
+								<span class="btn btn-success btn-xs slx-nopointer">
 									<span class="glyphicon glyphicon-ok"></span>
 									{{lang_active}}
 								</span>

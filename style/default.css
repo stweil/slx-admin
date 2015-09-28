@@ -180,6 +180,10 @@ body {
   cursor: pointer;
 }
 
+.slx-nopointer {
+  cursor: default;
+}
+
 .slx-strike {
 	text-decoration: line-through;
 }

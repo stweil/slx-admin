@@ -124,34 +124,55 @@ class AddConfig_Start extends AddConfig_Base
 		$mods = ConfigModule::getList();
 		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath FROM configtgz_module"
 			. " ORDER BY title ASC"); // Move to ConfigModule
-		if ($this->edit === false)
+		if ($this->edit === false) {
 			$active = array();
-		else
+		} else {
 			$active = $this->edit->getModuleIds();
+		}
+		$id = 0;
+		$modGroups = array();
+		foreach ($mods as &$mod) {
+			$mod['groupid'] = 'g' . ++$id;
+			$modGroups[$mod['group']] =& $mod;
+		}
+		unset($mod);
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (!isset($mods[$row['moduletype']])) {
 				$mods[$row['moduletype']] = array(
 					'unique' => false,
-					'group' => 'Undefined moduletype in addconfig.inc.php'
+					'group' => 'Undefined moduletype in addconfig.inc.php',
+					'groupid' => 'g' . ++$id,
 				);
+				$modGroups[$mods[$row['moduletype']]['group']] =& $mods[$row['moduletype']];
 			}
-			if (!isset($mods[$row['moduletype']]['modules'])) {
-				$mods[$row['moduletype']]['modules'] = array();
-				$mods[$row['moduletype']]['groupid'] = $row['moduletype'];
+			unset($group);
+			$group =& $modGroups[$mods[$row['moduletype']]['group']];
+			if (!isset($group['modules'])) {
+				$group['modules'] = array();
 			}
 			if (empty($row['filepath']) || !file_exists($row['filepath'])) $row['missing'] = true;
 			$row['active'] = in_array($row['moduleid'], $active);
-			$mods[$row['moduletype']]['modules'][] = $row;
+			$group['modules'][] = $row;
 		}
-		if ($this->edit !== false)
+		if ($this->edit !== false) {
 			$title = $this->edit->title();
-		elseif (Request::any('title'))
+		} elseif (Request::any('title')) {
 			$title = Request::any('title');
-		else
+		} else {
 			$title = '';
+		}
+		foreach ($modGroups as &$mod) {
+			if (!empty($mod['modules']) && $mod['unique']) {
+				array_unshift($mod['modules'], array(
+					'moduleid' => 0,
+					'title' => Dictionary::translate('lang_noModuleFromThisGroup'),
+				));
+			}
+		}
+		unset($mod);
 		Render::addDialog(Dictionary::translate("lang_configurationCompilation"), false, 'sysconfig/cfg-start', array(
 			'step' => 'AddConfig_Finish',
-			'groups' => array_values($mods),
+			'groups' => array_values($modGroups),
 			'title' => $title,
 			'edit' => ($this->edit !== false ? $this->edit->id() : false)
 		));

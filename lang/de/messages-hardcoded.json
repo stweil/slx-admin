@@ -8,6 +8,7 @@
     "lang_location": "Lokalisierung",
     "lang_login": "Anmelden",
     "lang_moduleAdd": "Modul hinzuf\u00fcgen",
+    "lang_noModuleFromThisGroup": "(Kein Modul dieser Gruppe)",
     "lang_serverConfiguration": "Serverseitige Konfiguration",
     "lang_titleBackup": "Sichern und Wiederherstellen",
     "lang_titleEventLog": "Ereignisprotokoll",

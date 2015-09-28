@@ -5,7 +5,7 @@
     "lang_description": "Hier k\u00f6nnen Sie festlegen, ob das Web-Interface auch per HTTPS erreichbar sein soll, und welches Zertifikat daf\u00fcr verwendet werden soll.",
     "lang_httpsSettings": "HTTPS-Konfiguration",
     "lang_noHttps": "HTTPS deaktivieren",
-    "lang_privateKey": "Bitte f\u00fcgen Sie hier den privaten Schl\u00fcssel ein, der zum obigen Zertifikat geh\u00f6rt. Er muss ebenfalls im \u0022pem\u0022-Format vorliegen, und sieht wie folgt aus:",
+    "lang_privateKey": "Bitte f\u00fcgen Sie hier den privaten Schl\u00fcssel ein, der zum obigen Zertifikat geh\u00f6rt. Er muss ebenfalls im \"pem\"-Format vorliegen, und sieht wie folgt aus:",
     "lang_randomCert": "Neues selbstsigniertes Zertifikat generieren",
     "lang_save": "Speichern"
 }

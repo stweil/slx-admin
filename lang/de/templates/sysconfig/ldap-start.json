@@ -8,7 +8,7 @@
     "lang_password": "Passwort",
     "lang_searchBase": "Suchbasis (Search base)",
     "lang_ssl": "SSL",
-    "lang_sslDescription": "Zum Verbinden mit dem LDAP-Server SSL verwenden. (Die Verbindung zwischen Client und Proxy wird in jedem Fall mit SSL abgewickelt.)",
+    "lang_sslDescription": "Zum Verbinden mit dem LDAP-Server SSL verwenden. (Die Verbindung zwischen Client und Proxy wird in jedem Fall mit SSL abgewickelt.) Einige LDAP-Server verweigern die Authentifizierung, wenn SSL nicht genutzt wird.",
     "lang_userDirectory": "Home-Verzeichnis",
     "lang_userDirectoryInfo1": "UNC-Pfad zum Home-Verzeichnis der Nutzer, mit Platzhalter '%s' f\u00fcr den Benutzernamen.",
     "lang_userDirectoryInfo2": "Zur Zeit wird nur SMB\/CIFS unterst\u00fctzt."

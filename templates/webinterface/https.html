@@ -5,13 +5,15 @@
 		<div class="panel-heading">{{lang_httpsSettings}}</div>
 		<div class="panel-body">
 			<p>{{lang_description}}</p>
-			<div class="input-group" onclick="$('#moff').prop('checked', true)">
+			<div class="input-group" onclick="$('#moff').prop('checked', true);
+					$('#wcustom').hide()">
 				<span class="input-group-addon"><input id="moff" type="radio" name="mode" value="off"></span>
 				<span class="form-control">
 					{{lang_noHttps}}
 				</span>
 			</div>
-			<div class="input-group" onclick="$('#mrandom').prop('checked', true)">
+			<div class="input-group" onclick="$('#mrandom').prop('checked', true);
+					$('#wcustom').hide()">
 				<span class="input-group-addon"><input id="mrandom" type="radio" name="mode" value="random"></span>
 				<span class="form-control">
 					{{lang_randomCert}}

@@ -8,6 +8,7 @@
     "lang_location": "Location",
     "lang_login": "Login",
     "lang_moduleAdd": "Add Module",
+    "lang_noModuleFromThisGroup": "(No module from this group)",
     "lang_serverConfiguration": "Server-side Configuration",
     "lang_titleBackup": "Save and Restore",
     "lang_titleEventLog": "Event log",
