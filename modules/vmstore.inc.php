@@ -56,8 +56,8 @@ class Page_VmStore extends Page
 			Message::addError('value-invalid', 'nfsaddr', $vmstore['nfsaddr']);
 			Util::redirect('?do=VmStore');
 		}
-		Property::setVmStoreConfig($vmstore);
-		$this->mountTask = Trigger::mount();
+		$this->mountTask = Trigger::mount($vmstore);
+		TaskmanagerCallback::addCallback($this->mountTask, 'manualMount', $vmstore);
 	}
 
 }

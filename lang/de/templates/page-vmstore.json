@@ -3,7 +3,7 @@
     "lang_intern": "Intern",
     "lang_nfsHelp1": "Ben\u00f6tigt wird ein NFSv4\/3-Share, der f\u00fcr den Satelliten-Server schreibbar, und f\u00fcr die Arbeitsstationen lesbar ist. Beispielkonfiguration auf dem NFS-Server, wenn der Satelliten-Server die Adresse 1.2.3.4 hat:",
     "lang_nfsHelp2": "Alternative Konfiguration mittels all_sqash. In diesem Fall muss das Verzeichnis auf dem Server dem Benutzer mit der uid 1234 geh\u00f6ren:",
-    "lang_noAdditionalInformation": "Keine Weitere Konfiguration notwendig",
+    "lang_noAdditionalInformation": "Keine weitere Konfiguration notwendig",
     "lang_password": "Passwort",
     "lang_readOnly": "Nur-Lese-Zugangsdaten",
     "lang_readWrite": "Lese\/Schreib-Zugangsdaten",

@@ -112,11 +112,14 @@ class Trigger
 	/**
 	 * Mount the VM store into the server.
 	 *
+	 * @param array $vmstore VM Store configuration to use. If false, read from properties
 	 * @return array task status of mount procedure, or false on error
 	 */
-	public static function mount()
+	public static function mount($vmstore = false)
 	{
-		$vmstore = Property::getVmStoreConfig();
+		if ($vmstore === false) {
+			$vmstore = Property::getVmStoreConfig();
+		}
 		if (!is_array($vmstore))
 			return false;
 		if (isset($vmstore['storetype'])) {

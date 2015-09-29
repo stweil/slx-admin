@@ -145,5 +145,25 @@ class TaskmanagerCallback
 			ConfigTgz::generateSucceeded($args);
 		}
 	}
+	
+	public static function manualMount($task, $args)
+	{
+		if (!isset($task['data']['exitCode']))
+			return;
+		if ($task['data']['exitCode'] == 0) {
+			// Success - store configuration
+			Property::setVmStoreConfig($args);
+			return;
+		}
+		if ($task['data']['exitCode'] > 0) {
+			// Manual mount failed with non-taskmanager related error - reset storage type to reflect situation
+			$data = Property::getVmStoreConfig();
+			if (isset($data['storetype'])) {
+				unset($data['storetype']);
+				Property::setVmStoreConfig($data);
+			}
+			return;
+		}
+	}
 
 }
