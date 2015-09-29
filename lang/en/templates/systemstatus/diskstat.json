@@ -6,6 +6,7 @@
     "lang_storeMissingExpected": "VM store not mounted. Expected:",
     "lang_storeNotConfigured": "No VM store configured!",
     "lang_systemPartition": "System Partition",
+    "lang_systemStoreError": "Error querying available system storage",
     "lang_vmStore": "VM Store",
-    "lang_vmStoreError": "Error when determining the available disk space on the VM location. Please check the configuration."
+    "lang_vmStoreError": "Error determining available space of the VM storage. Please check the configuration."
 }
