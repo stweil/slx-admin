@@ -21,7 +21,16 @@
 	{{/store}}
 </div>
 <div class="clearfix"></div>
-<div>{{storeError}}</div>
+{{#notConfigured}}
+<div>{{lang_storeNotConfigured}}</div>
+{{/notConfigured}}
+{{#storeMissing}}
+<div>{{lang_storeMissingExpected}} {{storeMissing}}</div>
+{{/storeMissing}}
+{{#wrongStore}}
+<div>{{lang_foundStore}} {{wrongStore}}</div>
+{{/wrongStore}}
+<a href="?do=VmStore">{{lang_goToStoreConf}}</a>
 <script type="text/javascript">
 	{{#store}}
 	Circles.create({

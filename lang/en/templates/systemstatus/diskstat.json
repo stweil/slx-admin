@@ -1,6 +1,10 @@
 {
     "lang_capacity": "Capacity",
+    "lang_foundStore": "Found:",
     "lang_free": "Free",
+    "lang_goToStoreConf": "Go to VM store configuration",
+    "lang_storeMissingExpected": "VM store not mounted. Expected:",
+    "lang_storeNotConfigured": "No VM store configured!",
     "lang_systemPartition": "System Partition",
     "lang_vmStore": "VM Store",
     "lang_vmStoreError": "Error when determining the available disk space on the VM location. Please check the configuration."

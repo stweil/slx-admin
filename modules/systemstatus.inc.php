@@ -104,27 +104,27 @@ class Page_SystemStatus extends Page
 					);
 				}
 			}
+			$data = array(
+				'store' => $storeUsage,
+				'system' => $systemUsage
+			);
 			// Determine if proper vm store is being used
-			if ($store === '<local>')
-				$storeError = false;
-			else
-				$storeError = 'VM-Store nicht eingebunden! Erwartet: ' . $store;
+			if ($store !== '<local>') {
+				$data['storeMissing'] = $store;
+			}
 			foreach ($task['data']['list'] as $entry) {
-				if ($entry['mountPoint'] === CONFIG_VMSTORE_DIR && $store !== $entry['fileSystem']) {
-					$storeError = 'Falscher VM-Store eingebunden! Erwartet: ' . $store . ' vorgefunden: ' . $entry['fileSystem'];
+				if ($entry['mountPoint'] !== CONFIG_VMSTORE_DIR)
+					continue;
+				if ($store !== $entry['fileSystem']) {
+					$data['wrongStore'] = $entry['fileSystem'];
 					break;
-				} elseif ($entry['mountPoint'] === CONFIG_VMSTORE_DIR) {
-					$storeError = false;
 				}
+				$data['storeMissing'] = false;
 			}
 		} else {
-			$storeError = 'Storage not configured';
+			$data['notConfigured'] = true;
 		}
-		echo Render::parse('systemstatus/diskstat', array(
-			'store' => $storeUsage,
-			'system' => $systemUsage,
-			'storeError' => $storeError
-		));
+		echo Render::parse('systemstatus/diskstat', $data);
 	}
 
 	protected function ajaxAddressList()
