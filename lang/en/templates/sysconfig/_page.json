@@ -12,7 +12,7 @@
     "lang_edit": "Edit",
     "lang_editLong": "Edit module or configuration.",
     "lang_helpModuleConfiguration": "Configuration modules are the building blocks from which a system configuration is created. Here you can create both generic modules by a wizard, as well as create completely custom modules (advanced Linux knowledge required).",
-    "lang_helpSystemConfiguration": "The fundamental localization of the bwLehrpool system is done through a system configuration. These include aspects such as the authentication method for users (eg Active Directory, LDAP), printer configuration, home directories, etc. A system configuration is composed of one or more configuration modules, which can be managed at the bottom of this page.",
+    "lang_helpSystemConfiguration": "The fundamental localization of the bwLehrpool system is done through a system configuration. These include aspects such as the authentication method for users (eg Active Directory, LDAP), printer configuration, home directories, etc. A system configuration is composed of one or more configuration modules, which can be managed in the panel next to this one.",
     "lang_legend": "Legend",
     "lang_moduleConfiguration": "Module Configuration",
     "lang_newConfiguration": "New Configuration",
