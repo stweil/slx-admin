@@ -120,10 +120,14 @@ abstract class ConfigModule
 	 * @param int $moduleType module type to get
 	 * @return array The requested modules from DB, or false on error
 	 */
-	public static function getAll($moduleType)
+	public static function getAll($moduleType = false)
 	{
-		$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version FROM configtgz_module "
-				. " WHERE moduletype = :moduletype", array('moduletype' => $moduleType));
+		if ($moduleType === false) {
+			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version FROM configtgz_module");
+		} else {
+			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version FROM configtgz_module "
+					. " WHERE moduletype = :moduletype", array('moduletype' => $moduleType));
+		}
 		if ($ret === false)
 			return false;
 		$list = array();
@@ -448,17 +452,11 @@ abstract class ConfigModule
 	 */
 	public static function serverIpChanged()
 	{
-		self::loadDb(); // Quick hack: Hard code AdAuth, should be a property of the config module class....
-		$list = self::getAll('AdAuth');
+		self::loadDb();
+		$list = self::getAll();
 		foreach ($list as $mod) {
 			$mod->event_serverIpChanged();
 		}
-		/* // TODO: Make this work
-		foreach (self::$moduleTypes as $module) {
-			$instance = new $module['moduleClass'];
-			$instance->event_serverIpChanged();
-		}
-		 */
 	}
 
 	/**
