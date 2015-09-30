@@ -1,7 +1,8 @@
 {
+    "lang_browseForFile": "Durchsuchen",
     "lang_customModuleInfo1": "\u00dcber ein benutzerdefiniertes Modul ist es m\u00f6glich, beliebige Dateien zum Linux-Grundsystem, das auf den Clients gebootet wird, hinzuzuf\u00fcgen. Dazu kann ein Archiv mit einer Dateisystemstruktur hochgeladen werden, die in dieser Form 1:1 in das gebootete Linux extrahiert wird.",
     "lang_customModuleInfo2": "Beispiel: Enth\u00e4lt das hochgeladene Archiv eine Datei etc\/beispiel.conf, so wird auf einem gebooteten Client diese Datei als \/etc\/beispiel.conf zu finden sein.",
-    "lang_file": "Archiv",
+    "lang_selectFile": "Bitte w\u00e4hlen Sie ein Archiv",
     "lang_supportedFiles": "Unterst\u00fctzte Archivformate",
     "lang_upload": "Hochladen"
 }

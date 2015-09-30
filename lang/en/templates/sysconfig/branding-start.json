@@ -1,7 +1,9 @@
 {
     "lang_branding": "For best results, you should upload the logo in SVG format. SVG is a vector graphics format, which is advantageous for scaling. A good source for SVG logos of universities and colleges is their respective Wikipedia article.",
+    "lang_browseForFile": "Browse",
     "lang_computerLoad": "Load image from local computer",
     "lang_or": "or",
+    "lang_selectFile": "Please select a file",
     "lang_upload": "Upload",
     "lang_urlLoad": "Load image from URL"
 }

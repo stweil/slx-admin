@@ -1,7 +1,9 @@
 {
     "lang_branding": "Hier k\u00f6nnen Sie ihr Einrichtungslogo im SVG-Format hochladen. Das SVG-Format ist ein Vektorgrafikformat, was zum Skalieren vorteilhaft ist. Eine gute Quelle f\u00fcr SVG-Logos von Unis und Hochschulen ist ihr jeweiliger Wikipedia-Artikel.",
+    "lang_browseForFile": "Durchsuchen",
     "lang_computerLoad": "Bild von lokalem Rechner hochladen",
     "lang_or": "oder",
+    "lang_selectFile": "Bitte w\u00e4hlen Sie eine Datei",
     "lang_upload": "Hochladen",
     "lang_urlLoad": "Bild von URL laden"
 }

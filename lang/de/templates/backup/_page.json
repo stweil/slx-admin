@@ -1,13 +1,14 @@
 {
     "lang_backup": "Sichern",
-    "lang_backupDescription": "Hier k\u00f6nnen Sie die Konfiguration des Satellitenservers sichern. Dies beinhaltet die Datenbank \u00fcber alle Virtuellen Maschinen, Veranstaltungen, Authentifizerungsmodule, Passw\u00f6rter, Proxies, den konfigurierten VM-Store sowie weitere Konfiguration des MiniLinux.",
+    "lang_backupDescription": "Hier k\u00f6nnen Sie die Konfiguration des Satellitenservers sichern. Dies beinhaltet die Datenbank \u00fcber alle Virtuellen Maschinen, Veranstaltungen, Authentifizerungsmodule, Passw\u00f6rter, Proxies, den konfigurierten VM-Store sowie weitere Konfiguration des MiniLinux.\r\nDie Festplattenabbilder der Virtuellen Maschinen auf dem VM-Store werden hierbei nicht gesichert. Eventuelle Backups des Stores m\u00fcssen separat durchgef\u00fchrt werden.",
     "lang_backupRestore": "Sichern und Wiederherstellen",
+    "lang_browseForFile": "Durchsuchen",
     "lang_download": "Herunterladen",
     "lang_dozmodExplanation": "Die Datenbank des Dozentenmoduls wiederherstellen. Dazu geh\u00f6ren die Metadaten der Virtuellen Maschinen, die Veranstaltungen, etc. Bitte beachten Sie, dass hierzu auf dem konfigurierten VM-Store die passenden VM-Abbilder vorliegen m\u00fcssen, da diese extern gespeichert werden. Wenn sich der Servername oder die -adresse ge\u00e4ndert haben stellen Sie bitte sicher, dass die relativen Pfade innerhalb des Netzlaufwerks gleich geblieben sind. Ansonsten werden die wiederhergestellten VMs nicht verwendbar sein.",
-    "lang_file": "Datei",
     "lang_restore": "Hochladen",
     "lang_restoreDescription": "Hier k\u00f6nnen Sie ein Backup der Konfiguration wieder einspielen. Bitte beachten Sie, dass der Server dabei neu gestartet wird, daher sollten Sie dies m\u00f6glichst durchf\u00fchren, wenn das System nicht genutzt wird, und keine Dozenten Veranstaltungen oder Virtuelle Labore erstellen oder hoch-\/herunterladen. Bitte beachten Sie, dass dabei auch das urspr\u00fcngliche Passwort der Weboberfl\u00e4che wiederhergestellt wird.",
     "lang_restoreDozmodConfig": "Dozentenmodul-Konfiguration wiederherstellen",
     "lang_restoreSystemConfig": "Systemkonfiguration wiederherstellen",
-    "lang_systemExplanation": "Die Grundkonfiguration des Satelliten wiederherstellen: Authentifizierungmethode, Passw\u00f6rter, Proxies, VM-Storage, etc."
+    "lang_selectFile": "Bitte w\u00e4hlen Sie ein Backup-Archiv",
+    "lang_systemExplanation": "Die Grundkonfiguration des Satelliten wiederherstellen: Authentifizierungmethode, Passw\u00f6rter, Proxies, VM-Storage, etc.\r\nACHTUNG: Wenn Sie ein Backup von vor WS15\/16 einspielen (Backup-Format vor Version 10), wird die Systemkonfiguration in jedem Fall wiederhergestellt, auch wenn Sie diesen Haken nicht setzen."
 }
