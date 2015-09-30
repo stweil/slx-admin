@@ -5,6 +5,10 @@
 		<div class="panel-heading">{{lang_httpsSettings}}</div>
 		<div class="panel-body">
 			<p>{{lang_description}}</p>
+			{{^httpsEnabled}}
+			<p>{{lang_HttpsIsDisabled}}</p>
+			{{/httpsEnabled}}
+			{{#httpsEnabled}}
 			<div class="input-group" onclick="$('#moff').prop('checked', true);
 					$('#wcustom').hide()">
 				<span class="input-group-addon"><input id="moff" type="radio" name="mode" value="off"></span>
@@ -12,6 +16,7 @@
 					{{lang_noHttps}}
 				</span>
 			</div>
+			{{/httpsEnabled}}
 			<div class="input-group" onclick="$('#mrandom').prop('checked', true);
 					$('#wcustom').hide()">
 				<span class="input-group-addon"><input id="mrandom" type="radio" name="mode" value="random"></span>

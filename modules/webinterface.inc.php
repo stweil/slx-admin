@@ -52,7 +52,7 @@ class Page_WebInterface extends Page
 		if (Request::get('show') === 'httpsupdate') {
 			Render::addTemplate('webinterface/httpd-restart', array('taskid' => Session::get('https-id')));
 		}
-		Render::addTemplate('webinterface/https');
+		Render::addTemplate('webinterface/https', array('httpsEnabled' => file_exists('/etc/lighttpd/server.pem')));
 		$data = array();
 		if (Property::getPasswordFieldType() === 'text')
 			$data['selected_show'] = 'checked';
