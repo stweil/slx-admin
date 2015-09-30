@@ -5,10 +5,14 @@
 <form role="form" enctype="multipart/form-data" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="edit" value="{{edit}}">
-	<div class="input-group">
-		<span class="input-group-addon">{{lang_file}}</span>
-		<input class="form-control" type="file" name="modulefile">
-	</div>
+			<div class="input-group upload-ex">
+				<input type="text" class="form-control" readonly placeholder="{{lang_selectFile}}">
+				<span class="input-group-btn">
+					<span class="btn btn-default btn-file">
+						{{lang_browseForFile}}&hellip; <input type="file" name="modulefile">
+					</span>
+				</span>
+			</div>
 	<p class="help-block">{{lang_supportedFiles}}: .tar.gz, .tar.bz2, .zip</p>
 	<button type="submit" class="btn btn-primary">{{lang_upload}}</button>
 </form>

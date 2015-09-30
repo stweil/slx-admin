@@ -19,9 +19,13 @@
 		<div class="panel-heading">{{lang_restore}}</div>
 		<div class="panel-body">
 			<p>{{lang_restoreDescription}}</p>
-			<div class="input-group">
-				<span class="input-group-addon">{{lang_file}}</span>
-				<input class="form-control" type="file" name="backupfile">
+			<div class="input-group upload-ex">
+				<input type="text" class="form-control" readonly placeholder="{{lang_selectFile}}">
+				<span class="input-group-btn">
+					<span class="btn btn-default btn-file">
+						{{lang_browseForFile}}&hellip; <input type="file" name="backupfile">
+					</span>
+				</span>
 			</div>
 			<div>
 				<label><input type="checkbox" name="restore_openslx" checked="checked"> {{lang_restoreSystemConfig}}</label>

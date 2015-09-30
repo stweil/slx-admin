@@ -11,7 +11,14 @@
 	{{lang_or}}
 	<div class="form-group">
 		<label for="input-file">{{lang_computerLoad}}</label>
-		<input class="form-control" type="file" name="file" id="input-file">
+			<div class="input-group upload-ex">
+				<input type="text" class="form-control" readonly placeholder="{{lang_selectFile}}">
+				<span class="input-group-btn">
+					<span class="btn btn-default btn-file">
+						{{lang_browseForFile}}&hellip; <input type="file" name="file" id="input-file">
+					</span>
+				</span>
+			</div>
 	</div>
 	<button type="submit" class="btn btn-primary">{{lang_upload}}</button>
 </form>

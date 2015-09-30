@@ -12,6 +12,7 @@ class CustomModule_Start extends AddModule_Base
 	protected function renderInternal()
 	{
 		Session::set('mod_temp', false);
+		Render::addScriptBottom('fileselect');
 		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'sysconfig/custom-upload', array(
 			'step' => 'CustomModule_ProcessUpload',
 			'edit' => $this->edit ? $this->edit->id() : false
