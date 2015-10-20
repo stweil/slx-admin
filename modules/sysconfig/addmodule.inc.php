@@ -135,3 +135,46 @@ class AddModule_Start extends AddModule_Base
 	}
 
 }
+
+/*
+ * Helper functions to set/get a batch of vars from/to post variables or a module
+ */
+
+/**
+ * 
+ * @param \ConfigModule $module
+ * @param array $array
+ * @param array $keys
+ */
+function moduleToArray($module, &$array, $keys)
+{
+	foreach ($keys as $key) {
+		$array[$key] = $module->getData($key);
+	}
+}
+
+/**
+ * 
+ * @param \ConfigModule $module
+ * @param array $array
+ * @param array $keys
+ */
+function arrayToModule($module, $array, $keys)
+{
+	foreach ($keys as $key) {
+		$module->setData($key, $array[$key]);
+	}
+}
+/**
+ * 
+ * @param array $array
+ * @param array $keys
+ */
+function postToArray(&$array, $keys, $ignoreMissing = false)
+{
+	foreach ($keys as $key) {
+		$val = Request::post($key, '--not-in-post');
+		if ($ignoreMissing && $val === '--not-in-post') continue;
+		$array[$key] = $val;
+	}
+}

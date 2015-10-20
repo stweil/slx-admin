@@ -48,15 +48,35 @@
 		</span>
 	</div>
 	<br>
-	<div class="checkbox">
+	<div>
 		<label>
-			<input type="checkbox" name="ssl" {{#ssl}}checked{{/ssl}}> {{lang_ssl}}
+			<input type="checkbox" name="ssl" onchange="$('#cert-box').css('display', this.checked ? '' : 'none')" {{#ssl}}checked{{/ssl}}> {{lang_ssl}}
 		</label>
 	</div>
-	<div><i>{{lang_sslDescription}}</i></div>
+	<i>{{lang_sslDescription}}</i>
 	<br>
 	<div class="pull-right">
 		<button type="submit" class="btn btn-primary">{{lang_next}} &raquo;</button>
+	</div>
+	<div class="clearfix"></div>
+	<hr>
+	<div {{^ssl}}style="display:none"{{/ssl}} id="cert-box">
+		<div class="well well-sm" id="wcustom">
+			{{lang_customCertificate}}
+			<pre class="small">
+-----BEGIN CERTIFICATE-----
+MIIFfTCCA...
+.....
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+.....
+-----END CERTIFICATE-----</pre>
+			<textarea name="certificate" class="form-control small" cols="101" rows="10">{{certificate}}</textarea>
+		</div>
+		<div class="pull-right">
+			<button type="submit" class="btn btn-primary">{{lang_next}} &raquo;</button>
+		</div>
+		<div class="clearfix"></div>
 	</div>
 </form>
 

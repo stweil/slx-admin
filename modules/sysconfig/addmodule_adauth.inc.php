@@ -9,28 +9,14 @@ class AdAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
+		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'ssl', 'certificate');
+		$data = array();
 		if ($this->edit !== false) {
-			$data = array(
-				'title' => $this->edit->title(),
-				'server' => $this->edit->getData('server'),
-				'searchbase' => $this->edit->getData('searchbase'),
-				'binddn' => $this->edit->getData('binddn'),
-				'bindpw' => $this->edit->getData('bindpw'),
-				'home' => $this->edit->getData('home'),
-				'ssl' => $this->edit->getData('ssl'),
-				'edit' => $this->edit->id()
-			);
-		} else {
-			$data = array(
-				'title' => Request::post('title'),
-				'server' => Request::post('server'),
-				'searchbase' => Request::post('searchbase'),
-				'binddn' => Request::post('binddn'),
-				'bindpw' => Request::post('bindpw'),
-				'home' => Request::post('home'),
-				'ssl' => Request::post('ssl')
-			);
+			moduleToArray($this->edit, $data, $ADAUTH_COMMON_FIELDS);
+			$data['title'] = $this->edit->title();
+			$data['edit'] = $this->edit->id();
 		}
+		postToArray($data, $ADAUTH_COMMON_FIELDS, true);
 		if (preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
@@ -66,7 +52,8 @@ class AdAuth_CheckConnection extends AddModule_Base
 		}
 		$this->scanTask = Taskmanager::submit('PortScan', array(
 				'host' => $this->server,
-				'ports' => $ports
+				'ports' => $ports,
+				'certificate' => Request::post('certificate', '')
 		));
 		if (!isset($this->scanTask['id'])) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
@@ -85,10 +72,12 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl'),
+			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id']
 		);
-		$data['step'] = 'AdAuth_CheckCredentials';
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-checkconnection', $data);
+		$data['prev'] = 'AdAuth_Start';
+		$data['next'] = 'AdAuth_CheckCredentials';
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad_ldap-checkconnection', $data);
 	}
 
 }
@@ -161,7 +150,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-checkcredentials', array_merge($this->taskIds, array(
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad_ldap-checkcredentials', array_merge($this->taskIds, array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => Request::post('server') . ':' . Request::post('port'),
@@ -171,8 +160,10 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fingerprint' => Request::post('fingerprint'),
+			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => $this->originalBindDn,
-			'step' => 'AdAuth_Finish'
+			'prev' => 'AdAuth_Start',
+			'next' => 'AdAuth_Finish'
 			))
 		);
 	}
@@ -228,6 +219,7 @@ class AdAuth_Finish extends AddModule_Base
 		$module->setData('binddn', $binddn);
 		$module->setData('bindpw', Request::post('bindpw'));
 		$module->setData('home', Request::post('home'));
+		$module->setData('certificate', Request::post('certificate'));
 		$module->setData('ssl', $ssl);
 		if ($ssl) {
 			$module->setData('fingerprint', Request::post('fingerprint', ''));

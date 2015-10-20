@@ -9,28 +9,14 @@ class LdapAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
+		$LDAPAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'ssl', 'certificate');
+		$data = array();
 		if ($this->edit !== false) {
-			$data = array(
-				'title' => $this->edit->title(),
-				'server' => $this->edit->getData('server'),
-				'searchbase' => $this->edit->getData('searchbase'),
-				'binddn' => $this->edit->getData('binddn'),
-				'bindpw' => $this->edit->getData('bindpw'),
-				'home' => $this->edit->getData('home'),
-				'ssl' => $this->edit->getData('ssl'),
-				'edit' => $this->edit->id()
-			);
-		} else {
-			$data = array(
-				'title' => Request::post('title'),
-				'server' => Request::post('server'),
-				'searchbase' => Request::post('searchbase'),
-				'binddn' => Request::post('binddn'),
-				'bindpw' => Request::post('bindpw'),
-				'home' => Request::post('home'),
-				'ssl' => Request::post('ssl')
-			);
+			moduleToArray($this->edit, $data, $LDAPAUTH_COMMON_FIELDS);
+			$data['title'] = $this->edit->title();
+			$data['edit'] = $this->edit->id();
 		}
+		postToArray($data, $LDAPAUTH_COMMON_FIELDS, true);
 		if (preg_match('/^(.*)\:(636|389)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
@@ -66,7 +52,8 @@ class LdapAuth_CheckConnection extends AddModule_Base
 		}
 		$this->scanTask = Taskmanager::submit('PortScan', array(
 				'host' => $this->server,
-				'ports' => $ports
+				'ports' => $ports,
+				'certificate' => Request::post('certificate', '')
 		));
 		if (!isset($this->scanTask['id'])) {
 			AddModule_Base::setStep('LdapAuth_Start'); // Continues with LdapAuth_Start for render()
@@ -85,10 +72,12 @@ class LdapAuth_CheckConnection extends AddModule_Base
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl'),
+			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id']
 		);
-		$data['step'] = 'LdapAuth_CheckCredentials';
-		Render::addDialog(Dictionary::translate('config-module', 'ldapAuth_title'), false, 'sysconfig/ldap-checkconnection', $data);
+		$data['prev'] = 'LdapAuth_Start';
+		$data['next'] = 'LdapAuth_CheckCredentials';
+		Render::addDialog(Dictionary::translate('config-module', 'ldapAuth_title'), false, 'sysconfig/ad_ldap-checkconnection', $data);
 	}
 
 }
@@ -144,7 +133,7 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'ldapAuth_title'), false, 'sysconfig/ldap-checkcredentials', array_merge($this->taskIds, array(
+		Render::addDialog(Dictionary::translate('config-module', 'ldapAuth_title'), false, 'sysconfig/ad_ldap-checkcredentials', array_merge($this->taskIds, array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => Request::post('server') . ':' . Request::post('port'),
@@ -154,7 +143,9 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fingerprint' => Request::post('fingerprint'),
-			'step' => 'LdapAuth_Finish'
+			'certificate' => Request::post('certificate', ''),
+			'prev' => 'LdapAuth_Start',
+			'next' => 'LdapAuth_Finish'
 			))
 		);
 	}
@@ -190,6 +181,7 @@ class LdapAuth_Finish extends AddModule_Base
 		$module->setData('binddn', $binddn);
 		$module->setData('bindpw', Request::post('bindpw'));
 		$module->setData('home', Request::post('home'));
+		$module->setData('certificate', Request::post('certificate'));
 		$module->setData('ssl', $ssl);
 		if ($ssl) {
 			$module->setData('fingerprint', Request::post('fingerprint', ''));
