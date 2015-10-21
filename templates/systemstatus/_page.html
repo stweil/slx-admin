@@ -89,6 +89,14 @@
 </div>
 <div class="panel panel-default">
 	<div class="panel-heading">
+		{{lang_ldadpLog}}
+	</div>
+	<div class="panel-body" id="ldadp-log">
+		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
 		netstat -tulpn
 	</div>
 	<div class="panel-body" id="netstat">
@@ -109,10 +117,11 @@
 	loadContent('#addresses', '?do=SystemStatus&action=AddressList');
 	loadContent('#systeminfo', '?do=SystemStatus&action=SystemInfo');
 	loadContent('#services', '?do=SystemStatus&action=Services');
+	loadContent('#dmsd-users', '?do=SystemStatus&action=DmsdUsers');
 	setTimeout(function() {
 		loadContent('#dmsd-log', '?do=SystemStatus&action=DmsdLog');
 		loadContent('#netstat', '?do=SystemStatus&action=Netstat');
 		loadContent('#pslist', '?do=SystemStatus&action=PsList');
-		loadContent('#dmsd-users', '?do=SystemStatus&action=DmsdUsers');
+		loadContent('#ldadp-log', '?do=SystemStatus&action=LdadpLog');
 	}, 500);
 </script>

@@ -49,7 +49,7 @@
 
 <script type="text/javascript">
 	{{#cpuLoadOk}}
-	Circles.create({
+	var cpuCircle = Circles.create({
 	id:         'circles-cpuload',
 			  radius:     60,
 			  value:      {{{cpuLoad}}},
@@ -61,9 +61,12 @@
 			  wrpClass:   'circles-wrp',
 			  textClass:  'circles-text'
 			  });
+	var lastCpuTotal = {{CpuTotal}};
+	var lastCpuIdle = {{CpuIdle}};
+	var lastCpuPercent = {{cpuLoad}};
 	{{/cpuLoadOk}}
 	{{#memTotal}}
-	Circles.create({
+	var memCircle = Circles.create({
 	id:         'circles-mem',
 			  radius:     60,
 			  value:      {{{memPercent}}},
@@ -75,7 +78,7 @@
 			  wrpClass:   'circles-wrp',
 			  textClass:  'circles-text'
 			  });
-	Circles.create({
+	var swapCircle = Circles.create({
 	id:         'circles-swap',
 			  radius:     60,
 			  value:      {{{swapPercent}}},
@@ -88,4 +91,25 @@
 			  textClass:  'circles-text'
 			  });
 	{{/memTotal}}
+	function updateSystem() {
+		if (!cpuCircle && !memCircle) return;
+		$.post('?do=SystemStatus&action=SysPoll', { token: TOKEN }, function(data) {
+			if (memCircle && data.MemPercent) memCircle.update(data.MemPercent);
+			if (swapCircle && data.SwapPercent) swapCircle.update(data.SwapPercent);
+			if (cpuCircle && data.CpuIdle) {
+				var total = data.CpuTotal - lastCpuTotal;
+				var load = total - (data.CpuIdle - lastCpuIdle);
+				var percent = Math.round(100 * load / total);
+				cpuCircle.update(percent, Math.abs(percent - lastCpuPercent) < 5 ? 0 : 250);
+				lastCpuTotal = data.CpuTotal;
+				lastCpuIdle = data.CpuIdle;
+				lastCpuPercent = percent;
+			}
+		}, 'json').fail(function(data) {
+			console.log(data);
+		}).always(function() {
+			setTimeout(updateSystem, 1200);
+		});
+	}
+	setTimeout(updateSystem, 1000);
 </script>

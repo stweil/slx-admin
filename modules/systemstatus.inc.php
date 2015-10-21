@@ -151,12 +151,27 @@ class Page_SystemStatus extends Page
 			'addresses' => $task['data']['addresses']
 		));
 	}
+	
+	private function sysInfo()
+	{
+		$data = array();
+		$memInfo = file_get_contents('/proc/meminfo');
+		$stat = file_get_contents('/proc/stat');
+		preg_match_all('/\b(\w+):\s+(\d+)\s/s', $memInfo, $out, PREG_SET_ORDER);
+		foreach ($out as $e) {
+			$data[$e[1]] = $e[2];
+		}
+		if (preg_match('/\bcpu\s+(?<user>\d+)\s+(?<nice>\d+)\s+(?<system>\d+)\s+(?<idle>\d+)\s+(?<iowait>\d+)\s+(?<irq>\d+)\s+(?<softirq>\d+)(\s|$)/', $stat, $out)) {
+			$data['CpuTotal'] = $out['user'] + $out['nice'] + $out['system'] + $out['idle'] + $out['iowait'] + $out['irq'] + $out['softirq'];
+			$data['CpuIdle'] = $out['idle'];
+			$data['CpuSystem'] = $out['iowait'] + $out['irq'] + $out['softirq'];
+		}
+		return $data;
+	}
 
 	protected function ajaxSystemInfo()
 	{
 		$cpuInfo = file_get_contents('/proc/cpuinfo');
-		$memInfo = file_get_contents('/proc/meminfo');
-		$stat = file_get_contents('/proc/stat');
 		$uptime = file_get_contents('/proc/uptime');
 		$cpuCount = preg_match_all('/\bprocessor\s/', $cpuInfo, $out);
 		//$cpuCount = count($out);
@@ -171,22 +186,37 @@ class Page_SystemStatus extends Page
 		if (preg_match('/^(\d+)\D/', $uptime, $out)) {
 			$data['uptime'] = floor($out[1] / 86400) . ' ' . Dictionary::translate('lang_days') . ', ' . floor(($out[1] % 86400) / 3600) . ' ' . Dictionary::translate('lang_hours'); // TODO: i18n
 		}
-		if (preg_match('/\bMemTotal:\s+(\d+)\s.*\bMemFree:\s+(\d+)\s.*\bBuffers:\s+(\d+)\s.*\bCached:\s+(\d+)\s.*\bSwapTotal:\s+(\d+)\s.*\bSwapFree:\s+(\d+)\s/s', $memInfo, $out)) {
-			$data['memTotal'] = Util::readableFileSize($out[1] * 1024);
-			$data['memFree'] = Util::readableFileSize(($out[2] + $out[3] + $out[4]) * 1024);
-			$data['memPercent'] = 100 - round((($out[2] + $out[3] + $out[4]) / $out[1]) * 100);
-			$data['swapTotal'] = Util::readableFileSize($out[5] * 1024);
-			$data['swapUsed'] = Util::readableFileSize(($out[5] - $out[6]) * 1024);
-			$data['swapPercent'] = 100 - round(($out[6] / $out[5]) * 100);
-			$data['swapWarning'] = ($data['swapPercent'] > 50 || ($out[5] - $out[6]) > 100000);
+		$info = $this->sysInfo();
+		if (isset($info['MemTotal']) && isset($info['MemFree']) && isset($info['SwapTotal'])) {
+			$data['memTotal'] = Util::readableFileSize($info['MemTotal'] * 1024);
+			$data['memFree'] = Util::readableFileSize(($info['MemFree'] + $info['Buffers'] + $info['Cached']) * 1024);
+			$data['memPercent'] = 100 - round((($info['MemFree'] + $info['Buffers'] + $info['Cached']) / $info['MemTotal']) * 100);
+			$data['swapTotal'] = Util::readableFileSize($info['SwapTotal'] * 1024);
+			$data['swapUsed'] = Util::readableFileSize(($info['SwapTotal'] - $info['SwapFree']) * 1024);
+			$data['swapPercent'] = 100 - round(($info['SwapFree'] / $info['SwapTotal']) * 100);
+			$data['swapWarning'] = ($data['swapPercent'] > 50 || ($info['SwapTotal'] - $info['SwapFree']) > 200000);
 		}
-		if (preg_match('/\bcpu\s+(?<user>\d+)\s+(?<nice>\d+)\s+(?<system>\d+)\s+(?<idle>\d+)\s+(?<iowait>\d+)\s+(?<irq>\d+)\s+(?<softirq>\d+)(\s|$)/', $stat, $out)) {
-			$total = $out['user'] + $out['nice'] + $out['system'] + $out['idle'] + $out['iowait'] + $out['irq'] + $out['softirq'];
-			$data['cpuLoad'] = 100 - round(($out['idle'] / $total) * 100);
-			$data['cpuSystem'] = round((($out['iowait'] + $out['irq'] + $out['softirq']) / $total) * 100);
+		if (isset($info['CpuIdle']) && isset($info['CpuSystem']) && isset($info['CpuTotal'])) {
+			$data['cpuLoad'] = 100 - round(($info['CpuIdle'] / $info['CpuTotal']) * 100);
+			$data['cpuSystem'] = round(($info['CpuSystem'] / $info['CpuTotal']) * 100);
 			$data['cpuLoadOk'] = true;
+			$data['CpuTotal'] = $info['CpuTotal'];
+			$data['CpuIdle'] = $info['CpuIdle'];
 		}
 		echo Render::parse('systemstatus/systeminfo', $data);
+	}
+	
+	protected function ajaxSysPoll()
+	{
+		$info = $this->sysInfo();
+		$data = array(
+			'CpuTotal' => $info['CpuTotal'],
+			'CpuIdle' => $info['CpuIdle'],
+			'MemPercent' => 100 - round((($info['MemFree'] + $info['Buffers'] + $info['Cached']) / $info['MemTotal']) * 100),
+			'SwapPercent' => 100 - round(($info['SwapFree'] / $info['SwapTotal']) * 100)
+		);
+		Header('Content-Type: application/json; charset=utf-8');
+		die(json_encode($data));
 	}
 
 	protected function ajaxServices()
@@ -223,7 +253,49 @@ class Page_SystemStatus extends Page
 			echo 'Error reading from log file';
 			return;
 		}
+		// If we could read less, try the .1 file too
+		$amount = 6000 - strlen($data);
+		if ($amount > 100) {
+			$fh = @fopen('/var/log/dmsd.log.1', 'r');
+			if ($fh !== false) {
+				fseek($fh, -$amount, SEEK_END);
+				$data = fread($fh, $amount) . $data;
+				@fclose($fh);
+			}
+		}
 		echo '<pre>', htmlspecialchars(substr($data, strpos($data, "\n") + 1)), '</pre>';
+	}
+
+	protected function ajaxLdadpLog()
+	{
+		$files = glob('/opt/ldadp/logs/*.log', GLOB_NOSORT);
+		if ($files === false || empty($files)) echo('No logs found');
+		$now = time();
+		foreach ($files as $file) {
+			$mod = filemtime($file);
+			if ($now - $mod > 86400) continue;
+			// New enough - handle
+			preg_match(',/(\d+)\.log,', $file, $out);
+			$module = ConfigModule::get($out[1]);
+			if ($module === false) {
+				echo '<h4>Module ', $out[1], '</h4>';
+			} else {
+				echo '<h4>Module ', htmlspecialchars($module->title()), '</h4>';
+			}
+			$fh = @fopen($file, 'r');
+			if ($fh === false) {
+				echo '<pre>Error opening log file</pre>';
+				continue;
+			}
+			fseek($fh, -5000, SEEK_END);
+			$data = fread($fh, 5000);
+			@fclose($fh);
+			if ($data === false) {
+				echo '<pre>Error reading from log file</pre>';
+				continue;
+			}
+			echo '<pre>', htmlspecialchars(substr($data, strpos($data, "\n") + 1)), '</pre>';
+		}
 	}
 
 	protected function ajaxNetstat()
