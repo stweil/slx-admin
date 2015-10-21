@@ -1,5 +1,8 @@
 {
     "lang_back": "Back",
     "lang_connectionWait": "Checking connection...",
-    "lang_next": "Next"
+    "lang_next": "Next",
+    "lang_noOpenPort": "There is no open LDAP port on this server.",
+    "lang_noValidCert": "The server did not supply a certificate, or the certificate is invalid.",
+    "lang_selfSignedNote": "The certificate of this server cannot be verified using the builtin trust store. If you know that the server's certificate was signed by an unknown CA, you can try to proceed. The chain will then be extracted from the server, which should be successful in most cases. If the authentication module does not work afterwards, check the LDAP-proxy logs on the server status page."
 }

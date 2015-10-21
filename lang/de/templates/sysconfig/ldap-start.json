@@ -1,6 +1,7 @@
 {
     "lang_bindDN": "Bind DN",
     "lang_close": "Schlie\u00dfen",
+    "lang_customCertificate": "Zur Validierung zus\u00e4tzlich erforderliche (Intermediate-)Zertifikate",
     "lang_ldapText1": "Mit diesem Wizard k\u00f6nnen Sie Authentifizierung gegen einen LDAP-Server einrichten.",
     "lang_ldapText2": "Zu diesem Zweck wird ein LDAP-Proxy auf dem Satelliten-Server gestartet. Dies bedeutet, dass der LDAP-Server von diesem Server aus erreichbar sein muss. Die Pool-PCs hingegen m\u00fcssen nicht direkt mit dem LDAP-Server kommunizieren k\u00f6nnen.",
     "lang_moduleTitle": "Modulname",
