@@ -126,6 +126,13 @@ class DefaultData
 				'validator' => 'function:linuxPassword'
 			),
 			array(
+				'setting' => 'SLX_DEMO_PASS',
+				'catid' => '4',
+				'defaultvalue' => '',
+				'permissions' => '2',
+				'validator' => 'function:linuxPassword'
+			),
+			array(
 				'setting' => 'SLX_SHUTDOWN_SCHEDULE',
 				'catid' => '1',
 				'defaultvalue' => '22:10 00:00',

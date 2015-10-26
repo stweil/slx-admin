@@ -4,6 +4,7 @@
     "SLX_BIOS_CLOCK": "Specifies whether and how the internal clock of the computer should be set in relation to the system time of the \/MiniLinux\/.\r\n*off* = The internal clock of the computer is not changed.\r\n*local* = The internal clock is set to local time. Preferably if, for example, there is still a native Windows installation available on the PC.\r\n*utc* = The internal clock is set to the \/Coordinated Universal Time\/. This is the most common setup in a pure Linux environment.",
     "SLX_COMMON_SHARE_AUTH": "Athentication method for the common network share. *guest* means no authentication (public share), *user* means the user's credentials will be used.",
     "SLX_COMMON_SHARE_PATH": "Path of network share. Supported are NFS (no authentication only) and CIFS\/SMB (with and without authentication).",
+    "SLX_DEMO_PASS": "Password for the *demo* account. Leave empty to disallow logging in as the demo user.\r\nLike the root password, the demo user's password will be sent to the client in its hashed form.",
     "SLX_LOGOUT_TIMEOUT": "Time \/in seconds\/, in which a user session may remain without action before it is terminated.Leave field blank to disable the function.",
     "SLX_NET_DOMAIN": "DNS domain in which the client integrate, provided the DHCP server does not specifies such.",
     "SLX_NTP_SERVER": "Address of the NTP time server. Multiple servers can be specified separated by spaces.The servers are queried in sequence until a responding server is found.",
