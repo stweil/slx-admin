@@ -263,12 +263,17 @@ class Page_SystemStatus extends Page
 				@fclose($fh);
 			}
 		}
-		echo '<pre>', htmlspecialchars(substr($data, strpos($data, "\n") + 1)), '</pre>';
+		if (strlen($data) < 5990) {
+			$start = 0;
+		} else {
+			$start = strpos($data, "\n") + 1;
+		}
+		echo '<pre>', htmlspecialchars(substr($data, $start)), '</pre>';
 	}
 
 	protected function ajaxLdadpLog()
 	{
-		$files = glob('/opt/ldadp/logs/*.log', GLOB_NOSORT);
+		$files = glob('/var/log/ldadp/*.log', GLOB_NOSORT);
 		if ($files === false || empty($files)) echo('No logs found');
 		$now = time();
 		foreach ($files as $file) {
@@ -294,7 +299,12 @@ class Page_SystemStatus extends Page
 				echo '<pre>Error reading from log file</pre>';
 				continue;
 			}
-			echo '<pre>', htmlspecialchars(substr($data, strpos($data, "\n") + 1)), '</pre>';
+			if (strlen($data) < 4990) {
+				$start = 0;
+			} else {
+				$start = strpos($data, "\n") + 1;
+			}
+			echo '<pre>', htmlspecialchars(substr($data, $start)), '</pre>';
 		}
 	}
 
