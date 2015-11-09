@@ -9,10 +9,10 @@ if ($row !== false ) {
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 	echo "<news>" . "\n";
 	echo "\t" . '<headline>' . "\n";
-	echo "\t\t" . $row['title'] . "\n";
+	echo "\t\t" . htmlspecialchars($row['title']) . "\n";
 	echo "\t" . '</headline>' . "\n";
 	echo "\t" . "<info>" . "\n";
-	echo "\t\t" . $row['content'] . "\n";
+	echo "\t\t" . htmlspecialchars(nl2br($row['content'])) . "\n";
 	echo "\t" . '</info>' . "\n";
 	echo "\t" . "<date>" . "\n";
 	echo "\t\t" . $row['dateline'] . "\n";
