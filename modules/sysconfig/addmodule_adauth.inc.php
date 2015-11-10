@@ -17,6 +17,10 @@ class AdAuth_Start extends AddModule_Base
 			$data['edit'] = $this->edit->id();
 		}
 		postToArray($data, $ADAUTH_COMMON_FIELDS, true);
+		$obdn = Request::post('originalbinddn');
+		if (!empty($obdn)) {
+			$data['binddn'] = $obdn;
+		}
 		if (preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
@@ -76,13 +80,17 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'taskid' => $this->scanTask['id']
 		);
 		$data['prev'] = 'AdAuth_Start';
-		$data['next'] = 'AdAuth_CheckCredentials';
+		if (preg_match('#^\w+[/\\\\]\w+$#', Request::post('binddn')) || strlen(Request::post('searchbase')) < 2) {
+			$data['next'] = 'AdAuth_SelfSearch';
+		} else {
+			$data['next'] = 'AdAuth_CheckCredentials';
+		}
 		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad_ldap-checkconnection', $data);
 	}
 
 }
 
-class AdAuth_CheckCredentials extends AddModule_Base
+class AdAuth_SelfSearch extends AddModule_Base
 {
 
 	private $taskIds;
@@ -108,27 +116,82 @@ class AdAuth_CheckCredentials extends AddModule_Base
 		}
 		$parent = null;
 		$this->originalBindDn = '';
-		$server .= ':' . $port;
+		// Fix bindDN if short name given
+		//
 		if ($ssl) {
-			$uri = "ldaps://$server/";
+			$uri = "ldaps://$server:3269/";
 		} else {
-			$uri = "ldap://$server/";
+			$uri = "ldap://$server:3268/";
 		}
-		if (preg_match('#^\w+[/\\\\](\w+)$#', $binddn, $out)) {
-			$user = $out[1];
-			$this->originalBindDn = str_replace('/', '\\', $binddn);
-			$selfSearch = Taskmanager::submit('LdapSearch', array(
-					'server' => $uri,
-					'searchbase' => $searchbase,
-					'binddn' => $this->originalBindDn,
-					'bindpw' => $bindpw,
-					'username' => $user
-			));
-			if (!isset($selfSearch['id'])) {
-				AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
-				return;
-			}
-			$parent = $selfSearch['id'];
+		preg_match('#^\w+[/\\\\](\w+)$#', $binddn, $out);
+		$user = $out[1];
+		$this->originalBindDn = str_replace('/', '\\', $binddn);
+		$selfSearch = Taskmanager::submit('LdapSearch', array(
+				'server' => $uri,
+				'searchbase' => $searchbase,
+				'binddn' => $this->originalBindDn,
+				'bindpw' => $bindpw,
+				'username' => $user
+		));
+		if (!isset($selfSearch['id'])) {
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		$this->taskIds['self-search'] = $selfSearch['id'];
+	}
+
+	protected function renderInternal()
+	{
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-selfsearch', array_merge($this->taskIds, array(
+			'edit' => Request::post('edit'),
+			'title' => Request::post('title'),
+			'server' => Request::post('server'),
+			'port' => Request::post('port'),
+			'searchbase' => Request::post('searchbase'),
+			'binddn' => Request::post('binddn'),
+			'bindpw' => Request::post('bindpw'),
+			'home' => Request::post('home'),
+			'ssl' => Request::post('ssl') === 'on',
+			'fingerprint' => Request::post('fingerprint'),
+			'certificate' => Request::post('certificate', ''),
+			'originalbinddn' => $this->originalBindDn,
+			'prev' => 'AdAuth_Start',
+			'next' => 'AdAuth_CheckCredentials'
+			))
+		);
+	}
+
+}
+
+class AdAuth_CheckCredentials extends AddModule_Base
+{
+
+	private $taskIds;
+
+	protected function preprocessInternal()
+	{
+		$server = Request::post('server');
+		$port = Request::post('port');
+		$searchbase = Request::post('searchbase', '');
+		$binddn = Request::post('binddn');
+		$bindpw = Request::post('bindpw');
+		$ssl = Request::post('ssl', 'off') === 'on';
+		if ($ssl && !Request::post('fingerprint')) {
+			Message::addError('error-read', 'fingerprint');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		if (empty($server) || empty($binddn) || empty($port)) {
+			Message::addError('empty-field');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		$parent = null;
+		// Test query 4 users
+		if ($ssl) {
+			$uri = "ldaps://$server:$port/";
+		} else {
+			$uri = "ldap://$server:$port/";
 		}
 		$ldapSearch = Taskmanager::submit('LdapSearch', array(
 				'parentTask' => $parent,
@@ -161,7 +224,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			'ssl' => Request::post('ssl') === 'on',
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
-			'originalbinddn' => $this->originalBindDn,
+			'originalbinddn' => Request::post('originalbinddn'),
 			'prev' => 'AdAuth_Start',
 			'next' => 'AdAuth_Finish'
 			))

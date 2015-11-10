@@ -1,9 +1,10 @@
 <p>
-	{{lang_connectionWait}}
+	{{lang_dnLookup}}
 </p>
 
 <div id="zeug">
-	<div data-tm-id="{{tm-search}}" data-tm-log="messages" data-tm-callback="ldapCb">LDAP Test-Query</div>
+	<div data-tm-id="{{self-search}}" data-tm-log="messages" data-tm-callback="selfCb">LDAP Self-Query</div>
+	<pre style="display:none" id="result"></pre>
 </div>
 <i>{{lang_onProblemSearchBase}}</i>
 <br><br>
@@ -25,14 +26,15 @@
 	</form>
 </div>
 <div class="pull-right">
-	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{next}}">
+	<form id="nextform" role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{next}}">
 		<input type="hidden" name="token" value="{{token}}">
 		<input type="hidden" name="edit" value="{{edit}}">
 		<input name="title" value="{{title}}" type="hidden">
 		<input name="server" value="{{server}}" type="hidden">
-		<input name="searchbase" value="{{searchbase}}" type="hidden">
-		<input id="setbase" name="somedn" value="" type="hidden">
-		<input name="binddn" value="{{binddn}}" type="hidden">
+		<input name="port" value="{{port}}" type="hidden">
+		<input id="searchbase" name="searchbase" value="{{searchbase}}" type="hidden">
+		<input id="fulldn" name="binddn" value="" type="hidden">
+		<input id="givendn" name="originalbinddn" value="{{binddn}}" type="hidden">
 		<input name="bindpw" value="{{bindpw}}" type="hidden">
 		<input name="home" value="{{home}}" type="hidden">
 		{{#ssl}}
@@ -45,21 +47,33 @@
 	</form>
 </div>
 <script type="text/javascript">
-	function ldapCb(task)
+	function selfCb(task)
 	{
-		if (!task || !task.statusCode)
+		if (!task || !task.statusCode || task.statusCode === 'TASK_WAITING' || task.statusCode === 'TASK_PROCESSING')
 			return;
-		if (task.statusCode === 'TASK_FINISHED') {
-			if (task.data && task.data.dn) {
-				$('#setbase').val(task.data.dn);
+		if (task.statusCode === 'TASK_FINISHED' && task.data && task.data.dn) {
+			var fulldn = task.data.dn;
+			var domain = "-";
+			var search = $('#searchbase').val();
+			if ($('#searchbase').val().length < 2) {
+				domain = $('#givendn').val().replace(/[\/\\]\S+$/i, '');
+				var idx = fulldn.search(new RegExp('\\w+=' + domain + ',', "i"));
+				console.log(idx);
+				if (idx !== -1) {
+					search = fulldn.substring(idx);
+				}
+				$('#searchbase').val(search);
 			}
-			$('#nextbutton').html('Weiter &raquo;').show();
+			$('#fulldn').val(fulldn);
+			$('#result').text("BindDN: " + fulldn + "\nWinDomain: " + domain + "\nSearchBase: " + search).show();
+			if (typeof search !== 'string' || search.length === 0 || search.length + 2 >= fulldn.length) {
+				$('#nextbutton').html('{{lang_continueAnyway}}');
+			} else {
+				$('#nextform').submit();
+			}
+		} else {
+			$('#nextbutton').html('{{lang_continueAnyway}}');
 		}
-		if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'PARENT_FAILED') {
-			$('#nextbutton').html('Trotzdem weiter &raquo;');
-		}
-		if (task.statusCode === 'TASK_ERROR') {
-			$('#nextbutton').show();
-		}
+		$('#nextbutton').show();
 	}
 </script>

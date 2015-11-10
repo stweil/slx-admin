@@ -60,7 +60,7 @@
 			var ssl = $('#ssl').length > 0;
 			var ports = task.data.ports;
 			var verRes = -1;
-			var cert = $('#certificate').val().length > 10;
+			var cert = ssl && $('#certificate').val().length > 10;
 			for (var i = 0; i < ports.length; ++i) {
 				if (!ports[i].open || !ports[i].port) continue;
 				if ($.isNumeric($('#port').val()) && $('#port').val() < ports[i].port) continue; // Prefer the global LDAP ports over the specific AD ports

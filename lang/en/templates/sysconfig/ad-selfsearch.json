@@ -1,0 +1,7 @@
+{
+    "lang_back": "Back",
+    "lang_continueAnyway": "Continue anyway",
+    "lang_dnLookup": "Looking up bind dn",
+    "lang_onProblemSearchBase": "On failure, try to pass the bind dn and search base manually",
+    "lang_skip": "Skip"
+}
