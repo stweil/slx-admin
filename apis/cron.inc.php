@@ -26,3 +26,4 @@ case 4:
 }
 
 Trigger::checkCallbacks();
+Trigger::ldadp();
