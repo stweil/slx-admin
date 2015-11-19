@@ -1,0 +1,18 @@
+{
+    "lang_64bitSupport": "64\u2009Bit Gast-Support",
+    "lang_cores": "Kerne",
+    "lang_cpuModel": "CPU-Modell",
+    "lang_firstSeen": "Erste Aktivit\u00e4t",
+    "lang_hardwareSummary": "Hardware",
+    "lang_hostname": "Hostname",
+    "lang_ip": "IP-Adresse",
+    "lang_lastBoot": "Letzter Boot",
+    "lang_lastSeen": "Letzte Aktivit\u00e4t",
+    "lang_macAddr": "MAC-Adresse",
+    "lang_machineSummary": "Zusammenfassung",
+    "lang_ram": "Arbeitsspeicher",
+    "lang_sockets": "Sockel",
+    "lang_tempPart": "Temp. Partition",
+    "lang_uuid": "UUID",
+    "lang_virtualCores": "Virtuelle Kerne"
+}

@@ -1,0 +1,55 @@
+<h3>{{lang_hdds}}</h3>
+<div class="row">
+	{{#hdds}}
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					{{dev}}
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-sm-6">
+							<table class="table table-condensed table-striped table-responsive">
+								<tr>
+									<th>{{lang_partName}}</th>
+									<th class="text-right">{{lang_partSize}}</th>
+									<th>{{lang_partType}}</th>
+								</tr>
+								{{#partitions}}
+									<tr id="{{id}}">
+										<td>{{name}}</td>
+										<td class="text-right">{{size}}&thinsp;GiB</td>
+										<td>{{type}}</td>
+									</tr>
+								{{/partitions}}
+							</table>
+							<div class="slx-bold">{{lang_total}}: {{size}}&thinsp;GiB</div>
+						</div>
+						<div class="col-sm-6">
+							<canvas id="{{devid}}-chart" style="width:100%;height:250px"></canvas>
+							<script type="text/javascript">
+								document.addEventListener("DOMContentLoaded", function() {
+									var data = {{{json}}};
+									var sel = false;
+									new Chart(document.getElementById('{{devid}}-chart').getContext('2d')).Pie(data, { 
+										animation: false,
+										tooltipTemplate: "<%if (label){%><%=label%><%}%>",
+										customTooltips: function(tooltip) {
+											if (!tooltip) {
+												if (sel !== false) sel.removeClass('info');
+												sel = false;
+												return;
+											}
+											sel = $('#' + tooltip.text);
+											sel.addClass('info');
+										}
+									});
+								}, false);
+							</script>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{{/hdds}}
+</div>

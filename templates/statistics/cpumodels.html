@@ -1,0 +1,49 @@
+<div class="col-md-12">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_cpuStats}}
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-md-8">
+					<table class="table table-condensed table-striped">
+						<tr>
+							<th>{{lang_cpuName}}</th>
+							<th class="text-right">{{lang_cpuCores}}</th>
+							<th class="text-right">{{lang_cpuCount}}</th>
+						</tr>
+						{{#rows}}
+						<tr id="{{id}}">
+							<td class="text-left slx-nowrap"><a href="?do=Statistics&amp;filter=cpumodel&amp;argument={{urlcpumodel}}">{{cpumodel}}</a></td>
+							<td class="text-right"><a href="?do=Statistics&amp;filter=realcores&amp;argument={{realcores}}">{{realcores}}</a></td>
+							<td class="text-right">{{count}}</td>
+						</tr>
+						{{/rows}}
+					</table>
+				</div>
+				<div class="col-md-4">
+					<canvas id="cpumodelchart" style="width:100%;height:380px"></canvas>
+					<script type="text/javascript">
+						document.addEventListener("DOMContentLoaded", function() {
+							var data = {{{json}}};
+							var sel = false;
+							new Chart(document.getElementById('cpumodelchart').getContext('2d')).Pie(data, { 
+								animation: false,
+								tooltipTemplate: "<%if (label){%><%=label%><%}%>",
+								customTooltips: function(tooltip) {
+									if (!tooltip) {
+										if (sel !== false) sel.removeClass('info');
+										sel = false;
+										return;
+									}
+									sel = $('#' + tooltip.text);
+									sel.addClass('info');
+								}
+							});
+						}, false);
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

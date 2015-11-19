@@ -1,0 +1,48 @@
+<div class="col-md-6">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_tempPartStats}}
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-md-6">
+					<table class="table table-condensed table-striped">
+						<tr>
+							<th>{{lang_partitionSize}}</th>
+							<th class="text-right">{{lang_machineCount}}</th>
+						</tr>
+						{{#rows}}
+						<tr id="tmpid{{gb}}">
+							<td class="text-left slx-nowrap"><a href="?do=Statistics&amp;filter=hddgb&amp;argument={{gb}}">{{gb}}&thinsp;GiB</td>
+							<td class="text-right">{{count}}</td>
+						</tr>
+						{{/rows}}
+					</table>
+				</div>
+				<div class="col-md-6">
+					<canvas id="temppartchart" style="width:100%;height:250px"></canvas>
+					<script type="text/javascript">
+						document.addEventListener("DOMContentLoaded", function() {
+							var data = {{{json}}};
+							var sel = false;
+							new Chart(document.getElementById('temppartchart').getContext('2d')).Pie(data, { 
+								animation: false,
+								tooltipTemplate: "<%if (label){%><%=label%><%}%>",
+								customTooltips: function(tooltip) {
+									if (!tooltip) {
+										if (sel !== false) sel.removeClass('info');
+										sel = false;
+										return;
+									}
+									sel = $('#tmpid' + String(tooltip.text));
+									console.log('#tmpid' + String(tooltip.text));
+									sel.addClass('info');
+								}
+							});
+						}, false);
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

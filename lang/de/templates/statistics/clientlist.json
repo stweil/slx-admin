@@ -1,0 +1,11 @@
+{
+    "lang_address": "Adresse",
+    "lang_clientList": "Liste ausgew\u00e4hlter Rechner",
+    "lang_cpuModel": "CPU",
+    "lang_gbRam": "RAM",
+    "lang_kvmSupport": "64\u2009Bit G\u00e4ste",
+    "lang_lastBoot": "Letzter boot",
+    "lang_machine": "Rechner",
+    "lang_realCores": "Kerne",
+    "lang_tmpGb": "HDD-Temp"
+}

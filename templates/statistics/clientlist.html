@@ -1,0 +1,26 @@
+<h1>{{lang_clientList}}</h1>
+<div class="pull-right">{{filter}} ~= {{argument}}</div>
+<div class="clearfix"></div>
+
+<table class="table table-condensed table-striped">
+	<tr>
+		<th>{{lang_machine}}</th>
+		<th>{{lang_address}}</th>
+		<th class="text-right">{{lang_lastBoot}}</th>
+		<th>{{lang_kvmSupport}}</th>
+		<th class="text-right">{{lang_gbRam}}</th>
+		<th class="text-right">{{lang_tmpGb}}</th>
+		<th>{{lang_cpuModel}}</th>
+	</tr>
+	{{#rows}}
+	<tr>
+		<td class="slx-nowrap"><a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a><div class="small">{{machineuuid}}</div></td>
+		<td><b><a href="?do=Statistics&amp;filter=subnet&amp;argument={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
+		<td class="text-right">{{lastboot}}</td>
+		<td class="{{kvmclass}}">{{kvmstate}}</td>
+		<td class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
+		<td class="text-right {{hddclass}}">{{gbtmp}}&thinsp;GiB</td>
+		<td>{{lang_realCores}}: {{realcores}}<div class="small">{{cpumodel}}</div></td>
+	</tr>
+	{{/rows}}
+</table>

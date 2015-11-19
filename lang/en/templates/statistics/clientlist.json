@@ -1,0 +1,11 @@
+{
+    "lang_address": "Address",
+    "lang_clientList": "List of selected machines",
+    "lang_cpuModel": "CPU",
+    "lang_gbRam": "RAM",
+    "lang_kvmSupport": "64\u2009Bit guests",
+    "lang_lastBoot": "Last boot",
+    "lang_machine": "Machine",
+    "lang_realCores": "Cores",
+    "lang_tmpGb": "HDD temp"
+}
