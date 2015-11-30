@@ -14,7 +14,11 @@
 	</tr>
 	{{#rows}}
 	<tr>
-		<td class="slx-nowrap"><a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a><div class="small">{{machineuuid}}</div></td>
+		<td class="slx-nowrap">
+			{{#hasnotes}}<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>{{/hasnotes}}
+			<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
+			<div class="small">{{machineuuid}}</div>
+		</td>
 		<td><b><a href="?do=Statistics&amp;filter=subnet&amp;argument={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
 		<td class="text-right">{{lastboot}}</td>
 		<td class="{{kvmclass}}">{{kvmstate}}</td>

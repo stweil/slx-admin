@@ -35,8 +35,8 @@
 										animation: false,
 										tooltipTemplate: "<%if (label){%><%=label%><%}%>",
 										customTooltips: function(tooltip) {
+											if (sel !== false) sel.removeClass('info');
 											if (!tooltip) {
-												if (sel !== false) sel.removeClass('info');
 												sel = false;
 												return;
 											}

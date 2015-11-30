@@ -11,9 +11,11 @@
     "lang_noModuleFromThisGroup": "(Kein Modul dieser Gruppe)",
     "lang_serverConfiguration": "Serverseitige Konfiguration",
     "lang_titleBackup": "Sichern und Wiederherstellen",
+    "lang_titleClientStatistics": "Client-Statistiken",
     "lang_titleEventLog": "Ereignisprotokoll",
     "lang_titleWebinterface": "Webschnittstelle",
     "lang_unknwonTaskManager": "Unbekannter Taskmanager-Fehler",
     "today": "Heute",
+    "unused": "Ungenutzt",
     "yesterday": "Gestern"
 }

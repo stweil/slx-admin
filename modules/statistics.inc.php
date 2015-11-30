@@ -1,7 +1,11 @@
 <?php
 
 global $STATS_COLORS, $SIZE_ID44, $SIZE_RAM;
-$STATS_COLORS = array('#e55', '#ee6', '#4d4', '#44f', '#e83', '#0de', '#08f', '#666', '#e0e', '#999');
+$STATS_COLORS = array();
+for ($i = 0; $i < 10; ++$i) {
+	$STATS_COLORS[] = '#55' . sprintf('%02s%02s', dechex((($i+1)*($i+1)) / .3922), dechex(abs((5-$i) * 51)));
+}
+//$STATS_COLORS = array('#57e', '#ee8', '#5ae', '#fb7', '#6d7', '#e77', '#3af', '#666', '#e0e', '#999');
 $SIZE_ID44 = array(0, 8, 16, 24, 30, 40, 50, 60, 80, 100, 120, 150, 180, 250, 300, 350, 400, 450, 500);
 $SIZE_RAM = array(1, 2, 3, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 320, 480, 512, 768, 1024);
 
@@ -14,6 +18,20 @@ class Page_Statistics extends Page
 		if (!User::hasPermission('superadmin')) {
 			Message::addError('no-permission');
 			Util::redirect('?do=Main');
+		}
+		$action = Request::post('action');
+		if ($action === 'setnotes') {
+			$uuid = Request::post('uuid', '', 'string');
+			$text = Request::post('content', '', 'string');
+			if (empty($text)) {
+				$text = null;
+			}
+			Database::exec('UPDATE machine SET notes = :text WHERE machineuuid = :uuid', array(
+				'uuid' => $uuid,
+				'text' => $text
+			));
+			Message::addSuccess('notes-saved');
+			Util::redirect('?do=Statistics&uuid=' . $uuid);
 		}
 	}
 
@@ -33,11 +51,37 @@ class Page_Statistics extends Page
 		}
 		Render::addScriptBottom('chart.min');
 		Render::openTag('div', array('class' => 'row'));
-		$this->showCpuModels();
 		$this->showMemory();
-		$this->showKvmState();
 		$this->showId44();
+		$this->showKvmState();
+		$this->showLatestMachines();
+		$this->showCpuModels();
 		Render::closeTag('div');
+	}
+	
+	private function capChart(&$json, $cutoff)
+	{
+		$total = 0;
+		foreach ($json as $entry) {
+			$total += $entry['value'];
+		}
+		$cap = ceil($total * $cutoff);
+		$accounted = 0;
+		$id = 0;
+		foreach ($json as $entry) {
+			if ($accounted < $cap || $id < 3) {
+				$id++;
+				$accounted += $entry['value'];
+			}
+		}
+		$json = array_slice($json, 0, $id);
+		if ($accounted / $total < 0.99) {
+			$json[] = array(
+				'color' => '#eee',
+				'label' => 'invalid',
+				'value' => ($total - $accounted)
+			);
+		}
 	}
 
 	private function showCpuModels()
@@ -47,10 +91,8 @@ class Page_Statistics extends Page
 		$lines = array();
 		$json = array();
 		$id = 0;
-		$total = 0;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			settype($row['count'], 'integer');
-			$total += $row['count'];
 			$row['id'] = 'cpuid' . $id;
 			$row['urlcpumodel'] = urlencode($row['cpumodel']);
 			$lines[] = $row;
@@ -61,14 +103,7 @@ class Page_Statistics extends Page
 			);
 			++$id;
 		}
-		$cap = ceil($total * 0.95);
-		$total = 0;
-		$id = 0;
-		foreach ($json as $entry) {
-			$total += $entry['value'];
-			if ($total <= $cap) $id++;
-		}
-		$json = array_slice($json, 0, $id);
+		$this->capChart($json, 0.92);
 		Render::addTemplate('statistics/cpumodels', array('rows' => $lines, 'json' => json_encode($json)));
 	}
 
@@ -96,7 +131,7 @@ class Page_Statistics extends Page
 		$json = array();
 		$id = 0;
 		foreach (array_reverse($lines, true) as $k => $v) {
-			$data['rows'][] = array('gb' => $k, 'count' => $v);
+			$data['rows'][] = array('gb' => $k, 'count' => $v, 'class' => $this->ramColorClass($k * 1024));
 			$json[] = array(
 				'color' => $STATS_COLORS[$id % count($STATS_COLORS)],
 				'label' => (string)$k,
@@ -104,13 +139,14 @@ class Page_Statistics extends Page
 			);
 			++$id;
 		}
+		$this->capChart($json, 0.92);
 		$data['json'] = json_encode($json);
 		Render::addTemplate('statistics/memory', $data);
 	}
 
 	private function showKvmState()
 	{
-		$colors = array('UNKNOWN' => '#666', 'UNSUPPORTED' => '#ea5', 'DISABLED' => '#e55', 'ENABLED' => '#4d4');
+		$colors = array('UNKNOWN' => '#666', 'UNSUPPORTED' => '#ea5', 'DISABLED' => '#e55', 'ENABLED' => '#6d6');
 		$res = Database::simpleQuery("SELECT kvmstate, Count(*) AS `count` FROM machine GROUP BY kvmstate ORDER BY `count` DESC");
 		$lines = array();
 		$json = array();
@@ -149,28 +185,60 @@ class Page_Statistics extends Page
 		asort($lines);
 		$data = array('rows' => array());
 		$json = array();
-		$id = 1;
+		$id = 0;
 		$cap = ceil($total * 0.95);
-		$total = 0;
+		$accounted = 0;
 		foreach (array_reverse($lines, true) as $k => $v) {
-			$data['rows'][] = array('gb' => $k, 'count' => $v);
-			$total += $v;
-			if ($total <= $cap) {
+			$data['rows'][] = array('gb' => $k, 'count' => $v, 'class' => $this->hddColorClass($k));
+			if ($accounted <= $cap) {
 				if ($k === 0) {
-					$color = $STATS_COLORS[0];
+					$color = '#e55';
 				} else {
-					$color = $STATS_COLORS[$id % count($STATS_COLORS)];
+					$color = $STATS_COLORS[$id++ % count($STATS_COLORS)];
 				}
 				$json[] = array(
 					'color' => $color,
 					'label' => (string)$k,
 					'value' => $v
 				);
-				++$id;
 			}
+			$accounted += $v;
+		}
+		if ($accounted / $total < 0.99) {
+			$json[] = array(
+				'color' => '#eee',
+				'label' => 'invalid',
+				'value' => ($total - $accounted)
+			);
 		}
 		$data['json'] = json_encode($json);
 		Render::addTemplate('statistics/id44', $data);
+	}
+	
+	private function showLatestMachines()
+	{
+		$data = array('cutoff' => ceil(time() / 3600) * 3600 - 86400 * 7);
+		$res = Database::simpleQuery("SELECT machineuuid, clientip, hostname, firstseen, mbram, kvmstate, id44mb FROM machine"
+			. " WHERE firstseen > :cutoff ORDER BY firstseen DESC LIMIT 32", $data);
+		$rows = array();
+		$count = 0;
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (empty($row['hostname'])) {
+				$row['hostname'] = $row['clientip'];
+			}
+			$row['firstseen'] = date('d.m. H:i', $row['firstseen']);
+			$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1); // Trial and error until we got "expected" rounding..
+			$row['gbtmp'] = round($row['id44mb'] / 1024);
+			$row['ramclass'] = $this->ramColorClass($row['mbram']);
+			$row['kvmclass'] = $this->kvmColorClass($row['kvmstate']);
+			$row['hddclass'] = $this->hddColorClass($row['gbtmp']);
+			$row['kvmicon'] = $row['kvmstate'] === 'ENABLED' ? '✓' : '✗';
+			if (++$count > 5) {
+				$row['style'] = 'display:none';
+			}
+			$rows[] = $row;
+		}
+		Render::addTemplate('statistics/newclients', array('rows' => $rows, 'openbutton' => $count > 5));
 	}
 	
 	private function showMachineList($filter, $argument)
@@ -202,7 +270,7 @@ class Page_Statistics extends Page
 			return;
 		}
 		$res = Database::simpleQuery("SELECT machineuuid, macaddr, clientip, firstseen, lastseen,"
-			. " logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname FROM machine"
+			. " logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes FROM machine"
 			. " WHERE $where ORDER BY lastseen DESC, clientip ASC", $args);
 		$rows = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -275,7 +343,7 @@ class Page_Statistics extends Page
 	private function showMachine($uuid)
 		{
 		$row = Database::queryFirst("SELECT machineuuid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,"
-			. " mbram, kvmstate, cpumodel, id44mb, data, hostname FROM machine WHERE machineuuid = :uuid",
+			. " mbram, kvmstate, cpumodel, id44mb, data, hostname, notes FROM machine WHERE machineuuid = :uuid",
 			array('uuid' => $uuid));
 		// Mangle fields
 		$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
@@ -305,6 +373,7 @@ class Page_Statistics extends Page
 			Render::addScriptBottom('chart.min');
 			Render::addTemplate('statistics/machine-hdds', $hdds);
 		}
+		Render::addTemplate('statistics/machine-notes', $row);
 	}
 	
 	private function parseCpu(&$row, $data)
@@ -341,13 +410,13 @@ class Page_Statistics extends Page
 				$unit = $out[1] / (1024 * 1024); // Convert so that multiplying by unit yields MiB
 			} else if (isset($hdd) && $unit !== 0 && preg_match(',^/dev/(\S+)\s+.*\s(\d+)\s+(\d+)\s+\d+\s+([0-9a-f]+)\s+(.*)$,i', $line, $out)) {
 				// Some partition
-				$type = (string)$out[4];
-				if ($type === '5') continue;
+				$type = strtolower($out[4]);
+				if ($type === '5' || $type === 'f' || $type === '85') continue;
 				$partsize = round(($out[3] - $out[2]) * $unit);
 				$hdd['partitions'][] = array(
 					'id' => $out[1],
 					'name' => $out[1],
-					'size' => round($partsize / 1024),
+					'size' => round($partsize / 1024, $partsize < 1024 ? 1 : 0),
 					'type' => ($type === '44' ? 'OpenSLX' : $out[5]),
 				);
 				$hdd['json'][] = array(

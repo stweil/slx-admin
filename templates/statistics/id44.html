@@ -12,7 +12,7 @@
 							<th class="text-right">{{lang_machineCount}}</th>
 						</tr>
 						{{#rows}}
-						<tr id="tmpid{{gb}}">
+						<tr id="tmpid{{gb}}" class="{{class}}">
 							<td class="text-left slx-nowrap"><a href="?do=Statistics&amp;filter=hddgb&amp;argument={{gb}}">{{gb}}&thinsp;GiB</td>
 							<td class="text-right">{{count}}</td>
 						</tr>
@@ -29,8 +29,8 @@
 								animation: false,
 								tooltipTemplate: "<%if (label){%><%=label%><%}%>",
 								customTooltips: function(tooltip) {
+									if (sel !== false) sel.removeClass('info');
 									if (!tooltip) {
-										if (sel !== false) sel.removeClass('info');
 										sel = false;
 										return;
 									}

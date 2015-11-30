@@ -11,9 +11,11 @@
     "lang_noModuleFromThisGroup": "(No module from this group)",
     "lang_serverConfiguration": "Server-side Configuration",
     "lang_titleBackup": "Save and Restore",
+    "lang_titleClientStatistics": "Client statistics",
     "lang_titleEventLog": "Event log",
     "lang_titleWebinterface": "Web Interface",
     "lang_unknwonTaskManager": "Unknown Task Manager error",
     "today": "Today",
+    "unused": "Unused",
     "yesterday": "Yesterday"
 }

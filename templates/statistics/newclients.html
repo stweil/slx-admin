@@ -1,0 +1,44 @@
+<div class="col-md-6">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_newMachines}}
+		</div>
+		<div class="panel-body">
+			<table class="table table-condensed table-striped" id="newclienttable">
+				<tr>
+					<th>{{lang_machine}}</th>
+					<th class="text-right"></th>
+					<th>64Bit</th>
+					<th class="text-right">RAM</th>
+					<th class="text-right">HDD</th>
+				</tr>
+				{{#rows}}
+				<tr style="{{style}}">
+					<td class="slx-nowrap"><a href="?do=Statistics&amp;uuid={{machineuuid}}">{{hostname}}</a></td>
+					<td class="text-right">{{firstseen}}</td>
+					<td class="{{kvmclass}}">{{kvmicon}}</td>
+					<td class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
+					<td class="text-right {{hddclass}}">{{gbtmp}}&thinsp;GiB</td>
+				</tr>
+				{{/rows}}
+			{{#openbutton}}
+				<tr>
+					<td colspan="5" onclick="slxExpandNew(this)">
+						<span class="btn-group btn-group-justified">
+							<span class="btn btn-default">
+								<span class="glyphicon glyphicon-menu-down"></span>
+							</span>
+						</span>
+						<script type="text/javascript">
+							function slxExpandNew(b) {
+								$('#newclienttable').find('tr').show();
+								$(b).hide();
+							}
+						</script>
+					</td>
+				</tr>
+			{{/openbutton}}
+			</table>
+		</div>
+	</div>
+</div>
