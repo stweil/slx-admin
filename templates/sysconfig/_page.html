@@ -223,5 +223,5 @@
 			if (ids.indexOf($(this).val()) >= 0) $(this).removeClass('btn-primary').addClass('btn-default');
 		});
 	}
-	setTimeout(checkBuildStatus, 300);
+	document.addEventListener("DOMContentLoaded", checkBuildStatus, false);
 // --></script>

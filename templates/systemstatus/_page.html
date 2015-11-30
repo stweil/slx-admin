@@ -4,7 +4,7 @@
 
 <div class="row">
 
-	<div class="col-md-6">
+	<div class="col-sm-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				{{lang_space}}
@@ -15,7 +15,7 @@
 		</div>
 	</div>
 
-	<div class="col-md-6">
+	<div class="col-sm-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				{{lang_services}}
@@ -113,15 +113,17 @@
 </div>
 
 <script type="text/javascript">
-	loadContent('#diskstat', '?do=SystemStatus&action=DiskStat');
-	loadContent('#addresses', '?do=SystemStatus&action=AddressList');
-	loadContent('#systeminfo', '?do=SystemStatus&action=SystemInfo');
-	loadContent('#services', '?do=SystemStatus&action=Services');
-	loadContent('#dmsd-users', '?do=SystemStatus&action=DmsdUsers');
-	setTimeout(function() {
-		loadContent('#dmsd-log', '?do=SystemStatus&action=DmsdLog');
-		loadContent('#netstat', '?do=SystemStatus&action=Netstat');
-		loadContent('#pslist', '?do=SystemStatus&action=PsList');
-		loadContent('#ldadp-log', '?do=SystemStatus&action=LdadpLog');
-	}, 500);
+	document.addEventListener("DOMContentLoaded", function() {
+		$('#diskstat').load('?do=SystemStatus&action=DiskStat');
+		$('#addresses').load('?do=SystemStatus&action=AddressList');
+		$('#systeminfo').load('?do=SystemStatus&action=SystemInfo');
+		$('#services').load('?do=SystemStatus&action=Services');
+		$('#dmsd-users').load('?do=SystemStatus&action=DmsdUsers');
+		setTimeout(function() {
+			$('#dmsd-log').load('?do=SystemStatus&action=DmsdLog');
+			$('#netstat').load('?do=SystemStatus&action=Netstat');
+			$('#pslist').load('?do=SystemStatus&action=PsList');
+			$('#ldadp-log').load('?do=SystemStatus&action=LdadpLog');
+		}, 300);
+	}, false);
 </script>
