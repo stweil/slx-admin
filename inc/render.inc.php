@@ -166,10 +166,13 @@ class Render
 	 */
 	public static function parse($template, $params = false)
 	{
-		// Get all translated strings for this template
-		$dictionary = Dictionary::getArrayTemplate($template);
 		// Load html snippet
 		$html = self::getTemplate($template);
+		if ($html === false) {
+			return '<h3>Template ' . htmlspecialchars($template) . '</h3>' . nl2br(htmlspecialchars(print_r($params, true))) . '<hr>';
+		}
+		// Get all translated strings for this template
+		$dictionary = Dictionary::getArrayTemplate($template);
 		// Now find all language tags in this array
 		preg_match_all('/{{(lang_.+?)}}/', $html, $out);
 		foreach ($out[1] as $tag) {
@@ -228,8 +231,6 @@ class Render
 		}
 		// Load from disk
 		$data = @file_get_contents('templates/' . $template . '.html');
-		if ($data === false)
-			$data = '<b>Non-existent template ' . $template . ' requested!</b>';
 		self::$templateCache[$template] = & $data;
 		return $data;
 	}
