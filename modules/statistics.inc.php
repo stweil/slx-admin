@@ -356,10 +356,13 @@ class Page_Statistics extends Page
 		$row['hddclass'] = $this->hddColorClass($row['gbtmp']);
 		// Parse the giant blob of data
 		$hdds = array();
-		if (preg_match_all('/##### ([^#]+) #+$(.*?)^#####/ims', $row['data'], $out, PREG_SET_ORDER)) {
+		if (preg_match_all('/##### ([^#]+) #+$(.*?)^#####/ims', $row['data'] . '########', $out, PREG_SET_ORDER)) {
 			foreach ($out as $section) {
 				if ($section[1] === 'CPU') {
 					$this->parseCpu($row, $section[2]);
+				}
+				if ($section[1] === 'dmidecode') {
+					$this->parseDmiDecode($row, $section[2]);
 				}
 				if ($section[1] === 'Partition tables') {
 					$this->parseHdd($hdds, $section[2]);
@@ -382,6 +385,81 @@ class Page_Statistics extends Page
 		foreach ($out as $entry) {
 			$row[str_replace(' ', '', $entry[1])] = $entry[2];
 		}
+	}
+	
+	private function parseDmiDecode(&$row, $data)
+	{
+		$lines = preg_split("/[\r\n]+/", $data);
+		$section = false;
+		$ramOk = false;
+		$ramForm = $ramType = $ramSpeed = $ramClockSpeed = false;
+		foreach ($lines as $line) {
+			if ($line{0} !== "\t" && $line{0} !== ' ') {
+				$section = $line;
+				$ramOk = false;
+				if (($ramForm || $ramType) && ($ramSpeed || $ramClockSpeed)) {
+					if (isset($row['ramtype']) && !$ramClockSpeed) continue;
+					$row['ramtype'] = $ramType . ' ' . $ramForm;
+					if ($ramClockSpeed) $row['ramtype'] .= ', ' . $ramClockSpeed;
+					elseif ($ramSpeed) $row['ramtype'] .= ', ' . $ramSpeed;
+					$ramForm = false;
+					$ramType = false;
+					$ramClockSpeed = false;
+				}
+				continue;
+			}
+			if ($section === 'System Information' || $section === 'Base Board Information') {
+				if (empty($row['pcmodel']) && preg_match('/^\s*Product Name: +(\S.+?) *$/i', $line, $out)) {
+					$row['pcmodel'] = $out[1];
+				}
+				if (empty($row['manufacturer']) && preg_match('/^\s*Manufacturer: +(\S.+?) *$/i', $line, $out)) {
+					$row['manufacturer'] = $out[1];
+				}
+			}
+			else if ($section === 'Physical Memory Array') {
+				if (!$ramOk && preg_match('/Use: System Memory/i', $line)) {
+					$ramOk = true;
+				}
+				if ($ramOk && preg_match('/^\s*Number Of Devices: +(\S.+?) *$/i', $line, $out)) {
+					$row['ramslotcount'] = $out[1];
+				}
+				if ($ramOk && preg_match('/^\s*Maximum Capacity: +(\S.+?)\s*$/i', $line, $out)) {
+					$row['maxram'] = preg_replace('/([MGT])B/', '$1iB', $out[1]);
+				}
+			}
+			else if ($section === 'Memory Device') {
+				if (preg_match('/^\s*Size:\s*(.*?)\s*$/i', $line, $out)) {
+					$row['extram'] = true;
+					if (preg_match('/(\d+)\s*(\w)i?B/i', $out[1], $out)) {
+						$out[2] = strtoupper($out[2]);
+						if ($out[2] === 'K' || ($out[2] === 'M' && $out[1] < 500)) {
+							$ramForm = $ramType = $ramSpeed = $ramClockSpeed = false;
+							continue;
+						}
+						if ($out[2] === 'M' && $out[1] >= 1024) {
+							$out[2] = 'G';
+							$out[1] = floor(($out[1] + 100) / 1024);
+						}
+						$row['ramslot'][]['size'] = $out[1] . ' ' . strtoupper($out[2]) . 'iB';
+					} else if (count($row['ramslot']) < 8 && (!isset($row['ramslotcount']) || $row['ramslotcount'] <= 8)) {
+						$row['ramslot'][]['size'] = '_____';
+					}
+				}
+				if (preg_match('/^\s*Form Factor:\s*(.*?)\s*$/i', $line, $out) && $out[1] !== 'Unknown') {
+					$ramForm = $out[1];
+				}
+				if (preg_match('/^\s*Type:\s*(.*?)\s*$/i', $line, $out) && $out[1] !== 'Unknown') {
+					$ramType = $out[1];
+				}
+				if (preg_match('/^\s*Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
+					$ramSpeed = $out[1];
+				}
+				if (preg_match('/^\s*Configured Clock Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
+					$ramClockSpeed = $out[1];
+				}
+			}
+		}
+		if (empty($row['ramslotcount'])) $row['ramslotcount'] = count($row['ramslot']);
 	}
 	
 	private function parseHdd(&$row, $data)

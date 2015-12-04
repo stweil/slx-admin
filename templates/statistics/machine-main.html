@@ -63,10 +63,29 @@
 							{{/Sockets}}
 						</td>
 					</tr>
+					<tr>
+						<td>{{lang_model}}</td>
+						<td>{{pcmodel}} ({{manufacturer}})</td>
+					</tr>
 					<tr class="{{ramclass}}">
 						<td>{{lang_ram}}</td>
-						<td>{{gbram}}&thinsp;GiB</td>
+						<td>
+							{{gbram}}&thinsp;GiB
+							{{#maxram}}({{lang_maximumAbbrev}} {{maxram}}){{/maxram}}
+							{{ramtype}}
+						</td>
 					</tr>
+					{{#extram}}
+					<tr>
+						<td>{{lang_ramSlots}}</td>
+						<td>
+							{{ramslotcount}}:
+							{{#ramslot}}
+							[ {{size}} ]
+							{{/ramslot}}
+						</td>
+					</tr>
+					{{/extram}}
 					<tr class="{{hddclass}}">
 						<td>{{lang_tempPart}}</td>
 						<td>{{gbtmp}}&thinsp;GiB</td>
