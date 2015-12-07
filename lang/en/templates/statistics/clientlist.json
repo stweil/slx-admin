@@ -4,8 +4,11 @@
     "lang_cpuModel": "CPU",
     "lang_gbRam": "RAM",
     "lang_kvmSupport": "64\u2009Bit guests",
-    "lang_lastBoot": "Last boot",
+    "lang_lastSeen": "Last seen",
     "lang_machine": "Machine",
+    "lang_machineIdle": "Machine is powered on and is not used",
+    "lang_machineOccupied": "Machine is powered on and in use",
+    "lang_machineOff": "Machine is powered down, or is not running bwLehrpool",
     "lang_realCores": "Cores",
     "lang_tmpGb": "HDD temp"
 }

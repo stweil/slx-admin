@@ -41,6 +41,20 @@
 						<td>{{lang_lastSeen}}</td>
 						<td>{{lastseen}}</td>
 					</tr>
+					<tr>
+						<td>{{lang_usageState}}</td>
+						<td>
+							{{#state_off}}
+							<span class="glyphicon glyphicon-off"></span> {{lang_machineOff}}
+							{{/state_off}}
+							{{#state_idle}}
+							<span class="glyphicon glyphicon-ok green"></span> {{lang_machineIdle}}
+							{{/state_idle}}
+							{{#state_occupied}}
+							<span class="glyphicon glyphicon-user red"></span> {{lang_machineOccupied}}
+							{{/state_occupied}}
+						</td>
+					</tr>
 				</table>
 			</div>
 		</div>

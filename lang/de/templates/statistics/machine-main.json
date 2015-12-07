@@ -9,6 +9,9 @@
     "lang_lastBoot": "Letzter Boot",
     "lang_lastSeen": "Letzte Aktivit\u00e4t",
     "lang_macAddr": "MAC-Adresse",
+    "lang_machineIdle": "Eingeschaltet, ungenutzt",
+    "lang_machineOccupied": "Eingeschaltet, in Verwendung",
+    "lang_machineOff": "Kein bwLehrpool gestartet",
     "lang_machineSummary": "Zusammenfassung",
     "lang_maximumAbbrev": "Max.",
     "lang_model": "Modell",
@@ -16,6 +19,7 @@
     "lang_ramSlots": "Speicher-Slots",
     "lang_sockets": "Sockel",
     "lang_tempPart": "Temp. Partition",
+    "lang_usageState": "Zustand",
     "lang_uuid": "UUID",
     "lang_virtualCores": "Virtuelle Kerne"
 }

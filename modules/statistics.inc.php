@@ -273,10 +273,18 @@ class Page_Statistics extends Page
 			. " logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes FROM machine"
 			. " WHERE $where ORDER BY lastseen DESC, clientip ASC", $args);
 		$rows = array();
+		$NOW = time();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
+			if ($NOW - $row['lastseen'] > 610) {
+				$row['state_off'] = true;
+			} elseif ($NOW - $row['logintime'] > 610) {
+				$row['state_idle']  = true;
+			} else {
+				$row['state_occupied'] = true;
+			}
+			//$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
 			$row['lastseen'] = date('d.m. H:i', $row['lastseen']);
-			$row['lastboot'] = date('d.m. H:i', $row['lastboot']);
+			//$row['lastboot'] = date('d.m. H:i', $row['lastboot']);
 			$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1); // Trial and error until we got "expected" rounding..
 			$row['gbtmp'] = round($row['id44mb'] / 1024);
 			$octets = explode('.', $row['clientip']);
@@ -346,6 +354,14 @@ class Page_Statistics extends Page
 			. " mbram, kvmstate, cpumodel, id44mb, data, hostname, notes FROM machine WHERE machineuuid = :uuid",
 			array('uuid' => $uuid));
 		// Mangle fields
+		$NOW = time();
+		if ($NOW - $row['lastseen'] > 610) {
+			$row['state_off'] = true;
+		} elseif ($NOW - $row['logintime'] > 610) {
+			$row['state_idle']  = true;
+		} else {
+			$row['state_occupied'] = true;
+		}
 		$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
 		$row['lastseen'] = date('d.m.Y H:i', $row['lastseen']);
 		$row['lastboot'] = date('d.m.Y H:i', $row['lastboot']);
@@ -394,6 +410,7 @@ class Page_Statistics extends Page
 		$ramOk = false;
 		$ramForm = $ramType = $ramSpeed = $ramClockSpeed = false;
 		foreach ($lines as $line) {
+			if (empty($line)) continue;
 			if ($line{0} !== "\t" && $line{0} !== ' ') {
 				$section = $line;
 				$ramOk = false;
@@ -441,7 +458,7 @@ class Page_Statistics extends Page
 							$out[1] = floor(($out[1] + 100) / 1024);
 						}
 						$row['ramslot'][]['size'] = $out[1] . ' ' . strtoupper($out[2]) . 'iB';
-					} else if (count($row['ramslot']) < 8 && (!isset($row['ramslotcount']) || $row['ramslotcount'] <= 8)) {
+					} else if (!isset($row['ramslot']) || (count($row['ramslot']) < 8 && (!isset($row['ramslotcount']) || $row['ramslotcount'] <= 8))) {
 						$row['ramslot'][]['size'] = '_____';
 					}
 				}

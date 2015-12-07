@@ -6,7 +6,7 @@
 	<tr>
 		<th>{{lang_machine}}</th>
 		<th>{{lang_address}}</th>
-		<th class="text-right">{{lang_lastBoot}}</th>
+		<th class="text-right">{{lang_lastSeen}}</th>
 		<th>{{lang_kvmSupport}}</th>
 		<th class="text-right">{{lang_gbRam}}</th>
 		<th class="text-right">{{lang_tmpGb}}</th>
@@ -16,11 +16,20 @@
 	<tr>
 		<td class="slx-nowrap">
 			{{#hasnotes}}<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>{{/hasnotes}}
+			{{#state_off}}
+			<span class="glyphicon glyphicon-off" title="{{lang_machineOff}}"></span>
+			{{/state_off}}
+			{{#state_idle}}
+			<span class="glyphicon glyphicon-ok green" title="{{lang_machineIdle}}"></span>
+			{{/state_idle}}
+			{{#state_occupied}}
+			<span class="glyphicon glyphicon-user red" title="{{lang_machineOccupied}}"></span>
+			{{/state_occupied}}
 			<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
 			<div class="small">{{machineuuid}}</div>
 		</td>
 		<td><b><a href="?do=Statistics&amp;filter=subnet&amp;argument={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
-		<td class="text-right">{{lastboot}}</td>
+		<td class="text-right">{{lastseen}}</td>
 		<td class="{{kvmclass}}">{{kvmstate}}</td>
 		<td class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
 		<td class="text-right {{hddclass}}">{{gbtmp}}&thinsp;GiB</td>

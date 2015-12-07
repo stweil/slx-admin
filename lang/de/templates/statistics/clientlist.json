@@ -4,8 +4,11 @@
     "lang_cpuModel": "CPU",
     "lang_gbRam": "RAM",
     "lang_kvmSupport": "64\u2009Bit G\u00e4ste",
-    "lang_lastBoot": "Letzter boot",
+    "lang_lastSeen": "Zuletzt gesehn",
     "lang_machine": "Rechner",
+    "lang_machineIdle": "Der Rechner ist eingeschaltet und wird zur Zeit nicht benutzt",
+    "lang_machineOccupied": "Der Rechner ist eingeschaltet und wird benutzt",
+    "lang_machineOff": "Der Rechner ist ausgeschaltet, oder hat kein bwLehrpool gebootet",
     "lang_realCores": "Kerne",
     "lang_tmpGb": "HDD-Temp"
 }
