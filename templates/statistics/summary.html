@@ -1,0 +1,20 @@
+<div class="col-md-12">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div>
+				{{lang_knownMachines}}: <b>{{known}}</b>&emsp;
+				{{lang_onlineMachines}}: <b>{{online}}</b>&emsp;
+				{{lang_inUseMachines}}: <b>{{used}}</b> (<b>{{usedpercent}}%</b>)
+			</div>
+			{{#badhdd}}
+			<div>
+				<span class="glyphicon glyphicon-exclamation-sign red"></span>
+				<a href="?do=Statistics&amp;filter=badsectors&amp;argument=10">
+					{{lang_withBadSectors}}: <b>{{badhdd}}</b>
+				</a>
+			</div>
+			{{/badhdd}}
+		</div>
+	</div>
+</div>
+

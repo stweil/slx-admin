@@ -51,8 +51,17 @@
 							<span class="glyphicon glyphicon-ok green"></span> {{lang_machineIdle}}
 							{{/state_idle}}
 							{{#state_occupied}}
+							{{#username}}
+							<span class="glyphicon glyphicon-user red"></span> {{lang_machineOccupiedBy}} <b>{{username}}</b>
+							{{/username}}
+							{{^username}}
 							<span class="glyphicon glyphicon-user red"></span> {{lang_machineOccupied}}
+							{{/username}}
+							<div>{{logintime}}</div>
 							{{/state_occupied}}
+							{{#session}}
+							<div>{{session}}</div>
+							{{/session}}
 						</td>
 					</tr>
 				</table>

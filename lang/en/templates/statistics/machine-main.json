@@ -11,6 +11,7 @@
     "lang_macAddr": "MAC address",
     "lang_machineIdle": "Powered on, unused",
     "lang_machineOccupied": "Powered on, in use",
+    "lang_machineOccupiedBy": "In use by",
     "lang_machineOff": "bwLehrpool not running",
     "lang_machineSummary": "Summary",
     "lang_maximumAbbrev": "max.",

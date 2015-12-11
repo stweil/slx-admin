@@ -32,7 +32,13 @@
 		<td class="text-right">{{lastseen}}</td>
 		<td class="{{kvmclass}}">{{kvmstate}}</td>
 		<td class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
-		<td class="text-right {{hddclass}}">{{gbtmp}}&thinsp;GiB</td>
+		<td class="text-right {{hddclass}}">
+			{{gbtmp}}&thinsp;GiB
+			{{#badsectors}}<div>
+				<span class="glyphicon glyphicon-exclamation-sign"></span>
+				{{badsectors}}
+			</div>{{/badsectors}}
+		</td>
 		<td>{{lang_realCores}}: {{realcores}}<div class="small">{{cpumodel}}</div></td>
 	</tr>
 	{{/rows}}

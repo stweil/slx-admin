@@ -51,6 +51,7 @@ class Page_Statistics extends Page
 		}
 		Render::addScriptBottom('chart.min');
 		Render::openTag('div', array('class' => 'row'));
+		$this->showSummary();
 		$this->showMemory();
 		$this->showId44();
 		$this->showKvmState();
@@ -82,6 +83,24 @@ class Page_Statistics extends Page
 				'value' => ($total - $accounted)
 			);
 		}
+	}
+
+	private function showSummary()
+	{
+		$cutoff = time() - 86400 * 30;
+		$online = time() - 610;
+		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $cutoff");
+		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $online");
+		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $online AND logintime <> 0");
+		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE badsectors > 10 AND lastseen > $cutoff");
+		$data = array(
+			'known' => $known['val'],
+			'online' => $on['val'],
+			'used' => $used['val'],
+			'usedpercent' => round($used['val'] / $on['val'] * 100),
+			'badhdd' => $hdd['val']
+		);
+		Render::addTemplate('statistics/summary', $data);
 	}
 
 	private function showCpuModels()
@@ -265,19 +284,22 @@ class Page_Statistics extends Page
 			$argument = preg_replace('/[^0-9\.:]/', '', $argument);
 			$where = " clientip LIKE '$argument%'";
 			$args = array();
+		} elseif ($filter === 'badsectors') {
+			$where = " badsectors >= :argument ";
+			$args = array('argument' => $argument);
 		} else {
 			Message::addError('invalid-filter');
 			return;
 		}
 		$res = Database::simpleQuery("SELECT machineuuid, macaddr, clientip, firstseen, lastseen,"
-			. " logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes FROM machine"
+			. " logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes, badsectors FROM machine"
 			. " WHERE $where ORDER BY lastseen DESC, clientip ASC", $args);
 		$rows = array();
 		$NOW = time();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($NOW - $row['lastseen'] > 610) {
 				$row['state_off'] = true;
-			} elseif ($NOW - $row['logintime'] > 610) {
+			} elseif ($row['logintime'] == 0) {
 				$row['state_idle']  = true;
 			} else {
 				$row['state_occupied'] = true;
@@ -348,6 +370,27 @@ class Page_Statistics extends Page
 		return ($array[$best] + $array[$best - 1]) / 2;
 	}
 	
+	private function fillSessionInfo(&$row)
+	{
+		$res = Database::simpleQuery("SELECT dateline, username, data FROM statistic"
+			. " WHERE clientip = :ip AND typeid = '.vmchooser-session-name'"
+			. " AND dateline BETWEEN :start AND :end", array(
+				'ip' => $row['clientip'],
+				'start' => $row['logintime'] - 60,
+				'end' => $row['logintime'] + 300
+		));
+		$session = false;
+		while ($r = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($session === false || abs($session['dateline'] - $row['logintime']) > abs($r['dateline'] - $row['logintime'])) {
+				$session = $r;
+			}
+		}
+		if ($session !== false) {
+			$row['session'] = $session['data'];
+			$row['username'] = $session['username'];
+		}
+	}
+	
 	private function showMachine($uuid)
 		{
 		$row = Database::queryFirst("SELECT machineuuid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,"
@@ -357,14 +400,16 @@ class Page_Statistics extends Page
 		$NOW = time();
 		if ($NOW - $row['lastseen'] > 610) {
 			$row['state_off'] = true;
-		} elseif ($NOW - $row['logintime'] > 610) {
+		} elseif ($row['logintime'] == 0) {
 			$row['state_idle']  = true;
 		} else {
 			$row['state_occupied'] = true;
+			$this->fillSessionInfo($row);
 		}
 		$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
 		$row['lastseen'] = date('d.m.Y H:i', $row['lastseen']);
 		$row['lastboot'] = date('d.m.Y H:i', $row['lastboot']);
+		$row['logintime'] = date('d.m.Y H:i', $row['logintime']);
 		$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1);
 		$row['gbtmp'] = round($row['id44mb'] / 1024);
 		$row['ramclass'] = $this->ramColorClass($row['mbram']);
@@ -503,7 +548,7 @@ class Page_Statistics extends Page
 			} elseif (preg_match('/^Units =.*= (\d+) bytes/i', $line, $out)) {
 				// Unit for start and end
 				$unit = $out[1] / (1024 * 1024); // Convert so that multiplying by unit yields MiB
-			} else if (isset($hdd) && $unit !== 0 && preg_match(',^/dev/(\S+)\s+.*\s(\d+)\s+(\d+)\s+\d+\s+([0-9a-f]+)\s+(.*)$,i', $line, $out)) {
+			} else if (isset($hdd) && $unit !== 0 && preg_match(',^/dev/(\S+)\s+.*\s(\d+)[\+\-]?\s+(\d+)[\+\-]?\s+\d+[\+\-]?\s+([0-9a-f]+)\s+(.*)$,i', $line, $out)) {
 				// Some partition
 				$type = strtolower($out[4]);
 				if ($type === '5' || $type === 'f' || $type === '85') continue;
