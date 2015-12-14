@@ -9,6 +9,8 @@
 		<p>[BETA] Diese Funktionalität ist neu. Wir bitten um Nachsicht, falls es Situationen gibt, in denen zu viele
 			oder zu wenige Nachrichten verschickt werden.</p>
 		<form action="?do=DozMod" method="post" id="mailconf">
+			<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="display:none;">
+			<input type="password" name="password_fake" id="password_fake" value="" style="display:none;">
 			<div class="input-group">
 				<label class="input-group-addon slx-ga2" for="host-id">{{lang_host}} *</label>
 				<input type="text" name="host" id ="host-id" class="form-control" placeholder="smtp.example.com" value="{{host}}">

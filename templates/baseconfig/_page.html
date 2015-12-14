@@ -1,6 +1,8 @@
 <h1>{{lang_basicConfiguration}}</h1>
 <p>{{lang_clientRelatedConfig}}</p>
 <form action="?do=BaseConfig" method="post">
+	<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="display:none;">
+	<input type="password" name="password_fake" id="password_fake" value="" style="display:none;">
 	{{#categories}}
 	<div class="panel panel-default">
 		<div class="panel-heading">{{category_name}}</div>
