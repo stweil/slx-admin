@@ -31,6 +31,7 @@ if ($type{0} === '~') {
 		}
 	}
 	$NOW = time();
+	$old = Database::queryFirst('SELECT logintime, lastseen FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 	// Handle event type
 	if ($type === '~poweron') {
 		// Poweron & hw stats
@@ -45,6 +46,7 @@ if ($type{0} === '~') {
 		$valid = array('UNKNOWN', 'UNSUPPORTED', 'DISABLED', 'ENABLED');
 		if (!in_array($kvmstate, $valid)) $kvmstate = 'UNKNOWN';
 		$cpumodel = Request::post('cpumodel', '', 'string');
+		$systemmodel = Request::post('systemmodel', '', 'string');
 		$id44mb = Request::post('id44mb', 0, 'integer');
 		if ($id44mb < 0 || $id44mb > 10240000) $id44mb = 0;
 		$badsectors = Request::post('badsectors', 0, 'integer');
@@ -54,20 +56,34 @@ if ($type{0} === '~') {
 			$hostname = '';
 		}
 		$data = Request::post('data', '', 'string');
-		// See if we have a lingering session, create statistic entry if so
 		if ($uptime < 120) {
-			$old = Database::queryFirst('SELECT logintime, lastseen FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
+			// See if we have a lingering session, create statistic entry if so
 			if ($old !== false && (int)$old['logintime'] !== 0) {
 				$sessionLength = $old['lastseen'] - $old['logintime'];
 				if ($sessionLength > 0) {
 					$start = $old['logintime'];
 					if ($start === 0) $start = $NOW;
-					Database::exec('INSERT INTO statistic (dateline, typeid, clientip, username, data)'
-						. " VALUES (:start, '.session-length', :clientip, '', :length)", array(
+					Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
+						. " VALUES (:start, '~session-length', :uuid, :clientip, '', :length)", array(
 							'start'     => $start,
+							'uuid'     => $uuid,
 							'clientip'  => $ip,
 							'length'    => $sessionLength
 					));
+				}
+			}
+			// Write poweroff period length to statistic table
+			if ($old !== false) {
+				$lastSeen = $old['lastseen'] + 300;
+				$offtime = ($NOW - $uptime) - $lastSeen;
+				if ($offtime > 600 && $offtime < 86400 * 90) {
+					Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
+						. " VALUES (:shutdown, '~offline-length', :uuid, :clientip, '', :length)", array(
+							'shutdown' => $lastSeen,
+							'uuid'     => $uuid,
+							'clientip' => $ip,
+							'length'   => $offtime
+						));
 				}
 			}
 		}
@@ -76,7 +92,7 @@ if ($type{0} === '~') {
 			. '(machineuuid, macaddr, clientip, firstseen, lastseen, logintime, position, lastboot, realcores, mbram,'
 			. ' kvmstate, cpumodel, id44mb, badsectors, data, hostname) VALUES '
 			. "(:uuid, :macaddr, :clientip, :firstseen, :lastseen, 0, '', :lastboot, :realcores, :mbram,"
-			. ' :kvmstate, :cpumodel, :id44mb, :badsectors, :data, :hostname)'
+			. ' :kvmstate, :cpumodel, :systemmodel, :id44mb, :badsectors, :data, :hostname)'
 			. ' ON DUPLICATE KEY UPDATE'
 			. ' macaddr = VALUES(macaddr),'
 			. ' clientip = VALUES(clientip),'
@@ -87,6 +103,7 @@ if ($type{0} === '~') {
 			. ' mbram = VALUES(mbram),'
 			. ' kvmstate = VALUES(kvmstate),'
 			. ' cpumodel = VALUES(cpumodel),'
+			. ' systemmodel = VALUES(systemmodel),'
 			. ' id44mb = VALUES(id44mb),'
 			. ' badsectors = VALUES(badsectors),'
 			. ' data = VALUES(data),'
@@ -101,16 +118,18 @@ if ($type{0} === '~') {
 			'mbram'      => $mbram,
 			'kvmstate'   => $kvmstate,
 			'cpumodel'   => $cpumodel,
+			'systemmodel'=> $systemmodel,
 			'id44mb'     => $id44mb,
 			'badsectors' => $badsectors,
 			'data'       => $data,
 			'hostname'   => $hostname,
 		));
+		// Write statistics data
+		
 	} else if ($type === '~runstate') {
 		// Usage (occupied/free)
 		$sessionLength = 0;
 		$used = Request::post('used', 0, 'integer');
-		$old = Database::queryFirst('SELECT logintime, lastseen FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 		if ($old === false) die("Unknown machine.\n");
 		settype($old['logintime'], 'integer');
 		settype($old['lastseen'], 'integer');
@@ -146,9 +165,10 @@ if ($type{0} === '~') {
 		if ($sessionLength > 0) {
 			$start = $old['logintime'];
 			if ($start === 0) $start = $NOW;
-			Database::exec('INSERT INTO statistic (dateline, typeid, clientip, username, data)'
-				. " VALUES (:start, '.session-length', :clientip, '', :length)", array(
+			Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
+				. " VALUES (:start, '~session-length', :uuid, :clientip, '', :length)", array(
 					'start'     => $start,
+					'uuid'     => $uuid,
 					'clientip'  => $ip,
 					'length'    => $sessionLength
 			));
@@ -161,7 +181,7 @@ if ($type{0} === '~') {
 				$start = $old['logintime'];
 				if ($start === 0) $start = $NOW;
 				Database::exec('INSERT INTO statistic (dateline, typeid, clientip, username, data)'
-					. " VALUES (:start, '.session-length', :clientip, '', :length)", array(
+					. " VALUES (:start, '~session-length', :clientip, '', :length)", array(
 						'start'     => $start,
 						'clientip'  => $ip,
 						'length'    => $sessionLength

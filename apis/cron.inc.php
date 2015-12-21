@@ -23,6 +23,12 @@ case 3:
 case 4:
 	Database::exec("DELETE FROM callback WHERE (UNIX_TIMESTAMP() - dateline) > 86400");
 	break;
+case 5:
+	Database::exec("DELETE FROM statistic WHERE (UNIX_TIMESTAMP() - dateline) > 86400 * 90");
+	break;
+case 6:
+	Database::exec("DELETE FROM machine WHERE (UNIX_TIMESTAMP() - lastseen) > 86400 * 365");
+	break;
 }
 
 Trigger::checkCallbacks();

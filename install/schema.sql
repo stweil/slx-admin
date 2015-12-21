@@ -1,12 +1,6 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
-
 CREATE TABLE `callback` (
   `taskid` varchar(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
   `dateline` int(10) unsigned NOT NULL,
@@ -75,6 +69,39 @@ CREATE TABLE `eventlog` (
   KEY `logtypeid` (`logtypeid`,`dateline`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE `machine` (
+  `machineuuid` char(36) CHARACTER SET ascii NOT NULL,
+  `roomid` int(10) unsigned DEFAULT NULL,
+  `macaddr` char(17) CHARACTER SET ascii NOT NULL,
+  `clientip` varchar(45) CHARACTER SET ascii NOT NULL,
+  `firstseen` int(10) unsigned NOT NULL,
+  `lastseen` int(10) unsigned NOT NULL,
+  `logintime` int(10) unsigned NOT NULL,
+  `position` varchar(40) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `lastboot` int(10) unsigned NOT NULL,
+  `realcores` smallint(5) unsigned NOT NULL,
+  `mbram` int(10) unsigned NOT NULL,
+  `kvmstate` enum('UNKNOWN','UNSUPPORTED','DISABLED','ENABLED') NOT NULL,
+  `cpumodel` varchar(120) NOT NULL,
+  `systemmodel` varchar(120) NOT NULL DEFAULT '',
+  `id44mb` int(10) unsigned NOT NULL,
+  `badsectors` int(10) unsigned NOT NULL,
+  `data` mediumtext NOT NULL,
+  `hostname` varchar(200) NOT NULL DEFAULT '',
+  `notes` text,
+  PRIMARY KEY (`machineuuid`),
+  KEY `macaddr` (`macaddr`),
+  KEY `clientip` (`clientip`),
+  KEY `realcores` (`realcores`),
+  KEY `mbram` (`mbram`),
+  KEY `kvmstate` (`kvmstate`),
+  KEY `id44mb` (`id44mb`),
+  KEY `roomid` (`roomid`),
+  KEY `lastseen` (`lastseen`),
+  KEY `cpumodel` (`cpumodel`),
+  KEY `systemmodel` (`systemmodel`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `news` (
   `newsid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `dateline` int(10) unsigned NOT NULL,
@@ -129,13 +156,15 @@ CREATE TABLE `statistic` (
   `logid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `dateline` int(10) unsigned NOT NULL,
   `typeid` varchar(30) NOT NULL,
+  `machineuuid` varchar(36) CHARACTER SET ascii DEFAULT NULL,
   `clientip` varchar(40) NOT NULL,
   `username` varchar(255) NOT NULL,
   `data` varchar(255) NOT NULL,
   PRIMARY KEY (`logid`),
   KEY `dateline` (`dateline`),
   KEY `logtypeid` (`typeid`,`dateline`),
-  KEY `clientip` (`clientip`,`dateline`)
+  KEY `clientip` (`clientip`,`dateline`),
+  KEY `machineuuid` (`machineuuid`,`dateline`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE `user` (
@@ -161,7 +190,3 @@ ALTER TABLE `setting`
 
 ALTER TABLE `setting_distro`
   ADD CONSTRAINT `setting_distro_ibfk_1` FOREIGN KEY (`setting`) REFERENCES `setting` (`setting`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

@@ -226,7 +226,7 @@ function update_8()
 
 // #######################
 // ##### 2015-05-21
-// Add statistics table, for future logging of eg. 
+// Add statistics table, for logging of session length and idle times
 function update_9()
 {
 	Database::exec("CREATE TABLE IF NOT EXISTS `statistic` (
@@ -241,5 +241,50 @@ function update_9()
   KEY `logtypeid` (`typeid`,`dateline`),
   KEY `clientip` (`clientip`,`dateline`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
+	return true;
+}
+
+// #######################
+// ##### 2015-12-21
+// Add machine uuid column to statistics table
+function update_10()
+{
+	if (!tableHasColumn('statistic', 'machineuuid')) {
+		Database::exec('ALTER TABLE statistic'
+			. ' ADD COLUMN `machineuuid` varchar(36) CHARACTER SET ascii DEFAULT NULL AFTER clientip,'
+			. ' ADD INDEX `machineuuid` (`machineuuid`,`dateline`)');
+	}
+	Database::exec("CREATE TABLE IF NOT EXISTS `machine` (
+  `machineuuid` char(36) CHARACTER SET ascii NOT NULL,
+  `roomid` int(10) unsigned DEFAULT NULL,
+  `macaddr` char(17) CHARACTER SET ascii NOT NULL,
+  `clientip` varchar(45) CHARACTER SET ascii NOT NULL,
+  `firstseen` int(10) unsigned NOT NULL,
+  `lastseen` int(10) unsigned NOT NULL,
+  `logintime` int(10) unsigned NOT NULL,
+  `position` varchar(40) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `lastboot` int(10) unsigned NOT NULL,
+  `realcores` smallint(5) unsigned NOT NULL,
+  `mbram` int(10) unsigned NOT NULL,
+  `kvmstate` enum('UNKNOWN','UNSUPPORTED','DISABLED','ENABLED') NOT NULL,
+  `cpumodel` varchar(120) NOT NULL,
+  `systemmodel` varchar(120) NOT NULL DEFAULT '',
+  `id44mb` int(10) unsigned NOT NULL,
+  `badsectors` int(10) unsigned NOT NULL,
+  `data` mediumtext NOT NULL,
+  `hostname` varchar(200) NOT NULL DEFAULT '',
+  `notes` text,
+  PRIMARY KEY (`machineuuid`),
+  KEY `macaddr` (`macaddr`),
+  KEY `clientip` (`clientip`),
+  KEY `realcores` (`realcores`),
+  KEY `mbram` (`mbram`),
+  KEY `kvmstate` (`kvmstate`),
+  KEY `id44mb` (`id44mb`),
+  KEY `roomid` (`roomid`),
+  KEY `lastseen` (`lastseen`),
+  KEY `cpumodel` (`cpumodel`),
+  KEY `systemmodel` (`systemmodel`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 	return true;
 }

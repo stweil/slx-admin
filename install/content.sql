@@ -1,2 +1,2 @@
-INSERT INTO property (name, dateline, value) VALUES ('webif-version', 0, 10);
+INSERT INTO property (name, dateline, value) VALUES ('webif-version', 0, 11);
 
