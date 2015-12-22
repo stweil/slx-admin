@@ -32,6 +32,10 @@ if ($type{0} === '~') {
 	}
 	$NOW = time();
 	$old = Database::queryFirst('SELECT logintime, lastseen FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
+	if ($old !== false) {
+		settype($old['logintime'], 'integer');
+		settype($old['lastseen'], 'integer');
+	}
 	// Handle event type
 	if ($type === '~poweron') {
 		// Poweron & hw stats
@@ -58,7 +62,7 @@ if ($type{0} === '~') {
 		$data = Request::post('data', '', 'string');
 		if ($uptime < 120) {
 			// See if we have a lingering session, create statistic entry if so
-			if ($old !== false && (int)$old['logintime'] !== 0) {
+			if ($old !== false && $old['logintime'] !== 0) {
 				$sessionLength = $old['lastseen'] - $old['logintime'];
 				if ($sessionLength > 0) {
 					$start = $old['logintime'];
@@ -90,7 +94,7 @@ if ($type{0} === '~') {
 		// Create/update machine entry
 		Database::exec('INSERT INTO machine '
 			. '(machineuuid, macaddr, clientip, firstseen, lastseen, logintime, position, lastboot, realcores, mbram,'
-			. ' kvmstate, cpumodel, id44mb, badsectors, data, hostname) VALUES '
+			. ' kvmstate, cpumodel, systemmodel, id44mb, badsectors, data, hostname) VALUES '
 			. "(:uuid, :macaddr, :clientip, :firstseen, :lastseen, 0, '', :lastboot, :realcores, :mbram,"
 			. ' :kvmstate, :cpumodel, :systemmodel, :id44mb, :badsectors, :data, :hostname)'
 			. ' ON DUPLICATE KEY UPDATE'
@@ -130,9 +134,8 @@ if ($type{0} === '~') {
 		// Usage (occupied/free)
 		$sessionLength = 0;
 		$used = Request::post('used', 0, 'integer');
+		error_log("uuid=$uuid old=$old used=$used");
 		if ($old === false) die("Unknown machine.\n");
-		settype($old['logintime'], 'integer');
-		settype($old['lastseen'], 'integer');
 		// Figure out what's happening
 		if ($used === 0) {
 			// Is not in use
@@ -174,7 +177,6 @@ if ($type{0} === '~') {
 			));
 		}
 	} elseif ($type === '~poweroff') {
-		$old = Database::queryFirst('SELECT logintime, lastseen FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 		if ($old !== false && (int)$old['logintime'] !== 0) {
 			$sessionLength = $old['lastseen'] - $old['logintime'];
 			if ($sessionLength > 0) {

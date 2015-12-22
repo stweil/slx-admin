@@ -12,6 +12,9 @@ class Util
 	 */
 	public static function traceError($message)
 	{
+		if (defined('API')) {
+			error_log('API ERROR: ' . $message);
+		}
 		Header('HTTP/1.1 500 Internal Server Error');
 		Header('Content-Type: text/plain; charset=utf-8');
 		echo "--------------------\nFlagrant system error:\n$message\n--------------------\n\n";
