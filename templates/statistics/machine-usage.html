@@ -1,0 +1,51 @@
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				{{lang_usageDetails}}
+			</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-6">
+						<table class="table table-condensed">
+							<tr>
+								<th>Type</th>
+								<th>When</th>
+								<th>Length</th>
+							</tr>
+							{{#rows}}
+							<tr>
+								<td><span class="glyphicon glyphicon-{{glyph}}"></span></td>
+								<td>{{from}}</td>
+								<td>{{duration}}</td>
+							</tr>
+							{{/rows}}
+						</table>
+					</div>
+					<div class="col-sm-6">
+						<table class="table table-condensed">
+							{{#hasrows2}}
+							<tr>
+								<th>Type</th>
+								<th>When</th>
+								<th>Length</th>
+							</tr>
+							{{/hasrows2}}
+							{{#rows2}}
+							<tr>
+								<td><span class="glyphicon glyphicon-{{glyph}}"></span></td>
+								<td>{{from}}</td>
+								<td>{{duration}}</td>
+							</tr>
+							{{/rows2}}
+						</table>
+					</div>
+				</div>
+				<div class="timebar">&nbsp;{{{graph}}}</div>
+				<div>
+					{{lang_timebarDesc}}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

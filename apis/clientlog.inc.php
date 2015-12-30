@@ -134,7 +134,6 @@ if ($type{0} === '~') {
 		// Usage (occupied/free)
 		$sessionLength = 0;
 		$used = Request::post('used', 0, 'integer');
-		error_log("uuid=$uuid old=$old used=$used");
 		if ($old === false) die("Unknown machine.\n");
 		// Figure out what's happening
 		if ($used === 0) {

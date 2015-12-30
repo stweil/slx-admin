@@ -217,3 +217,18 @@ input[readonly] {
   background-color: white !important;
   cursor: text !important;
 }
+
+.timebar {
+  position: relative;
+  background: #afc;
+  border: 1px solid #0a2;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.timebar div {
+  position: absolute;
+  top: 0px;
+  overflow: hidden;
+}
+

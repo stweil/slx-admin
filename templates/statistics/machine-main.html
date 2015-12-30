@@ -31,15 +31,15 @@
 					{{/hostname}}
 					<tr>
 						<td>{{lang_firstSeen}}</td>
-						<td>{{firstseen}}</td>
+						<td>{{firstseen_s}}</td>
 					</tr>
 					<tr>
 						<td>{{lang_lastBoot}}</td>
-						<td>{{lastboot}}</td>
+						<td>{{lastboot_s}}</td>
 					</tr>
 					<tr>
 						<td>{{lang_lastSeen}}</td>
-						<td>{{lastseen}}</td>
+						<td>{{lastseen_s}}</td>
 					</tr>
 					<tr>
 						<td>{{lang_usageState}}</td>
@@ -57,7 +57,7 @@
 							{{^username}}
 							<span class="glyphicon glyphicon-user red"></span> {{lang_machineOccupied}}
 							{{/username}}
-							<div>{{logintime}}</div>
+							<div>{{logintime_s}}</div>
 							{{/state_occupied}}
 							{{#session}}
 							<div>{{session}}</div>

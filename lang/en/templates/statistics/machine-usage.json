@@ -1,0 +1,4 @@
+{
+    "lang_timebarDesc": "Visual representation of the last few days. Red parts mark periods where the client was occupied, green parts where the client was idle. Dimmed parts mark nights (10pm to 8am).",
+    "lang_usageDetails": "Detailed usage"
+}

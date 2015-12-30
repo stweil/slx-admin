@@ -393,51 +393,110 @@ class Page_Statistics extends Page
 	
 	private function showMachine($uuid)
 		{
-		$row = Database::queryFirst("SELECT machineuuid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,"
+		$client = Database::queryFirst("SELECT machineuuid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,"
 			. " mbram, kvmstate, cpumodel, id44mb, data, hostname, notes FROM machine WHERE machineuuid = :uuid",
 			array('uuid' => $uuid));
 		// Mangle fields
 		$NOW = time();
-		if ($NOW - $row['lastseen'] > 610) {
-			$row['state_off'] = true;
-		} elseif ($row['logintime'] == 0) {
-			$row['state_idle']  = true;
+		if ($NOW - $client['lastseen'] > 610) {
+			$client['state_off'] = true;
+		} elseif ($client['logintime'] == 0) {
+			$client['state_idle']  = true;
 		} else {
-			$row['state_occupied'] = true;
-			$this->fillSessionInfo($row);
+			$client['state_occupied'] = true;
+			$this->fillSessionInfo($client);
 		}
-		$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
-		$row['lastseen'] = date('d.m.Y H:i', $row['lastseen']);
-		$row['lastboot'] = date('d.m.Y H:i', $row['lastboot']);
-		$row['logintime'] = date('d.m.Y H:i', $row['logintime']);
-		$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1);
-		$row['gbtmp'] = round($row['id44mb'] / 1024);
-		$row['ramclass'] = $this->ramColorClass($row['mbram']);
-		$row['kvmclass'] = $this->kvmColorClass($row['kvmstate']);
-		$row['hddclass'] = $this->hddColorClass($row['gbtmp']);
+		$client['firstseen_s'] = date('d.m.Y H:i', $client['firstseen']);
+		$client['lastseen_s'] = date('d.m.Y H:i', $client['lastseen']);
+		$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']);
+		$client['logintime_s'] = date('d.m.Y H:i', $client['logintime']);
+		$client['gbram'] = round(round($client['mbram'] / 500) / 2, 1);
+		$client['gbtmp'] = round($client['id44mb'] / 1024);
+		$client['ramclass'] = $this->ramColorClass($client['mbram']);
+		$client['kvmclass'] = $this->kvmColorClass($client['kvmstate']);
+		$client['hddclass'] = $this->hddColorClass($client['gbtmp']);
 		// Parse the giant blob of data
 		$hdds = array();
-		if (preg_match_all('/##### ([^#]+) #+$(.*?)^#####/ims', $row['data'] . '########', $out, PREG_SET_ORDER)) {
+		if (preg_match_all('/##### ([^#]+) #+$(.*?)^#####/ims', $client['data'] . '########', $out, PREG_SET_ORDER)) {
 			foreach ($out as $section) {
 				if ($section[1] === 'CPU') {
-					$this->parseCpu($row, $section[2]);
+					$this->parseCpu($client, $section[2]);
 				}
 				if ($section[1] === 'dmidecode') {
-					$this->parseDmiDecode($row, $section[2]);
+					$this->parseDmiDecode($client, $section[2]);
 				}
 				if ($section[1] === 'Partition tables') {
 					$this->parseHdd($hdds, $section[2]);
 				}
 			}
 		}
+		unset($client['data']);
 		// Throw output at user
-		Render::addTemplate('statistics/machine-main', $row);
+		Render::addTemplate('statistics/machine-main', $client);
+		// Sessions
+		$NOW = time();
+		$cutoff = $NOW - 86400 * 7;
+		if ($cutoff < $row['firstseen']) $cutoff = $row['firstseen'];
+		$scale = 100 / ($NOW - $cutoff);
+		$res = Database::simpleQuery("SELECT dateline, typeid, data FROM statistic"
+			. " WHERE dateline > :cutoff AND typeid IN ('~session-length', '~offline-length') AND machineuuid = :uuid ORDER BY dateline ASC", array(
+			'cutoff' => $cutoff - 86400,
+			'uuid' => $uuid
+		));
+		$spans['rows'] = array();
+		$last = false;
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($row['dateline'] + $row['data'] < $cutoff || $row['data'] > 864000) continue;
+			if ($last !== false && abs($last['dateline'] - $row['dateline']) < 30
+					&& abs($last['data'] - $row['data']) < 30) continue;
+			if ($last !== false && $last['dateline'] + $last['data'] > $row['dateline']) {
+				$point = $last['dateline'] + $last['data'];
+				$row['data'] -= ($point - $row['dateline']);
+				$row['dateline'] = $point;
+			}
+			if ($row['dateline'] < $cutoff) {
+				$row['data'] -= ($cutoff - $row['dateline']);
+				$row['dateline'] = $cutoff;
+			}
+			$row['from'] = date('d.m. H:i', $row['dateline']);
+			$row['duration'] = floor($row['data'] / 86400) . 'd ' . gmdate('H:i', $row['data']);
+			if ($row['typeid'] === '~offline-length') {
+				$row['glyph'] = 'off';
+				$color = '#444';
+			} else {
+				$row['glyph'] = 'user';
+				$color = '#e77';
+			}
+			$spans['graph'] .= '<div style="background:' . $color . ';left:' . round(($row['dateline'] - $cutoff) * $scale, 2) . '%;width:' . round(($row['data']) * $scale, 2) . '%">&nbsp;</div>';
+			$spans['rows'][] = $row;
+			$last = $row;
+		}
+		if (isset($client['state_occupied'])) {
+			$spans['graph'] .= '<div style="background:#e99;left:' . round(($client['logintime'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['logintime'] + 900) * $scale, 2) . '%">&nbsp;</div>';
+		} elseif (isset($client['state_off'])) {
+			$spans['graph'] .= '<div style="background:#444;left:' . round(($client['lastseen'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['lastseen'] + 900) * $scale, 2) . '%">&nbsp;</div>';
+		}
+		$t = explode('-', date('Y-n-j-G', $cutoff));
+		if ($t[3] >= 8 && $t[3] <= 22) {
+			$start = mktime(22, 0, 0, $t[1], $t[2], $t[0]);
+		} else {
+			$start = mktime(22, 0, 0, $t[1], $t[2] - 1, $t[0]);
+		}
+		for ($i = $start; $i < $NOW; $i += 86400) {
+			$spans['graph'] .= '<div style="background:rgba(0,0,90,.2);left:' . round(($i - $cutoff) * $scale, 2) . '%;width:' . round((10 * 3600) * $scale, 2) . '%">&nbsp;</div>';
+		}
+		if (count($spans['rows']) > 10) {
+			$spans['hasrows2'] = true;
+			$spans['rows2'] = array_slice($spans['rows'], ceil(count($spans['rows']) / 2));
+			$spans['rows'] = array_slice($spans['rows'], 0, ceil(count($spans['rows']) / 2));
+		}
+		Render::addTemplate('statistics/machine-usage', $spans);
 		// Any hdds?
 		if (!empty($hdds['hdds'])) {
 			Render::addScriptBottom('chart.min');
 			Render::addTemplate('statistics/machine-hdds', $hdds);
 		}
-		Render::addTemplate('statistics/machine-notes', $row);
+		Render::addTemplate('statistics/machine-notes', $client);
 	}
 	
 	private function parseCpu(&$row, $data)
