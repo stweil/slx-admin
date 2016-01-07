@@ -46,3 +46,7 @@ if (is_array($vmstore)) {
 		break;
 	}
 }
+
+// For quick testing or custom extensions: Include external file that should do nothing
+// more than outputting more key-value-pairs. It's expected in the webroot of slxadmin
+if (file_exists('client_config_additional.php')) @include('client_config_additional.php');
