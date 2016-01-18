@@ -121,7 +121,7 @@ class Database
 	 */
 	public static function prepare($query)
 	{
-		self:init();
+		self::init();
 		return self::$dbh->prepare($query);
 	}
 
