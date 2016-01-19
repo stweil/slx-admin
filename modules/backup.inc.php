@@ -39,7 +39,7 @@ class Page_Backup extends Page
 			Message::addError('backup-failed');
 			Util::redirect('?do=Backup');
 		}
-		$task = Taskmanager::waitComplete($task, 3000);
+		$task = Taskmanager::waitComplete($task, 30000);
 		if (!Taskmanager::isFinished($task) || !isset($task['data']['backupFile'])) {
 			Taskmanager::addErrorMessage($task);
 			Util::redirect('?do=Backup');
