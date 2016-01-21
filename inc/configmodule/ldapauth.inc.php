@@ -31,6 +31,9 @@ class ConfigModule_LdapAuth extends ConfigModule
 		$config['filename'] = $tgz;
 		$config['moduleid'] = $this->id();
 		$config['plainldap'] = true;
+		if (isset($config['certificate']) && !is_string($config['certificate'])) {
+			unset($config['certificate']);
+		}
 		return Taskmanager::submit('CreateLdapConfig', $config);
 	}
 

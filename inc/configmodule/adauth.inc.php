@@ -30,6 +30,9 @@ class ConfigModule_AdAuth extends ConfigModule
 		$config['proxyport'] = 3100 + $this->id();
 		$config['filename'] = $tgz;
 		$config['moduleid'] = $this->id();
+		if (isset($config['certificate']) && !is_string($config['certificate'])) {
+			unset($config['certificate']);
+		}
 		return Taskmanager::submit('CreateLdapConfig', $config);
 	}
 
