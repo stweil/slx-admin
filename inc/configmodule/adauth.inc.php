@@ -20,9 +20,18 @@ class ConfigModule_AdAuth extends ConfigModule
 	{
 		Trigger::ldadp($this->id(), $parent);
 		$config = $this->moduleData;
+		if (isset($config['certificate']) && !is_string($config['certificate'])) {
+			unset($config['certificate']);
+		}
 		if (preg_match('/^([^\:]+)\:(\d+)$/', $config['server'], $out)) {
 			$config['server'] = $out[1];
 			$config['adport'] = $out[2];
+		} else {
+			if (isset($config['certificate'])) {
+				$config['adport'] = 636;
+			} else {
+				$config['adport'] = 389;
+			}
 		}
 		$config['parentTask'] = $parent;
 		$config['failOnParentFail'] = false;
@@ -30,9 +39,6 @@ class ConfigModule_AdAuth extends ConfigModule
 		$config['proxyport'] = 3100 + $this->id();
 		$config['filename'] = $tgz;
 		$config['moduleid'] = $this->id();
-		if (isset($config['certificate']) && !is_string($config['certificate'])) {
-			unset($config['certificate']);
-		}
 		return Taskmanager::submit('CreateLdapConfig', $config);
 	}
 
