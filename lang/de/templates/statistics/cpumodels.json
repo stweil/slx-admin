@@ -1,6 +1,6 @@
 {
-    "lang_cpuCores": "Kerne",
-    "lang_cpuCount": "Anzahl",
-    "lang_cpuName": "CPU Typ",
-    "lang_cpuStats": "Prozessoren"
+    "lang_cpuCores": "CPU-Kerne",
+    "lang_modelCount": "Anzahl",
+    "lang_modelName": "Modellname",
+    "lang_modelStats": "PC-Modelle"
 }

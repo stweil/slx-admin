@@ -56,11 +56,11 @@ class Page_Statistics extends Page
 		$this->showId44();
 		$this->showKvmState();
 		$this->showLatestMachines();
-		$this->showCpuModels();
+		$this->showSystemModels();
 		Render::closeTag('div');
 	}
 	
-	private function capChart(&$json, $cutoff)
+	private function capChart(&$json, $cutoff, $minSlice = 0.015)
 	{
 		$total = 0;
 		foreach ($json as $entry) {
@@ -70,10 +70,9 @@ class Page_Statistics extends Page
 		$accounted = 0;
 		$id = 0;
 		foreach ($json as $entry) {
-			if ($accounted < $cap || $id < 3) {
-				$id++;
-				$accounted += $entry['value'];
-			}
+			if (($accounted >= $cap || $entry['value'] / $total < $minSlice) && $id >= 3) break;
+			$id++;
+			$accounted += $entry['value'];
 		}
 		$json = array_slice($json, 0, $id);
 		if ($accounted / $total < 0.99) {
@@ -100,24 +99,50 @@ class Page_Statistics extends Page
 			'usedpercent' => round($used['val'] / $on['val'] * 100),
 			'badhdd' => $hdd['val']
 		);
+		// Graph
+		$cutoff = time() - 2*86400;
+		$res = Database::simpleQuery("SELECT dateline, data FROM statistic WHERE typeid = '~stats' AND dateline > $cutoff ORDER BY dateline ASC");
+		$labels = array();
+		$points1 = array('data' => array(), 'label' => 'Online', 'fillColor' => '#efe', 'strokeColor' => '#aea', 'pointColor' => '#7e7', 'pointStrokeColor' => '#fff', 'pointHighlightFill' => '#fff', 'pointHighlightStroke' => '#7e7');
+		$points2 = array('data' => array(), 'label' => 'In use', 'fillColor' => '#fee', 'strokeColor' => '#eaa', 'pointColor' => '#e77', 'pointStrokeColor' => '#fff', 'pointHighlightFill' => '#fff', 'pointHighlightStroke' => '#e77');
+		$sum = 0;
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$x = explode('#', $row['data']);
+			if ($sum === 0) {
+				$labels[] = date('H:i', $row['dateline']);
+			} else {
+				$x[1] = max($x[1], array_pop($points1['data']));
+				$x[2] = max($x[2], array_pop($points2['data']));
+			}
+			$points1['data'][] = $x[1];
+			$points2['data'][] = $x[2];
+			$sum++;
+			if ($sum === 12) {
+				$sum = 0;
+			}
+		}
+		$data['json'] = json_encode(array('labels' => $labels, 'datasets' => array($points1, $points2)));
+		// Draw
 		Render::addTemplate('statistics/summary', $data);
 	}
 
-	private function showCpuModels()
+	private function showSystemModels()
 	{
 		global $STATS_COLORS;
-		$res = Database::simpleQuery("SELECT cpumodel, realcores, Count(*) AS `count` FROM machine GROUP BY cpumodel ORDER BY `count` DESC, cpumodel ASC");
+		$res = Database::simpleQuery("SELECT systemmodel, Round(AVG(realcores)) AS cores, Count(*) AS `count` FROM machine"
+			. " GROUP BY systemmodel ORDER BY `count` DESC, systemmodel ASC");
 		$lines = array();
 		$json = array();
 		$id = 0;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (empty($row['systemmodel'])) continue;
 			settype($row['count'], 'integer');
-			$row['id'] = 'cpuid' . $id;
-			$row['urlcpumodel'] = urlencode($row['cpumodel']);
+			$row['id'] = 'systemid' . $id;
+			$row['urlsystemmodel'] = urlencode($row['systemmodel']);
 			$lines[] = $row;
 			$json[] = array(
 				'color' => $STATS_COLORS[$id % count($STATS_COLORS)],
-				'label' => 'cpuid' . $id,
+				'label' => 'systemid' . $id,
 				'value' => $row['count']
 			);
 			++$id;
@@ -205,31 +230,20 @@ class Page_Statistics extends Page
 		$data = array('rows' => array());
 		$json = array();
 		$id = 0;
-		$cap = ceil($total * 0.95);
-		$accounted = 0;
 		foreach (array_reverse($lines, true) as $k => $v) {
 			$data['rows'][] = array('gb' => $k, 'count' => $v, 'class' => $this->hddColorClass($k));
-			if ($accounted <= $cap) {
-				if ($k === 0) {
-					$color = '#e55';
-				} else {
-					$color = $STATS_COLORS[$id++ % count($STATS_COLORS)];
-				}
-				$json[] = array(
-					'color' => $color,
-					'label' => (string)$k,
-					'value' => $v
-				);
+			if ($k === 0) {
+				$color = '#e55';
+			} else {
+				$color = $STATS_COLORS[$id++ % count($STATS_COLORS)];
 			}
-			$accounted += $v;
-		}
-		if ($accounted / $total < 0.99) {
 			$json[] = array(
-				'color' => '#eee',
-				'label' => 'invalid',
-				'value' => ($total - $accounted)
+				'color' => $color,
+				'label' => (string)$k,
+				'value' => $v
 			);
 		}
+		$this->capChart($json, 0.95);
 		$data['json'] = json_encode($json);
 		Render::addTemplate('statistics/id44', $data);
 	}
@@ -263,7 +277,8 @@ class Page_Statistics extends Page
 	private function showMachineList($filter, $argument)
 	{
 		global $SIZE_RAM, $SIZE_ID44;
-		$filters = array('cpumodel', 'realcores', 'kvmstate', 'clientip', 'macaddr', 'machineuuid');
+		$join = '';
+		$filters = array('cpumodel', 'realcores', 'kvmstate', 'clientip', 'macaddr', 'machineuuid', 'systemmodel');
 		if (in_array($filter, $filters)) {
 			// Simple filters mapping into db
 			$where = " $filter = :argument";
@@ -287,13 +302,30 @@ class Page_Statistics extends Page
 		} elseif ($filter === 'badsectors') {
 			$where = " badsectors >= :argument ";
 			$args = array('argument' => $argument);
+		} elseif ($filter === 'state') {
+			if ( $argument === 'on') {
+				$where = " lastseen + 600 > UNIX_TIMESTAMP() ";
+			} elseif ($argument === 'off') {
+				$where = " lastseen + 600 < UNIX_TIMESTAMP() ";
+			} elseif ($argument === 'idle') {
+				$where = " lastseen + 600 > UNIX_TIMESTAMP() AND logintime = 0 ";
+			} elseif ($argument === 'occupied') {
+				$where = " lastseen + 600 > UNIX_TIMESTAMP() AND logintime <> 0 ";
+			} else {
+				Message::addError('invalid-filter');
+				return;
+			}
+		} elseif ($filter === 'location') {
+			$where = "subnet.locationid = :lid OR machine.locationid = :lid";
+			$join = " INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) ";
+			$args = array('lid' => (int)$argument);
 		} else {
 			Message::addError('invalid-filter');
 			return;
 		}
 		$res = Database::simpleQuery("SELECT machineuuid, macaddr, clientip, firstseen, lastseen,"
 			. " logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes, badsectors FROM machine"
-			. " WHERE $where ORDER BY lastseen DESC, clientip ASC", $args);
+			. " $join WHERE $where ORDER BY lastseen DESC, clientip ASC", $args);
 		$rows = array();
 		$NOW = time();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -408,7 +440,8 @@ class Page_Statistics extends Page
 		}
 		$client['firstseen_s'] = date('d.m.Y H:i', $client['firstseen']);
 		$client['lastseen_s'] = date('d.m.Y H:i', $client['lastseen']);
-		$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']);
+		$uptime = $NOW - $client['lastboot'];
+		$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']) . ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
 		$client['logintime_s'] = date('d.m.Y H:i', $client['logintime']);
 		$client['gbram'] = round(round($client['mbram'] / 500) / 2, 1);
 		$client['gbtmp'] = round($client['id44mb'] / 1024);
@@ -428,6 +461,10 @@ class Page_Statistics extends Page
 				if ($section[1] === 'Partition tables') {
 					$this->parseHdd($hdds, $section[2]);
 				}
+				if (isset($hdds['hdds']) && $section[1] === 'smartctl') {
+					// This currently required that the partition table section comes first...
+					$this->parseSmartctl($hdds['hdds'], $section[2]);
+				}
 			}
 		}
 		unset($client['data']);
@@ -436,16 +473,23 @@ class Page_Statistics extends Page
 		// Sessions
 		$NOW = time();
 		$cutoff = $NOW - 86400 * 7;
-		if ($cutoff < $row['firstseen']) $cutoff = $row['firstseen'];
+		//if ($cutoff < $client['firstseen']) $cutoff = $client['firstseen'];
 		$scale = 100 / ($NOW - $cutoff);
 		$res = Database::simpleQuery("SELECT dateline, typeid, data FROM statistic"
 			. " WHERE dateline > :cutoff AND typeid IN ('~session-length', '~offline-length') AND machineuuid = :uuid ORDER BY dateline ASC", array(
-			'cutoff' => $cutoff - 86400,
+			'cutoff' => $cutoff - 86400 * 14,
 			'uuid' => $uuid
 		));
 		$spans['rows'] = array();
+		$spans['graph'] = '';
 		$last = false;
+		$first = true;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($first && $row['dateline'] > $cutoff && $client['lastboot'] > $cutoff) {
+				// Special case: offline before
+				$spans['graph'] .= '<div style="background:#444;left:0%;width:' . round((min($row['dateline'], $client['lastboot']) - $cutoff) * $scale, 2) . '%">&nbsp;</div>';
+			}
+			$first = false;
 			if ($row['dateline'] + $row['data'] < $cutoff || $row['data'] > 864000) continue;
 			if ($last !== false && abs($last['dateline'] - $row['dateline']) < 30
 					&& abs($last['data'] - $row['data']) < 30) continue;
@@ -470,6 +514,10 @@ class Page_Statistics extends Page
 			$spans['graph'] .= '<div style="background:' . $color . ';left:' . round(($row['dateline'] - $cutoff) * $scale, 2) . '%;width:' . round(($row['data']) * $scale, 2) . '%">&nbsp;</div>';
 			$spans['rows'][] = $row;
 			$last = $row;
+		}
+		if ($first && $client['lastboot'] > $cutoff) {
+			// Special case: offline before
+			$spans['graph'] .= '<div style="background:#444;left:0%;width:' . round(($client['lastboot'] - $cutoff) * $scale, 2) . '%">&nbsp;</div>';
 		}
 		if (isset($client['state_occupied'])) {
 			$spans['graph'] .= '<div style="background:#e99;left:' . round(($client['logintime'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['logintime'] + 900) * $scale, 2) . '%">&nbsp;</div>';
@@ -496,7 +544,49 @@ class Page_Statistics extends Page
 			Render::addScriptBottom('chart.min');
 			Render::addTemplate('statistics/machine-hdds', $hdds);
 		}
+		// Client log
+		$lres = Database::simpleQuery("SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog"
+				. " WHERE clientip = :clientip ORDER BY logid DESC LIMIT 25", array('clientip' => $client['clientip']));
+		$today = date('d.m.Y');
+		$yesterday = date('d.m.Y', time() - 86400);
+		$count = 0;
+		$log = array();
+		while ($row = $lres->fetch(PDO::FETCH_ASSOC)) {
+			if (substr($row['description'], -5) === 'on :0' && strpos($row['description'], 'root logged') === false) continue;
+			$day = date('d.m.Y', $row['dateline']);
+			if ($day === $today) {
+				$day = Dictionary::translate('today');
+			} elseif ($day === $yesterday) {
+				$day = Dictionary::translate('yesterday');
+			}
+			$row['date'] = $day . date(' H:i', $row['dateline']);
+			$row['icon'] = $this->eventToIconName($row['logtypeid']);
+			$log[] = $row;
+			if (++$count === 10) break;
+		}
+		Render::addTemplate('statistics/syslog', array(
+			'clientip' => $client['clientip'],
+			'list'     => $log
+		));
+		// Notes
 		Render::addTemplate('statistics/machine-notes', $client);
+	}
+
+	private function eventToIconName($event)
+	{
+		switch ($event) {
+		case 'session-open':
+			return 'glyphicon-log-in';
+		case 'session-close':
+			return 'glyphicon-log-out';
+		case 'partition-swap':
+			return 'glyphicon-info-sign';
+		case 'partition-temp':
+		case 'smartctl-realloc':
+			return 'glyphicon-exclamation-sign';
+		default:
+			return 'glyphicon-minus';
+		}
 	}
 	
 	private function parseCpu(&$row, $data)
@@ -586,7 +676,7 @@ class Page_Statistics extends Page
 	private function parseHdd(&$row, $data)
 	{
 		$hdds = array();
-		// Could have more than one partition - linear scan
+		// Could have more than one disk - linear scan
 		$lines = preg_split("/[\r\n]+/", $data);
 		$dev = false;
 		$i = 0;
@@ -649,6 +739,47 @@ class Page_Statistics extends Page
 		}
 		unset($hdd);
 		$row['hdds'] = &$hdds;
+	}
+	
+	private function parseSmartctl(&$hdds, $data)
+	{
+		$lines = preg_split("/[\r\n]+/", $data);
+		$i = 0;
+		foreach ($lines as $line) {
+			if (preg_match('/^NEXTHDD=(.+)$/', $line, $out)) {
+				unset($dev);
+				foreach ($hdds as &$hdd) {
+					if ($hdd['dev'] === $out[1]) $dev =& $hdd;
+				}
+				continue;
+			}
+			if (!isset($dev)) continue;
+			if (preg_match('/^([A-Z][^:]+):\s*(.*)$/', $line, $out)) {
+				$dev['s_' . preg_replace('/\s|-|_/', '', $out[1])] = $out[2];
+			} elseif (preg_match('/^\s*\d+\s+(\S+)\s+\S+\s+\d+\s+\d+\s+\d+\s+\S+\s+(\d+)(\s|$)/', $line, $out)) {
+				$dev['s_' . preg_replace('/\s|-|_/', '', $out[1])] = $out[2];
+			}
+		}
+		// Format strings
+		foreach ($hdds as &$hdd) {
+			if (isset($hdd['s_PowerOnHours'])) {
+				$hdd['PowerOnTime'] = '';
+				$val = (int)$hdd['s_PowerOnHours'];
+				if ($val > 8760) {
+					$hdd['PowerOnTime'] .= floor($val / 8760) . 'Y, ';
+					$val %= 8760;
+				}
+				if ($val > 720) {
+					$hdd['PowerOnTime'] .= floor($val / 720) . 'M, ';
+					$val %= 720;
+				}
+				if ($val > 24) {
+					$hdd['PowerOnTime'] .= floor($val / 24) . 'd, ';
+					$val %= 24;
+				}
+				$hdd['PowerOnTime'] .= $val . 'h';
+			}
+		}
 	}
 
 }

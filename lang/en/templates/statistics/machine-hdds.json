@@ -1,7 +1,13 @@
 {
     "lang_hdds": "Hard disk drives",
+    "lang_hours": "hours",
+    "lang_modelNo": "Model",
     "lang_partName": "Name",
     "lang_partSize": "Size",
     "lang_partType": "Type",
+    "lang_pendingSectors": "Sectors pending reallocation",
+    "lang_powerOnTime": "Power on time",
+    "lang_reallocatedSectors": "Bad sectors",
+    "lang_serialNo": "Serial no",
     "lang_total": "Total"
 }

@@ -3,8 +3,8 @@
 		<div class="panel-body">
 			<div>
 				{{lang_knownMachines}}: <b>{{known}}</b>&emsp;
-				{{lang_onlineMachines}}: <b>{{online}}</b>&emsp;
-				{{lang_inUseMachines}}: <b>{{used}}</b> (<b>{{usedpercent}}%</b>)
+				<a href="?do=Statistics&amp;filter=state&amp;argument=on">{{lang_onlineMachines}}</a>: <b>{{online}}</b>&emsp;
+				<a href="?do=Statistics&amp;filter=state&amp;argument=occupied">{{lang_inUseMachines}}</a>: <b>{{used}}</b> (<b>{{usedpercent}}%</b>)
 			</div>
 			{{#badhdd}}
 			<div>
@@ -15,6 +15,19 @@
 			</div>
 			{{/badhdd}}
 		</div>
+	</div>
+	<div>
+		<canvas id="usagehist" style="width:100%;height:150px"></canvas>
+		<script type="text/javascript">
+			document.addEventListener("DOMContentLoaded", function() {
+				var data = {{{json}}};
+				var sel = false;
+				new Chart(document.getElementById('usagehist').getContext('2d')).Line(data, { 
+					animation: false,
+					pointHitDetectionRadius: 5
+				});
+			}, false);
+		</script>
 	</div>
 </div>
 

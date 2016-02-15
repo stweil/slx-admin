@@ -4,9 +4,21 @@
 		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					{{dev}}
+					<b>{{s_ModelFamily}}</b> {{dev}}
 				</div>
 				<div class="panel-body">
+					{{#s_DeviceModel}}
+					<div>{{lang_modelNo}}: {{s_DeviceModel}}, {{lang_serialNo}}: {{s_SerialNumber}}</div>
+					{{/s_DeviceModel}}
+					{{#s_ReallocatedSectorCt}}
+					<div class="red">{{lang_reallocatedSectors}}: {{s_ReallocatedSectorCt}}</div>
+					{{/s_ReallocatedSectorCt}}
+					{{#s_CurrentPendingSector}}
+					<div class="red">{{lang_pendingSectors}}: {{s_CurrentPendingSector}}</div>
+					{{/s_CurrentPendingSector}}
+					{{#s_PowerOnHours}}
+					<div>{{lang_powerOnTime}}: {{s_PowerOnHours}}&thinsp;{{lang_hours}} ({{PowerOnTime}})</div>
+					{{/s_PowerOnHours}}
 					<div class="row">
 						<div class="col-sm-6">
 							<table class="table table-condensed table-striped table-responsive">
