@@ -45,6 +45,13 @@
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-home"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
 	</div>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga">{{lang_homeAttr}}</span>
+		<input tabindex="6" name="homeattr" value="{{homeattr}}" type="text" class="form-control" placeholder="homeDirectory">
+		<span class="input-group-btn">
+			<a class="btn btn-default" data-toggle="modal" data-target="#help-homeattr"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</span>
+	</div>
 	<br>
 	<div>
 		<label>
@@ -92,6 +99,20 @@ MIIFfTCCA...
 				</p>
 				<p>
 					{{lang_userDirectoryInfo3}}
+				</p>
+			</div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="help-homeattr" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">{{lang_helpHomeAttrHead}}</div>
+			<div class="modal-body">
+				<p>
+					{{lang_helpHomeAttrText}}
 				</p>
 			</div>
 			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>

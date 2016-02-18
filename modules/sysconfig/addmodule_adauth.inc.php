@@ -9,7 +9,7 @@ class AdAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'ssl', 'certificate');
+		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'certificate');
 		$data = array();
 		if ($this->edit !== false) {
 			moduleToArray($this->edit, $data, $ADAUTH_COMMON_FIELDS);
@@ -75,6 +75,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'binddn' => Util::normalizeDn(Request::post('binddn')),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
+			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl'),
 			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id']
@@ -82,6 +83,8 @@ class AdAuth_CheckConnection extends AddModule_Base
 		$data['prev'] = 'AdAuth_Start';
 		if (preg_match('#^\w+[/\\\\]\w+$#', Request::post('binddn')) || strlen(Request::post('searchbase')) < 2) {
 			$data['next'] = 'AdAuth_SelfSearch';
+		} elseif (empty($data['homeattr'])) {
+			$data['next'] = 'AdAuth_HomeAttrCheck';
 		} else {
 			$data['next'] = 'AdAuth_CheckCredentials';
 		}
@@ -114,11 +117,10 @@ class AdAuth_SelfSearch extends AddModule_Base
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		$parent = null;
 		$this->originalBindDn = '';
 		// Fix bindDN if short name given
 		//
-		if ($ssl) {
+		if ($ssl) { // Use the specific AD ports so the domain\username bind works
 			$uri = "ldaps://$server:3269/";
 		} else {
 			$uri = "ldap://$server:3268/";
@@ -131,8 +133,82 @@ class AdAuth_SelfSearch extends AddModule_Base
 				'searchbase' => $searchbase,
 				'binddn' => $this->originalBindDn,
 				'bindpw' => $bindpw,
-				'username' => $user
+				'filter' => "sAMAccountName=$user"
 		));
+		if (!isset($selfSearch['id'])) {
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		$this->taskIds['self-search'] = $selfSearch['id'];
+	}
+
+	protected function renderInternal()
+	{
+		$data = array(
+			'edit' => Request::post('edit'),
+			'title' => Request::post('title'),
+			'server' => Request::post('server'),
+			'port' => Request::post('port'),
+			'searchbase' => Request::post('searchbase'),
+			'binddn' => Request::post('binddn'),
+			'bindpw' => Request::post('bindpw'),
+			'home' => Request::post('home'),
+			'homeattr' => Request::post('homeattr'),
+			'ssl' => Request::post('ssl') === 'on',
+			'fingerprint' => Request::post('fingerprint'),
+			'certificate' => Request::post('certificate', ''),
+			'originalbinddn' => $this->originalBindDn,
+			'prev' => 'AdAuth_Start'
+		);
+		if (empty($data['homeattr'])) {
+			$data['next'] = 'AdAuth_HomeAttrCheck';
+		} else {
+			$data['next'] = 'AdAuth_CheckCredentials';
+		}
+		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'sysconfig/ad-selfsearch',
+			array_merge($this->taskIds, $data));
+	}
+
+}
+
+class AdAuth_HomeAttrCheck extends AddModule_Base
+{
+
+	private $taskIds;
+
+	protected function preprocessInternal()
+	{
+		$server = Request::post('server');
+		$port = Request::post('port');
+		$searchbase = Request::post('searchbase', '');
+		$binddn = Request::post('binddn');
+		$bindpw = Request::post('bindpw');
+		$ssl = Request::post('ssl', 'off') === 'on';
+		if ($ssl && !Request::post('fingerprint')) {
+			Message::addError('error-read', 'fingerprint');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		if (empty($server) || empty($binddn) || empty($port)) {
+			Message::addError('empty-field');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		if ($ssl) {
+			$uri = "ldaps://$server:$port/";
+		} else {
+			$uri = "ldap://$server:$port/";
+		}
+		preg_match('#^(\w+=[^,]+),#', $binddn, $out);
+		$filter = $out[1];
+		$data = array(
+			'server' => $uri,
+			'searchbase' => $searchbase,
+			'binddn' => $binddn,
+			'bindpw' => $bindpw,
+			'filter' => $filter
+		);
+		$selfSearch = Taskmanager::submit('LdapSearch', $data);
 		if (!isset($selfSearch['id'])) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
@@ -151,10 +227,12 @@ class AdAuth_SelfSearch extends AddModule_Base
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
+			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
-			'originalbinddn' => $this->originalBindDn,
+			'originalbinddn' => Request::post('originalbinddn'),
+			'tryHomeAttr' => true,
 			'prev' => 'AdAuth_Start',
 			'next' => 'AdAuth_CheckCredentials'
 			))
@@ -186,7 +264,6 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		$parent = null;
 		// Test query 4 users
 		if ($ssl) {
 			$uri = "ldaps://$server:$port/";
@@ -194,7 +271,6 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			$uri = "ldap://$server:$port/";
 		}
 		$ldapSearch = Taskmanager::submit('LdapSearch', array(
-				'parentTask' => $parent,
 				'server' => $uri,
 				'searchbase' => $searchbase,
 				'binddn' => $binddn,
@@ -221,6 +297,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
+			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
@@ -282,6 +359,7 @@ class AdAuth_Finish extends AddModule_Base
 		$module->setData('binddn', $binddn);
 		$module->setData('bindpw', Request::post('bindpw'));
 		$module->setData('home', Request::post('home'));
+		$module->setData('homeattr', Request::post('homeattr'));
 		$module->setData('certificate', Request::post('certificate'));
 		$module->setData('ssl', $ssl);
 		if ($ssl) {

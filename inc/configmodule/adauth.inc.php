@@ -14,7 +14,7 @@ class ConfigModule_AdAuth extends ConfigModule
 	const VERSION = 1;
 
 	private static $REQUIRED_FIELDS = array('server', 'searchbase', 'binddn');
-	private static $OPTIONAL_FIELDS = array('bindpw', 'home', 'ssl', 'fingerprint', 'certificate');
+	private static $OPTIONAL_FIELDS = array('bindpw', 'home', 'ssl', 'fingerprint', 'certificate', 'homeattr');
 
 	protected function generateInternal($tgz, $parent)
 	{
@@ -68,7 +68,6 @@ class ConfigModule_AdAuth extends ConfigModule
 	 */
 	public function event_serverIpChanged()
 	{
-		error_log('Calling generate on ' . $this->title());
 		$this->generate(false);
 	}
 

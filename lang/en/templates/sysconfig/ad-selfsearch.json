@@ -2,6 +2,9 @@
     "lang_back": "Back",
     "lang_continueAnyway": "Continue anyway",
     "lang_dnLookup": "Looking up bind dn",
+    "lang_homeAttributeExplanation": "Please select the attribute which holds the user's home directory.",
+    "lang_next": "Next",
     "lang_onProblemSearchBase": "On failure, try to pass the bind dn and search base manually",
+    "lang_selectHomeAttribute": "Home attribute",
     "lang_skip": "Skip"
 }
