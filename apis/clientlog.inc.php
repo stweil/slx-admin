@@ -64,7 +64,7 @@ if ($type{0} === '~') {
 			// See if we have a lingering session, create statistic entry if so
 			if ($old !== false && $old['logintime'] !== 0) {
 				$sessionLength = $old['lastseen'] - $old['logintime'];
-				if ($sessionLength > 0) {
+				if ($sessionLength > 0 && $sessionLength < 86400*2) {
 					$start = $old['logintime'];
 					if ($start === 0) $start = $NOW;
 					Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
@@ -78,7 +78,7 @@ if ($type{0} === '~') {
 			}
 			// Write poweroff period length to statistic table
 			if ($old !== false) {
-				$lastSeen = $old['lastseen'] + 300;
+				$lastSeen = $old['lastseen'] + 500;
 				$offtime = ($NOW - $uptime) - $lastSeen;
 				if ($offtime > 600 && $offtime < 86400 * 90) {
 					Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
@@ -101,7 +101,7 @@ if ($type{0} === '~') {
 			. ' macaddr = VALUES(macaddr),'
 			. ' clientip = VALUES(clientip),'
 			. ' lastseen = VALUES(lastseen),'
-			. ($uptime < 120 ? ' logintime = 0,' : '')
+			. ($uptime < 180 ? ' logintime = 0,' : '')
 			. ' lastboot = VALUES(lastboot),'
 			. ' realcores = VALUES(realcores),'
 			. ' mbram = VALUES(mbram),'
@@ -164,7 +164,7 @@ if ($type{0} === '~') {
 			}
 		}
 		// 9) Log last session length if applicable
-		if ($sessionLength > 0) {
+		if ($sessionLength > 0 && $sessionLength < 86400*2) {
 			$start = $old['logintime'];
 			if ($start === 0) $start = $NOW;
 			Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
@@ -178,7 +178,7 @@ if ($type{0} === '~') {
 	} elseif ($type === '~poweroff') {
 		if ($old !== false && (int)$old['logintime'] !== 0) {
 			$sessionLength = $old['lastseen'] - $old['logintime'];
-			if ($sessionLength > 0) {
+			if ($sessionLength > 0 && $sessionLength < 86400*2) {
 				$start = $old['logintime'];
 				if ($start === 0) $start = $NOW;
 				Database::exec('INSERT INTO statistic (dateline, typeid, clientip, username, data)'
