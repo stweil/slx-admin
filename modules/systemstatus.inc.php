@@ -163,8 +163,8 @@ class Page_SystemStatus extends Page
 		}
 		if (preg_match('/\bcpu\s+(?<user>\d+)\s+(?<nice>\d+)\s+(?<system>\d+)\s+(?<idle>\d+)\s+(?<iowait>\d+)\s+(?<irq>\d+)\s+(?<softirq>\d+)(\s|$)/', $stat, $out)) {
 			$data['CpuTotal'] = $out['user'] + $out['nice'] + $out['system'] + $out['idle'] + $out['iowait'] + $out['irq'] + $out['softirq'];
-			$data['CpuIdle'] = $out['idle'];
-			$data['CpuSystem'] = $out['iowait'] + $out['irq'] + $out['softirq'];
+			$data['CpuIdle'] = $out['idle'] + $out['iowait'];
+			$data['CpuSystem'] = $out['irq'] + $out['softirq'];
 		}
 		return $data;
 	}
