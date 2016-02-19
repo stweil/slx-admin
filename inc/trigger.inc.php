@@ -48,10 +48,10 @@ class Trigger
 		$publicCandidate = 'none';
 		$privateCandidate = 'none';
 		foreach ($task['data']['addresses'] as $addr) {
+			if (substr($addr['ip'], 0, 4) === '127.' || preg_match('/^\d+\.\d+\.\d+\.\d+$/', $addr['ip']) !== 1)
+				continue;
 			if ($addr['ip'] === $serverIp)
 				return true;
-			if (substr($addr['ip'], 0, 4) === '127.')
-				continue;
 			if (Util::isPublicIpv4($addr['ip'])) {
 				if ($publicCandidate === 'none')
 					$publicCandidate = $addr['ip'];
