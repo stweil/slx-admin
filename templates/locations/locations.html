@@ -1,0 +1,96 @@
+<div>
+	<div class="pull-right">
+		<a href="?do=Locations&amp;action=showsubnets">{{lang_thisListBySubnet}}</a>
+	</div>
+	<h1>{{lang_locationsMainHeading}}</h1>
+	<table class="table table-condensed" style="margin-bottom:0px">
+		<tr>
+			<th>#</th>
+			<th width="100%">{{lang_locationName}}</th>
+			<th></th>
+		</tr>
+		{{#list}}
+			<tr>
+				<td>{{locationid}}</td>
+				<td><div style="display:inline-block;width:{{depth}}em"></div>{{locationname}}</td>
+				<td align="right">
+					<a class="btn btn-success btn-xs" onclick="slxOpenLocation(this, {{locationid}})"><span class="glyphicon glyphicon-edit"></span> {{lang_edit}}</a>
+				</td>
+			</tr>
+		{{/list}}
+	</table>
+	<form method="post" action="?do=Locations">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="addlocations">
+		<table class="table table-condensed table-hover">
+			<tr id="lasttr">
+				<td>
+					<button class="btn btn-success btn-sm" type="button" onclick="slxAddLocationRow()">
+						<span class="glyphicon glyphicon-plus-sign"></span> {{lang_location}}
+					</button>
+				</td>
+				<td width="80%">&emsp;</td>
+				<td width="20%" align="right">
+					<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script type="text/javascript"><!--
+var slxAddCounter = 0;
+var slxLastLocation = false;
+
+function slxAddLocationRow() {
+	var tr = $('#lasttr');
+	tr.before('<tr>\
+		<td>#</td>\
+		<td><input class="form-control" type="text" name="newlocation[' + slxAddCounter + ']" placeholder="{{lang_locationName}}" pattern=".*\\S.*"></td>\
+		<td><select class="form-control" name="newparent[' + slxAddCounter + ']">\
+		<option value="0">{{lang_noParent}}</option>\
+		{{#list}}<option value="{{locationid}}">{{locationpad}} {{locationname}}</option>{{/list}}\
+		</select></td>\
+	</tr>');
+	slxAddCounter++;
+}
+
+function slxOpenLocation(e, lid) {
+	if (slxLastLocation !== false) {
+		slxLastLocation.hide();
+		$(slxLastLocation).prev().removeClass('active slx-bold');
+	}
+	var existing = $('#location-details-' + lid);
+	if (existing.length > 0) {
+		if (existing.is(slxLastLocation)) {
+			slxLastLocation = false;
+		} else {
+			existing.show();
+			$(e).closest('tr').addClass('active slx-bold');
+			slxLastLocation = existing;
+		}
+		return;
+	}
+	var td = $('<td>').attr('colspan', '12').css('padding', '0px 0px 12px');
+	var tr = $('<tr>').attr('id', 'location-details-' + lid);
+	tr.append(td);
+	$(e).closest('tr').addClass('active slx-bold').after(tr);
+	td.load('?do=Locations&action=showlocation&locationid=' + lid);
+	slxLastLocation = tr;
+}
+
+function slxAddSubnetRow(e, lid) {
+	var tr = $('#loc-sub-' + lid);
+	tr.before('<tr>\
+		<td>#</td>\
+		<td><input class="form-control" type="text" name="newstartaddr[' + slxAddCounter + ']" pattern="\\d{1,3}\.\\d{1,3}\.\\d{1,3}\.\\d{1,3}"></td>\
+		<td><input class="form-control" type="text" name="newendaddr[' + slxAddCounter + ']" pattern="\\d{1,3}\.\\d{1,3}\.\\d{1,3}\.\\d{1,3}"></td>\
+		<td></td>\
+	</tr>');
+	slxAddCounter++;
+}
+
+function slxConfirm() {
+	return confirm('{{lang_areYouSureNoUndo}}');
+}
+	// -->
+</script>

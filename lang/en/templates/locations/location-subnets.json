@@ -1,0 +1,18 @@
+{
+    "lang_addNewSubnet": "Add new subnet",
+    "lang_assignSubnetExplanation": "Client machines which fall into an IP range listed below will be assigned to this location and will see an according lecture list (e.g. they will see lectures that are exclusively assigned to this location).",
+    "lang_assignedSubnets": "Assigned subnets \/ IP ranges",
+    "lang_deleteChildLocations": "Delete child locations aswell",
+    "lang_deleteLocation": "Delete location",
+    "lang_deleteSubnet": "Delete range",
+    "lang_endAddress": "End address",
+    "lang_locationInfo": "Location details",
+    "lang_locationSettings": "Edit this room or location",
+    "lang_matchingMachines": "Matching clients",
+    "lang_name": "Name",
+    "lang_parentLocation": "Parent location",
+    "lang_referencingLectures": "Assigned Lectures",
+    "lang_save": "Save",
+    "lang_startAddress": "Start address",
+    "lang_subnet": "IP range"
+}

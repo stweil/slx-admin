@@ -1,0 +1,18 @@
+{
+    "lang_addNewSubnet": "Neues Subnetz hinzuf\u00fcgen",
+    "lang_assignSubnetExplanation": "Rechner, die in einen der hier aufgef\u00fchrten Adressbereiche fallen, werden diesem Ort zugeschrieben und erhalten damit z.B. f\u00fcr diesen Raum angepasste Veranstaltungslisten.",
+    "lang_assignedSubnets": "Zugeordnete Subnetze bzw. IP-Bereiche",
+    "lang_deleteChildLocations": "Untergeordnete Orte ebenfalls l\u00f6schen",
+    "lang_deleteLocation": "Ort l\u00f6schen",
+    "lang_deleteSubnet": "Bereich l\u00f6schen",
+    "lang_endAddress": "Endadresse",
+    "lang_locationInfo": "Details zu diesem Ort",
+    "lang_locationSettings": "Raum\/Ort bearbeiten",
+    "lang_matchingMachines": "Enthaltene Rechner",
+    "lang_name": "Name",
+    "lang_parentLocation": "\u00dcbergeordneter Ort",
+    "lang_referencingLectures": "Veranstaltungen",
+    "lang_save": "Speichern",
+    "lang_startAddress": "Startadresse",
+    "lang_subnet": "IP-Bereich"
+}

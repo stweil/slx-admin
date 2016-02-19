@@ -1,0 +1,35 @@
+<div>
+	<div class="pull-right">
+		<a href="?do=Locations&amp;action=showlocations">{{lang_thisListByLocation}}</a>
+	</div>
+	<h1>{{lang_listOfSubnets}}</h1>
+	<form method="post" action="?do=Locations">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="updatesubnets">
+		<table class="table table-condensed table-striped">
+			<tr>
+				<th>#</th>
+				<th>{{lang_startAddress}}</th>
+				<th>{{lang_endAddress}}</th>
+				<th>{{lang_location}}</th>
+			</tr>
+			{{#list}}
+				<tr>
+					<td>{{subnetid}}</td>
+					<td><input class="form-control" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}"></td>
+					<td><input class="form-control" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}"></td>
+					<td>
+						<select class="form-control" name="location[{{subnetid}}]">
+							{{#locations}}
+							<option value="{{locationid}}" {{#selected}}selected="selected"{{/selected}}>{{locationpad}} {{locationname}}</option>
+							{{/locations}}
+						</select>
+					</td>
+				</tr>
+			{{/list}}
+		</table>
+		<div>
+			<button type="submit" class="btn btn-primary">Späschohn (geht noch nicht!)</button>
+		</div>
+	</form>
+</div>

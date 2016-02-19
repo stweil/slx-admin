@@ -232,3 +232,13 @@ input[readonly] {
   overflow: hidden;
 }
 
+.slx-well {
+	border: 1px solid #E3E3E3;
+	border-top: none;
+	box-shadow: rgba(0,0,0,0.047) 0px 1px 1px 0px inset;
+	border-radius: 4px;
+	border-top-left-radius:  0px;
+	border-top-right-radius: 0px;
+	margin: 0px;
+	padding: 19px;
+}

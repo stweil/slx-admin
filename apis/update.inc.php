@@ -52,6 +52,7 @@ if ($list === false) {
 Message::addSuccess('db-update-done');
 if (tableExists('eventlog'))
 	EventLog::info("Database updated to version $currentVersion");
+DefaultData::populate();
 Util::redirect('index.php?do=Main');
 
 ////////////////
@@ -256,7 +257,7 @@ function update_10()
 	}
 	Database::exec("CREATE TABLE IF NOT EXISTS `machine` (
   `machineuuid` char(36) CHARACTER SET ascii NOT NULL,
-  `roomid` int(10) unsigned DEFAULT NULL,
+  `locationid` int(11) DEFAULT NULL,
   `macaddr` char(17) CHARACTER SET ascii NOT NULL,
   `clientip` varchar(45) CHARACTER SET ascii NOT NULL,
   `firstseen` int(10) unsigned NOT NULL,
@@ -281,10 +282,43 @@ function update_10()
   KEY `mbram` (`mbram`),
   KEY `kvmstate` (`kvmstate`),
   KEY `id44mb` (`id44mb`),
-  KEY `roomid` (`roomid`),
+  KEY `locationid` (`locationid`),
   KEY `lastseen` (`lastseen`),
   KEY `cpumodel` (`cpumodel`),
   KEY `systemmodel` (`systemmodel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+	return true;
+}
+
+function update_11()
+{
+	if (tableHasColumn('machine', 'roomid')) {
+		Database::exec("ALTER TABLE `machine` CHANGE `roomid` `locationid` INT(11) DEFAULT NULL");
+	}
+	Database::exec("CREATE TABLE IF NOT EXISTS `setting_location` (
+		`locationid` int(11) NOT NULL,
+		`setting` varchar(28) NOT NULL,
+		`value` text NOT NULL,
+		`displayvalue` text NOT NULL,
+		PRIMARY KEY (`locationid`,`setting`),
+		KEY `setting` (`setting`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+	Database::exec("CREATE TABLE IF NOT EXISTS `location` (
+		`locationid` int(11) NOT NULL AUTO_INCREMENT,
+		`parentlocationid` int(11) NOT NULL,
+		`locationname` varchar(100) NOT NULL,
+		PRIMARY KEY (`locationid`),
+		KEY `locationname` (`locationname`),
+		KEY `parentlocationid` (`parentlocationid`)
+	) ENGINE=InnoDB  DEFAULT CHARSET=utf8;");
+	Database::exec("CREATE TABLE IF NOT EXISTS `subnet` (
+		`subnetid` int(11) NOT NULL AUTO_INCREMENT,
+		`startaddr` decimal(39,0) unsigned NOT NULL,
+		`endaddr` decimal(39,0) unsigned NOT NULL,
+		`locationid` int(11) NOT NULL,
+		PRIMARY KEY (`subnetid`),
+		KEY `startaddr` (`startaddr`,`endaddr`),
+		KEY `locationid` (`locationid`)
+	) ENGINE=InnoDB  DEFAULT CHARSET=utf8;");
 	return true;
 }

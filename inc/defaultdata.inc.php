@@ -21,11 +21,12 @@ class DefaultData
 	{
 		$cats = array(
 			1 => 30, // Inactivity/Shutdown
-			2 => 20, // Internet access
+			2 => 50, // Internet access
 			3 => 100, // Timesync
 			4 => 10, // System config
 			//5 => 15, // Public Shared folder
 			6 => 20000, // Unassigned/no category
+			7 => 20,
 		);
 		foreach ($cats as $cat => $sort) {
 			Database::exec("INSERT IGNORE INTO cat_setting (catid, sortval) VALUES (:catid, :sortval)", array(
@@ -168,6 +169,27 @@ class DefaultData
 				'defaultvalue' => '',
 				'permissions' => '2',
 				'validator' => ''
+			),
+			array(
+				'setting' => 'SLX_VMCHOOSER_TAB',
+				'catid' => '7',
+				'defaultvalue' => 'AUTO',
+				'permissions' => '2',
+				'validator' => 'list:0|1|2|AUTO'
+			),
+			array(
+				'setting' => 'SLX_VMCHOOSER_TEMPLATES',
+				'catid' => '7',
+				'defaultvalue' => 'IGNORE',
+				'permissions' => '2',
+				'validator' => 'list:IGNORE|BUMP'
+			),
+			array(
+				'setting' => 'SLX_VMCHOOSER_FORLOCATION',
+				'catid' => '7',
+				'defaultvalue' => 'BUMP',
+				'permissions' => '2',
+				'validator' => 'list:IGNORE|BUMP|EXCLUSIVE'
 			),
 		);
 		foreach ($data as $entry) {
