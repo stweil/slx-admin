@@ -73,7 +73,6 @@ class Event
 	 */
 	public static function serverIpChanged()
 	{
-		error_log('Server ip changed');
 		global $tidIpxe;
 		$tidIpxe = Trigger::ipxe();
 		ConfigModule::serverIpChanged();
@@ -84,7 +83,6 @@ class Event
 	 */
 	public static function activeConfigChanged()
 	{
-		error_log('Active config changed');
 		$task = Trigger::ldadp();
 		TaskmanagerCallback::addCallback($task, 'ldadpStartup');
 	}
