@@ -6,6 +6,7 @@ class Page_Main extends Page
 	private $sysconfig;
 	private $minilinux;
 	private $vmstore;
+	private $ipxe;
 	private $delPending;
 
 	protected function doPreprocess()
@@ -15,7 +16,8 @@ class Page_Main extends Page
 			$this->sysconfig = !file_exists(CONFIG_HTTP_DIR . '/default/config.tgz');
 			$this->minilinux = !file_exists(CONFIG_HTTP_DIR . '/default/kernel') || !file_exists(CONFIG_HTTP_DIR . '/default/initramfs-stage31') || !file_exists(CONFIG_HTTP_DIR . '/default/stage32.sqfs');
 			$this->vmstore = !is_array(Property::getVmStoreConfig());
-			Property::setNeedsSetup(($this->sysconfig || $this->minilinux || $this->vmstore) ? 1 : 0);
+			$this->ipxe = true || !preg_match('/^\d+\.\d+\.\d+\.\d+$/', Property::getServerIp());
+			Property::setNeedsSetup(($this->sysconfig || $this->minilinux || $this->vmstore || $this->ipxe) ? 1 : 0);
 			$res = Database::queryFirst("SELECT Count(*) AS cnt FROM sat.imageversion WHERE deletestate = 'SHOULD_DELETE'");
 			$this->delPending = isset($res['cnt']) ? $res['cnt'] : 0;
 		}
@@ -38,6 +40,7 @@ class Page_Main extends Page
 			'sysconfig' => $this->sysconfig,
 			'minilinux' => $this->minilinux,
 			'vmstore' => $this->vmstore,
+			'ipxe' => $this->ipxe,
 			'delpending' => $this->delPending
 		));
 	}
