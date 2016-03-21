@@ -75,6 +75,9 @@ class Event
 	{
 		global $tidIpxe;
 		$tidIpxe = Trigger::ipxe();
+		if (is_string($tidIpxe)) {
+			TaskmanagerCallback::addCallback($tidIpxe, 'cbIpxeBuilt');
+		}
 		ConfigModule::serverIpChanged();
 	}
 
