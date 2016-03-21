@@ -1,0 +1,79 @@
+<div class="slx-bold">
+	{{lang_homedirHandling}}
+</div>
+<div><i>{{lang_handlingNotes}}</i></div>
+
+<!-- 'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia', 'shareOther' -->
+
+<form method="post" class="form-horizontal" action="?do=SysConfig&amp;action=addmodule&amp;step={{next}}">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="edit" value="{{edit}}">
+	<input name="title" value="{{title}}" type="hidden">
+	<input name="server" value="{{server}}" type="hidden">
+	<input name="searchbase" value="{{searchbase}}" type="hidden">
+	<input name="binddn" value="{{binddn}}" type="hidden">
+	<input name="bindpw" value="{{bindpw}}" type="hidden">
+	<input name="home" value="{{home}}" type="hidden">
+	<input name="homeattr" value="{{homeattr}}" type="hidden">
+	{{#ssl}}
+	<input name="ssl" value="on" type="hidden">
+	<input type="hidden" name="certificate" value="{{certificate}}">
+	{{/ssl}}
+	<input name="fingerprint" value="{{fingerprint}}" type="hidden">
+
+	<div class="form-group row">
+		<label for="inputshareRemapMode" class="control-label col-xs-4">{{lang_shareRemapMode}}</label>
+		<div class="col-xs-8">
+			<select class="form-control" id="inputshareRemapMode" name="shareRemapMode">
+				<option value="0" {{shareRemapMode_0}}>{{lang_mapModeNone}}</option>
+				<option value="1" {{shareRemapMode_1}}>{{lang_mapModeNative}}</option>
+				<option value="3" {{shareRemapMode_3}}>{{lang_mapModeVmware}}</option>
+				<option value="2" {{shareRemapMode_2}}>{{lang_mapModeNativeFallback}}</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="inputshareHomeDrive" class="control-label col-xs-4">{{lang_shareHomeDrive}}</label>
+		<div class="col-xs-8">
+			<select class="form-control" id="inputshareHomeDrive" name="shareHomeDrive">
+				{{#drives}}
+				<option {{selected}}>{{drive}}</option>
+				{{/drives}}
+			</select>
+		</div>
+	</div>
+	<hr>
+	<div class="slx-bold">{{lang_folderRedirection}}</div>
+	<div><i>{{lang_redirectionWarning}}</i></div>
+	<div>
+		<label class="control-label"><input type="checkbox" name="shareDocuments" {{shareDocuments_c}}> {{lang_shareDocuments}}</label>
+	</div>
+	<div>
+		<label class="control-label"><input type="checkbox" name="shareDownloads" {{shareDownloads_c}}> {{lang_shareDownloads}}</label>
+	</div>
+	<div>
+		<label class="control-label"><input type="checkbox" name="shareDesktop" {{shareDesktop_c}}> {{lang_shareDesktop}}</label>
+	</div>
+	<div>
+		<label class="control-label"><input type="checkbox" name="shareMedia" {{shareMedia_c}}> {{lang_shareMedia}}</label>
+	</div>
+	<div>
+		<label class="control-label"><input type="checkbox" name="shareOther" {{shareOther_c}}> {{lang_shareOther}}</label>
+	</div>
+	<div class="row">
+		<div class="col-xs-2"></div>
+		<div class="col-xs-10">
+			<label class="control-label"><input type="checkbox" name="shareRemapCreate" {{shareRemapCreate_c}}> {{lang_shareMapCreate}}</label>
+		</div>
+	</div>
+	<!--hr>
+	<div class="slx-bold">{{lang_additionalFolders}}</div>
+	<div><i>{{lang_addFoldersInfo}}</i></div>
+	
+	<br>
+	<div><i>{{lang_driveLetterNote}}</i></div-->
+	<div class="pull-right">
+		<button type="submit" class="btn btn-primary">{{lang_next}} &raquo;</button>
+	</div>
+	<div class="clearfix"></div>
+</form>

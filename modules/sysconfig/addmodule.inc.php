@@ -18,6 +18,35 @@ abstract class AddModule_Base
 	 * @var \ConfigModule
 	 */
 	protected $edit = false;
+	
+	protected $bag = false;
+	
+	private $bagId = false;
+	
+	protected function loadBag($createIfNone = true)
+	{
+		if ($this->bagId !== false)
+			return $this->bagId;
+		$bagId = Request::any('bag', '', 'string');
+		$this->bag = Session::get($bagId);
+		if ($this->bag === false) {
+			if (!$createIfNone)
+				return false;
+			$this->bagId = dechex(rand());
+			$this->bag = array();
+		} else {
+			$this->bagId = $bagId;
+		}
+		return $this->bagId;
+	}
+	
+	protected function saveBag()
+	{
+		if ($this->bagId === false)
+			return false;
+		Session::set($this->bagId, $this->bag);
+		return true;
+	}
 
 	/**
 	 * 
