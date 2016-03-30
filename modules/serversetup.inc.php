@@ -6,6 +6,7 @@ class Page_ServerSetup extends Page
 	private $taskStatus;
 	private $currentAddress;
 	private $currentMenu;
+	private $hasIpSet = false;
 
 	protected function doPreprocess()
 	{
@@ -47,7 +48,8 @@ class Page_ServerSetup extends Page
 		}
 
 		Render::addTemplate('serversetup/ipaddress', array(
-			'ips' => $this->taskStatus['data']['addresses']
+			'ips' => $this->taskStatus['data']['addresses'],
+			'chooseHintClass' => $this->hasIpSet ? '' : 'alert alert-danger'
 		));
 		$data = $this->currentMenu;
 		if (!isset($data['defaultentry']))
@@ -85,6 +87,7 @@ class Page_ServerSetup extends Page
 			}
 			if ($this->currentAddress === $item['ip']) {
 				$item['default'] = true;
+				$this->hasIpSet = true;
 			}
 			$sortIp[] = $item['ip'];
 		}

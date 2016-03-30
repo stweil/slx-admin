@@ -3,9 +3,9 @@
 		{{lang_bootAddress}}
 	</div>
 	<div class="panel-body">
-		<p>
+		<div class="{{chooseHintClass}}">
 			{{lang_chooseIP}}
-		</p>
+		</div>
 		<form method="post" action="?do=ServerSetup">
 			<input type="hidden" name="action" value="ip">
 			<input type="hidden" name="token" value="{{token}}">
