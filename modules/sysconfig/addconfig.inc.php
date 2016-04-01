@@ -170,7 +170,7 @@ class AddConfig_Start extends AddConfig_Base
 			}
 		}
 		unset($mod);
-		Render::addDialog(Dictionary::translate("lang_configurationCompilation"), false, 'sysconfig/cfg-start', array(
+		Render::addDialog(Dictionary::translate("lang_configurationCompilation"), false, 'cfg-start', array(
 			'step' => 'AddConfig_Finish',
 			'groups' => array_values($modGroups),
 			'title' => $title,
@@ -213,7 +213,7 @@ class AddConfig_Finish extends AddConfig_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('lang_configurationCompilation'), false, 'sysconfig/cfg-finish', array(
+		Render::addDialog(Dictionary::translate('lang_configurationCompilation'), false, 'cfg-finish', array(
 			'configid' => $this->config->id()
 		));
 	}

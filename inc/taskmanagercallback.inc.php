@@ -116,13 +116,6 @@ class TaskmanagerCallback
 			EventLog::warning("Could not generate Active Directory configuration", $task['data']['error']);
 	}
 	
-	public static function cbIpxeBuilt($task)
-	{
-		if (Taskmanager::isFailed($task)) {
-			EventLog::warning("Could not recompile iPXE menu.", $task['data']['error']);
-		}
-	}
-	
 	/**
 	 * Generating a config module has finished.
 	 *

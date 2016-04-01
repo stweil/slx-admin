@@ -1,0 +1,32 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_langAdministration}}
+	</div>
+	<div class="panel-body">
+		<p>{{lang_adminInfo}}</p>
+	</div>
+</div>
+<div class="panel panel-default">
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th width="350">{{lang_module}}</th>
+				<th>{{lang_status}}</th>
+			<tr>
+		</thead>
+		<tbody>
+			{{#table}}
+				<tr onclick="goTo('{{module}}');">
+					<td>{{module}}</td>
+					<td>{{{status}}}</td>
+				</tr>
+			{{/table}}
+		</tbody>
+	</table>
+</div>
+
+<script>
+function goTo(link){
+	window.location.href = "?do=Translation&page=module&module=" + link;
+}
+</script>

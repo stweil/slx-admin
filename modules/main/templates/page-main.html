@@ -1,0 +1,36 @@
+<div class="jumbotron">
+	<h1>{{lang_welcome}}, {{user}}</h1>
+	<p>{{lang_intro}}</p>
+
+</div>
+<ul class="list-group">
+{{#vmstore}}
+	<li class="list-group-item list-group-item-text">
+		{{lang_vmLocationNotSet}}
+		<a class="btn btn-sm btn-primary" href="?do=VmStore">{{lang_configure}} &raquo;</a>
+	</li>
+{{/vmstore}}
+{{#ipxe}}
+	<li class="list-group-item list-group-item-text">
+		{{lang_bootMenuWarning}}
+		<a class="btn btn-sm btn-primary" href="?do=ServerSetup">{{lang_configure}} &raquo;</a>
+	</li>
+{{/ipxe}}
+{{#minilinux}}
+	<li class="list-group-item list-group-item-text">
+		{{lang_minilinuxMissing}}
+		<a class="btn btn-sm btn-primary" href="?do=MiniLinux">MiniLinux &raquo;</a>
+	</li>
+{{/minilinux}}
+{{#sysconfig}}
+	<li class="list-group-item list-group-item-text">
+		{{lang_systemConfigurationNotChosen}}
+		<a class="btn btn-sm btn-primary" href="?do=SysConfig">{{lang_systemConfiguration}} &raquo;</a>
+	</li>
+{{/sysconfig}}
+{{#delpending}}
+	<li class="list-group-item list-group-item-text">
+		<a href="?do=DozMod">{{lang_numerOfImagesMarkedForDeletion}}: {{delpending}}</a>
+	</li>
+{{/delpending}}
+</ul>

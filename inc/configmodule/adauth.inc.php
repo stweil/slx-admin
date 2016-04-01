@@ -14,8 +14,7 @@ class ConfigModule_AdAuth extends ConfigModule
 	const VERSION = 1;
 
 	private static $REQUIRED_FIELDS = array('server', 'searchbase', 'binddn');
-	private static $OPTIONAL_FIELDS = array('bindpw', 'home', 'ssl', 'fingerprint', 'certificate', 'homeattr',
-		'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia', 'shareOther', 'shareHomeDrive');
+	private static $OPTIONAL_FIELDS = array('bindpw', 'home', 'ssl', 'fingerprint', 'certificate', 'homeattr');
 
 	protected function generateInternal($tgz, $parent)
 	{

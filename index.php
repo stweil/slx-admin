@@ -53,12 +53,14 @@ abstract class Page
 	 * @var \Page
 	 */
 	private static $instance = false;
+	public static $name = false;
 
 	public static function set($name)
 	{
 		$name = preg_replace('/[^A-Za-z]/', '', $name);
-		$modulePath = 'modules/' . strtolower($name) . '.inc.php';
-		if (!file_exists($modulePath)) {
+		$modulePath = 'modules/' . strtolower($name) . '/module.inc.php';
+		$moduleConfig = json_decode(file_get_contents('modules/' . strtolower($name) . '/config.json'),true);
+		if (!file_exists($modulePath) || empty($moduleConfig) || $moduleConfig['enabled'] != 'true') {
 			Util::traceError('Invalid module file: ' . $modulePath);
 		}
 		require_once $modulePath;
@@ -67,6 +69,7 @@ abstract class Page
 			Util::traceError('Module not found: ' . $name);
 		}
 		self::$instance = new $className();
+		self::$name = strtolower($name);
 	}
 
 }
@@ -130,7 +133,7 @@ Render::addTemplate('main-menu', array(
 	'user' => User::getName(),
 	'warning' => User::getName() !== false && User::getLastSeenEvent() < Property::getLastWarningId(),
 	'needsSetup' => User::getName() !== false && Property::getNeedsSetup()
-));
+),'main');
 
 Message::renderList();
 
@@ -142,10 +145,10 @@ if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 }
 
 if (defined('CONFIG_FOOTER')) {
-	Render::addTemplate('footer', array('text' => CONFIG_FOOTER));
+	Render::addTemplate('footer', array('text' => CONFIG_FOOTER), 'main');
 }
 
-Render::addTemplate('tm-callback-trigger');
+Render::addTemplate('tm-callback-trigger', array(), 'main');
 
 // Send page to client.
 Render::output();

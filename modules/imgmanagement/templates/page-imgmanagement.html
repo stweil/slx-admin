@@ -1,0 +1,46 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Gerenciamento de Imagens
+    </div>
+
+    <div class="panel-body">
+        <div class="alert alert-info">
+            Imagens em azul indicam imagens criadas pelo usuário
+        </div>
+        
+        <div class="panel-body col-xs-6">
+            <div class="left">
+                <ul class="source connected">
+		    {{#deactives}}
+                    <li>{{name}}</li>
+		    {{/deactives}}
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel-body col-xs-6">
+            <div class="right">
+                <ul class="target connected" id="ativa1">
+		
+		    {{#actives}}
+                    <li>{{name}}</li>
+		    {{/actives}}
+		</ul>
+            </div>
+        </div>
+
+        <a class="btn btn-default" href="#" role="button">Upload de Nova Imagem<a>
+        <a class="btn btn-info" href="#" role="button">Gerar IPXE<a>
+
+    </div>
+</div>
+
+<script src="script/jquery.sortable.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {  
+        $(".source, .target").sortable({
+            connectWith: ".connected"
+        });
+	
+    });
+</script>

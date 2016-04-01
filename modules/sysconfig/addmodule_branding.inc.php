@@ -10,7 +10,7 @@ class Branding_Start extends AddModule_Base
 	protected function renderInternal()
 	{
 		Render::addScriptBottom('fileselect');
-		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'sysconfig/branding-start', array(
+		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'branding-start', array(
 			'step' => 'Branding_ProcessFile',
 			'edit' => $this->edit ? $this->edit->id() : false
 		));
@@ -76,7 +76,7 @@ class Branding_ProcessFile extends AddModule_Base
 			$png = base64_encode(file_get_contents($this->task['data']['pngFile']));
 		if (filesize($this->svgFile) < 1000000)
 			$svg = base64_encode(file_get_contents($this->svgFile));
-		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'sysconfig/branding-check', array(
+		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'branding-check', array(
 			'png' => $png,
 			'svg' => $svg,
 			'error' => $this->task['data']['error'],

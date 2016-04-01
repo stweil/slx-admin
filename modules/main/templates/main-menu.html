@@ -1,0 +1,51 @@
+<!-- Fixed navbar -->
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="?do=Main">OpenSLX Admin</a>
+		</div>
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				{{#dbupdate}}
+				<li><a href="api.php?do=update"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> DB-Update</span></a></li>
+				{{/dbupdate}}
+				{{#warning}}
+				<li><a href="?do=EventLog"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_warning}}</span></a></li>
+				{{/warning}}
+				{{#needsSetup}}
+				<li><a href="?do=Main"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_needsSetup}}</span></a></li>
+				{{/needsSetup}}
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="lang/{{current_lang}}/flag.png"><b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li class="dropdown-header">{{lang_language}}</li>
+						{{#langs}}
+						<li><a href="?lang={{cc}}&amp;url={{url}}"><img src="lang/{{cc}}/flag.png" alt="{{name}}"> {{name}}</a></li>
+						{{/langs}}
+					</ul>
+				</li>
+				{{#user}}
+				<li>
+					<form method="post" action="?do=Session">
+						<input type="hidden" name="token" value="{{token}}">
+						<input type="hidden" name="action" value="logout">
+						<b>{{user}}</b>
+						<button class="btn btn-default btn-xs" type="submit">{{lang_logout}}</button>
+					</form>
+				</li>
+				{{/user}}
+				{{^user}}
+				<li><a href="?do=Session&amp;action=login">{{lang_login}}</a></li>
+				{{/user}}
+			</ul>
+		</div>
+	</div>
+</div>
+

@@ -59,20 +59,22 @@ class Message
 				foreach ($item['params'] as $index => $text) {
 					$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
 				}
-				echo Render::parse('messagebox-' . $item['type'], array('message' => $message));
+				echo Render::parse('messagebox-' . $item['type'], array('message' => $message), 'main');
 			}
 			self::$list = array();
 			return;
 		}
 		// Non-Ajax
+		if (!self::$flushed) Render::openTag('div', array('class' => 'container'));
 		foreach (self::$list as $item) {
 			$message = Dictionary::getMessage($item['id']);
 			foreach ($item['params'] as $index => $text) {
 				$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
 			}
-			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message));
+			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message),'main');
 			self::$alreadyDisplayed[] = $item;
 		}
+		if (!self::$flushed) Render::closeTag('div');
 		self::$list = array();
 		self::$flushed = true;
 	}

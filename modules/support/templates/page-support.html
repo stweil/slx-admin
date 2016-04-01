@@ -1,0 +1,67 @@
+<p>{{lang_supIntro}}</p>
+<div class="panel panel-default">
+	<div class="panel-heading">
+        <strong>{{lang_faq}}</strong>
+    </div>
+    <!-- //FAQ -->
+    <div class="panel-body" id="accordion" role="tablist" aria-multiselectable="true">
+       <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="headingOne">
+             <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                    {{lang_faq#1}}
+                </a>
+             </h4>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+              <div class="panel-body">
+                  {{lang_content#1}}
+             </div>
+          </div>
+       </div>
+       <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="headingTwo">
+             <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    {{lang_faq#2}}
+                </a>
+             </h4>
+          </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+              <div class="panel-body">
+                  {{lang_content#2}}
+            </div>
+          </div>
+       </div>
+   <a class="btn btn-default" href="?do=Support&amp;showfaq=true" role="button"><strong>{{lang_showall}}</strong></a>
+   </div>
+</div>
+
+    <!-- //Send questions (token and input not ok) -->
+<div class="panel panel-default">
+	<div class="panel-heading">
+        <strong>{{lang_form}}</strong>
+    </div>
+    <div class="panel-body">
+         <form action="?do=Support&amp;showfaq=false&amp;action=send" method="post" enctype="multipart/form-data">
+         <input type="hidden" name="token" value="{{token}}">
+          <div class="form-group">
+            <label for="emailHeader">{{lang_header}}</label>
+            <input type="text" class="form-control" placeholder="{{lang_header}}" value="{{assuntoEmail}}">
+          </div>
+          <div class="form-group">
+            <label for="emailContent">{{lang_content}}</label>
+            <textarea class="form-control" rows="2" cols="20" placeholder="{{lang_content}}">{{conteudoEmail}}</textarea>
+        </div>
+          <div class="form-group">
+              <label for="inputFile">{{lang_fileInput}}</label>
+              <input type="file" name="inp_file" id="inp_file">
+              <input type="hidden" name="token" value="{{token}}">
+              <p class="help-block">{{lang_helpInput}}</p>
+          </div>
+          <button type="submit" class="btn btn-default">{{lang_submit}}</button>
+        </form>
+        </div>
+</div>
+
+

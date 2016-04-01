@@ -15,6 +15,7 @@ class Trigger
 	 * Compile iPXE pxelinux menu. Needs to be done whenever the server's IP
 	 * address changes.
 	 * 
+	 * @param boolean $force force recompilation even if it seems up to date
 	 * @return boolean|string false if launching task failed, task-id otherwise
 	 */
 	public static function ipxe()

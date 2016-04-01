@@ -14,8 +14,7 @@ class ConfigModule_LdapAuth extends ConfigModule
 	const VERSION = 1;
 
 	private static $REQUIRED_FIELDS = array('server', 'searchbase');
-	private static $OPTIONAL_FIELDS = array('binddn', 'bindpw', 'home', 'ssl', 'fingerprint', 'certificate',
-		'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia', 'shareOther', 'shareHomeDrive');
+	private static $OPTIONAL_FIELDS = array('binddn', 'bindpw', 'home', 'ssl', 'fingerprint', 'certificate');
 
 	protected function generateInternal($tgz, $parent)
 	{

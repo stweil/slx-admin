@@ -18,7 +18,7 @@ class SshConfig_Start extends AddModule_Base
 		} else {
 			$data = array();
 		}
-		Render::addDialog(Dictionary::translate('lang_clientSshConfig'), false, 'sysconfig/sshconfig-start', $data + array(
+		Render::addDialog(Dictionary::translate('lang_clientSshConfig'), false, 'sshconfig-start', $data + array(
 			'step' => 'SshConfig_Finish',
 		));
 	}

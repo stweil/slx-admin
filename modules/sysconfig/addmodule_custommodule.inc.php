@@ -13,7 +13,7 @@ class CustomModule_Start extends AddModule_Base
 	{
 		Session::set('mod_temp', false);
 		Render::addScriptBottom('fileselect');
-		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'sysconfig/custom-upload', array(
+		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'custom-upload', array(
 			'step' => 'CustomModule_ProcessUpload',
 			'edit' => $this->edit ? $this->edit->id() : false
 			));
@@ -92,7 +92,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 			$title = basename($_FILES['modulefile']['name']);
 		else
 			$title = '';
-		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'sysconfig/custom-fileselect', array(
+		Render::addDialog(Dictionary::translate('config-module', 'custom_title'), false, 'custom-fileselect', array(
 			'step' => 'CustomModule_CompressModule',
 			'files' => $list,
 			'edit' => $this->edit ? $this->edit->id() : false,

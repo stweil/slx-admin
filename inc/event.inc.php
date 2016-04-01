@@ -26,7 +26,8 @@ class Event
 		$mountId = Trigger::mount();
 		$autoIp = Trigger::autoUpdateServerIp();
 		$ldadpId = Trigger::ldadp();
-
+		$ipxeId = Trigger::ipxe();
+		
 		Taskmanager::submit('DozmodLauncher', array(
 			'operation' => 'start'
 		));
@@ -59,6 +60,17 @@ class Event
 			EventLog::failure("The server's IP address could not be determined automatically, and there is no valid address configured.");
 			$everythingFine = false;
 		}
+		// iPXE generation
+		if ($ipxeId === false) {
+			EventLog::failure('Cannot generate PXE menu: Taskmanager unreachable!');
+			$everythingFine = false;
+		} else {
+			$res = Taskmanager::waitComplete($ipxeId, 5000);
+			if (Taskmanager::isFailed($res)) {
+				EventLog::failure('Update PXE Menu failed', $res['data']['error']);
+				$everythingFine = false;
+			}
+		}
 
 		// Just so we know booting is done (and we don't expect any more errors from booting up)
 		if ($everythingFine) {
@@ -73,11 +85,9 @@ class Event
 	 */
 	public static function serverIpChanged()
 	{
+		error_log('Server ip changed');
 		global $tidIpxe;
 		$tidIpxe = Trigger::ipxe();
-		if (is_string($tidIpxe)) {
-			TaskmanagerCallback::addCallback($tidIpxe, 'cbIpxeBuilt');
-		}
 		ConfigModule::serverIpChanged();
 	}
 
@@ -86,6 +96,7 @@ class Event
 	 */
 	public static function activeConfigChanged()
 	{
+		error_log('Active config changed');
 		$task = Trigger::ldadp();
 		TaskmanagerCallback::addCallback($task, 'ldadpStartup');
 	}

@@ -1,0 +1,186 @@
+<h1>{{lang_basicConfiguration}}</h1>
+<p>{{lang_clientRelatedConfig}}</p>
+<form action="?do=BaseConfig" method="post">
+	<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+		<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="display:none;">
+		<input type="password" name="password_fake" id="password_fake" value="" style="display:none;">
+		{{#categories}}
+		<div class="panel panel-default">
+			<div class="panel-heading" role="tab" id="heading{{category_id}}">
+				<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{category_id}}" aria-expanded="false" aria-controls="collapse{{category_id}}">
+					{{category_name}}
+				</a>
+			</div>
+			<div id="collapse{{category_id}}" class="accordion-body collapse" role="tabpanel" aria-labelledby="heading{{category_id}}">
+				<div class="panel-body">
+					<div class="list-group">
+						{{#settings}}
+						<div class="list-group-item {{class}}">
+							<div class="row">
+								<div class="col-md-1" style="width:118px;">
+									<input type="checkbox" name="switch[{{setting}}]" {{checked}}> 
+								</div>
+								<div class="col-md-4">
+									{{setting}}
+									<div class="slx-default">{{defaultvalue}}</div>
+								</div>
+								<div class="col-md-4">
+									{{{item}}}
+								</div>
+								<div class="col-md-2">
+									<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+								</div>
+							</div>
+						</div>
+						<div class="modal fade" id="help-{{setting}}" tabindex="-1" role="dialog">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">{{setting}}</div>
+									<div class="modal-body">{{{description}}}</div>
+									<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+								</div>
+							</div>
+						</div>
+						{{/settings}}
+					</div>
+					<div id="cat-extra-{{category_id}}">
+
+					</div>
+				</div>
+			</div>
+		</div>
+		{{/categories}}
+
+
+
+		<!-- User Managment Section -->
+		<div class="panel panel-default">
+			<div class="panel-heading" role="tab" id="headingUsers">
+				<a data-toggle="collapse" data-parent="#accordion" href="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
+					{{lang_catUser}}
+				</a>
+				<span style="display:inline-block; float: right; margin-top: -7px;">
+					<a class="btn btn-default " data-toggle="modal" data-target="#add-user">
+						<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</span>
+			</div>
+			<div id="collapseUsers" class="accordion-body collapse" role="tabpanel" aria-labelledby="headingUsers">
+				<div class="panel-body">
+					<div class="list-group">
+						{{#users}}
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-md-5">
+									<input name="user-{{id}}-name" type="text" class="form-control" size="30" value="{{name}}" />
+								</div>
+								<div class="col-md-5">
+									<input name="user-{{id}}-password" type="text" class="form-control" size="30" placeholder="{{lang_userPasswd}}" />
+								</div>
+								<div class="col-md-2">
+									<a class="btn btn-danger" href="?do=BaseConfig&deleteUser={{id}}&token={{token}}" ><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</a>
+								</div>
+							</div>
+						</div>
+						{{/users}}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<input type="hidden" name="token" value="{{token}}">
+	<button class="btn btn-lg btn-primary" type="submit">{{lang_save}}</button>
+	<button class="btn btn-lg btn-primary" type="reset">{{lang_reset}}</button>
+	<a class="btn btn-lg btn-primary" href="api.php?do=getconfig">Download</a>
+</form>
+<p>
+	<form method="post" action="?do=BaseConfig">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="reset">
+		<button class="btn btn-default" type="submit" onclick="return confirm('{{lang_resetConfirm}}');">{{lang_resetDefault}}</button>
+	</form>
+</p>
+<!-- Create User Window -->
+<form action="?do=BaseConfig" method="post">
+	<div class="modal fade" id="add-user" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+
+			<div class="modal-content">
+				<div class="modal-header">{{lang_newUser}}</div>
+				<div class="modal-body">
+
+					<p>
+						<input name="new-user-name" placeholder="{{lang_userName}}" class="form-control" type="text">
+					</p>
+					<p>
+						<input name="new-user-passwd" placeholder="{{lang_userPasswd}}" class="form-control" type="password">
+					</p>
+					<input type="submit" class="btn btn-primary" value="{{lang_create}}">
+				</div>
+				<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+			</div>
+		</div>
+	</div>
+	<input type="hidden" name="action" value="new_user">
+	<input type="hidden" name="token" value="{{token}}">
+</form>
+<!-- Create Partition Window -->
+<form action="?do=BaseConfig" method="post">
+	<div class="modal fade" id="add-partition" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+
+			<div class="modal-content">
+				<div class="modal-header">{{lang_newPartition}}</div>
+				<div class="modal-body">
+
+					<div class="input-group">
+						<span class="input-group-addon">{{lang_partitionId}}</span>
+						<input name="new-partition-id" class="form-control" type="text">
+					</div>
+					<p class="help-block">{{lang_helpId}}</p>
+					<div class="input-group">
+						<span class="input-group-addon">{{lang_partitionSize}}</span>
+						<input name="new-partition-size" class="form-control" type="text">
+					</div>
+					<p class="help-block">{{lang_helpSize}}</p>
+					<div class="input-group">
+						<span class="input-group-addon">{{lang_partitionMountPoint}}</span>
+						<input name="new-partition-mount-point" class="form-control" type="text">
+					</div>
+					<p class="help-block">{{lang_helpMountPoint}}</p>
+					<div class="input-group">
+						<span class="input-group-addon">{{lang_partitionOptions}}</span>
+						<input name="new-partition-options" class="form-control" type="text">
+					</div>
+					<p class="help-block">{{lang_helpOptions}}</p>
+					<input type="submit" class="btn btn-primary" value="{{lang_create}}">
+				</div>
+				<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+			</div>
+		</div>
+	</div>
+	<input type="hidden" name="action" value="new_partition">
+	<input type="hidden" name="token" value="{{token}}">
+</form>
+<script type="text/javascript">
+document.getElementById("cat-extra-6").innerHTML = "<div class='list-group'> <div class='list-group-item' style='background-color:#f5f5f5;color:#428bca;'> " +
+"{{lang_catPartition}} <span style='display:inline-block; float: right; margin-top: -7px;'> <a class='btn btn-default ' data-toggle='modal' " +
+"data-target='#add-partition'> <span class='glyphicon glyphicon-plus'></span> </a> </span> </div> {{#partitions}} <div class='list-group-item'> " +
+"<div class='row'> <div class='col-md-1'> <input name='partition-{{id}}-partition_id' type='text' class='form-control' size='30' value='{{partition_id}}'" +
+" placeholder='{{lang_partitionId}}' /> </div> <div class='col-md-1'> <input name='partition-{{id}}-size' type='text' class='form-control' size='30' " +
+"value='{{size}}' placeholder='{{lang_partitionSize}}'/> </div> <div class='col-md-4'> <input name='partition-{{id}}-mount_point' type='text' " +
+"class='form-control' size='30' value='{{mount_point}}' placeholder='{{lang_partitionMountPoint}}'/> </div> <div class='col-md-4'> <input " +
+"name='partition-{{id}}-options' type='text' class='form-control' size='30' value='{{options}}' placeholder='{{lang_partitionOptions}}'/> </div> " +
+"<div class='col-md-2'> <a class='btn btn-danger' href='?do=BaseConfig&deletePartition={{id}}&token={{token}}' ><span class='glyphicon glyphicon-trash'>" +
+"</span> {{lang_delete}}</a> </div> </div> </div> {{/partitions}} </div> </div>";
+
+function saveConfig(){
+	if(confirm('{{lang_confirm}}'))
+		window.location = 'api.php?do=getconfig&user={{user}}&save=true';
+	else
+		window.location = 'api.php?do=getconfig&user={{user}}';
+}
+
+$("[name^='switch']").bootstrapSwitch();
+
+</script>

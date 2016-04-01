@@ -18,6 +18,7 @@ class Render
 	private static $mustache = false;
 	private static $body = '';
 	private static $header = '';
+	private static $dashboard = '';
 	private static $footer = '';
 	private static $title = '';
 	private static $templateCache = array();
@@ -39,6 +40,9 @@ class Render
 		$zip = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false);
 		if ($zip)
 			ob_start();
+		$page = strtolower($_GET['do']);
+		if(User::isLoggedIn())
+		self::createDashboard($page);
 		echo
 		'<!DOCTYPE html>
 	<html>
@@ -50,6 +54,9 @@ class Render
 			<link href="style/bootstrap.min.css" rel="stylesheet" media="screen">
 			<link href="style/bootstrap-tagsinput.css" rel="stylesheet" media="screen">
 			<link href="style/default.css" rel="stylesheet" media="screen">
+			<link href="style/bootstrap-switch.css" rel="stylesheet" media="screen">
+			
+			<script src="script/bootstrap-switch.js"></script>
 			<script type="text/javascript">
 			var TOKEN = "' . Session::get('token') . '";
 			</script>
@@ -58,11 +65,15 @@ class Render
 		,
 		'	</head>
 		<body>
-		<div class="container" id="mainpage">
+		<div class="container-fluid" id="mainpage">
+			<div class="row">
 	',
+		self::$dashboard
+		,
 		self::$body
 		,
 		'	</div>
+		</div>
 		<script src="script/jquery.js"></script>
 		<script src="script/bootstrap.min.js"></script>
 		<script src="script/taskmanager.js"></script>
@@ -129,9 +140,9 @@ class Render
 	/**
 	 * Add the given template to the output, using the given params for placeholders in the template
 	 */
-	public static function addTemplate($template, $params = false)
+	public static function addTemplate($template, $params = false, $module = false)
 	{
-		self::$body .= self::parse($template, $params);
+		self::$body .= self::parse($template, $params, $module);
 	}
 
 	/**
@@ -148,7 +159,7 @@ class Render
 			'title' => $title,
 			'next' => $next,
 			'body' => self::parse($template, $params)
-		));
+		), 'main');
 	}
 
 	/**
@@ -164,15 +175,19 @@ class Render
 	 * @param string $template name of template, relative to templates/, without .html extension
 	 * @return string Rendered template
 	 */
-	public static function parse($template, $params = false)
+	public static function parse($template, $params = false, $module = false)
 	{
 		// Load html snippet
-		$html = self::getTemplate($template);
+		$html = self::getTemplate($template,$module);
 		if ($html === false) {
 			return '<h3>Template ' . htmlspecialchars($template) . '</h3>' . nl2br(htmlspecialchars(print_r($params, true))) . '<hr>';
 		}
 		// Get all translated strings for this template
-		$dictionary = Dictionary::getArrayTemplate($template);
+		if($module === false){
+			$module = strtolower(empty($_REQUEST['do']) ? 'main' : $_REQUEST['do']);
+		}
+		$dictionary = Dictionary::getArrayTemplate($template, $module);
+		
 		// Now find all language tags in this array
 		preg_match_all('/{{(lang_.+?)}}/', $html, $out);
 		foreach ($out[1] as $tag) {
@@ -183,7 +198,7 @@ class Render
 		// Always add token to parameter list
 		if (is_array($params) || $params === false || is_null($params))
 			$params['token'] = Session::get('token');
-		// Likewise, add currently selected language (its two letter code) to params
+		// Likewise, add currently selected language ( its two letter code) to params
 		$params['current_lang'] = LANG;
 		// Add desired password field type
 		$params['password_type'] = Property::getPasswordFieldType();
@@ -224,15 +239,66 @@ class Render
 	/**
 	 * Private helper: Load the given template and return it
 	 */
-	private static function getTemplate($template)
+	private static function getTemplate($template, $module = false)
 	{
 		if (isset(self::$templateCache[$template])) {
 			return self::$templateCache[$template];
 		}
+		// Select current module
+		if(!$module){
+			$module = strtolower(empty($_REQUEST['do']) ? 'Main' : $_REQUEST['do']);
+		}
 		// Load from disk
-		$data = @file_get_contents('templates/' . $template . '.html');
+		$data = @file_get_contents('modules/' . $module . '/templates/' . $template . '.html');
+		if ($data === false)
+			$data = '<b>Non-existent template ' . $template . ' requested!</b>';
 		self::$templateCache[$template] = & $data;
 		return $data;
+	}
+
+	/**
+	 * Create the dashboard menu
+	 */
+	private static function createDashboard($page)
+	{
+		// Check all required modules
+		$requiredModules = array('adduser','main','session','translation','usermanagement');
+		$notFound = '';
+		foreach ($requiredModules as $module) {
+			if(!is_dir('modules/' . $module . '/')){
+				$notFound .= '\'' . $module . '\'  ';
+			}
+		}
+		if(strlen($notFound) > 0){
+			Util::traceError('At least one required module was not found: ' . $notFound);
+		}else{
+			$modules = array_diff(scandir('modules/'), array('..', '.'));
+			$categories = array();
+			foreach ($modules as $module) {
+				$json = json_decode(file_get_contents("modules/" . $module . "/config.json"),true);
+				$categories[$json['category']][] = $module;
+			}
+			unset($categories['hidden']);
+			self::$dashboard = '<div class="col-sm-3 col-md-2 sidebar">';
+			foreach ($categories as $cat => $modules) {
+				self::$dashboard .= '<div class="dash-header"></span> <span class="glyphicon glyphicon-' . self::getGlyphicon($cat) 
+					. '" aria-hidden="true"></span> ' . Dictionary::translate('lang_' . $cat) . '</div>';
+				self::$dashboard .= '<ul class="nav nav-sidebar">';
+				foreach ($modules as $module) {
+					self::$dashboard .= '<li class="' . (($page == $module) ? 'active' : '') 
+            					. '"><a href="?do=' . ucfirst($module) . '"> ' . (Dictionary::translate('lang_' . $module)) . '</a></li>';
+				}
+				self::$dashboard .= '</ul>';
+			}
+			self::$dashboard .= '</div>  <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">';
+		}
+	}
+
+	/**
+	* get categories glyph icons
+	*/
+	private static function getGlyphicon($category){
+		return json_decode(file_get_contents("style/categories.json"),true)[$category];
 	}
 
 }

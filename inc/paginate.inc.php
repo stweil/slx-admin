@@ -104,7 +104,7 @@ class Paginate
 		$pages = Render::parse('pagenav', array(
 			'url'       => $this->url,
 			'pages'     => $pages,
-		));
+		),'main');
 		$data['page'] = $this->currentPage;
 		$data['pagenav'] = $pages;
 		Render::addTemplate($template, $data);

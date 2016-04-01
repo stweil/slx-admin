@@ -1,0 +1,57 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_editNews}}
+	</div>
+	<div class="panel-body">
+		<p>{{lang_newsIntro}}</p>
+		<form action="?do=News&amp;action=save" method="post">
+			<div class="form-group">
+				<label for="news-title-id">{{lang_title}}</label>
+				<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="{{welcome}}" value="{{latestTitle}}">
+			</div>
+			<div class="form-group">
+				<label for="news-content-id">{{lang_content}}</label>
+				<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="">{{latestContent}}</textarea>
+			</div>
+			<p>{{lang_latestUpdate}}: {{latestDate}}</p>
+			<button class="btn btn-primary btn-sm" type="submit">{{lang_save}}</button>
+			<input type="hidden" name="token" value="{{token}}">
+		</form>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_newsOld}}
+	</div>
+	<div class="panel-body">
+		<div class="table-responsive">
+			<form method="post" action="?do=News&amp;action=delete">
+				<input type="hidden" name="token" value="{{token}}">
+				<table class="table table-stripped table-condensed">
+					<thead>
+						<tr>
+							<th>{{lang_date}}</th>
+							<th>{{lang_title}}</th>
+							<th>{{lang_content}}</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						{{#list}}
+						<tr {{#active}}class="active"{{/active}}>
+							<td class="text-left nowrap">{{date}}</td>
+							<td class="slx-ellipsis">{{title}}</td>
+							<td class="slx-ellipsis">{{content}}</td>
+							<td>
+								<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show"><span class="glyphicon glyphicon-share-alt"></span> {{lang_show}}</a>
+								<button class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-remove"></span> {{lang_delete}}</button>
+							</td>
+						</tr>
+						{{/list}}
+					</tbody>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>

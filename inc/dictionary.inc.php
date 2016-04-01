@@ -51,21 +51,26 @@ class Dictionary
 		define('LANG', $language);
 	}
 
-	public static function getArrayTemplate($template, $lang = false)
+	public static function getArrayTemplate($template, $module = false, $lang = false)
 	{
-		return self::getArray('templates/' . $template, $lang);
+		return self::getArray($module . "/" . $template, $lang);
 	}
 
-	public static function getArray($section, $lang = false)
+	public static function getArray($module, $lang = false, $isMessage = false)
 	{
 		if ($lang === false)
 			$lang = LANG;
-		$file = Util::safePath("lang/" . $lang . "/" . $section . ".json");
+		if(!$isMessage)
+			$file = Util::safePath("lang/" . $lang . "/modules/" . $module . ".json");
+		else
+			$file = Util::safePath("lang/" . $lang . "/" . $module . ".json");
+
 		if (isset(self::$stringCache[$file]))
 			return self::$stringCache[$file];
 		$content = @file_get_contents($file);
-		if ($content === false) // File does not exist for language
+		if ($content === false) {// File does not exist for language {
 			return array();
+		}
 		$json = json_decode($content, true);
 		if (!is_array($json))
 			return array();
@@ -83,9 +88,10 @@ class Dictionary
 				return "(missing: $string :missing)";
 			return self::$hardcodedMessages[$string];
 		}
-		$strings = self::getArray($section);
-		if (!isset($strings[$string]))
+		$strings = self::getArray($section, false, true);
+		if (!isset($strings[$string])) {
 			return "(missing: '$string' in '$section')";
+		}
 		return $strings[$string];
 	}
 
