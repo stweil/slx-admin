@@ -134,6 +134,13 @@ class DefaultData
 				'validator' => 'function:linuxPassword'
 			),
 			array(
+				'setting' => 'SLX_BWIDM_AUTH',
+				'catid' => '4',
+				'defaultvalue' => 'no',
+				'permissions' => '2',
+				'validator' => 'list:yes|no'
+			),
+			array(
 				'setting' => 'SLX_SHUTDOWN_SCHEDULE',
 				'catid' => '1',
 				'defaultvalue' => '22:10 00:00',
