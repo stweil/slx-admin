@@ -41,22 +41,19 @@ class Render
 		if ($zip)
 			ob_start();
 		$page = strtolower($_GET['do']);
-		if(User::isLoggedIn())
-		self::createDashboard($page);
 		echo
 		'<!DOCTYPE html>
 	<html>
 		<head>
 			<title>', RENDER_DEFAULT_TITLE, self::$title, '</title>
 			<meta charset="utf-8"> 
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<!-- Bootstrap -->
 			<link href="style/bootstrap.min.css" rel="stylesheet" media="screen">
 			<link href="style/bootstrap-tagsinput.css" rel="stylesheet" media="screen">
 			<link href="style/default.css" rel="stylesheet" media="screen">
-			<link href="style/bootstrap-switch.css" rel="stylesheet" media="screen">
 			
-			<script src="script/bootstrap-switch.js"></script>
 			<script type="text/javascript">
 			var TOKEN = "' . Session::get('token') . '";
 			</script>
@@ -65,15 +62,13 @@ class Render
 		,
 		'	</head>
 		<body>
-		<div class="container-fluid" id="mainpage">
-			<div class="row">
 	',
-		self::$dashboard
-		,
+		self::$dashboard,
+		'<div class="main" id="mainpage"><div class="container-fluid">
+	',
 		self::$body
 		,
-		'	</div>
-		</div>
+		'</div></div>
 		<script src="script/jquery.js"></script>
 		<script src="script/bootstrap.min.js"></script>
 		<script src="script/taskmanager.js"></script>
@@ -259,46 +254,9 @@ class Render
 	/**
 	 * Create the dashboard menu
 	 */
-	private static function createDashboard($page)
+	public static function setDashboard($params)
 	{
-		// Check all required modules
-		$requiredModules = array('adduser','main','session','translation','usermanagement');
-		$notFound = '';
-		foreach ($requiredModules as $module) {
-			if(!is_dir('modules/' . $module . '/')){
-				$notFound .= '\'' . $module . '\'  ';
-			}
-		}
-		if(strlen($notFound) > 0){
-			Util::traceError('At least one required module was not found: ' . $notFound);
-		}else{
-			$modules = array_diff(scandir('modules/'), array('..', '.'));
-			$categories = array();
-			foreach ($modules as $module) {
-				$json = json_decode(file_get_contents("modules/" . $module . "/config.json"),true);
-				$categories[$json['category']][] = $module;
-			}
-			unset($categories['hidden']);
-			self::$dashboard = '<div class="col-sm-3 col-md-2 sidebar">';
-			foreach ($categories as $cat => $modules) {
-				self::$dashboard .= '<div class="dash-header"></span> <span class="glyphicon glyphicon-' . self::getGlyphicon($cat) 
-					. '" aria-hidden="true"></span> ' . Dictionary::translate('lang_' . $cat) . '</div>';
-				self::$dashboard .= '<ul class="nav nav-sidebar">';
-				foreach ($modules as $module) {
-					self::$dashboard .= '<li class="' . (($page == $module) ? 'active' : '') 
-            					. '"><a href="?do=' . ucfirst($module) . '"> ' . (Dictionary::translate('lang_' . $module)) . '</a></li>';
-				}
-				self::$dashboard .= '</ul>';
-			}
-			self::$dashboard .= '</div>  <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">';
-		}
-	}
-
-	/**
-	* get categories glyph icons
-	*/
-	private static function getGlyphicon($category){
-		return json_decode(file_get_contents("style/categories.json"),true)[$category];
+		self::$dashboard = self::parse('main-menu', $params, 'main');
 	}
 
 }

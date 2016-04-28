@@ -52,6 +52,8 @@ class Message
 	 */
 	public static function renderList()
 	{
+		if (empty(self::$list))
+			return;
 		// Ajax
 		if (AJAX) {
 			foreach (self::$list as $item) {
@@ -65,7 +67,6 @@ class Message
 			return;
 		}
 		// Non-Ajax
-		if (!self::$flushed) Render::openTag('div', array('class' => 'container'));
 		foreach (self::$list as $item) {
 			$message = Dictionary::getMessage($item['id']);
 			foreach ($item['params'] as $index => $text) {
@@ -74,7 +75,6 @@ class Message
 			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message),'main');
 			self::$alreadyDisplayed[] = $item;
 		}
-		if (!self::$flushed) Render::closeTag('div');
 		self::$list = array();
 		self::$flushed = true;
 	}

@@ -1,42 +1,64 @@
-<!-- Fixed navbar -->
-<div class="navbar navbar-inverse navbar-fixed-top">
-	<div class="container-fluid">
+<div class="slx-topbar">
+	<div>
+		{{#dbupdate}}
+		<a href="api.php?do=update"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> DB-Update</span></a>
+		{{/dbupdate}}
+		{{#warning}}
+		<a href="?do=EventLog"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_warning}}</span></a>
+		{{/warning}}
+		{{#needsSetup}}
+		<a href="?do=Main"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_needsSetup}}</span></a>
+		{{/needsSetup}}
+	</div>
+</div>
+<div class="sidebar-bg"></div>
+<nav class="navbar navbar-inverse sidebar" role="navigation">
+    <div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="navbar-header">
-			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-sidebar-navbar-collapse-1">
+				<span class="sr-only">{{lang_toggleNavigation}}</span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="?do=Main">OpenSLX Admin</a>
+			<a class="navbar-brand" href="#">OpenSLX</a>
 		</div>
-		<div class="navbar-collapse collapse">
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-sidebar-navbar-collapse-1">
 			<ul class="nav navbar-nav">
-				{{#dbupdate}}
-				<li><a href="api.php?do=update"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> DB-Update</span></a></li>
-				{{/dbupdate}}
-				{{#warning}}
-				<li><a href="?do=EventLog"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_warning}}</span></a></li>
-				{{/warning}}
-				{{#needsSetup}}
-				<li><a href="?do=Main"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_needsSetup}}</span></a></li>
-				{{/needsSetup}}
-			</ul>
-			<ul class="nav navbar-nav navbar-right">
+				{{#categories}}
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="lang/{{current_lang}}/flag.png"><b class="caret"></b></a>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="sidebar-visible-inline {{icon}}"></span> {{displayName}}<b class="caret sidebar-hide"></b></a>
+					<ul class="dropdown-menu sidebar-visible-block" role="menu">
+						{{#modules}}
+						<li class="{{className}}"><a href="?do={{identifier}}">{{displayName}}</a></li>
+						{{/modules}}
+					</ul>
+				</li>
+				{{/categories}}
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+						<img src="lang/{{current_lang}}/flag.png" alt="{{current_lang}}">
+						<span class="sidebar-visible-inline">{{lang_language}}</span>
+						<b class="caret"></b>
+					</a>
 					<ul class="dropdown-menu">
+						<li><a href="?do=Translation">{{lang_translations}}</a></li>
 						<li class="dropdown-header">{{lang_language}}</li>
 						{{#langs}}
 						<li><a href="?lang={{cc}}&amp;url={{url}}"><img src="lang/{{cc}}/flag.png" alt="{{name}}"> {{name}}</a></li>
 						{{/langs}}
 					</ul>
 				</li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
 				{{#user}}
+				<li><span>{{lang_loggedInPrefix}} {{user}} {{lang_loggedInSuffix}}</span></li>
 				<li>
 					<form method="post" action="?do=Session">
 						<input type="hidden" name="token" value="{{token}}">
 						<input type="hidden" name="action" value="logout">
-						<b>{{user}}</b>
 						<button class="btn btn-default btn-xs" type="submit">{{lang_logout}}</button>
 					</form>
 				</li>
@@ -47,5 +69,4 @@
 			</ul>
 		</div>
 	</div>
-</div>
-
+</nav>

@@ -13,7 +13,7 @@ if (CONFIG_SQL_PASS === '%MYSQL_OPENSLX_PASS%') {
 require_once('inc/user.inc.php');
 
 /**
- * Page class which all "modules" must be extending from
+ * Page class which all module's pages must be extending from
  */
 abstract class Page
 {
@@ -47,29 +47,39 @@ abstract class Page
 	{
 		self::$instance->doAjax();
 	}
+	
+	public static function translate($tag, $section = 'module')
+	{
+		return self::$module->translate($tag, $section);
+	}
+	
+	public static function getModule()
+	{
+		return self::$module;
+	}
 
 	/**
-	 *
 	 * @var \Page
 	 */
 	private static $instance = false;
-	public static $name = false;
+	
+	/**
+	 * @var \Module
+	 */
+	private static $module = false;
 
-	public static function set($name)
+	public static function init()
 	{
+		$name = empty($_REQUEST['do']) ? 'Main' : $_REQUEST['do'];
 		$name = preg_replace('/[^A-Za-z]/', '', $name);
-		$modulePath = 'modules/' . strtolower($name) . '/module.inc.php';
-		$moduleConfig = json_decode(file_get_contents('modules/' . strtolower($name) . '/config.json'),true);
-		if (!file_exists($modulePath) || empty($moduleConfig) || $moduleConfig['enabled'] != 'true') {
-			Util::traceError('Invalid module file: ' . $modulePath);
+		$name = strtolower($name);
+		Module::init();
+		self::$module = Module::get($name);
+		if (self::$module === false) {
+			Util::traceError('Invalid Module: ' . $name);
 		}
-		require_once $modulePath;
-		$className = 'Page_' . $name;
-		if (!class_exists($className) || get_parent_class($className) !== 'Page') {
-			Util::traceError('Module not found: ' . $name);
-		}
-		self::$instance = new $className();
-		self::$name = strtolower($name);
+		self::$module->activate();
+		self::$instance = self::$module->newPage();
 	}
 
 }
@@ -97,7 +107,7 @@ function slxAutoloader($class)
 spl_autoload_register('slxAutoloader');
 
 // Now determine which module to run
-Page::set(empty($_REQUEST['do']) ? 'Main' : $_REQUEST['do']);
+Page::init();
 
 // Deserialize any messages to display
 if (!AJAX && isset($_REQUEST['message'])) {
@@ -126,14 +136,7 @@ if (AJAX) {
 Page::preprocess();
 
 // Generate Main menu
-Render::addTemplate('main-menu', array(
-	'url' => urlencode($_SERVER['REQUEST_URI']),
-	'langs' => Dictionary::getLanguages(true),
-	'dbupdate' => Database::needSchemaUpdate(),
-	'user' => User::getName(),
-	'warning' => User::getName() !== false && User::getLastSeenEvent() < Property::getLastWarningId(),
-	'needsSetup' => User::getName() !== false && Property::getNeedsSetup()
-),'main');
+Dashboard::createMenu();
 
 Message::renderList();
 

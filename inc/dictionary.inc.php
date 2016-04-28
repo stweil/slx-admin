@@ -3,11 +3,9 @@
 class Dictionary
 {
 
-	private static $messageArray = false;
 	private static $languages = false;
 	private static $languagesLong = false;
 	private static $stringCache = array();
-	private static $hardcodedMessages = false;
 
 	public static function init()
 	{
@@ -51,57 +49,64 @@ class Dictionary
 		define('LANG', $language);
 	}
 
-	public static function getArrayTemplate($template, $module = false, $lang = false)
+	public static function getArrayTemplate($template, $module, $lang = false)
 	{
-		return self::getArray($module . "/" . $template, $lang);
+		return self::getArray($module, 'templates/' . $template, $lang);
 	}
 
-	public static function getArray($module, $lang = false, $isMessage = false)
+	public static function getArray($module, $path, $lang = false)
 	{
 		if ($lang === false)
 			$lang = LANG;
-		if(!$isMessage)
-			$file = Util::safePath("lang/" . $lang . "/modules/" . $module . ".json");
-		else
-			$file = Util::safePath("lang/" . $lang . "/" . $module . ".json");
-
+		$file = Util::safePath("modules/{$module}/lang/{$lang}/{$path}.json");
 		if (isset(self::$stringCache[$file]))
 			return self::$stringCache[$file];
 		$content = @file_get_contents($file);
-		if ($content === false) {// File does not exist for language {
-			return array();
+		if ($content === false) { // File does not exist for language
+			$content = '[]';
+			error_log("getArray called for non-existent $file");
 		}
 		$json = json_decode($content, true);
-		if (!is_array($json))
-			return array();
+		if (!is_array($json)) {
+			$json = array();
+		}
 		return self::$stringCache[$file] = $json;
 	}
 
-	public static function translate($section, $string = false)
+	public static function translate($module, $path, $string)
 	{
-		if ($string === false) {
-			// Fallback: General "hardcoded" messages
-			$string = $section;
-			if (self::$hardcodedMessages === false)
-				self::$hardcodedMessages = json_decode(file_get_contents("lang/" . LANG . "/messages-hardcoded.json"), true);
-			if (!isset(self::$hardcodedMessages[$string]))
-				return "(missing: $string :missing)";
-			return self::$hardcodedMessages[$string];
-		}
-		$strings = self::getArray($section, false, true);
+		$strings = self::getArray($module, $path);
 		if (!isset($strings[$string])) {
-			return "(missing: '$string' in '$section')";
+			return false;
 		}
 		return $strings[$string];
 	}
 
 	public static function getMessage($id)
 	{
-		if (self::$messageArray === false)
-			self::$messageArray = json_decode(file_get_contents("lang/" . LANG . "/messages.json"), true);
-		if (!isset(self::$messageArray[$id]))
-			return "(missing: $id :missing)";
-		return self::$messageArray[$id];
+		if (!preg_match('/^(\w+)\.(\w+)$/', id, $out)) {
+			return 'Invalid Message ID format: ' . $id;
+		}
+		$string = self::translate($out[1], 'messages', $out[2]);
+		if ($string === false) {
+			return $id;
+		}
+		return $string;
+	}
+	
+	public static function getCategoryName($category)
+	{
+		if ($category === false) {
+			return 'No Category';
+		}
+		if (!preg_match('/^(\w+)\.(\w+)$/', $category, $out)) {
+			return 'Invalid Category ID format: ' . $category;
+		}
+		$string = self::translate($out[1], 'categories', $out[2]);
+		if ($string === false) {
+			return $category;
+		}
+		return $string;
 	}
 
 	/**

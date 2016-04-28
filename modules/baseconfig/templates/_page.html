@@ -163,16 +163,6 @@
 	<input type="hidden" name="token" value="{{token}}">
 </form>
 <script type="text/javascript">
-document.getElementById("cat-extra-6").innerHTML = "<div class='list-group'> <div class='list-group-item' style='background-color:#f5f5f5;color:#428bca;'> " +
-"{{lang_catPartition}} <span style='display:inline-block; float: right; margin-top: -7px;'> <a class='btn btn-default ' data-toggle='modal' " +
-"data-target='#add-partition'> <span class='glyphicon glyphicon-plus'></span> </a> </span> </div> {{#partitions}} <div class='list-group-item'> " +
-"<div class='row'> <div class='col-md-1'> <input name='partition-{{id}}-partition_id' type='text' class='form-control' size='30' value='{{partition_id}}'" +
-" placeholder='{{lang_partitionId}}' /> </div> <div class='col-md-1'> <input name='partition-{{id}}-size' type='text' class='form-control' size='30' " +
-"value='{{size}}' placeholder='{{lang_partitionSize}}'/> </div> <div class='col-md-4'> <input name='partition-{{id}}-mount_point' type='text' " +
-"class='form-control' size='30' value='{{mount_point}}' placeholder='{{lang_partitionMountPoint}}'/> </div> <div class='col-md-4'> <input " +
-"name='partition-{{id}}-options' type='text' class='form-control' size='30' value='{{options}}' placeholder='{{lang_partitionOptions}}'/> </div> " +
-"<div class='col-md-2'> <a class='btn btn-danger' href='?do=BaseConfig&deletePartition={{id}}&token={{token}}' ><span class='glyphicon glyphicon-trash'>" +
-"</span> {{lang_delete}}</a> </div> </div> </div> {{/partitions}} </div> </div>";
 
 function saveConfig(){
 	if(confirm('{{lang_confirm}}'))
@@ -181,6 +171,18 @@ function saveConfig(){
 		window.location = 'api.php?do=getconfig&user={{user}}';
 }
 
-$("[name^='switch']").bootstrapSwitch();
+document.addEventListener("DOMContentLoaded", function() {
+	document.getElementById("cat-extra-6").innerHTML = "<div class='list-group'> <div class='list-group-item' style='background-color:#f5f5f5;color:#428bca;'> " +
+	"{{lang_catPartition}} <span style='display:inline-block; float: right; margin-top: -7px;'> <a class='btn btn-default ' data-toggle='modal' " +
+	"data-target='#add-partition'> <span class='glyphicon glyphicon-plus'></span> </a> </span> </div> {{#partitions}} <div class='list-group-item'> " +
+	"<div class='row'> <div class='col-md-1'> <input name='partition-{{id}}-partition_id' type='text' class='form-control' size='30' value='{{partition_id}}'" +
+	" placeholder='{{lang_partitionId}}' /> </div> <div class='col-md-1'> <input name='partition-{{id}}-size' type='text' class='form-control' size='30' " +
+	"value='{{size}}' placeholder='{{lang_partitionSize}}'/> </div> <div class='col-md-4'> <input name='partition-{{id}}-mount_point' type='text' " +
+	"class='form-control' size='30' value='{{mount_point}}' placeholder='{{lang_partitionMountPoint}}'/> </div> <div class='col-md-4'> <input " +
+	"name='partition-{{id}}-options' type='text' class='form-control' size='30' value='{{options}}' placeholder='{{lang_partitionOptions}}'/> </div> " +
+	"<div class='col-md-2'> <a class='btn btn-danger' href='?do=BaseConfig&deletePartition={{id}}&token={{token}}' ><span class='glyphicon glyphicon-trash'>" +
+	"</span> {{lang_delete}}</a> </div> </div> </div> {{/partitions}} </div> </div>";
+	$("[name^='switch']").bootstrapSwitch();
+}
 
 </script>
