@@ -1,0 +1,16 @@
+{
+    "lang_adminInfo": "Nesta se\u00e7\u00e3o \u00e9 poss\u00edvel alterar as TAGs de JSON que cont\u00e9m os textos traduzidos utilizados no site. Para fazer isto, selecione um template abaixo para modificar suas respectivas TAGs. Alternativamente, clique no link abaixo para alterar as mensagens do site.",
+    "lang_back": "Voltar",
+    "lang_deleteTAG": "Excluir",
+    "lang_editHardcoded": "Editar Textos Hardcoded",
+    "lang_editMessages": "Editar Mensagens",
+    "lang_editModules": "Editar Tradu\u00e7\u00f5es dos M\u00f3dulos",
+    "lang_editSettings": "Editar Textos das Vari\u00e1veis de Configura\u00e7\u00e3o",
+    "lang_langAdministration": "Administra\u00e7\u00e3o da L\u00edngua",
+    "lang_module": "M\u00f3dulo",
+    "lang_save": "Salvar",
+    "lang_status": "Status",
+    "lang_templateAdminHelp": "Aqui voc\u00ea pode traduzir e editar frases e textos.",
+    "lang_templateHint": "Dica: linhas amarelas indicam que uma tradu\u00e7\u00e3o est\u00e1 faltando e linhas vermelhas indicam que uma tag n\u00e3o \u00e9 utilizada pelo template.",
+    "module_name": "Tradu\u00e7\u00f5es"
+}

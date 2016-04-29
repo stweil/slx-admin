@@ -27,6 +27,11 @@ class Module
 		return self::resolveDeps(self::$modules[$name]);
 	}
 
+	/**
+	 * 
+	 * @param \Module $mod the module to check
+	 * @return boolean true iff module deps are all found and enabled
+	 */
 	private static function resolveDeps($mod)
 	{
 		if (!$mod->depsChecked) {
@@ -34,7 +39,7 @@ class Module
 			foreach ($mod->dependencies as $dep) {
 				if (!self::resolveDepsByName($dep)) {
 					if ($mod->enabled) {
-						error_log("Disabling module $name: Dependency $dep failed.");
+						error_log("Disabling module {$mod->name}: Dependency $dep failed.");
 					}
 					$mod->enabled = false;
 					$mod->depsMissing = true;
@@ -142,9 +147,14 @@ class Module
 	{
 		$string = Dictionary::translate($this->name, 'module', 'module_name');
 		if ($string === false) {
-			return $this->name;
+			return '!!' . $this->name . '!!';
 		}
 		return $string;
+	}
+
+	public function getPageTitle()
+	{
+		return Dictionary::translate($this->name, 'module', 'page_title');
 	}
 	
 	public function getCategory()

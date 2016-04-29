@@ -1,0 +1,14 @@
+{
+    "lang_intro": "Esta \u00e9 a interface de configura\u00e7\u00e3o do OpenSLX.",
+    "lang_introGuest": "Esta \u00e9 a interface de administra\u00e7\u00e3o da instala\u00e7\u00e3o local do bwLehrpool. Por favor, autentique-se para ajustar op\u00e7\u00f5es.",
+    "lang_language": "L\u00edngua",
+    "lang_login": "Entrar",
+    "lang_logout": "Sair",
+    "lang_needsSetup": "Instala\u00e7\u00e3o incompleta",
+    "lang_next": "Pr\u00f3ximo",
+    "lang_noExistingAccount": "Nenhuma conta foi criada ainda. Registre-se para se tornar administrador.",
+    "lang_register": "Registrar",
+    "lang_translations": "Tradu\u00e7\u00f5es",
+    "lang_warning": "Aten\u00e7\u00e3o",
+    "lang_welcome": "Bem-vindo"
+}

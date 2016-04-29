@@ -1,0 +1,19 @@
+{
+    "lang_cancelConfirm": "Do you really want to delete this users?",
+    "lang_close": "Close",
+    "lang_create": "Create",
+    "lang_edit": "Edit",
+    "lang_editUser": "Edit User",
+    "lang_email": "Email",
+    "lang_login": "Login",
+    "lang_operations": "Operation",
+    "lang_password": "Password",
+    "lang_remove": "Remove",
+    "lang_save": "Save",
+    "lang_telephone": "Telephone",
+    "lang_userAdmin": "Administrator",
+    "lang_userInfo": "On this section, you will be able to create website users, besides editing or removing existing users.",
+    "lang_userPage": "Users",
+    "lang_username": "Username",
+    "module_name": "Management"
+}

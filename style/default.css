@@ -357,7 +357,6 @@ nav.sidebar li {
 	{
 	  background-color: transparent !important;
 	  color: #fff !important;
-	  cursor: default !important;
 	  padding-bottom: 0 !important;
 	  padding-left: 8px !important;
 	  font-size: 115%;
@@ -397,10 +396,6 @@ nav.sidebar li {
 	  color:#CCC;
 	}
 	
-	.navbar-inverse .navbar-nav .dropdown-menu > li.active > a {
-		background-color: #24272D;
-	}
-	
 	.navbar-inverse .navbar-nav li {
 		width: 100%;
 	}
@@ -423,6 +418,14 @@ nav.sidebar li {
 
 	nav.sidebar .navbar-nav .dropdown-menu>li>a:hover, nav.sidebar .navbar-nav .dropdown-menu>li>a:focus {
 		background-color: #2C323D;
+		box-shadow: 0px 0px 16px rgba(255,255,255,.1) inset;
+		color:#DDD;
+	}
+	
+	nav.sidebar .navbar-nav .dropdown-menu>li.active > a {
+		background-color: #24272D;
+		box-shadow: 3px 3px 3px rgba(0,0,0,.2) inset, -3px -3px 6px rgba(255,255,255,.07) inset;
+		color:#DDD;
 	}
 
 }

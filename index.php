@@ -40,6 +40,10 @@ abstract class Page
 
 	public static function render()
 	{
+		$pageTitle = self::$module->getPageTitle();
+		if ($pageTitle !== false) {
+			Render::setTitle($pageTitle);
+		}
 		self::$instance->doRender();
 	}
 

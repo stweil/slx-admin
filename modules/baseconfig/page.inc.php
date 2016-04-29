@@ -8,7 +8,7 @@ class Page_BaseConfig extends Page
 	{
 		User::load();
 
-		// Determine if we're setting global, distro or pool
+		// Determine if we're setting global, distro or location
 		if (isset($_REQUEST['distroid'])) {
 			// TODO: Everything
 			$this->qry_extra[] = array(
@@ -16,11 +16,11 @@ class Page_BaseConfig extends Page
 				'value' => (int)$_REQUEST['distroid'],
 				'table' => 'setting_distro',
 			);
-			if (isset($_REQUEST['poolid'])) {
+			if (isset($_REQUEST['locationid'])) {
 				$this->qry_extra[] = array(
-					'name'  => 'poolid',
-					'value' => (int)$_REQUEST['poolid'],
-					'table' => 'setting_pool',
+					'name'  => 'locationid',
+					'value' => (int)$_REQUEST['locationid'],
+					'table' => 'setting_location',
 				);
 			}
 		}
@@ -82,12 +82,14 @@ class Page_BaseConfig extends Page
 			LEFT JOIN setting_global AS tbl USING (setting)
 			ORDER BY cat_setting.sortval ASC, setting.setting ASC');
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['description'] = Util::markup(Dictionary::translate('settings/setting', $row['setting']));
+			$row['description'] = Util::markup(Page::translate($row['setting'], 'setting'));
 			if (is_null($row['displayvalue'])) $row['displayvalue'] = $row['defaultvalue'];
 			$row['item'] = $this->makeInput($row['validator'], $row['setting'], $row['displayvalue']);
 			$settings[$row['catid']]['settings'][] = $row;
-			$settings[$row['catid']]['category_name'] = Dictionary::translate('settings/cat_setting', 'cat_' . $row['catid']);
-			$settings[$row['catid']]['category_id'] = $row['catid'];
+			if (!isset($settings[$row['catid']]['category_id'])) {
+				$settings[$row['catid']]['category_name'] = Page::translate('cat_' . $row['catid'], 'cat_setting');
+				$settings[$row['catid']]['category_id'] = $row['catid'];
+			}
 		}
 		Render::addTemplate('_page', array(
 			'categories'  => array_values($settings)

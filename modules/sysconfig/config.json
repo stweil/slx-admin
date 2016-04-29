@@ -1,4 +1,5 @@
 {
 	"category":"main.settings",
-	"enabled":"true"
+	"enabled":"true",
+	"dependencies": [ "minilinux" ]
 }

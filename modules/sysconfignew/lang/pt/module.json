@@ -1,0 +1,23 @@
+{
+    "lang_back": "Voltar",
+    "lang_cancel": "Cancelar",
+    "lang_cannotOpen": "n\u00e3o p\u00f4de ser aberto",
+    "lang_changeLink": "Mudar link",
+    "lang_compilingIpxe": "Compilando iPXE",
+    "lang_configName": "Nome",
+    "lang_configsDescription": "Aqui \u00e9 poss\u00edvel criar uma configura\u00e7\u00e3o do sistema escolhendo os m\u00f3dulos desejados.",
+    "lang_configurations": "Configura\u00e7\u00f5es",
+    "lang_create": "Criar",
+    "lang_edit": "Editar",
+    "lang_file": "Arquivo",
+    "lang_leavingMessage": "Voc\u00ea possui mudan\u00e7as n\u00e3o salvas no seu m\u00f3dulo.",
+    "lang_loading": "Carregando",
+    "lang_modules": "M\u00f3dulos",
+    "lang_modulesDescription": "Aqui \u00e9 poss\u00edvel criar um m\u00f3dulo do sistema atrav\u00e9s de um editor.",
+    "lang_name": "Nome",
+    "lang_new": "Novo",
+    "lang_newConfig": "Nova Configura\u00e7\u00e3o",
+    "lang_newModule": "Novo M\u00f3dulo",
+    "lang_remove": "Remover",
+    "lang_save": "Salvar"
+}

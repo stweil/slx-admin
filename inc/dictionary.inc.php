@@ -104,7 +104,7 @@ class Dictionary
 		}
 		$string = self::translate($out[1], 'categories', $out[2]);
 		if ($string === false) {
-			return $category;
+			return '!!' . $category . '!!';
 		}
 		return $string;
 	}

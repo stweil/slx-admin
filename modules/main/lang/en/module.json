@@ -1,0 +1,13 @@
+{
+    "lang_intro": "Esta \u00e9 a interface de configura\u00e7\u00e3o do OpenSLX.",
+    "lang_introGuest": "This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",
+    "lang_language": "Language",
+    "lang_login": "Login",
+    "lang_logout": "Logout",
+    "lang_needsSetup": "Setup incomplete",
+    "lang_next": "Next",
+    "lang_noExistingAccount": "No account has been created yet. Sign up to become the administrator.",
+    "lang_register": "Register",
+    "lang_warning": "Warning",
+    "lang_welcome": "Welcome"
+}

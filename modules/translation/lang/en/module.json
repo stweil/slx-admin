@@ -1,0 +1,16 @@
+{
+    "lang_adminInfo": "In this section you can change the JSON tags that contains the translated texts used by the site. To do this, select a template below to modify their respective tags. Alternatively, click the link below to change the messages of the site.",
+    "lang_back": "Back",
+    "lang_deleteTAG": "Delete",
+    "lang_editHardcoded": "Edit hardcoded strings",
+    "lang_editMessages": "Edit Messages",
+    "lang_editModules": "Edit Module Translations",
+    "lang_editSettings": "Edit configuration variables related strings",
+    "lang_langAdministration": "Language Administration",
+    "lang_module": "Module",
+    "lang_save": "Save",
+    "lang_status": "Status",
+    "lang_templateAdminHelp": "Here you can translate and edit phrases and texts.",
+    "lang_templateHint": "Hint: Yellow lines indicate a translation is missing and red lines indicate a tag is not being used by the template.",
+    "module_name": "Translation"
+}

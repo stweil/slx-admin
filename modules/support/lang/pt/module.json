@@ -1,0 +1,18 @@
+{
+    "lang_content": "Conte\u00fado",
+    "lang_content#1": "Ao clicar em cada uma pergunta, elas se expandem exibindo as respostas!",
+    "lang_content#2": "As perguntas ser\u00e3o adicionadas conforme as d\u00favidas forem surgindo",
+    "lang_content#3": "Se tiver uma d\u00favida que n\u00e3o est\u00e1 no FAQ, envie um e-mail clicando no bot\u00e3o abaixo ;)",
+    "lang_faq": "FAQ",
+    "lang_faq#1": "Este \u00e9 o FAQ",
+    "lang_faq#2": "Por enquanto n\u00e3o h\u00e1 nada por aqui (\u30c4)_\/\u00af",
+    "lang_faq#3": "Nem todas as perguntas estar\u00e3o aqui",
+    "lang_fileInput": "Arquivo:",
+    "lang_form": "Formul\u00e1rio",
+    "lang_header": "Assunto",
+    "lang_helpInput": "Voc\u00ea pode mandar uma foto\/arquivo que nos auxilie a entender o problema.",
+    "lang_showall": "Clique aqui para mostrar todo o FAQ",
+    "lang_submit": "Enviar",
+    "lang_supIntro": "N\u00e3o encontrou o que queria no FAQ? Mande-nos um e-mail informando o problema",
+    "module_name": "Suporte"
+}

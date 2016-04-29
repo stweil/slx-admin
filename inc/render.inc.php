@@ -45,7 +45,7 @@ class Render
 		'<!DOCTYPE html>
 	<html>
 		<head>
-			<title>', RENDER_DEFAULT_TITLE, self::$title, '</title>
+			<title>', self::$title, RENDER_DEFAULT_TITLE, '</title>
 			<meta charset="utf-8"> 
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -93,7 +93,7 @@ class Render
 	 */
 	public static function setTitle($title)
 	{
-		self::$title = ' - ' . $title;
+		self::$title = $title . ' - ';
 	}
 
 	/**
@@ -177,28 +177,39 @@ class Render
 		if ($html === false) {
 			return '<h3>Template ' . htmlspecialchars($template) . '</h3>' . nl2br(htmlspecialchars(print_r($params, true))) . '<hr>';
 		}
-		// Get all translated strings for this template
-		if($module === false){
-			$module = strtolower(empty($_REQUEST['do']) ? 'main' : $_REQUEST['do']);
+		if($module === false) {
+			$module = Page::getModule()->getIdentifier();
 		}
-		$dictionary = Dictionary::getArrayTemplate($template, $module);
-		
+		if (!is_array($params)) {
+			$params = array();
+		}
 		// Now find all language tags in this array
-		preg_match_all('/{{(lang_.+?)}}/', $html, $out);
-		foreach ($out[1] as $tag) {
-			// Add untranslated strings to the dictionary, so their tag is seen in the rendered page
-			if (empty($dictionary[$tag]))
-				$dictionary[$tag] = '{{' . $tag . '}}';
+		if (preg_match_all('/{{(lang_.+?)}}/', $html, $out) > 0) {
+			$dictionary = Dictionary::getArrayTemplate($template, $module);
+			$fallback = false;
+			foreach ($out[1] as $tag) {
+				// Add untranslated strings to the dictionary, so their tag is seen in the rendered page
+				if ($fallback === false && empty($dictionary[$tag])) {
+					$fallback = true; // Fallback to general dictionary of module
+					$dictionary = $dictionary + Dictionary::getArray($module, 'module');
+					if ($module !== 'main') {
+						$dictionary = $dictionary + Dictionary::getArray('main', 'module');
+					}
+				}
+				if (empty($dictionary[$tag])) {
+					$dictionary[$tag] = '{{' . $tag . '}}';
+				}
+			}
+			$params = $params + $dictionary;
 		}
 		// Always add token to parameter list
-		if (is_array($params) || $params === false || is_null($params))
-			$params['token'] = Session::get('token');
-		// Likewise, add currently selected language ( its two letter code) to params
+		$params['token'] = Session::get('token');
+		// Likewise, add currently selected language (its two letter code) to params
 		$params['current_lang'] = LANG;
 		// Add desired password field type
 		$params['password_type'] = Property::getPasswordFieldType();
 		// Return rendered html
-		return self::$mustache->render($html, array_merge($dictionary,$params));
+		return self::$mustache->render($html, $params);
 	}
 
 	/**
