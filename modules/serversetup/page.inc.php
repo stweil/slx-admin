@@ -65,19 +65,27 @@ class Page_ServerSetup extends Page
 			Render::addTemplate('ipxe_update', array('taskid' => $taskid));
 		}
 
-		Render::addTemplate('ipaddress', array(
-			'ips' => $this->taskStatus['data']['addresses']
-		));
-		$data = $this->currentMenu;
-		if (!isset($data['defaultentry']))
-			$data['defaultentry'] = 'net';
-		if ($data['defaultentry'] === 'net')
-			$data['active-net'] = 'checked';
-		if ($data['defaultentry'] === 'hdd')
-			$data['active-hdd'] = 'checked';
-		if ($data['defaultentry'] === 'custom')
-			$data['active-custom'] = 'checked';
-		Render::addTemplate('ipxe', $data);
+		if (Request::get('advanced', 'false', 'string') === 'false') {
+			Render::addTemplate('ipxe-smp');
+		} else {
+			Render::addTemplate('ipaddress', array(
+				'ips' => $this->taskStatus['data']['addresses']
+			));
+			$data = $this->currentMenu;
+			if (!isset($data['defaultentry']))
+				$data['defaultentry'] = 'net';
+			if ($data['defaultentry'] === 'net')
+				$data['active-net'] = 'checked';
+			if ($data['defaultentry'] === 'hdd')
+				$data['active-hdd'] = 'checked';
+			if ($data['defaultentry'] === 'custom')
+				$data['active-custom'] = 'checked';
+			//There is no $this->username and no pxe.embed, why do we need this?
+			//Page won't load with lines below uncommented
+			//$data['username'] = $this->username;
+			//$data['script'] = file_get_contents("/opt/taskmanager/data/pxe.embed");
+			Render::addTemplate('ipxe-adv', $data);
+		}
 	}
 
 	// -----------------------------------------------------------------------------------------------

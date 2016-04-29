@@ -29,8 +29,13 @@
             </div>
         </div>
 
-        <a class="btn btn-default" href="#" role="button">Upload de Nova Imagem<a>
-        <a class="btn btn-info" href="#" role="button">Gerar IPXE<a>
+        <div class="panel-body text-center">
+            <input type='button' value='<<' id='move_left' />
+            <input type='button' value='>>' id='move_right' />
+            <a class="btn btn-default" href="#" role="button">Upload de Nova Imagem<a>
+            <a class="btn btn-info" href="#" role="button">Gerar IPXE<a>
+            <a class="btn btn-info" href="#" role="button">Salvar<a>
+        </div>
 
     </div>
 </div>
@@ -42,5 +47,16 @@
             connectWith: ".connected"
         });
 	
+    });
+    $('body').on('click', 'li', function() {
+        $(this).toggleClass('selected');
+    });
+
+    $('#move_left').click(function() {
+        $('.source').append($('.target .selected').removeClass('selected'));
+    });
+
+    $('#move_right').click(function() {
+        $('.target').append($('.source .selected').removeClass('selected'));
     });
 </script>

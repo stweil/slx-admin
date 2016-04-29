@@ -5,54 +5,25 @@
     <!-- //FAQ -->
     <div class="panel-body" id="accordion" role="tablist" aria-multiselectable="true">
 
-       <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="headingOne">
+      {{#faq}}
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="heading{{order}}">
              <h4 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                    {{lang_faq#1}}
+                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{order}}" aria-expanded="false" aria-controls="collapse{{order}}">
+                    {{question}}
                 </a>
              </h4>
           </div>
-          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div id="collapse{{order}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{order}}">
               <div class="panel-body">
-                  {{lang_content#1}}
+                  {{answer}}
              </div>
-          </div>
-      </div>
-
-       <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="headingTwo">
-             <h4 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    {{lang_faq#2}}
-                </a>
-             </h4>
-          </div>
-          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-              <div class="panel-body">
-                  {{lang_content#2}}
-            </div>
-          </div>
-      </div>
-      
-       <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="headingThree">
-             <h4 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    {{lang_faq#3}}
-                </a>
-             </h4>
-          </div>
-          <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-              <div class="panel-body">
-                  {{lang_content#3}}
-            </div>
-          </div>
-      </div>
+         </div>
+        </div>
+      {{/faq}}
 
       <a class="btn btn-default" href="?do=Support&amp;showfaq=false" role="button"><strong>{{lang_supIntro}}</strong></a>
-   </div>
-</div>
+   </div></div>
 </div>
 
 

@@ -1,0 +1,19 @@
+{
+    "faq": [
+        {"question": "Este é o FAQ",
+        "answer": "Ao clicar em cada uma pergunta, elas se expandem exibindo as respostas!",
+        "order": "One",
+        "highlight": true
+        },
+        {"question": "Por enquanto não há nada por aqui (ツ)_/¯ ",
+        "answer": "As perguntas serão adicionadas conforme as dúvidas forem surgindo",
+        "order": "Two",
+        "highlight": true
+        },
+        {"question": "Nem todas as perguntas estarão aqui",
+        "answer": "Se tiver uma dúvida que não está no FAQ, envie um e-mail clicando no botão abaixo ;)",
+        "order": "Three",
+        "highlight": false
+        }   
+    ]   
+}

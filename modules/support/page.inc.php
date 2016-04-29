@@ -65,10 +65,16 @@ class Page_Support extends Page
     protected function doRender(){
         error_reporting(E_ALL);
         ini_set('display_errors','on');
-		if (strpos($_SERVER['REQUEST_URI'], "true") !== false)
-            Render::addTemplate('page-faq');
-        else
-            Render::addTemplate('page-support');
+		if (strpos($_SERVER['REQUEST_URI'], "true") !== false){
+            Render::addTemplate('page-faq',
+                json_decode(file_get_contents("modules/support/faq.json"),true)
+            );
+        }
+        else{
+            Render::addTemplate('page-support',
+                json_decode(file_get_contents("modules/support/faq.json"),true)
+            );
+        }
 //        Render::addTemplate('page-support', array(
 //            'token' => Session:get('token'));
 	}
