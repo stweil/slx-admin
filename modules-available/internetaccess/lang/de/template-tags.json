@@ -1,0 +1,17 @@
+{
+    "lang_automatic": "Automatisch",
+    "lang_description": "Hier k\u00f6nnen Sie konfigurieren, wie der Satellitenserver auf das Internet zugreifen soll. Dies wird in erster Linie f\u00fcr das Aktualisieren des Systems sowie das Synchronisieren von Virtuellen Maschinen mit dem Zentralserver verwendet. Gegenw\u00e4rtig wird neben Direktzugriff noch SOCKS4\/5 unterst\u00fctzt.",
+    "lang_internetAccess": "Internetzugriff",
+    "lang_manual": "Manuelle Angabe",
+    "lang_manualProxyConfig": "Wenn Sie einen SOCKS-Proxy manuell konfigurieren m\u00f6chten, geben Sie bitte hier die Verbindungsdaten an.",
+    "lang_no": "Keiner",
+    "lang_proxyAddress": "Adresse",
+    "lang_proxyPassword": "Passwort",
+    "lang_proxyPort": "Port",
+    "lang_proxyType": "Proxy Typ",
+    "lang_proxyUsername": "Benutzername",
+    "lang_restartFailed": "Neustart eines oder mehrerer Dienste fehlgeschlagen!",
+    "lang_restarting": "Neustart",
+    "lang_save": "Speichern",
+    "lang_serviceRestart": "Neustarten der Dienste"
+}

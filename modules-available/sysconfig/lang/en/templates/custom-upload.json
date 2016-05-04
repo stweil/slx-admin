@@ -1,8 +1,0 @@
-{
-    "lang_browseForFile": "Browse",
-    "lang_customModuleInfo1": "About a custom module, it is possible to add arbitrary files to a Linux system that is booted clients. For this purpose, an archive can be uploaded using a file system structure that is extracted in this form 1:1 in the booted Linux.",
-    "lang_customModuleInfo2": "Example: If the uploaded archive is the file etc\/example.conf, this file will be located as \/etc\/example.conf to a booted client.",
-    "lang_selectFile": "Please select an archive",
-    "lang_supportedFiles": "Supported File Formats",
-    "lang_upload": "Upload"
-}

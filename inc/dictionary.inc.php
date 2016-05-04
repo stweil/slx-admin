@@ -49,11 +49,6 @@ class Dictionary
 		define('LANG', $language);
 	}
 
-	public static function getArrayTemplate($template, $module, $lang = false)
-	{
-		return self::getArray($module, 'templates/' . $template, $lang);
-	}
-
 	public static function getArray($module, $path, $lang = false)
 	{
 		if ($lang === false)
@@ -84,12 +79,12 @@ class Dictionary
 
 	public static function getMessage($id)
 	{
-		if (!preg_match('/^(\w+)\.(\w+)$/', id, $out)) {
+		if (!preg_match('/^(\w+)\.(.+)$/', $id, $out)) {
 			return 'Invalid Message ID format: ' . $id;
 		}
 		$string = self::translate($out[1], 'messages', $out[2]);
 		if ($string === false) {
-			return $id;
+			return "($id) ({{0}}, {{1}}, {{2}}, {{3}})";
 		}
 		return $string;
 	}

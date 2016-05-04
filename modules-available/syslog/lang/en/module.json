@@ -1,11 +1,3 @@
 {
-    "lang_client": "Client",
-    "lang_clientLog": "Client Log",
-    "lang_details": "Details",
-    "lang_event": "Event",
-    "lang_filter": "Filter",
-    "lang_go": "go",
-    "lang_not": "no",
-    "lang_when": "When",
     "module_name": "Server Log"
 }

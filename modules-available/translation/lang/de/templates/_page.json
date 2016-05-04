@@ -1,9 +1,0 @@
-{
-    "lang_adminInfo": "In diesem Abschnitt k\u00f6nnen Sie die JSON-Tags, die \u00fcbersetzten Texte durch die Website verwendet wird, enth\u00e4lt zu \u00e4ndern. Um dies zu tun, w\u00e4hlen Sie eine Vorlage aus, um ihre jeweiligen Tags \u00e4ndern. Alternativ klicken Sie auf den Link unten, um die Nachrichten der Website \u00e4ndern.",
-    "lang_editConfigModule": "Konfigurationsmodulbezeichnungsphrasen editieren",
-    "lang_editHardcoded": "Hardcoded-Texte bearbeiten",
-    "lang_editMessages": "Nachrichten bearbeiten",
-    "lang_editSettings": "Einstellungstexte bearbeiten",
-    "lang_editTemplates": "Template-Texte bearbeiten",
-    "lang_langAdministration": "Sprache Verwaltung"
-}

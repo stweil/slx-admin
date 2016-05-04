@@ -11,11 +11,11 @@ class Module
 	 */
 	private static $modules = false;
 	
-	public static function get($name)
+	public static function get($name, $ignoreDepFail = false)
 	{
 		if (!isset(self::$modules[$name]))
 			return false;
-		if (!self::resolveDeps(self::$modules[$name]))
+		if (!self::resolveDeps(self::$modules[$name]) && !$ignoreDepFail)
 			return false;
 		return self::$modules[$name];
 	}
@@ -38,20 +38,17 @@ class Module
 			$mod->depsChecked = true;
 			foreach ($mod->dependencies as $dep) {
 				if (!self::resolveDepsByName($dep)) {
-					if ($mod->enabled) {
-						error_log("Disabling module {$mod->name}: Dependency $dep failed.");
-					}
-					$mod->enabled = false;
+					error_log("Disabling module {$mod->name}: Dependency $dep failed.");
 					$mod->depsMissing = true;
 					return false;
 				}
 			}
 		}
-		return $mod->enabled;
+		return !$mod->depsMissing;
 	}
 
 	/**
-	 * @return \Module[] List of enabled modules
+	 * @return \Module[] List of valid, enabled modules
 	 */
 	public static function getEnabled()
 	{
@@ -61,6 +58,17 @@ class Module
 				$ret[] = $module;
 		}
 		return $ret;
+	}
+
+	/**
+	 * @return \Module[] List of all modules, including with missing deps
+	 */
+	public static function getAll()
+	{
+		foreach (self::$modules as $module) {
+			self::resolveDeps($module);
+		}
+		return self::$modules;
 	}
 
 	public static function init()
@@ -86,7 +94,6 @@ class Module
 	 * Non-static
 	 */
 
-	private $enabled = false;
 	private $category = false;
 	private $depsMissing = false;
 	private $depsChecked = false;
@@ -98,7 +105,6 @@ class Module
 	{
 		$file = 'modules/' . $name . '/config.json';
 		$json = @json_decode(@file_get_contents($file), true);
-		$this->enabled = isset($json['enabled']) && ($json['enabled'] === true || $json['enabled'] === 'true');
 		if (isset($json['dependencies']) && is_array($json['dependencies'])) {
 			$this->dependencies = $json['dependencies'];
 		}
@@ -106,6 +112,11 @@ class Module
 			$this->category = $json['category'];
 		}
 		$this->name = $name;
+	}
+	
+	public function hasMissingDependencies()
+	{
+		return $this->depsMissing;
 	}
 	
 	public function newPage()
@@ -121,7 +132,7 @@ class Module
 
 	public function activate()
 	{
-		if ($this->activated || !$this->enabled)
+		if ($this->activated || $this->depsMissing)
 			return;
 		$this->activated = true;
 		spl_autoload_register(function($class) {

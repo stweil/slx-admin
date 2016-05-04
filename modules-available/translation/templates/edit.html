@@ -1,67 +1,92 @@
-<div class="container">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			{{path}}
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{module}} / {{section}}
+	</div>
+	<div class="panel-body">
+		<p>{{lang_templateAdminHelp}}</p>
+		<div class="alert alert-info">
+			{{lang_templateHint}}
 		</div>
-		<div class="panel-body">
-			<p>{{lang_templateAdminHelp}}</p>
-			<div class="alert alert-info">
-				{{lang_templateHint}}
+		<form action="?do=Translation" method="post" class="slx-visible-rows">
+			<input type="hidden" name="module" value="{{module}}">
+			<input type="hidden" name="destlang" value="{{destlang}}">
+			<input type="hidden" name="section" value="{{section}}">
+			<input type="hidden" name="subsection" value="{{subsection}}">
+			<input type="hidden" name="token" value="{{token}}">
+			<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a>
+			<button class="btn btn-primary" type="button" onclick="addTag()" >{{lang_createTag}}</button>
+			<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
+			<div class="row">
+				<div class="col-xs-4 col-sm-3">{{lang_tag}}</div>
+				<div class="col-xs-6 col-sm-4">{{lang_translation}}</div>
+				<div class="hidden-xs col-sm-4">{{lang_sample}}</div>
+				<div class="col-xs-2 col-sm-1">!</div>
 			</div>
-			<form action="?do=Translation" method="post">
-				<input type="hidden" name="path" value="{{path}}">
-				<input type="hidden" name="token" value="{{token}}">
-				<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a>
-				<button class="btn btn-primary" type="button" onclick="addTag()" >{{lang_createTag}}</button>
-				<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th>Mustache Tag</th>
-							{{#langs}}
-							<th>{{name}}</th>
-							{{/langs}}
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{{#tags}}
-						<tr class="{{class}}" id="{{tag}}">
-							<td>{{tag}}</td>
-							{{#langs}}
-							<td>
-								{{^big}}
-								<input type="text" class="form-control switchable" value="{{translation}}" ondblclick="mb(this)" name="lang#{{lang}}#{{tag}}">
-								{{/big}}
-								{{#big}}
-								<textarea rows="3" class="form-control" name="lang#{{lang}}#{{tag}}">{{translation}}</textarea>
-								{{/big}}
-							</td>
-							{{/langs}}
-							<td>
-								<button type="submit" class="btn btn-danger btn-xs" name="delete" value="{{tag}}"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</button>
-							</td>
-						</tr>
-						{{/tags}}
-						<tr id="newTag">
-						</tr>
-					</tbody>
-				</table>
-				<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a>
-				<button class="btn btn-primary" type="button" onclick="addTag()" >{{lang_createTag}}</button>
-				<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
-			</form>
-		</div>
+			{{#tags}}
+			<div class="row {{class}}">
+				<div class="col-xs-4 col-sm-3">
+					{{tag}}
+					<div class="slx-notebox">{{{notes}}}</div>
+				</div>
+				<div class="col-xs-6 col-sm-4" id="tagid-{{tagid}}">
+					{{^big}}
+					<input type="text" class="form-control switchable" value="{{translation}}" ondblclick="slxMb(this)" name="lang#!#{{tag}}" placeholder="{{placeholder}}">
+					{{/big}}
+					{{#big}}
+					<textarea rows="3" class="form-control" name="lang#!#{{tag}}" placeholder="{{placeholder}}">{{translation}}</textarea>
+					{{/big}}
+				</div>
+				<div class="hidden-xs col-sm-4">
+					<div class="slx-textpreview"><div>
+						<div class="badge">{{samplelang}}</div>
+						{{sampletext}}
+						</div></div>
+				</div>
+				<div class="col-xs-2 col-sm-1">
+					<button type="button" class="btn btn-danger btn-xs" onclick="slxDelTag({{tagid}})"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</button>
+				</div>
+			</div>
+			{{/tags}}
+			<div id="newTag"></div>
+			<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a>
+			<button class="btn btn-primary" type="button" onclick="slxAddTag()" >{{lang_createTag}}</button>
+			<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
+		</form>
 	</div>
 </div>
 <script type="text/javascript">
-	function addTag()
+	var slxNewTagCounter = 0;
+	function slxAddTag()
 	{
-		var target = document.getElementById('newTag');
-		target.innerHTML = "<td> <input type='text' class='form-control' placeholder='{{lang_newTAG}}' name='newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_germanTAG}}' name='lang#de#newtag'> </td> <td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_englishTAG}}' name='lang#en#newtag'> </td>	<td style='width:250px;text-align:center;'> <input type='text' class='form-control' placeholder='{{lang_portugueseTAG}}' name='lang#pt#newtag'> </td><td></td>";
+		$('#newTag').before(
+			'<div class="row" id="new-delete-' + slxNewTagCounter + '">' +
+			'	<div class="col-xs-4 col-sm-3">' +
+			'		<input type="text" name="new-id[' + slxNewTagCounter + ']" class="form-control">' +
+			'	</div>' +
+			'	<div class="col-xs-6 col-sm-4">' +
+			'		<input type="text" class="form-control" name="new-text[' + slxNewTagCounter + ']">' +
+			'	</div>' +
+			'	<div class="hidden-xs col-sm-4">' +
+			'	</div>' + 
+			'	<div class="col-xs-2 col-sm-1">' +
+			'		<button type="button" class="btn btn-danger btn-xs" onclick="slxDelNew(' + slxNewTagCounter + ')"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</button>' +
+			'	</div>' +
+			'</div>'
+		);
+		slxNewTagCounter++;
 	}
 	
-	function mb(el)
+	function slxDelNew(id)
+	{
+		$('#new-delete-' + id).remove();
+	}
+	
+	function slxDelTag(id)
+	{
+		$('#tagid-' + id).text('-');
+	}
+	
+	function slxMb(el)
 	{
 		var old = $(el);
 		var ta = $('<textarea name="' + el.name + '" class="form-control" rows="3"></textarea>');

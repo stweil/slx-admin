@@ -185,16 +185,13 @@ class Render
 		}
 		// Now find all language tags in this array
 		if (preg_match_all('/{{(lang_.+?)}}/', $html, $out) > 0) {
-			$dictionary = Dictionary::getArrayTemplate($template, $module);
+			$dictionary = Dictionary::getArray($module, 'template-tags');
 			$fallback = false;
 			foreach ($out[1] as $tag) {
 				// Add untranslated strings to the dictionary, so their tag is seen in the rendered page
 				if ($fallback === false && empty($dictionary[$tag])) {
 					$fallback = true; // Fallback to general dictionary of module
-					$dictionary = $dictionary + Dictionary::getArray($module, 'module');
-					if ($module !== 'main') {
-						$dictionary = $dictionary + Dictionary::getArray('main', 'module');
-					}
+					$dictionary = $dictionary + Dictionary::getArray('main', 'global-template-tags');
 				}
 				if (empty($dictionary[$tag])) {
 					$dictionary[$tag] = '{{' . $tag . '}}';

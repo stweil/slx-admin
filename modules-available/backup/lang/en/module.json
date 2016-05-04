@@ -1,14 +1,3 @@
 {
-    "lang_backup": "Backup",
-    "lang_backupDescription": "Here you can backup the complete configuration of this satellite server.",
-    "lang_backupRestore": "Backup and restore",
-    "lang_download": "Download",
-    "lang_file": "File",
-    "lang_reboot": "System reboot",
-    "lang_restore": "Upload",
-    "lang_restoreConfig": "Restore config",
-    "lang_restoreDescription": "Here you can restore a configuration backup. Please note that this will reboot the server, so it is advised to do this while nobody is using the system. Please note that this will also restore the password for the web interface that was active when the configuration backup was created.",
-    "lang_restoreFailed": "Restoring configuration failed.",
-    "lang_stopping": "Stopping",
     "module_name": "Backup"
 }

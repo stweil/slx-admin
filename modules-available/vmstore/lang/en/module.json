@@ -1,21 +1,3 @@
 {
-    "lang_back": "Back",
-    "lang_close": "Close",
-    "lang_configure": "Configure",
-    "lang_intern": "Intern",
-    "lang_nfsHelp1": "An NFSv3-Share is required. It should be readable by all the workstations, and writable for the satellite server. An example, assuming the satellite server has IP address 1.2.3.4:",
-    "lang_nfsHelp2": "Alternate configuration using all_squash. The exported directory should be owned (and be writable) by the user with uid 1234.",
-    "lang_noAdditionalInformation": "No additional cofiguration required",
-    "lang_password": "Password",
-    "lang_readOnly": "Read-only Access",
-    "lang_readWrite": "Read\/Write Access",
-    "lang_save": "Save",
-    "lang_username": "Username",
-    "lang_vmLocation": "VM Location",
-    "lang_vmLocationChoose": "Please choose where the images of virtual machines will be stored.",
-    "lang_vmLocationConfiguration": "VM Location is being configured",
-    "lang_vmLocationHelp1": "For test purposes, the VMs can be stored directly on the Satellite server. However, if you operate the delivered satellite vmdk please remember that you have only about 100GB of memory.",
-    "lang_vmLocationHelp2": "In productive operation, it makes sense for this to use a high-performance network storage. This network storage can be integrated via NFS or CIFS \/ SMB. In any case, it must be ensured that the satellite server has write access to this network storage to add a new Virtual Machine . When using NFSv3 this can be set up IP-based, for the use of CIFS \/ SMB, you can access data disclosures that would entitle them to write.",
-    "lang_vmLocationHelp3": "The bwLehrpool clients only need read access to the network storage (and for security reasons, really can only read). In CIFS \/ SMB You can do this most easily by allowing passwordless guest access with read access to the share.",
     "module_name": "Virtual Machine"
 }

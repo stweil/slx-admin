@@ -1,0 +1,22 @@
+{
+    "lang_adminInfo": "This is a list of all templates. The \"status\"-column tells if there are translations missing, or unused tags are defined.",
+    "lang_back": "Back",
+    "lang_createTag": "Create TAG",
+    "lang_deleteTAG": "Delete",
+    "lang_editConfigModule": "Edit config module strings",
+    "lang_editHardcoded": "Edit hardcoded strings",
+    "lang_editMessages": "Edit Messages",
+    "lang_editModules": "Edit Module Translations",
+    "lang_editSettings": "Edit configuration variables related strings",
+    "lang_editTemplates": "Edit template strings",
+    "lang_englishTAG": "English TAG",
+    "lang_germanTAG": "German TAG",
+    "lang_langAdministration": "Templates",
+    "lang_module": "Module",
+    "lang_newTAG": "New TAG",
+    "lang_portugueseTAG": "Portuguese TAG",
+    "lang_save": "Save",
+    "lang_status": "Status",
+    "lang_templateAdminHelp": "Here you can translate and edit phrases and texts.",
+    "lang_templateHint": "Hint: Yellow lines indicate a translation is missing and red lines indicate a tag is not being used by the template."
+}

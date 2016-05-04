@@ -1,8 +1,0 @@
-{
-    "lang_back": "Zur\u00fcck",
-    "lang_connectionWait": "Pr\u00fcfe Verbindung...",
-    "lang_next": "Weiter",
-    "lang_noOpenPort": "Auf dem angegebenen Server wurde kein offener Port gefunden.",
-    "lang_noValidCert": "Der Server besitzt kein oder ein nicht valides Zertifikat.",
-    "lang_selfSignedNote": "Das Zertifikat des Servers scheint selbst signiert zu sein. Wenn Sie fortfahren wird versucht, die Zertifikatskette vom Server abzufragen. Dies ist in den meisten F\u00e4llen erfolgreich, sollte aber nur getan werden wenn Sie wissen, dass das Zertifikat des Servers von einer unbekannten CA signiert wurde. Falls die Authentifizierung anschlie\u00dfend nicht funktioniert, \u00fcberpr\u00fcfen Sie die LDAP-Proxy Logs auf der Serverstatus-Seite."
-}

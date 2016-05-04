@@ -1,12 +1,3 @@
 {
-    "lang_actual": "Actual",
-    "lang_canUpdate1": "At least one component of",
-    "lang_canUpdate2": "can be updated. For a smooth operation, it is recommended to keep all components up to date.",
-    "lang_configurationPackageNotFound": "Configuration package not found!",
-    "lang_errorGetting": "Error while downloading list!",
-    "lang_listObtained": "Downloading list...",
-    "lang_outdated": "Outdated",
-    "lang_systemUpdated": "The system is up to date.",
-    "lang_update": "Update",
     "module_name": "Minilinux"
 }

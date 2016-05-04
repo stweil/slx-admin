@@ -1,14 +1,3 @@
 {
-    "lang_cancelConfirm": "Do you really want to remove this city?",
-    "lang_cityInfo": "Here you can create new cities for the website, besides editing or removing the existing ones",
-    "lang_cityPage": "Manage cities",
-    "lang_cityname": "City name",
-    "lang_close": "Close",
-    "lang_create": "Create",
-    "lang_edit": "Edit",
-    "lang_editcity": "Edit City",
-    "lang_operations": "Operations",
-    "lang_remove": "Remove",
-    "lang_save": "Save",
     "module_name": "Management"
 }

@@ -7,26 +7,20 @@
 	</div>
 </div>
 <div class="panel panel-default">
-	<table class="table table-hover">
+	<table class="table">
 		<thead>
 			<tr>
-				<th width="350">{{lang_module}}</th>
+				<th>{{lang_module}}</th>
 				<th>{{lang_status}}</th>
 			<tr>
 		</thead>
 		<tbody>
 			{{#table}}
-				<tr onclick="goTo('{{module}}');">
-					<td>{{module}}</td>
+				<tr>
+					<td><a href="?do=Translation&amp;module={{module}}">{{module}}</a></td>
 					<td>{{{status}}}</td>
 				</tr>
 			{{/table}}
 		</tbody>
 	</table>
 </div>
-
-<script>
-function goTo(link){
-	window.location.href = "?do=Translation&page=module&module=" + link;
-}
-</script>

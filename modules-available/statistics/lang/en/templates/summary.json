@@ -1,6 +1,0 @@
-{
-    "lang_inUseMachines": "In use",
-    "lang_knownMachines": "Known clients",
-    "lang_onlineMachines": "Online clients",
-    "lang_withBadSectors": "Clients with potentially bad HDDs (more than 10 reallocated sectors)"
-}

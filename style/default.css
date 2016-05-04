@@ -55,7 +55,7 @@ body {
   border-top-right-radius: 0;
 }
 
-.slx-default {
+.slx-default, .slx-notebox {
   color: #888;
   font-size: 90%;
   font-style: italic;
@@ -241,6 +241,25 @@ input[readonly] {
 	border-top-right-radius: 0px;
 	margin: 0px;
 	padding: 19px;
+}
+
+.slx-visible-rows > div.row {
+	border-style: solid;
+	border-color: #ddd;
+	border-width: 1px 0px;
+}
+
+.slx-visible-rows > div.row + div.row {
+	border-top: none;
+}
+
+.slx-visible-rows > div.row > div > * {
+	margin: 3px;
+}
+
+.slx-textpreview {
+	max-height: 60px;
+	overflow-y: auto;
 }
 
 /*

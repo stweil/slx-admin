@@ -37,6 +37,9 @@ class Message
 	 */
 	private static function add($type, $id, $params)
 	{
+		if (strstr($id, '.') === false) {
+			$id = Page::getModule()->getIdentifier() . '.' . $id;
+		}
 		self::$list[] = array(
 			'type'   => $type,
 			'id'     => $id,

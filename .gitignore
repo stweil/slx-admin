@@ -6,3 +6,4 @@ nbproject/
 /config.php
 /client_config_additional.php
 apis/tmpUploads/*
+/modules/
