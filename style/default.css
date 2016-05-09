@@ -260,6 +260,7 @@ input[readonly] {
 .slx-textpreview {
 	max-height: 60px;
 	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 /*

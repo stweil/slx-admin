@@ -118,8 +118,9 @@ class Dictionary
 			self::$languagesLong = array();
 			foreach (self::$languages as $lang) {
 				if (file_exists("lang/$lang/name.txt")) {
-					$name = @file_get_contents("lang/$lang/name.txt");
-				} else {
+					$name = file_get_contents("lang/$lang/name.txt");
+				}
+				if (!isset($name) || $name === false) {
 					$name = $lang;
 				}
 				self::$languagesLong[] = array(
@@ -129,6 +130,17 @@ class Dictionary
 			}
 		}
 		return self::$languagesLong;
+	}
+	
+	public static function getLanguageName($langCC)
+	{
+		if (file_exists("lang/$langCC/name.txt")) {
+			$name = file_get_contents("lang/$langCC/name.txt");
+		}
+		if (!isset($name) || $name === false) {
+			$name = $langCC;
+		}
+		return $name;
 	}
 
 }

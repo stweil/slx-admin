@@ -18,13 +18,19 @@
 			<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
 			<div class="row">
 				<div class="col-xs-4 col-sm-3">{{lang_tag}}</div>
-				<div class="col-xs-6 col-sm-4">{{lang_translation}}</div>
-				<div class="hidden-xs col-sm-4">{{lang_sample}}</div>
-				<div class="col-xs-2 col-sm-1">!</div>
+				<div class="col-xs-6 col-sm-4">{{lang_translation}} (<b>{{language}}</b>)</div>
+				<div class="hidden-xs col-sm-3 col-lg-4">{{lang_sample}}</div>
+				<div class="col-xs-2 col-sm-2 col-lg-1">!</div>
 			</div>
 			{{#tags}}
-			<div class="row {{class}}">
+			<div class="row">
 				<div class="col-xs-4 col-sm-3">
+					{{#unused}}
+					<span class="label label-info">{{lang_unused}}</span>
+					{{/unused}}
+					{{#missing}}
+					<span class="label label-warning">{{lang_missing}}</span>
+					{{/missing}}
 					{{tag}}
 					<div class="slx-notebox">{{{notes}}}</div>
 				</div>
@@ -36,14 +42,17 @@
 					<textarea rows="3" class="form-control" name="lang#!#{{tag}}" placeholder="{{placeholder}}">{{translation}}</textarea>
 					{{/big}}
 				</div>
-				<div class="hidden-xs col-sm-4">
+				<div class="hidden-xs col-sm-3 col-lg-4">
 					<div class="slx-textpreview"><div>
 						<div class="badge">{{samplelang}}</div>
 						{{sampletext}}
 						</div></div>
 				</div>
-				<div class="col-xs-2 col-sm-1">
-					<button type="button" class="btn btn-danger btn-xs" onclick="slxDelTag({{tagid}})"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</button>
+				<div class="col-xs-2 col-sm-2 col-lg-1">
+					<button type="button" class="btn btn-danger btn-xs" onclick="slxDelTag({{tagid}})" tabindex="-1">
+						<span class="glyphicon glyphicon-remove"></span>
+						<span class="hidden-xs">{{lang_deleteTAG}}</span>
+					</button>
 				</div>
 			</div>
 			{{/tags}}

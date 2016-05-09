@@ -5,7 +5,6 @@
     "lang_browseForFile": "Browse",
     "lang_download": "Download",
     "lang_dozmodExplanation": "This restores all the virtual machine and lecture meta data created using the \"Dozentenmodul\". Please make sure the VM-storage configured still contains all the VM-Images associated with the virtual machines. If the location of the storage changed, make sure the relative pathes on the share are still the same, otherwise the virtual machines won't be usable.",
-    "lang_file": "File",
     "lang_reboot": "System reboot",
     "lang_restore": "Upload",
     "lang_restoreConfig": "Restore config",

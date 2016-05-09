@@ -1,12 +1,12 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
-		{{lang_templates}}
+		{{lang_messages}}
 	</div>
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-sm-6">
 				{{#langs}}
-				<a href="?do=Translation&amp;module={{module}}&amp;section=template&amp;destlang={{cc}}">{{name}} &raquo;</a>
+				<a href="?do=Translation&amp;module={{module}}&amp;section=messages&amp;destlang={{cc}}">{{name}} &raquo;</a>
 				<ul>
 					<li>{{lang_missing}}: {{missing}}</li>
 					<li>{{lang_unused}}: {{unused}}</li>
@@ -14,12 +14,16 @@
 				{{/langs}}
 			</div>
 			<div class="col-sm-6">
-				{{lang_tags}}: {{tagcount}}
+				<div>{{lang_messages}}: {{messagecount}}</div>
 				<ul>
-				{{#templates}}
-				<li>{{template}}</li>
-				{{/templates}}
+					{{#files}}
+					<li>{{file}}</li>
+					{{/files}}
 				</ul>
+				<div>
+					<span class="label label-info">{{lang_hint}}</span>
+					{{lang_unusedUnreliableHint}}
+				</div>
 			</div>
 		</div>
 	</div>

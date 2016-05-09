@@ -59,6 +59,23 @@ class Page_Translation extends Page
 		require $path;
 		return $HANDLER;
 	}
+	
+	/**
+	 * Redirect to the closest matching page, as extracted from
+	 * get/post parameters.
+	 */
+	private function redirect($level = 99)
+	{
+		$params = array('do' => 'translation');
+		if ($level > 0 && $this->module !== false) {
+			$params['module'] = $this->module->getIdentifier();
+		}
+		if ($level > 1 && $this->section !== false && $this->destLang !== false && in_array($this->destLang, Dictionary::getLanguages())) {
+			$params['section'] = $this->section;
+			$params['destlang'] = $this->destLang;
+		}
+		Util::redirect('?' . http_build_query($params));
+	}
 
 	protected function doPreprocess()
 	{
@@ -76,26 +93,24 @@ class Page_Translation extends Page
 			$this->module = Module::get($moduleName, true);
 			if ($this->module === false) {
 				Message::addError('main.no-such-module', $moduleName);
-				Util::redirect('?do=Translation');
+				$this->redirect();
 			} elseif ($this->module->hasMissingDependencies()) {
 				Message::addError('main.module-missing-deps', $moduleName);
-				Util::redirect('?do=Translation');
+				$this->redirect();
 			}
 			$this->customHandler = $this->loadCustomHandler($moduleName);
 		}
-		// Section
-		$sectionName = Request::any('section', false, 'string');
-		if ($sectionName !== false) {
-			if (!$this->isValidSection($sectionName)) {
-				Message::addError('invalid-section', $sectionName);
-				if ($moduleName !== false) {
-					Util::redirect('?do=Translation&module=' . $moduleName);
+		if ($this->module !== false) {
+			// Section
+			$sectionName = Request::any('section', false, 'string');
+			if ($sectionName !== false) {
+				if (!$this->isValidSection($sectionName)) {
+					Message::addError('invalid-section', $sectionName);
+					$this->redirect();
 				}
-				Util::redirect('?do=Translation');
 			}
+			$this->section = $sectionName;
 		}
-		// Section
-		$this->section = $sectionName;
 		// Subsection (being checked when used)
 		$this->subsection = Request::any('subsection', false, 'string');
 		// LANG (verify if needed)
@@ -103,7 +118,7 @@ class Page_Translation extends Page
 
 		if (Request::post('update')) {
 			$this->updateJson();
-			Util::redirect('?do=Translation');
+			$this->redirect(1);
 		}
 	}
 	
@@ -111,7 +126,7 @@ class Page_Translation extends Page
 	{
 		if (!in_array($this->destLang, Dictionary::getLanguages())) {
 			Message::addError('i18n-invalid-lang', $this->destLang);
-			Util::redirect('?do=Translation');
+			$this->redirect();
 		}
 	}
 
@@ -121,7 +136,7 @@ class Page_Translation extends Page
 		
 		// Overview (list of modules)
 		if ($this->module === false) {
-			$this->showModuleList();
+			$this->showListOfModules();
 			return;
 		}
 		
@@ -190,7 +205,7 @@ class Page_Translation extends Page
 		}
 	}
 
-	private function showModuleList()
+	private function showListOfModules()
 	{
 		$table = array();
 
@@ -213,11 +228,21 @@ class Page_Translation extends Page
 	
 	private function showModule()
 	{
-		$templateTags = $this->loadModuleTemplateTags();
-		$data = array(
+		// Heading
+		Render::addTemplate('module-heading', array(
 			'module' => $this->module->getIdentifier(),
 			'moduleName' => $this->module->getDisplayName()
-		);
+		));
+		// Templates
+		$this->showModuleTemplates();
+		// Messages
+		$this->showModuleMessages();
+	}
+	
+	private function showModuleTemplates()
+	{
+		$templateTags = $this->loadUsedTemplateTags();
+		$data = array('module' => $this->module->getIdentifier());
 		$list = array();
 		$data['tagcount'] = 0;
 		foreach ($templateTags as $templates) {
@@ -239,11 +264,38 @@ class Page_Translation extends Page
 		}
 		Render::addTemplate('template-list', $data);
 	}
+	
+	private function showModuleMessages()
+	{
+		$messageTags = $this->loadUsedMessageTags();
+		$data = array('module' => $this->module->getIdentifier());
+		$list = array();
+		$data['messagecount'] = 0;
+		foreach ($messageTags as $templates) {
+			$list = array_merge($list, array_keys($templates['files']));
+			$data['messagecount']++;
+		}
+		foreach (Dictionary::getLanguages(true) as $lang) {
+			list($missing, $unused) = $this->getModuleTranslationStatus($lang['cc'], 'messages', $messageTags);
+			$data['langs'][] = array(
+				'cc' => $lang['cc'],
+				'name' => $lang['name'],
+				'missing' => $missing,
+				'unused' => $unused
+			);
+		}
+		$data['files'] = array();
+		foreach (array_unique($list) as $template) {
+			$data['files'][] = array('file' => $template);
+		}
+		Render::addTemplate('message-list', $data);
+	}
 
 	private function showTemplateEdit()
 	{
 		Render::addTemplate('edit', array(
 			'destlang' => $this->destLang,
+			'language' => Dictionary::getLanguageName($this->destLang),
 			'tags'     => $this->loadTemplateEditArray(),
 			'module'   => $this->module->getIdentifier(),
 			'section'  => $this->section
@@ -254,49 +306,19 @@ class Page_Translation extends Page
 	{
 		Render::addTemplate('edit', array(
 			'destlang' => $this->destLang,
+			'language' => Dictionary::getLanguageName($this->destLang),
 			'tags'     => $this->loadMessagesEditArray(),
 			'module'   => $this->module->getIdentifier(),
 			'section'  => $this->section
 		));
 	}
 
-	private function loadModuleEdit(){
-		$table = array();
-		$tags = array_flip($this->loadModuleTemplateTags($this->module));
-		foreach ($this->langs as $lang) {
-			$tags = array_merge($tags, Dictionary::getArray($this->module,$lang['cc']));
-		}
-		foreach ($tags as $tag => $value) {
-			$langArray = array();
-			$class = '';
-			foreach ($this->langs as $lang) {
-				$translations = Dictionary::getArray($this->module,$lang['cc']);
-				$langArray[] = 	array(
-					'lang' => $lang['cc'],
-					'placeholder' => 'TAG - ' . $lang['name'],
-					'translation' => $translations[$tag]
-				);
-				if(!in_array($tag, $this->loadModuleTemplateTags($this->module)))
-					$class = 'danger';
-				else if(!$translations[$tag])
-					$class = 'warning';
-			}
-			$table[] = array(
-				'tag' => $tag,
-				'class' => $class,
-				'langs' => $langArray
-			);
-		}
-
-		return $table;
-	}
-
 	/**
 	 * Get all tags used by templates of the given module.
 	 * @param \Module $module module in question, false to use the one being edited
-	 * @return array inde is tag, valie is array of templates using that tag
+	 * @return array index is tag, value is array of templates using that tag
 	 */
-	private function loadModuleTemplateTags($module = false)
+	private function loadUsedTemplateTags($module = false)
 	{
 		if ($module === false) {
 			$module = $this->module;
@@ -305,16 +327,45 @@ class Page_Translation extends Page
 		$path = 'modules/' . $module->getIdentifier() . '/templates';
 		if (is_dir($path)) {
 			// Return an array with the module language tags
-			$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
-			foreach ($objects as $name => $object) {
-				if (substr($name, -5) === '.html' && is_file($name)) {
-					$relTemplateName = substr($name, strlen($path), -5);
-					foreach ($this->getTagsFromTemplate($name) as $tag) {
-						$tags[$tag][] = $relTemplateName;
-					}
+			foreach ($this->getAllFiles($path, '.html') as $name) {
+				$relTemplateName = substr($name, strlen($path), -5);
+				foreach ($this->getTagsFromTemplate($name) as $tag) {
+					$tags[$tag][] = $relTemplateName;
 				}
 			}
 		}
+		return $tags;
+	}
+
+	/**
+	 * Get all message tags of the given module.
+	 * Returns array indexed by tag, value is
+	 * array(
+	 *	    'data' => rest of arguments to message
+	 *     'files' => array(filename => occurencecount, ...)
+	 * )
+	 *
+	 * @param \Module $module module in question, false to use the one being edited
+	 * @return array see above
+	 */
+	private function loadUsedMessageTags($module = false)
+	{
+		if ($module === false) {
+			$module = $this->module;
+		}
+		$tags = $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"](?<module>[^\'"\.]*)\.(?<tag>[^\'"]*)[\'"]\s*(?<data>\)|\,.*)/i',
+			$this->getAllFiles('modules', '.php'));
+		// Filter out tags that don't refer to this module
+		foreach (array_keys($tags) as $tag) {
+			// Figure out if this is a message from this module or not
+			if ($tags[$tag]['module'] === $module->getIdentifier()) {
+				// Direct reference to this module via module.id
+				continue;
+			}
+			unset($tags[$tag]);
+		}
+		$tags += $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"](?<tag>[^\'"\.]*)[\'"]\s*(?<data>\)|\,.*)/i',
+			$this->getModulePhpFiles($module));
 		return $tags;
 	}
 	
@@ -348,10 +399,10 @@ class Page_Translation extends Page
 			$module = $this->module;
 		}
 		if ($tags === false) {
-			$tags = $this->loadModuleTemplateTags($module);
+			$tags = $this->loadUsedTemplateTags();
 		}
 		$globalTranslation = Dictionary::getArray('main', 'global-template-tags', $lang);
-		$translation = array_unique(array_merge(Dictionary::getArray($module->getIdentifier(), 'template-tags', $lang), $globalTranslation));
+		$translation = Dictionary::getArray($module->getIdentifier(), 'template-tags', $lang) + $globalTranslation;
 		$matches = 0;
 		$unused = 0;
 		$expected = count($tags);
@@ -368,10 +419,39 @@ class Page_Translation extends Page
 		$missing = $expected - $matches;
 		return array($missing, $unused);
 	}
+	
+	/**
+	 * Get missing and unused counters for given module's templates.
+	 *
+	 * @param type $lang lang to use
+	 * @param type $tags
+	 * @param type $module
+	 * @return array list(missingCount, unusedCount)
+	 */
+	private function getModuleTranslationStatus($lang, $file, $tags, $module = false)
+	{
+		if ($module === false) {
+			$module = $this->module;
+		}
+		$translation = Dictionary::getArray($module->getIdentifier(), $file, $lang);
+		$matches = 0;
+		$unused = 0;
+		$expected = count($tags);
+		foreach ($translation as $key => $value) {
+			if(!isset($tags[$key])) {
+				$unused++;
+			} else {
+				$matches++;
+			}
+
+		}
+		$missing = $expected - $matches;
+		return array($missing, $unused);
+	}
 
 	private function checkModuleTranslation($module)
 	{
-		$tags = $this->loadModuleTemplateTags($module);
+		$tags = $this->loadUsedTemplateTags($module);
 		$msgs = '';
 		foreach (Dictionary::getLanguages() as $lang) {
 			list($missing, $unused) = $this->getModuleTemplateStatus($lang, $tags, $module);
@@ -392,77 +472,38 @@ class Page_Translation extends Page
 		}
 		return $msgs;
 	}
-	/**
-	 * Load the main table with all the website's templates and it's informations
-	 * @return array with the templates' information
-	 */
-	private function loadTemplatesList()
-	{
-		$table = array();
-
-		//loads every template
-		$files = $this->listTemplates();
-		$langs = Dictionary::getLanguages(true);
-
-		//checks the JSON tags from every language
-		foreach ($files as $file) {
-			$tags = $this->loadTemplateTags($file['path']);
-			// Don't list templates without lang tags
-			if (empty($tags))
-				continue;
-			$msgs = '';
-			foreach ($langs as $lang) {
-				$msg = $this->checkJson($file['path'], $lang['cc'], $tags);
-				if (!empty($msg))
-					$msgs .= "<div><span class='badge'>{$lang['name']}:</span>$msg</div>";
-			}
-			if (empty($msgs))
-				$msgs = 'OK';
-			$table[] = array(
-				'template' => $file['name'],
-				'link' => $file['name'],
-				'status' => $msgs
-			);
-		}
-		sort($table);
-		return $table;
-	}
 
 	/**
-	 * Finds and returns all the website's templates
-	 * @return array
+	 * Finds and returns all PHP files of slxadmin.
+	 *
+	 * @return array of all php file names
 	 */
-	private function listTemplates()
-	{
-		$files = array();
-		$dir = 'modules/';
-		$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
-		foreach ($objects as $name => $object) {
-			if (substr($name, -5) === '.html') {
-				$files[] = array(
-					'path' => substr($name, 0, -5),
-					'name' => substr($name, strlen($dir), -5)
-				);
-			}
-		}
-		return $files;
-	}
-
-	/**
-	 * Finds and returns all PHP files of slxadmin
-	 * @return array of all php files
-	 */
-	private function getModulePhpFiles()
+	private function getAllFiles($dir, $extension)
 	{
 		$php = array();
-		$dir = 'modules/' . $this->module->getIdentifier();
-		$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
-		foreach ($objects as $name => $object) {
-			if (substr($name, -4) === '.php' && is_file($name)) {
+		$extLen = -strlen($extension);
+		foreach (scandir($dir, SCANDIR_SORT_NONE) as $name) {
+			if ($name === '.' || $name === '..')
+				continue;
+			$name = $dir . '/' . $name;
+			if (substr($name, $extLen) === $extension && is_file($name)) {
 				$php[] = $name;
+			} else if (is_dir($name)) {
+				$php = array_merge($php, $this->getAllFiles($name, $extension));
 			}
 		}
 		return $php;
+	}
+
+	/**
+	 * Finds and returns all PHP files of current module.
+	 *
+	 * @param \Module $module Module to get the php files of
+	 * @return array of php file names
+	 */
+	private function getModulePhpFiles($module)
+	{
+		return $this->getAllFiles('modules/' . $module->getIdentifier(), '.php');
 	}
 
 	/**
@@ -518,7 +559,7 @@ class Page_Translation extends Page
 	 */
 	private function loadTemplateEditArray()
 	{
-		$tags = $this->loadModuleTemplateTags();
+		$tags = $this->loadUsedTemplateTags();
 		if ($tags === false)
 			return false;
 		$table = $this->buildTranslationTable('template-tags', array_keys($tags), true);
@@ -542,12 +583,20 @@ class Page_Translation extends Page
 	 */
 	private function loadMessagesEditArray()
 	{
-		// TODO: Scan for uses in other modules, handle module.id syntax
-		$tags = $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"]([^\'"]*)[\'"]\s*(\)|\,.*)/i');
+		$tags = $this->loadUsedMessageTags();
 		$table = $this->buildTranslationTable('messages', array_keys($tags), true);
 		foreach ($table as &$entry) {
-			if (isset($tags[$entry['tag']]) && is_string($tags[$entry['tag']])) {
-				$entry['notes'] = 'Params: ' . $this->countMessageParams($tags[$entry['tag']]);
+			if (!isset($tags[$entry['tag']]))
+				continue;
+			$tag =& $tags[$entry['tag']];
+			// Add tag information
+			if (isset($tag['data']) && is_string($tag['data'])) {
+				$entry['notes'] = '<b>Params: ' . $this->countMessageParams($tag['data']) . '</b>';
+			} else {
+				$entry['notes'] = '';
+			}
+			foreach ($tag['files'] as $file => $count) {
+				$entry['notes'] .= '<br>' . htmlspecialchars($file) . ': ' . $count . '×';
 			}
 		}
 		return $table;
@@ -555,7 +604,6 @@ class Page_Translation extends Page
 	
 	private function countMessageParams($str)
 	{
-		error_log($str);
 		$quote = false;
 		$escape = false;
 		$count = 0;
@@ -591,58 +639,39 @@ class Page_Translation extends Page
 	}
 
 	/**
-	 * Load array of tags used in given template.
-	 * @param string $path the path of the template, relative to templates/, without .html extension.
-	 * @return array all tags in template
+	 * Load array of tags used in all the php files, by given regexp.
+	 * The capture group containing the tag name must be named tag, which
+	 * can be achieved by using (?<tag>..). All other capture groups will
+	 * be returned in the resulting array.
+	 * The return value is an array indexed by tag, and the value for each tag is of type
+	 * array('captureX' => captureX, 'captureY' => captureY, 'files' => array(
+	 *	    file1 => count,
+	 *	    fileN => count
+	 * )).
+	 *
+	 * @param string $regexp regular expression
+	 * @param array $files list of files to scan
+	 * @return array of all tags found, where the tag is the key, and the value is as described above
 	 */
-	private function loadTemplateTags($path)
-	{
-		$templateFile = "$path.html";
-		//checks if the template is valid
-		if (!file_exists($templateFile)) {
-			Message::addError('invalid-template', $templateFile);
-			return false;
-		}
-
-		//finds every mustache tag within the html template
-		$htmlTemplate = file_get_contents($templateFile);
-		preg_match_all('/{{(lang_.*?)}}/s', $htmlTemplate, $matches);
-		if (!isset($matches[1]) || !is_array($matches[1]))
-			return array();
-		return array_unique($matches[1]);
-	}
-
-	/**
-	 * Load array of tags and translations of all strings found in the php files.
-	 * @return array the information about the JSON tags
-	 */
-	private function loadHardcodedStringEditArray()
-	{
-		// TODO: Return changed
-		$tags = $this->loadTagsFromPhp('/Dictionary\s*::\s*translate\s*\(\s*[\'"]([^\'"]*?)[\'"]\s*\)/i');
-		if ($tags === false)
-			return false;
-		return $this->buildTranslationTable('messages-hardcoded', $tags);
-	}
-
-	/**
-	 * Load array of tags used in all the php files, by given regexp. Capture group 1 should return
-	 * the exact tag name.
-	 * @param string $regexp regular expression matching all tags in capture group 1
-	 * @return array of all tags found
-	 */
-	private function loadTagsFromPhp($regexp)
+	private function loadTagsFromPhp($regexp, $files)
 	{
 		// Get all php files, so we can find all strings that need to be translated
-		$php = $this->getModulePhpFiles();
 		$tags = array();
 		// Now find all tags in all php files. Only works for literal usage, not something like $foo = 'bar'; Dictionary::translate($foo);
-		foreach ($php as $file) {
+		foreach ($files as $file) {
 			$content = @file_get_contents($file);
 			if ($content === false || preg_match_all($regexp, $content, $out, PREG_SET_ORDER) < 1)
 				continue;
 			foreach ($out as $set) {
-				$tags[$set[1]] = isset($set[2]) ? $set[2] : true;
+				if (!isset($tags[$set['tag']])) {
+					$tags[$set['tag']] = $set;
+					$tags[$set['tag']]['files'] = array();
+				}
+				if (isset($tags[$set['tag']]['files'][$file])) {
+					$tags[$set['tag']]['files'][$file]++;
+				} else {
+					$tags[$set['tag']]['files'][$file] = 1;
+				}
 			}
 		}
 		return $tags;
@@ -653,12 +682,16 @@ class Page_Translation extends Page
 		$tags = array();
 		if ($requiredTags !== false) {
 			foreach ($requiredTags as $tagName) {
-				$tags[$tagName] = array('tag' => $tagName);
+				$tags[$tagName] = array('tag' => $tagName, 'required' => true);
 			}
 		}
+		// Sort here, so all tags known to be used are in alphabetical order
+		ksort($tags);
 		// Finds every tag within the JSON language file
 		$jsonTags = Dictionary::getArray($this->module->getIdentifier(), $file, $this->destLang);
 		if (is_array($jsonTags)) {
+			// Sort these separately so unused tags will be at the bottom of the list, but still ordered alphabetically
+			ksort($jsonTags);
 			foreach ($jsonTags as $tag => $translation) {
 				$tags[$tag]['translation'] = $translation;
 				if (strpos($translation, "\n") !== false) {
@@ -696,6 +729,14 @@ class Page_Translation extends Page
 		$tagid = 0;
 		foreach ($tags as &$tag) {
 			$tag['tagid'] = $tagid++;
+			if ($requiredTags !== false) {
+				// We have a list of required tags, so mark those that are missing or unused
+				if (!isset($tag['required'])) {
+					$tag['unused'] = true;
+				} elseif (!isset($tag['translation'])) {
+					$tag['missing'] = true;
+				}
+			}
 		}
 		// Finally remove $lang from the keys so mustache will iterate over them via {{#..}}
 		return array_values($tags);
@@ -734,16 +775,16 @@ class Page_Translation extends Page
 		if ($this->section === 'custom') {
 			if ($this->customHandler === false || !isset($this->customHandler['subsections'])) {
 				Message::addError('no-custom-handlers');
-				Util::redirect('?do=Translation');
+				$this->redirect(1);
 			}
 			if (!in_array($this->subsection, $this->customHandler['subsections'], true)) {
 				Message::addError('invalid-custom-handler', $this->subsection);
-				Util::redirect('?do=Translation');
+				$this->redirect(1);
 			}
 			return $prefix . '/' . $this->subsection;
 		}
 		Message::addError('invalid-section', $this->section);
-		Util::redirect('?do=Translation');
+		$this->redirect(1);
 	}
 
 	/**
@@ -754,7 +795,7 @@ class Page_Translation extends Page
 		$this->ensureValidDestLanguage();
 		if ($this->module === false) {
 			Message::addError('main.no-module-given');
-			Util::redirect('?do=Translation');
+			$this->redirect();
 		}
 		$file = $this->getJsonFile();
 		
@@ -789,7 +830,7 @@ class Page_Translation extends Page
 		//saves the new values on the file
 		$path = dirname($file);
 		if (!is_dir($path)) {
-			mkdir($path, 0755, true);
+			mkdir($path, 0775, true);
 		}
 
 		if (empty($data)) {
@@ -803,7 +844,7 @@ class Page_Translation extends Page
 			$json = up_json_encode($data, JSON_PRETTY_PRINT); // Also for better diffability of the json files, we pretty print
 			//exits the function in case the action was unsuccessful
 			if (file_put_contents($file, $json) === false) {
-				Message::addError('invalid-template');
+				Message::addError('error-write', $file);
 				return;
 			}
 		}

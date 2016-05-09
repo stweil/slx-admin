@@ -9,14 +9,17 @@
     "lang_editModules": "Edit Module Translations",
     "lang_editSettings": "Edit configuration variables related strings",
     "lang_editTemplates": "Edit template strings",
-    "lang_englishTAG": "English TAG",
-    "lang_germanTAG": "German TAG",
     "lang_langAdministration": "Templates",
+    "lang_missing": "Missing",
     "lang_module": "Module",
-    "lang_newTAG": "New TAG",
-    "lang_portugueseTAG": "Portuguese TAG",
+    "lang_sample": "Sample",
     "lang_save": "Save",
     "lang_status": "Status",
+    "lang_tag": "Tag",
+    "lang_tags": "Tags",
     "lang_templateAdminHelp": "Here you can translate and edit phrases and texts.",
-    "lang_templateHint": "Hint: Yellow lines indicate a translation is missing and red lines indicate a tag is not being used by the template."
+    "lang_templateHint": "Hint: Yellow lines indicate a translation is missing and red lines indicate a tag is not being used by the template.",
+    "lang_templates": "Templates",
+    "lang_translation": "Translation",
+    "lang_unused": "Unused"
 }
