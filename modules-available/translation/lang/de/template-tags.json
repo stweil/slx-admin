@@ -9,9 +9,13 @@
     "lang_editModules": "Modul bearbeiten",
     "lang_editSettings": "Einstellungstexte bearbeiten",
     "lang_editTemplates": "Template-Texte bearbeiten",
+    "lang_hint": "Hinweis",
     "lang_langAdministration": "Templates",
-    "lang_missing": "Fehlt",
+    "lang_mainHeading": "\u00dcbersetzungen verwalten",
+    "lang_messages": "Benachrichtigungen",
+    "lang_missing": "Fehlend",
     "lang_module": "Modul",
+    "lang_otherStrings": "Andere Texte",
     "lang_sample": "Beispiel",
     "lang_save": "Speichern",
     "lang_status": "Status",
@@ -21,5 +25,6 @@
     "lang_templateHint": "Hinweis: Gelbe Linie zeigt eine \u00dcbersetzung fehlt und roten Linien zeigen ein Tag wird nicht von das Template verwendet.",
     "lang_templates": "Templates",
     "lang_translation": "\u00dcbersetzung",
-    "lang_unused": "Ungenutzt"
+    "lang_unused": "Ungenutzt",
+    "lang_unusedUnreliableHint": "Die Erkennung von ungenutzten Tags bezieht nur aktivierte Module mit ein. Es k\u00f6nnte sein, dass ein ungenutzt gemeldeter Tag in einem nicht aktivierten Modul verwendet wird."
 }

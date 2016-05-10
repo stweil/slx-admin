@@ -156,7 +156,7 @@ class Module
 
 	public function getDisplayName()
 	{
-		$string = Dictionary::translate($this->name, 'module', 'module_name');
+		$string = Dictionary::translateFileModule($this->name, 'module', 'module_name');
 		if ($string === false) {
 			return '!!' . $this->name . '!!';
 		}
@@ -165,7 +165,7 @@ class Module
 
 	public function getPageTitle()
 	{
-		return Dictionary::translate($this->name, 'module', 'page_title');
+		return Dictionary::translateFileModule($this->name, 'module', 'page_title');
 	}
 	
 	public function getCategory()
@@ -176,19 +176,6 @@ class Module
 	public function getCategoryName()
 	{
 		return Dictionary::getCategoryName($this->category);
-	}
-	
-	public function translate($tag, $section = 'module')
-	{
-		$string = Dictionary::translate($this->name, $section, $tag);
-		if ($string === false) {
-			$string = Dictionary::translate('core', $section, $tag);
-		}
-		if ($string === false) {
-			error_log('Translation not found. Module: ' . $this->name . ', section: ' . $section . ', tag: ' . $tag);
-			$string = '!!' . $tag . '!!';
-		}
-		return $string;
 	}
 
 }

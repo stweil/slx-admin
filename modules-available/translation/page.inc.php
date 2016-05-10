@@ -42,7 +42,7 @@ class Page_Translation extends Page
 	
 	public function __construct()
 	{
-		$this->builtInSections = array('template', 'messages', 'custom');
+		$this->builtInSections = array('template', 'messages', 'module', 'custom');
 	}
 	
 	private function isValidSection($section)
@@ -159,50 +159,22 @@ class Page_Translation extends Page
 			$this->showMessagesEdit();
 			return;
 		}
-
-		//load the page accordingly to the link
-		switch ($this->section) {
-			case 'messages':
-				//renders the message edit page
-				Render::addTemplate('edit', array(
-					'path' => 'messages',
-					'langs' => $langs,
-					'tags' => $this->loadMessageEditArray()
-				));
-				break;
-			case 'hardcoded':
-				//renders the hardcoded messages edit page
-				Render::addTemplate('edit', array(
-					'path' => 'messages-hardcoded',
-					'langs' => $langs,
-					'tags' => $this->loadHardcodedStringEditArray()
-				));
-				break;
-			case 'settings':
-				//renders the settings related edit page
-				Render::addTemplate('edit', array(
-					'path' => 'cat_setting',
-					'langs' => $langs,
-					'tags' => $this->loadCategoriesArray()
-				));
-				Render::addTemplate('edit', array(
-					'path' => 'setting',
-					'langs' => $langs,
-					'tags' => $this->loadSettingsArray()
-				));
-				break;
-			case 'config-module':
-				//renders the hardcoded messages edit page
-				Render::addTemplate('edit', array(
-					'path' => 'config-module',
-					'langs' => $langs,
-					'tags' => $this->buildTranslationTable('config-module')
-				));
-				break;
-			default:
-				//renders main page with selection of what part to edit
-				Render::addTemplate('_page');
+		
+		// Module
+		if ($this->section === 'module') {
+			$this->ensureValidDestLanguage();
+			$this->showModuleEdit();
+			return;
 		}
+
+		// Custom
+		if ($this->section === 'custom') {
+			$this->ensureValidDestLanguage();
+			$this->showCustomEdit();
+			return;
+		}
+		
+		$this->redirect();
 	}
 
 	private function showListOfModules()
@@ -237,16 +209,20 @@ class Page_Translation extends Page
 		$this->showModuleTemplates();
 		// Messages
 		$this->showModuleMessages();
+		// Other/hardcoded strings
+		$this->showModuleStrings();
+		// Module specific
+		$this->showModuleCustom();
 	}
 	
 	private function showModuleTemplates()
 	{
 		$templateTags = $this->loadUsedTemplateTags();
 		$data = array('module' => $this->module->getIdentifier());
-		$list = array();
+		$templateNames = array();
 		$data['tagcount'] = 0;
 		foreach ($templateTags as $templates) {
-			$list = array_merge($list, $templates);
+			$templateNames = array_merge($templateNames, $templates);
 			$data['tagcount']++;
 		}
 		foreach (Dictionary::getLanguages(true) as $lang) {
@@ -259,7 +235,7 @@ class Page_Translation extends Page
 			);
 		}
 		$data['templates'] = array();
-		foreach (array_unique($list) as $template) {
+		foreach (array_unique($templateNames) as $template) {
 			$data['templates'][] = array('template' => $template);
 		}
 		Render::addTemplate('template-list', $data);
@@ -269,14 +245,14 @@ class Page_Translation extends Page
 	{
 		$messageTags = $this->loadUsedMessageTags();
 		$data = array('module' => $this->module->getIdentifier());
-		$list = array();
+		$phpFiles = array();
 		$data['messagecount'] = 0;
 		foreach ($messageTags as $templates) {
-			$list = array_merge($list, array_keys($templates['files']));
+			$phpFiles = array_merge($phpFiles, array_keys($templates['files']));
 			$data['messagecount']++;
 		}
 		foreach (Dictionary::getLanguages(true) as $lang) {
-			list($missing, $unused) = $this->getModuleTranslationStatus($lang['cc'], 'messages', $messageTags);
+			list($missing, $unused) = $this->getModuleTranslationStatus($lang['cc'], 'messages', false, $messageTags);
 			$data['langs'][] = array(
 				'cc' => $lang['cc'],
 				'name' => $lang['name'],
@@ -285,10 +261,56 @@ class Page_Translation extends Page
 			);
 		}
 		$data['files'] = array();
-		foreach (array_unique($list) as $template) {
+		foreach (array_unique($phpFiles) as $template) {
 			$data['files'][] = array('file' => $template);
 		}
 		Render::addTemplate('message-list', $data);
+	}
+	
+	private function showModuleStrings()
+	{
+		$moduleTags = $this->loadUsedModuleTags();
+		$data = array('module' => $this->module->getIdentifier());
+		$data['tagcount'] = count($moduleTags);
+		foreach (Dictionary::getLanguages(true) as $lang) {
+			list($missing, $unused) = $this->getModuleTranslationStatus($lang['cc'], 'module', true, $moduleTags);
+			$data['langs'][] = array(
+				'cc' => $lang['cc'],
+				'name' => $lang['name'],
+				'missing' => $missing,
+				'unused' => $unused
+			);
+		}
+		Render::addTemplate('string-list', $data);
+	}
+	
+	private function showModuleCustom()
+	{
+		if ($this->customHandler === false)
+			return;
+		foreach ($this->customHandler['subsections'] as $subsection) {
+			$this->showModuleCustomSubsection($subsection);
+		}
+	}
+	
+	private function showModuleCustomSubsection($subsection)
+	{
+		$moduleTags = $this->loadUsedCustomTags($subsection);
+		$data = array(
+			'subsection' => $subsection,
+			'module' => $this->module->getIdentifier(),
+			'tagcount' => count($moduleTags),
+		);
+		foreach (Dictionary::getLanguages(true) as $lang) {
+			list($missing, $unused) = $this->getModuleTranslationStatus($lang['cc'], $subsection, false, $moduleTags);
+			$data['langs'][] = array(
+				'cc' => $lang['cc'],
+				'name' => $lang['name'],
+				'missing' => $missing,
+				'unused' => $unused
+			);
+		}
+		Render::addTemplate('custom-list', $data);
 	}
 
 	private function showTemplateEdit()
@@ -313,10 +335,34 @@ class Page_Translation extends Page
 		));
 	}
 
+	private function showModuleEdit()
+	{
+		Render::addTemplate('edit', array(
+			'destlang' => $this->destLang,
+			'language' => Dictionary::getLanguageName($this->destLang),
+			'tags'     => $this->loadModuleEditArray(),
+			'module'   => $this->module->getIdentifier(),
+			'section'  => $this->section
+		));
+	}
+
+	private function showCustomEdit()
+	{
+		Render::addTemplate('edit', array(
+			'destlang' => $this->destLang,
+			'language' => Dictionary::getLanguageName($this->destLang),
+			'tags'     => $this->loadCustomEditArray(),
+			'module'   => $this->module->getIdentifier(),
+			'section'  => $this->section,
+			'subsection' => $this->subsection
+		));
+	}
+
 	/**
 	 * Get all tags used by templates of the given module.
-	 * @param \Module $module module in question, false to use the one being edited
-	 * @return array index is tag, value is array of templates using that tag
+	 * @param \Module $module module in question, false to use the one being edited.
+	 *
+	 * @return array of array(tag => array of templates using that tag)
 	 */
 	private function loadUsedTemplateTags($module = false)
 	{
@@ -368,6 +414,41 @@ class Page_Translation extends Page
 			$this->getModulePhpFiles($module));
 		return $tags;
 	}
+
+	/**
+	 * Get all module tags used/required.
+	 *
+	 * @param type $module
+	 * @return array of array(tagname => (bool)required)
+	 */
+	private function loadUsedModuleTags($module = false)
+	{
+		if ($module === false) {
+			$module = $this->module;
+		}
+		$tags = $this->loadTagsFromPhp('/Dictionary\s*::\s*translate\s*\(\s*[\'"](?<tag>[^\'"\.]*)[\'"]\s*\)/i',
+			$this->getModulePhpFiles($module));
+		foreach ($tags as &$tag) {
+			$tag = true;
+		}
+		unset($tag);
+		// Fixup special tags
+		if ($module->getCategory() === false) {
+			unset($tags['module_name']);
+			unset($tags['page_title']);
+		} else {
+			$tags['module_name'] = true;
+			$tags['page_title'] = false;
+		}
+		return $tags;
+	}
+	
+	private function loadUsedCustomTags($subsection)
+	{
+		if (!isset($this->customHandler['grep_'.$subsection]))
+			return array();
+		return $this->customHandler['grep_'.$subsection]($this->module);
+	}
 	
 	private function getTagsFromTemplate($templateFile)
 	{
@@ -395,53 +476,49 @@ class Page_Translation extends Page
 	 */
 	private function getModuleTemplateStatus($lang, $tags = false, $module = false)
 	{
+		return $this->getModuleTranslationStatus($lang, 'template-tags', true, $tags, $module);
+	}
+	
+	/**
+	 * Get missing and unused counters for given translation unit.
+	 * This is a more general version of the getModuleTemplateStatus function,
+	 * which is special since it uses fallback to global translations.
+	 *
+	 * @param string $lang lang cc to use
+	 * @param string $file the name of the translation file to load for checking
+	 * @param boolean $fallback whether to check the global-tags of the main module as fallback
+	 * @param array $tags list of tags that are expected to exist. Tags are the array keys!
+	 * @param \Module $module the module to work with, defaults to the currently edited module
+	 * @return array list(missingCount, unusedCount)
+	 */
+	private function getModuleTranslationStatus($lang, $file, $fallback, $tags, $module = false)
+	{
 		if ($module === false) {
 			$module = $this->module;
 		}
-		if ($tags === false) {
-			$tags = $this->loadUsedTemplateTags();
+		if ($fallback) {
+			$globalTranslation = Dictionary::getArray('main', 'global-tags', $lang);
+		} else {
+			$globalTranslation = array();
 		}
-		$globalTranslation = Dictionary::getArray('main', 'global-template-tags', $lang);
-		$translation = Dictionary::getArray($module->getIdentifier(), 'template-tags', $lang) + $globalTranslation;
+		$translation = Dictionary::getArray($module->getIdentifier(), $file, $lang) + $globalTranslation;
 		$matches = 0;
 		$unused = 0;
-		$expected = count($tags);
-		foreach ($translation as $key => $value) {
+		$expected = 0;
+		foreach ($tags as $v) {
+			if ($v !== false) {
+				$expected++;
+			}
+		}
+		foreach (array_keys($translation) as $key) {
 			if(!isset($tags[$key])) {
 				if (!in_array($key, $globalTranslation)) {
 					$unused++;
 				}
 			} else {
-				$matches++;
-			}
-
-		}
-		$missing = $expected - $matches;
-		return array($missing, $unused);
-	}
-	
-	/**
-	 * Get missing and unused counters for given module's templates.
-	 *
-	 * @param type $lang lang to use
-	 * @param type $tags
-	 * @param type $module
-	 * @return array list(missingCount, unusedCount)
-	 */
-	private function getModuleTranslationStatus($lang, $file, $tags, $module = false)
-	{
-		if ($module === false) {
-			$module = $this->module;
-		}
-		$translation = Dictionary::getArray($module->getIdentifier(), $file, $lang);
-		$matches = 0;
-		$unused = 0;
-		$expected = count($tags);
-		foreach ($translation as $key => $value) {
-			if(!isset($tags[$key])) {
-				$unused++;
-			} else {
-				$matches++;
+				if ($tags[$key] !== false) {
+					$matches++;
+				}
 			}
 
 		}
@@ -507,51 +584,6 @@ class Page_Translation extends Page
 	}
 
 	/**
-	 * Checks the JSON tags from a template
-	 * @param string the template's path
-	 * @param string the selected language
-	 * @param string tags that should be in the json file
-	 * @return string|boolean the information about the JSON tags, false if template has no lang-tags
-	 */
-	private function checkJson($path, $lang, $expectedTags)
-	{
-		//if there was not a valid template's path
-		if (!$path) {
-			return "Translation missing";
-		}
-		// How many tags do we expect in the translation
-		$htmlCount = count($expectedTags);
-
-		//initialize the count variables
-		$matchCount = 0;
-		$unusedCount = 0;
-
-		//loads the JSON tags and count the matches
-		$json = Dictionary::getArray(substr($path, strlen("modules/")), $lang);
-		//return print_r($json) . "\nvs\n" . print_r($expectedTags);
-		foreach ($json as $key => $value) {
-			if (!in_array($key, $expectedTags)) {
-				$unusedCount++;
-			} else if (!empty($value)) {
-				$matchCount++;
-			}
-		}
-		$diff = $htmlCount - $matchCount;
-
-		if ($diff == 0 && $unusedCount == 0)
-			return '';
-		//build the return string
-		$str = "";
-		if ($diff > 0)
-			$str .= $diff . " JSON tag(s) are missing";
-		if ($diff > 0 && $unusedCount > 0)
-			$str .= "<br>";
-		if ($unusedCount > 0)
-			$str .= $unusedCount . " JSON tag(s) are not being used";
-		return $str;
-	}
-
-	/**
 	 * Get array to pass to edit page with all the tags and translations.
 	 *
 	 * @param string $path the template's path
@@ -563,7 +595,7 @@ class Page_Translation extends Page
 		if ($tags === false)
 			return false;
 		$table = $this->buildTranslationTable('template-tags', array_keys($tags), true);
-		$global = Dictionary::getArray($this->module->getIdentifier(), 'global-template-tags', $this->destLang);
+		$global = Dictionary::getArray($this->module->getIdentifier(), 'global-tags', $this->destLang);
 		foreach ($table as &$entry) {
 			if (empty($entry['translation']) && isset($global[$entry['tag']])) {
 				$entry['placeholder'] = $global[$entry['tag']];
@@ -602,6 +634,41 @@ class Page_Translation extends Page
 		return $table;
 	}
 	
+	/**
+	 * Get array to pass to edit page with all the message ids.
+	 *
+	 * @param string $path the template's path
+	 * @return array structure to pass to the tags list in the edit template
+	 */
+	private function loadModuleEditArray()
+	{
+		$tags = $this->loadUsedModuleTags();
+		$table = $this->buildTranslationTable('module', array_keys($tags), true);
+		return $table;
+	}
+	
+	/**
+	 * Get array to pass to edit page with all the message ids.
+	 *
+	 * @param string $path the template's path
+	 * @return array structure to pass to the tags list in the edit template
+	 */
+	private function loadCustomEditArray()
+	{
+		$tags = $this->loadUsedCustomTags($this->subsection);
+		$table = $this->buildTranslationTable($this->subsection, array_keys($tags), true);
+		return $table;
+	}
+	
+	/**
+	 * Quick and dirty method to count the parameters of a message/translate invocation.
+	 * Expects the rest of an invocation, so e.g. addMessage('foo-foo', 'hi'); becomes
+	 * , 'hi'); or addMessage('foo'); becomes just );
+	 * This obviously fails if the call is spread over multiple lines.
+	 *
+	 * @param string $str the partial method call
+	 * @return int number of arguments to the method, minus the message id
+	 */
 	private function countMessageParams($str)
 	{
 		$quote = false;
@@ -611,28 +678,36 @@ class Page_Translation extends Page
 		$depth = 0;
 		for ($i = 0; $i < $len; ++$i) {
 			$char = $str{$i};
+			// Last char was backslash? Ignore this char
 			if ($escape) {
 				$escape = false;
 				continue;
 			}
-			if ($quote === false) {
-				if ($char === ',') {
-					if ($depth === 0) {
-						$count++;
-					}
-				} elseif ($char === '"' || $char === "'") {
-					$quote = $char;
-				} elseif ($char === '{' || $char === '(' || $char === '[') {
-					$depth++;
-				} elseif ($char === '}' || $char === ')' || $char === ']') {
-					$depth--;
-				}
-			} else {
+			// We're inside quotes, watch for end or backslash
+			if ($quote !== false) {
 				if ($char === $quote) {
 					$quote = false;
 				} elseif ($char === '\\') {
 					$escape = true;
 				}
+				continue;
+			}
+			// We're not inside quotes
+			// Check if we have a parameter delimiter
+			if ($char === ',') {
+				// Check we're not in a nested method call
+				if ($depth === 0) {
+					$count++; // Increase parameter counter
+				}
+			} elseif ($char === '"' || $char === "'") {
+				// Start of string
+				$quote = $char;
+			} elseif ($char === '{' || $char === '(' || $char === '[') {
+				// Nested method etc.
+				$depth++;
+			} elseif ($char === '}' || $char === ')' || $char === ']') {
+				// End nested method
+				$depth--;
 			}
 		}
 		return $count;
@@ -659,7 +734,7 @@ class Page_Translation extends Page
 		$tags = array();
 		// Now find all tags in all php files. Only works for literal usage, not something like $foo = 'bar'; Dictionary::translate($foo);
 		foreach ($files as $file) {
-			$content = @file_get_contents($file);
+			$content = file_get_contents($file);
 			if ($content === false || preg_match_all($regexp, $content, $out, PREG_SET_ORDER) < 1)
 				continue;
 			foreach ($out as $set) {
@@ -701,30 +776,8 @@ class Page_Translation extends Page
 			}
 		}
 		if ($findAlreadyTranslated) {
-			$srcLangs = array_merge(array(LANG), array('en'), Dictionary::getLanguages());
-			$srcLangs = array_unique($srcLangs);
-			$key = array_search($this->destLang, $srcLangs);
-			if ($key !== false) {
-				unset($srcLangs[$key]);
-			}
-			foreach ($srcLangs as $lang) {
-				$otherLang = Dictionary::getArray($this->module->getIdentifier(), $file, $lang);
-				if (!is_array($otherLang))
-					continue;
-				$missing = false;
-				foreach (array_keys($tags) as $tag) {
-					if (isset($tags[$tag]['samplelang']))
-						continue;
-					if (!isset($otherLang[$tag])) {
-						$missing = true;
-					} else {
-						$tags[$tag]['samplelang'] = $lang;
-						$tags[$tag]['sampletext'] = $otherLang[$tag];
-					}
-				}
-				if (!$missing)
-					break;
-			}
+			// For each tag, include a translated string from another language as reference
+			$this->findTranslationSamples($file, $tags);
 		}
 		$tagid = 0;
 		foreach ($tags as &$tag) {
@@ -738,27 +791,42 @@ class Page_Translation extends Page
 				}
 			}
 		}
-		// Finally remove $lang from the keys so mustache will iterate over them via {{#..}}
+		// Finally remove tagname from the keys so mustache will iterate over them via {{#..}}
 		return array_values($tags);
 	}
 
 	/**
-	 * Change the color of the table line according to the tag status
-	 * @param string the JSON's path
-	 * @param string the selected tag
-	 * @return string the css class of the line
+	 * Finds translation samples for the given tags in the given file, looking in all
+	 * languages except the one currently being translated to. Prefers the language the
+	 * user selected, then english, then everything else.
+	 *
+	 * @param string $file translation unit
+	 * @param type $tags list of tags, formatted as used in buildTranslationTable()
 	 */
-	private function getTagColor($missingCount)
+	private function findTranslationSamples($file, &$tags)
 	{
-		//return danger in case the tag is not found in the template
-		if ($missingCount < 0)
-			return 'danger';
-
-		//return warning in case at least one of the tag's values is empty
-		if ($missingCount > 0)
-			return 'warning';
-		//if it's ok don't change the class
-		return '';
+		$srcLangs = array_unique(array_merge(array(LANG), array('en'), Dictionary::getLanguages()));
+		if (($key = array_search($this->destLang, $srcLangs)) !== false) {
+			unset($srcLangs[$key]);
+		}
+		foreach ($srcLangs as $lang) {
+			$otherLang = Dictionary::getArray($this->module->getIdentifier(), $file, $lang);
+			if (!is_array($otherLang))
+				continue;
+			$missing = false;
+			foreach (array_keys($tags) as $tag) {
+				if (isset($tags[$tag]['samplelang']))
+					continue;
+				if (!isset($otherLang[$tag])) {
+					$missing = true;
+				} else {
+					$tags[$tag]['samplelang'] = $lang;
+					$tags[$tag]['sampletext'] = $otherLang[$tag];
+				}
+			}
+			if (!$missing)
+				break;
+		}
 	}
 	
 	private function getJsonFile()
@@ -771,6 +839,9 @@ class Page_Translation extends Page
 		if ($this->section === 'template') {
 			return $prefix . '/template-tags.json';
 		}
+		if ($this->section === 'module') {
+			return $prefix . '/module.json';
+		}
 		// Custom submodule
 		if ($this->section === 'custom') {
 			if ($this->customHandler === false || !isset($this->customHandler['subsections'])) {
@@ -781,7 +852,7 @@ class Page_Translation extends Page
 				Message::addError('invalid-custom-handler', $this->subsection);
 				$this->redirect(1);
 			}
-			return $prefix . '/' . $this->subsection;
+			return $prefix . '/' . $this->subsection . '.json';
 		}
 		Message::addError('invalid-section', $this->section);
 		$this->redirect(1);
@@ -850,36 +921,6 @@ class Page_Translation extends Page
 		}
 
 		Message::addSuccess('updated-tags');
-	}
-	
-	/**
-	 * Load all settings categories for editing.
-	 * 
-	 * @return array
-	 */
-	private function loadCategoriesArray()
-	{
-		$want = array();
-		$res = Database::simpleQuery("SELECT catid FROM cat_setting ORDER BY catid ASC");
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$want[] = 'cat_' . $row['catid'];
-		}
-		return $this->buildTranslationTable('settings/cat_setting', $want);
-	}
-	
-	/**
-	 * Load all settings categories for editing.
-	 * 
-	 * @return array
-	 */
-	private function loadSettingsArray()
-	{
-		$want = array();
-		$res = Database::simpleQuery("SELECT setting FROM setting ORDER BY setting ASC");
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$want[] = $row['setting'];
-		}
-		return $this->buildTranslationTable('settings/setting', $want);
 	}
 
 }

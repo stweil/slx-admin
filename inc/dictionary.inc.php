@@ -68,13 +68,26 @@ class Dictionary
 		return self::$stringCache[$file] = $json;
 	}
 
-	public static function translate($module, $path, $string)
+	public static function translateFileModule($moduleId, $path, $tag)
 	{
-		$strings = self::getArray($module, $path);
-		if (!isset($strings[$string])) {
+		$strings = self::getArray($moduleId, $path);
+		if (!isset($strings[$tag])) {
 			return false;
 		}
-		return $strings[$string];
+		return $strings[$tag];
+	}
+	
+	public static function translateFile($path, $tag)
+	{
+		return self::translateFileModule(Page::getModule()->getIdentifier(), $path, $tag);
+	}
+
+	public static function translate($tag)
+	{
+		$string = self::translateFile('module', $tag);
+		if ($string !== false)
+			return $string;
+		return self::translateFileModule('main', 'global-tags', $tag);
 	}
 
 	public static function getMessage($id)
@@ -82,7 +95,7 @@ class Dictionary
 		if (!preg_match('/^(\w+)\.(.+)$/', $id, $out)) {
 			return 'Invalid Message ID format: ' . $id;
 		}
-		$string = self::translate($out[1], 'messages', $out[2]);
+		$string = self::translateFileModule($out[1], 'messages', $out[2]);
 		if ($string === false) {
 			return "($id) ({{0}}, {{1}}, {{2}}, {{3}})";
 		}
@@ -97,15 +110,16 @@ class Dictionary
 		if (!preg_match('/^(\w+)\.(\w+)$/', $category, $out)) {
 			return 'Invalid Category ID format: ' . $category;
 		}
-		$string = self::translate($out[1], 'categories', $out[2]);
+		$string = self::translateFileModule($out[1], 'categories', $out[2]);
 		if ($string === false) {
-			return '!!' . $category . '!!';
+			return "!!{$category}!!";
 		}
 		return $string;
 	}
 
 	/**
-	 * Get all supported languages as array
+	 * Get all supported languages as array.
+	 *
 	 * @param boolean $withName true = return assoc array containinc cc and name of all languages;
 	 *		false = regular array containing only the ccs
 	 * @return array List of languages

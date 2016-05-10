@@ -25,3 +25,11 @@ define('CONFIG_IPXE_DIR', '/opt/openslx/ipxe');
 define('CONFIG_VMSTORE_DIR', '/srv/openslx/nfs');
 
 define('CONFIG_PROXY_CONF', '/opt/openslx/proxy/config');
+
+// Sort order for menu
+$MENU_CAT_SORT_ORDER = array('main.content' => 0, 'main.settings' => 1, 'main.status' => 2, 'main.users' => 3);
+$MENU_SETTING_SORT_ORDER = array(
+	'news' => 0, 'sysconfig' => 1, 'baseconfig' => 2, 'locations' => 3, // main.content
+	'serversetup' => 0, 'internetaccess' => 1, 'vmstore' => 2, 'webinterface' => 3, 'backup' => 4, // main.settings
+	'systemstatus' => 0, 'eventlog' => 1, 'syslog' => 2, 'statistics' => 3 // main.status
+);

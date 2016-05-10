@@ -191,7 +191,7 @@ class Render
 				// Add untranslated strings to the dictionary, so their tag is seen in the rendered page
 				if ($fallback === false && empty($dictionary[$tag])) {
 					$fallback = true; // Fallback to general dictionary of module
-					$dictionary = $dictionary + Dictionary::getArray('main', 'global-template-tags');
+					$dictionary = $dictionary + Dictionary::getArray('main', 'global-tags');
 				}
 				if (empty($dictionary[$tag])) {
 					$dictionary[$tag] = '{{' . $tag . '}}';

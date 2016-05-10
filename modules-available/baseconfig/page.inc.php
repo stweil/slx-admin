@@ -82,12 +82,12 @@ class Page_BaseConfig extends Page
 			LEFT JOIN setting_global AS tbl USING (setting)
 			ORDER BY cat_setting.sortval ASC, setting.setting ASC');
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['description'] = Util::markup(Page::translate($row['setting'], 'setting'));
+			$row['description'] = Util::markup(Dictionary::translateFile('config-variables', $row['setting']));
 			if (is_null($row['displayvalue'])) $row['displayvalue'] = $row['defaultvalue'];
 			$row['item'] = $this->makeInput($row['validator'], $row['setting'], $row['displayvalue']);
 			$settings[$row['catid']]['settings'][] = $row;
 			if (!isset($settings[$row['catid']]['category_id'])) {
-				$settings[$row['catid']]['category_name'] = Page::translate('cat_' . $row['catid'], 'cat_setting');
+				$settings[$row['catid']]['category_name'] = Dictionary::translateFile('config-variable-categories', 'cat_' . $row['catid']);
 				$settings[$row['catid']]['category_id'] = $row['catid'];
 			}
 		}

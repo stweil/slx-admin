@@ -6,7 +6,7 @@ $HANDLER = array();
  * List of valid subsections
  */
 $HANDLER['subsections'] = array(
-	'categories', 'settings'
+	'config-variable-categories', 'config-variables'
 );
 
 /*
@@ -17,11 +17,11 @@ $HANDLER['subsections'] = array(
 /**
  * Configuration categories
  */
-$HANDLER['grep']['categories'] = function($module) {
+$HANDLER['grep_config-variable-categories'] = function($module) {
 	$want = array();
 	$res = Database::simpleQuery("SELECT catid FROM cat_setting ORDER BY catid ASC");
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		$want[] = 'cat_' . $row['catid'];
+		$want['cat_' . $row['catid']] = true;
 	}
 	return $want;
 };
@@ -29,11 +29,11 @@ $HANDLER['grep']['categories'] = function($module) {
 /**
  * Configuration variables
  */
-$HANDLER['grep']['settings'] = function($module) {
+$HANDLER['grep_config-variables'] = function($module) {
 	$want = array();
 	$res = Database::simpleQuery("SELECT setting FROM setting ORDER BY setting ASC");
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		$want[] = $row['setting'];
+		$want[$row['setting']] = true;
 	}
 	return $want;
 };

@@ -52,11 +52,6 @@ abstract class Page
 		self::$instance->doAjax();
 	}
 	
-	public static function translate($tag, $section = 'module')
-	{
-		return self::$module->translate($tag, $section);
-	}
-	
 	public static function getModule()
 	{
 		return self::$module;

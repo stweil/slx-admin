@@ -9,9 +9,13 @@
     "lang_editModules": "Edit Module Translations",
     "lang_editSettings": "Edit configuration variables related strings",
     "lang_editTemplates": "Edit template strings",
+    "lang_hint": "Notice",
     "lang_langAdministration": "Templates",
+    "lang_mainHeading": "Translation management",
+    "lang_messages": "Messages",
     "lang_missing": "Missing",
     "lang_module": "Module",
+    "lang_otherStrings": "Other strings",
     "lang_sample": "Sample",
     "lang_save": "Save",
     "lang_status": "Status",
@@ -21,5 +25,6 @@
     "lang_templateHint": "Hint: Yellow lines indicate a translation is missing and red lines indicate a tag is not being used by the template.",
     "lang_templates": "Templates",
     "lang_translation": "Translation",
-    "lang_unused": "Unused"
+    "lang_unused": "Unused",
+    "lang_unusedUnreliableHint": "Detection of unused tags only includes currently activated modules. It's possible that a tag marked \"unused\" is actually refered to in a module not activated."
 }

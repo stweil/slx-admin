@@ -7,32 +7,48 @@ class Dashboard
 	
 	public static function createMenu()
 	{
-		$modulesAssoc = array();
+		global $MENU_SETTING_SORT_ORDER, $MENU_CAT_SORT_ORDER;
+		$modByCategory = array();
 		$all = Module::getEnabled();
 		foreach ($all as $module) {
 			$cat = $module->getCategory();
 			if ($cat === false)
 				continue;
-			$modulesAssoc[$cat][] = $module;
+			$modByCategory[$cat][] = $module;
 		}
-		$modulesArray = array();
-		foreach ($modulesAssoc as $id => $list) {
-			$momomo = array();
-			foreach ($list as $module) {
-				$momomo[] = array(
+		$categories = array();
+		$catSort = array();
+		foreach ($modByCategory as $catId => $modList) {
+			$modules = array();
+			$sectionSort = array();
+			foreach ($modList as $module) {
+				$modId = $module->getIdentifier();
+				$modules[] = array(
 					'displayName' => $module->getDisplayName(),
 					'identifier' => $module->getIdentifier(),
 					'className' => ($module->getIdentifier() === Page::getModule()->getIdentifier()) ? 'active' : ''
 				);
+				if (isset($MENU_SETTING_SORT_ORDER[$modId])) {
+					$sectionSort[] = (string)($MENU_SETTING_SORT_ORDER[$modId] + 1000);
+				} else {
+					$sectionSort[] = '9999' . $modId;
+				}
 			}
-			$modulesArray[] = array(
-				'icon' => self::getCategoryIcon($id),
-				'displayName' => Dictionary::getCategoryName($id),
-				'modules' => $momomo
+			array_multisort($sectionSort, SORT_ASC, $modules);
+			$categories[] = array(
+				'icon' => self::getCategoryIcon($catId),
+				'displayName' => Dictionary::getCategoryName($catId),
+				'modules' => $modules
 			);
+			if (isset($MENU_CAT_SORT_ORDER[$catId])) {
+				$catSort[] = (string)($MENU_CAT_SORT_ORDER[$catId] + 1000);
+			} else {
+				$catSort[] = '9999' . $catId;
+			}
 		}
+		array_multisort($catSort, SORT_ASC, $categories);
 		Render::setDashboard(array(
-			'categories' => $modulesArray,
+			'categories' => $categories,
 			'url' => urlencode($_SERVER['REQUEST_URI']),
 			'langs' => Dictionary::getLanguages(true),
 			'dbupdate' => Database::needSchemaUpdate(),
