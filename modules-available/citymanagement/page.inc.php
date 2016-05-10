@@ -28,7 +28,7 @@ class Page_Citymanagement extends Page
 
 
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 

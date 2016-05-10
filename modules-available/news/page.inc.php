@@ -29,7 +29,7 @@ class Page_News extends Page
 		
 		// only admins should be able to edit news
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		
@@ -139,7 +139,7 @@ class Page_News extends Page
 			));
 			return true;
 		} else {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			return false;
 		}
 	}
@@ -153,7 +153,7 @@ class Page_News extends Page
 	{
 		// sanity check: is newsId even numeric?
 		if (!is_numeric($newsId)) {
-			Message::addError('value-invalid', 'newsid', $newsId);
+			Message::addError('main.value-invalid', 'newsid', $newsId);
 		} else {
 			// check passed - do delete
 			Database::exec("DELETE FROM news WHERE newsid = :newsid LIMIT 1", array(

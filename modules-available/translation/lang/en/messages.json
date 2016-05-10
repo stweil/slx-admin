@@ -1,0 +1,6 @@
+{
+    "i18n-invalid-lang": "Invalid language: {{0}}",
+    "invalid-template": "Selected template is not valid",
+    "i18n-empty-tag": "A string without tag was submitted",
+    "updated-tags": "Tags have been updated"
+}

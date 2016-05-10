@@ -43,7 +43,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 		}
 		$tempfile = '/tmp/bwlp-' . mt_rand(1, 100000) . '-' . crc32($_SERVER['REMOTE_ADDR']) . '.tmp';
 		if (!move_uploaded_file($_FILES['modulefile']['tmp_name'], $tempfile)) {
-			Message::addError('error-write', $tempfile);
+			Message::addError('main.error-write', $tempfile);
 			Util::redirect('?do=SysConfig');
 		}
 		$this->taskId = 'tgzmod' . mt_rand() . '-' . microtime(true);
@@ -113,7 +113,7 @@ class CustomModule_CompressModule extends AddModule_Base
 		$title = Request::post('title');
 		$tempfile = Session::get('mod_temp');
 		if (empty($title) || empty($tempfile) || !file_exists($tempfile)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		}
 		// Recompress using task manager
@@ -138,7 +138,7 @@ class CustomModule_CompressModule extends AddModule_Base
 		else
 			$module = $this->edit;
 		if ($module === false) {
-			Message::addError('error-read', 'custommodule.inc.php');
+			Message::addError('main.error-read', 'custommodule.inc.php');
 			Util::redirect('?do=SysConfig&action=addmodule&step=CustomModule_Start');
 		}
 		$module->setData('tmpFile', $destFile);

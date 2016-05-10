@@ -10,7 +10,7 @@ class Page_AddUser extends Page
 		if (isset($_POST['action']) && $_POST['action'] === 'adduser') {
 			// Check required fields
 			if (empty($_POST['user']) || empty($_POST['pass1']) || empty($_POST['pass2']) || empty($_POST['fullname'])) {
-				Message::addError('empty-field');
+				Message::addError('main.empty-field');
 				Util::redirect('?do=AddUser');
 			} elseif ($_POST['pass1'] !== $_POST['pass2']) {
 				Message::addError('password-mismatch');

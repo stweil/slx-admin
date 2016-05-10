@@ -8,7 +8,7 @@ class Page_SysLog extends Page
 		User::load();
 
 		if (!User::isLoggedIn()) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 	}
@@ -58,9 +58,9 @@ class Page_SysLog extends Page
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$day = date('d.m.Y', $row['dateline']);
 			if ($day === $today) {
-				$day = Dictionary::translate('today');
+				$day = Dictionary::translate('lang_today');
 			} elseif ($day === $yesterday) {
-				$day = Dictionary::translate('yesterday');
+				$day = Dictionary::translate('lang_yesterday');
 			}
 			$row['date'] = $day . date(' H:i', $row['dateline']);
 			$row['icon'] = $this->eventToIconName($row['logtypeid']);

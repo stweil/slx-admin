@@ -12,7 +12,7 @@ class Page_Imgmanagement extends Page
 		
 		User::load();
 		if (!User::hasPermission('baseconfig_local')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 

@@ -38,7 +38,7 @@ class LdapAuth_CheckConnection extends AddModule_Base
 		$searchbase = Request::post('searchbase');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if (empty($this->server) || empty($searchbase)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			AddModule_Base::setStep('LdapAuth_Start'); // Continues with LdapAuth_Start for render()
 			return;
 		}
@@ -96,12 +96,12 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('LdapAuth_Start'); // Continues with LdapAuth_Start for render()
 			return;
 		}
 		if (empty($server) || empty($port)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			AddModule_Base::setStep('LdapAuth_Start'); // Continues with LdapAuth_Start for render()
 			return;
 		}
@@ -193,7 +193,7 @@ class LdapAuth_Finish extends AddModule_Base
 		else
 			$ret = $module->insert($title);
 		if (!$ret) {
-			Message::addError('value-invalid', 'any', 'any');
+			Message::addError('main.value-invalid', 'any', 'any');
 			$tgz = false;
 		} else {
 			$parent = $this->stopOldInstance();

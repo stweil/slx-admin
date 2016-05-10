@@ -98,11 +98,11 @@ SADFACE;
 	 */
 	public static function verifyToken()
 	{
-		if (Session::get('token') === false)
+		if (Session::get('main.token') === false)
 			return true;
-		if (isset($_REQUEST['token']) && Session::get('token') === $_REQUEST['token'])
+		if (isset($_REQUEST['main.token']) && Session::get('main.token') === $_REQUEST['main.token'])
 			return true;
-		Message::addError('token');
+		Message::addError('main.token');
 		return false;
 	}
 
@@ -265,7 +265,7 @@ SADFACE;
 			@ob_end_clean();
 		$fh = @fopen($file, 'rb');
 		if ($fh === false) {
-			Message::addError('error-read', $file);
+			Message::addError('main.error-read', $file);
 			return false;
 		}
 		Header('Content-Type: application/octet-stream', true);

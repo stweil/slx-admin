@@ -10,7 +10,7 @@ class Page_SystemStatus extends Page
 		User::load();
 
 		if (!User::isLoggedIn()) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 

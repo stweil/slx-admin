@@ -143,7 +143,7 @@ Message::renderList();
 Page::render();
 
 if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
-	Message::addWarning('debug-mode');
+	Message::addWarning('main.debug-mode');
 }
 
 if (defined('CONFIG_FOOTER')) {

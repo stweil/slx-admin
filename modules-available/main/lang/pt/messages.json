@@ -1,0 +1,12 @@
+{
+    "no-permission": "N\u00e3o h\u00e1 privil\u00e9gios suficientes para acessar essa p\u00e1gina",
+    "error-write": "Erro ao escrever {{0}}",
+    "empty-field": "Um campo n\u00e3o foi preenchido",
+    "value-invalid": "O valor {{1}} \u00e9 inv\u00e1lido para op\u00e7\u00e3o {{0}} e foi ignorado",
+    "error-read": "Erro ao ler {{0}}",
+    "taskmanager-error": "Falha ao conectar-se ao Gerenciador de Tarefas",
+    "task-error": "Falha na execu\u00e7\u00e3o: {{0}}",
+    "taskmanager-format": "Gerenciador de Tarefas retornou dados inv\u00e1lidos",
+    "token": "Token inv\u00e1lido. Ataque CSRF?",
+    "debug-mode": "O modo de depura\u00e7\u00e3o est\u00e1 ativo!"
+}

@@ -1,0 +1,9 @@
+{
+    "added-x-entries": "Entries added: {{0}}",
+    "parameter-missing": "Missing parameter: {{0}}",
+    "location-deleted": "Location has been deleted (locations: {{0}}, subnets: {{1}})",
+    "location-updated": "Location {{0}} has been updated",
+    "subnets-deleted": "{{0}} subnet(s) deleted",
+    "subnets-updated": "{{0}} subnet(s) updated",
+    "subnets-created": "{{0}} subnet(s) created"
+}

@@ -1,0 +1,6 @@
+{
+    "backup-failed": "Backup failed!",
+    "missing-file": "There was no file selected!",
+    "restore-done": "Restore done",
+    "upload-failed": "Upload failed: {{0}}"
+}

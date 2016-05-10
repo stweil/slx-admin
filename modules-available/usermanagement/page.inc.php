@@ -34,7 +34,7 @@ class Page_Usermanagement extends Page
 			$this->deb = $_POST['userid'];
 
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 

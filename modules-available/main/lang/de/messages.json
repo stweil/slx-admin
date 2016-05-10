@@ -1,0 +1,12 @@
+{
+    "no-permission": "Keine ausreichenden Rechte, um auf diese Seite zuzugreifen",
+    "error-write": "Fehler beim Schreiben von {{0}}",
+    "empty-field": "Ein Feld wurde nicht ausgef\u00fcllt",
+    "value-invalid": "Der Wert {{1}} ist ung\u00fcltig f\u00fcr die Option {{0}} und wurde ignoriert",
+    "error-read": "Fehler beim Lesen von {{0}}",
+    "taskmanager-error": "Verbindung zum Taskmanager fehlgeschlagen",
+    "task-error": "Ausf\u00fchrung fehlgeschlagen: {{0}}",
+    "taskmanager-format": "Taskmanager hat ung\u00fcltige Daten zur\u00fcckgeliefert",
+    "token": "Ung\u00fcltiges Token. CSRF Angriff?",
+    "debug-mode": "Der Debug-Modus ist aktiv!"
+}

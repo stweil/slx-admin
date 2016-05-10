@@ -31,6 +31,9 @@
 					{{#missing}}
 					<span class="label label-warning">{{lang_missing}}</span>
 					{{/missing}}
+					{{#isglobal}}
+					<span class="label label-success" title="{{lang_globalTooltip}}">{{lang_global}}</span>
+					{{/isglobal}}
 					{{tag}}
 					<div class="slx-notebox">{{{notes}}}</div>
 				</div>

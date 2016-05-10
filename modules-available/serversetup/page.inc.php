@@ -13,7 +13,7 @@ class Page_ServerSetup extends Page
 		User::load();
 
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 
@@ -147,7 +147,7 @@ class Page_ServerSetup extends Page
 		if ($timeout === '')
 			$timeout = 0;
 		if (!is_numeric($timeout) || $timeout < 0) {
-			Message::addError('value-invalid', 'timeout', $timeout);
+			Message::addError('main.value-invalid', 'timeout', $timeout);
 		}
 		$this->currentMenu['defaultentry'] = Request::post('defaultentry', 'net');
 		$this->currentMenu['timeout'] = $timeout;

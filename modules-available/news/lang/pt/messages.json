@@ -1,0 +1,6 @@
+{
+    "invalid-action": "A\u00e7\u00e3o inv\u00e1lida: {{0}}",
+    "news-save-success": "Not\u00edcia atualizada com sucesso",
+    "news-empty": "N\u00e3o havia not\u00edcias no banco de dados",
+    "news-del-success": "Not\u00edcia exclu\u00edda"
+}

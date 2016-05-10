@@ -1,3 +1,6 @@
 {
-    "backup-failed": "Erstellen des Backups fehlgeschlagen"
+    "backup-failed": "Erstellen des Backups fehlgeschlagen",
+    "missing-file": "Es wurde keine Datei ausgew\u00e4hlt!",
+    "restore-done": "Wiederherstellung abgeschlossen",
+    "upload-failed": "Upload schlug fehl: {{0}}"
 }

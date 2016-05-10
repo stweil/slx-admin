@@ -29,7 +29,7 @@ class Branding_ProcessFile extends AddModule_Base
 	{
 		$url = Request::post('url');
 		if ((!isset($_FILES['file']['error']) || $_FILES['file']['error'] === UPLOAD_ERR_NO_FILE) && empty($url)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		}
 		
@@ -204,7 +204,7 @@ class Branding_Finish extends AddModule_Base
 		}
 		$tgz = Session::get('logo_tgz');
 		if ($tgz === false || !file_exists($tgz)) {
-			Message::addError('error-read', $tgz);
+			Message::addError('main.error-read', $tgz);
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		}
 		if ($this->edit === false)
@@ -212,7 +212,7 @@ class Branding_Finish extends AddModule_Base
 		else
 			$module = $this->edit;
 		if ($module === false) {
-			Message::addError('error-read', 'branding.inc.php');
+			Message::addError('main.error-read', 'branding.inc.php');
 			Util::redirect('?do=SysConfig&action=addmodule&step=Branding_Start');
 		}
 		$module->setData('tmpFile', $tgz);

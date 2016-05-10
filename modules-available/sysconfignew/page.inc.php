@@ -10,7 +10,7 @@ class Page_SysConfigNew extends Page
 	protected function doPreprocess(){
 		User::load();
 		if (!User::hasPermission('baseconfig_local')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 

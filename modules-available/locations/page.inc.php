@@ -13,7 +13,7 @@ class Page_Locations extends Page
 	{
 		User::load();
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		$this->action = Request::post('action');
@@ -29,7 +29,7 @@ class Page_Locations extends Page
 		$names = Request::post('newlocation', false);
 		$parents = Request::post('newparent', false);
 		if (!is_array($names) || !is_array($parents)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			Util::redirect('?do=Locations');
 		}
 		$locs = Location::getLocations();
@@ -46,7 +46,7 @@ class Page_Locations extends Page
 					}
 				}
 				if (!$ok) {
-					Message::addWarning('value-invalid', 'parentlocationid', $parent);
+					Message::addWarning('main.value-invalid', 'parentlocationid', $parent);
 					continue;
 				}
 			}
@@ -72,7 +72,7 @@ class Page_Locations extends Page
 		$location = Database::queryFirst('SELECT locationid, parentlocationid, locationname FROM location'
 			. ' WHERE locationid = :lid', array('lid' => $locationId));
 		if ($location === false) {
-			Message::addError('value-invalid', 'locationid', $locationId);
+			Message::addError('main.value-invalid', 'locationid', $locationId);
 			Util::redirect('?do=Locations');
 		}
 		// Delete location?
@@ -117,7 +117,7 @@ class Page_Locations extends Page
 		$newName = Request::post('locationname', false, 'string');
 		if ($newName === false || preg_match('/^\s*$/', $newName)) {
 			if ($newName !== false) {
-				Message::addWarning('value-invalid', 'location name', $newName);
+				Message::addWarning('main.value-invalid', 'location name', $newName);
 			}
 			$newName = $location['locationname'];
 		}
@@ -127,12 +127,12 @@ class Page_Locations extends Page
 			$rows = Location::queryLocations();
 			$all = Location::extractIds(Location::buildTree($rows));
 			if (!in_array($newParent, $all) || $newParent === $locationId) {
-				Message::addWarning('value-invalid', 'parent', $newParent);
+				Message::addWarning('main.value-invalid', 'parent', $newParent);
 				$newParent = $location['parentlocationid'];
 			} else {
 				$rows = Location::extractIds(Location::buildTree($rows, $locationId));
 				if (in_array($newParent, $rows)) {
-					Message::addWarning('value-invalid', 'parent', $newParent);
+					Message::addWarning('main.value-invalid', 'parent', $newParent);
 					$newParent = $location['parentlocationid'];
 				}
 			}
@@ -181,14 +181,14 @@ class Page_Locations extends Page
 			$end = $ends[$key];
 			list($startLong, $endLong) = $this->rangeToLong($start, $end);
 			if ($startLong === false) {
-				Message::addWarning('value-invalid', 'start addr', $start);
+				Message::addWarning('main.value-invalid', 'start addr', $start);
 			}
 			if ($endLong === false) {
-				Message::addWarning('value-invalid', 'end addr', $start);
+				Message::addWarning('main.value-invalid', 'end addr', $start);
 			}
 			if ($startLong === false || $endLong === false) continue;
 			if ($startLong > $endLong) {
-				Message::addWarning('value-invalid', 'range', $start . ' - ' . $end);
+				Message::addWarning('main.value-invalid', 'range', $start . ' - ' . $end);
 				continue;
 			}
 			if ($stmt->execute(array('id' => $key, 'start' => $startLong, 'end' => $endLong))) {
@@ -215,14 +215,14 @@ class Page_Locations extends Page
 			$end = $ends[$key];
 			list($startLong, $endLong) = $this->rangeToLong($start, $end);
 			if ($startLong === false) {
-				Message::addWarning('value-invalid', 'new start addr', $start);
+				Message::addWarning('main.value-invalid', 'new start addr', $start);
 			}
 			if ($endLong === false) {
-				Message::addWarning('value-invalid', 'new end addr', $start);
+				Message::addWarning('main.value-invalid', 'new end addr', $start);
 			}
 			if ($startLong === false || $endLong === false) continue;
 			if ($startLong > $endLong) {
-				Message::addWarning('value-invalid', 'range', $start . ' - ' . $end);
+				Message::addWarning('main.value-invalid', 'range', $start . ' - ' . $end);
 				continue;
 			}
 			if ($stmt->execute(array('location' => $locationId, 'start' => $startLong, 'end' => $endLong))) {

@@ -1,0 +1,12 @@
+{
+    "invalid-action": "A\u00e7\u00e3o inv\u00e1lida: {{0}}",
+    "module-added": "M\u00f3dulo adicionado com sucesso",
+    "missing-file": "N\u00e3o havia nenhum arquivo selecionado!",
+    "unsuccessful-action": "A a\u00e7\u00e3o n\u00e3o foi bem sucedida",
+    "upload-failed": "Envio falhou: {{0}}",
+    "remote-timeout": "N\u00e3o foi poss\u00edvel baixar o recurso {{0}} ({{1}})",
+    "config-invalid": "Configura\u00e7\u00e3o com id {{0}} n\u00e3o existe",
+    "config-activated": "Configura\u00e7\u00e3o {{0}} foi ativada",
+    "module-in-use": "M\u00f3dulo {{0}} ainda \u00e9 usado pela configura\u00e7\u00e3o {{1}}",
+    "module-deleted": "M\u00f3dulo {{0}} foi exclu\u00eddo"
+}

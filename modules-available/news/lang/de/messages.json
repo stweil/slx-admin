@@ -1,0 +1,6 @@
+{
+    "invalid-action": "Ung\u00fcltige Aktion: {{0}}",
+    "news-save-success": "News erfolgreich aktualisiert",
+    "news-empty": "Es wurde keine News in der Datenbank gefunden",
+    "news-del-success": "News gel\u00f6scht"
+}

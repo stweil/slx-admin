@@ -42,7 +42,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 		$binddn = Request::post('binddn');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if (empty($this->server) || empty($binddn)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -108,12 +108,12 @@ class AdAuth_SelfSearch extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -185,12 +185,12 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -255,12 +255,12 @@ class AdAuth_CheckCredentials extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('empty-field');
+			Message::addError('main.empty-field');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -323,13 +323,13 @@ class AdAuth_Finish extends AddModule_Base
 			// If no search base was given, determine it from the dn
 			$originalBindDn = str_replace('\\', '/', trim(Request::post('originalbinddn')));
 			if (!preg_match('#^([^/]+)/[^/]+$#', $originalBindDn, $out)) {
-				Message::addError('value-invalid', 'binddn', $originalBindDn);
+				Message::addError('main.value-invalid', 'binddn', $originalBindDn);
 				Util::redirect('?do=SysConfig&action=addmodule&step=AdAuth_Start');
 			} // $out[1] is the domain
 			// Find the domain in the dn
 			$i = mb_stripos($binddn, '=' . $out[1] . ',');
 			if ($i === false) {
-				Message::addError('value-invalid', 'binddn', $out[1]);
+				Message::addError('main.value-invalid', 'binddn', $out[1]);
 				Util::redirect('?do=SysConfig&action=addmodule&step=AdAuth_Start');
 			}
 			// Now find ',' before it so we get the key
@@ -372,7 +372,7 @@ class AdAuth_Finish extends AddModule_Base
 		else
 			$ret = $module->insert($title);
 		if (!$ret) {
-			Message::addError('value-invalid', 'any', 'any');
+			Message::addError('main.value-invalid', 'any', 'any');
 			$tgz = false;
 		} else {
 			$parent = $this->stopOldInstance();

@@ -47,7 +47,7 @@ class Page_SysConfig extends Page
 		User::load();
 
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 
@@ -273,7 +273,7 @@ class Page_SysConfig extends Page
 			$task = Taskmanager::waitComplete($task['id']);
 		}
 		if (!isset($task['statusCode']) || $task['statusCode'] === TASK_ERROR) {
-			Message::addError('task-error', $task['data']['error']);
+			Message::addError('main.task-error', $task['data']['error']);
 		} elseif ($task['statusCode'] === TASK_FINISHED) {
 			Message::addSuccess('config-activated', $row['title']);
 			Event::activeConfigChanged();
@@ -321,7 +321,7 @@ class Page_SysConfig extends Page
 			$task = Taskmanager::waitComplete($task['id']);
 		}
 		if (!isset($task['statusCode']) || $task['statusCode'] === TASK_ERROR) {
-			Message::addWarning('task-error', $task['data']['error']);
+			Message::addWarning('main.task-error', $task['data']['error']);
 		} elseif ($task['statusCode'] === TASK_FINISHED) {
 			Message::addSuccess('module-deleted', $row['title']);
 		}

@@ -1,0 +1,5 @@
+{
+    "password-mismatch": "Passwort und Passwortbest\u00e4tigung stimmen nicht \u00fcberein",
+    "adduser-disabled": "Keine ausreichenden Rechte, um weitere Benutzer hinzuzuf\u00fcgen",
+    "adduser-success": "Benutzer erfolgreich hinzugef\u00fcgt"
+}

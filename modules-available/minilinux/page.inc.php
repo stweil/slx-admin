@@ -8,7 +8,7 @@ class Page_MiniLinux extends Page
 		User::load();
 
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 	}

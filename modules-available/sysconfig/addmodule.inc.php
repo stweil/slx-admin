@@ -43,7 +43,7 @@ abstract class AddModule_Base
 
 	protected function tmError()
 	{
-		Message::addError('taskmanager-error');
+		Message::addError('main.taskmanager-error');
 		Util::redirect('?do=SysConfig');
 	}
 
@@ -56,7 +56,7 @@ abstract class AddModule_Base
 		} else {
 			$error = Dictionary::translate('lang_unknwonTaskManager');
 		}
-		Message::addError('task-error', $error);
+		Message::addError('main.task-error', $error);
 		Util::redirect('?do=SysConfig');
 	}
 

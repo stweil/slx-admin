@@ -10,7 +10,7 @@ class Page_Backup extends Page
 	{
 		User::load();
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		$this->action = Request::post('action');
@@ -48,7 +48,7 @@ class Page_Backup extends Page
 			@ob_end_clean();
 		$fh = @fopen($task['data']['backupFile'], 'rb');
 		if ($fh === false) {
-			Message::addError('error-read', $task['data']['backupFile']);
+			Message::addError('main.error-read', $task['data']['backupFile']);
 			Util::redirect('?do=Backup');
 		}
 		Header('Content-Type: application/octet-stream', true);
@@ -81,7 +81,7 @@ class Page_Backup extends Page
 		}
 		$tempfile = '/tmp/bwlp-' . mt_rand(1, 100000) . '-' . crc32($_SERVER['REMOTE_ADDR']) . '.tgz';
 		if (!move_uploaded_file($_FILES['backupfile']['tmp_name'], $tempfile)) {
-			Message::addError('error-write', $tempfile);
+			Message::addError('main.error-write', $tempfile);
 			Util::redirect('?do=Backup');
 		}
 		// Got uploaded file, now shut down all the daemons etc.

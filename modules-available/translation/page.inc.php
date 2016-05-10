@@ -82,7 +82,7 @@ class Page_Translation extends Page
 		User::load();
 
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		
@@ -299,10 +299,14 @@ class Page_Translation extends Page
 		$data = array(
 			'subsection' => $subsection,
 			'module' => $this->module->getIdentifier(),
-			'tagcount' => count($moduleTags),
+			'tagcount' => $moduleTags === false ? '???' : count($moduleTags),
 		);
 		foreach (Dictionary::getLanguages(true) as $lang) {
-			list($missing, $unused) = $this->getModuleTranslationStatus($lang['cc'], $subsection, false, $moduleTags);
+			if ($moduleTags !== false) {
+				list($missing, $unused) = $this->getModuleTranslationStatus($lang['cc'], $subsection, false, $moduleTags);
+			} else {
+				$missing = $unused = '???';
+			}
 			$data['langs'][] = array(
 				'cc' => $lang['cc'],
 				'name' => $lang['name'],
@@ -446,7 +450,7 @@ class Page_Translation extends Page
 	private function loadUsedCustomTags($subsection)
 	{
 		if (!isset($this->customHandler['grep_'.$subsection]))
-			return array();
+			return false;
 		return $this->customHandler['grep_'.$subsection]($this->module);
 	}
 	
@@ -512,7 +516,7 @@ class Page_Translation extends Page
 		}
 		foreach (array_keys($translation) as $key) {
 			if(!isset($tags[$key])) {
-				if (!in_array($key, $globalTranslation)) {
+				if (!isset($globalTranslation[$key])) {
 					$unused++;
 				}
 			} else {
@@ -779,6 +783,11 @@ class Page_Translation extends Page
 			// For each tag, include a translated string from another language as reference
 			$this->findTranslationSamples($file, $tags);
 		}
+		if ($file === 'template-tags' || $file === 'module') {
+			$globals = Dictionary::getArray('main', 'global-tags', $this->destLang);
+		} else {
+			$globals = array();
+		}
 		$tagid = 0;
 		foreach ($tags as &$tag) {
 			$tag['tagid'] = $tagid++;
@@ -786,8 +795,12 @@ class Page_Translation extends Page
 				// We have a list of required tags, so mark those that are missing or unused
 				if (!isset($tag['required'])) {
 					$tag['unused'] = true;
-				} elseif (!isset($tag['translation'])) {
+				} elseif (!isset($tag['translation']) && !isset($globals[$tag['tag']])) {
 					$tag['missing'] = true;
+				}
+				if (isset($globals[$tag['tag']])) {
+					$tag['isglobal'] = true;
+					$tag['placeholder'] = $globals[$tag['tag']];
 				}
 			}
 		}
@@ -915,7 +928,7 @@ class Page_Translation extends Page
 			$json = up_json_encode($data, JSON_PRETTY_PRINT); // Also for better diffability of the json files, we pretty print
 			//exits the function in case the action was unsuccessful
 			if (file_put_contents($file, $json) === false) {
-				Message::addError('error-write', $file);
+				Message::addError('main.error-write', $file);
 				return;
 			}
 		}

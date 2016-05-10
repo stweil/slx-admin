@@ -1,0 +1,5 @@
+{
+    "password-mismatch": "Password and password confirmation do not match",
+    "adduser-disabled": "Insufficient privileges to add more users",
+    "adduser-success": "User successfully added"
+}

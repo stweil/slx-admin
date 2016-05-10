@@ -6,7 +6,7 @@ class Page_Support extends Page
 	protected function doPreprocess(){
 		User::load();
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
         }
         error_reporting(E_ALL);

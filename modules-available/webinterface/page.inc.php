@@ -7,7 +7,7 @@ class Page_WebInterface extends Page
 	{
 		User::load();
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		switch (Request::post('action')) {

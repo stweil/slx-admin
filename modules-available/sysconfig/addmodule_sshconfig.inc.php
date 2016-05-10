@@ -41,16 +41,16 @@ class SshConfig_Finish extends AddModule_Base
 		else
 			$module = $this->edit;
 		if ($module === false) {
-			Message::addError('error-read', 'sshconfig.inc.php');
+			Message::addError('main.error-read', 'sshconfig.inc.php');
 			Util::redirect('?do=SysConfig&action=addmodule&step=SshConfig_Start');
 		}
 		$module->setData('allowPasswordLogin', Request::post('allowPasswordLogin') === 'yes');
 		if (!$module->setData('listenPort', Request::post('listenPort'))) {
-			Message::addError('value-invalid', 'port', Request::post('listenPort'));
+			Message::addError('main.value-invalid', 'port', Request::post('listenPort'));
 			Util::redirect('?do=SysConfig&action=addmodule&step=SshConfig_Start');
 		}
 		if (!$module->setData('publicKey', Request::post('publicKey'))) {
-			Message::addError('value-invalid', 'pubkey', Request::post('publicKey'));
+			Message::addError('main.value-invalid', 'pubkey', Request::post('publicKey'));
 			Util::redirect('?do=SysConfig&action=addmodule&step=SshConfig_Start');
 		}
 		if ($this->edit !== false)

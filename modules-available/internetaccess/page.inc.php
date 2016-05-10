@@ -7,7 +7,7 @@ class Page_InternetAccess extends Page
 	{
 		User::load();
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		if (isset($_POST['PROXY_CONF'])) {
@@ -16,7 +16,7 @@ class Page_InternetAccess extends Page
 				$data[$key] = Request::post($key, '');
 			}
 			if (!FileUtil::arrayToFile(CONFIG_PROXY_CONF, $data)) {
-				Message::addError('error-write', CONFIG_PROXY_CONF);
+				Message::addError('main.error-write', CONFIG_PROXY_CONF);
 				Util::redirect();
 			} else {
 				Message::addSuccess('settings-updated');

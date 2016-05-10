@@ -43,7 +43,7 @@ class Page_BaseConfig extends Page
 					// Validate data first!
 					$mangledValue = Validator::validate($validator, $displayValue);
 					if ($mangledValue === false) {
-						Message::addWarning('value-invalid', $key, $displayValue);
+						Message::addWarning('main.value-invalid', $key, $displayValue);
 						continue;
 					}
 					// Now put into DB
@@ -66,7 +66,7 @@ class Page_BaseConfig extends Page
 	protected function doRender()
 	{
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		// Build left joins for specific settings

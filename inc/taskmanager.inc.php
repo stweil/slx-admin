@@ -164,20 +164,20 @@ class Taskmanager
 		static $failure = false;
 		if ($task === false) {
 			if (!$failure) {
-				Message::addError('taskmanager-error');
+				Message::addError('main.taskmanager-error');
 				$failure = true;
 			}
 			return;
 		}
 		if (!isset($task['statusCode'])) {
-			Message::addError('taskmanager-format');
+			Message::addError('main.taskmanager-format');
 			return;
 		}
 		if (isset($task['data']['error'])) {
-			Message::addError('task-error', $task['statusCode'] . ' (' . $task['data']['error'] . ')');
+			Message::addError('main.task-error', $task['statusCode'] . ' (' . $task['data']['error'] . ')');
 			return;
 		}
-		Message::addError('task-error', $task['statusCode']);
+		Message::addError('main.task-error', $task['statusCode']);
 	}
 
 	/**

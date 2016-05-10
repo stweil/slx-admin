@@ -16,7 +16,7 @@ class Page_Statistics extends Page
 	{
 		User::load();
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		$action = Request::post('action');
@@ -562,9 +562,9 @@ class Page_Statistics extends Page
 			if (substr($row['description'], -5) === 'on :0' && strpos($row['description'], 'root logged') === false) continue;
 			$day = date('d.m.Y', $row['dateline']);
 			if ($day === $today) {
-				$day = Dictionary::translate('today');
+				$day = Dictionary::translate('lang_today');
 			} elseif ($day === $yesterday) {
-				$day = Dictionary::translate('yesterday');
+				$day = Dictionary::translate('lang_yesterday');
 			}
 			$row['date'] = $day . date(' H:i', $row['dateline']);
 			$row['icon'] = $this->eventToIconName($row['logtypeid']);

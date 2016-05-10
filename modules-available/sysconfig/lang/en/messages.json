@@ -1,0 +1,20 @@
+{
+    "invalid-action": "Invalid action: {{0}}",
+    "missing-title": "No title given",
+    "module-edited": "Module has been edited",
+    "module-added": "Module successfully added",
+    "replacing-config": "Replace config {{0}}",
+    "missing-file": "There was no file selected!",
+    "unsuccessful-action": "Not successful",
+    "upload-failed": "Upload failed: {{0}}",
+    "remote-timeout": "Could  not download resource {{0}} ({{1}})",
+    "no-image": "Could not find an SVG-image at the given URL",
+    "replacing-module": "Replace module {{0}}",
+    "config-invalid": "Configuration with id {{0}} does not exist",
+    "config-activated": "Configuration {{0}} has been activated",
+    "module-rebuilt": "Module was rebuilt",
+    "module-rebuild-failed": "Rebuilding module failed",
+    "module-rebuilding": "Module is rebuilding...",
+    "module-in-use": "Module {{0}} is still used by Configuration {{1}}",
+    "module-deleted": "Module {{0}} was deleted"
+}

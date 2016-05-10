@@ -9,6 +9,8 @@
     "lang_editModules": "Edit Module Translations",
     "lang_editSettings": "Edit configuration variables related strings",
     "lang_editTemplates": "Edit template strings",
+    "lang_global": "Global",
+    "lang_globalTooltip": "This tag is global; usually there is no need to translate it explicitly for this module",
     "lang_hint": "Notice",
     "lang_langAdministration": "Templates",
     "lang_mainHeading": "Translation management",

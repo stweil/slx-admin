@@ -9,7 +9,7 @@ class Page_VmStore extends Page
 		User::load();
 
 		if (!User::hasPermission('superadmin')) {
-			Message::addError('no-permission');
+			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		
@@ -43,17 +43,17 @@ class Page_VmStore extends Page
 		}
 		$storetype = $vmstore['storetype'];
 		if (!in_array($storetype, array('internal', 'nfs', 'cifs'))) {
-			Message::addError('value-invalid', 'type', $storetype);
+			Message::addError('main.value-invalid', 'type', $storetype);
 			Util::redirect('?do=VmStore');
 		}
 		// Validate syntax of nfs/cifs
 		if ($storetype === 'nfs' && !preg_match('#^\S+:\S+$#is', $vmstore['nfsaddr'])) {
-			Message::addError('value-invalid', 'nfsaddr', $vmstore['nfsaddr']);
+			Message::addError('main.value-invalid', 'nfsaddr', $vmstore['nfsaddr']);
 			Util::redirect('?do=VmStore');
 		}
 		$vmstore['cifsaddr'] = str_replace('\\', '/', $vmstore['cifsaddr']);
 		if ($storetype === 'cifs' && !preg_match('#^//\S+/.+$#is', $vmstore['cifsaddr'])) {
-			Message::addError('value-invalid', 'nfsaddr', $vmstore['nfsaddr']);
+			Message::addError('main.value-invalid', 'nfsaddr', $vmstore['nfsaddr']);
 			Util::redirect('?do=VmStore');
 		}
 		$this->mountTask = Trigger::mount($vmstore);
