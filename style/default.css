@@ -257,10 +257,14 @@ input[readonly] {
 	margin: 3px;
 }
 
-.slx-textpreview {
+.slx-textpreview, .slx-textpreview-200 {
 	max-height: 60px;
 	overflow-y: auto;
 	overflow-x: hidden;
+}
+
+.slx-textpreview-200 {
+	max-height: 200px;
 }
 
 /*

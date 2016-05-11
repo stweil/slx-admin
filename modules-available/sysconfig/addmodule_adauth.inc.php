@@ -25,7 +25,7 @@ class AdAuth_Start extends AddModule_Base
 			$data['server'] = $out[1];
 		}
 		$data['step'] = 'AdAuth_CheckConnection';
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'ad-start', $data);
+		Render::addDialog(Dictionary::translateFile('config-module', 'adAuth_title'), false, 'ad-start', $data);
 	}
 
 }
@@ -88,7 +88,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 		} else {
 			$data['next'] = 'AdAuth_CheckCredentials';
 		}
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'ad_ldap-checkconnection', $data);
+		Render::addDialog(Dictionary::translateFile('config-module', 'adAuth_title'), false, 'ad_ldap-checkconnection', $data);
 	}
 
 }
@@ -165,7 +165,7 @@ class AdAuth_SelfSearch extends AddModule_Base
 		} else {
 			$data['next'] = 'AdAuth_CheckCredentials';
 		}
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'ad-selfsearch',
+		Render::addDialog(Dictionary::translateFile('config-module', 'adAuth_title'), false, 'ad-selfsearch',
 			array_merge($this->taskIds, $data));
 	}
 
@@ -218,7 +218,7 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'ad-selfsearch', array_merge($this->taskIds, array(
+		Render::addDialog(Dictionary::translateFile('config-module', 'adAuth_title'), false, 'ad-selfsearch', array_merge($this->taskIds, array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => Request::post('server'),
@@ -289,7 +289,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'ad_ldap-checkcredentials', array_merge($this->taskIds, array(
+		Render::addDialog(Dictionary::translateFile('config-module', 'adAuth_title'), false, 'ad_ldap-checkcredentials', array_merge($this->taskIds, array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => Request::post('server') . ':' . Request::post('port'),
@@ -407,7 +407,7 @@ class AdAuth_Finish extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'adAuth_title'), false, 'ad-finish', $this->taskIds);
+		Render::addDialog(Dictionary::translateFile('config-module', 'adAuth_title'), false, 'ad-finish', $this->taskIds);
 	}
 
 }

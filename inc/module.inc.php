@@ -178,4 +178,9 @@ class Module
 		return Dictionary::getCategoryName($this->category);
 	}
 
+	public function getDir()
+	{
+		return 'modules/' . $this->name;
+	}
+
 }

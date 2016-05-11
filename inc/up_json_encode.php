@@ -164,7 +164,7 @@ function up_json_encode($var, $options = 0, $_indent = "")
 	} elseif (is_float($var)) {
 		if (is_nan($var) || is_infinite($var)) {
 			${'.json_last_error'} = JSON_ERROR_INF_OR_NAN;
-			return;
+			return false;
 		} else {
 			$json = "$var";
 		}
@@ -174,7 +174,7 @@ function up_json_encode($var, $options = 0, $_indent = "")
 	else {
 		trigger_error("up_json_encode: don't know what a '" . gettype($var) . "' is.", E_USER_WARNING);
 		${'.json_last_error'} = JSON_ERROR_UNSUPPORTED_TYPE;
-		return;
+		return false;
 	}
 
 	#-- done

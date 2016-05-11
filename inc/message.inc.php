@@ -55,6 +55,7 @@ class Message
 	 */
 	public static function renderList()
 	{
+		self::$flushed = true;
 		if (empty(self::$list))
 			return;
 		// Ajax
@@ -75,11 +76,10 @@ class Message
 			foreach ($item['params'] as $index => $text) {
 				$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
 			}
-			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message),'main');
+			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message), 'main');
 			self::$alreadyDisplayed[] = $item;
 		}
 		self::$list = array();
-		self::$flushed = true;
 	}
 
 	/**

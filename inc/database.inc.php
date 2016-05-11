@@ -113,6 +113,7 @@ class Database
 					return false;
 				Util::traceError("Database Error: \n" . $e->getMessage());
 		}
+		return false;
 	}
 
 	/**

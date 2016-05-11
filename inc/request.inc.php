@@ -5,11 +5,12 @@
  */
 class Request
 {
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key Key of field to get from $_GET
 	 * @param string $default Value to return if $_GET does not contain $key
+	 * @param string $type if the parameter exists, cast it to given type
 	 * @return mixed Field from $_GET, or $default if not set
 	 */
 	public static function get($key, $default = false, $type = false)

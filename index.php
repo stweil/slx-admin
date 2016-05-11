@@ -20,17 +20,17 @@ abstract class Page
 
 	protected function doPreprocess()
 	{
-		
+
 	}
 
 	protected function doRender()
 	{
-		
+
 	}
 
 	protected function doAjax()
 	{
-		
+
 	}
 
 	public static function preprocess()
@@ -51,7 +51,7 @@ abstract class Page
 	{
 		self::$instance->doAjax();
 	}
-	
+
 	public static function getModule()
 	{
 		return self::$module;
@@ -61,7 +61,7 @@ abstract class Page
 	 * @var \Page
 	 */
 	private static $instance = false;
-	
+
 	/**
 	 * @var \Module
 	 */
@@ -83,9 +83,6 @@ abstract class Page
 
 }
 
-// Error reporting (hopefully goind to stderr, not being printed on pages)
-error_reporting(E_ALL);
-
 // Set variable if this is an ajax request
 if ((isset($_REQUEST['async'])) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')) {
 	define('AJAX', true);
@@ -95,15 +92,27 @@ if ((isset($_REQUEST['async'])) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
 define('API', false);
 
 // Autoload classes from ./inc which adhere to naming scheme <lowercasename>.inc.php
-function slxAutoloader($class)
-{
+spl_autoload_register(function ($class) {
 	$file = 'inc/' . preg_replace('/[^a-z0-9]/', '', mb_strtolower($class)) . '.inc.php';
 	if (!file_exists($file))
 		return;
 	require_once $file;
-}
+});
 
-spl_autoload_register('slxAutoloader');
+
+if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
+	set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+		global $SLX_ERRORS;
+		$SLX_ERRORS[] = array(
+			'errno' => $errno,
+			'errstr' => $errstr,
+			'errfile' => $errfile,
+			'errline' => $errline,
+			//'stack' => debug_backtrace(), // TODO
+		);
+		return false; // Return false so the default error handler will kick in after this
+	});
+}
 
 // Now determine which module to run
 Page::init();
@@ -134,16 +143,59 @@ if (AJAX) {
 // Normal mode - preprocess first....
 Page::preprocess();
 
-// Generate Main menu
-Dashboard::createMenu();
-
+// Render queued up messages at the top
 Message::renderList();
 
 // Render page. If the module wants to output anything, it will be done here...
 Page::render();
 
+// We're still executing - generate Main menu
+Dashboard::createMenu();
+
 if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
-	Message::addWarning('main.debug-mode');
+	if (empty($SLX_ERRORS)) {
+		Message::addWarning('main.debug-mode');
+	} else {
+		/**
+		 * Map an error code into an Error word.
+		 *
+		 * @param int $code Error code to map
+		 * @return array Array of error word.
+		 */
+		function mapErrorCode($code)
+		{
+			switch ($code) {
+			case E_PARSE:
+			case E_ERROR:
+			case E_CORE_ERROR:
+			case E_COMPILE_ERROR:
+			case E_USER_ERROR:
+				return 'Fatal Error';
+			case E_WARNING:
+			case E_USER_WARNING:
+			case E_COMPILE_WARNING:
+			case E_RECOVERABLE_ERROR:
+				return 'Warning';
+			case E_NOTICE:
+			case E_USER_NOTICE:
+				return 'Notice';
+			case E_STRICT:
+				return 'Strict';
+			case E_DEPRECATED:
+			case E_USER_DEPRECATED:
+				return 'Deprecated';
+			default :
+				return '??Error';
+			}
+		}
+		$dir = preg_quote(dirname(__FILE__), '#');
+		foreach ($SLX_ERRORS as &$err) {
+			$err['errlevel'] = mapErrorCode($err['errno']);
+			$err['errfile'] = preg_replace('#^' . $dir . '#', '', $err['errfile']);
+		}
+		unset($err, $dir);
+		Render::addTemplate('php-errors', array('errors' => $SLX_ERRORS), 'main');
+	}
 }
 
 if (defined('CONFIG_FOOTER')) {

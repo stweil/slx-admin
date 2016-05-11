@@ -2,9 +2,9 @@
 
 ConfigModule::registerModule(
 	ConfigModule_CustomModule::MODID, // ID
-	Dictionary::translate('config-module', 'custom_title'), // Title
-	Dictionary::translate('config-module', 'custom_description'), // Description
-	Dictionary::translate('config-module', 'group_generic'), // Group
+	Dictionary::translateFile('config-module', 'custom_title'), // Title
+	Dictionary::translateFile('config-module', 'custom_description'), // Description
+	Dictionary::translateFile('config-module', 'group_generic'), // Group
 	false, // Only one per config?
 	100 // Sort order
 );
@@ -45,6 +45,7 @@ class ConfigModule_CustomModule extends ConfigModule
 		if ($key !== 'tmpFile' || !file_exists($value))
 			return false;
 		$this->tmpFile = $value;
+		return true;
 	}
 
 	public function getData($key)

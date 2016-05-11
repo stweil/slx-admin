@@ -2,9 +2,9 @@
 
 ConfigModule::registerModule(
 	ConfigModule_Branding::MODID, // ID
-	Dictionary::translate('config-module', 'branding_title'), // Title
-	Dictionary::translate('config-module', 'branding_description'), // Description
-	Dictionary::translate('config-module', 'group_branding'), // Group
+	Dictionary::translateFile('config-module', 'branding_title'), // Title
+	Dictionary::translateFile('config-module', 'branding_description'), // Description
+	Dictionary::translateFile('config-module', 'group_branding'), // Group
 	true // Only one per config?
 );
 
@@ -45,6 +45,7 @@ class ConfigModule_Branding extends ConfigModule
 		if ($key !== 'tmpFile' || !is_string($value) || !file_exists($value))
 			return false;
 		$this->tmpFile = $value;
+		return true;
 	}
 
 	public function getData($key)

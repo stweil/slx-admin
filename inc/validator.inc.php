@@ -32,6 +32,7 @@ class Validator
 			default:
 				Util::traceError('Unknown validation method: ' . $data[0]);
 		}
+		return false; // make code inspector happy - doesn't know traceError doesn't return
 	}
 
 	/**

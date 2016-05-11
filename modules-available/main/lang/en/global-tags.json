@@ -1,4 +1,11 @@
 {
+    "lang_back": "Back",
+    "lang_cancel": "Cancel",
+    "lang_close": "Close",
+    "lang_delete": "Delete",
+    "lang_hint": "Hint",
+    "lang_next": "Next",
+    "lang_save": "Save",
     "lang_today": "Today",
     "lang_yesterday": "Yesterday"
 }

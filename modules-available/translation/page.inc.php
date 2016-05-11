@@ -205,6 +205,7 @@ class Page_Translation extends Page
 			'module' => $this->module->getIdentifier(),
 			'moduleName' => $this->module->getDisplayName()
 		));
+		Render::openTag('div', array('class' => 'row'));
 		// Templates
 		$this->showModuleTemplates();
 		// Messages
@@ -213,6 +214,7 @@ class Page_Translation extends Page
 		$this->showModuleStrings();
 		// Module specific
 		$this->showModuleCustom();
+		Render::closeTag('div');
 	}
 	
 	private function showModuleTemplates()
@@ -403,8 +405,13 @@ class Page_Translation extends Page
 		if ($module === false) {
 			$module = $this->module;
 		}
+		$allFiles = $this->getAllFiles('modules', '.php');
+		if ($module->getIdentifier() === 'main') {
+			$allFiles = array_merge($allFiles, $this->getAllFiles('apis', '.php'), $this->getAllFiles('inc', '.php'));
+			$allFiles[] = 'index.php';
+		}
 		$tags = $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"](?<module>[^\'"\.]*)\.(?<tag>[^\'"]*)[\'"]\s*(?<data>\)|\,.*)/i',
-			$this->getAllFiles('modules', '.php'));
+			$allFiles);
 		// Filter out tags that don't refer to this module
 		foreach (array_keys($tags) as $tag) {
 			// Figure out if this is a message from this module or not
@@ -869,6 +876,7 @@ class Page_Translation extends Page
 		}
 		Message::addError('invalid-section', $this->section);
 		$this->redirect(1);
+		return false;
 	}
 
 	/**
@@ -878,7 +886,7 @@ class Page_Translation extends Page
 	{
 		$this->ensureValidDestLanguage();
 		if ($this->module === false) {
-			Message::addError('main.no-module-given');
+			Message::addError('no-module-given');
 			$this->redirect();
 		}
 		$file = $this->getJsonFile();
@@ -906,7 +914,7 @@ class Page_Translation extends Page
 		
 		$translation = Request::post('new-text', array(), 'array');
 		foreach (Request::post('new-id', array(), 'array') as $k => $tag) {
-			if (empty($translation[$k]))
+			if (empty($translation[$k]) || empty($tag))
 				continue;
 			$data[(string)$tag] = (string)$translation[$k];
 		}

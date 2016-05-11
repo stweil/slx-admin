@@ -1,29 +1,31 @@
-<div class="panel panel-default">
-	<div class="panel-heading">
-		{{lang_messages}}
-	</div>
-	<div class="panel-body">
-		<div class="row">
-			<div class="col-sm-6">
-				{{#langs}}
-				<a href="?do=Translation&amp;module={{module}}&amp;section=messages&amp;destlang={{cc}}">{{name}} &raquo;</a>
-				<ul>
-					<li>{{lang_missing}}: {{missing}}</li>
-					<li>{{lang_unused}}: {{unused}}</li>
-				</ul>
-				{{/langs}}
-			</div>
-			<div class="col-sm-6">
-				<div>{{lang_messages}}: {{messagecount}}</div>
-				<ul>
-					{{#files}}
-					<li>{{file}}</li>
-					{{/files}}
-				</ul>
-				<div>
-					<span class="label label-info">{{lang_hint}}</span>
-					{{lang_unusedUnreliableHint}}
+<div class="col-lg-6">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_messages}}
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-sm-6">
+					{{#langs}}
+					<a href="?do=Translation&amp;module={{module}}&amp;section=messages&amp;destlang={{cc}}">{{name}} &raquo;</a>
+					<ul>
+						<li>{{lang_missing}}: {{missing}}</li>
+						<li>{{lang_unused}}: {{unused}}</li>
+					</ul>
+					{{/langs}}
 				</div>
+				<div class="col-sm-6 slx-textpreview-200">
+					<div>{{lang_messages}}: {{messagecount}}</div>
+					<ul>
+						{{#files}}
+						<li>{{file}}</li>
+						{{/files}}
+					</ul>
+				</div>
+			</div>
+			<div>
+				<span class="label label-info">{{lang_hint}}</span>
+				{{lang_unusedUnreliableHint}}
 			</div>
 		</div>
 	</div>

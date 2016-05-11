@@ -66,6 +66,7 @@ class Property
 		EventLog::info('Server IP changed from ' . self::getServerIp() . ' to ' . $value . ($automatic ? ' (auto detected)' : ''));
 		self::set('server-ip', $value);
 		Event::serverIpChanged();
+		return true;
 	}
 
 	public static function getBootMenu()

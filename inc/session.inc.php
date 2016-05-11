@@ -41,6 +41,7 @@ class Session
 		if (self::readSessionData()) return true;
 		// Loading session data failed
 		self::delete();
+		return false;
 	}
 
 	public static function get($key)

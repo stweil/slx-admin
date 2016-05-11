@@ -1,8 +1,6 @@
 {
     "lang_adminInfo": "Dies ist eine Liste aller Templates. Die \"Status\"-Spalte zeigt an, wenn f\u00fcr ein Template \u00fcbersetzungen fehlen, oder veraltete Tags definiert sind.",
-    "lang_back": "Zur\u00fcck",
     "lang_createTag": "Tag erstellen",
-    "lang_deleteTAG": "L\u00f6schen",
     "lang_editConfigModule": "Konfigurationsmodulbezeichnungsphrasen editieren",
     "lang_editHardcoded": "Hardcoded-Texte bearbeiten",
     "lang_editMessages": "Nachrichten bearbeiten",
@@ -11,7 +9,6 @@
     "lang_editTemplates": "Template-Texte bearbeiten",
     "lang_global": "Global",
     "lang_globalTooltip": "Dieser Tag ist global verf\u00fcgbar und braucht normalerweise nicht explizit f\u00fcr dieses Modul \u00fcbersetzt zu werden",
-    "lang_hint": "Hinweis",
     "lang_langAdministration": "Templates",
     "lang_mainHeading": "\u00dcbersetzungen verwalten",
     "lang_messages": "Benachrichtigungen",
@@ -19,7 +16,6 @@
     "lang_module": "Modul",
     "lang_otherStrings": "Andere Texte",
     "lang_sample": "Beispiel",
-    "lang_save": "Speichern",
     "lang_status": "Status",
     "lang_tag": "Tag",
     "lang_tags": "Tags",
@@ -29,5 +25,5 @@
     "lang_translation": "\u00dcbersetzung",
     "lang_translationHeading": "Verwalten der \u00dcbersetzungen",
     "lang_unused": "Ungenutzt",
-    "lang_unusedUnreliableHint": "Die Erkennung von ungenutzten Tags bezieht nur aktivierte Module mit ein. Es k\u00f6nnte sein, dass ein ungenutzt gemeldeter Tag in einem nicht aktivierten Modul verwendet wird."
+    "lang_unusedUnreliableHint": "Die Erkennung ungenutzter Tags bezieht nur aktivierte Module mit ein. Es k\u00f6nnte sein, dass ein ungenutzt gemeldeter Tag in einem nicht aktivierten Modul verwendet wird."
 }

@@ -54,8 +54,8 @@ class Page_SysConfig extends Page
 		$action = Request::any('action', 'list');
 
 		// Load all addmodule classes, as they populate the $moduleTypes array
-		require_once 'modules/sysconfig/addmodule.inc.php';
-		foreach (glob('modules/sysconfig/addmodule_*.inc.php') as $file) {
+		require_once Page::getModule()->getDir() . '/addmodule.inc.php';
+		foreach (glob(Page::getModule()->getDir() . '/addmodule_*.inc.php') as $file) {
 			require_once $file;
 		}
 
@@ -375,10 +375,10 @@ class Page_SysConfig extends Page
 	private function initAddModule()
 	{
 		ConfigModule::loadDb();
-		require_once 'modules/sysconfig/addmodule.inc.php';
-		$step = Request::any('step', 'AddModule_Start');
+		require_once Page::getModule()->getDir() . '/addmodule.inc.php';
+		$step = Request::any('step', 'AddModule_Start', 'string');
 		if (!class_exists($step) && preg_match('/^([a-zA-Z0-9]+)_/', $step, $out)) {
-			require_once 'modules/sysconfig/addmodule_' . strtolower($out[1]) . '.inc.php';
+			require_once Page::getModule()->getDir() . '/addmodule_' . strtolower($out[1]) . '.inc.php';
 		}
 		AddModule_Base::setStep($step);
 	}
@@ -386,7 +386,7 @@ class Page_SysConfig extends Page
 	private function initAddConfig()
 	{
 		ConfigModule::loadDb();
-		require_once 'modules/sysconfig/addconfig.inc.php';
+		require_once Page::getModule()->getDir() . '/addconfig.inc.php';
 		$step = Request::any('step', 0);
 		if ($step === 0)
 			$step = 'AddConfig_Start';

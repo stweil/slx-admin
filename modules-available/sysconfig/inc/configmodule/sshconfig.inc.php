@@ -2,9 +2,9 @@
 
 ConfigModule::registerModule(
 	ConfigModule_SshConfig::MODID, // ID
-	Dictionary::translate('config-module', 'sshconfig_title'), // Title
-	Dictionary::translate('config-module', 'sshconfig_description'), // Description
-	Dictionary::translate('config-module', 'group_sshconfig'), // Group
+	Dictionary::translateFile('config-module', 'sshconfig_title'), // Title
+	Dictionary::translateFile('config-module', 'sshconfig_description'), // Description
+	Dictionary::translateFile('config-module', 'group_sshconfig'), // Group
 	true // Only one per config?
 );
 

@@ -28,7 +28,7 @@ abstract class ConfigModule
 		if (self::$moduleTypes !== false)
 			return;
 		self::$moduleTypes = array();
-		foreach (glob('inc/configmodule/*.inc.php') as $file) {
+		foreach (glob(dirname(__FILE__) . '/configmodule/*.inc.php', GLOB_NOSORT) as $file) {
 			require_once $file;
 		}
 	}

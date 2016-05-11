@@ -1,16 +1,17 @@
 <?php
 
 ConfigModule::registerModule(
-	'LdapAuth', // ID
-	Dictionary::translate('config-module', 'ldapAuth_title'), // Title
-	Dictionary::translate('config-module', 'ldapAuth_description'), // Description
-	Dictionary::translate('config-module', 'group_authentication'), // Group
+	ConfigModule_LdapAuth::MODID, // ID
+	Dictionary::translateFile('config-module', 'ldapAuth_title'), // Title
+	Dictionary::translateFile('config-module', 'ldapAuth_description'), // Description
+	Dictionary::translateFile('config-module', 'group_authentication'), // Group
 	true // Only one per config?
 );
 
 class ConfigModule_LdapAuth extends ConfigModule
 {
 
+	const MODID = 'LdapAuth';
 	const VERSION = 1;
 
 	private static $REQUIRED_FIELDS = array('server', 'searchbase');

@@ -444,6 +444,7 @@ class Mustache_Engine
         } catch (InvalidArgumentException $e) {
             // If the named partial cannot be found, return null.
         }
+        return null;
     }
 
     /**
@@ -557,6 +558,7 @@ class Mustache_Engine
         if ($this->cache) {
             return sprintf('%s/%s.php', $this->cache, $this->getTemplateClassName($source));
         }
+        return false;
     }
 
     /**

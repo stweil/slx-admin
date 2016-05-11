@@ -124,6 +124,10 @@ class TaskmanagerCallback
 	 */
 	public static function cbConfModCreated($task, $args)
 	{
+		$mod = Module::get('sysconfig');
+		if ($mod === false)
+			return;
+		$mod->activate();
 		if (Taskmanager::isFailed($task)) {
 			ConfigModule::generateFailed($task, $args);
 		} else {
@@ -139,6 +143,10 @@ class TaskmanagerCallback
 	 */
 	public static function cbConfTgzCreated($task, $args)
 	{
+		$mod = Module::get('sysconfig');
+		if ($mod === false)
+			return;
+		$mod->activate();
 		if (Taskmanager::isFailed($task)) {
 			ConfigTgz::generateFailed($task, $args);
 		} else {

@@ -1,0 +1,12 @@
+<div class="alert alert-warning">
+	<div class="slx-bold">
+		<span class="glyphicon glyphicon-warning" aria-hidden="true"></span>
+		{{lang_warningDebug}}
+	</div>
+	<hr>
+	{{#errors}}
+	<div>
+		<b>{{errlevel}}</b>: {{errstr}}&ensp;–&ensp;{{errfile}}&thinsp;:&thinsp;{{errline}}
+	</div>
+	{{/errors}}
+</div>

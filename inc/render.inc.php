@@ -18,7 +18,7 @@ class Render
 	private static $mustache = false;
 	private static $body = '';
 	private static $header = '';
-	private static $dashboard = '';
+	private static $dashboard = false;
 	private static $footer = '';
 	private static $title = '';
 	private static $templateCache = array();
@@ -28,7 +28,16 @@ class Render
 	{
 		if (self::$mustache !== false)
 			Util::traceError('Called Render::init() twice!');
-		self::$mustache = new Mustache_Engine;
+		$options = array();
+		$tmp = '/tmp/bwlp-cache';
+		$dir = is_dir($tmp);
+		if (!$dir) {
+			@mkdir($tmp, 0755, false);
+		}
+		if (($dir || is_dir($tmp)) && is_writable($tmp)) {
+			$options['cache'] = $tmp;
+		}
+		self::$mustache = new Mustache_Engine($options);
 	}
 
 	/**
@@ -40,7 +49,6 @@ class Render
 		$zip = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false);
 		if ($zip)
 			ob_start();
-		$page = strtolower($_GET['do']);
 		echo
 		'<!DOCTYPE html>
 	<html>
@@ -63,7 +71,7 @@ class Render
 		'	</head>
 		<body>
 	',
-		self::$dashboard,
+		(self::$dashboard !== false ? self::parse('main-menu', self::$dashboard, 'main') : ''),
 		'<div class="main" id="mainpage"><div class="container-fluid">
 	',
 		self::$body
@@ -168,17 +176,19 @@ class Render
 	/**
 	 * Parse template with given params and return; do not add to body
 	 * @param string $template name of template, relative to templates/, without .html extension
+	 * @param array $params tags to render into template
+	 * @param string $module name of module to load template from; defaults to currently active module
 	 * @return string Rendered template
 	 */
 	public static function parse($template, $params = false, $module = false)
 	{
+		if ($module === false) {
+			$module = Page::getModule()->getIdentifier();
+		}
 		// Load html snippet
-		$html = self::getTemplate($template,$module);
+		$html = self::getTemplate($template, $module);
 		if ($html === false) {
 			return '<h3>Template ' . htmlspecialchars($template) . '</h3>' . nl2br(htmlspecialchars(print_r($params, true))) . '<hr>';
-		}
-		if($module === false) {
-			$module = Page::getModule()->getIdentifier();
 		}
 		if (!is_array($params)) {
 			$params = array();
@@ -201,8 +211,10 @@ class Render
 		}
 		// Always add token to parameter list
 		$params['token'] = Session::get('token');
-		// Likewise, add currently selected language (its two letter code) to params
-		$params['current_lang'] = LANG;
+		if (defined('LANG')) {
+			// Likewise, add currently selected language (its two letter code) to params
+			$params['current_lang'] = LANG;
+		}
 		// Add desired password field type
 		$params['password_type'] = Property::getPasswordFieldType();
 		// Return rendered html
@@ -242,20 +254,18 @@ class Render
 	/**
 	 * Private helper: Load the given template and return it
 	 */
-	private static function getTemplate($template, $module = false)
+	private static function getTemplate($template, $module)
 	{
-		if (isset(self::$templateCache[$template])) {
-			return self::$templateCache[$template];
-		}
-		// Select current module
-		if(!$module){
-			$module = strtolower(empty($_REQUEST['do']) ? 'Main' : $_REQUEST['do']);
+		$id = "$template/$module";
+		if (isset(self::$templateCache[$id])) {
+			return self::$templateCache[$id];
 		}
 		// Load from disk
 		$data = @file_get_contents('modules/' . $module . '/templates/' . $template . '.html');
-		if ($data === false)
-			$data = '<b>Non-existent template ' . $template . ' requested!</b>';
-		self::$templateCache[$template] = & $data;
+		if ($data === false) {
+			$data = '<b>Non-existent/unreadable template ' . $template . ' requested!</b>';
+		}
+		self::$templateCache[$id] =& $data;
 		return $data;
 	}
 
@@ -264,7 +274,7 @@ class Render
 	 */
 	public static function setDashboard($params)
 	{
-		self::$dashboard = self::parse('main-menu', $params, 'main');
+		self::$dashboard = $params;
 	}
 
 }

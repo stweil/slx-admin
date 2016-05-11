@@ -1,25 +1,27 @@
-<div class="panel panel-default">
-	<div class="panel-heading">
-		{{lang_templates}}
-	</div>
-	<div class="panel-body">
-		<div class="row">
-			<div class="col-sm-6">
-				{{#langs}}
-				<a href="?do=Translation&amp;module={{module}}&amp;section=template&amp;destlang={{cc}}">{{name}} &raquo;</a>
-				<ul>
-					<li>{{lang_missing}}: {{missing}}</li>
-					<li>{{lang_unused}}: {{unused}}</li>
-				</ul>
-				{{/langs}}
-			</div>
-			<div class="col-sm-6">
-				{{lang_tags}}: {{tagcount}}
-				<ul>
-				{{#templates}}
-				<li>{{template}}</li>
-				{{/templates}}
-				</ul>
+<div class="col-lg-6">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_templates}}
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-sm-6">
+					{{#langs}}
+					<a href="?do=Translation&amp;module={{module}}&amp;section=template&amp;destlang={{cc}}">{{name}} &raquo;</a>
+					<ul>
+						<li>{{lang_missing}}: {{missing}}</li>
+						<li>{{lang_unused}}: {{unused}}</li>
+					</ul>
+					{{/langs}}
+				</div>
+				<div class="col-sm-6">
+					{{lang_tags}}: {{tagcount}}
+					<ul>
+					{{#templates}}
+					<li>{{template}}</li>
+					{{/templates}}
+					</ul>
+				</div>
 			</div>
 		</div>
 	</div>

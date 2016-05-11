@@ -14,7 +14,7 @@
 			<input type="hidden" name="subsection" value="{{subsection}}">
 			<input type="hidden" name="token" value="{{token}}">
 			<a class="btn btn-primary" href='?do=Translation' >{{lang_back}}</a>
-			<button class="btn btn-primary" type="button" onclick="addTag()" >{{lang_createTag}}</button>
+			<button class="btn btn-primary" type="button" onclick="slxAddTag()" >{{lang_createTag}}</button>
 			<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
 			<div class="row">
 				<div class="col-xs-4 col-sm-3">{{lang_tag}}</div>
@@ -54,7 +54,7 @@
 				<div class="col-xs-2 col-sm-2 col-lg-1">
 					<button type="button" class="btn btn-danger btn-xs" onclick="slxDelTag({{tagid}})" tabindex="-1">
 						<span class="glyphicon glyphicon-remove"></span>
-						<span class="hidden-xs">{{lang_deleteTAG}}</span>
+						<span class="hidden-xs">{{lang_delete}}</span>
 					</button>
 				</div>
 			</div>
@@ -81,7 +81,7 @@
 			'	<div class="hidden-xs col-sm-4">' +
 			'	</div>' + 
 			'	<div class="col-xs-2 col-sm-1">' +
-			'		<button type="button" class="btn btn-danger btn-xs" onclick="slxDelNew(' + slxNewTagCounter + ')"><span class="glyphicon glyphicon-remove"></span> {{lang_deleteTAG}}</button>' +
+			'		<button type="button" class="btn btn-danger btn-xs" onclick="slxDelNew(' + slxNewTagCounter + ')" tabindex="-1"><span class="glyphicon glyphicon-remove"></span> {{lang_delete}}</button>' +
 			'	</div>' +
 			'</div>'
 		);
