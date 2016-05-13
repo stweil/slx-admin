@@ -4,8 +4,7 @@
     "lang_catUser": "User Managment",
     "lang_clientRelatedConfig": "The options on this page are related to the bwLehrpool client machines.",
     "lang_confirm": "Would you like to save the settings on [ \/srv\/openslx\/www\/boot\/config ] ?",
-    "lang_create": "Create",
-    "lang_delete": "Delete",
+    "lang_enableOverride": "Override",
     "lang_helpId": "Partition Id",
     "lang_helpMountPoint": "Must be a directory: \/example\/directory\/",
     "lang_helpOptions": "Currently, only option 'bootable' is available",
@@ -19,7 +18,6 @@
     "lang_reset": "Reset",
     "lang_resetConfirm": "Do you really wish to reset the variable to their default values?",
     "lang_resetDefault": "Reset Default",
-    "lang_save": "Save",
     "lang_userName": "Username",
     "lang_userPasswd": "Password"
 }

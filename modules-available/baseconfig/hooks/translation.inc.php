@@ -18,10 +18,10 @@ $HANDLER['subsections'] = array(
  * Configuration categories
  */
 $HANDLER['grep_config-variable-categories'] = function($module) {
-	$want = array();
-	$res = Database::simpleQuery("SELECT catid FROM cat_setting ORDER BY catid ASC");
-	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		$want['cat_' . $row['catid']] = true;
+	$module->activate();
+	$want = BaseConfigUtil::getCategories();
+	foreach ($want as &$entry) {
+		$entry = true;
 	}
 	return $want;
 };
@@ -30,10 +30,10 @@ $HANDLER['grep_config-variable-categories'] = function($module) {
  * Configuration variables
  */
 $HANDLER['grep_config-variables'] = function($module) {
-	$want = array();
-	$res = Database::simpleQuery("SELECT setting FROM setting ORDER BY setting ASC");
-	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		$want[$row['setting']] = true;
+	$module->activate();
+	$want = BaseConfigUtil::getVariables();
+	foreach ($want as &$entry) {
+		$entry = true;
 	}
 	return $want;
 };

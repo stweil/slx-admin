@@ -15,6 +15,15 @@ class Location
 		}
 		return $rows;
 	}
+
+	public static function getName($locationId)
+	{
+		self::getLocationsAssoc();
+		$locationId = (int)$locationId;
+		if (!isset(self::$assocLocationCache[$locationId]))
+			return false;
+		return self::$assocLocationCache[$locationId]['locationname'];
+	}
 	
 	public static function getLocationsAssoc()
 	{

@@ -1,13 +1,6 @@
 {
     "lang_basicConfiguration": "Basiskonfiguration",
-    "lang_catUser": "Benutzerverwaltung",
     "lang_clientRelatedConfig": "Die Optionen auf dieser Seite beziehen sich auf das Verhalten der bwLehrpool-Clients.",
-    "lang_create": "Schaffen",
-    "lang_delete": "L\u00f6schen",
-    "lang_newUser": "Neuer Benutzer",
-    "lang_partitionMountPoint": "Mount Point",
-    "lang_reset": "Zur\u00fccksetzen",
-    "lang_save": "Speichern",
-    "lang_userName": "Benutzername",
-    "lang_userPasswd": "Passwort"
+    "lang_enableOverride": "\u00dcberschreiben",
+    "lang_reset": "Zur\u00fccksetzen"
 }

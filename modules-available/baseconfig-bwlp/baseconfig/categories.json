@@ -1,0 +1,8 @@
+{
+	"power": 30,
+	"networking": 50,
+	"timesync": 100,
+	"sysconfig": 10,
+	"other": 20000,
+	"vmchooser": 20
+}

@@ -199,10 +199,6 @@ class DefaultData
 				'validator' => 'list:IGNORE|BUMP|EXCLUSIVE'
 			),
 		);
-		foreach ($data as $entry) {
-			Database::exec("INSERT IGNORE INTO setting (setting, catid, defaultvalue, permissions, validator)"
-				. "VALUES (:setting, :catid, :defaultvalue, :permissions, :validator)", $entry);
-		}
 	}
 
 }

@@ -342,12 +342,12 @@ nav.sidebar li {
 
 	.main
 	{
-	  float:right;
-	  margin-left:240px;
-	  margin-top:32px;
-	  min-width:900px;
-	  position:absolute;
-	  width:calc(100%-200px);
+	  float: right;
+	  margin-left: 240px;
+	  margin-top: 32px;
+	  min-width: 900px;
+	  position: absolute;
+	  width: calc(100% - 200px);
 	}
 
 	.navbar-inverse,.sidebar-bg
@@ -525,6 +525,16 @@ section{
   border-top-left-radius: 0;
 }
 
+.slx-cfg-toggle > input[type=checkbox] ~ label {
+	font-weight: normal;
+}
+
+.slx-cfg-toggle > input[type=checkbox]:checked ~ label {
+	font-weight: bold;
+}
+
+/* what's this?
 textarea.form-control .editor-box{
   height: 520px;
 }
+*/

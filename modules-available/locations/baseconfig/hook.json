@@ -1,0 +1,5 @@
+{
+	"table": "setting_location",
+	"field": "locationid",
+	"tostring": "Location::getName"
+}

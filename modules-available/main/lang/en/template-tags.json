@@ -19,5 +19,6 @@
     "lang_translations": "Translations",
     "lang_vmLocationNotSet": "A location for the virtual machine is not set yet.",
     "lang_warning": "Warning",
+    "lang_warningDebug": "Debug mode active!",
     "lang_welcome": "Welcome"
 }

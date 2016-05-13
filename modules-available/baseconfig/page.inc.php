@@ -4,61 +4,82 @@ class Page_BaseConfig extends Page
 {
 	private $qry_extra = array();
 
+	/**
+	 * @var bool|string in case we're in module mode, set to the id of the module
+	 */
+	private $targetModule = false;
+
 	protected function doPreprocess()
 	{
 		User::load();
 
-		// Determine if we're setting global, distro or location
-		if (isset($_REQUEST['distroid'])) {
-			// TODO: Everything
-			$this->qry_extra[] = array(
-				'name'  => 'distroid',
-				'value' => (int)$_REQUEST['distroid'],
-				'table' => 'setting_distro',
-			);
-			if (isset($_REQUEST['locationid'])) {
-				$this->qry_extra[] = array(
-					'name'  => 'locationid',
-					'value' => (int)$_REQUEST['locationid'],
-					'table' => 'setting_location',
-				);
-			}
-		}
+		// Determine if we're setting global or module specific
+		$this->getModuleSpecific();
 
-		if (isset($_POST['setting']) && is_array($_POST['setting'])) {
-			if (User::hasPermission('superadmin')) {
-				// Build variables for specific sub-settings
+		$newValues = Request::post('setting');
+		if (is_array($newValues)) {
+			if (!User::hasPermission('superadmin')) {
+				Message::addError('main.no-permission');
+				Util::redirect('?do=baseconfig');
+			}
+			// Build variables for specific sub-settings
+			if (empty($this->qry_extra['field'])) {
 				$qry_insert = '';
 				$qry_values = '';
-				foreach ($this->qry_extra as $item) {
-					$qry_insert = ', ' . $item['name'];
-					$qry_values = ', :' . $item['name'];
+				$params = array();
+			} else {
+				$qry_insert = ', ' . $this->qry_extra['field'];
+				$qry_values = ', :field_value';
+				$params = array('field_value' => $this->qry_extra['field_value']);
+				$delExtra = " AND {$this->qry_extra['field']} = :field_value ";
+				$delParams = array('field_value' => $this->qry_extra['field_value']);
+			}
+			if ($this->targetModule === false) {
+				$override = false;
+			} else {
+				// Not editing global settings
+				if ($this->getCurrentModuleName() === false) {
+					Message::addError('main.value-invalid', $this->qry_extra['field'], $this->qry_extra['field_value']);
+					Util::redirect('?do=BaseConfig');
 				}
-				// Load all existing config options to validate input
-				$res = Database::simpleQuery('SELECT setting, validator FROM setting');
-				while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-					$key = $row['setting'];
-					$validator = $row['validator'];
-					$displayValue = (isset($_POST['setting'][$key]) ? $_POST['setting'][$key] : '');
-					// Validate data first!
-					$mangledValue = Validator::validate($validator, $displayValue);
-					if ($mangledValue === false) {
-						Message::addWarning('main.value-invalid', $key, $displayValue);
-						continue;
-					}
-					// Now put into DB
-					Database::exec("INSERT INTO setting_global (setting, value, displayvalue $qry_insert)
-						VALUES (:key, :value, :displayvalue $qry_values)
-						ON DUPLICATE KEY UPDATE value = :value, displayvalue = :displayvalue",
-						$this->qry_extra + array(
-							'key'      => $key,
-							'value'    => $mangledValue,
-							'displayvalue' => $displayValue
-						)
-					);
+				// Honor override checkbox
+				$override = Request::post('override', array());
+			}
+			// Load all existing config options to validate input
+			$vars = BaseConfigUtil::getVariables();
+			foreach ($vars as $key => $var) {
+				if (is_array($override) && (!isset($override[$key]) || $override[$key] !== 'on')) {
+					// module mode - override not set - delete
+					$delParams['key'] = $key;
+					Database::exec("DELETE FROM {$this->qry_extra['table']} WHERE setting = :key $delExtra", $delParams);
+					continue;
 				}
-				Message::addSuccess('settings-updated');
+				$validator = $var['validator'];
+				$displayValue = (isset($newValues[$key]) ? $newValues[$key] : '');
+				// Validate data first!
+				$mangledValue = Validator::validate($validator, $displayValue);
+				if ($mangledValue === false) {
+					Message::addWarning('main.value-invalid', $key, $displayValue);
+					continue;
+				}
+				// Now put into DB
+				Database::exec("INSERT INTO {$this->qry_extra['table']} (setting, value, displayvalue $qry_insert)"
+					. " VALUES (:key, :value, :displayvalue $qry_values)"
+					. " ON DUPLICATE KEY UPDATE value = :value, displayvalue = :displayvalue",
+					array(
+						'key'      => $key,
+						'value'    => $mangledValue,
+						'displayvalue' => $displayValue
+					) + $params
+				);
+			}
+			Message::addSuccess('settings-updated');
+			if ($this->targetModule === false) {
 				Util::redirect('?do=BaseConfig');
+			} elseif (empty($this->qry_extra['field'])) {
+				Util::redirect('?do=BaseConfig&module=' . $this->targetModule);
+			} else {
+				Util::redirect('?do=BaseConfig&module=' . $this->targetModule . '&' . $this->qry_extra['field'] . '=' . $this->qry_extra['field_value']);
 			}
 		}
 	}
@@ -69,31 +90,117 @@ class Page_BaseConfig extends Page
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
-		// Build left joins for specific settings
-		$joins = '';
-		foreach ($this->qry_extra as $item) {
-			$joins .= " LEFT JOIN {$item['table']} ";
+		// Check if valid submodule mode, stire name if any
+		if ($this->targetModule !== false) {
+			$this->qry_extra['subheading'] = $this->getCurrentModuleName();
+			if ($this->qry_extra['subheading'] === false) {
+				Message::addError('main.value-invalid', $this->qry_extra['field'], $this->qry_extra['field_value']);
+				Util::redirect('?do=BaseConfig');
+			}
 		}
-		// List global config option
+		// List config options
 		$settings = array();
-		$res = Database::simpleQuery('SELECT cat_setting.catid, setting.setting, setting.defaultvalue, setting.permissions, setting.validator, tbl.displayvalue
-			FROM setting
-			INNER JOIN cat_setting USING (catid)
-			LEFT JOIN setting_global AS tbl USING (setting)
-			ORDER BY cat_setting.sortval ASC, setting.setting ASC');
+		$vars = BaseConfigUtil::getVariables();
+		$cats = BaseConfigUtil::getCategories();
+		// Get stuff that's set in DB already
+		if (isset($this->qry_extra['field'])) {
+			$where = " WHERE {$this->qry_extra['field']} = :field_value";
+			$params = array('field_value' => $this->qry_extra['field_value']);
+		} else {
+			$where = '';
+			$params = array();
+		}
+		// Populate structure with existing config from db
+		$res = Database::simpleQuery("SELECT setting, displayvalue FROM {$this->qry_extra['table']} "
+			. " {$where} ORDER BY setting ASC", $params);
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (!isset($vars[$row['setting']]) || !is_array($vars[$row['setting']])) {
+				$unknown[] = $row['setting'];
+				continue;
+			}
+			$row += $vars[$row['setting']];
 			$row['description'] = Util::markup(Dictionary::translateFile('config-variables', $row['setting']));
 			if (is_null($row['displayvalue'])) $row['displayvalue'] = $row['defaultvalue'];
 			$row['item'] = $this->makeInput($row['validator'], $row['setting'], $row['displayvalue']);
-			$settings[$row['catid']]['settings'][] = $row;
-			if (!isset($settings[$row['catid']]['category_id'])) {
-				$settings[$row['catid']]['category_name'] = Dictionary::translateFile('config-variable-categories', 'cat_' . $row['catid']);
-				$settings[$row['catid']]['category_id'] = $row['catid'];
+			if (!isset($row['catid'])) {
+				$row['catid'] = 'unknown';
 			}
+			$settings[$row['catid']]['settings'][$row['setting']] = $row;
 		}
+		// Add entries that weren't in the db (global), setup override checkbox (module specific)
+		foreach ($vars as $key => $var) {
+			if (isset($settings[$var['catid']]['settings'][$key])) {
+				// Value is set in DB
+				$settings[$var['catid']]['settings'][$key]['checked'] = 'checked';
+				continue;
+			}
+			// Value is not set in DB
+			$settings[$var['catid']]['settings'][$key] = $var + array(
+				'setting' => $key,
+				'item' => $this->makeInput($var['validator'], $key, $var['defaultvalue'])
+			);
+		}
+		// Sort categories
+		$sortvals = array();
+		foreach ($settings as $catid => &$setting) {
+			$sortvals[] = isset($cats[$catid]) ? (int)$cats[$catid] : 99999;
+			$setting['category_id'] = $catid;
+			$setting['category_name'] = Dictionary::translateFile('config-variable-categories', 'cat_' . $catid);
+			if ($setting['category_name'] === false) {
+				$setting['category_name'] = $catid;
+			}
+			$setting['settings'] = array_values($setting['settings']);
+		}
+		unset($setting);
+		array_multisort($sortvals, SORT_ASC, SORT_NUMERIC, $settings);
 		Render::addTemplate('_page', array(
-			'categories'  => array_values($settings)
-		));
+			'override' => $this->targetModule !== false,
+			'categories'  => array_values($settings),
+			'target_module' => $this->targetModule,
+		) + $this->qry_extra);
+	}
+
+	private function getCurrentModuleName()
+	{
+		if (isset($this->qry_extra['tostring'])) {
+			$method = explode('::', $this->qry_extra['tostring']);
+			return call_user_func($method, $this->qry_extra['field_value']);
+		}
+		if (isset($this->qry_extra['field'])) {
+			return $this->targetModule . ' // ' . $this->qry_extra['field'] . '=' . $this->qry_extra['field_value'];
+		}
+		return $this->targetModule;
+	}
+
+	private function getModuleSpecific()
+	{
+		$module = Request::any('module', '', 'string');
+		if ($module === '') {
+			$this->qry_extra = array(
+				'table' => 'setting_global',
+			);
+			return;
+		}
+		//\\//\\//\\
+		if (!Module::isAvailable($module)) {
+			Message::addError('main.no-such-module', $module);
+			Util::redirect('?do=baseconfig');
+		}
+		$file = 'modules/' . $module . '/baseconfig/hook.json';
+		if (!file_exists($file)) {
+			Message::addError('no-module-hook', $module);
+			Util::redirect('?do=baseconfig');
+		}
+		$hook = json_decode(file_get_contents($file), true);
+		if (empty($hook['table'])) {
+			Message::addError('invalid-hook', $module);
+			Util::redirect('?do=baseconfig');
+		}
+		if (isset($hook['field'])) {
+			$hook['field_value'] = Request::any($hook['field'], '0', 'string');
+		}
+		$this->targetModule = $module;
+		$this->qry_extra = $hook;
 	}
 	
 	/**

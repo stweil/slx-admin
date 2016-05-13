@@ -19,6 +19,19 @@ class Util
 		Header('Content-Type: text/plain; charset=utf-8');
 		echo "--------------------\nFlagrant system error:\n$message\n--------------------\n\n";
 		if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
+			global $SLX_ERRORS;
+/*
+  			'errno' => $errno,
+			'errstr' => $errstr,
+			'errfile' => $errfile,
+			'errline' => $errline,
+ */
+			if (!empty($SLX_ERRORS)) {
+				foreach ($SLX_ERRORS as $error) {
+					echo "{$error['errstr']} ({$error['errfile']}:{$error['errline']}\n";
+				}
+				echo "--------------------\n";
+			}
 			debug_print_backtrace();
 			echo "\n\nSome variables for your entertainment:\n";
 			print_r($GLOBALS);

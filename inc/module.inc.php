@@ -19,6 +19,23 @@ class Module
 			return false;
 		return self::$modules[$name];
 	}
+
+	/**
+	 * Check whether given module is available, that is, all dependencies are
+	 * met. If the module is available, it will be activated, so all it's classes
+	 * are available through the auto-loader.
+	 *
+	 * @param string $moduleId module to check
+	 * @return bool true if module is available and activated
+	 */
+	public static function isAvailable($moduleId)
+	{
+		$module = self::get($moduleId);
+		if ($module === false)
+			return false;
+		$module->activate();
+		return !$module->hasMissingDependencies();
+	}
 	
 	private static function resolveDepsByName($name)
 	{

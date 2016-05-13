@@ -1,9 +1,8 @@
 {
-    "cat_1": "Inactivity and Shutdown",
-    "cat_2": "Internet Access",
-    "cat_3": "Time Synchronization",
-    "cat_4": "Basic System",
-    "cat_5": "Common network share",
-    "cat_6": "Uncategorized",
-    "cat_7": "vmchooser"
+    "networking": "Internet Access",
+    "other": "Uncategorized",
+    "power": "Inactivity and Shutdown",
+    "sysconfig": "Basic System",
+    "timesync": "Time Synchronization",
+    "vmchooser": "vmChooser"
 }

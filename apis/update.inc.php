@@ -322,3 +322,5 @@ function update_11()
 	) ENGINE=InnoDB  DEFAULT CHARSET=utf8;");
 	return true;
 }
+
+// TODO: Remove setting_distro, setting, cat_setting

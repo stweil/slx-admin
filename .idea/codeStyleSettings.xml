@@ -10,7 +10,18 @@
           <option name="LOWER_CASE_BOOLEAN_CONST" value="true" />
           <option name="LOWER_CASE_NULL_CONST" value="true" />
         </PHPCodeStyleSettings>
+        <XML>
+          <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
+        </XML>
         <codeStyleSettings language="HTML">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="3" />
+            <option name="CONTINUATION_INDENT_SIZE" value="6" />
+            <option name="TAB_SIZE" value="3" />
+            <option name="USE_TAB_CHARACTER" value="true" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JSON">
           <indentOptions>
             <option name="INDENT_SIZE" value="3" />
             <option name="CONTINUATION_INDENT_SIZE" value="6" />

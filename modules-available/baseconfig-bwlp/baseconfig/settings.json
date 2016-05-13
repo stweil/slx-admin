@@ -1,0 +1,122 @@
+{
+	"SLX_ADDONS": {
+		"catid": "other",
+		"defaultvalue": "vmware",
+		"permissions": "2",
+		"validator": ""
+	},
+	"SLX_BIOS_CLOCK": {
+		"catid": "timesync",
+		"defaultvalue": "off",
+		"permissions": "2",
+		"validator": "list:off|local|utc"
+	},
+	"SLX_LOGOUT_TIMEOUT": {
+		"catid": "power",
+		"defaultvalue": "2700",
+		"permissions": "2",
+		"validator": "regex:\/^\\d*$\/"
+	},
+	"SLX_NET_DOMAIN": {
+		"catid": "networking",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": ""
+	},
+	"SLX_NTP_SERVER": {
+		"catid": "timesync",
+		"defaultvalue": "0.de.pool.ntp.org 1.de.pool.ntp.org",
+		"permissions": "2",
+		"validator": ""
+	},
+	"SLX_PROXY_BLACKLIST": {
+		"catid": "networking",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": ""
+	},
+	"SLX_PROXY_IP": {
+		"catid": "networking",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": ""
+	},
+	"SLX_PROXY_MODE": {
+		"catid": "networking",
+		"defaultvalue": "off",
+		"permissions": "2",
+		"validator": "list:off|on|auto"
+	},
+	"SLX_PROXY_PORT": {
+		"catid": "networking",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "regex:\/^\\d*$\/"
+	},
+	"SLX_PROXY_TYPE": {
+		"catid": "networking",
+		"defaultvalue": "socks5",
+		"permissions": "2",
+		"validator": "list:socks4|socks5|http-connect|http-relay"
+	},
+	"SLX_REMOTE_LOG_SESSIONS": {
+		"catid": "other",
+		"defaultvalue": "anonymous",
+		"permissions": "2",
+		"validator": "list:yes|anonymous|no"
+	},
+	"SLX_ROOT_PASS": {
+		"catid": "sysconfig",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "function:linuxPassword"
+	},
+	"SLX_DEMO_PASS": {
+		"catid": "sysconfig",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "function:linuxPassword"
+	},
+	"SLX_BWIDM_AUTH": {
+		"catid": "sysconfig",
+		"defaultvalue": "no",
+		"permissions": "2",
+		"validator": "list:yes|no"
+	},
+	"SLX_SHUTDOWN_SCHEDULE": {
+		"catid": "power",
+		"defaultvalue": "22:10 00:00",
+		"permissions": "2",
+		"validator": "regex:\/^(\\s*\\d{1,2}:\\d{1,2})*\\s*$\/"
+	},
+	"SLX_SHUTDOWN_TIMEOUT": {
+		"catid": "power",
+		"defaultvalue": "1200",
+		"permissions": "2",
+		"validator": "regex:\/^\\d*$\/"
+	},
+	"SLX_BENCHMARK_VM": {
+		"catid": "other",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": ""
+	},
+	"SLX_VMCHOOSER_TAB": {
+		"catid": "vmchooser",
+		"defaultvalue": "AUTO",
+		"permissions": "2",
+		"validator": "list:0|1|2|AUTO"
+	},
+	"SLX_VMCHOOSER_TEMPLATES": {
+		"catid": "vmchooser",
+		"defaultvalue": "IGNORE",
+		"permissions": "2",
+		"validator": "list:IGNORE|BUMP"
+	},
+	"SLX_VMCHOOSER_FORLOCATION": {
+		"catid": "vmchooser",
+		"defaultvalue": "BUMP",
+		"permissions": "2",
+		"validator": "list:IGNORE|BUMP|EXCLUSIVE"
+	}
+}
