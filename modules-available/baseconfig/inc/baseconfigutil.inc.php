@@ -20,9 +20,13 @@ class BaseConfigUtil
 		$settings = array();
 		foreach (glob('modules/*/baseconfig/settings.json', GLOB_NOSORT) as $file) {
 			$data = json_decode(file_get_contents($file), true);
-			if (is_array($data)) {
-				$settings += $data;
+			if (!is_array($data))
+				continue;
+			preg_match('#^modules/([^/]+)/#', $file, $out);
+			foreach ($data as &$entry) {
+				$entry['module'] = $out[1];
 			}
+			$settings += $data;
 		}
 		return $settings;
 	}
@@ -32,9 +36,13 @@ class BaseConfigUtil
 		$categories = array();
 		foreach (glob('modules/*/baseconfig/categories.json', GLOB_NOSORT) as $file) {
 			$data = json_decode(file_get_contents($file), true);
-			if (is_array($data)) {
-				$categories += $data;
+			if (!is_array($data))
+				continue;
+			preg_match('#^modules/([^/]+)/#', $file, $out);
+			foreach ($data as &$entry) {
+				$entry = array('module' => $out[1], 'sortpos' => $entry);
 			}
+			$categories += $data;
 		}
 		return $categories;
 	}

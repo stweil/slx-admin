@@ -12,15 +12,12 @@ if (CONFIG_SQL_PASS === '%MYSQL_OPENSLX_PASS%')
 	exit(0); // Ignore API calls if not configured yet
 
 // Autoload classes from ./inc which adhere to naming scheme <lowercasename>.inc.php
-function slxAutoloader($class)
-{
+spl_autoload_register(function ($class) {
 	$file = 'inc/' . preg_replace('/[^a-z0-9]/', '', mb_strtolower($class)) . '.inc.php';
 	if (!file_exists($file))
 		return;
 	require_once $file;
-}
-
-spl_autoload_register('slxAutoloader');
+});
 
 function isLocalExecution()
 {
@@ -36,16 +33,20 @@ if (!empty($_REQUEST['do'])) {
 	$module = 'main';
 }
 
-$module = 'apis/' . $module . '.inc.php';
+Module::init();
+if (Module::isAvailable($module)) {
+	$module = 'modules/' . $module . '/api.inc.php';
+} else {
+	$module = 'apis/' . $module . '.inc.php';
+}
 
 if (!file_exists($module)) {
-	Util::traceError('Invalid module: ' . $module);
+	Util::traceError('Invalid module, or module without API: ' . $module);
 }
 
 Header('Content-Type: text/plain; charset=utf-8');
 
 // Load module - it will execute pre-processing, or act upon request parameters
 require_once($module);
-unset($module);
 
 

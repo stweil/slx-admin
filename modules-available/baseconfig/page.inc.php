@@ -90,7 +90,7 @@ class Page_BaseConfig extends Page
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
-		// Check if valid submodule mode, stire name if any
+		// Check if valid submodule mode, store name if any
 		if ($this->targetModule !== false) {
 			$this->qry_extra['subheading'] = $this->getCurrentModuleName();
 			if ($this->qry_extra['subheading'] === false) {
@@ -111,7 +111,7 @@ class Page_BaseConfig extends Page
 			$params = array();
 		}
 		// Populate structure with existing config from db
-		$res = Database::simpleQuery("SELECT setting, displayvalue FROM {$this->qry_extra['table']} "
+		$res = Database::simpleQuery("SELECT setting, value, displayvalue FROM {$this->qry_extra['table']} "
 			. " {$where} ORDER BY setting ASC", $params);
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (!isset($vars[$row['setting']]) || !is_array($vars[$row['setting']])) {
@@ -119,9 +119,9 @@ class Page_BaseConfig extends Page
 				continue;
 			}
 			$row += $vars[$row['setting']];
-			$row['description'] = Util::markup(Dictionary::translateFile('config-variables', $row['setting']));
-			if (is_null($row['displayvalue'])) $row['displayvalue'] = $row['defaultvalue'];
-			$row['item'] = $this->makeInput($row['validator'], $row['setting'], $row['displayvalue']);
+			if (is_null($row['displayvalue'])) {
+				$row['displayvalue'] = $row['defaultvalue'];
+			}
 			if (!isset($row['catid'])) {
 				$row['catid'] = 'unknown';
 			}
@@ -132,20 +132,23 @@ class Page_BaseConfig extends Page
 			if (isset($settings[$var['catid']]['settings'][$key])) {
 				// Value is set in DB
 				$settings[$var['catid']]['settings'][$key]['checked'] = 'checked';
-				continue;
+			} else {
+				// Value is not set in DB
+				$settings[$var['catid']]['settings'][$key] = $var + array(
+					'setting' => $key
+				);
 			}
-			// Value is not set in DB
-			$settings[$var['catid']]['settings'][$key] = $var + array(
-				'setting' => $key,
-				'item' => $this->makeInput($var['validator'], $key, $var['defaultvalue'])
+			$settings[$var['catid']]['settings'][$key] += array(
+				'item' => $this->makeInput($var['validator'], $key, $var['defaultvalue']),
+				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key))
 			);
 		}
 		// Sort categories
 		$sortvals = array();
 		foreach ($settings as $catid => &$setting) {
-			$sortvals[] = isset($cats[$catid]) ? (int)$cats[$catid] : 99999;
+			$sortvals[] = isset($cats[$catid]) ? (int)$cats[$catid]['sortpos'] : 99999;
 			$setting['category_id'] = $catid;
-			$setting['category_name'] = Dictionary::translateFile('config-variable-categories', 'cat_' . $catid);
+			$setting['category_name'] = Dictionary::translateFileModule($cats[$catid]['module'], 'config-variable-categories', $catid);
 			if ($setting['category_name'] === false) {
 				$setting['category_name'] = $catid;
 			}
