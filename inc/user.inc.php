@@ -30,7 +30,7 @@ class User
 	{
 		if (!self::isLoggedIn())
 			return false;
-		return (self::$user['permissions'] & Permission::get($permission)) != 0;
+		return (self::$user['permissions'] & (Permission::get($permission) | Permission::get('superadmin'))) != 0;
 	}
 
 	public static function load()

@@ -15,9 +15,6 @@ class Page_SysLog extends Page
 
 	protected function doRender()
 	{
-		Render::setTitle('Client Log');
-		Render::addScriptBottom('bootstrap-tagsinput.min');
-
 		if (isset($_GET['filter'])) {
 			$filter = $_GET['filter'];
 			$not = isset($_GET['not']) ? 'NOT' : '';

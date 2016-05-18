@@ -27,7 +27,6 @@ class Page_Backup extends Page
 		if ($this->action === 'restore') {
 			Render::addTemplate('restore', $this->templateData);
 		} else {
-			Render::addScriptBottom('fileselect');
 			Render::addTemplate('_page');
 		}
 	}

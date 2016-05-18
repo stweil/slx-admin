@@ -1,4 +1,5 @@
 {
     "delete-images": "L\u00f6schung: {{0}}",
+    "images-pending-delete-exist": "Zur L\u00f6schung markierte Abbilder: {{0}}",
     "mail-config-saved": "Mail-Konfiguration gespeichert"
 }

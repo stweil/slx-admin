@@ -175,7 +175,6 @@ class Page_SysConfig extends Page
 			'modules' => $modules,
 			'havemodules' => (count($modules) > 0)
 		));
-		Render::addScriptTop('custom');
 		Render::addFooter('<script> $(window).load(function (e) {
 			forceTable($("#modtable"));
 			forceTable($("#conftable"));

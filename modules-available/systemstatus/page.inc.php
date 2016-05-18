@@ -29,8 +29,6 @@ class Page_SystemStatus extends Page
 		if (is_array($this->rebootTask) && isset($this->rebootTask['id'])) {
 			$data['rebootTask'] = $this->rebootTask['id'];
 		}
-		Render::addScriptTop('custom');
-		Render::addScriptBottom('circles.min');
 		Render::addTemplate('_page', $data);
 	}
 
@@ -184,7 +182,7 @@ class Page_SystemStatus extends Page
 			'uptime' => '???'
 		);
 		if (preg_match('/^(\d+)\D/', $uptime, $out)) {
-			$data['uptime'] = floor($out[1] / 86400) . ' ' . Dictionary::translate('lang_days') . ', ' . floor(($out[1] % 86400) / 3600) . ' ' . Dictionary::translate('lang_hours'); // TODO: i18n
+			$data['uptime'] = floor($out[1] / 86400) . ' ' . Dictionary::translate('lang_days') . ', ' . floor(($out[1] % 86400) / 3600) . ' ' . Dictionary::translate('lang_hours');
 		}
 		$info = $this->sysInfo();
 		if (isset($info['MemTotal']) && isset($info['MemFree']) && isset($info['SwapTotal'])) {

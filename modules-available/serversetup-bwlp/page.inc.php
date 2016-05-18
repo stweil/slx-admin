@@ -3,10 +3,10 @@
 class Page_ServerSetup extends Page
 {
 
-	private $mountIpxeTask;
 	private $taskStatus;
 	private $currentAddress;
 	private $currentMenu;
+	private $hasIpSet = false;
 
 	protected function doPreprocess()
 	{
@@ -18,14 +18,6 @@ class Page_ServerSetup extends Page
 		}
 
 		$this->currentMenu = Property::getBootMenu();
-
-		if(Request::get('download') !== false){
-			$this->downloadIpxe(Request::get('download'));
-		}
-
-		if(Request::get('defaultIpxe') !== false){
-			$this->defaultIpxe(Request::get('defaultIpxe'));
-		}
 
 		$action = Request::post('action');
 
@@ -44,48 +36,30 @@ class Page_ServerSetup extends Page
 			// iPXE stuff changes
 			$this->updatePxeMenu();
 		}
-
-		if($action === 'save-script') {
-			// Save new iPXE script
-			$this->updateIpxeScript();
-		}
-
-		if($action === 'default-script') {
-			// Restore iPXE script to default
-			$this->defaultIpxe();
-		}
 	}
 
 	protected function doRender()
 	{
-		Render::setTitle(Dictionary::translate('lang_serverConfiguration'));
 
 		$taskid = Request::any('taskid');
 		if ($taskid !== false && Taskmanager::isTask($taskid)) {
 			Render::addTemplate('ipxe_update', array('taskid' => $taskid));
 		}
 
-		if (Request::get('advanced', 'false', 'string') === 'false') {
-			Render::addTemplate('ipxe-smp');
-		} else {
-			Render::addTemplate('ipaddress', array(
-				'ips' => $this->taskStatus['data']['addresses']
-			));
-			$data = $this->currentMenu;
-			if (!isset($data['defaultentry']))
-				$data['defaultentry'] = 'net';
-			if ($data['defaultentry'] === 'net')
-				$data['active-net'] = 'checked';
-			if ($data['defaultentry'] === 'hdd')
-				$data['active-hdd'] = 'checked';
-			if ($data['defaultentry'] === 'custom')
-				$data['active-custom'] = 'checked';
-			//There is no $this->username and no pxe.embed, why do we need this?
-			//Page won't load with lines below uncommented
-			//$data['username'] = $this->username;
-			//$data['script'] = file_get_contents("/opt/taskmanager/data/pxe.embed");
-			Render::addTemplate('ipxe-adv', $data);
-		}
+		Render::addTemplate('ipaddress', array(
+			'ips' => $this->taskStatus['data']['addresses'],
+			'chooseHintClass' => $this->hasIpSet ? '' : 'alert alert-danger'
+		));
+		$data = $this->currentMenu;
+		if (!isset($data['defaultentry']))
+			$data['defaultentry'] = 'net';
+		if ($data['defaultentry'] === 'net')
+			$data['active-net'] = 'checked';
+		if ($data['defaultentry'] === 'hdd')
+			$data['active-hdd'] = 'checked';
+		if ($data['defaultentry'] === 'custom')
+			$data['active-custom'] = 'checked';
+		Render::addTemplate('ipxe', $data);
 	}
 
 	// -----------------------------------------------------------------------------------------------
@@ -112,6 +86,7 @@ class Page_ServerSetup extends Page
 			}
 			if ($this->currentAddress === $item['ip']) {
 				$item['default'] = true;
+				$this->hasIpSet = true;
 			}
 			$sortIp[] = $item['ip'];
 		}
@@ -162,33 +137,4 @@ class Page_ServerSetup extends Page
 		Util::redirect('?do=ServerSetup&taskid=' . $id);
 	}
 
-	private function downloadIpxe($ipxe){
-		$file = '/opt/taskmanager/data/ipxe/src/bin/ipxe.' . $ipxe;
-		if (file_exists($file)) {
-			header('Content-Description: File Transfer');
-			header('Content-Type: application/octet-stream');
-			header('Content-Disposition: attachment; filename='.basename($file));
-			header('Expires: 0');
-			header('Cache-Control: must-revalidate');
-			header('Pragma: public');
-			header('Content-Length: ' . filesize($file));
-			ob_clean();
-    			flush();
-			readfile($file);
-			exit();
-		}
-	}
-
-	private function updateIpxeScript(){
-		$newScript = Request::post('custom-script');
-		file_put_contents("/opt/taskmanager/data/pxe.embed",$newScript);
-		Util::redirect('?do=ServerSetup');
-	}
-
-	private function defaultIpxe(){
-		$default = file_get_contents("/opt/taskmanager/data/pxe_default.embed");
-		$default = str_replace("{{ip}}", "http://" . Property::getServerIp(), $default);
-		file_put_contents("/opt/taskmanager/data/pxe.embed",$default);
-		Util::redirect('?do=ServerSetup');
-	}
 }

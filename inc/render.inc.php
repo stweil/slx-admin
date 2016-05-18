@@ -46,9 +46,8 @@ class Render
 	public static function output()
 	{
 		Header('Content-Type: text/html; charset=utf-8');
-		$zip = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false);
-		if ($zip)
-			ob_start();
+		$modules = Module::getActivated();
+		ob_start('ob_gzhandler');
 		echo
 		'<!DOCTYPE html>
 	<html>
@@ -59,9 +58,16 @@ class Render
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<!-- Bootstrap -->
 			<link href="style/bootstrap.min.css" rel="stylesheet" media="screen">
-			<link href="style/bootstrap-tagsinput.css" rel="stylesheet" media="screen">
+	';
+		// Include any module specific styles
+		foreach ($modules as $module) {
+			$file = $module->getDir() . '/style.css';
+			if (file_exists($file)) {
+				echo '<link href="', $file, '" rel="stylesheet" media="screen">';
+			}
+		}
+		echo '	
 			<link href="style/default.css" rel="stylesheet" media="screen">
-			
 			<script type="text/javascript">
 			var TOKEN = "' . Session::get('token') . '";
 			</script>
@@ -80,20 +86,21 @@ class Render
 		<script src="script/jquery.js"></script>
 		<script src="script/bootstrap.min.js"></script>
 		<script src="script/taskmanager.js"></script>
-	',
+		<script src="script/fileselect.js"></script>
+	';
+		foreach ($modules as $module) {
+			$file = $module->getDir() . '/clientscript.js';
+			if (file_exists($file)) {
+				echo '<script src="', $file, '"></script>';
+			}
+		}
+		echo
 		self::$footer
 		,
 		'</body>
 		</html>'
 		;
-		if ($zip) {
-			Header('Content-Encoding: gzip');
-			ob_implicit_flush(false);
-			$gzip_contents = ob_get_contents();
-			ob_end_clean();
-			echo "\x1f\x8b\x08\x00\x00\x00\x00\x00";
-			echo substr(gzcompress($gzip_contents, 5), 0, -4);
-		}
+		ob_end_flush();
 	}
 
 	/**
@@ -127,7 +134,7 @@ class Render
 	 */
 	public static function addScriptTop($file)
 	{
-		self::addHeader('<script src="script/' . $file . '.js"></script>');
+		trigger_error('Ignoring addScriptTop for ' . $file . ': Deprecated, use module-specific clientscript.js', E_USER_WARNING);
 	}
 
 	/**
@@ -137,7 +144,7 @@ class Render
 	 */
 	public static function addScriptBottom($file)
 	{
-		self::addFooter('<script src="script/' . $file . '.js"></script>');
+		trigger_error('Ignoring addScriptBottom for ' . $file . ': Deprecated, use module-specific clientscript.js', E_USER_WARNING);
 	}
 
 	/**

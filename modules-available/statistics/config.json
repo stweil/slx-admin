@@ -1,5 +1,5 @@
 {
 	"category":"main.status",
-	"enabled":"true",
+	"dependencies": [ "js_chart" ],
 	"permission":"0"
 }

@@ -7,17 +7,11 @@ $(document).on('change', '.btn-file :file', function() {
 
 $(document).ready(function() {
 	$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
-
 		var input = $(this).parents('.upload-ex').find(':text');
 		var log = numFiles > 1 ? numFiles + ' files selected' : label;
-
 		if (input.length) {
 			input.val(log);
-		} else {
-			if (log)
-				alert(log);
 		}
-
 	});
 });
 

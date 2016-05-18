@@ -13,7 +13,7 @@ class Message
 	 */
 	public static function addError($id)
 	{
-		self::add('error', $id, func_get_args());
+		self::add('danger', $id, func_get_args());
 	}
 
 	public static function addWarning($id)
@@ -40,10 +40,35 @@ class Message
 		if (strstr($id, '.') === false) {
 			$id = Page::getModule()->getIdentifier() . '.' . $id;
 		}
+		if (count($params) > 1 && $params[1] === true) {
+			$params = array_slice($params, 2);
+			$linkModule = true;
+		} else {
+			$params = array_slice($params, 1);
+			$linkModule = false;
+		}
+		switch ($type) {
+		case 'danger':
+			$icon = 'exclamation-sign';
+			break;
+		case 'warning':
+			$icon = 'warning';
+			break;
+		case 'info':
+			$icon = 'info-sign';
+			break;
+		case 'success':
+			$icon = 'ok';
+			break;
+		default:
+			$icon = '';
+		}
 		self::$list[] = array(
 			'type'   => $type,
+			'icon'   => $icon,
 			'id'     => $id,
-			'params' => array_slice($params, 1)
+			'params' => $params,
+			'link'   => $linkModule
 		);
 		if (self::$flushed) self::renderList();
 	}
@@ -59,25 +84,36 @@ class Message
 		if (empty(self::$list))
 			return;
 		// Ajax
-		if (AJAX) {
-			foreach (self::$list as $item) {
-				$message = Dictionary::getMessage($item['id']);
-				foreach ($item['params'] as $index => $text) {
-					$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
-				}
-				echo Render::parse('messagebox-' . $item['type'], array('message' => $message), 'main');
-			}
-			self::$list = array();
-			return;
-		}
-		// Non-Ajax
+		$mangled = array();
 		foreach (self::$list as $item) {
-			$message = Dictionary::getMessage($item['id']);
+			if (!preg_match('/^(\w+)\.(.+)$/', $item['id'], $out)) {
+				$message = 'Invalid Message ID format: ' . $item['id'];
+			} else {
+				$message = Dictionary::getMessage($out[1], $out[2]);
+			}
 			foreach ($item['params'] as $index => $text) {
 				$message = str_replace('{{' . $index . '}}', '<b>' . htmlspecialchars($text) . '</b>', $message);
 			}
-			Render::addTemplate('messagebox-' . $item['type'], array('message' => $message), 'main');
-			self::$alreadyDisplayed[] = $item;
+			if ($item['link'] && isset($out[1])) {
+				$item['link'] = $out[1];
+			}
+			$mangled[] = array(
+				'type' => $item['type'],
+				'icon' => $item['icon'],
+				'message' => $message,
+				'link' => $item['link']
+			);
+		}
+		if (AJAX) {
+			foreach ($mangled as $entry) {
+				echo Render::parse('messagebox', $entry, 'main');
+			}
+		} else {
+			// Non-Ajax
+			foreach ($mangled as $entry) {
+				Render::addTemplate('messagebox', $entry, 'main');
+			}
+			self::$alreadyDisplayed = array_merge(self::$alreadyDisplayed, self::$list);
 		}
 		self::$list = array();
 	}
@@ -90,7 +126,11 @@ class Message
 	{
 		$return = '';
 		foreach (self::$list as $item) {
-			$message = Dictionary::getMessage($item['id']);
+			if (!preg_match('/^(\w+)\.(.+)$/', $item['id'], $out)) {
+				$message = 'Invalid Message ID format: ' . $item['id'];
+			} else {
+				$message = Dictionary::getMessage($out[1], $out[2]);
+			}
 			foreach ($item['params'] as $index => $text) {
 				$message = str_replace('{{' . $index . '}}', $text, $message);
 			}
@@ -110,7 +150,11 @@ class Message
 		$messages = is_array($_REQUEST['message']) ? $_REQUEST['message'] : array($_REQUEST['message']);
 		foreach ($messages as $message) {
 			$data = explode('|', $message);
-			if (count($data) < 2 || !preg_match('/^(error|warning|info|success)$/', $data[0])) continue;
+			if (substr($data[0], -1) === '@') {
+				$data[0] = substr($data[0], 0, -1);
+				array_splice($data, 1, 0, true);
+			}
+			if (count($data) < 2 || !preg_match('/^(danger|warning|info|success)$/', $data[0])) continue;
 			self::add($data[0], $data[1], array_slice($data, 1));
 		}
 	}
@@ -123,6 +167,9 @@ class Message
 	{
 		$parts = array();
 		foreach (array_merge(self::$list, self::$alreadyDisplayed) as $item) {
+			if (isset($item['link']) && $item['link']) {
+				$item['type'] .= '@';
+			}
 			$str = 'message[]=' . urlencode($item['type'] . '|' .$item['id']);
 			if (!empty($item['params'])) {
 				$str .= '|' . urlencode(implode('|', $item['params']));

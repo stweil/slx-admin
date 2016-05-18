@@ -26,7 +26,7 @@ define('CONFIG_VMSTORE_DIR', '/srv/openslx/nfs');
 
 define('CONFIG_PROXY_CONF', '/opt/openslx/proxy/config');
 
-// Sort order for menu
+// Sort order for menu - optional, if missing, order will be alphabetically
 $MENU_CAT_SORT_ORDER = array('main.content' => 0, 'main.settings' => 1, 'main.status' => 2, 'main.users' => 3);
 $MENU_SETTING_SORT_ORDER = array(
 	'news' => 0, 'sysconfig' => 1, 'baseconfig' => 2, 'locations' => 3, // main.content

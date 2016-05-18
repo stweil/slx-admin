@@ -185,4 +185,10 @@ class Property
 		return self::get('password-type', 'password');
 	}
 
+
+	public static function getIpxeDefault()
+	{
+		return self::get('default-ipxe');
+	}
+
 }

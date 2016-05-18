@@ -90,12 +90,9 @@ class Dictionary
 		return self::translateFileModule('main', 'global-tags', $tag);
 	}
 
-	public static function getMessage($id)
+	public static function getMessage($module, $id)
 	{
-		if (!preg_match('/^(\w+)\.(.+)$/', $id, $out)) {
-			return 'Invalid Message ID format: ' . $id;
-		}
-		$string = self::translateFileModule($out[1], 'messages', $out[2]);
+		$string = self::translateFileModule($module, 'messages', $id);
 		if ($string === false) {
 			return "($id) ({{0}}, {{1}}, {{2}}, {{3}})";
 		}

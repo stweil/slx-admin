@@ -118,7 +118,7 @@ abstract class ConfigModule
 	 * Get module instances from module type.
 	 *
 	 * @param int $moduleType module type to get
-	 * @return array The requested modules from DB, or false on error
+	 * @return \ConfigModule[] The requested modules from DB, or false on error
 	 */
 	public static function getAll($moduleType = false)
 	{

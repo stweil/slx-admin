@@ -22,8 +22,9 @@ class Module
 
 	/**
 	 * Check whether given module is available, that is, all dependencies are
-	 * met. If the module is available, it will be activated, so all it's classes
-	 * are available through the auto-loader.
+	 * met. If the module is available, it will be activated, so all its classes
+	 * are available through the auto-loader, and any js or css is added to the
+	 * final page output.
 	 *
 	 * @param string $moduleId module to check
 	 * @return bool true if module is available and activated
@@ -88,6 +89,20 @@ class Module
 		return self::$modules;
 	}
 
+	/**
+	 * @return \Module[] List of modules that have been activated
+	 */
+	public static function getActivated()
+	{
+		$ret = array();
+		foreach (self::$modules as $module) {
+			if ($module->activated) {
+				$ret[] = $module;
+			}
+		}
+		return $ret;
+	}
+
 	public static function init()
 	{
 		if (self::$modules !== false)
@@ -97,7 +112,7 @@ class Module
 			return;
 		self::$modules = array();
 		while (($dir = readdir($dh)) !== false) {
-			if (empty($dir) || preg_match('/[^a-zA-Z0-9]/', $dir))
+			if (empty($dir) || preg_match('/[^a-zA-Z0-9_]/', $dir))
 				continue;
 			if (!is_file('modules/' . $dir . '/config.json'))
 				continue;

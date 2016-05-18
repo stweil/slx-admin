@@ -49,7 +49,6 @@ class Page_Statistics extends Page
 			$this->showMachineList($filter, $argument);
 			return;
 		}
-		Render::addScriptBottom('chart.min');
 		Render::openTag('div', array('class' => 'row'));
 		$this->showSummary();
 		$this->showMemory();
@@ -548,7 +547,6 @@ class Page_Statistics extends Page
 		Render::addTemplate('machine-usage', $spans);
 		// Any hdds?
 		if (!empty($hdds['hdds'])) {
-			Render::addScriptBottom('chart.min');
 			Render::addTemplate('machine-hdds', $hdds);
 		}
 		// Client log

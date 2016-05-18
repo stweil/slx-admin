@@ -9,7 +9,6 @@ class Branding_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addScriptBottom('fileselect');
 		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'branding-start', array(
 			'step' => 'Branding_ProcessFile',
 			'edit' => $this->edit ? $this->edit->id() : false

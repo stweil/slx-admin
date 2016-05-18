@@ -721,6 +721,9 @@ class Page_Translation extends Page
 				$depth--;
 			}
 		}
+		// QnD special case for Message::add* using true as second param to add "go to" link.
+		if (preg_match('/^\s*,\s*true\b/i', $str))
+			return $count - 1;
 		return $count;
 	}
 

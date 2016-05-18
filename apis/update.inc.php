@@ -1,5 +1,9 @@
 <?php
 
+//
+// TODO: Modularize
+//
+
 $targetVersion = Database::getExpectedSchemaVersion();
 
 function fatal($message)
@@ -324,3 +328,4 @@ function update_11()
 }
 
 // TODO: Remove setting_distro, setting, cat_setting
+// TODO: Add toggle column to setting_global
