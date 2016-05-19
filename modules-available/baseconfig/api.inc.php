@@ -45,7 +45,7 @@ foreach (glob('modules/*/baseconfig/getconfig.inc.php') as $file) {
 $defaults = BaseConfigUtil::getVariables();
 
 // Dump global config from DB
-$res = Database::simpleQuery('SELECT setting, value FROM setting_global'); // TODO: Add setting groups and sort order
+$res = Database::simpleQuery('SELECT setting, value FROM setting_global');
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 	if (isset($configVars[$row['setting']]) || !isset($defaults[$row['setting']]))
 		continue;
