@@ -1,5 +1,3 @@
 {
-	"category":"main.settings",
-	"enabled":"true",
-	"dependencies": [ "minilinux" ]
+	"category":"main.settings-client"
 }

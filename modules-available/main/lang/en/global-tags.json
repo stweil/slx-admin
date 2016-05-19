@@ -4,9 +4,11 @@
     "lang_close": "Close",
     "lang_days": "day(s)",
     "lang_delete": "Delete",
+    "lang_edit": "Edit",
     "lang_hint": "Hint",
     "lang_hours": "hour(s)",
     "lang_next": "Next",
+    "lang_reset": "Reset",
     "lang_save": "Save",
     "lang_today": "Today",
     "lang_yesterday": "Yesterday"

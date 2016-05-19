@@ -1,0 +1,18 @@
+{
+    "lang_addPartition": "Partition anlegen",
+    "lang_confirm": "Wollen Sie die Einstellungen unter \/srv\/openslx\/www\/boot\/config speichern?",
+    "lang_create": "Anlegen",
+    "lang_explanationText": "Hier k\u00f6nnen Sie bestimmen, welche Partitionen auf dem Client angelegt werden.",
+    "lang_helpId": "Partitions-ID",
+    "lang_helpMountPoint": "Muss ein Absolutes Verzeichnis im Zieldateisystem sein, z.B. \/mnt\/shares\/data",
+    "lang_helpOptions": "Zur Zeit ist hier nur 'bootable' erlaubt.",
+    "lang_helpSize": "Angabe im Format 10G um eine 10GiB-Partition zu erstellen.",
+    "lang_newPartition": "Neue Partition",
+    "lang_partitionId": "ID",
+    "lang_partitionManagement": "Partitionsverwaltung",
+    "lang_partitionMountPoint": "Mount point",
+    "lang_partitionOptions": "Optionen",
+    "lang_partitionSize": "Gr\u00f6\u00dfe",
+    "lang_resetConfirm": "Wollen Sie die Einstellungen wirklich auf die Standardwerte zur\u00fccksetzen?",
+    "lang_resetDefault": "Standardwerte laden"
+}

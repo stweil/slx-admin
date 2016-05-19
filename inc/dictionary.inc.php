@@ -104,7 +104,7 @@ class Dictionary
 		if ($category === false) {
 			return 'No Category';
 		}
-		if (!preg_match('/^(\w+)\.(\w+)$/', $category, $out)) {
+		if (!preg_match('/^(\w+)\.(.*)$/', $category, $out)) {
 			return 'Invalid Category ID format: ' . $category;
 		}
 		$string = self::translateFileModule($out[1], 'categories', $out[2]);

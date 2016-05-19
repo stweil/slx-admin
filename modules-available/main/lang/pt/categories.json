@@ -1,6 +1,7 @@
 {
     "content": "Conte\u00fado",
-    "settings": "Configura\u00e7\u00f5es",
+    "settings-client": "Configura\u00e7\u00f5es (Client)",
+    "settings-server": "Configura\u00e7\u00f5es (Server)",
     "status": "Status",
     "users": "Usu\u00e1rios"
 }

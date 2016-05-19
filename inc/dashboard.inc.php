@@ -63,7 +63,7 @@ class Dashboard
 		if ($category === false) {
 			return '';
 		}
-		if (!preg_match('/^(\w+)\.(\w+)$/', $category, $out)) {
+		if (!preg_match('/^(\w+)\.(.*)$/', $category, $out)) {
 			error_log('Requested category icon for invalid category "' . $category . '"');
 			return '';
 		}

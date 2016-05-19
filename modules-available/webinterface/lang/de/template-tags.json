@@ -12,6 +12,5 @@
     "lang_passwordFields": "Passwortfelder",
     "lang_privateKey": "Bitte f\u00fcgen Sie hier den privaten Schl\u00fcssel ein, der zum obigen Zertifikat geh\u00f6rt. Er muss ebenfalls im \"pem\"-Format vorliegen, und sieht wie folgt aus:",
     "lang_randomCert": "Neues selbstsigniertes Zertifikat generieren",
-    "lang_save": "Speichern",
     "lang_showPasswords": "Passw\u00f6rter anzeigen"
 }

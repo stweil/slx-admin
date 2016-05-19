@@ -2,12 +2,10 @@
     "lang_activeNews": "News",
     "lang_content": "Content",
     "lang_date": "Date",
-    "lang_delete": "Delete",
     "lang_editNews": "Edit news",
     "lang_latestUpdate": "Latest update",
     "lang_newsIntro": "Here you have the possibility to edit the news displayed to the bwLehrpool clients.",
     "lang_newsOld": "Old News",
-    "lang_save": "Save",
     "lang_show": "Show",
     "lang_title": "Title"
 }

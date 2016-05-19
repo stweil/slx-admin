@@ -1,6 +1,4 @@
 {
-    "lang_back": "Back",
-    "lang_close": "Close",
     "lang_configure": "Configure",
     "lang_intern": "Intern",
     "lang_nfsHelp1": "An NFSv4\/3-Share is required. It should be readable by all the workstations, and writable for the satellite server. An example, assuming the satellite server has IP address 1.2.3.4:",
@@ -9,7 +7,6 @@
     "lang_password": "Password",
     "lang_readOnly": "Read-only Access",
     "lang_readWrite": "Read\/Write Access",
-    "lang_save": "Save",
     "lang_username": "Username",
     "lang_vmLocation": "VM Location",
     "lang_vmLocationChoose": "Please choose where the images of virtual machines will be stored.",

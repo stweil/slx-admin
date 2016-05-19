@@ -1,6 +1,4 @@
 {
-    "lang_back": "Zur\u00fcck",
-    "lang_close": "Schlie\u00dfen",
     "lang_configure": "Konfigurieren",
     "lang_intern": "Intern",
     "lang_nfsHelp1": "Ben\u00f6tigt wird ein NFSv4\/3-Share, der f\u00fcr den Satelliten-Server schreibbar, und f\u00fcr die Arbeitsstationen lesbar ist. Beispielkonfiguration auf dem NFS-Server, wenn der Satelliten-Server die Adresse 1.2.3.4 hat:",
@@ -9,7 +7,6 @@
     "lang_password": "Passwort",
     "lang_readOnly": "Nur-Lese-Zugangsdaten",
     "lang_readWrite": "Lese\/Schreib-Zugangsdaten",
-    "lang_save": "Speichern",
     "lang_username": "Benutzerkennung",
     "lang_vmLocation": "VM Speicherort",
     "lang_vmLocationChoose": "Bitte w\u00e4hlen Sie, wo die Images der Virtuellen Maschinen gespeichert werden sollen.",

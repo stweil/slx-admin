@@ -1,5 +1,4 @@
 {
 	"category":"main.status",
-	"enabled":"true",
 	"dependencies": [ "js_circles" ]
 }

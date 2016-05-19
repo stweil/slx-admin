@@ -48,7 +48,6 @@ class Page_WebInterface extends Page
 
 	protected function doRender()
 	{
-		Render::setTitle(Dictionary::translate('lang_titleWebinterface'));
 		if (Request::get('show') === 'httpsupdate') {
 			Render::addTemplate('httpd-restart', array('taskid' => Session::get('https-id')));
 		}

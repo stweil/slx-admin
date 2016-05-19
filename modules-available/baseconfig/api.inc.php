@@ -59,9 +59,33 @@ foreach ($defaults as $setting => $value) {
 	$configVars[$setting] = $value;
 }
 
-// Finally, output what we gathered
-foreach ($configVars as $setting => $value) {
-	echo $setting, "='", escape($value), "'\n";
+// All done, now output
+
+if (Request::any('save') === 'true') {
+	// output AND save to disk: Generate contents
+	$lines = '';
+	foreach ($configVars as $setting => $value) {
+		$lines .= $setting . "='" . escape($value) . "'\n";
+	}
+	// Save to all the locations
+	$data = Property::getVersionCheckInformation();
+	if (is_array($data) && isset($data['systems'])) {
+		foreach ($data['systems'] as $system) {
+			$path = CONFIG_HTTP_DIR . '/' . $system['id'] . '/config';
+			if (file_put_contents($path, $lines) > 0) {
+				echo "# Saved config to $path\n";
+			} else {
+				echo "# Error saving config to $path\n";
+			}
+		}
+	}
+	// Output to browser
+	echo $lines;
+} else {
+	// Only output to client
+	foreach ($configVars as $setting => $value) {
+		echo $setting, "='", escape($value), "'\n";
+	}
 }
 
 // For quick testing or custom extensions: Include external file that should do nothing

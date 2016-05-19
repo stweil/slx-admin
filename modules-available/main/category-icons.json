@@ -1,7 +1,8 @@
 {
 	"cities":"tower",
 	"content":"th",
-	"settings":"cog",
+	"settings-client":"cog",
+	"settings-server":"cog",
 	"status":"tasks",
 	"users":"user"
 }

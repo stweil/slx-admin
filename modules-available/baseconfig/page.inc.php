@@ -157,6 +157,7 @@ class Page_BaseConfig extends Page
 		unset($setting);
 		array_multisort($sortvals, SORT_ASC, SORT_NUMERIC, $settings);
 		Render::addTemplate('_page', array(
+			'userid' => User::getId(),
 			'override' => $this->targetModule !== false,
 			'categories'  => array_values($settings),
 			'target_module' => $this->targetModule,

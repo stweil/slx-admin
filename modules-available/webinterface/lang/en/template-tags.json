@@ -12,6 +12,5 @@
     "lang_passwordFields": "Password fields",
     "lang_privateKey": "Please paste the private key belonging to the certificate here. It has to be in \"pem\" format too, which should look like this:",
     "lang_randomCert": "Genenrate new self-signed certificate",
-    "lang_save": "Save",
     "lang_showPasswords": "Show passwords"
 }

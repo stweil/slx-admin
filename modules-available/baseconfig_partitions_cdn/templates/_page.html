@@ -1,17 +1,53 @@
-<h1>{{lang_partitioningManagement}}</h1>
+<h1>{{lang_partitionManagement}}</h1>
+
+<p>{{lang_explanationText}}</p>
 
 <form action="?do=BaseConfig_Partitions_CDN" method="post">
 	<input type="hidden" name="token" value="{{token}}">
+	<div class='list-group'>
+		{{#partitions}}
+		<div class='list-group-item'>
+			<div class='row'>
+				<div class='col-sm-2'>
+					<input name='partition-{{id}}-partition_id' type='text' class='form-control' value='{{partition_id}}' placeholder='{{lang_partitionId}}'>
+				</div>
+				<div class='col-sm-2'>
+					<input name='partition-{{id}}-size' type='text' class='form-control' value='{{size}}' placeholder='{{lang_partitionSize}}'>
+				</div>
+				<div class='col-sm-4 col-md-3'>
+					<input name='partition-{{id}}-mount_point' type='text' class='form-control' value='{{mount_point}}' placeholder='{{lang_partitionMountPoint}}'/>
+				</div>
+				<div class='col-sm-3'>
+					<input name='partition-{{id}}-options' type='text' class='form-control' size='30' value='{{options}}' placeholder='{{lang_partitionOptions}}'/>
+				</div>
+				<div class='col-sm-1 col-md-2'>
+					<a class='btn btn-danger' href='?do=BaseConfig_Partitions_CDN&amp;deletePartition={{id}}&amp;token={{token}}'>
+						<span class='glyphicon glyphicon-trash'></span>
+						<span class="hidden-sm">{{lang_delete}}</span>
+					</a>
+				</div>
+			</div>
+		</div>
+		{{/partitions}}
+		<div class='list-group-item clearfix'>
+			<div class="pull-right">
+				<a class='btn btn-default ' data-toggle='modal' data-target='#add-partition'>
+					<span class='glyphicon glyphicon-plus'></span> {{lang_newPartition}}
+				</a>
+			</div>
+		</div>
+	</div>
 	<button class="btn btn-lg btn-primary" type="submit">{{lang_save}}</button>
 	<button class="btn btn-lg btn-primary" type="reset">{{lang_reset}}</button>
 	<a class="btn btn-lg btn-primary" href="#" onclick="saveConfig()">Download</a>
 </form>
+
 <div>
-<form method="post" action="?do=BaseConfig_Partitions_CDN">
-	<input type="hidden" name="token" value="{{token}}">
-	<input type="hidden" name="action" value="reset">
-	<button class="btn btn-default" type="submit" onclick="return confirm('{{lang_resetConfirm}}');">{{lang_resetDefault}}</button>
-</form>
+	<form method="post" action="?do=BaseConfig_Partitions_CDN">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="reset">
+		<button class="btn btn-default" type="submit" onclick="return confirm('{{lang_resetConfirm}}');">{{lang_resetDefault}}</button>
+	</form>
 </div>
 
 <!-- Create Partition Window -->
@@ -53,17 +89,6 @@
 	<input type="hidden" name="token" value="{{token}}">
 </form>
 <script type="text/javascript">
-	document.getElementById("cat-extra-6").innerHTML = "<div class='list-group'> <div class='list-group-item' style='background-color:#f5f5f5;color:#428bca;'> " +
-			"{{lang_catPartition}} <span style='display:inline-block; float: right; margin-top: -7px;'> <a class='btn btn-default ' data-toggle='modal' " +
-			"data-target='#add-partition'> <span class='glyphicon glyphicon-plus'></span> </a> </span> </div> {{#partitions}} <div class='list-group-item'> " +
-			"<div class='row'> <div class='col-md-1'> <input name='partition-{{id}}-partition_id' type='text' class='form-control' size='30' value='{{partition_id}}'" +
-			" placeholder='{{lang_partitionId}}' /> </div> <div class='col-md-1'> <input name='partition-{{id}}-size' type='text' class='form-control' size='30' " +
-			"value='{{size}}' placeholder='{{lang_partitionSize}}'/> </div> <div class='col-md-4'> <input name='partition-{{id}}-mount_point' type='text' " +
-			"class='form-control' size='30' value='{{mount_point}}' placeholder='{{lang_partitionMountPoint}}'/> </div> <div class='col-md-4'> <input " +
-			"name='partition-{{id}}-options' type='text' class='form-control' size='30' value='{{options}}' placeholder='{{lang_partitionOptions}}'/> </div> " +
-			"<div class='col-md-2'> <a class='btn btn-danger' href='?do=BaseConfig&deletePartition={{id}}&token={{token}}' ><span class='glyphicon glyphicon-trash'>" +
-			"</span> {{lang_delete}}</a> </div> </div> </div> {{/partitions}} </div> </div>";
-
 	function saveConfig(){
 		if(confirm('{{lang_confirm}}'))
 			window.location = 'api.php?do=baseconfig&user={{user}}&save=true';

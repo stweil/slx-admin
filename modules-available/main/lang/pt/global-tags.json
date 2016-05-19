@@ -1,5 +1,14 @@
 {
+    "lang_back": "Voltar",
+    "lang_cancel": "Cancelar",
     "lang_close": "Fechar",
+    "lang_days": "Dia(s)",
+    "lang_delete": "Excluir",
+    "lang_edit": "Editar",
+    "lang_hours": "Hora(s)",
     "lang_next": "Pr\u00f3ximo",
-    "lang_save": "Salvar"
+    "lang_reset": "Limpar",
+    "lang_save": "Salvar",
+    "lang_today": "Hoje",
+    "lang_yesterday": "Ontem"
 }

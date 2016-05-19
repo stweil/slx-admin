@@ -73,7 +73,7 @@ class Page_BaseConfig_Partitions_CDN extends Page
 				Util::traceError('Could not create new partition in DB');
 			}
 		}
-		Util::redirect('?do=BaseConfig');
+		Util::redirect('?do=BaseConfig_Partitions_CDN');
 	}
 
 	private function deletePartition($id){
@@ -86,7 +86,7 @@ class Page_BaseConfig_Partitions_CDN extends Page
 				Util::traceError('Could not delete partition in DB');
 			}
 		}
-		Util::redirect('?do=BaseConfig');
+		Util::redirect('?do=BaseConfig_Partitions_CDN');
 	}
 
 	private function updatePartitions(){
@@ -113,7 +113,7 @@ class Page_BaseConfig_Partitions_CDN extends Page
 		}
 		if (!empty($partitions)) {
 			Message::addSuccess('partitions-updated');
-			Util::redirect('?do=BaseConfig');
+			Util::redirect('?do=BaseConfig_Partitions_CDN');
 		}
 	}
 
