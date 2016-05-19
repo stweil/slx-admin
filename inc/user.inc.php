@@ -97,19 +97,4 @@ class User
 		return self::$user['lasteventid'];
 	}
 
-	public static function addUser($data){
-		Database::exec ( "INSERT INTO user SET login = :login, passwd = :pass, fullname = :name, phone = :phone, email = :email, permissions = 4", $data );
-		$ret = Database::queryFirst('SELECT userid FROM user WHERE login = :user LIMIT 1', array('user' => $data['login']));
-		$user = array(
-			'user' => $ret['userid']
-		);
-		Database::exec ( "INSERT INTO setting_partition SET partition_id = '44', size = '5G', mount_point = '/tmp', user = :user", $user );
-		Database::exec ( "INSERT INTO setting_partition SET partition_id = '43', size = '20G', mount_point = '/boot', options = 'bootable', user = :user", $user );
-		Database::exec ( "INSERT INTO setting_partition SET partition_id = '40', size = '20G', mount_point = '/cache/export/dnbd3', user = :user", $user );
-		Database::exec ( "INSERT INTO setting_partition SET partition_id = '41', size = '5G', mount_point = '/home', user = :user", $user );
-		Database::exec ( "INSERT INTO setting_partition SET partition_id = '82', size = '1G', user = :user", $user );
-		Message::addSuccess('add-user');
-		EventLog::info ( User::getName () . ' created user ' . $data['login'] );
-	}
-
 }

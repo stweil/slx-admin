@@ -23,7 +23,7 @@ class Page_Usermanagement extends Page
 				$this->edit(Request::post('userid'),Request::post('username'),Request::post('phone'),Request::post('email'), 4);
 				break;
 			case "create":
-				$this->create(Request::post('login'),Request::post('username'),Request::post('pass'),Request::post('phone'),Request::post('email'), 4);
+				$this->create(Request::post('login'),Request::post('username'),Request::post('pass'),Request::post('phone'),Request::post('email'), Request::post('city'));
 				break;
 			case "delete":
 				$this->delete(Request::post('userid'));
@@ -59,16 +59,28 @@ class Page_Usermanagement extends Page
 				);
 		}
 
-		//$pag = new Paginate($users,$this->page);
+		// load every city
+		$cities = array();
+		$res = Database::simpleQuery("SELECT cityid, name, ip FROM cities ORDER BY name DESC");
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$cities[] = array(
+				'id' => $row['cityid'],
+				'name' => $row['name'],
+				'ip' => $row['ip']
+			);
+		}
+
+		$pag = new Pagination($users,$this->page);
 
 		Render::addTemplate('user-management', array(
 			'admin_id' => $admin[0],
 			'admin_username' => $admin[1],
 			'admin_name' => $admin[2],
 			'admin_telephone' => $admin[3],
-			'admin_email' => $admin[4]
-			//'users' => $pag->getItems(),
-			//'pages' => $pag->getPagination()
+			'admin_email' => $admin[4],
+			'cities' => $cities,
+			'users' => $pag->getItems(),
+			'pages' => $pag->getPagination()
 		));
 	}
 
@@ -84,15 +96,34 @@ class Page_Usermanagement extends Page
 		Message::addSuccess('update-user');
 	}
 
-	private function create($login, $username, $password, $phone, $email){
-		$data = array (
+	private function create($login, $username, $password, $phone, $email, $city){
+		if (empty($login) || empty($username) || empty ($password)) {
+			Message::addError ( 'empty-field' );
+			Util::redirect ( '?do=Usermanagement' );
+		} else {
+			$data = array (
 				'login' => $login,
 				'pass' => Crypto::hash6 ( $password ),
 				'name' => $username,
 				'phone' => $phone,
-				'email' => $email
-		);
-		User::addUser($data);
+				'email' => $email,
+				'city' => $city,
+				'permission' => 4
+			);
+			// TODO: Remove city column from user table; should be done in an n:m fashion via extra table
+			Database::exec ( "INSERT INTO user SET login = :login, passwd = :pass, fullname = :name, phone = :phone, email = :email, city = :city, permissions = :permission", $data );
+			$ret = Database::queryFirst('SELECT userid FROM user WHERE login = :user LIMIT 1', array('user' => $data['login']));
+			$user = array(
+				'user' => $ret['userid']
+			);
+			Database::exec ( "INSERT INTO setting_partition SET partition_id = '44', size = '5G', mount_point = '/tmp', user = :user", $user );
+			Database::exec ( "INSERT INTO setting_partition SET partition_id = '43', size = '20G', mount_point = '/boot', options = 'bootable', user = :user", $user );
+			Database::exec ( "INSERT INTO setting_partition SET partition_id = '40', size = '20G', mount_point = '/cache/export/dnbd3', user = :user", $user );
+			Database::exec ( "INSERT INTO setting_partition SET partition_id = '41', size = '5G', mount_point = '/home', user = :user", $user );
+			Database::exec ( "INSERT INTO setting_partition SET partition_id = '82', size = '1G', user = :user", $user );
+			Message::addSuccess('add-user');
+			EventLog::info ( User::getName () . ' created user ' . $data['login'] );
+		}
 	}
 
 	private function delete($userid){

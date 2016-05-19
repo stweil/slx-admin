@@ -11,18 +11,18 @@
 			<th style="text-align: center;">{{lang_email}}</th>
 			<th style="text-align: center;"></th>
 		</tr>
-    	<tr>
-    		<form method="post" action="">
-    		<input type="hidden" name="action" value="editAdmin">
-			<input type="hidden" name="token" value="{{token}}">
-    		<td><input class="form-control" name="userid" type="text" readonly="readonly" value="{{admin_id}}" size="3"></td>
-    		<td><input class="form-control" type="text" disabled="disabled" value="{{admin_username}}"></td>
-    		<td><input class="form-control" name="username" type="text" value="{{admin_name}}"></td>
-    		<td><input class="form-control" name="phone" type="text" value="{{admin_telephone}}"></td>
-    		<td><input class="form-control" name="email" type="text" value="{{admin_email}}"></td>
-    		<td><input class="btn btn-primary" type="submit" value="{{lang_save}}"></td>
-    		</form>
-    	</tr>
+		<tr>
+			<form method="post" action="">
+				<input type="hidden" name="action" value="editAdmin">
+				<input type="hidden" name="token" value="{{token}}">
+				<td><input class="form-control" name="userid" type="text" readonly="readonly" value="{{admin_id}}" size="3"></td>
+				<td><input class="form-control" type="text" disabled="disabled" value="{{admin_username}}"></td>
+				<td><input class="form-control" name="username" type="text" value="{{admin_name}}"></td>
+				<td><input class="form-control" name="phone" type="text" value="{{admin_telephone}}"></td>
+				<td><input class="form-control" name="email" type="text" value="{{admin_email}}"></td>
+				<td><input class="btn btn-primary" type="submit" value="{{lang_save}}"></td>
+			</form>
+		</tr>
 	</table>
 </div>
 
@@ -32,21 +32,26 @@
 	</div>
 	<div class="panel-body">
 		<p>
-		{{lang_userInfo}}
+			{{lang_userInfo}}
 		</p>
-		
+
 	</div>
 	<table class="table">
 		<tr>
 			<form method="post" action="?do=Usermanagement">
-    		<input type="hidden" name="action" value="create">
-			<input type="hidden" name="token" value="{{token}}">
-			<td><input class="form-control" name="login" type="text" placeholder="{{lang_login}}"></td>
-			<td><input class="form-control" name="username" type="text" placeholder="{{lang_username}}"></td>
-			<td><input class="form-control" name="pass" type="password" placeholder="{{lang_password}}"></td>
-			<td><input class="form-control" name="phone" type="text" placeholder="{{lang_telephone}}"></td>
-			<td><input class="form-control" name="email" type="text" placeholder="{{lang_email}}"></td>
-			<td><input class="btn btn-primary" type="submit" value="{{lang_create}}"></td>
+				<input type="hidden" name="action" value="create">
+				<input type="hidden" name="token" value="{{token}}">
+				<td><input class="form-control" name="login" type="text" placeholder="{{lang_login}}*"></td>
+				<td><input class="form-control" name="username" type="text" placeholder="{{lang_username}}*"></td>
+				<td><input class="form-control" name="pass" type="password" placeholder="{{lang_password}}*"></td>
+				<td><input class="form-control" name="phone" type="text" placeholder="{{lang_telephone}}"></td>
+				<td><input class="form-control" name="email" type="text" placeholder="{{lang_email}}"></td>
+				<td><select class="form-control"  name="city">
+					{{#cities}}
+					<option value="{{id}}">{{name}}</option>
+					{{/cities}}
+				</select></td>
+				<td><input class="btn btn-primary" type="submit" value="{{lang_create}}"></td>
 			</form>
 		</tr>
 		<tr>
@@ -86,35 +91,35 @@
 		<div class="modal-content">
 			<div class="modal-header"><h4 class="modal-title">{{lang_editUser}}</h4></div>
 			<div class="modal-body">
-			<form method="post" action="">
-				<input type="hidden" name="action" value="edit">
-				<input type="hidden" name="token" value="{{token}}">
-  				<div class="form-group">
-   					<label for="userid">ID</label>
-					<input type="text" class="form-control" name="userid" readonly="readonly" name="userid" value="{{id}}">
-				</div>
-				<div class="form-group">
-   					<label for="userid">Login</label>
-					<input type="text" class="form-control" name="login" disabled="disabled" placeholder="{{lang_login}}" value="{{username}}">
-				</div>
-				<div class="form-group">
-   					<label for="userid">{{lang_username}}</label>
-					<input type="text" class="form-control"  name="username" placeholder="{{lang_username}}" value="{{name}}">
-				</div>
-				<div class="form-group">
-					<label for="userid">{{lang_telephone}}</label>
-					<input type="text" class="form-control"  name="phone" placeholder="{{lang_telephone}}" value="{{telephone}}">
-				</div>
-				<div class="form-group">
-					<label for="userid">{{lang_email}}</label>
-					<input type="text" class="form-control"  name="email" placeholder="{{lang_email}}" value="{{email}}">
-				</div>
-				<div class="form-group">
-					<b>Permissões:</b>
-					<select name="permissions" class="form-control">
-						<option value="4">Normal</option>
-					</select>
-				</div>
+				<form method="post" action="">
+					<input type="hidden" name="action" value="edit">
+					<input type="hidden" name="token" value="{{token}}">
+					<div class="form-group">
+						<label for="userid">ID</label>
+						<input type="text" class="form-control" name="userid" readonly="readonly" name="userid" value="{{id}}">
+					</div>
+					<div class="form-group">
+						<label for="userid">Login</label>
+						<input type="text" class="form-control" name="login" disabled="disabled" placeholder="{{lang_login}}" value="{{username}}">
+					</div>
+					<div class="form-group">
+						<label for="userid">{{lang_username}}</label>
+						<input type="text" class="form-control"  name="username" placeholder="{{lang_username}}" value="{{name}}">
+					</div>
+					<div class="form-group">
+						<label for="userid">{{lang_telephone}}</label>
+						<input type="text" class="form-control"  name="phone" placeholder="{{lang_telephone}}" value="{{telephone}}">
+					</div>
+					<div class="form-group">
+						<label for="userid">{{lang_email}}</label>
+						<input type="text" class="form-control"  name="email" placeholder="{{lang_email}}" value="{{email}}">
+					</div>
+					<div class="form-group">
+						<b>Permissões:</b>
+						<select name="permissions" class="form-control">
+							<option value="4">Normal</option>
+						</select>
+					</div>
 			</div>
 			<div class="modal-footer">
 				<input class="btn btn-primary" type="submit" value="{{lang_save}}">
