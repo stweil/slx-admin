@@ -56,9 +56,17 @@ class User
 			return false;
 		if (!Crypto::verify($pass, $ret['passwd']))
 			return false;
-		Session::create();
+		Session::create($ret['passwd']);
 		Session::set('uid', $ret['userid']);
-		Session::set('token', md5(rand() . time() . rand() . $_SERVER['REMOTE_ADDR'] . rand() . $_SERVER['REMOTE_PORT'] . rand() . $_SERVER['HTTP_USER_AGENT']));
+		Session::set('token', md5($ret['passwd'] . ','
+			. rand() . ','
+			. time() . ','
+			. rand() . ','
+			. $_SERVER['REMOTE_ADDR'] . ','
+			. rand() . ','
+			. $_SERVER['REMOTE_PORT'] . ','
+			. rand() . ','
+			. $_SERVER['HTTP_USER_AGENT']));
 		Session::save();
 		return true;
 	}

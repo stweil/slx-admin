@@ -11,11 +11,11 @@ class Session
 	private static $sid = false;
 	private static $data = false;
 	
-	private static function generateSessionId()
+	private static function generateSessionId($salt)
 	{
 		if (self::$sid !== false) Util::traceError('Error: Asked to generate session id when already set.');
-		self::$sid = sha1(
-			mt_rand(0, 65535)
+		self::$sid = sha1($salt . ','
+			. mt_rand(0, 65535)
 			. $_SERVER['REMOTE_ADDR']
 			. mt_rand(0, 65535)
 			. $_SERVER['REMOTE_PORT']
@@ -27,9 +27,9 @@ class Session
 		);
 	}
 
-	public static function create()
+	public static function create($salt = '')
 	{
-		self::generateSessionId();
+		self::generateSessionId($salt);
 		self::$data = array();
 	}
 

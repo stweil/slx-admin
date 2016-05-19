@@ -103,7 +103,7 @@ SADFACE;
 	}
 
 	/**
-	 * Verify the user's token that protects agains CSRF.
+	 * Verify the user's token that protects against CSRF.
 	 * If the user is logged in and there is no token variable set in
 	 * the request, or the submitted token does not match the user's
 	 * token, this function will return false and display an error.
@@ -111,9 +111,9 @@ SADFACE;
 	 */
 	public static function verifyToken()
 	{
-		if (Session::get('main.token') === false)
+		if (!User::isLoggedIn() && Session::get('token') === false)
 			return true;
-		if (isset($_REQUEST['main.token']) && Session::get('main.token') === $_REQUEST['main.token'])
+		if (isset($_REQUEST['token']) && Session::get('token') === $_REQUEST['token'])
 			return true;
 		Message::addError('main.token');
 		return false;
