@@ -21,7 +21,7 @@ class LdapAuth_Start extends AddModule_Base
 			$data['server'] = $out[1];
 		}
 		$data['step'] = 'LdapAuth_CheckConnection';
-		Render::addDialog(Dictionary::translate('config-module', 'ldapAuth_title'), false, 'ldap-start', $data);
+		Render::addDialog(Dictionary::translateFile('config-module', 'ldapAuth_title'), false, 'ldap-start', $data);
 	}
 
 }
@@ -51,9 +51,9 @@ class LdapAuth_CheckConnection extends AddModule_Base
 			$ports = array(389, 3268);
 		}
 		$this->scanTask = Taskmanager::submit('PortScan', array(
-				'host' => $this->server,
-				'ports' => $ports,
-				'certificate' => Request::post('certificate', '')
+			'host' => $this->server,
+			'ports' => $ports,
+			'certificate' => Request::post('certificate', '')
 		));
 		if (!isset($this->scanTask['id'])) {
 			AddModule_Base::setStep('LdapAuth_Start'); // Continues with LdapAuth_Start for render()
@@ -77,7 +77,7 @@ class LdapAuth_CheckConnection extends AddModule_Base
 		);
 		$data['prev'] = 'LdapAuth_Start';
 		$data['next'] = 'LdapAuth_CheckCredentials';
-		Render::addDialog(Dictionary::translate('config-module', 'ldapAuth_title'), false, 'ad_ldap-checkconnection', $data);
+		Render::addDialog(Dictionary::translateFile('config-module', 'ldapAuth_title'), false, 'ad_ldap-checkconnection', $data);
 	}
 
 }
@@ -96,7 +96,7 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('main.error-read', 'fingerprint');
+			Message::addError('error-read', 'fingerprint');
 			AddModule_Base::setStep('LdapAuth_Start'); // Continues with LdapAuth_Start for render()
 			return;
 		}
@@ -113,12 +113,12 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 			$uri = "ldap://$server/";
 		}
 		$ldapSearch = Taskmanager::submit('LdapSearch', array(
-				'parentTask' => $parent,
-				'server' => $uri,
-				'searchbase' => $searchbase,
-				'binddn' => $binddn,
-				'bindpw' => $bindpw,
-				'plainldap' => true,
+			'parentTask' => $parent,
+			'server' => $uri,
+			'searchbase' => $searchbase,
+			'binddn' => $binddn,
+			'bindpw' => $bindpw,
+			'plainldap' => true,
 		));
 		if (!isset($ldapSearch['id'])) {
 			AddModule_Base::setStep('LdapAuth_Start'); // Continues with LdapAuth_Start for render()
@@ -133,21 +133,85 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'ldapAuth_title'), false, 'ad_ldap-checkcredentials', array_merge($this->taskIds, array(
+		Render::addDialog(Dictionary::translateFile('config-module', 'ldapAuth_title'), false, 'ad_ldap-checkcredentials', array_merge($this->taskIds, array(
+				'edit' => Request::post('edit'),
+				'title' => Request::post('title'),
+				'server' => Request::post('server') . ':' . Request::post('port'),
+				'searchbase' => Request::post('searchbase'),
+				'binddn' => Request::post('binddn'),
+				'bindpw' => Request::post('bindpw'),
+				'home' => Request::post('home'),
+				'ssl' => Request::post('ssl') === 'on',
+				'fingerprint' => Request::post('fingerprint'),
+				'certificate' => Request::post('certificate', ''),
+				'prev' => 'LdapAuth_Start',
+				'next' => 'LdapAuth_HomeDir'
+			))
+		);
+	}
+
+}
+
+class LdapAuth_HomeDir extends AddModule_Base
+{
+
+	private $searchbase;
+
+	protected function preprocessInternal()
+	{
+		$this->searchbase = Request::post('searchbase');
+		$somedn = Request::post('somedn', false);
+		if (!empty($somedn)) {
+			$i = stripos($somedn, $this->searchbase);
+			if ($i !== false) {
+				$this->searchbase = substr($somedn, $i, strlen($this->searchbase));
+			}
+		}
+	}
+
+	protected function renderInternal()
+	{
+		$data = array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
-			'server' => Request::post('server') . ':' . Request::post('port'),
-			'searchbase' => Request::post('searchbase'),
+			'server' => Request::post('server'),
+			'searchbase' => $this->searchbase,
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
+			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
+			'originalbinddn' => Request::post('originalbinddn'),
 			'prev' => 'LdapAuth_Start',
 			'next' => 'LdapAuth_Finish'
-			))
 		);
+		if ($this->edit !== false) {
+			foreach (self::getAttributes() as $key) {
+				if ($this->edit->getData($key)) {
+					$data[$key . '_c'] = 'checked="checked"';
+				}
+			}
+			$data['shareRemapMode_' . $this->edit->getData('shareRemapMode')] = 'selected="selected"';
+			$letter = $this->edit->getData('shareHomeDrive');
+		} else {
+			$data['shareDownloads'] = $data['shareMedia'] = $data['shareDocuments'] = 'selected="selected"';
+			$letter = 'H:';
+		}
+		$data['drives'] = array();
+		foreach (range('D', 'Z') as $l) {
+			$data['drives'][] = array(
+				'drive' => $l . ':',
+				'selected' => (strtoupper($letter{0}) === $l) ? 'selected="selected"' : ''
+			);
+		}
+		Render::addDialog(Dictionary::translateFile('config-module', 'ldapAuth_title'), false, 'ad_ldap-homedir', $data);
+	}
+
+	public static function getAttributes()
+	{
+		return array('shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia', 'shareOther', 'shareHomeDrive');
 	}
 
 }
@@ -168,13 +232,6 @@ class LdapAuth_Finish extends AddModule_Base
 			$module = ConfigModule::getInstance('LdapAuth');
 		else
 			$module = $this->edit;
-		$somedn = Request::post('somedn', false);
-		if (!empty($somedn)) {
-			$i = stripos($somedn, $searchbase);
-			if ($i !== false) {
-				$searchbase = substr($somedn, $i, strlen($searchbase));
-			}
-		}
 		$ssl = Request::post('ssl', 'off') === 'on';
 		$module->setData('server', Request::post('server'));
 		$module->setData('searchbase', $searchbase);
@@ -183,6 +240,17 @@ class LdapAuth_Finish extends AddModule_Base
 		$module->setData('home', Request::post('home'));
 		$module->setData('certificate', Request::post('certificate'));
 		$module->setData('ssl', $ssl);
+		foreach (LdapAuth_HomeDir::getAttributes() as $key) {
+			$value = Request::post($key);
+			if (is_numeric($value)) {
+				settype($value, 'integer');
+			} elseif ($value === 'on') {
+				$value = 1;
+			} elseif ($value === false) {
+				$value = 0;
+			}
+			$module->setData($key, $value);
+		}
 		if ($ssl) {
 			$module->setData('fingerprint', Request::post('fingerprint', ''));
 		} else {
@@ -207,7 +275,7 @@ class LdapAuth_Finish extends AddModule_Base
 			'tm-config' => $tgz,
 		);
 	}
-	
+
 	private function stopOldInstance()
 	{
 		if ($this->edit === false)
@@ -228,7 +296,7 @@ class LdapAuth_Finish extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'ldapAuth_title'), false, 'ldap-finish', $this->taskIds);
+		Render::addDialog(Dictionary::translateFile('config-module', 'ldapAuth_title'), false, 'ldap-finish', $this->taskIds);
 	}
 
 }
