@@ -17,6 +17,10 @@ class Page_ServerSetup extends Page
 			Util::redirect('?do=Main');
 		}
 
+		if (Request::any('action') === 'getimage') {
+			$this->handleGetImage();
+		}
+
 		$this->currentMenu = Property::getBootMenu();
 
 		$action = Request::post('action');
@@ -51,14 +55,18 @@ class Page_ServerSetup extends Page
 			'chooseHintClass' => $this->hasIpSet ? '' : 'alert alert-danger'
 		));
 		$data = $this->currentMenu;
-		if (!isset($data['defaultentry']))
+		if (!isset($data['defaultentry'])) {
 			$data['defaultentry'] = 'net';
-		if ($data['defaultentry'] === 'net')
+		}
+		if ($data['defaultentry'] === 'net') {
 			$data['active-net'] = 'checked';
-		if ($data['defaultentry'] === 'hdd')
+		}
+		if ($data['defaultentry'] === 'hdd') {
 			$data['active-hdd'] = 'checked';
-		if ($data['defaultentry'] === 'custom')
+		}
+		if ($data['defaultentry'] === 'custom') {
 			$data['active-custom'] = 'checked';
+		}
 		Render::addTemplate('ipxe', $data);
 	}
 
@@ -135,6 +143,18 @@ class Page_ServerSetup extends Page
 		Property::setBootMenu($this->currentMenu);
 		$id = Trigger::ipxe();
 		Util::redirect('?do=ServerSetup&taskid=' . $id);
+	}
+
+	private function handleGetImage()
+	{
+		$file = "/opt/openslx/ipxe/openslx-bootstick.raw";
+		if (!is_readable($file)) {
+			Message::addError('image-not-found');
+			return;
+		}
+		Header('Content-Type: application/octet-stream');
+		readfile($file);
+		exit;
 	}
 
 }
