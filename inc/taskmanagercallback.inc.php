@@ -174,4 +174,20 @@ class TaskmanagerCallback
 		}
 	}
 
+	public static function uploadimg($task)
+	{
+		//$string=var_export($task, true);
+		//file_put_contents('teste.txt',$string);
+		if (Taskmanager::isFailed($task)){
+			EventLog::warning("ApiUpload failed: ", $task['data']['messages']);
+		}
+		$ret = Database::exec("UPDATE upload SET is_ready = :ready," .
+			" path = :path WHERE token = :token", array(
+			"ready"=>true,
+			"path"=>$task['data']['path'],
+			"token"=>$task['data']['token']
+		));
+	}
+
+
 }
