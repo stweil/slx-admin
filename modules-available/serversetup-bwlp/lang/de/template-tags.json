@@ -9,6 +9,7 @@
     "lang_chooseIP": "Bitte w\u00e4hlen Sie die IP-Adresse, \u00fcber die der Server von den Clients zum Booten angesprochen werden soll.",
     "lang_compile": "Kompilieren",
     "lang_customEntry": "Eigener Eintrag",
+    "lang_downloadImage": "USB-Image herunterladen",
     "lang_example": "Beispiel",
     "lang_generationFailed": "Erzeugen des Bootmen\u00fcs fehlgeschlagen. Der Netzwerkboot von bwLehrpool wird wahrscheinlich nicht funktionieren. Wenn Sie den Fehler nicht selbst beheben k\u00f6nnen, melden Sie bitte obenstehende Fehlermeldung an das bwLehrpool-Projekt.",
     "lang_localHDD": "Lokale HDD",

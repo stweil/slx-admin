@@ -153,6 +153,7 @@ class Page_ServerSetup extends Page
 			return;
 		}
 		Header('Content-Type: application/octet-stream');
+		Header('Content-Disposition: attachment; filename="openslx-bootstick.raw"');
 		readfile($file);
 		exit;
 	}

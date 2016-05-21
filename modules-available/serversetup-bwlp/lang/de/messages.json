@@ -1,3 +1,4 @@
 {
+    "image-not-found": "USB-Image nicht gefunden. Generieren Sie das Bootmen\u00fc neu.",
     "invalid-ip": "Kein Interface ist auf die Adresse {{0}} konfiguriert"
 }

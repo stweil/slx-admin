@@ -1,3 +1,4 @@
 {
+    "image-not-found": "USB image not found. Try regenerating the boot menu first.",
     "invalid-ip": "No interface is configured with the address {{0}}"
 }

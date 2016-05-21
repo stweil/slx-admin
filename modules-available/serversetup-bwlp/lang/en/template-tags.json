@@ -12,6 +12,7 @@
     "lang_customEntry": "Custom entry",
     "lang_customScript": "Custom script",
     "lang_download": "Download",
+    "lang_downloadImage": "Download USB image",
     "lang_example": "Example",
     "lang_extension": "Extension",
     "lang_generationFailed": "Could not generate boot menu. The bwLehrpool-System might not work properly. If you can't fix the problem, please report the error message above to the bwLehrpool project.",
