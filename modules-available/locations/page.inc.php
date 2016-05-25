@@ -257,11 +257,52 @@ class Page_Locations extends Page
 			}
 			Render::addTemplate('subnets', array('list' => $rows));
 		} elseif ($getAction === 'showlocations') {
-			$locs = Location::getLocations();
-			Render::addTemplate('locations', array('list' => $locs));
+			$this->showLocationList();
 		}
 	}
-	
+
+	private function showLocationList()
+	{
+		$overlapSelf = $overlapOther = true;
+		$subnets = Location::getSubnetsByLocation($overlapSelf, $overlapOther);
+		$locs = Location::getLocations();
+		$unassigned = false;
+		if (Module::get('statistics') !== false) {
+			foreach ($locs as &$location) {
+				$lid = (int)$location['locationid'];
+				if (!isset($subnets[$lid]))
+					continue;
+				$loc =& $subnets[$lid];
+				if (empty($loc['subnets'])) {
+					$query = "SELECT Count(*) AS cnt FROM machine WHERE locationid = :locationid";
+				} else {
+					$query = "SELECT Count(*) AS cnt FROM machine WHERE locationid = :locationid OR (locationid IS NULL AND (0";
+					foreach ($loc['subnets'] as $sub) {
+						$query .= ' OR INET_ATON(clientip) BETWEEN ' . $sub['startaddr'] . ' AND ' . $sub['endaddr'];
+					}
+					$query .= '))';
+				}
+				$ret = Database::queryFirst($query, array('locationid' => $lid));
+				$location['clientCount'] = $ret['cnt'];
+			}
+			$res = Database::queryFirst("SELECT Count(*) AS cnt FROM machine m"
+				. " LEFT JOIN subnet s ON (INET_ATON(m.clientip) BETWEEN s.startaddr AND s.endaddr)"
+				. " WHERE m.locationid IS NULL AND s.locationid IS NULL");
+			$unassigned = $res['cnt'];
+		}
+		unset($loc, $location);
+		Render::addTemplate('locations', array(
+			'list' => $locs,
+			'havestatistics' => Module::get('statistics') !== false,
+			'havebaseconfig' => Module::get('baseconfig') !== false,
+			'overlapSelf' => $overlapSelf,
+			'overlapOther' => $overlapOther,
+			'haveOverlapSelf' => !empty($overlapSelf),
+			'haveOverlapOther' => !empty($overlapOther),
+			'unassignedCount' => $unassigned
+		));
+	}
+
 	/*
 	 * Ajax
 	 */
@@ -300,31 +341,33 @@ class Page_Locations extends Page
 			'list' => $rows,
 			'parents' => Location::getLocations($loc['parentlocationid'], $locationId, true)
 		);
-		// if (moduleEnabled(DOZMOD) {
-		$lectures = Database::queryFirst('SELECT Count(*) AS cnt FROM sat.lecture l '
-			. ' INNER JOIN sat.lecture_x_location ll ON (l.lectureid = ll.lectureid AND ll.locationid = :lid)',
+		if (Module::get('dozmod') !== false) {
+			$lectures = Database::queryFirst('SELECT Count(*) AS cnt FROM sat.lecture l '
+				. ' INNER JOIN sat.lecture_x_location ll ON (l.lectureid = ll.lectureid AND ll.locationid = :lid)',
 				array('lid' => $locationId));
-		$data['lectures'] = $lectures['cnt'];
-		// }
+			$data['lectures'] = $lectures['cnt'];
+		}
 		// Get clients matching this location's subnet(s)
-		$mres = Database::simpleQuery("SELECT lastseen, logintime FROM machine"
-			. " INNER JOIN subnet ON (INET_ATON(machine.clientip) BETWEEN startaddr AND endaddr)"
-			. " WHERE subnet.locationid = :lid OR machine.locationid = :lid", array('lid' => $locationId));
 		$count = $online = $used = 0;
-		$DL = time() - 605;
-		while ($row = $mres->fetch(PDO::FETCH_ASSOC)) {
-			$count++;
-			if ($row['lastseen'] > $DL) {
-				$online++;
-				if ($row['logintime'] != 0) {
-					$used++;
+		if (Module::get('statistics') !== false) {
+			$mres = Database::simpleQuery("SELECT lastseen, logintime FROM machine"
+				. " INNER JOIN subnet ON (INET_ATON(machine.clientip) BETWEEN startaddr AND endaddr)"
+				. " WHERE subnet.locationid = :lid OR machine.locationid = :lid", array('lid' => $locationId));
+			$DL = time() - 605;
+			while ($row = $mres->fetch(PDO::FETCH_ASSOC)) {
+				$count++;
+				if ($row['lastseen'] > $DL) {
+					$online++;
+					if ($row['logintime'] != 0) {
+						$used++;
+					}
 				}
 			}
 		}
 		$data['machines'] = $count;
 		$data['machines_online'] = $online;
 		$data['machines_used'] = $used;
-		$data['used_percent'] = round(100 * $used / $online);
+		$data['used_percent'] = $online === 0 ? 0 : round(100 * $used / $online);
 		echo Render::parse('location-subnets', $data);
 	}
 	

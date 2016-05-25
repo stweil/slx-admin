@@ -5,19 +5,37 @@
 	<h1>{{lang_locationsMainHeading}}</h1>
 	<table class="table table-condensed" style="margin-bottom:0px">
 		<tr>
-			<th>#</th>
 			<th width="100%">{{lang_locationName}}</th>
 			<th></th>
 		</tr>
 		{{#list}}
 			<tr>
-				<td>{{locationid}}</td>
-				<td><div style="display:inline-block;width:{{depth}}em"></div>{{locationname}}</td>
-				<td align="right">
-					<a class="btn btn-success btn-xs" onclick="slxOpenLocation(this, {{locationid}})"><span class="glyphicon glyphicon-edit"></span> {{lang_edit}}</a>
+				<td>
+					<div style="display:inline-block;width:{{depth}}em"></div>
+					<a href="#" onclick="slxOpenLocation(this, {{locationid}})">{{locationname}}<b class="caret"></b></a>
+				</td>
+				<td class="slx-nowrap" align="right">
+					{{#havestatistics}}
+					{{clientCount}}
+					<a class="btn btn-default btn-xs" href="?do=Statistics&amp;filter=location&amp;argument={{locationid}}"><span class="glyphicon glyphicon-eye-open"></span></a>
+					{{/havestatistics}}
+					{{#havebaseconfig}}
+					<a class="btn btn-success btn-xs" href="?do=baseconfig&amp;module=locations&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span> {{lang_editConfigVariables}}</a>
+					{{/havebaseconfig}}
 				</td>
 			</tr>
 		{{/list}}
+		{{#unassignedCount}}
+		<tr>
+			<td></td>
+			<td class="slx-nowrap" align="right">
+				{{lang_unassignedMachines}}: {{unassignedCount}}
+				<a class="btn btn-default btn-xs" href="?do=Statistics&amp;filter=location&amp;argument=0">
+					<span class="glyphicon glyphicon-eye-open"></span>
+				</a>
+			</td>
+		</tr>
+		{{/unassignedCount}}
 	</table>
 	<form method="post" action="?do=Locations">
 		<input type="hidden" name="token" value="{{token}}">
@@ -37,6 +55,16 @@
 		</table>
 	</form>
 </div>
+{{#overlapSelf}}
+<div class="alert alert-warning">
+	{{lang_locationSelfOverlap}}: <b>{{locationname}}</b>
+</div>
+{{/overlapSelf}}
+{{#overlapOther}}
+<div class="alert alert-danger">
+	{{lang_locationOtherOverlap}}: <b>{{name1}}</b> – <b>{{name2}}</b>
+</div>
+{{/overlapOther}}
 <script type="text/javascript"><!--
 var slxAddCounter = 0;
 var slxLastLocation = false;
@@ -70,7 +98,7 @@ function slxOpenLocation(e, lid) {
 		}
 		return;
 	}
-	var td = $('<td>').attr('colspan', '12').css('padding', '0px 0px 12px');
+	var td = $('<td>').attr('colspan', '2').css('padding', '0px 0px 12px');
 	var tr = $('<tr>').attr('id', 'location-details-' + lid);
 	tr.append(td);
 	$(e).closest('tr').addClass('active slx-bold').after(tr);
