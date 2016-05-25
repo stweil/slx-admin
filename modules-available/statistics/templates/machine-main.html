@@ -2,6 +2,11 @@
 	{{hostname}} {{#hostname}}–{{/hostname}} {{clientip}}
 	{{#notes}}<a href="#usernotes"><span class="glyphicon glyphicon-exclamation-sign"></span></a>{{/notes}}
 </h1>
+<div>
+	{{#locations}}
+	&raquo; <a href="?do=statistics&amp;filter=location&amp;argument={{locationid}}">{{locationname}}</a>
+	{{/locations}}
+</div>
 
 <div class="row">
 	<div class="col-md-6">
@@ -118,7 +123,30 @@
 						<td>{{kvmstate}}</td>
 					</tr>
 				</table>
+				<h4>{{lang_devices}}</h4>
+				{{#lspci1}}
+				<div><span class="{{lookupClass}}">{{class}}</span></div>
+				{{#entries}}
+				<div class="small">&emsp;└ <span class="{{lookupVen}}">{{ven}}</span> <span class="{{lookupDev}}">{{dev}}</span></div>
+				{{/entries}}
+				{{/lspci1}}
+				<div id="lspci" class="collapse">
+					{{#lspci2}}
+						<div><span class="{{lookupClass}}">{{class}}</span></div>
+					{{#entries}}
+						<div class="small">&emsp;└ <span class="{{lookupVen}}">{{ven}}</span> <span class="{{lookupDev}}">{{dev}}</span></div>
+					{{/entries}}
+					{{/lspci2}}
+				</div>
+				<div><button class="btn btn-xs btn-default" data-toggle="collapse" data-target="#lspci">{{lang_more}}</button></div>
 			</div>
 		</div>
 	</div>
 </div>
+<script type="application/javascript"><!--
+document.addEventListener("DOMContentLoaded", function () {
+	$('span.do-lookup').each(function () {
+		$(this).load('?do=statistics&lookup=' + $(this).text());
+	});
+}, false);
+// --></script>

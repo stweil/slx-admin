@@ -322,9 +322,15 @@ class Page_Statistics extends Page
 				return;
 			}
 		} elseif ($filter === 'location') {
-			$where = "subnet.locationid = :lid OR machine.locationid = :lid";
-			$join = " INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) ";
-			$args = array('lid' => (int)$argument);
+			settype($argument, 'int');
+			if ($argument === 0) {
+				$where = "machine.locationid IS NULL AND s.locationid IS NULL";
+				$join = "LEFT JOIN subnet s ON (INET_ATON(machine.clientip) BETWEEN s.startaddr AND s.endaddr)";
+			} else {
+				$where = "subnet.locationid = :lid OR machine.locationid = :lid";
+				$join = " INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) ";
+				$args = array('lid' => $argument);
+			}
 		} else {
 			Message::addError('invalid-filter');
 			return;
@@ -428,10 +434,10 @@ class Page_Statistics extends Page
 			$row['username'] = $session['username'];
 		}
 	}
-	
+
 	private function showMachine($uuid)
-		{
-		$client = Database::queryFirst("SELECT machineuuid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,"
+	{
+		$client = Database::queryFirst("SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,"
 			. " mbram, kvmstate, cpumodel, id44mb, data, hostname, notes FROM machine WHERE machineuuid = :uuid",
 			array('uuid' => $uuid));
 		// Mangle fields
@@ -439,7 +445,7 @@ class Page_Statistics extends Page
 		if ($NOW - $client['lastseen'] > 610) {
 			$client['state_off'] = true;
 		} elseif ($client['logintime'] == 0) {
-			$client['state_idle']  = true;
+			$client['state_idle'] = true;
 		} else {
 			$client['state_occupied'] = true;
 			$this->fillSessionInfo($client);
@@ -467,6 +473,10 @@ class Page_Statistics extends Page
 				if ($section[1] === 'Partition tables') {
 					$this->parseHdd($hdds, $section[2]);
 				}
+				if ($section[1] === 'PCI ID') {
+					$client['lspci1'] = $client['lspci2'] = array();
+					$this->parsePci($client['lspci1'], $client['lspci2'], $section[2]);
+				}
 				if (isset($hdds['hdds']) && $section[1] === 'smartctl') {
 					// This currently required that the partition table section comes first...
 					$this->parseSmartctl($hdds['hdds'], $section[2]);
@@ -474,6 +484,20 @@ class Page_Statistics extends Page
 			}
 		}
 		unset($client['data']);
+		// Get locations
+		if (Module::isAvailable('locations')) {
+			if (is_null($client['locationid'])) {
+				$client['locationid'] = Location::getFromIp($client['clientip']);
+			}
+			$locs = Location::getLocationsAssoc();
+			$next = (int)$client['locationid'];
+			$output = array();
+			while (isset($locs[$next])) {
+				array_unshift($output, $locs[$next]);
+				$next = $locs[$next]['parentlocationid'];
+			}
+			$client['locations'] = $output;
+		}
 		// Throw output at user
 		Render::addTemplate('machine-main', $client);
 		// Sessions
@@ -745,6 +769,50 @@ class Page_Statistics extends Page
 		unset($hdd);
 		$row['hdds'] = &$hdds;
 	}
+
+	private function parsePci(&$pci1, &$pci2, $data)
+	{
+		preg_match_all('/[a-f0-9\:\.]{7}\s+"(Class\s*)?(?<class>[a-f0-9]{4})"\s+"(?<ven>[a-f0-9]{4})"\s+"(?<dev>[a-f0-9]{4})"/is', $data, $out, PREG_SET_ORDER);
+		$NOW = time();
+		$pci = array();
+		foreach ($out as $entry) {
+			if (!isset($pci[$entry['class']])) {
+				$class = 'c.' . $entry['class'];
+				$res = $this->getPciId('CLASS', $class);
+				if ($res === false || $res['dateline'] < $NOW) {
+					$pci[$entry['class']]['lookupClass'] = 'do-lookup';
+					$pci[$entry['class']]['class'] = $class;
+				} else {
+					$pci[$entry['class']]['class'] = $res['value'];
+				}
+			}
+			$new = array(
+				'ven' => $entry['ven'],
+				'dev' => $entry['ven'] . ':' . $entry['dev'],
+			);
+			$res = $this->getPciId('VENDOR', $new['ven']);
+			if ($res === false || $res['dateline'] < $NOW) {
+				$new['lookupVen'] = 'do-lookup';
+			} else {
+				$new['ven'] = $res['value'];
+			}
+			$res = $this->getPciId('DEVICE', $new['ven'] . ':' . $new['dev']);
+			if ($res === false || $res['dateline'] < $NOW) {
+				$new['lookupDev'] = 'do-lookup';
+			} else {
+				$new['dev'] = $res['value'];
+			}
+			$pci[$entry['class']]['entries'][] = $new;
+		}
+		ksort($pci);
+		foreach ($pci as $class => $entry) {
+			if ($class === '0300' || $class === '0200' || $class === '0403') {
+				$pci1[] = $entry;
+			} else {
+				$pci2[] = $entry;
+			}
+		}
+	}
 	
 	private function parseSmartctl(&$hdds, $data)
 	{
@@ -785,6 +853,66 @@ class Page_Statistics extends Page
 				$hdd['PowerOnTime'] .= $val . 'h';
 			}
 		}
+	}
+
+	protected function doAjax()
+	{
+		$param = Request::any('lookup', false, 'string');
+		if ($param === false)
+			die('No lookup given');
+		$add = '';
+		if (preg_match('/^([a-f0-9]{4}):([a-f0-9]{4})$/', $param, $out)) {
+			$cat = 'DEVICE';
+			$host = $out[2] . '.' . $out[1];
+			$add = ' (' . $param . ')';
+		} elseif (preg_match('/^([a-f0-9]{4})$/', $param, $out)) {
+			$cat = 'VENDOR';
+			$host = $out[1];
+		} elseif (preg_match('/^c\.([a-f0-9]{2})([a-f0-9]{2})$/', $param, $out)) {
+			$cat = 'CLASS';
+			$host = $out[2] . '.' . $out[1] . '.c';
+		} else {
+			die('Invalid format requested');
+		}
+		$cached = $this->getPciId($cat, $param);
+		if ($cached !== false && $cached['dateline'] > time()) {
+			echo $cached['value'], $add;
+			exit;
+		}
+		$res = dns_get_record($host . '.pci.id.ucw.cz', DNS_TXT);
+		if (is_array($res)) {
+			foreach ($res as $entry) {
+				if (isset($entry['txt']) && substr($entry['txt'], 0, 2) === 'i=') {
+					$string = substr($entry['txt'], 2);
+					$this->setPciId($cat, $param, $string);
+					echo $string, $add;
+					exit;
+				}
+			}
+		}
+		if ($cached !== false) {
+			echo $cached['value'], $add;
+			exit;
+		}
+		die('Not found');
+	}
+
+	private function getPciId($cat, $id)
+	{
+		return Database::queryFirst("SELECT value, dateline FROM pciid WHERE category = :cat AND id = :id LIMIT 1",
+			array('cat' => $cat, 'id' => $id));
+	}
+
+	private function setPciId($cat, $id, $value)
+	{
+		Database::exec("INSERT INTO pciid (category, id, value, dateline) VALUES (:cat, :id, :value, :timeout)"
+			. " ON DUPLICATE KEY UPDATE value = VALUES(value), dateline = VALUES(dateline)",
+			array(
+				'cat' => $cat,
+				'id' => $id,
+				'value' => $value,
+				'timeout' => time() + mt_rand(10, 30) * 86400
+			), true);
 	}
 
 }

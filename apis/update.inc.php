@@ -329,3 +329,4 @@ function update_11()
 
 // TODO: Remove setting_distro, setting, cat_setting
 // TODO: Add toggle column to setting_global
+// TODO: Add pciid table
