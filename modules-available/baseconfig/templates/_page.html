@@ -1,5 +1,8 @@
 <h1>{{lang_basicConfiguration}}</h1>
+{{#override}}
 <h2>{{subheading}}</h2>
+<div class="alert alert-info">{{lang_editOverrideNotice}}</div>
+{{/override}}
 <p>{{lang_clientRelatedConfig}}</p>
 <form action="?do=BaseConfig" method="post">
 	<input type="hidden" name="token" value="{{token}}">
@@ -52,9 +55,6 @@
 							</div>
 						</div>
 						{{/settings}}
-					</div>
-					<div id="cat-extra-{{category_id}}">
-
 					</div>
 				</div>
 			</div>
