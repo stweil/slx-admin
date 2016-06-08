@@ -2,10 +2,12 @@ var onceOnlyGoddammit = false;
 var slxModules = {};
 var slxTries = {};
 var slxCurrent = false;
+var slxTimer = false;
 
-function slxRunInstall() {
+function slxRunInstall(btn) {
 	if (onceOnlyGoddammit)
 		return;
+	$(btn).prop('disabled', true);
 	onceOnlyGoddammit = true;
 	var first = false;
 	list = $('.id-col').each(function () {
@@ -38,9 +40,11 @@ function slxRun(moduleName) {
 			return;
 		slxModules[moduleName] = 'WORKING';
 		dest.text('Working.....');
+		slxCancelTimer();
 		slxCurrent = moduleName;
 		$.post('install.php', {module: moduleName}, makeCallback(slxDone, moduleName), 'json')
 			.always(makeCallback(slxTrigger, moduleName));
+		slxTimer = window.setTimeout(slxWatchdog, 5000);
 	}
 }
 
@@ -56,20 +60,24 @@ var slxDone = function (elem, moduleName, jsonReply) {
 	if (jsonReply.message) {
 		status = status + ' (' + jsonReply.message + ')';
 	}
-	console.log('D');
-	console.log(elem);
 	slxModules[moduleName] = jsonReply.status;
 	$('#mod-' + moduleName).text(status);
-	if (jsonReply.status === 'UPDATE_NOOP' || jsonReply.status === 'UPDATE_DONE') {
+	if (jsonReply.status === 'UPDATE_DONE') {
 		$('#mod-' + moduleName).css('color', '#0c0');
 	}
-	console.log('E');
+	if (jsonReply.status === 'UPDATE_FAILED') {
+		$('#mod-' + moduleName).css('color', '#c00');
+	}
+	if (jsonReply.status === 'UPDATE_RETRY') {
+		$('#mod-' + moduleName).css('color', '#c50');
+	}
 }
 
 var slxTrigger = function (elem, moduleName) {
+	//alert('always: ' + moduleName + ', status: ' + slxModules[moduleName] + ', current: ' + slxCurrent);
 	if (slxModules[moduleName] === 'WORKING') {
 		slxModules[moduleName] = 'UPDATE_FAILED';
-		$(elem).text('UPDATE_FAILED (No response from server)');
+		$('#mod-' + moduleName).text('UPDATE_FAILED (No response from server)');
 	}
 	if (slxCurrent === moduleName) {
 		slxCurrent = false;
@@ -103,6 +111,21 @@ function slxRunNext(lastModule) {
 	if (next !== false) {
 		slxRun(next);
 	} else {
+		slxCancelTimer();
 		alert('Done.');
 	}
+}
+
+function slxCancelTimer()
+{
+	if (slxTimer !== false) {
+		window.clearTimeout(slxTimer);
+		slxTimer = false;
+	}
+}
+
+var slxWatchdog = function()
+{
+	slxTimer = false;
+	slxRunNext(slxCurrent);
 }

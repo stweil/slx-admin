@@ -2,9 +2,9 @@
 
 ConfigModule::registerModule(
 	ConfigModule_CustomModule::MODID, // ID
-	Dictionary::translateFile('config-module', 'custom_title'), // Title
-	Dictionary::translateFile('config-module', 'custom_description'), // Description
-	Dictionary::translateFile('config-module', 'group_generic'), // Group
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'custom_title'), // Title
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'custom_description'), // Description
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'group_generic'), // Group
 	false, // Only one per config?
 	100 // Sort order
 );

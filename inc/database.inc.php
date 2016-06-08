@@ -8,19 +8,24 @@ class Database
 {
 
 	/**
-	 *
 	 * @var \PDO Database handle
 	 */
 	private static $dbh = false;
+	/*
+	 * @var \PDOStatement[]
+	 */
 	private static $statements = array();
+	private static $returnErrors;
+	private static $lastError = false;
 
 	/**
 	 * Connect to the DB if not already connected.
 	 */
-	public static function init($returnSuccess = false)
+	public static function init($returnErrors = false)
 	{
 		if (self::$dbh !== false)
 			return true;
+		self::$returnErrors = $returnErrors;
 		try {
 			if (CONFIG_SQL_FORCE_UTF8) {
 				self::$dbh = new PDO(CONFIG_SQL_DSN, CONFIG_SQL_USER, CONFIG_SQL_PASS, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
@@ -28,7 +33,7 @@ class Database
 				self::$dbh = new PDO(CONFIG_SQL_DSN, CONFIG_SQL_USER, CONFIG_SQL_PASS);
 			}
 		} catch (PDOException $e) {
-			if ($returnSuccess)
+			if (self::$returnErrors)
 				return false;
 			Util::traceError('Connecting to the local database failed: ' . $e->getMessage());
 		}
@@ -77,6 +82,14 @@ class Database
 	}
 
 	/**
+	 * @return string|bool return last error returned by query
+	 */
+	public static function lastError()
+	{
+		return self::$lastError;
+	}
+
+	/**
 	 * Execute the given query and return the corresponding PDOStatement object
 	 * Note that this will re-use PDOStatements, so if you run the same
 	 * query again with different params, do not rely on the first PDOStatement
@@ -94,15 +107,17 @@ class Database
 				self::$statements[$query]->closeCursor();
 			}
 			if (self::$statements[$query]->execute($args) === false) {
-				if ($ignoreError)
+				self::$lastError = implode("\n", self::$statements[$query]->errorInfo());
+				if ($ignoreError || self::$returnErrors)
 					return false;
-				Util::traceError("Database Error: \n" . implode("\n", self::$statements[$query]->errorInfo()));
+				Util::traceError("Database Error: \n" . self::$lastError);
 			}
 			return self::$statements[$query];
 		} catch (Exception $e) {
-			if ($ignoreError)
+			self::$lastError = '(' . $e->getCode() . ') ' . $e->getMessage();
+			if ($ignoreError || self::$returnErrors)
 				return false;
-			Util::traceError("Database Error: \n" . $e->getMessage());
+			Util::traceError("Database Error: \n" . self::$lastError);
 		}
 		return false;
 	}

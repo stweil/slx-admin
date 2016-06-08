@@ -79,6 +79,7 @@ class Dictionary
 	
 	public static function translateFile($path, $tag)
 	{
+		// TODO: Handle case where we have no active module/no page class
 		return self::translateFileModule(Page::getModule()->getIdentifier(), $path, $tag);
 	}
 

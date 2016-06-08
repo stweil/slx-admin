@@ -2,9 +2,9 @@
 
 ConfigModule::registerModule(
 	ConfigModule_AdAuth::MODID, // ID
-	Dictionary::translateFile('config-module', 'adAuth_title'), // Title
-	Dictionary::translateFile('config-module', 'adAuth_description'), // Description
-	Dictionary::translateFile('config-module', 'group_authentication'), // Group
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'adAuth_title'), // Title
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'adAuth_description'), // Description
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'group_authentication'), // Group
 	true // Only one per config?
 );
 

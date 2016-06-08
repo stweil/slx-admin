@@ -33,7 +33,7 @@ function finalResponse($status, $message = '')
 		echo json_encode(array('status' => $status, 'message' => $message));
 	} else {
 		echo 'STATUS=', $status, "\n";
-		echo 'MESSAGE=', $message;
+		echo 'MESSAGE=', str_replace("\n", " -- ", $message);
 	}
 	exit;
 }
@@ -77,11 +77,26 @@ function tableDropColumn($table, $column)
 function tableExists($table)
 {
 	$res = Database::simpleQuery("SHOW TABLES", array(), true);
-	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		if ($row['Tables_in_openslx'] === $table)
+	while ($row = $res->fetch(PDO::FETCH_NUM)) {
+		if ($row[0] === $table)
 			return true;
 	}
 	return false;
+}
+
+function tableCreate($table, $structure, $fatalOnError = true)
+{
+	if (tableExists($table)) {
+		return UPDATE_NOOP;
+	}
+	$ret = Database::exec("CREATE TABLE IF NOT EXISTS `{$table}` ( {$structure} ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+	if ($ret !== false) {
+		return UPDATE_DONE;
+	}
+	if ($fatalOnError) {
+		finalResponse(UPDATE_FAILED, 'DB-Error: ' . Database::lastError());
+	}
+	return UPDATE_FAILED;
 }
 
 /*
@@ -230,7 +245,7 @@ HERE;
 	echo <<<HERE
 		</table>
 		<br><br>
-		<button onclick="slxRunInstall()">Install/Upgrade</button>
+		<button onclick="slxRunInstall(this)">Install/Upgrade</button>
 		<script src="script/jquery.js"></script>
 		<script src="script/install.js"></script>
 	</body>

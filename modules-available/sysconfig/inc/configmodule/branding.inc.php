@@ -2,9 +2,9 @@
 
 ConfigModule::registerModule(
 	ConfigModule_Branding::MODID, // ID
-	Dictionary::translateFile('config-module', 'branding_title'), // Title
-	Dictionary::translateFile('config-module', 'branding_description'), // Description
-	Dictionary::translateFile('config-module', 'group_branding'), // Group
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'branding_title'), // Title
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'branding_description'), // Description
+	Dictionary::translateFileModule('sysconfig', 'config-module', 'group_branding'), // Group
 	true // Only one per config?
 );
 
