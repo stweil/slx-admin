@@ -153,6 +153,12 @@ class Location
 		return $ids;
 	}
 
+	/**
+	 * Get closest location by matching subnets. Deepest match in tree wins.
+	 *
+	 * @param string $ip IP address of client
+	 * @return bool|int locationid, or false if no match
+	 */
 	public static function getFromIp($ip)
 	{
 		$locationId = false;
@@ -169,6 +175,25 @@ class Location
 			$locationId = $id;
 		}
 		return $locationId;
+	}
+
+	/**
+	 * Get all location IDs from the given location up to the root.
+	 *
+	 * @param int $locationId
+	 * @return int[] location ids, including $locationId
+	 */
+	public function getLocationRootChain($locationId)
+	{
+		settype($locationId, 'integer');
+		$locations = Location::getLocationsAssoc();
+		$find = $locationId;
+		$matchingLocations = array();
+		while (isset($locations[$find]) && !in_array($find, $matchingLocations)) {
+			$matchingLocations[] = $find;
+			$find = (int)$locations[$find]['parentlocationid'];
+		}
+		return $matchingLocations;
 	}
 
 	/**

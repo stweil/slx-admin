@@ -9,13 +9,7 @@ if ($locationId === false) {
 $matchingLocations = array();
 if ($locationId !== false) {
 	// Get all parents
-	settype($locationId, 'integer');
-	$locations = Location::getLocationsAssoc();
-	$find = $locationId;
-	while (isset($locations[$find]) && !in_array($find, $matchingLocations)) {
-		$matchingLocations[] = $find;
-		$find = (int)$locations[$find]['parentlocationid'];
-	}
+	$matchingLocations = Location::getLocationRootChain($locationId);
 	$configVars["SLX_LOCATIONS"] = implode(' ', $matchingLocations);
 }
 
