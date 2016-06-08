@@ -55,14 +55,18 @@ function cache_get($key) {
 function cache_get_passthru($key) {
     $filename = cache_key_to_filename($key);
     $fp = fopen($filename, "r");
-    fpassthru($fp);
+    if($fp) {
+        fpassthru($fp);
+    } else {
+        Util::traceError("cannot open file");
+    }
 }
 /* END: Cache ---------------------------------------------------- */
 
 
 /* this script requires 2 (3 with implicit client ip) parameters 
  *
- * ressource    = vmx,...
+ * resource    = vmx,...
  * lecture_uuid = client can choose
  **/
 
@@ -84,7 +88,7 @@ function _getLecturesForLocations($locationIds) {
     }
     return $uuids;
 } 
-/** Caching wrapper around _getLecturesForLocations() *//
+/** Caching wrapper around _getLecturesForLocations() */
 function getLecturesForLocations($locationIds) {
     $key = 'lectures_' . cache_hash($locationIds);
     if (cache_has($key)) {
@@ -122,7 +126,7 @@ if (substr($ip, 0, 7) === '::ffff:') {
 }
 
 /* request data, don't trust */
-$request = [ 'ressource' => filter_var(strtolower(trim($_REQUEST['ressource'])), FILTER_SANITIZE_STRING),
+$request = [ 'resource' => filter_var(strtolower(trim($_REQUEST['resource'])), FILTER_SANITIZE_STRING),
              'lecture'   => filter_var(strtolower(trim($_REQUEST['lecture'])), FILTER_SANITIZE_STRING),
              'ip'        => $ip ]; 
 
@@ -134,9 +138,9 @@ $location_ids = Location::getFromIP($request['ip']);
 $lectures = getLecturesForLocations(array($location_ids));
 
 /* validate request -------------------------------------------- */
-/* check ressources */
-if (!in_array($request['ressource'], $availableRessources)) {
-    Util::traceError("unknown ressource: {$request['ressource']}");
+/* check resources */
+if (!in_array($request['resource'], $availableRessources)) {
+    Util::traceError("unknown resource: {$request['resource']}");
 }
 
 /* check that the user requests a lecture that he is allowed to have */
@@ -144,10 +148,10 @@ if (!in_array($request['lecture'], $lectures)) {
     Util::traceError("client is not allowed to access this lecture: ${request['lecture']}");
 }
 
-if ($request['ressource'] === 'vmx') {
+if ($request['resource'] === 'vmx') {
     echo getVMX($request['lecture']);
-} else if ($request['ressource'] === 'test') {
+} else if ($request['resource'] === 'test') {
     echo "Here's your special test data!";
 } else {
-    echo "I don't know how to give you that ressource";
+    echo "I don't know how to give you that resource";
 }
