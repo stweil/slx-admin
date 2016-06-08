@@ -51,7 +51,6 @@ class Dashboard
 			'categories' => $categories,
 			'url' => urlencode($_SERVER['REQUEST_URI']),
 			'langs' => Dictionary::getLanguages(true),
-			'dbupdate' => Database::needSchemaUpdate(),
 			'user' => User::getName(),
 			'warning' => User::getName() !== false && User::getLastSeenEvent() < Property::getLastWarningId(),
 			'needsSetup' => User::getName() !== false && Property::getNeedsSetup()
