@@ -100,7 +100,7 @@ class Property
 		if (!isset($task['id']))
 			return 'Could not start list download (' . Message::asString() . ')';
 		if ($task['statusCode'] !== TASK_FINISHED) {
-			$task = Taskmanager::waitComplete($task['id'], 4000);
+			$task = Taskmanager::waitComplete($task['id'], 5000);
 		}
 		if ($task['statusCode'] !== TASK_FINISHED || !isset($task['data']['content'])) {
 			return $task['data']['error'];
