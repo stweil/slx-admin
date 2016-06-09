@@ -50,7 +50,7 @@ class Page_Backup extends Page
 			Util::redirect('?do=Backup');
 		}
 		Header('Content-Type: application/octet-stream', true);
-		Header('Content-Disposition: attachment; filename=' . 'satellite-backup_v' . Database::getExpectedSchemaVersion() . '_' . date('Y.m.d-H.i.s') . '.tgz');
+		Header('Content-Disposition: attachment; filename=' . 'satellite-backup_v16_' . date('Y.m.d-H.i.s') . '.tgz');
 		Header('Content-Length: ' . @filesize($task['data']['backupFile']));
 		while (!feof($fh)) {
 			$data = fread($fh, 16000);
@@ -95,7 +95,7 @@ class Page_Backup extends Page
 			$this->templateData['mountid'] = $task['id'];
 			$parent = $task['id'];
 		}
-		EventLog::info('Creating backup, v' . Database::getExpectedSchemaVersion() . ' on ' . Property::getServerIp());
+		EventLog::info('Creating backup on ' . Property::getServerIp());
 		// Finally run restore
 		$task = Taskmanager::submit('BackupRestore', array(
 				'mode' => 'restore',
