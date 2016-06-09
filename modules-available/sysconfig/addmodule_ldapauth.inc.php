@@ -96,7 +96,7 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('LdapAuth_Start'); // Continues with LdapAuth_Start for render()
 			return;
 		}

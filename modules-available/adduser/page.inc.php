@@ -51,8 +51,6 @@ class Page_AddUser extends Page
 		if (!User::hasPermission('superadmin') && Database::queryFirst('SELECT userid FROM user LIMIT 1') !== false) {
 			Message::addError('adduser-disabled');
 		} else {
-
-			Render::setTitle(Dictionary::translate('lang_createUser'));
 			Render::addTemplate('page-adduser', $_POST);
 		}
 	}

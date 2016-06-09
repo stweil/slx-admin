@@ -23,7 +23,6 @@ class Page_Backup extends Page
 
 	protected function doRender()
 	{
-		Render::setTitle(Dictionary::translate('lang_titleBackup'));
 		if ($this->action === 'restore') {
 			Render::addTemplate('restore', $this->templateData);
 		} else {

@@ -29,7 +29,6 @@ class Page_Session extends Page
 
 	protected function doRender()
 	{
-		Render::setTitle(Dictionary::translate('lang_login'));
 		Render::addTemplate('page-login');
 	}
 

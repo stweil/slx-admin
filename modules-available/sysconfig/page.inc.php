@@ -106,8 +106,6 @@ class Page_SysConfig extends Page
 	 */
 	protected function doRender()
 	{
-		Render::setTitle(Dictionary::translate('lang_location'));
-
 		$action = Request::any('action', 'list');
 		switch ($action) {
 			case 'addmodule':
