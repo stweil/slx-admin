@@ -310,7 +310,7 @@ nav.sidebar li {
 }
 
 .slx-topbar div {
-	margin-left: 225px;
+	margin-left: 270px;
 }
 
 .sidebar-bg {
@@ -324,6 +324,10 @@ nav.sidebar li {
 /* .....NavBar: Fully showing nav bar..... */
 
 @media (min-width: 1200px) {
+
+	nav.navbar.sidebar {
+		z-index: 200;
+	}
 	
 	.navbar-right {
 		float: left !important;
