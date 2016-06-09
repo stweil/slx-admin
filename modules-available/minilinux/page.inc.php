@@ -27,9 +27,10 @@ class Page_MiniLinux extends Page
 	{
 		$data = Property::getVersionCheckInformation();
 		if (!is_array($data) || !isset($data['systems'])) {
-			echo Render::parse('messagebox-error', array(
+			echo Render::parse('messagebox', array(
+				'type' => 'danger',
 				'message' => 'Failed to retrieve the list: ' . print_r($data, true)
-			),'main');
+			), 'main');
 			return;
 		}
 		$action = Request::any('action');

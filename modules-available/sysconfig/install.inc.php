@@ -34,7 +34,8 @@ $res[] = tableCreate('configtgz_x_module', "
 // Constraints
 if (in_array(UPDATE_DONE, $res)) {
 	Database::exec("ALTER TABLE `configtgz_x_module`
-		ADD CONSTRAINT `configtgz_x_module_ibfk_1` FOREIGN KEY (`configid`) REFERENCES `configtgz` (`configid`) ON DELETE CASCADE,
+		ADD CONSTRAINT `configtgz_x_module_ibfk_1` FOREIGN KEY (`configid`) REFERENCES `configtgz` (`configid`) ON DELETE CASCADE");
+	Database::exec("ALTER TABLE `configtgz_x_module`
 		ADD CONSTRAINT `configtgz_x_module_ibfk_2` FOREIGN KEY (`moduleid`) REFERENCES `configtgz_module` (`moduleid`)");
 }
 

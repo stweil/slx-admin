@@ -6,7 +6,7 @@ $res[] = tableCreate('setting_global', "
   `setting` varchar(28) NOT NULL,
   `value` text NOT NULL,
   `displayvalue` text NOT NULL,
-  `enabled` tinyint(1) UNSIGNED NOT NULL DEFAULT '1'
+  `enabled` tinyint(1) UNSIGNED NOT NULL DEFAULT '1',
   PRIMARY KEY (`setting`)
 ");
 
