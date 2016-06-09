@@ -45,7 +45,11 @@ class SshConfig_Finish extends AddModule_Base
 			Util::redirect('?do=SysConfig&action=addmodule&step=SshConfig_Start');
 		}
 		$module->setData('allowPasswordLogin', Request::post('allowPasswordLogin') === 'yes');
-		if (!$module->setData('listenPort', Request::post('listenPort'))) {
+		$port = Request::post('listenPort', '');
+		if ($port === '') {
+			$port = 22;
+		}
+		if (!$module->setData('listenPort', $port)) {
 			Message::addError('main.value-invalid', 'port', Request::post('listenPort'));
 			Util::redirect('?do=SysConfig&action=addmodule&step=SshConfig_Start');
 		}
