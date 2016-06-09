@@ -183,7 +183,7 @@ class Location
 	 * @param int $locationId
 	 * @return int[] location ids, including $locationId
 	 */
-	public function getLocationRootChain($locationId)
+	public static function getLocationRootChain($locationId)
 	{
 		settype($locationId, 'integer');
 		$locations = Location::getLocationsAssoc();

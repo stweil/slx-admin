@@ -144,10 +144,11 @@ $request = ['resource' => filter_var(strtolower(trim($_REQUEST['resource'])), FI
 
 
 /* lookup location id(s) */
-$location_ids = Location::getFromIP($request['ip']);
+$location_ids = Location::getFromIp($request['ip']);
+$location_ids = Location::getLocationRootChain($location_ids);
 
 /* lookup lecture uuids */
-$lectures = getLecturesForLocations(array($location_ids));
+$lectures = getLecturesForLocations();
 
 /* validate request -------------------------------------------- */
 /* check resources */
