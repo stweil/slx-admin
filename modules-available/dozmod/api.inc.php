@@ -1,13 +1,13 @@
 <?php
 /* small API server that acts as a proxy to the dozmod server.
- * To reduce the number of requests and connections to dozmod-server, results
- * gets cached into a file cache.
- *
- * Required Configuration:
- * CONFIG_DOZMOD_EXPIRE: Expiration time in seconds for the cache
- * CONFIG_DOZMOD: URL to the dozmod server
- * 
- **/
+* To reduce the number of requests and connections to dozmod-server, results
+* gets cached into a file cache.
+*
+* Required Configuration:
+* CONFIG_DOZMOD_EXPIRE: Expiration time in seconds for the cache
+* CONFIG_DOZMOD: URL to the dozmod server
+*
+**/
 
 require 'modules/locations/inc/location.inc.php';
 
@@ -71,18 +71,18 @@ function cache_get_passthru($key)
 /* END: Cache ---------------------------------------------------- */
 
 
-/* this script requires 2 (3 with implicit client ip) parameters 
- *
- * resource    = vmx,...
- * lecture_uuid = client can choose
- **/
+/* this script requires 2 (3 with implicit client ip) parameters
+*
+* resource     = vmx,...
+* lecture_uuid = client can choose
+**/
 
 
 function println($str) { echo "$str\n"; }
 
 /* return an array of lecutre uuids.
- * Parameter: an array with location Ids
- * */
+* Parameter: an array with location Ids
+* */
 function _getLecturesForLocations($locationIds)
 {
 	$ids = implode('%20', $locationIds);
@@ -131,39 +131,44 @@ function getVMX($lecture_uuid)
 }
 
 
-// -----------------------------------------------------------------------------// 
+// -----------------------------------------------------------------------------//
 $ip = $_SERVER['REMOTE_ADDR'];
 if (substr($ip, 0, 7) === '::ffff:') {
 	$ip = substr($ip, 7);
 }
 
 /* request data, don't trust */
-$request = ['resource' => filter_var(strtolower(trim($_REQUEST['resource'])), FILTER_SANITIZE_STRING),
-	'lecture' => filter_var(strtolower(trim($_REQUEST['lecture'])), FILTER_SANITIZE_STRING),
-	'ip' => $ip];
+$resource   = Request::get('resource', false, 'string');
+$lecture    = Request::get('lecture', false, 'string');
 
+if ($resource === false) {
+	Util::traceError("you have to specify the 'resource' parameter");
+}
+if ($lecture === false) {
+	Util::traceError("you have to specify the 'lecture' parameter");
+}
 
 /* lookup location id(s) */
-$location_ids = Location::getFromIp($request['ip']);
+$location_ids = Location::getFromIp($ip);
 $location_ids = Location::getLocationRootChain($location_ids);
 
 /* lookup lecture uuids */
-$lectures = getLecturesForLocations();
+$lectures = getLecturesForLocations($location_ids);
 
 /* validate request -------------------------------------------- */
 /* check resources */
-if (!in_array($request['resource'], $availableRessources)) {
-	Util::traceError("unknown resource: {$request['resource']}");
+if (!in_array($resource, $availableRessources)) {
+	Util::traceError("unknown resource: $resource");
 }
 
 /* check that the user requests a lecture that he is allowed to have */
-if (!in_array($request['lecture'], $lectures)) {
-	Util::traceError("client is not allowed to access this lecture: ${request['lecture']}");
+if (!in_array($lecture, $lectures)) {
+	Util::traceError("client is not allowed to access this lecture: $lecture");
 }
 
-if ($request['resource'] === 'vmx') {
-	echo getVMX($request['lecture']);
-} else if ($request['resource'] === 'test') {
+if ($resource === 'vmx') {
+	echo getVMX($lecture);
+} else if ($resource === 'test') {
 	echo "Here's your special test data!";
 } else {
 	echo "I don't know how to give you that resource";
