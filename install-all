@@ -1,0 +1,53 @@
+#!/bin/bash
+
+FILE=$(mktemp)
+if [ -z "$FILE" ]; then
+	echo "Something's fishy: No temp file!"
+	exit 1
+fi
+
+trap "rm -f -- '$FILE'" EXIT SIGINT SIGTERM
+
+START=$(php install.php | grep -m1 '^MODULE=' | cut -d= -f2-)
+
+if [ -z "$START" ]; then
+	echo "Cannot install slxadmin - did you configure the DB access properly?"
+	exit 1
+fi
+
+echo "Started with $START"
+
+declare -A COUNTER
+
+COUNTER["$START"]=1
+
+NEXT=$START
+RETRY=0
+while true; do
+	php install.php "$NEXT" > "$FILE"
+	MODULE=$(grep -m1 '^MODULE=' "$FILE" | cut -d= -f2-)
+	if [ -z "$MODULE" ]; then
+		echo "Barfed after $NEXT - no module name found in next run"
+		exit 1
+	fi
+	echo "Next module was ${MODULE}..."
+	(( COUNTER["$MODULE"]++ ))
+	if [ ${COUNTER["$MODULE"]} -gt 3 ]; then
+		echo "Iterated too many times"
+		exit 1
+	fi
+	STATUS=$(grep -m1 '^STATUS=' "$FILE" | cut -d= -f2-)
+	echo "Result: $STATUS"
+	if [ -z "$STATUS" ] || [ "$STATUS" = "UPDATE_RETRY" ]; then
+		RETRY=1
+	fi
+	if [ "$MODULE" = "$START" ]; then
+		if [ "$RETRY" = "0" ]; then
+			break
+		fi
+		RETRY=0
+	fi
+	NEXT=$MODULE
+done
+echo "Done."
+
