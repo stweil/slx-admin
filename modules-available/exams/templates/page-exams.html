@@ -1,0 +1,32 @@
+
+<h1>All Exams</h1>
+
+<table class="table">
+	<tr>
+		<th>ID</th>
+		<th>Location</th>
+		<th>Begin</th>
+		<th>End</th>
+		<th>Actions</th>
+	</tr>
+	{{#exams}}
+		<tr>
+			<td>{{examid}}</td>
+			<td>
+				<a href="?do=baseconfig&module=locations&locationid={{locationid}}"> {{locationname}} </a>
+			</td>
+			<td>{{starttime}}</td>
+			<td>{{endtime}}</td>
+			<td>
+				<form method="POST" action="?do=exams&action=delete"
+					onsubmit="return confirm('delete really?');">
+					<input type="hidden" name="token" value="{{token}}"/>
+					<input type="hidden" name="examid" value="{{examid}}"/>
+					<input type="submit" value="Delete" class="btn btn-sm" />
+				</form>
+			</td>
+		</tr>
+	{{/exams}}
+
+</table>
+<a href="?do=exams&action=add" class="btn btn-success">Add Exam </a>

@@ -45,5 +45,18 @@ class Request
 		if ($type !== false) settype($_REQUEST[$key], $type);
 		return $_REQUEST[$key];
 	}
-	
+
+	/**
+	 * @return true iff the request is a GET request
+	 */
+	public static function isPost() {
+		return $_SERVER['REQUEST_METHOD'] == 'POST';
+	}
+
+	/**
+	 * @return true iff the request is a POST request
+	 */
+	public static function isGet() {
+		return $_SERVER['REQUEST_METHOD'] == 'GET';
+	}
 }
