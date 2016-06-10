@@ -9,7 +9,10 @@
 *
 **/
 
-require 'modules/locations/inc/location.inc.php';
+
+if (!Module::isAvailable('locations')) {
+	die('require locations module');
+}
 
 
 define('LIST_URL', CONFIG_DOZMOD . '/vmchooser/list');
