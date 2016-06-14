@@ -193,6 +193,7 @@ class Page_BaseConfig extends Page
 			'categories'  => array_values($settings),
 			'target_module' => $this->targetModule,
 		) + $this->qry_extra);
+		Module::isAvailable('bootstrap_switch');
 	}
 
 	private function getCurrentModuleName()

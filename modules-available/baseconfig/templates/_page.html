@@ -29,10 +29,10 @@
 							<div class="slx-default">
 								{{defaultvalue}}
 							</div>
-							<input name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}}> <label for="CB_{{setting}}">{{lang_settingActive}}</label>
+							<input class="bs-switch" name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}}> <label for="CB_{{setting}}">{{lang_settingActive}}</label>
 							{{/override}}
 							{{#override}}
-							<input name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}}> <label for="CB_{{setting}}">{{lang_enableOverride}}</label>
+							<input class="bs-switch" name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}}> <label for="CB_{{setting}}">{{lang_enableOverride}}</label>
 							{{/override}}
 						</div>
 						<div class="col-md-5">
