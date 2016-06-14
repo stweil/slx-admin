@@ -6,11 +6,14 @@
     "lang_deleteChildLocations": "Delete child locations aswell",
     "lang_deleteLocation": "Delete location",
     "lang_deleteSubnet": "Delete range",
+    "lang_editConfigVariables": "Edit config variables",
     "lang_endAddress": "End address",
     "lang_listOfSubnets": "List of subnets",
     "lang_location": "Ort",
     "lang_locationInfo": "Location details",
     "lang_locationName": "Name",
+    "lang_locationOtherOverlap": "Warning! These locations have overlapping address ranges",
+    "lang_locationSelfOverlap": "The following location has multiple address ranges that are overlapping",
     "lang_locationSettings": "Edit this room or location",
     "lang_locationsMainHeading": "Manage rooms and locations",
     "lang_matchingMachines": "Matching clients",
@@ -21,5 +24,6 @@
     "lang_startAddress": "Start address",
     "lang_subnet": "IP range",
     "lang_thisListByLocation": "List by location",
-    "lang_thisListBySubnet": "List by subnet"
+    "lang_thisListBySubnet": "List by subnet",
+    "lang_unassignedMachines": "Machines not matching any location"
 }

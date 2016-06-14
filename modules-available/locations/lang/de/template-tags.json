@@ -6,11 +6,14 @@
     "lang_deleteChildLocations": "Untergeordnete Orte ebenfalls l\u00f6schen",
     "lang_deleteLocation": "Ort l\u00f6schen",
     "lang_deleteSubnet": "Bereich l\u00f6schen",
+    "lang_editConfigVariables": "Konfiguration anpassen",
     "lang_endAddress": "Endadresse",
     "lang_listOfSubnets": "Liste der Subnetze",
     "lang_location": "Ort",
     "lang_locationInfo": "Details zu diesem Ort",
     "lang_locationName": "Name",
+    "lang_locationOtherOverlap": "Achtung! Folgende Orte haben sich \u00fcberlappende Netzbereiche",
+    "lang_locationSelfOverlap": "Folgender Ort hat mehrere sich \u00fcberschneidende Netzbereiche",
     "lang_locationSettings": "Raum\/Ort bearbeiten",
     "lang_locationsMainHeading": "Verwaltung von R\u00e4umen\/Orten",
     "lang_matchingMachines": "Enthaltene Rechner",
@@ -21,5 +24,6 @@
     "lang_startAddress": "Startadresse",
     "lang_subnet": "IP-Bereich",
     "lang_thisListByLocation": "Zur Ortsansicht",
-    "lang_thisListBySubnet": "Nach Subnetzen auflisten"
+    "lang_thisListBySubnet": "Nach Subnetzen auflisten",
+    "lang_unassignedMachines": "Rechner, die in keinen definierten Ort fallen"
 }
