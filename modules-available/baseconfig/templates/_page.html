@@ -10,58 +10,59 @@
 	<input name="module" type="hidden" value="{{target_module}}">
 	<input name="{{field}}" type="hidden" value="{{field_value}}">
 	{{/override}}
-	<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-		<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="display:none;">
-		<input type="password" name="password_fake" id="password_fake" value="" style="display:none;">
-		{{#categories}}
-		<div class="panel panel-default">
-			<div class="panel-heading" role="tab" id="heading{{category_id}}">
-				<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{category_id}}" aria-expanded="false" aria-controls="collapse{{category_id}}">
-					{{category_name}}
-				</a>
-			</div>
-			<div id="collapse{{category_id}}" class="accordion-body collapse" role="tabpanel" aria-labelledby="heading{{category_id}}">
-				<div class="panel-body">
-					<div class="list-group">
-						{{#settings}}
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-md-5 slx-cfg-toggle">
-									<div>{{setting}}</div>
-									{{^override}}
-									<div class="slx-default">
-										{{defaultvalue}}
-									</div>
-									{{/override}}
-									{{#override}}
-									<input name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}}> <label for="CB_{{setting}}">{{lang_enableOverride}}</label>
-									{{/override}}
-								</div>
-								<div class="col-md-5">
-									{{{item}}}
-								</div>
-								<div class="col-md-2">
-									<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}"><span class="glyphicon glyphicon-question-sign"></span></a>
-								</div>
+	<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="display:none;">
+	<input type="password" name="password_fake" id="password_fake" value="" style="display:none;">
+	{{#categories}}
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="heading{{category_id}}">
+			<a name="category_{{category_id}}"></a>
+			{{category_name}}
+		</div>
+		<div class="panel-body">
+			<div class="list-group">
+				{{#settings}}
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-md-5 slx-cfg-toggle">
+							<div>{{setting}}</div>
+							{{^override}}
+							<div class="slx-default">
+								{{defaultvalue}}
 							</div>
+							<input name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}}> <label for="CB_{{setting}}">{{lang_settingActive}}</label>
+							{{/override}}
+							{{#override}}
+							<input name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}}> <label for="CB_{{setting}}">{{lang_enableOverride}}</label>
+							{{/override}}
 						</div>
-						<div class="modal fade" id="help-{{setting}}" tabindex="-1" role="dialog">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">{{setting}}</div>
-									<div class="modal-body">{{{description}}}</div>
-									<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
-								</div>
-							</div>
+						<div class="col-md-5">
+							{{{item}}}
 						</div>
-						{{/settings}}
+						<div class="col-md-2">
+							<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+						</div>
 					</div>
 				</div>
+				<div class="modal fade" id="help-{{setting}}" tabindex="-1" role="dialog">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">{{setting}}</div>
+							<div class="modal-body">{{{description}}}</div>
+							<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+						</div>
+					</div>
+				</div>
+				{{/settings}}
 			</div>
 		</div>
-		{{/categories}}
 	</div>
+	{{/categories}}
 	<button class="btn btn-primary" type="submit">{{lang_save}}</button>
 	<button class="btn btn-default" type="reset">{{lang_reset}}</button>
+	{{^override}}
 	<a class="btn btn-default" href="api.php?do=baseconfig&amp;user={{userid}}">Download</a>
+	{{/override}}
+	{{#override}}
+	<a class="btn btn-default" href="api.php?do=baseconfig&amp;user={{userid}}&amp;module={{target_module}}&amp;value={{field_value}}&amp;force=1">Download</a>
+	{{/override}}
 </form>

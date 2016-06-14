@@ -1,7 +1,14 @@
 <?php
 
 // Location handling: figure out location
-$locationId = false; // TODO: machine specific mapping
+$locationId = false;
+if (Request::any('force', 0, 'int') === 1 && Request::any('module', false, 'string') === 'locations') {
+	// Force location for testing, but require logged in admin
+	if (User::load()) {
+		$locationId = Request::any('value', 0, 'int');
+	}
+}
+// TODO: machine specific mapping
 if ($locationId === false) {
 	// Fallback to subnets
 	$locationId = Location::getFromIp($ip);
