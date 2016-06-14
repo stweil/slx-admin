@@ -469,10 +469,14 @@ section{
 	padding-left: 15px;
 }
 
-li.slx-submenu {
+li.slx-submenu a {
 	font-size: 80%;
 	font-weight: bold;
-	padding-left: 1em;
+	padding-left: 3em;
+}
+
+nav.navbar.sidebar {
+	color: #eee;
 }
 
 /*
