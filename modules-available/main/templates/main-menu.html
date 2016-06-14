@@ -33,6 +33,9 @@
 					<ul class="dropdown-menu sidebar-visible-block" role="menu">
 						{{#modules}}
 						<li class="{{className}}"><a href="?do={{identifier}}">{{displayName}}</a></li>
+						{{#subMenu}}
+						<li class="slx-submenu"><a href="{{url}}">{{name}}</a></li>
+						{{/subMenu}}
 						{{/modules}}
 					</ul>
 				</li>

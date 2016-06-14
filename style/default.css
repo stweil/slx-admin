@@ -469,6 +469,12 @@ section{
 	padding-left: 15px;
 }
 
+li.slx-submenu {
+	font-size: 80%;
+	font-weight: bold;
+	padding-left: 1em;
+}
+
 /*
  * Sysconfig Module Editor
  */
