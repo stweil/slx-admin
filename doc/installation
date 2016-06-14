@@ -1,0 +1,28 @@
+Installation of slx-admin is modularized, that means there is no central,
+global SQL dump, but every module can provide an install hook, that is
+supposed to install everything it needs to the database (or anything else).
+
+The hook file is called install.inc.php and needs to reside in the module's
+root directory. Some modules might not have an install hook.
+
+A few simple helper functions are provided to make it easier to create
+tables, check for their existence, and create feedback of the installation
+process.
+
+It is important to make as little assumptions as possible about what is
+already present in the database, so try not to call functions like
+User::load() in your install hook. There might be no user table yet.
+
+The installation hook should be written in a way that it is non-destructive,
+and can recognize if an old version of the module's schema is already
+present in the database, in which case it should update the table(s)
+instead of erroring out or losing data. See the install hook of the
+'main' module for an example.
+
+Installation/Upgrading can be triggered manually through the browser
+by accessing "install.php" in slx-admin's root. Please note that this
+page does not require any form of authentication. While any actions
+this page can perform should not be destructive, you might want to
+consider moving the file away after each install/upgrade.
+The other way of triggering the process is running 'install-all' from
+the command line. This comes in handy for automated install scripts.

@@ -1,0 +1,19 @@
+In order to prevent the global ./style/default.css from growing until
+it's a complete mess, it is also possible to modularize css stylesheets
+and javascript files.
+
+If a module contains a file called style.css, it is automatically included
+in the generated HTML page of the module, or any module that declared this
+module as a dependency.
+The same goes for a file called clientscript.js. Any module containing such
+a file will have this script included in the generated HTML.
+
+This way you can have module specific CSS definitions. Some of the
+definitions in ./style/default.css should be moved into modules over
+time (TODO :)), since they are only used in one module.
+
+Thanks to the dependency mechanism it is possible to have dedicated css/js
+modules, like "js_chart" or "js_circles". An example is the module
+"statistics", which defines js_chart as a dependency in its config.json.
+The result is that js_chart/clientscript.js is automatically included
+in the HTML output of the statistics module.

@@ -1,0 +1,31 @@
+Modules can define other modules as dependencies. You should do this
+whenever you require resources (like database tables) that belong
+to module A in module B, if you want to use automatic css/js
+inclusion (see javascript_css doc), or if you just feel like your
+module should not be accessible if another module is not present.
+
+"baseconfig_partitions_cdn" has "baseconfig" as a dependency; it
+does not directly access any tables of the module "baseconfig", but
+since it depends on the getconfig-API of the baseconfig module, one
+might argue that having the partition setup feature is of limited
+use if the clients can't fetch it.
+
+"statistics" module has "js_chart" as a dependency, since it
+makes use of the automatic clientscript.js inclusion. The statistics
+module uses the chart javascript library to draw, well, charts.
+
+
+You can write modules that can optionally interact or take advantage
+of other modules if they are present. The statistics module can
+make use of the locations module to show which location a client
+belongs to, but it would still work without the locations module
+being present. You can check for the availability of a module
+by calling Module::isAvailable('<module_name>')
+If the module is available, the call will return true, and
+the class autoloader for the requested module is also installed,
+so you can use any classes from ./modules/<module_name>/inc/*.inc.php
+Again, see how the statistics module calls Location::getFromIp()
+and other functions after calling Module::isAvailable().
+If you'd try to access Location::* without doing so, you'd get
+a class not found error.
+

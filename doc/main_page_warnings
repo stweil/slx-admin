@@ -1,0 +1,17 @@
+The warning messages that can appear on the main site (after logging in)
+can be added by hooks now, too, so the page.inc.php of the "main" module
+doesn't contain code specific to a dozen other modules.
+
+If you want to add a hook, create a file in your module:
+./modules/<module>/hooks/main-warning.inc.php
+The file contains flat code, no classes or functions. You should
+do your checks, and then call Message::addError (or the likes).
+You could also render your own template if you feel fancy.
+Remember you're running in the context of the main module, so your
+message ID should use the full syntax module.id, or add your
+module's name to the Render::addTemplate call.
+
+If you also want to enable the "configuration incomplete" global
+warning, set $needSetup to true.
+
+See modules "vmstore", "minilinux" or "sysconfig" for an example.
