@@ -42,7 +42,7 @@ class Page_Translation extends Page
 	
 	public function __construct()
 	{
-		$this->builtInSections = array('template', 'messages', 'module', 'custom');
+		$this->builtInSections = array('template', 'messages', 'module', 'menucategory', 'custom');
 	}
 	
 	private function isValidSection($section)
@@ -167,6 +167,13 @@ class Page_Translation extends Page
 			return;
 		}
 
+		// Menu Category
+		if ($this->section === 'menucategory') {
+			$this->ensureValidDestLanguage();
+			$this->showMenuCategoryEdit();
+			return;
+		}
+
 		// Custom
 		if ($this->section === 'custom') {
 			$this->ensureValidDestLanguage();
@@ -174,7 +181,7 @@ class Page_Translation extends Page
 			return;
 		}
 		
-		$this->redirect();
+		$this->redirect(1);
 	}
 
 	private function showListOfModules()
@@ -212,6 +219,8 @@ class Page_Translation extends Page
 		$this->showModuleMessages();
 		// Other/hardcoded strings
 		$this->showModuleStrings();
+		// Menu categories
+		$this->showModuleMenuCategories();
 		// Module specific
 		$this->showModuleCustom();
 		Render::closeTag('div');
@@ -285,6 +294,23 @@ class Page_Translation extends Page
 		}
 		Render::addTemplate('string-list', $data);
 	}
+
+	private function showModuleMenuCategories()
+	{
+		$moduleTags = $this->loadUsedMenuCategories();
+		$data = array('module' => $this->module->getIdentifier());
+		$data['tagcount'] = count($moduleTags);
+		foreach (Dictionary::getLanguages(true) as $lang) {
+			list($missing, $unused) = $this->getModuleTranslationStatus($lang['cc'], 'menucategory', true, $moduleTags);
+			$data['langs'][] = array(
+				'cc' => $lang['cc'],
+				'name' => $lang['name'],
+				'missing' => $missing,
+				'unused' => $unused
+			);
+		}
+		Render::addTemplate('menu-category-list', $data);
+	}
 	
 	private function showModuleCustom()
 	{
@@ -347,6 +373,17 @@ class Page_Translation extends Page
 			'destlang' => $this->destLang,
 			'language' => Dictionary::getLanguageName($this->destLang),
 			'tags'     => $this->loadModuleEditArray(),
+			'module'   => $this->module->getIdentifier(),
+			'section'  => $this->section
+		));
+	}
+
+	private function showMenuCategoryEdit()
+	{
+		Render::addTemplate('edit', array(
+			'destlang' => $this->destLang,
+			'language' => Dictionary::getLanguageName($this->destLang),
+			'tags'     => $this->loadMenuCategoryEditArray(),
 			'module'   => $this->module->getIdentifier(),
 			'section'  => $this->section
 		));
@@ -452,6 +489,23 @@ class Page_Translation extends Page
 			$tags['page_title'] = false;
 		}
 		return $tags;
+	}
+
+	private function loadUsedMenuCategories($module = false)
+	{
+		if ($module === false) {
+			$module = $this->module;
+		}
+		$skip = strlen($module->getIdentifier()) + 1;
+		$match = $module->getIdentifier() . '.';
+		$want = array();
+		foreach (Module::getAll() as $module) {
+			$cat = $module->getCategory();
+			if (is_string($cat) && substr($cat, 0, $skip) === $match) {
+				$want[substr($cat, $skip)] = true;
+			}
+		}
+		return $want;
 	}
 	
 	private function loadUsedCustomTags($subsection)
@@ -655,6 +709,13 @@ class Page_Translation extends Page
 	{
 		$tags = $this->loadUsedModuleTags();
 		$table = $this->buildTranslationTable('module', array_keys($tags), true);
+		return $table;
+	}
+
+	private function loadMenuCategoryEditArray()
+	{
+		$tags = $this->loadUsedMenuCategories();
+		$table = $this->buildTranslationTable('categories', array_keys($tags), true);
 		return $table;
 	}
 	
@@ -864,6 +925,9 @@ class Page_Translation extends Page
 		}
 		if ($this->section === 'module') {
 			return $prefix . '/module.json';
+		}
+		if ($this->section === 'menucategory') {
+			return $prefix . '/categories.json';
 		}
 		// Custom submodule
 		if ($this->section === 'custom') {
