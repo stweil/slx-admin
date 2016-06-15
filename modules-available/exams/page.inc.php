@@ -29,8 +29,8 @@ class Page_Exams extends Page
             if (Request::isPost()) {
                 /* process form-data */
                 $locationid = Request::post('location');
-                $starttime  = Request::post('starttime');
-                $endtime    = Request::post('endtime');
+                $starttime  = Request::post('starttime_date') . " " . Request::post('starttime_time');
+                $endtime    = Request::post('endtime_date') . " " . Request::post('endtime_time');
 
                 $res = Database::exec("INSERT INTO exams(locationid, starttime, endtime) VALUES(:locationid, :starttime, :endtime);",
                     compact('locationid', 'starttime', 'endtime'));
