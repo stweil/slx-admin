@@ -1,32 +1,77 @@
+<div class="container-fluid">
+	<h1>All Exams</h1>
 
-<h1>All Exams</h1>
-
-<table class="table">
-	<tr>
-		<th>ID</th>
-		<th>Location</th>
-		<th>Begin</th>
-		<th>End</th>
-		<th>Actions</th>
-	</tr>
-	{{#exams}}
+	<table class="table">
 		<tr>
-			<td>{{examid}}</td>
-			<td>
-				<a href="?do=baseconfig&module=locations&locationid={{locationid}}"> {{locationname}} </a>
-			</td>
-			<td>{{starttime}}</td>
-			<td>{{endtime}}</td>
-			<td>
-				<form method="POST" action="?do=exams&action=delete"
-					onsubmit="return confirm('delete really?');">
-					<input type="hidden" name="token" value="{{token}}"/>
-					<input type="hidden" name="examid" value="{{examid}}"/>
-					<input type="submit" value="Delete" class="btn btn-sm" />
-				</form>
-			</td>
+			<th>ID</th>
+			<th>Location</th>
+			<th>Begin</th>
+			<th>End</th>
+			<th>Actions</th>
 		</tr>
-	{{/exams}}
+		{{#exams}}
+			<tr>
+				<td>{{examid}}</td>
+				<td>
+					<a href="?do=baseconfig&module=locations&locationid={{locationid}}"> {{locationname}} </a>
+				</td>
+				<td>{{starttime}}</td>
+				<td>{{endtime}}</td>
+				<td>
+					<form method="POST" action="?do=exams&action=delete"
+						onsubmit="return confirm('delete really?');">
+						<input type="hidden" name="token" value="{{token}}"/>
+						<input type="hidden" name="examid" value="{{examid}}"/>
+						<input type="submit" value="Delete" class="btn btn-sm" />
+					</form>
+				</td>
+			</tr>
+		{{/exams}}
 
-</table>
-<a href="?do=exams&action=add" class="btn btn-success">Add Exam </a>
+	</table>
+	<a href="?do=exams&action=add" class="btn btn-success">Add Exam </a>
+
+	<div id="timeline"> </div>
+
+</div>
+<script type="application/javascript"><!--
+
+
+function customOrder(a, b) {
+	console.log("a is ");
+	console.log(a);
+	console.log("b is ");
+	console.log(b);
+	return 1000;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+	var container = document.getElementById('timeline');
+	var groups_plain = JSON.parse('{{{rooms_json}}}');
+	var items_plain = JSON.parse('{{{exams_json}}}');
+	console.log(groups_plain);
+	console.log(items_plain);
+	var groups = new vis.DataSet(groups_plain);
+	var items = new vis.DataSet(items_plain);
+	// var groups = new vis.DataSet([
+	// 								{ id: 1, content:'RZ -101' },
+	// 								{ id: 2, content:'RZ -104' }
+	// 							]);
+	// var items = new vis.DataSet([
+	// 							{ id: 1, group: 1, content: 'Bio 1', start: '2016-06-15 10:30', end : '2016-06-15 14:45'},
+	// 							{ id: 2, group: 1, content: 'Bio 2', start: '2016-06-15 10:45', end : '2016-06-15 15:00'},
+	// 							{ id: 3, group: 2, content: 'Englisch', start: '2016-06-15 16:00', end : '2016-06-15 17:15'},
+	// 							{ id: 4, group: 1, content: 'BACKGROUND', start: '2016-06-15-11:00', end: '2016-06-15 18:00', type: 'background'}
+	// ]);
+
+	var options = {
+		'start' : '{{{vis_begin}}}',
+		'end' : '{{{vis_end}}}',
+		'stack' : false,
+		'order' : customOrder
+	};
+
+	var timeline = new vis.Timeline(container, items, groups, options);
+}, false);
+
+// --></script>

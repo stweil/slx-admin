@@ -1,0 +1,7 @@
+ .vis-item.vis-background {
+    background-color: #E8A7A7 !important; 
+}
+ .vis-item.spacer {
+    visibility: hidden;
+    background-color: green !important; 
+ }
