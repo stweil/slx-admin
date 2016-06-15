@@ -52,11 +52,12 @@
 					</ul>
 				</li>
 			</ul>
-			<ul class="nav navbar-nav navbar-right">
+
+			<ul class="nav navbar-nav navbar-right visible-xs visible-lg">
 				{{#user}}
 				<li><span>{{lang_loggedInPrefix}} {{user}} {{lang_loggedInSuffix}}</span></li>
 				<li>
-					<form method="post" action="?do=Session">
+					<form id="logoutForm" method="post" action="?do=Session">
 						<input type="hidden" name="token" value="{{token}}">
 						<input type="hidden" name="action" value="logout">
 						<button class="btn btn-default btn-xs" type="submit">{{lang_logout}}</button>
@@ -65,6 +66,25 @@
 				{{/user}}
 				{{^user}}
 				<li><a href="?do=Session&amp;action=login">{{lang_login}}</a></li>
+				{{/user}}
+			</ul>
+
+			<ul class="nav navbar-nav navbar-right visible-sm visible-md" style="margin-top:10px">
+				{{#user}}
+				<ul class="btn-group">
+					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+						{{user}}
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="#">Settings</a></li>
+						<li role="separator" class="divider"></li>
+						<li><a href="#" onclick="$('#logoutForm').submit();">{{lang_logout}}</a></li>
+					</ul>
+				</ul>
+				{{/user}}
+				{{^user}}
+					<a type="button" href="?do=Session&action=login" class="btn btn-default">{{lang_login}}</a>
 				{{/user}}
 			</ul>
 		</div>

@@ -347,7 +347,7 @@ nav.sidebar li {
 	  margin-top: 32px;
 	  min-width: 900px;
 	  position: absolute;
-	  width: calc(100% - 200px);
+	  width: calc(100% - 220px);
 	}
 
 	.navbar-inverse,.sidebar-bg
@@ -377,7 +377,7 @@ nav.sidebar li {
 	  display: none;
 	}
 
-	.dropdown-toggle
+	nav .dropdown-toggle
 	{
 	  background-color: transparent !important;
 	  color: #fff !important;
