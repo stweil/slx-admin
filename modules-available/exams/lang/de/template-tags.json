@@ -1,0 +1,16 @@
+{
+    "lang_addExam": "Klausurzeitraum hinzufügen",
+    "lang_allExamPeriods": "Alle Klausurzeiträume",
+    "lang_deleteConfirmation": "Wirklich löschen?",
+    "lang_id" : "ID",
+    "lang_locations" : "Räume/Orte",
+    "lang_begin" : "Beginn",
+    "lang_end" : "Ende",
+    "lang_actions" : "Aktionen",
+    "lang_location" : "Raum/Ort",
+    "lang_begin_date" : "Beginn Datum",
+    "lang_begin_time" : "Uhrzeit",
+    "lang_end_date" : "Ende Datum",
+    "lang_end_time" : "Uhrzeit",
+    "lang_description" : "Beschreibung"
+}

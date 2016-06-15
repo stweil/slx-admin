@@ -1,33 +1,32 @@
 <div class="container-fluid">
-	<h1>All Exams</h1>
+	<h1>{{lang_allExamPeriods}}</h1>
 
 	<table class="table">
 		<tr>
-			<th>ID</th>
-			<th>Location</th>
-			<th>Begin</th>
-			<th>End</th>
-			<th>Actions</th>
+			<th>{{lang_id}}</th>
+			<th>{{lang_locations}}</th>
+			<th>{{lang_begin}}</th>
+			<th>{{lang_end}}</th>
+			<th>{{lang_actions}}</th>
 		</tr>
 		{{#exams}}
 			<tr>
 				<td>{{examid}}</td>
-				<td> {{locationnames}} </td>
+				<td>{{locationnames}} </td>
 				<td>{{starttime}}</td>
 				<td>{{endtime}}</td>
 				<td>
-					<form method="POST" action="?do=exams&action=delete"
-						onsubmit="return confirm('delete really?');">
+					<form method="POST" action="?do=exams&action=delete" onsubmit="return confirm('{{lang_deleteConfirmation}}');">
 						<input type="hidden" name="token" value="{{token}}"/>
 						<input type="hidden" name="examid" value="{{examid}}"/>
-						<input type="submit" value="Delete" class="btn btn-sm" />
+						<input type="submit" value="{{lang_delete}}" class="btn btn-sm" />
 					</form>
 				</td>
 			</tr>
 		{{/exams}}
 
 	</table>
-	<a href="?do=exams&action=add" class="btn btn-success">Add Exam </a>
+	<a href="?do=exams&action=add" class="btn btn-success">{{lang_addExam}}</a>
 
 	<div class="block" id="timeline"> </div>
 

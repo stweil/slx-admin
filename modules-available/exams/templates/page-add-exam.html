@@ -1,8 +1,8 @@
-<h1>Add Exam</h1>
+<h1>{{lang_addExam}}</h1>
 
 <form class="form" method="POST" action="?do=exams&action=add">
     <div class="form-group">
-        <label for="locations">Location</label>
+        <label for="locations">{{lang_location}}</label>
         <select id="locations" multiple="multiple" name="locations[]" class="">
             {{#locations}}
             <option value="{{locationid}}"> {{locationname}} </option>
@@ -12,34 +12,34 @@
 
     <div class="row">
         <div class="form-group col-xs-6">
-            <label for="starttime_date">Start Date</label>
+            <label for="starttime_date">{{lang_begin_date}}</label>
             <input required class="form-control datepicker" name="starttime_date" />
         </div>
         <div class="form-group col-xs-6">
-            <label for="starttime_time">Start Time</label>
+            <label for="starttime_time">{{lang_begin_time}}</label>
             <input required type="text" class="form-control timepicker" name="starttime_time" />
         </div>
     </div>
 
     <div class="row">
         <div class="form-group col-xs-6">
-            <label for="endtime_date">End Date</label>
+            <label for="endtime_date">{{lang_end_date}}</label>
             <input required class="form-control datepicker" name="endtime_date" />
         </div>
         <div class="form-group col-xs-6">
-            <label for="endtime_time">End Time</label>
+            <label for="endtime_time">{{lang_end_time}}</label>
             <input required type="texxt" class="form-control timepicker" name="endtime_time" />
         </div>
     </div>
     <div class="row">
         <div class="form-group col-xs-12">
-            <label for="description">Description</label>
+            <label for="description">{{lang_description}}</label>
             <textarea class="form-control" type="textarea" name="description"></textarea>
         </div>
     </div>
 
     <input type="hidden" name="token" value="{{token}}" />
-    <input type="submit" class="btn btn-success" value="Add Exam"></input>
+    <input type="submit" class="btn btn-success" value="{{lang_addExam}}"></input>
 </form>
 
 <script type="application/javascript"><!--
