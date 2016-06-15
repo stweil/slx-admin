@@ -1,0 +1,16 @@
+{
+    "lang_addExam": "Add exam period",
+    "lang_allExamPeriods": "All exam periods",
+    "lang_deleteConfirmation": "Are you sure?",
+    "lang_id" : "ID",
+    "lang_locations" : "Rooms/Locations",
+    "lang_begin" : "Begin",
+    "lang_end" : "End",
+    "lang_actions" : "Actions",
+    "lang_location" : "Room/Location",
+    "lang_begin_date" : "Begin Date",
+    "lang_begin_time" : "Time",
+    "lang_end_date" : "End Date",
+    "lang_end_time" : "Time",
+    "lang_description" : "Description"
+}
