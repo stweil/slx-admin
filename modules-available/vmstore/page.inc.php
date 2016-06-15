@@ -57,7 +57,9 @@ class Page_VmStore extends Page
 			Util::redirect('?do=VmStore');
 		}
 		$this->mountTask = Trigger::mount($vmstore);
-		TaskmanagerCallback::addCallback($this->mountTask, 'manualMount', $vmstore);
+		if ($this->mountTask !== false) {
+			TaskmanagerCallback::addCallback($this->mountTask, 'manualMount', $vmstore);
+		}
 	}
 
 }

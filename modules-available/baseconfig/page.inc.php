@@ -3,6 +3,7 @@
 class Page_BaseConfig extends Page
 {
 	private $qry_extra = array();
+	private $categories;
 
 	/**
 	 * @var bool|string in case we're in module mode, set to the id of the module
@@ -23,36 +24,47 @@ class Page_BaseConfig extends Page
 				Util::redirect('?do=baseconfig');
 			}
 			// Build variables for specific sub-settings
-			if (empty($this->qry_extra['field'])) {
+			if ($this->targetModule === false) {
+				// We're editing global settings - use the 'enabled' field
+				$qry_insert = ', enabled';
+				$qry_values = ', :enabled';
+				$qry_update = ', enabled = :enabled';
+				$params = array();
+			} elseif (empty($this->qry_extra['field'])) {
+				// Module specific, but module doesn't have an extra field
 				$qry_insert = '';
 				$qry_values = '';
-				$params = array();
+				$qry_update = '';
 			} else {
+				// Module with extra field
 				$qry_insert = ', ' . $this->qry_extra['field'];
 				$qry_values = ', :field_value';
+				$qry_update = '';
 				$params = array('field_value' => $this->qry_extra['field_value']);
 				$delExtra = " AND {$this->qry_extra['field']} = :field_value ";
 				$delParams = array('field_value' => $this->qry_extra['field_value']);
-			}
-			if ($this->targetModule === false) {
-				$override = false;
-			} else {
 				// Not editing global settings
 				if ($this->getCurrentModuleName() === false) {
 					Message::addError('main.value-invalid', $this->qry_extra['field'], $this->qry_extra['field_value']);
 					Util::redirect('?do=BaseConfig');
 				}
-				// Honor override checkbox
-				$override = Request::post('override', array());
 			}
+			// Honor override/enabled checkbox
+			$override = Request::post('override', array());
 			// Load all existing config options to validate input
 			$vars = BaseConfigUtil::getVariables();
 			foreach ($vars as $key => $var) {
-				if (is_array($override) && (!isset($override[$key]) || $override[$key] !== 'on')) {
-					// module mode - override not set - delete
-					$delParams['key'] = $key;
-					Database::exec("DELETE FROM {$this->qry_extra['table']} WHERE setting = :key $delExtra", $delParams);
-					continue;
+				if ($this->targetModule === false) {
+					// Global mode
+					$params['enabled'] = (is_array($override) && isset($override[$key]) && $override[$key] === 'on') ? 1 : 0;
+				} else {
+					// Module mode
+					if (is_array($override) && (!isset($override[$key]) || $override[$key] !== 'on')) {
+						// override not set - delete
+						$delParams['key'] = $key;
+						Database::exec("DELETE FROM {$this->qry_extra['table']} WHERE setting = :key $delExtra", $delParams);
+						continue;
+					}
 				}
 				$validator = $var['validator'];
 				$displayValue = (isset($newValues[$key]) ? $newValues[$key] : '');
@@ -65,7 +77,7 @@ class Page_BaseConfig extends Page
 				// Now put into DB
 				Database::exec("INSERT INTO {$this->qry_extra['table']} (setting, value, displayvalue $qry_insert)"
 					. " VALUES (:key, :value, :displayvalue $qry_values)"
-					. " ON DUPLICATE KEY UPDATE value = :value, displayvalue = :displayvalue",
+					. " ON DUPLICATE KEY UPDATE value = :value, displayvalue = :displayvalue $qry_update",
 					array(
 						'key'      => $key,
 						'value'    => $mangledValue,
@@ -81,6 +93,15 @@ class Page_BaseConfig extends Page
 			} else {
 				Util::redirect('?do=BaseConfig&module=' . $this->targetModule . '&' . $this->qry_extra['field'] . '=' . $this->qry_extra['field_value']);
 			}
+		}
+		// Load categories so we can define them as sub menu items
+		$this->categories = BaseConfigUtil::getCategories();
+		asort($this->categories, SORT_DESC);
+		foreach ($this->categories as $catid => $val) {
+			Dashboard::addSubmenu(
+				'#category_' . $catid,
+				Dictionary::translateFileModule($this->categories[$catid]['module'], 'config-variable-categories', $catid)
+			);
 		}
 	}
 
@@ -101,17 +122,22 @@ class Page_BaseConfig extends Page
 		// List config options
 		$settings = array();
 		$vars = BaseConfigUtil::getVariables();
-		$cats = BaseConfigUtil::getCategories();
 		// Get stuff that's set in DB already
-		if (isset($this->qry_extra['field'])) {
+		if ($this->targetModule === false) {
+			$fields = ', enabled';
+			$where = '';
+			$params = array();
+		} elseif (isset($this->qry_extra['field'])) {
+			$fields = '';
 			$where = " WHERE {$this->qry_extra['field']} = :field_value";
 			$params = array('field_value' => $this->qry_extra['field_value']);
 		} else {
+			$fields = '';
 			$where = '';
 			$params = array();
 		}
 		// Populate structure with existing config from db
-		$res = Database::simpleQuery("SELECT setting, value, displayvalue FROM {$this->qry_extra['table']} "
+		$res = Database::simpleQuery("SELECT setting, value, displayvalue $fields FROM {$this->qry_extra['table']} "
 			. " {$where} ORDER BY setting ASC", $params);
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (!isset($vars[$row['setting']]) || !is_array($vars[$row['setting']])) {
@@ -119,9 +145,6 @@ class Page_BaseConfig extends Page
 				continue;
 			}
 			$row += $vars[$row['setting']];
-			if (is_null($row['displayvalue'])) {
-				$row['displayvalue'] = $row['defaultvalue'];
-			}
 			if (!isset($row['catid'])) {
 				$row['catid'] = 'unknown';
 			}
@@ -129,39 +152,48 @@ class Page_BaseConfig extends Page
 		}
 		// Add entries that weren't in the db (global), setup override checkbox (module specific)
 		foreach ($vars as $key => $var) {
-			if (isset($settings[$var['catid']]['settings'][$key])) {
-				// Value is set in DB
+			if (isset($settings[$var['catid']]['settings'][$key]['enabled'])) {
+				// Global settings - honor enabled field in db
+				if ($settings[$var['catid']]['settings'][$key]['enabled'] == 1) {
+					$settings[$var['catid']]['settings'][$key]['checked'] = 'checked';
+				}
+			} elseif (isset($settings[$var['catid']]['settings'][$key])) {
+				// Module specific - value is set in DB
 				$settings[$var['catid']]['settings'][$key]['checked'] = 'checked';
 			} else {
-				// Value is not set in DB
+				// Module specific - value is not set in DB
 				$settings[$var['catid']]['settings'][$key] = $var + array(
 					'setting' => $key
 				);
 			}
+			if (!isset($settings[$var['catid']]['settings'][$key]['displayvalue'])) {
+				$settings[$var['catid']]['settings'][$key]['displayvalue'] = $var['defaultvalue'];
+			}
 			$settings[$var['catid']]['settings'][$key] += array(
-				'item' => $this->makeInput($var['validator'], $key, $var['defaultvalue']),
+				'item' => $this->makeInput($var['validator'], $key, $settings[$var['catid']]['settings'][$key]['displayvalue']),
 				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key))
 			);
 		}
 		// Sort categories
 		$sortvals = array();
 		foreach ($settings as $catid => &$setting) {
-			$sortvals[] = isset($cats[$catid]) ? (int)$cats[$catid]['sortpos'] : 99999;
+			$sortvals[] = isset($this->categories[$catid]) ? (int)$this->categories[$catid]['sortpos'] : 99999;
 			$setting['category_id'] = $catid;
-			$setting['category_name'] = Dictionary::translateFileModule($cats[$catid]['module'], 'config-variable-categories', $catid);
+			$setting['category_name'] = Dictionary::translateFileModule($this->categories[$catid]['module'], 'config-variable-categories', $catid);
 			if ($setting['category_name'] === false) {
 				$setting['category_name'] = $catid;
 			}
+			ksort($setting['settings']);
 			$setting['settings'] = array_values($setting['settings']);
 		}
 		unset($setting);
 		array_multisort($sortvals, SORT_ASC, SORT_NUMERIC, $settings);
 		Render::addTemplate('_page', array(
-			'userid' => User::getId(),
 			'override' => $this->targetModule !== false,
 			'categories'  => array_values($settings),
 			'target_module' => $this->targetModule,
 		) + $this->qry_extra);
+		Module::isAvailable('bootstrap_switch');
 	}
 
 	private function getCurrentModuleName()

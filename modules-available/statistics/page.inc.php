@@ -37,7 +37,6 @@ class Page_Statistics extends Page
 
 	protected function doRender()
 	{
-		Render::setTitle(Dictionary::translate('lang_titleClientStatistics'));
 		$uuid = Request::get('uuid', false, 'string');
 		if ($uuid !== false) {
 			$this->showMachine($uuid);

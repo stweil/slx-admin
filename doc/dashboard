@@ -1,0 +1,20 @@
+The dashboard is usually created automatically and doesn't require any
+special setup. The order of the settings and categories in the menu
+can be influenced by the two variables $MENU_CAT_SORT_ORDER and
+$MENU_SETTING_SORT_ORDER in config.php (see config.php.example)
+
+Menu categories can be defined implicitly in the form of
+modulename.catname, i.e. main.content
+
+To assign an icon to the category, create a file called category-icons.json
+in the module's root dir (i.e. ./modules/main/category-icons.json)
+and add a key value pair of the form "catname":"glyphicon", i.e.
+{ "content":"th" }. Notice the module name is not prefixed again.
+
+To translate the category's name, visit the translation page and go
+to the module in which the category is defined (in this example, main).
+You'll see a panel dedicated to menu categories, it should contain the
+Note: The menu section will only appear in the translation list of the
+module if any active module is assigned to this category. However, you
+can still manually create the entry by using the "create tag" button.
+As an example, see the "main" or the "citymanagement" module.

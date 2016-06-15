@@ -45,18 +45,28 @@ foreach (glob('modules/*/baseconfig/getconfig.inc.php') as $file) {
 $defaults = BaseConfigUtil::getVariables();
 
 // Dump global config from DB
-$res = Database::simpleQuery('SELECT setting, value FROM setting_global');
+$res = Database::simpleQuery('SELECT setting, value, enabled FROM setting_global');
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-	if (isset($configVars[$row['setting']]) || !isset($defaults[$row['setting']]))
+	if (isset($configVars[$row['setting']]) // Already set by a hook above, ignore
+			|| !isset($defaults[$row['setting']])) // Setting is not defined in any <module>/baseconfig/settings.json
 		continue;
-	$configVars[$row['setting']] = $row['value'];
+	if ($row['enabled'] != 1) {
+		// Setting is disabled
+		$configVars[$row['setting']] = false;
+	} else {
+		$configVars[$row['setting']] = $row['value'];
+	}
 }
 
 // Fallback to default values from json files
 foreach ($defaults as $setting => $value) {
-	if (isset($configVars[$setting]))
-		continue;
-	$configVars[$setting] = $value;
+	if (isset($configVars[$setting])) {
+		if ($configVars[$setting] === false) {
+			unset($configVars[$setting]);
+		}
+	} else {
+		$configVars[$setting] = $value['defaultvalue'];
+	}
 }
 
 // All done, now output

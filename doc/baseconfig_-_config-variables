@@ -1,0 +1,42 @@
+The baseconfig module (configuration variables) is now modularized in two
+ways.
+
+
+1) The definition of configuration variables has moved from the database to
+dedicated .json files, which can be defined by one or multiple additional
+modules. This means the database table "settings" is no longer in use.
+As an example, see the module "baseconfig_bwlp".
+If you only enable the module "baseconfig", you will find that visiting
+the "configuration variables" menu entry in slx-admin shows a pretty empty
+page. However, if you additionally enable the baseconfig_bwlp module, many
+configuration variables will be shown.
+baseconfig_bwlp doesn't contain any config.json or page.inc.php, as its
+sole purpose is to supply wanted configuration variables. This is achieved
+by supplying two .json files.
+
+./modules/<module>/baseconfig/categories.json: Defines categories for
+configuration variables. Syntax is <id>:<sort-order>
+
+./modules/<module>/baseconfig/settings.json: Defines configuration variables
+to be shown by the baseconfig page. This has taken the place of the settings
+table from the database and contains pretty much the same information.
+
+Note that you can have multiple modules that supply categories.json or
+settings.json files. They will all be honored by the baseconfig module.
+
+2) You can hook into the baseconfig API mechanism (previously known as
+the "getconfig" API) which creates the plain text output intended for
+the clients. This way you can create more sophisticated output logic, or
+simply have a nicer guy for some values you want to generate.
+To hook into the API, you need a hook:
+./modules/<module>/baseconfig/getconfig.inc.php
+This code will run directly in the context of the baseconfig API request,
+so you write code straight away that should add any configuration variables
+to the associative array called $configVars, e.g.
+$configVars['SLX_FOO'] = 'bar';
+These values can be static, or queried from anywhere in the database, etc.
+For an example of this, see the module "baseconfig_partitions_cdn"
+Which is basically a normal slx-admin module with a GUI for creating a
+partitioning config that get stored in the database.
+It also contains the .../baseconfig/getconfig.inc.php hook that adds
+the partition configuration to the output of the baseconfig API.

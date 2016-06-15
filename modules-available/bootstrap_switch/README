@@ -1,0 +1,19 @@
+This is basically just bootstrap-switch (js + css), with
+the addition of these three lines in the .js file:
+<snip>
+// SLX-Admin: Enable for class bs-switch
+$.fn.bootstrapSwitch.defaults.size = 'mini';
+$("input.bs-switch").bootstrapSwitch();
+</snip>
+
+This makes sure any checkboxes or radio buttons with the
+class "bs-switch" will automatically be turned into
+bootstrap switches.
+
+To apply bootstrap-switch to your checkboxes you need to
+a) give them the class bs-switch
+b) either make bootstrap_switch a dependency of your module (config.json)
+   or, as a "soft dependency", just call
+   Module::isAvailable('boostrap_switch')
+   somewhere in your code. If bootstrap_switch is not activated, your
+   page will still load and show old fashioned checkboxes

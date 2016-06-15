@@ -1,22 +1,7 @@
 {
     "lang_basicConfiguration": "Basic Configuration",
-    "lang_catPartition": "Partition Managment",
-    "lang_catUser": "User Managment",
     "lang_clientRelatedConfig": "The options on this page are related to the bwLehrpool client machines.",
-    "lang_confirm": "Would you like to save the settings on [ \/srv\/openslx\/www\/boot\/config ] ?",
+    "lang_editOverrideNotice": "You're editing the settings of a sub-section",
     "lang_enableOverride": "Override",
-    "lang_helpId": "Partition Id",
-    "lang_helpMountPoint": "Must be a directory: \/example\/directory\/",
-    "lang_helpOptions": "Currently, only option 'bootable' is available",
-    "lang_helpSize": "Must be in Gigabytes e.g. 15G",
-    "lang_newPartition": "New Partition",
-    "lang_newUser": "New User",
-    "lang_partitionId": "Id",
-    "lang_partitionMountPoint": "Mount Point",
-    "lang_partitionOptions": "Options",
-    "lang_partitionSize": "Size",
-    "lang_resetConfirm": "Do you really wish to reset the variable to their default values?",
-    "lang_resetDefault": "Reset Default",
-    "lang_userName": "Username",
-    "lang_userPasswd": "Password"
+    "lang_settingActive": "Setting active"
 }

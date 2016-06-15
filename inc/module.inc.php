@@ -197,7 +197,10 @@ class Module
 
 	public function getPageTitle()
 	{
-		return Dictionary::translateFileModule($this->name, 'module', 'page_title');
+		$val = Dictionary::translateFileModule($this->name, 'module', 'page_title');
+		if ($val !== false)
+			return $val;
+		return $this->getDisplayName();
 	}
 	
 	public function getCategory()

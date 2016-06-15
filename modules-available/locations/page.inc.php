@@ -80,9 +80,9 @@ class Page_Locations extends Page
 			$this->deleteLocation($location);
 		}
 		// Update subnets
-		$this->updateLocationSubnets($location);
+		$this->updateLocationSubnets();
 		// Insert subnets
-		$this->addNewLocationSubnets($location); // TODO
+		$this->addNewLocationSubnets($location);
 		// Update location!
 		$this->updateLocationData($location);
 		Util::redirect('?do=Locations');
@@ -148,9 +148,8 @@ class Page_Locations extends Page
 		}
 	}
 	
-	private function updateLocationSubnets($location)
+	private function updateLocationSubnets()
 	{
-		$locationId = (int)$location['locationid'];
 		// Deletion first
 		$dels = Request::post('deletesubnet', false);
 		if (is_array($dels)) {
@@ -240,7 +239,6 @@ class Page_Locations extends Page
 
 	protected function doRender()
 	{
-		//Render::setTitle(Dictionary::translate('lang_titleBackup'));
 		$getAction = Request::get('action');
 		if (empty($getAction)) {
 			// Until we have a main landing page?

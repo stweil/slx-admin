@@ -29,15 +29,16 @@ class TaskmanagerCallback
 			'task' => $task,
 			'callback' => $callback,
 		);
-		if (Property::getCurrentSchemaVersion() >= 9) {
-			if (is_null($args))
-				$data['args'] = '';
-			else
-				$data['args'] = serialize($args);
-			Database::exec("INSERT INTO callback (taskid, dateline, cbfunction, args) VALUES (:task, UNIX_TIMESTAMP(), :callback, :args)", $data);
+		if (is_null($args)) {
+			$data['args'] = '';
 		} else {
-			Database::exec("INSERT INTO callback (taskid, dateline, cbfunction) VALUES (:task, UNIX_TIMESTAMP(), :callback)", $data);
+			$data['args'] = serialize($args);
 		}
+		if (Database::exec("INSERT INTO callback (taskid, dateline, cbfunction, args)"
+				. " VALUES (:task, UNIX_TIMESTAMP(), :callback, :args)", $data, true) !== false) {
+			return;
+		}
+		Database::exec("INSERT INTO callback (taskid, dateline, cbfunction) VALUES (:task, UNIX_TIMESTAMP(), :callback)", $data);
 	}
 
 	/**
@@ -47,10 +48,10 @@ class TaskmanagerCallback
 	 */
 	public static function getPendingCallbacks()
 	{
-		if (Property::getCurrentSchemaVersion() < 9)
+		$res = Database::simpleQuery("SELECT taskid, cbfunction, args FROM callback", array(), true);
+		if ($res === false)
 			return array();
 		$retval = array();
-		$res = Database::simpleQuery("SELECT taskid, cbfunction, args FROM callback");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$retval[$row['taskid']][] = $row;
 		}

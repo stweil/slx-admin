@@ -4,6 +4,7 @@ class Dashboard
 {
 	
 	private static $iconCache = array();
+	private static $subMenu = array();
 	
 	public static function createMenu()
 	{
@@ -16,6 +17,7 @@ class Dashboard
 				continue;
 			$modByCategory[$cat][] = $module;
 		}
+		$currentPage = Page::getModule()->getIdentifier();
 		$categories = array();
 		$catSort = array();
 		foreach ($modByCategory as $catId => $modList) {
@@ -23,11 +25,15 @@ class Dashboard
 			$sectionSort = array();
 			foreach ($modList as $module) {
 				$modId = $module->getIdentifier();
-				$modules[] = array(
+				$newEntry = array(
 					'displayName' => $module->getDisplayName(),
-					'identifier' => $module->getIdentifier(),
-					'className' => ($module->getIdentifier() === Page::getModule()->getIdentifier()) ? 'active' : ''
+					'identifier' => $module->getIdentifier()
 				);
+				if ($module->getIdentifier() === $currentPage) {
+					$newEntry['className'] = 'active';
+					$newEntry['subMenu'] = self::$subMenu;
+				}
+				$modules[] = $newEntry;
 				if (isset($MENU_SETTING_SORT_ORDER[$modId])) {
 					$sectionSort[] = (string)($MENU_SETTING_SORT_ORDER[$modId] + 1000);
 				} else {
@@ -81,6 +87,11 @@ class Dashboard
 			return '';
 		}
 		return 'glyphicon glyphicon-' . self::$iconCache[$module][$icon];
+	}
+
+	public static function addSubmenu($url, $name)
+	{
+		self::$subMenu[] = array('url' => $url, 'name' => $name);
 	}
 	
 }

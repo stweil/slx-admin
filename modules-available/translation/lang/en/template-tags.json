@@ -2,6 +2,7 @@
     "lang_createTag": "Create Tag",
     "lang_global": "Global",
     "lang_globalTooltip": "This tag is global; usually there is no need to translate it explicitly for this module",
+    "lang_menuCategories": "Menu categories",
     "lang_messages": "Messages",
     "lang_missing": "Missing",
     "lang_module": "Module",

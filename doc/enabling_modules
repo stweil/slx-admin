@@ -1,0 +1,16 @@
+As a convention, modules should be placed in another directory and then
+get selectively enabled by symlinking.
+Currently, all modules are placed in ./modules-available, and the symlinks
+reside in ./modules
+Note that you can name the symlink differently. The name of the symlink
+will define by what identifier the module is referred to. This way
+you can have different implementations or versions of the same module
+and switch them out.
+An example of this is the module "serversetup-bwlp" which is symlinked
+as just "serversetup", so we can have "serversetup-cdn" in the future,
+as it seems the two locations have quite different requirements for this
+module's functionality.
+
+Note that a module identifier cannot contain dashes (-), so this is an
+easy way to hint that a module is supposed to be aliased when being
+activated.

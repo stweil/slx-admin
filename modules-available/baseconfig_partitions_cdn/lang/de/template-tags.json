@@ -1,5 +1,4 @@
 {
-    "lang_addPartition": "Partition anlegen",
     "lang_confirm": "Wollen Sie die Einstellungen unter \/srv\/openslx\/www\/boot\/config speichern?",
     "lang_create": "Anlegen",
     "lang_explanationText": "Hier k\u00f6nnen Sie bestimmen, welche Partitionen auf dem Client angelegt werden.",

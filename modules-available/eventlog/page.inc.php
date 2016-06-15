@@ -15,7 +15,6 @@ class Page_EventLog extends Page
 
 	protected function doRender()
 	{
-		Render::setTitle(Dictionary::translate('lang_titleEventLog'));
 		$today = date('d.m.Y');
 		$yesterday = date('d.m.Y', time() - 86400);
 		$lines = array();
