@@ -62,6 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	var groups = new vis.DataSet(groups_plain);
 	var items = new vis.DataSet(items_plain);
 
+	var language = window.navigator.userLanguage || window.navigator.language;
+
 	var options = {
 		'start' 	: {{vis_begin}},
 		'end' 		: {{vis_end}},
@@ -70,6 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		'min'		: {{vis_begin}},
 		'max'		: {{vis_max_date}},
 		'order' 	: customOrder,
+		'locale'	: language,
 		'moment'	: function(date) { return vis.moment(date).utc(); }
 	};
 
