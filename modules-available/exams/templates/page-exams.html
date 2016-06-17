@@ -1,15 +1,16 @@
 <div class="container-fluid">
 	<h1>{{lang_allExamPeriods}}</h1>
 
-	<table class="table">
-		<tr>
-			<th>{{lang_id}}</th>
-			<th>{{lang_locations}}</th>
-			<th>{{lang_begin}}</th>
-			<th>{{lang_end}}</th>
-			<th>{{lang_actions}}</th>
-		</tr>
-		{{#exams}}
+	<div class="row">
+		<table class="table">
+			<tr>
+				<th>{{lang_id}}</th>
+				<th>{{lang_locations}}</th>
+				<th>{{lang_begin}}</th>
+				<th>{{lang_end}}</th>
+				<th>{{lang_actions}}</th>
+			</tr>
+			{{#exams}}
 			<tr>
 				<td>{{examid}}</td>
 				<td>{{locationnames}} </td>
@@ -19,17 +20,24 @@
 					<form method="POST" action="?do=exams&action=delete" onsubmit="return confirm('{{lang_deleteConfirmation}}');">
 						<input type="hidden" name="token" value="{{token}}"/>
 						<input type="hidden" name="examid" value="{{examid}}"/>
-						<input type="submit" value="{{lang_delete}}" class="btn btn-sm" />
+						<input type="submit" value="{{lang_delete}}" class="btn btn-default btn-sm" />
 					</form>
 				</td>
 			</tr>
-		{{/exams}}
+			{{/exams}}
 
-	</table>
-	<a href="?do=exams&action=add" class="btn btn-success">{{lang_addExam}}</a>
+		</table>
+		<div class="btn-toolbar" role="toolbar">
+			<div class="btn-group" role="group">
+				<a href="?do=exams&action=add" class="btn btn-success">{{lang_addExam}}</a>
+			</div>
+		</div>
+	</div>
 
-	<div class="block" id="timeline"> </div>
 
+	<div class="row" style="margin-top: 2em">
+		<div id="timeline"></div>
+	</div>
 </div>
 <script type="application/javascript"><!--
 

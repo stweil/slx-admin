@@ -1,0 +1,6 @@
+{
+    "exam-added-success": "Exam period successfully added",
+    "exam-deleted-success": "Exam period successfully deleted",
+    "exam-not-added": "Exam period was not added",
+    "exam-not-deleted-error": "Exam period was not deleted"
+}
