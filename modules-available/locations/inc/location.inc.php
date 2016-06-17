@@ -64,8 +64,11 @@ class Location
 		return $output;
 	}
 
-	public static function getLocations($default = 0, $excludeId = 0, $addNoParent = false)
+	public static function getLocations($selected = 0, $excludeId = 0, $addNoParent = false)
 	{
+		if (is_string($selected)) {
+			settype($selected, 'int');
+		}
 		if (self::$flatLocationCache === false) {
 			$rows = self::getTree();
 			$rows = self::flattenTree($rows);
@@ -85,7 +88,7 @@ class Location
 				unset($rows[$key]);
 				continue;
 			}
-			if ($row['locationid'] == $default) {
+			if ((is_array($selected) && in_array($row['locationid'], $selected)) || (int)$row['locationid'] === $selected) {
 				$row['selected'] = true;
 			}
 		}
@@ -93,7 +96,7 @@ class Location
 			array_unshift($rows, array(
 				'locationid' => 0,
 				'locationname' => '-----',
-				'selected' => $default == 0
+				'selected' => $selected === 0
 			));
 		}
 		return array_values($rows);
@@ -130,8 +133,6 @@ class Location
 				'locationid' => $node['locationid'],
 				'locationname' => $node['locationname'],
 				'locationpad' => str_repeat('--', $depth),
-				'locationspan1' => $depth + 1,
-				'locationspan2' => 10 - $depth,
 				'depth' => $depth
 			);
 			if (!empty($node['children'])) {
