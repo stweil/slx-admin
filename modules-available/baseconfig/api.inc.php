@@ -5,10 +5,9 @@ if (substr($ip, 0, 7) === '::ffff:') {
 	$ip = substr($ip, 7);
 }
 
-// TODO: Handle UUID in appropriate modules (optional)
-$uuid = Request::post('uuid', '', 'string');
-if (strlen($uuid) !== 36) {
-	// Probably invalid UUID. What to do? Set empty or ignore?
+$uuid = Request::any('uuid', false, 'string');
+if ($uuid !== false && strlen($uuid) !== 36) {
+	$uuid = false;
 }
 
 /**
@@ -31,6 +30,11 @@ function escape($string)
  */
 
 $configVars = array();
+function handleModule($file, $ip, $uuid) // Pass ip and uuid instead of global to make them read only
+{
+	global $configVars;
+	include $file;
+}
 
 // Handle any hooks by other modules first
 // other modules should generally only populate $configVars
@@ -38,7 +42,7 @@ foreach (glob('modules/*/baseconfig/getconfig.inc.php') as $file) {
 	preg_match('#^modules/([^/]+)/#', $file, $out);
 	if (!Module::isAvailable($out[1]))
 		continue;
-	include $file;
+	handleModule($file, $ip, $uuid);
 }
 
 // Rest is handled by module

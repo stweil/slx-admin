@@ -8,11 +8,11 @@ if (Request::any('force', 0, 'int') === 1 && Request::any('module', false, 'stri
 		$locationId = Request::any('value', 0, 'int');
 	}
 }
-// TODO: machine specific mapping
+
 if ($locationId === false) {
-	// Fallback to subnets
-	$locationId = Location::getFromIp($ip);
+	$locationId = Location::getFromIpAndUuid($ip, $uuid);
 }
+
 $matchingLocations = array();
 if ($locationId !== false) {
 	// Get all parents

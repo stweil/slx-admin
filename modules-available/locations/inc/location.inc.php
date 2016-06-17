@@ -154,6 +154,22 @@ class Location
 	}
 
 	/**
+	 * Get location id for given machine (by uuid)
+	 * @param $uuid machine uuid
+	 * @return bool|int locationid, false if no match
+	 */
+	public static function getFromMachineUuid($uuid)
+	{
+		// Only if we have the statistics module which supplies the machine table
+		if (Module::get('statistics') === false)
+			return false;
+		$ret = Database::queryFirst("SELECT locationid FROM machine WHERE machineuuid = :uuid", compact('uuid'));
+		if ($ret === false)
+			return false;
+		return (int)$ret['locationid'];
+	}
+
+	/**
 	 * Get closest location by matching subnets. Deepest match in tree wins.
 	 *
 	 * @param string $ip IP address of client
@@ -173,6 +189,44 @@ class Location
 			if ($locationId !== false && $locations[$id]['depth'] <= $locations[$locationId]['depth'])
 				continue;
 			$locationId = $id;
+		}
+		return $locationId;
+	}
+
+	/**
+	 * Combined "intelligent" fetching of locationId by IP and UUID of
+	 * client. We can't trust the UUID too much as it is provided by the
+	 * client, so if it seems too fishy, the UUID will be ignored.
+	 *
+	 * @param $ip IP address of client
+	 * @param $uuid System-UUID of client
+	 * @return int|bool location id, or false if none matches
+	 */
+	public static function getFromIpAndUuid($ip, $uuid)
+	{
+		$locationId = false;
+		$ipLoc = self::getFromIp($ip);
+		if ($ipLoc !== false && $uuid !== false) {
+			// Machine ip maps to a location, and we have a client supplied uuid
+			$uuidLoc = self::getFromMachineUuid($uuid);
+			if ($uuidLoc !== false) {
+				// Validate that the location the IP maps to is in the chain we get using the
+				// location determined by the uuid
+				$uuidLocations = self::getLocationRootChain($uuidLoc);
+				$ipLocations = self::getLocationRootChain($ipLoc);
+				if (in_array($uuidLoc, $ipLocations)
+					|| (in_array($ipLoc, $uuidLocations) && count($ipLocations) + 1 >= count($uuidLocations))
+				) {
+					// Close enough, allow
+					$locationId = $uuidLoc;
+				} else {
+					// UUID and IP disagree too much, play safe and ignore the UUID
+					$locationId = $ipLoc;
+				}
+			}
+		} else if ($ipLoc !== false) {
+			// No uuid, but ip maps to location; use that
+			$locationId = $ipLoc;
 		}
 		return $locationId;
 	}
