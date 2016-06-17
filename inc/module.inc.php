@@ -95,11 +95,13 @@ class Module
 	public static function getActivated()
 	{
 		$ret = array();
+		$i = 0;
 		foreach (self::$modules as $module) {
-			if ($module->activated) {
-				$ret[] = $module;
+			if ($module->activated !== false) {
+				$ret[sprintf('%05d_%d', $module->activated, $i++)] = $module;
 			}
 		}
+		ksort($ret);
 		return $ret;
 	}
 
@@ -162,11 +164,11 @@ class Module
 		return new $class();
 	}
 
-	public function activate()
+	public function activate($depth = 1)
 	{
-		if ($this->activated || $this->depsMissing)
+		if ($this->activated !== false || $this->depsMissing)
 			return;
-		$this->activated = true;
+		$this->activated = $depth;
 		spl_autoload_register(function($class) {
 			$file = 'modules/' . $this->name . '/inc/' . preg_replace('/[^a-z0-9]/', '', strtolower($class)) . '.inc.php';
 			if (!file_exists($file))
@@ -176,7 +178,7 @@ class Module
 		foreach ($this->dependencies as $dep) {
 			$get = self::get($dep);
 			if ($get !== false) {
-				$get->activate();
+				$get->activate($depth + 1);
 			}
 		}
 	}

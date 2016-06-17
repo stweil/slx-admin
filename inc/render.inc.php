@@ -46,7 +46,7 @@ class Render
 	public static function output()
 	{
 		Header('Content-Type: text/html; charset=utf-8');
-		$modules = Module::getActivated();
+		$modules = array_reverse(Module::getActivated());
 		ob_start('ob_gzhandler');
 		echo
 		'<!DOCTYPE html>
