@@ -1,4 +1,6 @@
 {
+    "changes-successfully-saved": "\u00c4nderungen erfolgreich gespeichert",
+    "error-while-saving-changes": "Fehler beim Speichern der \u00c4nderungen",
     "exam-added-success": "Klausurzeitraum erfolgreich hinzugef\u00fcgt",
     "exam-deleted-success": "Klausurzeitraum erfolgreich gel\u00f6scht",
     "exam-not-added": "Klausurzeitraum konnte nicht hinzugef\u00fcgt werden",

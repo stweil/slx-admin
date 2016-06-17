@@ -1,7 +1,16 @@
  .vis-item.vis-background {
-    background-color: #E8A7A7 !important; 
+    background-color: rgba(192, 57, 43, .5) !important;
 }
  .vis-item.spacer {
     visibility: hidden;
-    background-color: green !important; 
+ }
+
+ .vis-selected,
+ .vis-readonly {
+  background-color: #80D6F2 !important;
+  border: 1px solid grey !important;
+ }
+
+ .vis-item.disabled {
+  background-color: rgba(189, 195, 199,1.0) !important;
  }

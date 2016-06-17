@@ -17,11 +17,18 @@
 				<td>{{starttime}}</td>
 				<td>{{endtime}}</td>
 				<td>
-					<form method="POST" action="?do=exams&action=delete" onsubmit="return confirm('{{lang_deleteConfirmation}}');">
-						<input type="hidden" name="token" value="{{token}}"/>
-						<input type="hidden" name="examid" value="{{examid}}"/>
-						<input type="submit" value="{{lang_delete}}" class="btn btn-default btn-sm" />
-					</form>
+					<div class="btn-toolbar" role="toolbar">
+						<div class="btn-group">
+							<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
+						</div>
+						<div class="btn-group">
+							<form method="POST" action="?do=exams&action=delete" onsubmit="return confirm('{{lang_deleteConfirmation}}');">
+								<input type="hidden" name="token" value="{{token}}"/>
+								<input type="hidden" name="examid" value="{{examid}}"/>
+								<input type="submit" value="{{lang_delete}}" class="btn btn-default btn-sm" />
+							</form>
+						</div>
+					</div>
 				</td>
 			</tr>
 			{{/exams}}
@@ -48,18 +55,22 @@ function customOrder(a, b) {
 
 document.addEventListener("DOMContentLoaded", function () {
 	var container = document.getElementById('timeline');
-	var groups_plain = JSON.parse('{{{rooms_json}}}');
-	var items_plain = JSON.parse('{{{exams_json}}}');
+	var groups_plain = {{{rooms_json}}};
+	var items_plain = {{{exams_json}}};
 	console.log(groups_plain);
 	console.log(items_plain);
 	var groups = new vis.DataSet(groups_plain);
 	var items = new vis.DataSet(items_plain);
 
 	var options = {
-		'start' : '{{{vis_begin}}}',
-		'end' : '{{{vis_end}}}',
-		'stack' : false,
-		'order' : customOrder
+		'start' 	: {{vis_begin}},
+		'end' 		: {{vis_end}},
+		'stack' 	: false,
+		'editable'	: false,
+		'min'		: {{vis_begin}},
+		'max'		: {{vis_max_date}},
+		'order' 	: customOrder,
+		'moment'	: function(date) { return vis.moment(date).utc(); }
 	};
 
 	var timeline = new vis.Timeline(container, items, groups, options);
