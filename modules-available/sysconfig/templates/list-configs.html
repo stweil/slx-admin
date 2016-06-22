@@ -1,0 +1,115 @@
+{{#locationid}}
+<div class="col-md-12">
+	<h1>{{locationname}}</h1>
+	<div class="alert alert-info">
+		<span class="glyphicon glyphicon-exclamation-sign"></span>
+		{{lang_editingLocationInfo}}
+	</div>
+</div>
+{{/locationid}}
+<div class="col-md-6">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_availableSystem}}
+			<a class="btn btn-default" data-toggle="modal" data-target="#help-config"><span class="glyphicon glyphicon-question-sign"></span></a>
+		</div>
+		<div class="panel-body">
+			<form method="post" action="?do=SysConfig">
+				<input type="hidden" name="token" value="{{token}}">
+				<input type="hidden" name="action" value="config">
+				<input type="hidden" name="locationid" value="{{locationid}}">
+				<table id="conftable" class="slx-table" style="max-width:100px !important">
+					{{#configs}}
+					<tr>
+						<td data-modlist="{{modlist}}" class="slx-pointer slx-width-ignore slx-nowrap"onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')" width="100%">
+							<div class="slx-dyn-ellipsis">{{config}}</div>
+						</td>
+						<td>
+							{{^current}}
+							<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
+								<span class="glyphicon glyphicon-flag"></span>
+								{{lang_activate}}
+							</button>
+							{{/current}}
+							{{#current}}
+								<span class="btn btn-success btn-xs slx-nopointer">
+									<span class="glyphicon glyphicon-ok"></span>
+									{{lang_active}}
+								</span>
+							{{/current}}
+						</td>
+						<td>
+							{{#locationCount}}
+							<span class="badge" {{#readableLocList}} data-toggle="tooltip" data-placement="top" title="{{readableLocList}}" {{/readableLocList}} >
+							+{{locationCount}}
+							</span>
+							{{/locationCount}}
+						</td>
+						<td class="slx-nowrap">
+							<button
+									{{#needrebuild}}
+									class="refconf btn btn-primary btn-xs"
+									{{/needrebuild}}
+							{{^needrebuild}}
+							class="refconf btn btn-default btn-xs"
+							{{/needrebuild}}
+							name="rebuild" value="{{configid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
+						</td>
+						<td class="slx-nowrap">
+							<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addconfig&amp;edit={{configid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
+							<button class="btn btn-danger btn-xs" name="del" value="{{configid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
+						</td>
+					</tr>
+					{{/configs}}
+					{{#locationid}}
+					<tr>
+						<td><i>Vererben von übergeordnetem Raum</i></td>
+						<td>
+							{{^inheritConfig}}
+							<button class="btn btn-primary btn-xs" name="activate" value="0">
+								<span class="glyphicon glyphicon-flag"></span>
+								{{lang_activate}}
+							</button>
+							{{/inheritConfig}}
+							{{#inheritConfig}}
+								<span class="btn btn-success btn-xs slx-nopointer">
+									<span class="glyphicon glyphicon-ok"></span>
+									{{lang_active}}
+								</span>
+							{{/inheritConfig}}
+						</td>
+						<td></td>
+						<td></td>
+					</tr>
+					{{/locationid}}
+				</table>
+				{{^configs}}
+				<div class="alert alert-warning">
+					{{lang_systemConfigurationNotFound}}
+				</div>
+				{{^modules}}
+				<div class="alert alert-danger">
+					{{lang_systemConfigurationAlert}}
+				</div>
+				{{/modules}}
+				{{/configs}}
+			</form>
+		</div>
+		<div class="panel-footer">
+			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">{{lang_newConfiguration}}</a>
+		</div>
+	</div>
+
+	<div class="modal fade" id="help-config" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">{{lang_systemConfiguration}}</div>
+				<div class="modal-body">
+					{{lang_helpSystemConfiguration}}
+				</div>
+				<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+			</div>
+		</div>
+	</div>
+
+</div>

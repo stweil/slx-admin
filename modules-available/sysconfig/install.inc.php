@@ -30,6 +30,12 @@ $res[] = tableCreate('configtgz_x_module', "
 	KEY `moduleid` (`moduleid`)
 ");
 
+$res[] = tableCreate('configtgz_location', "
+	`locationid` int(11) NOT NULL,
+	`configid` int(10) unsigned NOT NULL,
+	PRIMARY KEY (`locationid`),
+	KEY `configid` (`configid`)
+");
 
 // Constraints
 if (in_array(UPDATE_DONE, $res)) {

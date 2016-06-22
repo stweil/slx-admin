@@ -6,34 +6,59 @@
 	<table class="table table-condensed" style="margin-bottom:0px">
 		<tr>
 			<th width="100%">{{lang_locationName}}</th>
-			<th></th>
+			<th>{{#havestatistics}}{{lang_machineCount}}{{/havestatistics}}</th>
+			<th class="slx-nowrap">{{lang_editConfigVariables}}</th>
+			{{#havesysconfig}}
+			<th class="slx-nowrap">
+				{{#havebaseconfig}}{{lang_sysConfig}}{{/havebaseconfig}}
+			</th>
+			{{/havesysconfig}}
 		</tr>
 		{{#list}}
 			<tr>
 				<td>
 					<div style="display:inline-block;width:{{depth}}em"></div>
-					<a href="#" onclick="slxOpenLocation(this, {{locationid}})">{{locationname}}<b class="caret"></b></a>
+					<a href="#" onclick="slxOpenLocation(this, {{locationid}})">{{locationname}} <b class="caret"></b></a>
 				</td>
 				<td class="slx-nowrap" align="right">
 					{{#havestatistics}}
 					{{clientCount}}
 					<a class="btn btn-default btn-xs" href="?do=Statistics&amp;filter=location&amp;argument={{locationid}}"><span class="glyphicon glyphicon-eye-open"></span></a>
 					{{/havestatistics}}
+				</td>
+				<td class="slx-nowrap">
 					{{#havebaseconfig}}
-					<a class="btn btn-success btn-xs" href="?do=baseconfig&amp;module=locations&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span> {{lang_editConfigVariables}}</a>
+					<div class="pull-right" style="z-index:-1">
+						<a class="btn btn-default btn-xs" href="?do=baseconfig&amp;module=locations&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
+					</div>
+					{{#overriddenVars}}
+					{{lang_overrideCount}}: {{overriddenVars}}
+					{{/overriddenVars}}
 					{{/havebaseconfig}}
+				</td>
+				<td class="slx-nowrap">
+					<div class="pull-right">
+						<a class="btn btn-default btn-xs" href="?do=sysconfig&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
+					</div>
+					<span class="{{configClass}}">
+					{{configName}}
+					</span>
+					{{#havesysconfig}}
+					{{/havesysconfig}}
 				</td>
 			</tr>
 		{{/list}}
 		{{#unassignedCount}}
 		<tr>
-			<td></td>
+			<td>{{lang_unassignedMachines}}</td>
 			<td class="slx-nowrap" align="right">
-				{{lang_unassignedMachines}}: {{unassignedCount}}
+				{{unassignedCount}}
 				<a class="btn btn-default btn-xs" href="?do=Statistics&amp;filter=location&amp;argument=0">
 					<span class="glyphicon glyphicon-eye-open"></span>
 				</a>
 			</td>
+			<td></td>
+			<td>{{defaultConfig}}</td>
 		</tr>
 		{{/unassignedCount}}
 	</table>

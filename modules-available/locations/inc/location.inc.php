@@ -64,7 +64,7 @@ class Location
 		return $output;
 	}
 
-	public static function getLocations($selected = 0, $excludeId = 0, $addNoParent = false)
+	public static function getLocations($selected = 0, $excludeId = 0, $addNoParent = false, $keepArrayKeys = false)
 	{
 		if (is_string($selected)) {
 			settype($selected, 'int');
@@ -99,6 +99,8 @@ class Location
 				'selected' => $selected === 0
 			));
 		}
+		if ($keepArrayKeys)
+			return $rows;
 		return array_values($rows);
 	}
 
@@ -129,14 +131,14 @@ class Location
 		}
 		$output = array();
 		foreach ($tree as $node) {
-			$output[] = array(
+			$output[(int)$node['locationid']] = array(
 				'locationid' => $node['locationid'],
 				'locationname' => $node['locationname'],
 				'locationpad' => str_repeat('--', $depth),
 				'depth' => $depth
 			);
 			if (!empty($node['children'])) {
-				$output = array_merge($output, self::flattenTree($node['children'], $depth + 1));
+				$output += self::flattenTree($node['children'], $depth + 1);
 			}
 		}
 		return $output;

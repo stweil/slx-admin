@@ -107,6 +107,10 @@ body {
 	color: #0b0;
 }
 
+.gray {
+	color: gray;
+}
+
 .slx-label {
 	font-weight: bold;
 	margin: auto;

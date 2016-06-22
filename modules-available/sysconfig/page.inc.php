@@ -10,6 +10,18 @@ class Page_SysConfig extends Page
 	protected static $moduleTypes = array();
 
 	/**
+	 * @var int current locationid, 0 if global
+	 */
+	private $currentLoc;
+
+	/**
+	 * @var array Associative list of known locations
+	 */
+	private $locations;
+
+	private $haveOverriddenLocations = false;
+
+	/**
 	 * Add a known configuration module. Every addmoule_* file should call this
 	 * for its module provided.
 	 *
@@ -50,6 +62,22 @@ class Page_SysConfig extends Page
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
+
+		// Determine location we're editing
+		if (!Module::isAvailable('locations')) {
+			$this->locations = array();
+			$this->currentLoc = 0;
+		} else {
+			$this->locations = Location::getLocationsAssoc();
+			$this->currentLoc = Request::any('locationid', 0, 'int');
+		}
+		// Location valid?
+		if ($this->currentLoc !== 0 && !isset($this->locations[$this->currentLoc])) {
+			Message::addError('locations.invalid-location-id', $this->currentLoc);
+			Util::redirect('?do=sysconfig');
+		}
+
+		// Action handling
 
 		$action = Request::any('action', 'list');
 
@@ -115,7 +143,13 @@ class Page_SysConfig extends Page
 				AddConfig_Base::render();
 				return;
 			case 'list':
+				Render::openTag('div', array('class' => 'row'));
 				$this->listConfigs();
+				if ($this->currentLoc === 0) {
+					$this->listModules();
+				}
+				Render::closeTag('div');
+				Render::addTemplate('list-legend', array('showLocationBadge' => $this->haveOverriddenLocations));
 				return;
 			case 'module':
 				$listid = Request::post('list');
@@ -135,27 +169,79 @@ class Page_SysConfig extends Page
 		Message::addError('invalid-action', $action, 'main');
 	}
 
+	private function getLocationNames($locations, $ids)
+	{
+		$ret = array();
+		foreach ($ids as $id) {
+			settype($id, 'int');
+			if (isset($locations[$id])) {
+				$ret[] = $locations[$id]['locationname'];
+			}
+		}
+		return implode(', ', $ret);
+	}
+
 	/**
 	 * List all configurations and configuration modules.
 	 */
 	private function listConfigs()
 	{
 		// Configs
-		$res = Database::simpleQuery("SELECT configtgz.configid, configtgz.title, configtgz.filepath, configtgz.status, GROUP_CONCAT(configtgz_x_module.moduleid) AS modlist"
-			. " FROM configtgz"
-			. " INNER JOIN configtgz_x_module USING (configid)"
+		$res = Database::simpleQuery("SELECT c.configid, c.title, c.filepath, c.status,"
+			. "   GROUP_CONCAT(DISTINCT cl.locationid) AS loclist, GROUP_CONCAT(cxm.moduleid) AS modlist"
+			. " FROM configtgz c"
+			. " INNER JOIN configtgz_x_module cxm USING (configid)"
+			. " LEFT JOIN configtgz_location cl ON (c.configid = cl.configid)"
 			. " GROUP BY configid"
 			. " ORDER BY title ASC");
 		$configs = array();
+		if ($this->currentLoc !== 0) {
+			$locationName = $this->locations[$this->currentLoc]['locationname'];
+		} else {
+			$locationName = false;
+		}
+		$hasDefault = false;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (is_null($row['loclist'])) {
+				$locList = array();
+			} else {
+				$locList = explode(',', $row['loclist']);
+			}
+			$isDefault = in_array((string)$this->currentLoc, $locList, true);
+			$hasDefault |= $isDefault;
+			if ($this->currentLoc !== 0) {
+				$locCount = 0;
+			} else {
+				$locCount = count($locList);
+				if ($isDefault) {
+					$locCount--;
+				}
+			}
+			if ($locCount > 0) {
+				$this->haveOverriddenLocations = true;
+			}
 			$configs[] = array(
 				'configid' => $row['configid'],
 				'config' => $row['title'],
 				'modlist' => $row['modlist'],
-				'current' => readlink(CONFIG_HTTP_DIR . '/default/config.tgz') === $row['filepath'],
+				'current' => $isDefault,
+				'loclist' => $row['loclist'],
+				'readableLocList' => $this->getLocationNames($this->locations, $locList),
+				'locationCount' => $locCount,
 				'needrebuild' => ($row['status'] !== 'OK')
 			);
 		}
+		Render::addTemplate('list-configs', array(
+			'locationid' => $this->currentLoc,
+			'locationname' => $locationName,
+			'havelocations' => Module::isAvailable('locations'),
+			'configs' => $configs,
+			'inheritConfig' => !$hasDefault,
+		));
+	}
+
+	private function listModules()
+	{
 		// Config modules
 		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, status FROM configtgz_module ORDER BY moduletype ASC, title ASC");
 		$modules = array();
@@ -168,15 +254,10 @@ class Page_SysConfig extends Page
 				'needrebuild' => ($row['status'] !== 'OK')
 			);
 		}
-		Render::addTemplate('_page', array(
-			'configs' => $configs,
+		Render::addTemplate('list-modules', array(
 			'modules' => $modules,
 			'havemodules' => (count($modules) > 0)
 		));
-		Render::addFooter('<script> $(window).load(function (e) {
-			forceTable($("#modtable"));
-			forceTable($("#conftable"));
-			}); // </script>');
 	}
 
 	private function listModuleContents($moduleid)
@@ -185,7 +266,7 @@ class Page_SysConfig extends Page
 		$row = Database::queryFirst("SELECT title, filepath FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
 		if ($row === false) {
 			Message::addError('config-invalid', $moduleid);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
 
 		// find files in that archive
@@ -196,7 +277,7 @@ class Page_SysConfig extends Page
 			$status = Taskmanager::waitComplete($status, 4000);
 		if (!Taskmanager::isFinished($status) || Taskmanager::isFailed($status)) {
 			Taskmanager::addErrorMessage($status);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
 
 		// Sort files for better display
@@ -232,7 +313,7 @@ class Page_SysConfig extends Page
 		$config = Database::queryFirst("SELECT title FROM configtgz WHERE configid = :configid LIMIT 1", array('configid' => $configid));
 		if ($config === false) {
 			Message::addError('config-invalid', $configid);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
 		// fetch the data
 		$res = Database::simpleQuery("SELECT module.moduleid, module.title AS moduletitle"
@@ -257,25 +338,22 @@ class Page_SysConfig extends Page
 
 	private function activateConfig()
 	{
-		$configid = Request::post('activate', 'MISSING');
-		$row = Database::queryFirst("SELECT title, filepath FROM configtgz WHERE configid = :configid LIMIT 1", array('configid' => $configid));
-		if ($row === false) {
-			Message::addError('config-invalid', $configid);
-			Util::redirect('?do=SysConfig');
+		$configid = Request::post('activate', false, 'int');
+		if ($configid === false) {
+			Message::addError('main.empty-field');
+			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
-		$task = Taskmanager::submit('LinkConfigTgz', array(
-				'destination' => $row['filepath']
-		));
-		if (isset($task['statusCode']) && $task['statusCode'] === TASK_WAITING) {
-			$task = Taskmanager::waitComplete($task['id']);
+		if ($this->currentLoc === 0 || $configid !== 0) {
+			$row = Database::queryFirst("SELECT title, filepath FROM configtgz WHERE configid = :configid LIMIT 1", array('configid' => $configid));
+			if ($row === false) {
+				Message::addError('config-invalid', $configid);
+				Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
+			}
 		}
-		if (!isset($task['statusCode']) || $task['statusCode'] === TASK_ERROR) {
-			Message::addError('main.task-error', $task['data']['error']);
-		} elseif ($task['statusCode'] === TASK_FINISHED) {
-			Message::addSuccess('config-activated', $row['title']);
-			Event::activeConfigChanged();
-		}
-		Util::redirect('?do=SysConfig');
+		$locationid = $this->currentLoc;
+		Database::exec("INSERT INTO configtgz_location (locationid, configid) VALUES (:locationid, :configid)"
+			. " ON DUPLICATE KEY UPDATE configid = :configid", compact('locationid', 'configid'));
+		Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 	}
 
 	private function rebuildConfig()
@@ -284,7 +362,7 @@ class Page_SysConfig extends Page
 		$config = ConfigTgz::get($configid);
 		if ($config === false) {
 			Message::addError('config-invalid', $configid);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
 		$ret = $config->generate(false, 350); // TODO
 		if ($ret === true)
@@ -293,7 +371,7 @@ class Page_SysConfig extends Page
 			Message::addError('module-rebuild-failed', $config->title());
 		else
 			Message::addInfo('module-rebuilding', $config->title());
-		Util::redirect('?do=SysConfig');
+		Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 	}
 
 	private function delModule()
@@ -302,14 +380,14 @@ class Page_SysConfig extends Page
 		$row = Database::queryFirst("SELECT title, filepath FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
 		if ($row === false) {
 			Message::addError('config-invalid', $moduleid);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig');
 		}
 		$existing = Database::queryFirst("SELECT title FROM configtgz_x_module"
 				. " INNER JOIN configtgz USING (configid)"
 				. " WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
 		if ($existing !== false) {
 			Message::addError('module-in-use', $row['title'], $existing['title']);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig');
 		}
 		$task = Taskmanager::submit('DeleteFile', array(
 				'file' => $row['filepath']
@@ -323,7 +401,7 @@ class Page_SysConfig extends Page
 			Message::addSuccess('module-deleted', $row['title']);
 		}
 		Database::exec("DELETE FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
-		Util::redirect('?do=SysConfig');
+		Util::redirect('?do=sysconfig');
 	}
 
 	private function downloadModule()
@@ -332,10 +410,10 @@ class Page_SysConfig extends Page
 		$row = Database::queryFirst("SELECT title, filepath FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
 		if ($row === false) {
 			Message::addError('config-invalid', $moduleid);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig');
 		}
 		if (!Util::sendFile($row['filepath'], $row['title'] . '.tgz'))
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig');
 		exit(0);
 	}
 
@@ -345,7 +423,7 @@ class Page_SysConfig extends Page
 		$module = ConfigModule::get($moduleid);
 		if ($module === false) {
 			Message::addError('config-invalid', $moduleid);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig');
 		}
 		$ret = $module->generate(false, 250);
 		if ($ret === true)
@@ -354,7 +432,7 @@ class Page_SysConfig extends Page
 			Message::addError('module-rebuild-failed', $module->title());
 		else
 			Message::addInfo('module-rebuilding', $module->title());
-		Util::redirect('?do=SysConfig');
+		Util::redirect('?do=sysconfig');
 	}
 
 	private function delConfig()
@@ -363,10 +441,10 @@ class Page_SysConfig extends Page
 		$config = ConfigTgz::get($configid);
 		if ($config === false) {
 			Message::addError('config-invalid', $configid);
-			Util::redirect('?do=SysConfig');
+			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
 		$config->delete();
-		Util::redirect('?do=SysConfig');
+		Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 	}
 
 	private function initAddModule()

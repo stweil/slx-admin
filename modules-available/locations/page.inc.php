@@ -166,7 +166,6 @@ class Page_Locations extends Page
 			}
 		}
 		// Now actual updates
-		// TODO: Warn on mismatch/overlap (should lie entirely in parent's subnet, not overlap with others)
 		$starts = Request::post('startaddr', false);
 		$ends = Request::post('endaddr', false);
 		if (!is_array($starts) || !is_array($ends)) {
@@ -263,7 +262,8 @@ class Page_Locations extends Page
 	{
 		$overlapSelf = $overlapOther = true;
 		$subnets = Location::getSubnetsByLocation($overlapSelf, $overlapOther);
-		$locs = Location::getLocations();
+		$locs = Location::getLocations(0, 0, false, true);
+		// Statistics: Count machines for each subnet
 		$unassigned = false;
 		if (Module::get('statistics') !== false) {
 			foreach ($locs as &$location) {
@@ -289,15 +289,61 @@ class Page_Locations extends Page
 			$unassigned = $res['cnt'];
 		}
 		unset($loc, $location);
+		// Show currently active sysconfig for each location
+		$defaultConfig = false;
+		if (Module::isAvailable('sysconfig')) {
+			$confs = SysConfig::getAll();
+			foreach ($confs as $conf) {
+				$confLocs = explode(',', $conf['locs']);
+				foreach ($confLocs as $loc) {
+					settype($loc, 'int');
+					if ($loc === 0) {
+						$defaultConfig = $conf['title'];
+					}
+					if (!isset($locs[$loc]))
+						continue;
+					$locs[$loc] += array('configName' => $conf['title'], 'configClass' => 'slx-bold');
+				}
+			}
+			$depth = array();
+			foreach ($locs as &$loc) {
+				$d = $loc['depth'];
+				if (!isset($loc['configName'])) {
+					// Has no explicit config assignment
+					if ($d === 0) {
+						$loc['configName'] = $defaultConfig;
+					} else {
+						$loc['configName'] = $depth[$d - 1];
+					}
+					$loc['configClass'] = 'gray';
+				}
+				$depth[$d] = $loc['configName'];
+				unset($depth[$d + 1]);
+			}
+			unset($loc);
+		}
+		// Count overridden config vars
+		if (Module::get('baseconfig') !== false) {
+			$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt FROM `setting_location` GROUP BY locationid");
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$lid = (int)$row['locationid'];
+				if (isset($locs[$lid])) {
+					$locs[$lid]['overriddenVars'] = $row['cnt'];
+				}
+			}
+		}
+		// Output
 		Render::addTemplate('locations', array(
-			'list' => $locs,
+			'list' => array_values($locs),
 			'havestatistics' => Module::get('statistics') !== false,
 			'havebaseconfig' => Module::get('baseconfig') !== false,
+			'havesysconfig' => Module::get('sysconfig') !== false,
 			'overlapSelf' => $overlapSelf,
 			'overlapOther' => $overlapOther,
 			'haveOverlapSelf' => !empty($overlapSelf),
 			'haveOverlapOther' => !empty($overlapOther),
-			'unassignedCount' => $unassigned
+			'unassignedCount' => $unassigned,
+			'defaultConfig' => $defaultConfig,
 		));
 	}
 
