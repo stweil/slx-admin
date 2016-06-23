@@ -33,15 +33,23 @@ $configVars = array();
 function handleModule($file, $ip, $uuid) // Pass ip and uuid instead of global to make them read only
 {
 	global $configVars;
-	include $file;
+	include_once $file;
 }
 
 // Handle any hooks by other modules first
 // other modules should generally only populate $configVars
 foreach (glob('modules/*/baseconfig/getconfig.inc.php') as $file) {
 	preg_match('#^modules/([^/]+)/#', $file, $out);
-	if (!Module::isAvailable($out[1]))
+	$mod = Module::get($out[1]);
+	if ($mod === false)
 		continue;
+	$mod->activate();
+	foreach ($mod->getDependencies() as $dep) {
+		$depFile = 'modules/' . $dep . '/baseconfig/getconfig.inc.php';
+		if (file_exists($depFile) && Module::isAvailable($dep)) {
+			handleModule($depFile, $ip, $uuid);
+		}
+	}
 	handleModule($file, $ip, $uuid);
 }
 
