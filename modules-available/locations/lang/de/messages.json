@@ -1,9 +1,10 @@
 {
     "added-x-entries": "Eintr\u00e4ge hinzugef\u00fcgt: {{0}}",
-    "parameter-missing": "Fehlender Parameter: {{0}}",
+    "invalid-location-id": "Ung\u00fcltige Orts-id: {{0}}",
     "location-deleted": "Location wurde gel\u00f6scht (Locations: {{0}}, Subnets: {{1}})",
     "location-updated": "Location {{0}} wurde aktualisiert",
+    "parameter-missing": "Fehlender Parameter: {{0}}",
+    "subnets-created": "Subnetze angelegt: {{0}}",
     "subnets-deleted": "Subnetze gel\u00f6scht: {{0}}",
-    "subnets-updated": "Subnetze aktualisiert: {{0}}",
-    "subnets-created": "Subnetze angelegt: {{0}}"
+    "subnets-updated": "Subnetze aktualisiert: {{0}}"
 }
