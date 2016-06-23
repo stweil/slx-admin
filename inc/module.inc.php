@@ -182,6 +182,28 @@ class Module
 			}
 		}
 	}
+
+	public function getDependencies()
+	{
+		$deps = array();
+		$this->getDepsInternal($deps);
+		return array_keys($deps);
+	}
+
+	private function getDepsInternal(&$deps)
+	{
+		if (!is_array($this->dependencies))
+			return array();
+		foreach ($this->dependencies as $dep) {
+			if (isset($deps[$dep])) // Handle cyclic dependencies
+				continue;
+			$deps[$dep] = true;
+			$mod = self::get($dep);
+			if ($mod === false)
+				continue;
+			$mod->getDepsInternal($deps);
+		}
+	}
 	
 	public function getIdentifier()
 	{
