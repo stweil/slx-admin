@@ -15,7 +15,7 @@ class Page_Exams extends Page
             $tmp = Database::simpleQuery("SELECT locationid, locationname FROM location;", []);
         } else {
             $tmp = Database::simpleQuery("SELECT locationid, locationname, " .
-                "EXISTS(SELECT * FROM exams NATURAL JOIN exams_x_locations WHERE locationid = x.locationid AND examid= :examid) AS selected FROM location x", compact('examid'));
+                "EXISTS(SELECT * FROM exams NATURAL JOIN exams_x_location WHERE locationid = x.locationid AND examid= :examid) AS selected FROM location x", compact('examid'));
         }
         while ($loc = $tmp->fetch(PDO::FETCH_ASSOC)) {
             $this->locations[] = $loc;
@@ -26,7 +26,7 @@ class Page_Exams extends Page
     {
         $tmp = Database::simpleQuery("select examid, starttime, endtime, description, GROUP_CONCAT(locationid) AS locationids, "
             . "GROUP_CONCAT(locationname) AS locationnames FROM "
-            . "exams NATURAL LEFT JOIN exams_x_locations NATURAL LEFT JOIN location GROUP BY examid", []);
+            . "exams NATURAL LEFT JOIN exams_x_location NATURAL LEFT JOIN location GROUP BY examid", []);
         while ($exam = $tmp->fetch(PDO::FETCH_ASSOC)) {
             $this->exams[] = $exam;
         }
@@ -76,7 +76,7 @@ class Page_Exams extends Page
         foreach ($this->lectures as $l) {
             $mark = '<span class="' . ($l['isenabled'] ? '' : 'glyphicon glyphicon-exclamation-sign') . '"></span>';
             $out[] = [
-                'id'        => $l['lectureid'],
+                'id'        => $l['lectureid'] . '/' . $l['locationid'],
                 'content'   => htmlspecialchars($l['displayname']) . $mark ,
                 'title'     => $l['isenabled'] ? '' : Dictionary::translate('warning_lecture_is_not_enabled'),
                 'start'     => intval($l['starttime']) * 1000,
@@ -147,7 +147,7 @@ class Page_Exams extends Page
 
                 $exam_id = Database::lastInsertId();
                 foreach ($locationids as $lid) {
-                    $res = $res && Database::exec("INSERT INTO exams_x_locations(examid, locationid) VALUES(:exam_id, :lid)", compact('exam_id', 'lid'));
+                    $res = $res && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:exam_id, :lid)", compact('exam_id', 'lid'));
                 }
 
 
@@ -163,7 +163,7 @@ class Page_Exams extends Page
             if (!Request::isPost()) { die('delete only works with a post request'); }
             $examid = Request::post('examid');
             $res = Database::exec("DELETE FROM exams WHERE examid = :examid;", compact('examid'));
-            $res = Database::exec("DELETE FROM exams_x_locations WHERE examid = :examid;", compact('examid'));
+            $res = Database::exec("DELETE FROM exams_x_location WHERE examid = :examid;", compact('examid'));
             if ($res === false) {
                 Message::addError('exam-not-deleted-error');
             } else {
@@ -190,10 +190,10 @@ class Page_Exams extends Page
                 $res = Database::exec("UPDATE exams SET starttime = :starttime, endtime = :endtime, description = :description WHERE examid = :examid",
                     compact('starttime', 'endtime', 'description', 'examid'));
                 /* drop all connections and reconnect to rooms */
-                $res = $res !== FALSE && Database::exec("DELETE FROM exams_x_locations WHERE examid = :examid", compact('examid'));
+                $res = $res !== FALSE && Database::exec("DELETE FROM exams_x_location WHERE examid = :examid", compact('examid'));
                 /* reconnect */
                 foreach ($locationids as $lid) {
-                    $res = $res !== FALSE && Database::exec("INSERT INTO exams_x_locations(examid, locationid) VALUES(:examid, :lid)", compact('examid', 'lid'));
+                    $res = $res !== FALSE && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:examid, :lid)", compact('examid', 'lid'));
                 }
                 if ($res !== FALSE) {
                     Message::addInfo("changes-successfully-saved");
@@ -219,7 +219,7 @@ class Page_Exams extends Page
                 [ 'exams'        => $this->makeExamsForTemplate(),
                   'exams_json'   => $this->makeItemsForVis(),
                   'rooms_json'   => $this->makeGroupsForVis(),
-                  'vis_begin'    => time() * 1000,
+                  'vis_begin'    => strtotime('-5 minute') * 1000,
                   'vis_end'      => strtotime('+2 day') * 1000,
                   'vis_min_date' => strtotime('-1 day') * 1000,
                   'vis_max_date' => strtotime('+3 month') * 1000

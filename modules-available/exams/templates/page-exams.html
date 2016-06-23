@@ -17,18 +17,12 @@
 				<td>{{starttime}}</td>
 				<td>{{endtime}}</td>
 				<td>
-					<div class="btn-toolbar" role="toolbar">
-						<div class="btn-group">
-							<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
-						</div>
-						<div class="btn-group">
-							<form method="POST" action="?do=exams&action=delete" onsubmit="return confirm('{{lang_deleteConfirmation}}');">
-								<input type="hidden" name="token" value="{{token}}"/>
-								<input type="hidden" name="examid" value="{{examid}}"/>
-								<input type="submit" value="{{lang_delete}}" class="btn btn-default btn-sm" />
-							</form>
-						</div>
-					</div>
+					<form method="POST" action="?do=exams&action=delete" onsubmit="return confirm('{{lang_deleteConfirmation}}');">
+						<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
+						<input type="hidden" name="token" value="{{token}}">
+						<input type="hidden" name="examid" value="{{examid}}">
+						<button class="btn btn-default btn-sm">{{lang_delete}}</button>
+					</form>
 				</td>
 			</tr>
 			{{/exams}}
@@ -69,8 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		'end' 		: {{vis_end}},
 		'stack' 	: false,
 		'editable'	: false,
-		'min'		: {{vis_begin}},
+		'min'		: {{vis_min_date}},
 		'max'		: {{vis_max_date}},
+	   'zoomMin': 2 * 3600 * 1000,
 		'order' 	: customOrder,
 		'locale'	: language,
 		'moment'	: function(date) { return vis.moment(date).utc(); }
