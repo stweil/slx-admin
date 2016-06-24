@@ -15,7 +15,7 @@
 			</div>
 			<div class="form-group">
 				<label for="news-content-id">{{lang_content}}</label>
-				<textarea name="news-content" id ="news-content-id" class="form-control" rows="5" cols="30"  placeholder="">{{latestContent}}</textarea>
+				<textarea name="news-content" id ="news-content-id" class="form-control summernote" rows="5" cols="30"  placeholder="">{{latestContent}}</textarea>
 			</div>
 			<p>{{lang_latestUpdate}}: {{latestDate}}</p>
 			<button class="btn btn-primary btn-sm" name="news-type" value="news" type="submit">{{lang_save}}</button>
@@ -62,7 +62,7 @@
 		<form action="?do=News&amp;action=save" method="post">
 			<div class="form-group">
 				<label for="news-content-id">{{lang_content}}</label>
-				<textarea name="help-content" id ="help-content-id" class="form-control" style="min-height:400px"  placeholder="">{{latestHelp}}</textarea>
+				<textarea name="help-content" id ="help-content-id" class="form-control summernote" style="min-height:400px"  placeholder="">{{latestHelp}}</textarea>
 			</div>
 			<button class="btn btn-primary btn-sm" name="news-type" value="help" type="submit">{{lang_save}}</button>
 			<input type="hidden" name="token" value="{{token}}">
@@ -105,20 +105,6 @@
 {{#hasSummernote}}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-	$('#news-content-id, #help-content-id').summernote( {
-		toolbar: [
-			// [groupName, [list of button]]
-			['style', ['bold', 'italic', 'underline', 'clear']],
-			['font', ['strikethrough', 'superscript', 'subscript']],
-			// ['fontsize', ['fontsize']],
-			['color', ['color']],
-			['para', ['ul', 'ol', 'paragraph']],
-			['misc', ['codeview', 'undo', 'redo', 'fullscreen']]
-			//['height', ['height']]
-		],
-		height: '300px'
-	}
-			);
 });
 </script>
 {{/hasSummernote}}

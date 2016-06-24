@@ -70,6 +70,7 @@ class Render
 			<link href="style/default.css" rel="stylesheet" media="screen">
 			<script type="text/javascript">
 			var TOKEN = "' . Session::get('token') . '";
+			var LANG = "'  . LANG . '";
 			</script>
 	',
 		self::$header
