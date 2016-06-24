@@ -1,5 +1,5 @@
 {
-	"category":"main.status",
+	"category":"main.content",
 	"dependencies": [ "locations", "visjs", "bootstrap_datepicker", "bootstrap_timepicker", "bootstrap_multiselect"],
 	"permission": "0"
 }
