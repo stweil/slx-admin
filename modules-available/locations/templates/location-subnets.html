@@ -43,31 +43,35 @@
 				<th title="{{lang_deleteSubnet}}"><span class="glyphicon glyphicon-trash"></span></th>
 			</tr>
 			{{#list}}
-				<tr>
+				<tr class="cidrmagic">
 					<td>{{subnetid}}</td>
-					<td><input class="form-control" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
-					<td><input class="form-control" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
+					<td><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
+					<td><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
 					<td class="danger" align="center"><input type="checkbox" name="deletesubnet[{{subnetid}}]" value="on"></td>
 				</tr>
 			{{/list}}
 			<tr id="loc-sub-{{locationid}}">
-				<td colspan="2">
+				<td colspan="4">
 					<button class="btn btn-success btn-sm" type="button" onclick="slxAddSubnetRow(this, {{locationid}})" title="{{lang_addNewSubnet}}">
 						<span class="glyphicon glyphicon-plus-sign"></span> {{lang_subnet}}
 					</button>
 				</td>
-				<td colspan="2" align="right">
-					<button type="submit" class="btn btn-primary">{{lang_save}}</button>
-				</td>
 			</tr>
 		</table>
+		<br>
+		<div class="pull-right">
+			<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+		</div>
+		<div class="slx-bold">{{lang_locationInfo}}</div>
+		{{#haveDozmod}}
+		<div>
+			<span class="slx-ga2">{{lang_referencingLectures}}:</span> {{lectures}}
+		</div>
+		{{/haveDozmod}}
+		{{#haveStatistics}}
+		<div>
+			<span class="slx-ga2">{{lang_matchingMachines}}:</span> <a href="?do=Statistics&amp;filter=location&amp;argument={{locationid}}">{{machines}} / {{machines_online}} / {{machines_used}} ({{used_percent}}%)</a>
+		</div>
+		{{/haveStatistics}}
 	</form>
-	<br>
-	<div class="slx-bold">{{lang_locationInfo}}</div>
-	<div>
-		<span class="slx-ga2">{{lang_referencingLectures}}:</span> {{lectures}}
-	</div>
-	<div>
-		<span class="slx-ga2">{{lang_matchingMachines}}:</span> <a href="?do=Statistics&amp;filter=location&amp;argument={{locationid}}">{{machines}} / {{machines_online}} / {{machines_used}} ({{used_percent}}%)</a>
-	</div>
 </div>

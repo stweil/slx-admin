@@ -14,10 +14,10 @@
 				<th>{{lang_location}}</th>
 			</tr>
 			{{#list}}
-				<tr>
+				<tr class="cidrmagic">
 					<td>{{subnetid}}</td>
-					<td><input class="form-control" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}"></td>
-					<td><input class="form-control" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}"></td>
+					<td><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}"></td>
+					<td><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}"></td>
 					<td>
 						<select class="form-control" name="location[{{subnetid}}]">
 							{{#locations}}
