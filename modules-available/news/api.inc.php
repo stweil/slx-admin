@@ -2,8 +2,11 @@
 
 header('Content-Type: application/xml; charset=utf-8');
 
+$type = Request::any('type', 'news', 'string');
+
 // Fetch news from DB
-$row = Database::queryFirst('SELECT title, content, dateline FROM news ORDER BY dateline DESC LIMIT 1');
+$row = Database::queryFirst('SELECT title, content, dateline FROM vmchooser_pages'
+	. ' WHERE type = :type ORDER BY dateline DESC LIMIT 1', compact('type'));
 if ($row !== false ) {
 
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
