@@ -1,10 +1,13 @@
 {
     "lang_content": "Content",
     "lang_date": "Date",
+    "lang_editHelp": "Edit Help",
     "lang_editNews": "Edit news",
     "lang_latestUpdate": "Latest update",
     "lang_newsIntro": "Here you have the possibility to edit the news displayed to the bwLehrpool clients.",
     "lang_newsOld": "Old News",
+    "lang_oldHelp": "Old Help Texts",
     "lang_show": "Show",
-    "lang_title": "Title"
+    "lang_title": "Title",
+    "lang_vmChooser_title": "VMChooser-Settings"
 }

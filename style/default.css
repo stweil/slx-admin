@@ -355,7 +355,6 @@ nav.sidebar li {
 	  margin-top: 32px;
 	  min-width: 900px;
 	  position: absolute;
-	  width: calc(100% - 220px);
 	}
 
 	.navbar-inverse,.sidebar-bg

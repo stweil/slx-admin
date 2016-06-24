@@ -1,10 +1,13 @@
 {
     "lang_content": "Inhalt",
     "lang_date": "Datum",
+    "lang_editHelp": "Hilfe bearbeiten",
     "lang_editNews": "News bearbeiten",
     "lang_latestUpdate": "Letzte Aktualisierung",
     "lang_newsIntro": "Hier haben Sie die M\u00f6glichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.",
     "lang_newsOld": "Alte News",
+    "lang_oldHelp": "Alte Hilfetexte",
     "lang_show": "Ansehen",
-    "lang_title": "Titel"
+    "lang_title": "Titel",
+    "lang_vmChooser_title": "VMChooser-Einstellungen"
 }

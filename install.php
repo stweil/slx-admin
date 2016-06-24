@@ -84,6 +84,12 @@ function tableExists($table)
 	return false;
 }
 
+function tableRename($old, $new) {
+	$res = Database::simpleQuery("RENAME TABLE $old TO $new", []); 
+	return $res;
+}
+
+
 function tableCreate($table, $structure, $fatalOnError = true)
 {
 	if (tableExists($table)) {
