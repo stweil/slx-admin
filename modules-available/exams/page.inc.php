@@ -108,11 +108,17 @@ class Page_Exams extends Page
 	protected function makeExamsForTemplate()
 	{
 		$out = [];
+		$now = time();
 		foreach ($this->exams as $exam) {
-			$tmp = $exam;
-			$tmp['starttime'] = date('Y-m-d H:i', $tmp['starttime']);
-			$tmp['endtime'] = date('Y-m-d H:i', $tmp['endtime']);
-			$out[] = $tmp;
+			if ($exam['endtime'] < $now) {
+				$exam['rowClass'] = 'gray';
+				$exam['btnClass'] = 'btn-success';
+			} else {
+				$exam['btnClass'] = 'btn-default';
+			}
+			$exam['starttime'] = date('Y-m-d H:i', $exam['starttime']);
+			$exam['endtime'] = date('Y-m-d H:i', $exam['endtime']);
+			$out[] = $exam;
 		}
 		return $out;
 	}

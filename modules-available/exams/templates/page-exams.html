@@ -11,7 +11,7 @@
 				<th>{{lang_actions}}</th>
 			</tr>
 			{{#exams}}
-			<tr>
+			<tr class="{{rowClass}}">
 				<td>{{examid}}</td>
 				<td>{{locationnames}} </td>
 				<td>{{starttime}}</td>
@@ -21,7 +21,7 @@
 						<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
 						<input type="hidden" name="token" value="{{token}}">
 						<input type="hidden" name="examid" value="{{examid}}">
-						<button class="btn btn-default btn-sm">{{lang_delete}}</button>
+						<button class="btn {{btnClass}} btn-sm">{{lang_delete}}</button>
 					</form>
 				</td>
 			</tr>
