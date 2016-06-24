@@ -65,7 +65,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		'editable'	: false,
 		'min'		: {{vis_min_date}},
 		'max'		: {{vis_max_date}},
-		'zoomMin': 2 * 3600 * 1000,
+		'zoomMin': 6 * 3600 * 1000,
+		'zoomMax': 2 * 86400 * 1000,
 		'order' 	: customOrder,
 		'locale'	: language,
 		'moment'	: function(date) { return vis.moment(date).utc(); }

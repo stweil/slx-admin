@@ -4,5 +4,6 @@
     "exam-added-success": "Klausurzeitraum erfolgreich hinzugef\u00fcgt",
     "exam-deleted-success": "Klausurzeitraum erfolgreich gel\u00f6scht",
     "exam-not-added": "Klausurzeitraum konnte nicht hinzugef\u00fcgt werden",
-    "exam-not-deleted-error": "Klausurzeitraum konnte nicht gel\u00f6scht werden"
+    "exam-not-deleted-error": "Klausurzeitraum konnte nicht gel\u00f6scht werden",
+    "invalid-exam-id": "Ung\u00fcltige Klausur-ID: {{0}}"
 }

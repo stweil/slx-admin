@@ -14,5 +14,6 @@
     "lang_id": "ID",
     "lang_location": "Room\/Location",
     "lang_locations": "Rooms\/Locations",
+    "lang_pleaseSelectLocation": "Please select at least one room\/location",
     "lang_saveExam": "Save Exam Period"
 }

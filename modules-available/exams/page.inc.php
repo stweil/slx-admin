@@ -2,10 +2,11 @@
 
 class Page_Exams extends Page
 {
-    var $action;
+    var $action = false;
     var $exams;
     var $locations;
     var $lectures;
+    private $currentExam;
 
 
     /** if examid is set, also add a column 'selected' **/
@@ -114,52 +115,98 @@ class Page_Exams extends Page
         }
         return $out;
     }
+
+    private function saveExam()
+    {
+        if (!Request::isPost()) {
+            Util::traceError('Is not post');
+        }
+        /* process form-data */
+        $locationids = Request::post('locations', [], "ARRAY");
+
+        /* global room has id 0 */
+        if(empty($locationids)) {
+            $locationids[] = 0;
+        }
+
+        $examid = Request::post('examid', 0, 'int');
+        $starttime   = strtotime(Request::post('starttime_date') . " " . Request::post('starttime_time'));
+        $endtime     = strtotime(Request::post('endtime_date') . " " . Request::post('endtime_time'));
+        $description = Request::post('description');
+
+        if ($examid === 0) {
+            // No examid given, is add
+            $res = Database::exec("INSERT INTO exams(starttime, endtime, description) VALUES(:starttime, :endtime, :description);",
+                  compact('starttime', 'endtime', 'description')) !== false;
+
+            $exam_id = Database::lastInsertId();
+            foreach ($locationids as $lid) {
+                $res = $res && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:exam_id, :lid)", compact('exam_id', 'lid')) !== false;
+            }
+            if ($res === false) {
+                Message::addError('exam-not-added');
+            }  else {
+                Message::addInfo('exam-added-success');
+            }
+            Util::redirect('?do=exams');
+        }
+
+        // Edit
+
+        $this->currentExam = Database::queryFirst("SELECT * FROM exams WHERE examid = :examid", array('examid' => $examid));
+        if ($this->currentExam === false) {
+            Message::addError('invalid-exam-id', $examid);
+            Util::redirect('?do=exams');
+        }
+
+        /* update fields */
+        $res = Database::exec("UPDATE exams SET starttime = :starttime, endtime = :endtime, description = :description WHERE examid = :examid",
+              compact('starttime', 'endtime', 'description', 'examid')) !== false;
+        /* drop all connections and reconnect to rooms */
+        $res = $res && Database::exec("DELETE FROM exams_x_location WHERE examid = :examid", compact('examid')) !== false;
+        /* reconnect */
+        foreach ($locationids as $lid) {
+            $res = $res && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:examid, :lid)", compact('examid', 'lid')) !== false;
+        }
+        if ($res !== FALSE) {
+            Message::addInfo("changes-successfully-saved");
+        } else {
+            Message::addError("error-while-saving-changes");
+        }
+        Util::redirect('?do=exams');
+    }
+
     protected function doPreprocess()
     {
         User::load();
 
-        $req_action = Request::get('action', 'show');
-        if (in_array($req_action, ['show', 'add', 'delete', 'edit'])) {
+        $req_action = Request::any('action', 'show');
+        if (in_array($req_action, ['show', 'add', 'delete', 'edit', 'save'])) {
             $this->action = $req_action;
         }
 
         if ($this->action === 'show') {
+
             $this->readExams();
             $this->readLocations();
             $this->readLectures();
-        } elseif ($this->action === 'add') {
-            $this->readLocations();
-            if (Request::isPost()) {
-                /* process form-data */
-                $locationids = Request::post('locations', [], "ARRAY");
 
-                /* global room has id 0 */
-                if(empty($locationids)) {
-                    $locationids[] = 0;
-                }
+        } elseif ($this->action === 'edit') {
 
-                $starttime   = strtotime(Request::post('starttime_date') . " " . Request::post('starttime_time'));
-                $endtime     = strtotime(Request::post('endtime_date') . " " . Request::post('endtime_time'));
-                $description = Request::post('description');
-
-                $res = Database::exec("INSERT INTO exams(starttime, endtime, description) VALUES(:starttime, :endtime, :description);",
-                    compact('starttime', 'endtime', 'description'));
-
-                $exam_id = Database::lastInsertId();
-                foreach ($locationids as $lid) {
-                    $res = $res && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:exam_id, :lid)", compact('exam_id', 'lid'));
-                }
-
-
-                if ($res === false) {
-                    Message::addError('exam-not-added');
-                }  else {
-                    Message::addInfo('exam-added-success');
-                }
+            $examid = Request::get('examid', 0, 'int');
+            $this->currentExam = Database::queryFirst("SELECT * FROM exams WHERE examid = :examid", array('examid' => $examid));
+            if ($this->currentExam === false) {
+                Message::addError('invalid-exam-id', $examid);
                 Util::redirect('?do=exams');
             }
+            $this->readLocations($examid);
+
+        } elseif ($this->action === 'save') {
+
+            $this->saveExam();
 
         } elseif ($this->action === 'delete') {
+
             if (!Request::isPost()) { die('delete only works with a post request'); }
             $examid = Request::post('examid');
             $res = Database::exec("DELETE FROM exams WHERE examid = :examid;", compact('examid'));
@@ -170,49 +217,16 @@ class Page_Exams extends Page
                 Message::addInfo('exam-deleted-success');
             }
             Util::redirect('?do=exams');
-        } elseif ($this->action === 'edit') {
-            $examid = Request::get('examid', -1, 'int');
-            $this->readLocations($examid);
-            $this->currentExam = Database::queryFirst("SELECT * FROM exams WHERE examid = :examid", array('examid' => $examid));
 
-            if (Request::isPost()) {
-                $locationids = Request::post('locations', [], "ARRAY");
+        } elseif ($this->action === false) {
 
-                /* global room has id 0 */
-                if(empty($locationids)) {
-                    $locationids[] = 0;
-                }
-
-                $starttime   = strtotime(Request::post('starttime_date') . " " . Request::post('starttime_time'));
-                $endtime     = strtotime(Request::post('endtime_date') . " " . Request::post('endtime_time'));
-                $description = Request::post('description');
-                /* update fields */
-                $res = Database::exec("UPDATE exams SET starttime = :starttime, endtime = :endtime, description = :description WHERE examid = :examid",
-                    compact('starttime', 'endtime', 'description', 'examid'));
-                /* drop all connections and reconnect to rooms */
-                $res = $res !== FALSE && Database::exec("DELETE FROM exams_x_location WHERE examid = :examid", compact('examid'));
-                /* reconnect */
-                foreach ($locationids as $lid) {
-                    $res = $res !== FALSE && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:examid, :lid)", compact('examid', 'lid'));
-                }
-                if ($res !== FALSE) {
-                    Message::addInfo("changes-successfully-saved");
-                } else {
-                    Message::addError("error-while-saving-changes");
-                }
-                Util::redirect('?do=exams');
-            }
-
-        } else {
             Util::traceError("action not implemented");
+
         }
     }
 
     protected function doRender()
     {
-        // Render::setTitle(Dictionary::translate('lang_exams'));
-        //Render::addTemplate('page-exams', $_POST);
-
         if ($this->action === "show") {
             Render::setTitle("All Exams");
             Render::addTemplate('page-exams',
@@ -225,10 +239,11 @@ class Page_Exams extends Page
                   'vis_max_date' => strtotime('+3 month') * 1000
                 ]);
         } elseif ($this->action === "add") {
-            Render::setTitle("Add Exam");
-            Render::addTemplate('page-add-exam', ['locations' => $this->locations]);
+            Render::setTitle(Dictionary::translate('title_add-exam'));
+            $this->readLocations();
+            Render::addTemplate('page-add-edit-exam', ['locations' => $this->locations]);
         } elseif ($this->action === 'edit') {
-            Render::setTitle("Edit Exam");
+            Render::setTitle(Dictionary::translate('title_edit-exam'));
             $exam = [
                 'examid'    => $this->currentExam['examid'],
                 'starttime_date' => date('Y-m-d', $this->currentExam['starttime']),
@@ -237,9 +252,8 @@ class Page_Exams extends Page
                 'endtime_time' => date('H:i',   $this->currentExam['endtime']),
                 'description' => $this->currentExam['description']
             ];
-            Render::addTemplate('page-edit-exam', ['exam' => $exam, 'locations' => $this->locations]);
+            Render::addTemplate('page-add-edit-exam', ['exam' => $exam, 'locations' => $this->locations]);
         }
-        // Render::output('hi');
     }
 
 }
