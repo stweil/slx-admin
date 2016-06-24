@@ -12,8 +12,8 @@
 	</div>
 </div>
 <div class="sidebar-bg"></div>
-<nav class="navbar navbar-inverse sidebar" role="navigation">
-    <div class="container-fluid">
+<nav class="navbar navbar-inverse sidebar">
+	<div class="container-fluid">
 		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-sidebar-navbar-collapse-1">
@@ -73,22 +73,22 @@
 			</ul>
 
 			<ul class="nav navbar-nav navbar-right visible-sm visible-md" style="margin-top:10px">
-				{{#user}}
-				<ul class="btn-group">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-						{{user}}
-						<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu">
-						<li><a href="#">Settings</a></li>
-						<li role="separator" class="divider"></li>
-						<li><a href="#" onclick="$('#logoutForm').submit();">{{lang_logout}}</a></li>
-					</ul>
-				</ul>
-				{{/user}}
-				{{^user}}
-					<a type="button" href="?do=Session&action=login" class="btn btn-default">{{lang_login}}</a>
-				{{/user}}
+				<li>
+					{{#user}}
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							{{user}}
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu">
+							<li><a href="#">Settings</a></li>
+							<li role="separator" class="divider"></li>
+							<li><a href="#" onclick="$('#logoutForm').submit();">{{lang_logout}}</a></li>
+						</ul>
+					{{/user}}
+					{{^user}}
+						<a type="button" href="?do=Session&action=login" class="btn btn-default">{{lang_login}}</a>
+					{{/user}}
+				</li>
 			</ul>
 		</div>
 	</div>
