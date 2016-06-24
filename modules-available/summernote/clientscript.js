@@ -13,12 +13,12 @@ $.getScript(filename, function () {
 	$('.summernote').summernote( {
 		toolbar: [
 			// [groupName, [list of button]]
-			['style', ['bold', 'italic', 'underline', 'clear']],
-			['font', ['strikethrough', 'superscript', 'subscript']],
+			['para', ['style']],
+			['style', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
 			// ['fontsize', ['fontsize']],
 			['color', ['color']],
 			['para', ['ul', 'ol', 'paragraph']],
-			['misc', ['codeview', 'undo', 'redo', 'fullscreen']]
+			['misc', ['codeview', 'fullscreen']]
 				//['height', ['height']]
 		],
 		lang: LANG,
