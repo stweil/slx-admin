@@ -16,6 +16,7 @@ class Page_News extends Page
     private $newsDate = false;
     private $helpContent = '';
     private $editHelp = false;
+    private $hasSummernote = false;
 
     /**
      * Implementation of the abstract doPreprocess function.
@@ -25,6 +26,9 @@ class Page_News extends Page
      */
     protected function doPreprocess()
     {
+        /* load summernote module if available */
+        $this->hasSummernote = Module::isAvailable('summernote');
+        
         // load user, we will need it later
         User::load();
 
@@ -129,7 +133,8 @@ class Page_News extends Page
                 'latestHelp' => $this->helpContent,
                 'editHelp' => $this->editHelp,
                 'list' => $lines,
-                'listHelp' => $linesHelp, ));
+                'listHelp' => $linesHelp,
+                'hasSummernote' => $this->hasSummernote ));
     }
     /**
      * Loads the news with the given ID into the form.
