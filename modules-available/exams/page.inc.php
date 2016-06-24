@@ -116,6 +116,15 @@ class Page_Exams extends Page
         return $out;
     }
 
+    private function dateSane($time)
+    {
+        if ($time < strtotime('-1 day'))
+            return false;
+        if ($time > strtotime('+90 day'))
+            return false;
+        return true;
+    }
+
     private function saveExam()
     {
         if (!Request::isPost()) {
@@ -133,6 +142,18 @@ class Page_Exams extends Page
         $starttime   = strtotime(Request::post('starttime_date') . " " . Request::post('starttime_time'));
         $endtime     = strtotime(Request::post('endtime_date') . " " . Request::post('endtime_time'));
         $description = Request::post('description');
+        if (!$this->dateSane($starttime)) {
+            Message::addError('starttime-invalid', Request::post('starttime_date') . " " . Request::post('starttime_time'));
+            Util::redirect('?do=exams');
+        }
+        if (!$this->dateSane($endtime)) {
+            Message::addError('endtime-invalid', Request::post('endtime_date') . " " . Request::post('endtime_time'));
+            Util::redirect('?do=exams');
+        }
+        if ($endtime <= $starttime) {
+            Message::addError('end-before-start');
+            Util::redirect('?do=exams');
+        }
 
         if ($examid === 0) {
             // No examid given, is add

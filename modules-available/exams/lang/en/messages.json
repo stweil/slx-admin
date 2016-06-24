@@ -1,9 +1,12 @@
 {
     "changes-successfully-saved": "Changes successfully saved",
+    "end-before-start": "Exam ends before it starts!",
+    "endtime-invalid": "Invalid end time: {{0}}",
     "error-while-saving-changes": "Error saving changes",
     "exam-added-success": "Exam period successfully added",
     "exam-deleted-success": "Exam period successfully deleted",
     "exam-not-added": "Exam period was not added",
     "exam-not-deleted-error": "Exam period was not deleted",
-    "invalid-exam-id": "Invalid exam id: {{0}}"
+    "invalid-exam-id": "Invalid exam id: {{0}}",
+    "starttime-invalid": "Invalid start time: {{0}}"
 }
