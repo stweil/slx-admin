@@ -43,8 +43,14 @@
 <script type="application/javascript"><!--
 
 
-function customOrder(a, b) {
-	return 1000; // just in order of appeareance
+function itemOrderFun(a, b) {
+	return a.content.localeCompare(b.content);
+}
+
+function groupOrderFun(a, b) {
+	var s = a.sortIndex - b.sortIndex;
+	if (s != 0) return s;
+	return itemOrderFun(a, b);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -67,7 +73,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		'max'		: {{vis_max_date}},
 		'zoomMin': 6 * 3600 * 1000,
 		'zoomMax': 2 * 86400 * 1000,
-		'order' 	: customOrder,
+		'order' 	: itemOrderFun,
+		'groupOrder' : groupOrderFun,
 		'locale'	: language,
 		'moment'	: function(date) { return vis.moment(date).utc(); }
 	};

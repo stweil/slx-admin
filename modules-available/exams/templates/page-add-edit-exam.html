@@ -10,7 +10,7 @@
 		<label for="locations">{{lang_location}}</label>
 		<select id="locations" multiple name="locations[]">
 			{{#locations}}
-			<option value="{{locationid}}" {{#selected}}selected{{/selected}}> {{locationname}}</option>
+			<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
 			{{/locations}}
 		</select>
 	</div>

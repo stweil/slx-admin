@@ -13,14 +13,15 @@ class Page_Exams extends Page
 	protected function readLocations($examid = null)
 	{
 		if ($examid == null) {
-			$tmp = Database::simpleQuery("SELECT locationid, locationname FROM location;", []);
+			$active = 0;
 		} else {
-			$tmp = Database::simpleQuery("SELECT locationid, locationname, " .
-				"EXISTS(SELECT * FROM exams NATURAL JOIN exams_x_location WHERE locationid = x.locationid AND examid= :examid) AS selected FROM location x", compact('examid'));
+			$tmp = Database::simpleQuery("SELECT locationid FROM exams_x_location WHERE examid= :examid", compact('examid'));
+			$active = array();
+			while ($row = $tmp->fetch(PDO::FETCH_ASSOC)) {
+				$active[] = (int)$row['locationid'];
+			}
 		}
-		while ($loc = $tmp->fetch(PDO::FETCH_ASSOC)) {
-			$this->locations[] = $loc;
-		}
+		$this->locations = Location::getLocations($active);
 	}
 
 	protected function readExams()
@@ -99,7 +100,8 @@ class Page_Exams extends Page
 		foreach ($this->locations as $l) {
 			$out[] = [
 				'id' => $l['locationid'],
-				'content' => $l['locationname']
+				'content' => $l['locationpad'] . ' ' . $l['locationname'],
+				'sortIndex' => $l['sortIndex'],
 			];
 		}
 		return json_encode($out);

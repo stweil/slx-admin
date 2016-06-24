@@ -78,6 +78,7 @@ class Location
 		}
 		$del = false;
 		unset($row);
+		$index = 0;
 		foreach ($rows as $key => &$row) {
 			if ($del === false && $row['locationid'] == $excludeId) {
 				$del = $row['depth'];
@@ -91,6 +92,7 @@ class Location
 			if ((is_array($selected) && in_array($row['locationid'], $selected)) || (int)$row['locationid'] === $selected) {
 				$row['selected'] = true;
 			}
+			$row['sortIndex'] = $index++;
 		}
 		if ($addNoParent) {
 			array_unshift($rows, array(
