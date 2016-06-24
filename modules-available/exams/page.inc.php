@@ -62,7 +62,14 @@ class Page_Exams extends Page
 		$unique_ids = 1;
 		/* add the red shadows */
 		foreach ($this->exams as $e) {
-			foreach (explode(',', $e['locationids']) as $locationid) {
+			$locationids = explode(',', $e['locationids']);
+			if ($locationids[0] == 0) {
+				$locationids = [];
+				foreach($this->locations as $l) {
+					$locationids[] = $l['locationid'];
+				}
+			}
+			foreach ($locationids as $locationid) {
 				$out[] = ['id' => 'shadow_' . $unique_ids++,
 					'content' => '',
 					'start' => intval($e['starttime']) * 1000,
