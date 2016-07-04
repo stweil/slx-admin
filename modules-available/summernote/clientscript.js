@@ -14,13 +14,12 @@ $.getScript(filename, function () {
 		toolbar: [
 			// [groupName, [list of button]]
 			['para', ['style']],
-			['style', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
-			// ['fontsize', ['fontsize']],
+			['style', ['bold', 'italic', 'underline', 'clear']],
 			['color', ['color']],
-			['para', ['ul', 'ol', 'paragraph']],
+			['para', ['ul', 'ol']],
 			['misc', ['codeview', 'fullscreen']]
-				//['height', ['height']]
 		],
+		styleTags: ['p', 'pre', 'h1', 'h2', 'h3'],
 		lang: LANG,
 		height: '300px',
 	});
