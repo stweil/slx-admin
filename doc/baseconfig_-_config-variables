@@ -10,9 +10,9 @@ If you only enable the module "baseconfig", you will find that visiting
 the "configuration variables" menu entry in slx-admin shows a pretty empty
 page. However, if you additionally enable the baseconfig_bwlp module, many
 configuration variables will be shown.
-baseconfig_bwlp doesn't contain any config.json or page.inc.php, as its
-sole purpose is to supply wanted configuration variables. This is achieved
-by supplying two .json files.
+baseconfig_bwlp doesn't contain any page.inc.php, as its sole purpose is
+to supply wanted configuration variables. This is achieved by supplying
+two .json files.
 
 ./modules/<module>/baseconfig/categories.json: Defines categories for
 configuration variables. Syntax is <id>:<sort-order>
@@ -23,6 +23,15 @@ table from the database and contains pretty much the same information.
 
 Note that you can have multiple modules that supply categories.json or
 settings.json files. They will all be honored by the baseconfig module.
+
+To be able to supply translations for the config variables and categories
+defined by baseconfig_bwlp (or any other addon), you need to do two things:
+- Create config.json with baseconfig as dependency
+- Add the hooks/translation.inc.php file as seen in baseconfig_bwlp so the
+  translation module knows how to handle the translations
+(Alternatively, you can manually edit the translation files, in which case
+you don't need config.json and the translation hook)
+
 
 2) You can hook into the baseconfig API mechanism (previously known as
 the "getconfig" API) which creates the plain text output intended for
