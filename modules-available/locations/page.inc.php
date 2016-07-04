@@ -55,7 +55,7 @@ class Page_Locations extends Page
 				$count += $stmt->rowCount();
 			}
 		}
-		Message::addSuccess('updated-x-entries', $count);
+		Message::addSuccess('subnets-updated', $count);
 		Util::redirect('?do=Locations');
 	}
 	

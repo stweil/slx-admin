@@ -1,6 +1,10 @@
 {
-    "i18n-invalid-lang": "Invalid language: {{0}}",
-    "invalid-template": "Selected template is not valid",
     "i18n-empty-tag": "A string without tag was submitted",
+    "i18n-invalid-lang": "Invalid language: {{0}}",
+    "invalid-custom-handler": "Invalid custom handler {{0}}",
+    "invalid-section": "Invalid selection",
+    "invalid-template": "Selected template is not valid",
+    "no-custom-handlers": "Module has no custom handlers",
+    "no-module-given": "No module given",
     "updated-tags": "Tags have been updated"
 }
