@@ -56,10 +56,11 @@ class Dictionary
 		$file = Util::safePath("modules/{$module}/lang/{$lang}/{$path}.json");
 		if (isset(self::$stringCache[$file]))
 			return self::$stringCache[$file];
-		$content = @file_get_contents($file);
+		if (!file_exists($file))
+			return array();
+		$content = file_get_contents($file);
 		if ($content === false) { // File does not exist for language
 			$content = '[]';
-			error_log("getArray called for non-existent $file");
 		}
 		$json = json_decode($content, true);
 		if (!is_array($json)) {
@@ -154,6 +155,34 @@ class Dictionary
 			$name = $langCC;
 		}
 		return $name;
+	}
+
+	/**
+	 * Get an <img> tag for the given language. If there is no flag image,
+	 * fall back to generating a .badge with the CC.
+	 * If long mode is requested, returns the name of the language right next
+	 * to the image, otherwise, it is just added as the title attribute.
+	 *
+	 * @param $caption bool with caption next to <img>
+	 * @param $langCC string Language cc to get flag code for - defaults to current language
+	 * @retrun string html code of img tag for language
+	 */
+	public static function getFlagHtml($caption = false, $langCC = false)
+	{
+		if ($langCC === false) {
+			$langCC = LANG;
+		}
+		$flag = "lang/$langCC/flag.png";
+		$name = htmlspecialchars(self::getLanguageName($langCC));
+		if (file_exists($flag)) {
+			$img = '<img alt="' . $name . '" title="' . $name . '" src="' . $flag . '"> ';
+			if ($caption) {
+				$img .= $name;
+			}
+		} else {
+			$img = '<div class="badge" title="' . $name . '">' . $langCC . '</div>';
+		}
+		return $img;
 	}
 
 }
