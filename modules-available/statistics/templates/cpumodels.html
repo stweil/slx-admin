@@ -33,13 +33,13 @@
 								animation: false,
 								tooltipTemplate: "<%if (label){%><%=label%><%}%>",
 								customTooltips: function(tooltip) {
-									if (sel !== false) sel.removeClass('info');
+									if (sel !== false) sel.removeClass('slx-bold');
 									if (!tooltip) {
 										sel = false;
 										return;
 									}
 									sel = $('#' + tooltip.text);
-									sel.addClass('info');
+									sel.addClass('slx-bold');
 								}
 							});
 						}, false);

@@ -452,7 +452,10 @@ class Page_Statistics extends Page
 		$client['firstseen_s'] = date('d.m.Y H:i', $client['firstseen']);
 		$client['lastseen_s'] = date('d.m.Y H:i', $client['lastseen']);
 		$uptime = $NOW - $client['lastboot'];
-		$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']) . ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
+		$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']);
+		if (!isset($client['state_off']) || !$client['state_off']) {
+			$client['lastboot_s'] .= ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
+		}
 		$client['logintime_s'] = date('d.m.Y H:i', $client['logintime']);
 		$client['gbram'] = round(round($client['mbram'] / 500) / 2, 1);
 		$client['gbtmp'] = round($client['id44mb'] / 1024);
