@@ -77,20 +77,31 @@
 
 <script type="application/javascript"><!--
 document.addEventListener("DOMContentLoaded", function () {
-	var dateSettings = {
-		format: 'yyyy-mm-dd',
-		weekStart: 1,
-		startDate: 'today',
-	};
-	var timeSettings = {
-		showSeconds: false,
-		showMeridian: false,
-		minuteStep: 5,
-		appendWidgetTo: 'body'
-	};
-	$('.datepicker').datepicker(dateSettings);
-	$('.timepicker2').timepicker(timeSettings);
+	var filename = "modules/bootstrap_datepicker/lang/bootstrap-datepicker." + LANG + ".js";
 
-	$('#locations').multiselect({numberDisplayed: 1});
+	$.getScript(filename)
+		.always(function () {
+			/* TODO: generalize this (set locale in the clientscript.js of bootstrap_datepicker) */
+		var dateSettings = {
+				format: 'yyyy-mm-dd',
+				weekStart: 1,
+				startDate: 'today',
+				language: LANG
+			};
+			var timeSettings = {
+				showSeconds: false,
+				showMeridian: false,
+				minuteStep: 5,
+				appendWidgetTo: 'body'
+
+			};
+			$('.datepicker').datepicker(dateSettings);
+			$('.timepicker2').timepicker(timeSettings);
+
+			$('#locations').multiselect({numberDisplayed: 1});
+
+
+		});
+
 }, false);
 // --></script>
