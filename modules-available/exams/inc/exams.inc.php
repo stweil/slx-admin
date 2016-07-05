@@ -14,10 +14,10 @@ class Exams
 		} elseif (empty($locationIds)) {
 			return false;
 		}
-		$l = str_repeat(',?', count($locationIds) - 1);
+		$l = str_repeat(',?', count($locationIds));
 		$res = Database::queryFirst("SELECT examid FROM exams"
 			. " INNER JOIN exams_x_location USING (examid)"
-			. " WHERE UNIX_TIMESTAMP() BETWEEN starttime AND endtime AND locationid IN (?$l) LIMIT 1", $locationIds);
+			. " WHERE UNIX_TIMESTAMP() BETWEEN starttime AND endtime AND locationid IN (0$l) LIMIT 1", $locationIds);
 		return $res !== false;
 	}
 
