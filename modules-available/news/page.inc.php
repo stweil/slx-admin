@@ -48,8 +48,9 @@ class Page_News extends Page
             $this->newsContent = false;
             $this->newsDate = false;
         } elseif ($action === 'show') {
-            /* load latest help */
-            $this->loadLatestHelp(Request::any('newsid'));
+            /* load latest things */
+            $this->loadLatest('help');
+            $this->loadLatest('news');
 
             /* and also the news (or help) with the given id */
             if (!$this->loadNews(Request::any('newsid'))) {
@@ -158,6 +159,7 @@ class Page_News extends Page
                 $this->newsTitle = $row['title'];
                 $this->newsContent = $row['content'];
                 $this->newsDate = $row['dateline'];
+                $this->editHelp = false;
             } else {
                 $this->editHelp = true;
                 $this->helpContent = $row['content'];
@@ -167,11 +169,18 @@ class Page_News extends Page
         return $row !== false;
     }
 
-    private function loadLatestHelp()
+    private function loadLatest($type)
     {
-        $row = Database::queryFirst("SELECT newsid, content, dateline, type FROM vmchooser_pages WHERE type='help' ORDER BY dateline DESC LIMIT 1", []);
+        $row = Database::queryFirst("SELECT newsid, title, content, dateline, type FROM vmchooser_pages WHERE type=:type ORDER BY dateline DESC LIMIT 1", ['type' => $type]);
         if ($row !== false) {
-            $this->helpContent = $row['content'];
+            if ($row['type'] == 'news') {
+                $this->newsId = $row['newsid'];
+                $this->newsTitle = $row['title'];
+                $this->newsContent = $row['content'];
+                $this->newsDate = $row['dateline'];
+            } else {
+                $this->helpContent = $row['content'];
+            }
         }
     }
 
