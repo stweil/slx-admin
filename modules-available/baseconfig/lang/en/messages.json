@@ -1,3 +1,5 @@
 {
+    "invalid-hook": "Module {{0}} has an invalid baseconfig hook",
+    "no-module-hook": "Module {{0}} doesn't have a baseconfig hook",
     "settings-updated": "Settings have been updated"
 }

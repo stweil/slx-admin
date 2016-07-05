@@ -1,6 +1,10 @@
 {
-    "i18n-invalid-lang": "Ung\u00fcltige Sprache: {{0}}",
-    "invalid-template": "Ausgew\u00e4hlte Template ist nicht g\u00fcltig",
     "i18n-empty-tag": "Ein String wurde ohne Tag \u00fcbermittelt",
+    "i18n-invalid-lang": "Ung\u00fcltige Sprache: {{0}}",
+    "invalid-custom-handler": "Ung\u00fcltiger \"custom handler\" {{0}}",
+    "invalid-section": "Ung\u00fcltige Auswahl",
+    "invalid-template": "Ausgew\u00e4hlte Template ist nicht g\u00fcltig",
+    "no-custom-handlers": "Modul hat keine \"custom handlers\"",
+    "no-module-given": "Kein Modul angegeben",
     "updated-tags": "Tags wurden aktualisiert"
 }

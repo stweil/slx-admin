@@ -21,7 +21,42 @@ class Page_Locations extends Page
 			$this->updateLocation();
 		} elseif ($this->action === 'addlocations') {
 			$this->addLocations();
+		} elseif ($this->action === 'updatesubnets') {
+			$this->updateSubnets();
 		}
+	}
+
+	private function updateSubnets()
+	{
+		$count = 0;
+		$starts = Request::post('startaddr', false);
+		$ends = Request::post('endaddr', false);
+		$locs = Request::post('location', false);
+		if (!is_array($starts) || !is_array($ends) || !is_array($locs)) {
+			Message::addError('main.empty-field');
+			Util::redirect('?do=Locations');
+		}
+		$existingLocs = Location::getLocationsAssoc();
+		$stmt = Database::prepare("UPDATE subnet SET startaddr = :startLong, endaddr = :endLong, locationid = :loc WHERE subnetid = :subnetid");
+		foreach ($starts as $subnetid => $start) {
+			if (!isset($ends[$subnetid]) || !isset($locs[$subnetid]))
+				continue;
+			$loc = (int)$locs[$subnetid];
+			$end = $ends[$subnetid];
+			if (!isset($existingLocs[$loc])) {
+				Message::addError('main.value-invalid', 'locationid', $loc);
+				continue;
+			}
+			$range = $this->rangeToLongVerbose($start, $end);
+			if ($range === false)
+				continue;
+			list($startLong, $endLong) = $range;
+			if ($stmt->execute(compact('startLong', 'endLong', 'loc', 'subnetid'))) {
+				$count += $stmt->rowCount();
+			}
+		}
+		Message::addSuccess('subnets-updated', $count);
+		Util::redirect('?do=Locations');
 	}
 	
 	private function addLocations()
@@ -147,7 +182,7 @@ class Page_Locations extends Page
 			Message::addSuccess('location-updated', $newName);
 		}
 	}
-	
+
 	private function updateLocationSubnets()
 	{
 		// Deletion first
@@ -177,18 +212,10 @@ class Page_Locations extends Page
 		foreach ($starts as $key => $start) {
 			if (!isset($ends[$key]) || !is_numeric($key)) continue;
 			$end = $ends[$key];
-			list($startLong, $endLong) = $this->rangeToLong($start, $end);
-			if ($startLong === false) {
-				Message::addWarning('main.value-invalid', 'start addr', $start);
-			}
-			if ($endLong === false) {
-				Message::addWarning('main.value-invalid', 'end addr', $start);
-			}
-			if ($startLong === false || $endLong === false) continue;
-			if ($startLong > $endLong) {
-				Message::addWarning('main.value-invalid', 'range', $start . ' - ' . $end);
+			$range = $this->rangeToLongVerbose($start, $end);
+			if ($range === false)
 				continue;
-			}
+			list($startLong, $endLong) = $range;
 			if ($stmt->execute(array('id' => $key, 'start' => $startLong, 'end' => $endLong))) {
 				$count += $stmt->rowCount();
 			}
@@ -390,6 +417,7 @@ class Page_Locations extends Page
 				. ' INNER JOIN sat.lecture_x_location ll ON (l.lectureid = ll.lectureid AND ll.locationid = :lid)',
 				array('lid' => $locationId));
 			$data['lectures'] = $lectures['cnt'];
+			$data['haveDozmod'] = true;
 		}
 		// Get clients matching this location's subnet(s)
 		$count = $online = $used = 0;
@@ -407,6 +435,7 @@ class Page_Locations extends Page
 					}
 				}
 			}
+			$data['haveStatistics'] = true;
 		}
 		$data['machines'] = $count;
 		$data['machines_online'] = $online;
@@ -430,6 +459,25 @@ class Page_Locations extends Page
 			$endLong = sprintf("%u", $endLong);
 		}
 		return array($startLong, $endLong);
+	}
+
+	private function rangeToLongVerbose($start, $end)
+	{
+		$result = $this->rangeToLong($start, $end);
+		list($startLong, $endLong) = $result;
+		if ($startLong === false) {
+			Message::addWarning('main.value-invalid', 'start addr', $start);
+		}
+		if ($endLong === false) {
+			Message::addWarning('main.value-invalid', 'end addr', $start);
+		}
+		if ($startLong === false || $endLong === false)
+			return false;
+		if ($startLong > $endLong) {
+			Message::addWarning('main.value-invalid', 'range', $start . ' - ' . $end);
+			return false;
+		}
+		return $result;
 	}
 
 }

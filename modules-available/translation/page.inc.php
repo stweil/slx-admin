@@ -593,20 +593,26 @@ class Page_Translation extends Page
 
 	private function checkModuleTranslation($module)
 	{
-		$tags = $this->loadUsedTemplateTags($module);
+		$templateTags = $this->loadUsedTemplateTags($module);
+		$messageTags = $this->loadUsedMessageTags($module);
+		$moduleTags = $this->loadUsedModuleTags($module);
 		$msgs = '';
 		foreach (Dictionary::getLanguages() as $lang) {
-			list($missing, $unused) = $this->getModuleTemplateStatus($lang, $tags, $module);
+			list($m1, $u1) = $this->getModuleTemplateStatus($lang, $templateTags, $module);
+			list($m2, $u2) = $this->getModuleTranslationStatus($lang, 'messages', true, $messageTags, $module);
+			list($m3, $u3) = $this->getModuleTranslationStatus($lang, 'module', true, $moduleTags, $module);
+			$missing = $m1 + $m2 + $m3;
+			$unused = $u1 + $u2 + $u3;
 
 			$msg = "";
 			if ($missing > 0) {
-				$msg .= " [$missing JSON tag(s) are missing] ";
+				$msg .= " [$missing missing] ";
 			}
 			if ($unused > 0) {
-				$msg .= " [$unused JSON tag(s) are not being used] ";
+				$msg .= " [$unused not being used] ";
 			}
 			if(!empty($msg)) {
-				$msgs .= "<div><div class='pull-left'><div class='badge'>$lang</div></div> $msg<div class='clearfix'></div></div>";
+				$msgs .= '<div><div class="pull-left">' . Dictionary::getFlagHtml(false, $lang) . '</div>' . $msg . '<div class="clearfix"></div></div>';
 			}
 		}
 		if(empty($msgs)) {

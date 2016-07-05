@@ -11,7 +11,12 @@
 		<tbody>
 			{{#table}}
 				<tr>
-					<td><a href="?do=Translation&amp;module={{module}}">{{module}}</a></td>
+					<td>
+						{{#depfail}}
+						<div class="pull-right"><span class="red glyphicon glyphicon-exclamation-sign" title="{{lang_missingDeps}}"></span></div>
+						{{/depfail}}
+						<a href="?do=Translation&amp;module={{module}}">{{module}}</a>
+					</td>
 					<td>{{{status}}}</td>
 				</tr>
 			{{/table}}

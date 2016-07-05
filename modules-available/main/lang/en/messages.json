@@ -1,12 +1,14 @@
 {
-    "no-permission": "No sufficient privileges to access this page",
-    "error-write": "Failed to write {{0}}",
+    "debug-mode": "The debug mode is active!",
     "empty-field": "A field was not filled",
-    "value-invalid": "The value {{1}} is invalid for option {{0}} and has been ignored",
     "error-read": "Error reading {{0}}",
-    "taskmanager-error": "Failed to connect to the Task Manager",
+    "error-write": "Failed to write {{0}}",
+    "module-missing-deps": "Module {{0}} has missing dependencies",
+    "no-permission": "No sufficient privileges to access this page",
+    "no-such-module": "Modul {{0}} existiert nicht",
     "task-error": "Execution failed: {{0}}",
+    "taskmanager-error": "Failed to connect to the Task Manager",
     "taskmanager-format": "Task Manager has returned invalid data",
     "token": "Invalid token. CSRF attack?",
-    "debug-mode": "The debug mode is active!"
+    "value-invalid": "The value {{1}} is invalid for option {{0}} and has been ignored"
 }

@@ -1,0 +1,6 @@
+/* Make things look more like they will show up in vmchooser (Qt) */
+
+.note-editor pre {
+    background: none;
+    border: none;
+}
