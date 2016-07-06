@@ -11,25 +11,25 @@
 				<table id="modtable" class="slx-table" style="max-width:100px !important">
 					{{#modules}}
 					<tr>
-						<td class="badge slx-nowrap">{{moduletype}}</td>
-						<td data-id="{{moduleid}}" class="modrow slx-width-ignore slx-nowrap" width="100%"><div class="slx-dyn-ellipsis">{{module}}</div></td>
+						<td class="badge slx-nowrap">{{moduleType}}</td>
+						<td data-id="{{id}}" class="modrow slx-width-ignore slx-nowrap" width="100%"><div class="slx-dyn-ellipsis">{{title}}</div></td>
 						<td class="slx-nowrap">
-							{{#iscustom}}
-							<button class="btn btn-default btn-xs" name="list" value="{{moduleid}}" title="{{lang_show}}"><span class="glyphicon glyphicon-eye-open"></span></button>
-							<button class="btn btn-default btn-xs" name="download" value="{{moduleid}}" title="{{lang_download}}"><span class="glyphicon glyphicon-download-alt"></span></button>
-							{{/iscustom}}
+							{{#allowDownload}}
+							<button class="btn btn-default btn-xs" name="list" value="{{id}}" title="{{lang_show}}"><span class="glyphicon glyphicon-eye-open"></span></button>
+							<button class="btn btn-default btn-xs" name="download" value="{{id}}" title="{{lang_download}}"><span class="glyphicon glyphicon-download-alt"></span></button>
+							{{/allowDownload}}
 						</td>
 						<td class="slx-nowrap">
 							<button
-									{{#needrebuild}}
+									{{#needRebuild}}
 									class="refmod btn btn-primary btn-xs"
-									{{/needrebuild}}
-							{{^needrebuild}}
+									{{/needRebuild}}
+							{{^needRebuild}}
 							class="refmod btn btn-default btn-xs"
-							{{/needrebuild}}
-							name="rebuild" value="{{moduleid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
-							<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{moduletype}}_Start&amp;edit={{moduleid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
-							<button class="btn btn-danger btn-xs" name="del" value="{{moduleid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
+							{{/needRebuild}}
+							name="rebuild" value="{{id}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
+							<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{moduleType}}_Start&amp;edit={{id}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
+							<button class="btn btn-danger btn-xs" name="del" value="{{id}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
 						</td>
 					</tr>
 					{{/modules}}

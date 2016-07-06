@@ -53,4 +53,9 @@ class ConfigModule_CustomModule extends ConfigModule
 		return false;
 	}
 
+	public function allowDownload()
+	{
+		return true;
+	}
+
 }

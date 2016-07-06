@@ -1,6 +1,6 @@
 <?php
 
-if (!file_exists(CONFIG_HTTP_DIR . '/default/config.tgz')) {
+if (false === Database::queryFirst("SELECT locationid FROM configtgz_location WHERE locationid = 0")) {
 	Message::addError('sysconfig.no-noconfig-active', true);
 	$needSetup = true;
 }

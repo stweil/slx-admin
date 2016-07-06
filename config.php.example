@@ -27,7 +27,8 @@ define('CONFIG_VMSTORE_DIR', '/srv/openslx/nfs');
 define('CONFIG_PROXY_CONF', '/opt/openslx/proxy/config');
 
 /* for the dozmod API proxy cache */ 
-define('CONFIG_DOZMOD_EXPIRE', 60*60); // 1 Minute
+define('CONFIG_DOZMOD_URL', 'http://127.0.0.1:9080');
+define('CONFIG_DOZMOD_EXPIRE', 60);
 
 // Sort order for menu - optional, if missing, order will be alphabetically
 $MENU_CAT_SORT_ORDER = array('main.content' => 0, 'main.settings-client' => 1, 'main.settings-server' => 2, 'main.status' => 3, 'main.users' => 4);

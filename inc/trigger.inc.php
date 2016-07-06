@@ -86,19 +86,16 @@ class Trigger
 	public static function ldadp($exclude = NULL, $parent = NULL)
 	{
 		// TODO: Fetch list from ConfigModule_AdAuth (call loadDb first)
-		$res = Database::simpleQuery("SELECT moduleid, configtgz.filepath FROM configtgz_module"
+		$res = Database::simpleQuery("SELECT DISTINCT moduleid FROM configtgz_module"
 				. " INNER JOIN configtgz_x_module USING (moduleid)"
 				. " INNER JOIN configtgz USING (configid)"
+				. " INNER JOIN configtgz_location USING (configid)"
 				. " WHERE moduletype IN ('AdAuth', 'LdapAuth')");
-		// TODO: Multiconfig support
 		$id = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (readlink('/srv/openslx/www/boot/default/config.tgz') === $row['filepath']) {
-				if (!is_null($exclude) && (int)$row['moduleid'] === (int)$exclude)
-					continue;
-				$id[] = (int)$row['moduleid'];
-				break;
-			}
+			if (!is_null($exclude) && (int)$row['moduleid'] === (int)$exclude)
+				continue;
+			$id[] = (int)$row['moduleid'];
 		}
 		$task = Taskmanager::submit('LdadpLauncher', array(
 				'ids' => $id,
