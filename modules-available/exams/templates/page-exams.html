@@ -13,12 +13,16 @@
 			{{#exams}}
 			<tr class="{{rowClass}}">
 				<td>{{examid}}</td>
-				<td>{{locationnames}} </td>
-				<td>{{starttime}}</td>
-				<td>{{endtime}}</td>
 				<td>
-					<form method="POST" action="?do=exams&action=delete" onsubmit="return confirm('{{lang_deleteConfirmation}}');">
-						<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
+					{{locationnames}}
+					<div class="small">{{description}}</div>
+				</td>
+				<td class="slx-nowrap">{{starttime_s}}</td>
+				<td class="slx-nowrap">{{endtime_s}}</td>
+				<td class="slx-nowrap">
+					<form method="POST" action="?do=exams&action=delete" {{#confirmDelete}}onsubmit="return confirm('{{lang_deleteConfirmation}}');"{{/confirmDelete}} >
+					<span onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></span>
+					<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
 						<input type="hidden" name="token" value="{{token}}">
 						<input type="hidden" name="examid" value="{{examid}}">
 						<button class="btn {{btnClass}} btn-sm">{{lang_delete}}</button>
@@ -53,12 +57,12 @@ function groupOrderFun(a, b) {
 	return itemOrderFun(a, b);
 }
 
+var slxTimeline;
+
 document.addEventListener("DOMContentLoaded", function () {
 	var container = document.getElementById('timeline');
 	var groups_plain = {{{rooms_json}}};
 	var items_plain = {{{exams_json}}};
-	console.log(groups_plain);
-	console.log(items_plain);
 	var groups = new vis.DataSet(groups_plain);
 	var items = new vis.DataSet(items_plain);
 
@@ -79,7 +83,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		'moment'	: function(date) { return vis.moment(date).utc(); }
 	};
 
-	var timeline = new vis.Timeline(container, items, groups, options);
+	slxTimeline = new vis.Timeline(container, items, groups, options);
 }, false);
+
+function slxShow(st, et) {
+	slxTimeline.setWindow(st * 1000, et * 1000);
+}
 
 // --></script>

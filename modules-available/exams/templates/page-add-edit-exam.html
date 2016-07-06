@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				format: 'yyyy-mm-dd',
 				weekStart: 1,
 				startDate: 'today',
+				todayHighlight: true,
 				language: LANG
 			};
 			var timeSettings = {
@@ -102,6 +103,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 		});
+
+	$('#starttime_date').focusout(function () {
+		var start = $('#starttime_date').val();
+		var end = $('#endtime_date').val();
+		var ok = end.length === 0;
+		if (!ok) {
+			var ms = moment(start, 'YYYY-MM-DD');
+			var me = moment(end, 'YYYY-MM-DD');
+			ok = !me.isValid() || me.isBefore(ms);
+		}
+		if (ok) {
+			$('#endtime_date').val(start);
+		}
+	});
 
 }, false);
 // --></script>
