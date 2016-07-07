@@ -138,9 +138,9 @@ class Page_Exams extends Page
 			if ($exam['endtime'] < $now) {
 				$exam['rowClass'] = 'gray';
 				$exam['btnClass'] = 'btn-success';
+				$exam['liesInPast'] = true;
 			} else {
 				$exam['btnClass'] = 'btn-default';
-				$exam['confirmDelete'] = true;
 			}
 			$exam['starttime_s'] = date('Y-m-d H:i', $exam['starttime']);
 			$exam['endtime_s'] = date('Y-m-d H:i', $exam['endtime']);
@@ -296,7 +296,8 @@ class Page_Exams extends Page
 					'vis_begin' => strtotime('-5 minute') * 1000,
 					'vis_end' => strtotime('+2 day') * 1000,
 					'vis_min_date' => $this->rangeMin * 1000,
-					'vis_max_date' => $this->rangeMax * 1000
+					'vis_max_date' => $this->rangeMax * 1000,
+					'axis_label' => (count($this->locations) > 5 ? 'both' : 'bottom')
 				]);
 		} elseif ($this->action === "add") {
 			Render::setTitle(Dictionary::translate('title_add-exam'));

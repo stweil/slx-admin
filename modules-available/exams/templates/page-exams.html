@@ -20,9 +20,11 @@
 				<td class="slx-nowrap">{{starttime_s}}</td>
 				<td class="slx-nowrap">{{endtime_s}}</td>
 				<td class="slx-nowrap">
-					<form method="POST" action="?do=exams&action=delete" {{#confirmDelete}}onsubmit="return confirm('{{lang_deleteConfirmation}}');"{{/confirmDelete}} >
-					<span onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></span>
-					<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
+					<form method="POST" action="?do=exams&action=delete" {{^liesInPast}}onsubmit="return confirm('{{lang_deleteConfirmation}}');"{{/liesInPast}} >
+						{{^liesInPast}}
+						<span onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></span>
+						{{/liesInPast}}
+						<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
 						<input type="hidden" name="token" value="{{token}}">
 						<input type="hidden" name="examid" value="{{examid}}">
 						<button class="btn {{btnClass}} btn-sm">{{lang_delete}}</button>
@@ -70,17 +72,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	var options = {
 		'start' 	: {{vis_begin}},
-		'end' 		: {{vis_end}},
+		'end'    : {{vis_end}},
 		'stack' 	: false,
-		'editable'	: false,
+		'editable': false,
 		'min'		: {{vis_min_date}},
 		'max'		: {{vis_max_date}},
 		'zoomMin': 6 * 3600 * 1000,
 		'zoomMax': 2 * 86400 * 1000,
 		'order' 	: itemOrderFun,
-		'groupOrder' : groupOrderFun,
+		'groupOrder': groupOrderFun,
 		'locale'	: language,
-		'moment'	: function(date) { return vis.moment(date).utc(); }
+		'moment'	: function(date) { return vis.moment(date).utc(); },
+		'orientation': { 'axis': '{{axis_label}}' }
 	};
 
 	slxTimeline = new vis.Timeline(container, items, groups, options);
