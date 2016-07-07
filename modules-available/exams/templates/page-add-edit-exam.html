@@ -7,7 +7,9 @@
 
 <form class="form" method="POST" action="?do=exams" id="tolleform">
 	<div class="form-group">
-		<label for="locations">{{lang_location}}</label>
+		<div>
+			<label for="locations">{{lang_location}}</label>
+		</div>
 		<select id="locations" multiple name="locations[]">
 			{{#locations}}
 			<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
@@ -56,7 +58,7 @@
 				<span class="input-group-addon">
 					<span class="glyphicon glyphicon-time"></span>
 				</span>
-				<input required type="texxt" class="form-control timepicker2" name="endtime_time" id="endtime_time"
+				<input required type="text" class="form-control timepicker2" name="endtime_time" id="endtime_time"
 						 value="{{exam.endtime_time}}"
 						 pattern="[0-9]{1,2}:[0-9]{2}">
 			</div>
