@@ -68,12 +68,20 @@ class Module
 	/**
 	 * @return \Module[] List of valid, enabled modules
 	 */
-	public static function getEnabled()
+	public static function getEnabled($sortById = false)
 	{
 		$ret = array();
+		$sort = array();
 		foreach (self::$modules as $module) {
-			if (self::resolveDeps($module))
+			if (self::resolveDeps($module)) {
 				$ret[] = $module;
+			}
+			if ($sortById) {
+				$sort[] = $module->name;
+			}
+		}
+		if ($sortById) {
+			array_multisort($sort, SORT_ASC, $ret);
 		}
 		return $ret;
 	}

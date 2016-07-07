@@ -30,10 +30,21 @@ define('CONFIG_PROXY_CONF', '/opt/openslx/proxy/config');
 define('CONFIG_DOZMOD_URL', 'http://127.0.0.1:9080');
 define('CONFIG_DOZMOD_EXPIRE', 60);
 
-// Sort order for menu - optional, if missing, order will be alphabetically
-$MENU_CAT_SORT_ORDER = array('main.content' => 0, 'main.settings-client' => 1, 'main.settings-server' => 2, 'main.status' => 3, 'main.users' => 4);
-$MENU_SETTING_SORT_ORDER = array(
-	'news' => 0, 'sysconfig' => 1, 'baseconfig' => 2, 'locations' => 3, // main.content
-	'serversetup' => 0, 'internetaccess' => 1, 'vmstore' => 2, 'webinterface' => 3, 'backup' => 4, // main.settings
-	'systemstatus' => 0, 'eventlog' => 1, 'syslog' => 2, 'statistics' => 3 // main.status
+// Sort order for menu
+// Optional - if missing, will be sorted by module id (internal name)
+// Here it is also possible to assign a module to a different category,
+// overriding the config.json entry
+$MENU_CAT_OVERRIDE = array(
+	'main.content' => array(
+		'news', 'locations', 'exams', 'dozmod', 'translation'
+	),
+	'main.settings-client' => array(
+		'sysconfig', 'baseconfig', 'minilinux'
+	),
+	'main.settings-server' => array(
+		'serversetup', 'vmstore', 'webinterface', 'backup'
+	),
+	'main.status' => array(
+		'systemstatus', 'eventlog', 'syslog', 'statistics'
+	)
 );
