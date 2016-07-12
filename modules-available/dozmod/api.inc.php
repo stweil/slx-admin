@@ -28,7 +28,7 @@ function cache_hash($obj)
 
 function cache_key_to_filename($key)
 {
-	return "/tmp/bwlp-slxadmin-cache-$key"; // TODO: hash
+	return "/tmp/bwlp-slxadmin-cache-$key";
 }
 
 function cache_put($key, $value)
@@ -51,7 +51,6 @@ function cache_has($key)
 		return true;
 	}
 }
-
 
 function cache_get($key)
 {
@@ -80,18 +79,6 @@ function cache_get_passthru($key)
 * lecture_uuid = client can choose
 **/
 
-
-/**
- * Get list of active lectures for given locations.
- *
- * @return string the raw xml data.
- */
-function _getLecturesForLocations($locationIds, $examMode)
-{
-	$ids = implode('%20', $locationIds);
-	$url = LIST_URL . "?locations=$ids" . ($examMode ? '&exams' : '');
-	return Download::asString($url, 60, $code);
-}
 
 /**
  * Takes raw lecture list xml, returns array of uuids.
@@ -135,7 +122,11 @@ function getListForLocations($locationIds, $raw)
 		return unserialize(cache_get($key));
 	}
 	// Not in cache
-	$value = _getLecturesForLocations($locationIds, $examMode);
+	$url = LIST_URL . "?locations=" . implode('%20', $locationIds);
+	if ($examMode) {
+		$url .= '&exams';
+	}
+	$value = Download::asString($url, 60, $code);
 	if ($value === false)
 		return false;
 	cache_put($rawKey, $value);
