@@ -38,11 +38,11 @@ $MENU_CAT_OVERRIDE = array(
 	'main.content' => array(
 		'news', 'locations', 'exams', 'dozmod', 'translation'
 	),
-	'main.settings-client' => array(
-		'sysconfig', 'baseconfig', 'minilinux'
-	),
 	'main.settings-server' => array(
 		'serversetup', 'vmstore', 'webinterface', 'backup'
+	),
+	'main.settings-client' => array(
+		'sysconfig', 'baseconfig', 'minilinux'
 	),
 	'main.status' => array(
 		'systemstatus', 'eventlog', 'syslog', 'statistics'
