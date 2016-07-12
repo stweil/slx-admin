@@ -321,7 +321,7 @@ class Page_Locations extends Page
 		if (Module::isAvailable('sysconfig')) {
 			$confs = SysConfig::getAll();
 			foreach ($confs as $conf) {
-				if (empty($conf['locs']))
+				if (strlen($conf['locs']) === 0)
 					continue;
 				$confLocs = explode(',', $conf['locs']);
 				foreach ($confLocs as $loc) {
