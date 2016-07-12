@@ -1,0 +1,52 @@
+<h2>{{lang_headingGraphicalOverview}}</h2>
+
+<div id="timeline" class="slx-space"></div>
+
+<script type="application/javascript"><!--
+
+
+function itemOrderFun(a, b) {
+	return a.content.localeCompare(b.content);
+}
+
+function groupOrderFun(a, b) {
+	var s = a.sortIndex - b.sortIndex;
+	if (s != 0) return s;
+	return itemOrderFun(a, b);
+}
+
+var slxTimeline;
+
+document.addEventListener("DOMContentLoaded", function () {
+	var container = document.getElementById('timeline');
+	var groups_plain = {{{rooms_json}}};
+	var items_plain = {{{exams_json}}};
+	var groups = new vis.DataSet(groups_plain);
+	var items = new vis.DataSet(items_plain);
+
+	var language = window.navigator.userLanguage || window.navigator.language;
+
+	var options = {
+		'start' 	: {{vis_begin}},
+	'end'    : {{vis_end}},
+	'stack' 	: false,
+			'editable': false,
+			'min'		: {{vis_min_date}},
+	'max'		: {{vis_max_date}},
+	'zoomMin': 6 * 3600 * 1000,
+			'zoomMax': 2 * 86400 * 1000,
+			'order' 	: itemOrderFun,
+			'groupOrder': groupOrderFun,
+			'locale'	: language,
+			'moment'	: function(date) { return vis.moment(date).utcOffset('{{utc_offset}}'); },
+	'orientation': { 'axis': '{{axis_label}}' }
+};
+
+	slxTimeline = new vis.Timeline(container, items, groups, options);
+}, false);
+
+function slxShow(st, et) {
+	slxTimeline.setWindow(st * 1000, et * 1000);
+}
+
+// --></script>

@@ -1,6 +1,6 @@
 {
-    "module_name": "Klausurmodus",
-    "title_add-exam": "Klausur hinzuf\u00fcgen",
-    "title_edit-exam": "Klausur bearbeiten",
-    "warning_lecture_is_not_enabled": "Warnung: Diese Vorlesung ist nicht vom Dozenten aktiviert"
+    "module_name": "Pr\u00fcfungsmodus",
+    "title_add-exam": "Pr\u00fcfungszeitraum hinzuf\u00fcgen",
+    "title_edit-exam": "Pr\u00fcfungszeitraum bearbeiten",
+    "warning_lecture_is_not_enabled": "Warnung: Diese Veranstaltung ist nicht vom Dozenten aktiviert worden"
 }

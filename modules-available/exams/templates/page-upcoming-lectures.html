@@ -1,0 +1,34 @@
+<h2>{{lang_headingAllExamLectures}}</h2>
+
+<div class="slx-space">
+	<table class="table">
+		<tr>
+			<th>{{lang_lectureName}}</th>
+			<th>{{lang_timeFrame}}</th>
+			<th>{{lang_actions}}</th>
+		</tr>
+		{{#pending_lectures}}
+		<tr>
+			<td>
+				{{displayname}}
+				<div class="small">
+					<a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a>
+				</div>
+			</td>
+			<td width="30%" class="text-nowrap">
+				{{starttime_s}} &ensp; {{endtime_s}}
+				<div class="small">{{duration_s}}</div>
+			</td>
+			<td width="20%">
+				<div class="pull-right text-nowrap">
+					<a class="btn btn-sm btn-default" role="button" onclick="slxShow({{starttime}}, {{endtime}})"><span class="glyphicon glyphicon-eye-open"></span></a>
+					<a href="?do=exams&amp;action=add&amp;lectureid={{lectureid}}" class="btn btn-sm btn-default" role="button">
+						<span class="glyphicon glyphicon-plus-sign"></span>
+						<span class="hidden-sm">{{lang_addExam}}</span>
+					</a>
+				</div>
+			</td>
+		</tr>
+		{{/pending_lectures}}
+	</table>
+</div>
