@@ -88,7 +88,9 @@ class Event
 		error_log('Server ip changed');
 		global $tidIpxe;
 		$tidIpxe = Trigger::ipxe();
-		ConfigModule::serverIpChanged();
+		if (Module::isAvailable('sysconfig')) { // TODO: Modularize events
+			ConfigModule::serverIpChanged();
+		}
 	}
 
 	/**

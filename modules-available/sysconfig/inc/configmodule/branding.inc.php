@@ -53,4 +53,9 @@ class ConfigModule_Branding extends ConfigModule
 		return false;
 	}
 
+	public function allowDownload()
+	{
+		return true;
+	}
+
 }

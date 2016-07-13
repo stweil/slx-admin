@@ -8,5 +8,6 @@
     "exam-not-added": "Exam period was not added",
     "exam-not-deleted-error": "Exam period was not deleted",
     "invalid-exam-id": "Invalid exam id: {{0}}",
+    "no-upcoming-lecture-exams": "No upcoming lectures which are marked as exam",
     "starttime-invalid": "Invalid start time: {{0}}"
 }

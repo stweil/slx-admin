@@ -7,15 +7,19 @@ class Page_Exams extends Page
 	var $locations;
 	var $lectures;
 	private $currentExam;
+	private $rangeMin;
+	private $rangeMax;
 
 
 	/** if examid is set, also add a column 'selected' **/
-	protected function readLocations($examid = null)
+	protected function readLocations($examidOrLocations = null)
 	{
-		if ($examid == null) {
+		if ($examidOrLocations == null) {
 			$active = 0;
+		} elseif (is_array($examidOrLocations)) {
+			$active = $examidOrLocations;
 		} else {
-			$tmp = Database::simpleQuery("SELECT locationid FROM exams_x_location WHERE examid= :examid", compact('examid'));
+			$tmp = Database::simpleQuery("SELECT locationid FROM exams_x_location WHERE examid= :examid", array('examid' => $examidOrLocations));
 			$active = array();
 			while ($row = $tmp->fetch(PDO::FETCH_ASSOC)) {
 				$active[] = (int)$row['locationid'];
@@ -26,9 +30,9 @@ class Page_Exams extends Page
 
 	protected function readExams()
 	{
-		$tmp = Database::simpleQuery("select examid, starttime, endtime, description, GROUP_CONCAT(locationid) AS locationids, "
-			. "GROUP_CONCAT(locationname) AS locationnames FROM "
-			. "exams NATURAL LEFT JOIN exams_x_location NATURAL LEFT JOIN location GROUP BY examid", []);
+		$tmp = Database::simpleQuery("SELECT examid, starttime, endtime, description, GROUP_CONCAT(locationid) AS locationids, "
+			. "GROUP_CONCAT(locationname SEPARATOR ', ') AS locationnames FROM exams "
+			. "NATURAL LEFT JOIN exams_x_location NATURAL LEFT JOIN location GROUP BY examid");
 		while ($exam = $tmp->fetch(PDO::FETCH_ASSOC)) {
 			$this->exams[] = $exam;
 		}
@@ -37,9 +41,13 @@ class Page_Exams extends Page
 	protected function readLectures()
 	{
 		$tmp = Database::simpleQuery(
-			"SELECT lectureid, locationid, displayname, starttime, endtime, isenabled " .
-			"FROM sat.lecture NATURAL JOIN sat.lecture_x_location " .
-			"WHERE isexam <> 0");
+			"SELECT lectureid, Group_Concat(locationid) as lids, displayname, starttime, endtime, isenabled, firstname, lastname, email " .
+			"FROM sat.lecture " .
+			"INNER JOIN sat.user ON (user.userid = lecture.ownerid) " .
+			"NATURAL LEFT JOIN sat.lecture_x_location " .
+			"WHERE isexam <> 0 AND starttime < :rangeMax AND endtime > :rangeMin " .
+			"GROUP BY lectureid",
+			['rangeMax' => $this->rangeMax, 'rangeMin' => $this->rangeMin]);
 		while ($lecture = $tmp->fetch(PDO::FETCH_ASSOC)) {
 			$this->lectures[] = $lecture;
 		}
@@ -48,7 +56,9 @@ class Page_Exams extends Page
 	protected function makeItemsForVis()
 	{
 		$out = [];
-		/* foreach group also add an invisible item on top */
+		// foreach group also add an invisible item on top
+		// disabled for now - more of an annoyance if you have more than a few rooms
+		/*
 		foreach ($this->locations as $l) {
 			$out[] = ['id' => 'spacer_' . $l['locationid'],
 				'group' => $l['locationid'],
@@ -58,21 +68,25 @@ class Page_Exams extends Page
 				'end' => 99999999999999,
 				'subgroup' => 0
 			];
-
 		}
+		*/
 		$unique_ids = 1;
 		/* add the red shadows */
 		foreach ($this->exams as $e) {
+			if ($e['starttime'] > $this->rangeMax || $e['endtime'] < $this->rangeMin)
+				continue;
 			$locationids = explode(',', $e['locationids']);
 			if ($locationids[0] == 0) {
 				$locationids = [];
-				foreach($this->locations as $l) {
-					$locationids[] = $l['locationid'];
+				foreach($this->locations as $location) {
+					$locationids[] = $location['locationid'];
 				}
 			}
 			foreach ($locationids as $locationid) {
-				$out[] = ['id' => 'shadow_' . $unique_ids++,
-					'content' => '',
+				$out[] = [
+					'id' => 'shadow_' . $unique_ids++,
+					'content' => $e['description'],
+					'title' => $e['description'],
 					'start' => intval($e['starttime']) * 1000,
 					'end' => intval($e['endtime']) * 1000,
 					'type' => 'background',
@@ -81,21 +95,28 @@ class Page_Exams extends Page
 			}
 		}
 		/* add the lectures */
+		$allLocationIds = array_map(function($loc) { return $loc['locationid']; }, $this->locations);
 		$i = 2;
-		foreach ($this->lectures as $l) {
-			$mark = '<span class="' . ($l['isenabled'] ? '' : 'glyphicon glyphicon-exclamation-sign') . '"></span>';
-			$out[] = [
-				'id' => $l['lectureid'] . '/' . $l['locationid'],
-				'content' => htmlspecialchars($l['displayname']) . $mark,
-				'title' => $l['isenabled'] ? '' : Dictionary::translate('warning_lecture_is_not_enabled'),
-				'start' => intval($l['starttime']) * 1000,
-				'end' => intval($l['endtime']) * 1000,
-				'group' => $l['locationid'],
-				'className' => $l['isenabled'] ? '' : 'disabled',
-				'editable' => false,
-				'subgroup' => $i++
-			];
-
+		foreach ($this->lectures as $lecture) {
+			$mark = '<span class="' . ($lecture['isenabled'] ? '' : 'glyphicon glyphicon-exclamation-sign') . '"></span>';
+			if (empty($lecture['lids'])) {
+				$locations = $allLocationIds;
+			} else {
+				$locations = explode(',', $lecture['lids']);
+			}
+			foreach ($locations as $location) {
+				$out[] = [
+					'id' => $lecture['lectureid'] . '/' . $location,
+					'content' => htmlspecialchars($lecture['displayname']) . $mark,
+					'title' => $lecture['isenabled'] ? '' : Dictionary::translate('warning_lecture_is_not_enabled'),
+					'start' => intval($lecture['starttime']) * 1000,
+					'end' => intval($lecture['endtime']) * 1000,
+					'group' => $location,
+					'className' => $lecture['isenabled'] ? '' : 'disabled',
+					'editable' => false,
+					'subgroup' => $i++,
+				];
+			}
 		}
 
 		return json_encode($out);
@@ -120,25 +141,58 @@ class Page_Exams extends Page
 		$now = time();
 		foreach ($this->exams as $exam) {
 			if ($exam['endtime'] < $now) {
-				$exam['rowClass'] = 'gray';
+				$exam['rowClass'] = 'text-muted';
 				$exam['btnClass'] = 'btn-success';
+				$exam['liesInPast'] = true;
 			} else {
 				$exam['btnClass'] = 'btn-default';
 			}
-			$exam['starttime'] = date('Y-m-d H:i', $exam['starttime']);
-			$exam['endtime'] = date('Y-m-d H:i', $exam['endtime']);
+			$exam['starttime_s'] = date('Y-m-d H:i', $exam['starttime']);
+			$exam['endtime_s'] = date('Y-m-d H:i', $exam['endtime']);
 			$out[] = $exam;
 		}
 		return $out;
 	}
 
-	private function dateSane($time)
+	protected function makeLectureExamList()
 	{
-		if ($time < strtotime('-1 day'))
-			return false;
-		if ($time > strtotime('+90 day'))
-			return false;
-		return true;
+		$out = [];
+		$now = time();
+		$cutoff = strtotime('+ 5 day');
+		foreach ($this->lectures as $lecture) {
+			if ($lecture['endtime'] < $now || $lecture['starttime'] > $cutoff)
+				continue;
+			$entry = $lecture;
+			if (!$lecture['isenabled']) {
+				$entry['class'] = 'text-muted';
+			}
+			$entry['starttime_s'] = date('Y-m-d H:i', $lecture['starttime']);
+			$entry['endtime_s'] = date('Y-m-d H:i', $lecture['endtime']);
+			$duration = $lecture['endtime'] - $lecture['starttime'];
+			if ($duration < 86400) {
+				$entry['duration_s'] = gmdate('H:i', $duration);
+			}
+			$out[] = $entry;
+		}
+		return $out;
+	}
+	
+	protected function makeEditFromArray($source)
+	{
+		if (!isset($source['description']) && isset($source['displayname'])) {
+			$source['description'] = $source['displayname'];
+		}
+		return [
+			'starttime_date' => date('Y-m-d', $source['starttime']),
+			'starttime_time' => date('H:i', $source['starttime']),
+			'endtime_date' => date('Y-m-d', $source['endtime']),
+			'endtime_time' => date('H:i', $source['endtime'])
+		] + $source;
+	}
+
+	private function isDateSane($time)
+	{
+		return ($time >= $this->rangeMin && $time <= $this->rangeMax);
 	}
 
 	private function saveExam()
@@ -158,11 +212,11 @@ class Page_Exams extends Page
 		$starttime = strtotime(Request::post('starttime_date') . " " . Request::post('starttime_time'));
 		$endtime = strtotime(Request::post('endtime_date') . " " . Request::post('endtime_time'));
 		$description = Request::post('description');
-		if (!$this->dateSane($starttime)) {
+		if (!$this->isDateSane($starttime)) {
 			Message::addError('starttime-invalid', Request::post('starttime_date') . " " . Request::post('starttime_time'));
 			Util::redirect('?do=exams');
 		}
-		if (!$this->dateSane($endtime)) {
+		if (!$this->isDateSane($endtime)) {
 			Message::addError('endtime-invalid', Request::post('endtime_date') . " " . Request::post('endtime_time'));
 			Util::redirect('?do=exams');
 		}
@@ -217,6 +271,14 @@ class Page_Exams extends Page
 	{
 		User::load();
 
+		if (!User::hasPermission('superadmin')) {
+			Message::addError('main.no-permission');
+			Util::redirect('?do=Main');
+		}
+
+		$this->rangeMin = strtotime('-1 day');
+		$this->rangeMax = strtotime('+3 month');
+
 		$req_action = Request::any('action', 'show');
 		if (in_array($req_action, ['show', 'add', 'delete', 'edit', 'save'])) {
 			$this->action = $req_action;
@@ -228,6 +290,10 @@ class Page_Exams extends Page
 			$this->readLocations();
 			$this->readLectures();
 
+		} elseif ($this->action === 'add') {
+
+			$this->readLectures();
+
 		} elseif ($this->action === 'edit') {
 
 			$examid = Request::get('examid', 0, 'int');
@@ -237,6 +303,7 @@ class Page_Exams extends Page
 				Util::redirect('?do=exams');
 			}
 			$this->readLocations($examid);
+			$this->readLectures();
 
 		} elseif ($this->action === 'save') {
 
@@ -267,31 +334,59 @@ class Page_Exams extends Page
 	protected function doRender()
 	{
 		if ($this->action === "show") {
-			Render::setTitle("All Exams");
-			Render::addTemplate('page-exams',
-				['exams' => $this->makeExamsForTemplate(),
-					'exams_json' => $this->makeItemsForVis(),
-					'rooms_json' => $this->makeGroupsForVis(),
-					'vis_begin' => strtotime('-5 minute') * 1000,
-					'vis_end' => strtotime('+2 day') * 1000,
-					'vis_min_date' => strtotime('-1 day') * 1000,
-					'vis_max_date' => strtotime('+3 month') * 1000
+
+			// General title and description
+			Render::addTemplate('page-main-heading');
+			// List of defined exam periods
+			Render::addTemplate('page-exams', [
+					'exams' => $this->makeExamsForTemplate()
+			]);
+			// List of upcoming lectures marked as exam
+			$upcoming = $this->makeLectureExamList();
+			if (empty($upcoming)) {
+				Message::addInfo('no-upcoming-lecture-exams');
+			} else {
+				Render::addTemplate('page-upcoming-lectures', [
+					'pending_lectures' => $upcoming
 				]);
+			}
+			// Vis.js timeline
+			Render::addTemplate('page-exams-vis', [
+				'exams_json' => $this->makeItemsForVis(),
+				'rooms_json' => $this->makeGroupsForVis(),
+				'vis_begin' => strtotime('-5 minute') * 1000,
+				'vis_end' => strtotime('+2 day') * 1000,
+				'vis_min_date' => $this->rangeMin * 1000,
+				'vis_max_date' => $this->rangeMax * 1000,
+				'axis_label' => (count($this->locations) > 5 ? 'both' : 'bottom'),
+				'utc_offset' => date('P')
+			]);
+
 		} elseif ($this->action === "add") {
+
 			Render::setTitle(Dictionary::translate('title_add-exam'));
-			$this->readLocations();
-			Render::addTemplate('page-add-edit-exam', ['locations' => $this->locations]);
+			$data = [];
+			$baseLecture = Request::any('lectureid', false, 'string');
+			$locations = null;
+			if ($baseLecture !== false) {
+				foreach ($this->lectures as $lecture) {
+					if ($lecture['lectureid'] === $baseLecture) {
+						$data['exam'] = $this->makeEditFromArray($lecture);
+						$locations = explode(',', $lecture['lids']);
+						break;
+					}
+				}
+			}
+			$this->readLocations($locations);
+			$data['locations'] = $this->locations;
+			Render::addTemplate('page-add-edit-exam', $data);
+
 		} elseif ($this->action === 'edit') {
+
 			Render::setTitle(Dictionary::translate('title_edit-exam'));
-			$exam = [
-				'examid' => $this->currentExam['examid'],
-				'starttime_date' => date('Y-m-d', $this->currentExam['starttime']),
-				'starttime_time' => date('H:i', $this->currentExam['starttime']),
-				'endtime_date' => date('Y-m-d', $this->currentExam['endtime']),
-				'endtime_time' => date('H:i', $this->currentExam['endtime']),
-				'description' => $this->currentExam['description']
-			];
+			$exam = $this->makeEditFromArray($this->currentExam);
 			Render::addTemplate('page-add-edit-exam', ['exam' => $exam, 'locations' => $this->locations]);
+
 		}
 	}
 

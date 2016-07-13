@@ -9,6 +9,7 @@
     "lang_chooseIP": "Please select the IP address that the client server will use to boot.",
     "lang_customEntry": "Custom entry",
     "lang_downloadImage": "Download USB image",
+    "lang_downloadRufus": "Download Rufus",
     "lang_example": "Example",
     "lang_generationFailed": "Could not generate boot menu. The bwLehrpool-System might not work properly. If you can't fix the problem, please report the error message above to the bwLehrpool project.",
     "lang_localHDD": "Local HDD",
@@ -21,5 +22,9 @@
     "lang_menuDisplayTime": "Menu Display Time",
     "lang_menuGeneration": "Generating boot menu...",
     "lang_seconds": "Seconds",
-    "lang_set": "Set"
+    "lang_set": "Set",
+    "lang_usbImage": "USB image",
+    "lang_usbImgHelp": "The USB image can be used to create a bootable USB stick, which enables you to boot bwLehrpool without changing your DHCP settings or enabling network boot in the clients. The only requirement is that you enable USB boot in the client's BIOS. The USB stick is only used for bootstrapping, the actual bwLehrpool system is still loaded via network from your local bwLehrpool server.",
+    "lang_usbImgHelpLinux": "On Linux you can simply use dd to write the image to a usb stick. The image already contains a partition table, so make sure you write the image to the device itself and not to an already existing partition (e.g. to \/dev\/sdx not \/dev\/sdx1)",
+    "lang_usbImgHelpWindows": "On Windows you need to use a 3rd party tool that can directly write to usb sticks. There are several free and open source soltions, one of them being Rufus. Rufus has been tested with the bwLehrpool image and is very simple to use. After launching Rufus, just open the downloaded USB image, select the proper USB stick to write to (be careful not to overwrite the wrong drive!), and you're ready to go."
 }

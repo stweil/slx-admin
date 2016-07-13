@@ -1,85 +1,47 @@
-<div class="container-fluid">
-	<h1>{{lang_allExamPeriods}}</h1>
+<h2>{{lang_allExamPeriods}}</h2>
 
-	<div class="row">
-		<table class="table">
-			<tr>
-				<th>{{lang_id}}</th>
-				<th>{{lang_locations}}</th>
-				<th>{{lang_begin}}</th>
-				<th>{{lang_end}}</th>
-				<th>{{lang_actions}}</th>
-			</tr>
-			{{#exams}}
-			<tr class="{{rowClass}}">
-				<td>{{examid}}</td>
-				<td>{{locationnames}} </td>
-				<td>{{starttime}}</td>
-				<td>{{endtime}}</td>
-				<td>
-					<form method="POST" action="?do=exams&action=delete" onsubmit="return confirm('{{lang_deleteConfirmation}}');">
-						<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
-						<input type="hidden" name="token" value="{{token}}">
-						<input type="hidden" name="examid" value="{{examid}}">
-						<button class="btn {{btnClass}} btn-sm">{{lang_delete}}</button>
-					</form>
-				</td>
-			</tr>
-			{{/exams}}
-
-		</table>
-		<div class="btn-toolbar" role="toolbar">
-			<div class="btn-group" role="group">
-				<a href="?do=exams&action=add" class="btn btn-success">{{lang_addExam}}</a>
-			</div>
-		</div>
-	</div>
-
-
-	<div class="row" style="margin-top: 2em">
-		<div id="timeline"></div>
-	</div>
+<div class="slx-space">
+	<table class="table">
+		<tr>
+			<th>{{lang_id}}</th>
+			<th>{{lang_locations}}</th>
+			<th>{{lang_begin}}</th>
+			<th>{{lang_end}}</th>
+			<th>{{lang_actions}}</th>
+		</tr>
+		{{#exams}}
+		<tr class="{{rowClass}}">
+			<td>{{examid}}</td>
+			<td>
+				{{locationnames}}
+				{{^locationnames}}
+				<i>{{lang_global}}</i>
+				{{/locationnames}}
+				<div class="small">
+					{{description}}
+					{{^description}}
+					<i>{{lang_noDescription}}</i>
+					{{/description}}
+				</div>
+			</td>
+			<td class="slx-nowrap">{{starttime_s}}</td>
+			<td class="slx-nowrap">{{endtime_s}}</td>
+			<td class="slx-nowrap">
+				<form method="POST" action="?do=exams&action=delete" {{^liesInPast}}onsubmit="return confirm('{{lang_deleteConfirmation}}');"{{/liesInPast}} >
+					{{^liesInPast}}
+					<a onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></a>
+					{{/liesInPast}}
+					<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
+					<input type="hidden" name="token" value="{{token}}">
+					<input type="hidden" name="examid" value="{{examid}}">
+					<button class="btn {{btnClass}} btn-sm">{{lang_delete}}</button>
+				</form>
+			</td>
+		</tr>
+		{{/exams}}
+	</table>
 </div>
-<script type="application/javascript"><!--
 
-
-function itemOrderFun(a, b) {
-	return a.content.localeCompare(b.content);
-}
-
-function groupOrderFun(a, b) {
-	var s = a.sortIndex - b.sortIndex;
-	if (s != 0) return s;
-	return itemOrderFun(a, b);
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-	var container = document.getElementById('timeline');
-	var groups_plain = {{{rooms_json}}};
-	var items_plain = {{{exams_json}}};
-	console.log(groups_plain);
-	console.log(items_plain);
-	var groups = new vis.DataSet(groups_plain);
-	var items = new vis.DataSet(items_plain);
-
-	var language = window.navigator.userLanguage || window.navigator.language;
-
-	var options = {
-		'start' 	: {{vis_begin}},
-		'end' 		: {{vis_end}},
-		'stack' 	: false,
-		'editable'	: false,
-		'min'		: {{vis_min_date}},
-		'max'		: {{vis_max_date}},
-		'zoomMin': 6 * 3600 * 1000,
-		'zoomMax': 2 * 86400 * 1000,
-		'order' 	: itemOrderFun,
-		'groupOrder' : groupOrderFun,
-		'locale'	: language,
-		'moment'	: function(date) { return vis.moment(date).utc(); }
-	};
-
-	var timeline = new vis.Timeline(container, items, groups, options);
-}, false);
-
-// --></script>
+<div class="btn-group" role="group">
+	<a href="?do=exams&action=add" class="btn btn-success">{{lang_addExam}}</a>
+</div>

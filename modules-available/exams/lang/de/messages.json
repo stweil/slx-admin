@@ -3,10 +3,11 @@
     "end-before-start": "Endzeitpunkt liegt vor Startzeitpunkt!",
     "endtime-invalid": "Ung\u00fcltige Endzeit: {{0}}",
     "error-while-saving-changes": "Fehler beim Speichern der \u00c4nderungen",
-    "exam-added-success": "Klausurzeitraum erfolgreich hinzugef\u00fcgt",
-    "exam-deleted-success": "Klausurzeitraum erfolgreich gel\u00f6scht",
-    "exam-not-added": "Klausurzeitraum konnte nicht hinzugef\u00fcgt werden",
-    "exam-not-deleted-error": "Klausurzeitraum konnte nicht gel\u00f6scht werden",
-    "invalid-exam-id": "Ung\u00fcltige Klausur-ID: {{0}}",
+    "exam-added-success": "Pr\u00fcfungszeitraum erfolgreich hinzugef\u00fcgt",
+    "exam-deleted-success": "Pr\u00fcfungszeitraum erfolgreich gel\u00f6scht",
+    "exam-not-added": "Pr\u00fcfungszeitraum konnte nicht hinzugef\u00fcgt werden",
+    "exam-not-deleted-error": "Pr\u00fcfungszeitraum konnte nicht gel\u00f6scht werden",
+    "invalid-exam-id": "Ung\u00fcltige Pr\u00fcfungs-ID: {{0}}",
+    "no-upcoming-lecture-exams": "Keine anstehenden Veranstaltungen, die als Pr\u00fcfung markiert sind",
     "starttime-invalid": "Ung\u00fcltige Startzeit: {{0}}"
 }

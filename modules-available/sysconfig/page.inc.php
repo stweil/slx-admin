@@ -5,6 +5,7 @@ class Page_SysConfig extends Page
 
 	/**
 	 * Holds all the known configuration modules, with title, description, start class for their wizard, etc.
+	 *
 	 * @var array
 	 */
 	protected static $moduleTypes = array();
@@ -46,7 +47,7 @@ class Page_SysConfig extends Page
 	}
 
 	/**
-	 * 
+	 *
 	 * @return array All registered module types
 	 */
 	public static function getModuleTypes()
@@ -136,35 +137,35 @@ class Page_SysConfig extends Page
 	{
 		$action = Request::any('action', 'list');
 		switch ($action) {
-			case 'addmodule':
-				AddModule_Base::render();
+		case 'addmodule':
+			AddModule_Base::render();
+			return;
+		case 'addconfig':
+			AddConfig_Base::render();
+			return;
+		case 'list':
+			Render::openTag('div', array('class' => 'row'));
+			$this->listConfigs();
+			if ($this->currentLoc === 0) {
+				$this->listModules();
+			}
+			Render::closeTag('div');
+			Render::addTemplate('list-legend', array('showLocationBadge' => $this->haveOverriddenLocations));
+			return;
+		case 'module':
+			$listid = Request::post('list');
+			if ($listid !== false) {
+				$this->listModuleContents($listid);
 				return;
-			case 'addconfig':
-				AddConfig_Base::render();
+			}
+			break;
+		case 'config':
+			$listid = Request::post('list');
+			if ($listid !== false) {
+				$this->listConfigContents($listid);
 				return;
-			case 'list':
-				Render::openTag('div', array('class' => 'row'));
-				$this->listConfigs();
-				if ($this->currentLoc === 0) {
-					$this->listModules();
-				}
-				Render::closeTag('div');
-				Render::addTemplate('list-legend', array('showLocationBadge' => $this->haveOverriddenLocations));
-				return;
-			case 'module':
-				$listid = Request::post('list');
-				if ($listid !== false) {
-					$this->listModuleContents($listid);
-					return;
-				}
-				break;
-			case 'config':
-				$listid = Request::post('list');
-				if ($listid !== false) {
-					$this->listConfigContents($listid);
-					return;
-				}
-				break;
+			}
+			break;
 		}
 		Message::addError('invalid-action', $action, 'main');
 	}
@@ -243,17 +244,10 @@ class Page_SysConfig extends Page
 	private function listModules()
 	{
 		// Config modules
-		$res = Database::simpleQuery("SELECT moduleid, title, moduletype, status FROM configtgz_module ORDER BY moduletype ASC, title ASC");
-		$modules = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$modules[] = array(
-				'moduleid' => $row['moduleid'],
-				'moduletype' => $row['moduletype'],
-				'module' => $row['title'],
-				'iscustom' => ($row['moduletype'] === 'CustomModule' || $row['moduletype'] === 'Branding'),
-				'needrebuild' => ($row['status'] !== 'OK')
-			);
-		}
+		$modules = ConfigModule::getAll();
+		$types = array_map(function ($mod) { return $mod->moduleType(); }, $modules);
+		$titles = array_map(function ($mod) { return $mod->title(); }, $modules);
+		array_multisort($types, SORT_ASC, $titles, SORT_ASC, $modules);
 		Render::addTemplate('list-modules', array(
 			'modules' => $modules,
 			'havemodules' => (count($modules) > 0)
@@ -271,7 +265,7 @@ class Page_SysConfig extends Page
 
 		// find files in that archive
 		$status = Taskmanager::submit('ListArchive', array(
-				'file' => $row['filepath']
+			'file' => $row['filepath']
 		));
 		if (isset($status['id']))
 			$status = Taskmanager::waitComplete($status, 4000);
@@ -306,7 +300,7 @@ class Page_SysConfig extends Page
 			'files' => $list,
 		));
 	}
-	
+
 	private function listConfigContents($configid)
 	{
 		// get config name
@@ -321,7 +315,7 @@ class Page_SysConfig extends Page
 			. " INNER JOIN configtgz_x_module USING (moduleid)"
 			. " WHERE configtgz_x_module.configid = :configid"
 			. " ORDER BY module.title ASC", array('configid' => $configid));
-		
+
 		$modules = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$modules[] = array(
@@ -329,7 +323,7 @@ class Page_SysConfig extends Page
 				'moduleid' => $row['moduleid']
 			);
 		}
-		
+
 		// render the template
 		Render::addDialog(Dictionary::translate('lang_contentOf') . ' ' . $config['title'], false, 'config-module-list', array(
 			'modules' => $modules
@@ -364,7 +358,7 @@ class Page_SysConfig extends Page
 			Message::addError('config-invalid', $configid);
 			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
-		$ret = $config->generate(false, 350); // TODO
+		$ret = $config->generate(false, 500); // TODO
 		if ($ret === true)
 			Message::addSuccess('module-rebuilt', $config->title());
 		elseif ($ret === false)
@@ -383,14 +377,14 @@ class Page_SysConfig extends Page
 			Util::redirect('?do=sysconfig');
 		}
 		$existing = Database::queryFirst("SELECT title FROM configtgz_x_module"
-				. " INNER JOIN configtgz USING (configid)"
-				. " WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
+			. " INNER JOIN configtgz USING (configid)"
+			. " WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
 		if ($existing !== false) {
 			Message::addError('module-in-use', $row['title'], $existing['title']);
 			Util::redirect('?do=sysconfig');
 		}
 		$task = Taskmanager::submit('DeleteFile', array(
-				'file' => $row['filepath']
+			'file' => $row['filepath']
 		));
 		if (isset($task['statusCode']) && $task['statusCode'] === TASK_WAITING) {
 			$task = Taskmanager::waitComplete($task['id']);

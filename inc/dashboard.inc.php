@@ -8,23 +8,37 @@ class Dashboard
 	
 	public static function createMenu()
 	{
-		global $MENU_SETTING_SORT_ORDER, $MENU_CAT_SORT_ORDER;
+		global $MENU_CAT_OVERRIDE;
 		$modByCategory = array();
-		$all = Module::getEnabled();
+		$modById = array();
+		if (isset($MENU_CAT_OVERRIDE)) {
+			foreach ($MENU_CAT_OVERRIDE as $cat => $list) {
+				foreach ($list as $mod) {
+					$modByCategory[$cat][$mod] = false;
+					$modById[$mod] =& $modByCategory[$cat][$mod];
+				}
+			}
+		}
+		$all = Module::getEnabled(true);
 		foreach ($all as $module) {
 			$cat = $module->getCategory();
 			if ($cat === false)
 				continue;
-			$modByCategory[$cat][] = $module;
+			$modId = $module->getIdentifier();
+			if (isset($modById[$modId])) {
+				$modById[$modId] = $module;
+			} else {
+				$modByCategory[$cat][$modId] = $module;
+			}
 		}
 		$currentPage = Page::getModule()->getIdentifier();
 		$categories = array();
 		$catSort = array();
 		foreach ($modByCategory as $catId => $modList) {
 			$modules = array();
-			$sectionSort = array();
-			foreach ($modList as $module) {
-				$modId = $module->getIdentifier();
+			foreach ($modList as $modId => $module) {
+				if ($module === false)
+					continue; // Was set in $MENU_CAT_OVERRIDE, but is not enabled
 				$newEntry = array(
 					'displayName' => $module->getDisplayName(),
 					'identifier' => $module->getIdentifier()
@@ -34,25 +48,13 @@ class Dashboard
 					$newEntry['subMenu'] = self::$subMenu;
 				}
 				$modules[] = $newEntry;
-				if (isset($MENU_SETTING_SORT_ORDER[$modId])) {
-					$sectionSort[] = (string)($MENU_SETTING_SORT_ORDER[$modId] + 1000);
-				} else {
-					$sectionSort[] = '9999' . $modId;
-				}
 			}
-			array_multisort($sectionSort, SORT_ASC, $modules);
 			$categories[] = array(
 				'icon' => self::getCategoryIcon($catId),
 				'displayName' => Dictionary::getCategoryName($catId),
 				'modules' => $modules
 			);
-			if (isset($MENU_CAT_SORT_ORDER[$catId])) {
-				$catSort[] = (string)($MENU_CAT_SORT_ORDER[$catId] + 1000);
-			} else {
-				$catSort[] = '9999' . $catId;
-			}
 		}
-		array_multisort($catSort, SORT_ASC, $categories);
 		Render::setDashboard(array(
 			'categories' => $categories,
 			'url' => urlencode($_SERVER['REQUEST_URI']),

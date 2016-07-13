@@ -153,7 +153,7 @@ class Page_ServerSetup extends Page
 			return;
 		}
 		Header('Content-Type: application/octet-stream');
-		Header('Content-Disposition: attachment; filename="openslx-bootstick.raw"');
+		Header('Content-Disposition: attachment; filename="openslx-bootstick-' . Property::getServerIp() . '-raw.img"');
 		readfile($file);
 		exit;
 	}

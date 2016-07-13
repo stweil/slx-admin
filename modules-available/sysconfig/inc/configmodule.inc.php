@@ -14,6 +14,7 @@ abstract class ConfigModule
 	private $moduleId = 0;
 	private $moduleArchive = false;
 	private $moduleTitle = false;
+	private $moduleStatus = false;
 	private $currentVersion = 0;
 	protected $moduleData = false;
 	
@@ -28,6 +29,7 @@ abstract class ConfigModule
 		if (self::$moduleTypes !== false)
 			return;
 		self::$moduleTypes = array();
+		Module::isAvailable('sysconfig');
 		foreach (glob(dirname(__FILE__) . '/configmodule/*.inc.php', GLOB_NOSORT) as $file) {
 			require_once $file;
 		}
@@ -58,14 +60,17 @@ abstract class ConfigModule
 	 */
 	public static function registerModule($id, $title, $description, $group, $unique, $sortOrder = 0)
 	{
-		if (isset(self::$moduleTypes[$id]))
+		if (isset(self::$moduleTypes[$id])) {
 			Util::traceError("Config Module $id already registered!");
+		}
 		$moduleClass = 'ConfigModule_' . $id;
 		$wizardClass = $id . '_Start';
-		if (!class_exists($moduleClass))
+		if (!class_exists($moduleClass)) {
 			Util::traceError("Class $moduleClass does not exist!");
-		if (get_parent_class($moduleClass) !== 'ConfigModule')
+		}
+		if (!is_subclass_of($moduleClass, 'ConfigModule')) {
 			Util::traceError("$moduleClass does not have ConfigModule as its parent!");
+		}
 		self::$moduleTypes[$id] = array(
 			'title' => $title,
 			'description' => $description,
@@ -86,9 +91,26 @@ abstract class ConfigModule
 	public static function getInstance($moduleType)
 	{
 		self::loadDb();
-		if (!isset(self::$moduleTypes[$moduleType]))
+		if (!isset(self::$moduleTypes[$moduleType])) {
+			error_log('Unknown module type: ' . $moduleType);
 			return false;
+		}
 		return new self::$moduleTypes[$moduleType]['moduleClass'];
+	}
+
+	public static function instanceFromDbRow($dbRow)
+	{
+		$instance = self::getInstance($dbRow['moduletype']);
+		$instance->currentVersion = $dbRow['version'];
+		$instance->moduleArchive = $dbRow['filepath'];
+		$instance->moduleData = json_decode($dbRow['contents'], true);
+		$instance->moduleId = $dbRow['moduleid'];
+		$instance->moduleTitle = $dbRow['title'];
+		$instance->moduleStatus = $dbRow['status'];
+		if ($instance->moduleVersion() > $instance->currentVersion) {
+			$instance->markFailed();
+		}
+		return $instance;
 	}
 
 	/**
@@ -99,19 +121,11 @@ abstract class ConfigModule
 	 */
 	public static function get($moduleId)
 	{
-		$ret = Database::queryFirst("SELECT title, moduletype, filepath, contents, version FROM configtgz_module "
+		$ret = Database::queryFirst("SELECT moduleid, title, moduletype, filepath, contents, version, status FROM configtgz_module "
 				. " WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleId));
 		if ($ret === false)
 			return false;
-		$instance = self::getInstance($ret['moduletype']);
-		if ($instance === false)
-			return false;
-		$instance->currentVersion = $ret['version'];
-		$instance->moduleArchive = $ret['filepath'];
-		$instance->moduleData = json_decode($ret['contents'], true);
-		$instance->moduleId = $moduleId;
-		$instance->moduleTitle = $ret['title'];
-		return $instance;
+		return self::instanceFromDbRow($ret);
 	}
 
 	/**
@@ -123,23 +137,18 @@ abstract class ConfigModule
 	public static function getAll($moduleType = false)
 	{
 		if ($moduleType === false) {
-			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version FROM configtgz_module");
+			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version, status FROM configtgz_module");
 		} else {
-			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version FROM configtgz_module "
+			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version, status FROM configtgz_module "
 					. " WHERE moduletype = :moduletype", array('moduletype' => $moduleType));
 		}
 		if ($ret === false)
 			return false;
 		$list = array();
 		while ($row = $ret->fetch(PDO::FETCH_ASSOC)) {
-			$instance = self::getInstance($row['moduletype']);
+			$instance = self::instanceFromDbRow($row);
 			if ($instance === false)
-				return false;
-			$instance->currentVersion = $row['version'];
-			$instance->moduleArchive = $row['filepath'];
-			$instance->moduleData = json_decode($row['contents'], true);
-			$instance->moduleId = $row['moduleid'];
-			$instance->moduleTitle = $row['title'];
+				continue;
 			$list[] = $instance;
 		}
 		return $list;
@@ -200,6 +209,16 @@ abstract class ConfigModule
 		return CONFIG_TGZ_LIST_DIR . '/modules/'
 			. $this->moduleType() . '_id-' . $this->moduleId . '__' . mt_rand() . '-' . time() . '.tgz';
 	}
+
+	public function allowDownload()
+	{
+		return false;
+	}
+
+	public function needRebuild()
+	{
+		return $this->moduleStatus !== 'OK' || $this->currentVersion < $this->moduleVersion();
+	}
 	
 	/**
 	 * Get module id (in db)
@@ -229,6 +248,11 @@ abstract class ConfigModule
 	public final function archive()
 	{
 		return $this->moduleArchive;
+	}
+
+	public final function status()
+	{
+		return $this->moduleStatus;
 	}
 	
 	/**

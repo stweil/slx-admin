@@ -1,4 +1,5 @@
 {
     "image-not-found": "USB-Image nicht gefunden. Generieren Sie das Bootmen\u00fc neu.",
-    "invalid-ip": "Kein Interface ist auf die Adresse {{0}} konfiguriert"
+    "invalid-ip": "Kein Interface ist auf die Adresse {{0}} konfiguriert",
+    "no-ip-addr-set": "Bitte w\u00e4hlen Sie die prim\u00e4re IP-Adresse des Servers"
 }

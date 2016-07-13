@@ -1,17 +1,27 @@
 {
     "lang_actions": "Actions",
     "lang_addExam": "Add exam period",
+    "lang_addingBasedOnLecture": "Adding exam period based on lecture",
     "lang_allExamPeriods": "All exam periods",
     "lang_begin": "Begin",
     "lang_begin_date": "Begin Date",
     "lang_begin_time": "Time",
     "lang_deleteConfirmation": "Are you sure?",
     "lang_description": "Description",
+    "lang_duration": "Duration",
     "lang_editExam": "Edit Exam Period",
     "lang_end": "End",
     "lang_end_date": "End Date",
     "lang_end_time": "Time",
+    "lang_examModeDescription": "Here you can define time spans during which selected rooms will be set to exam mode. In exam mode, the client computers are more locked down than usual so it is suitable for writing electronic exams.",
+    "lang_global": "Global",
+    "lang_headingAllExamLectures": "Upcoming lectures marked as exams",
+    "lang_headingGraphicalOverview": "Graphical overview",
+    "lang_headingMain": "bwLehrpool exam mode",
     "lang_id": "ID",
+    "lang_lectureName": "Lecture name",
     "lang_location": "Room\/Location",
-    "lang_locations": "Rooms\/Locations"
+    "lang_locations": "Rooms\/Locations",
+    "lang_noDescription": "No description",
+    "lang_timeFrame": "Time frame"
 }

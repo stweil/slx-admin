@@ -159,6 +159,16 @@ body {
 	white-space: nowrap;
 }
 
+.slx-space {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.slx-smallspace {
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+
 .slx-rotation {
   animation-name: rotateThis;
   animation-duration: .75s;

@@ -39,10 +39,17 @@ $res[] = tableCreate('configtgz_location', "
 
 // Constraints
 if (in_array(UPDATE_DONE, $res)) {
-	Database::exec("ALTER TABLE `configtgz_x_module`
-		ADD CONSTRAINT `configtgz_x_module_ibfk_1` FOREIGN KEY (`configid`) REFERENCES `configtgz` (`configid`) ON DELETE CASCADE");
-	Database::exec("ALTER TABLE `configtgz_x_module`
-		ADD CONSTRAINT `configtgz_x_module_ibfk_2` FOREIGN KEY (`moduleid`) REFERENCES `configtgz_module` (`moduleid`)");
+	$ret = Database::exec("ALTER TABLE `configtgz_x_module`
+		ADD CONSTRAINT `configtgz_x_module_ibfk_1` FOREIGN KEY (`configid`) REFERENCES `configtgz` (`configid`)
+		ON DELETE CASCADE");
+	$ret = Database::exec("ALTER TABLE `configtgz_x_module`
+		ADD CONSTRAINT `configtgz_x_module_ibfk_2` FOREIGN KEY (`moduleid`) REFERENCES `configtgz_module` (`moduleid`)") || $ret;
+	$ret = Database::exec("ALTER TABLE `configtgz_location`
+		ADD CONSTRAINT `configtgz_location_fk_configid` FOREIGN KEY ( `configid` ) REFERENCES `openslx`.`configtgz` (`configid`)
+		ON DELETE CASCADE ON UPDATE CASCADE") || $ret;
+	if ($ret) {
+		$res[] = UPDATE_DONE;
+	}
 }
 
 // Update path
@@ -77,14 +84,16 @@ if (!tableHasColumn('configtgz', 'status')) {
 }
 
 // ----- rebuild AD configs ------
-// TEMPORARY HACK; Rebuild AD configs.. move somewhere else
+// TEMPORARY HACK; Rebuild configs.. move somewhere else?
 Module::isAvailable('sysconfig');
-$list = array_merge(ConfigModule::getAll('AdAuth'), ConfigModule::getAll('LdapAuth'));
+$list = ConfigModule::getAll();
 if ($list === false) {
 	EventLog::warning('Could not regenerate AD/LDAP configs - please do so manually');
 } else {
 	foreach ($list as $ad) {
-		$ad->generate(false);
+		if ($ad->needRebuild()) {
+			$ad->generate(false);
+		}
 	}
 }
 

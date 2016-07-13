@@ -1,16 +1,17 @@
- .vis-item.vis-background {
+.vis-item.vis-background {
     background-color: rgba(192, 57, 43, .5) !important;
 }
- .vis-item.spacer {
+
+.vis-item.spacer {
     visibility: hidden;
- }
+}
 
- .vis-selected,
- .vis-readonly {
-  background-color: #80D6F2 !important;
-  border: 1px solid grey !important;
- }
+.vis-selected,
+.vis-readonly {
+    background-color: #80D6F2 !important;
+    border: 1px solid grey !important;
+}
 
- .vis-item.disabled {
-  background-color: rgba(189, 195, 199,1.0) !important;
- }
+.vis-item.disabled {
+    background-color: rgba(189, 195, 199, 1.0) !important;
+}

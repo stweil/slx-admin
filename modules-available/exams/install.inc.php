@@ -4,9 +4,10 @@ $res = array();
 
 $res[] = tableCreate('exams', '
 	 `examid` int(11) NOT NULL AUTO_INCREMENT,
+	 `lectureid` char(36) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL
 	 `starttime` int(11) NOT NULL,
 	 `endtime` int(11) NOT NULL,
-	 `description` varchar(100) DEFAULT NULL,
+	 `description` varchar(500) DEFAULT NULL,
 	 PRIMARY KEY (`examid`)
  ');
 
@@ -23,6 +24,12 @@ if (Database::exec("ALTER TABLE exams ADD INDEX `idx_daterange` ( `starttime` , 
 } else {
 	$res[] = UPDATE_DONE;
 }
+
+if (!tableHasColumn('exams', 'lectureid')) {
+	Database::exec("ALTER TABLE `exams` ADD `lectureid` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL DEFAULT NULL AFTER `examid`");
+}
+
+Database::exec("ALTER TABLE `exams` CHANGE `description` `description` varchar(500) DEFAULT NULL");
 
 if (in_array(UPDATE_DONE, $res)) {
     finalResponse(UPDATE_DONE, 'Tables created successfully');
