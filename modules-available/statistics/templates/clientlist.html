@@ -2,19 +2,17 @@
 <div id="modal-add-filter" class="modal modal-sm fade" role="dialog" style="position:absolute; min-width:600px; min-height: 400px;margin:auto">
 	<div class="modal-content">
 		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 			{{lang_add_filter}}
 		</div>
 		<form class="modal-body form-inline center">
 			<div class="form-group">
-				<label for="column"></label>
 				<select id="columnSelect" name="column" class="form-control col-4-xs">  </select>
 			</div>
 			<div class="form-group">
-				<label for="operator"></label>
 				<select id="operatorSelect" name="operator" class="form-control col-4-xs"> </select>
 			</div>
 			<div class="form-group">
-				<label for="argument"></label>
 				<input name="argument" id="argumentInput" class="form-control col-4-xs"> </input>
 				<select name="argument" id="argumentSelect" class="form-control col-4-xs"> </select>
 			</div>
@@ -35,7 +33,7 @@
 			<input type="hidden" name="token" value="{{token}}"/>
 			<input type="hidden" name="do" value="Statistics"/>
 			<input type="hidden" name="show" value="list"/>
-			<label for="filters">{{lang_labelFilter}}</label>
+			<label for="filterInput">{{lang_labelFilter}}</label>
 			<input type="text" name="filters" class="" id="filterInput"/>
 			<input type="hidden" name="sortColumn" id="sortColumn" value="{{sortColumn}}"/>
 			<input type="hidden" name="sortDirection" id="sortDirection" value="{{sortDirection}}"/>
@@ -63,8 +61,8 @@
 		<th class="text-right">{{lang_lastSeen}}
 			<div class="btn-group pull-right">
 				<button class="btn btn-default btn-xs" id="sortButton-lastseen"></button>
-				<button class="btn btn-xs btn-filter ">
-					<span id="btn_filter_lastseen" class="glyphicon glyphicon-filter" onclick="popupFilter('lastseen')"></span>
+				<button class="btn btn-default btn-xs" onclick="popupFilter('lastseen')">
+					<span id="btn_filter_lastseen" class="glyphicon glyphicon-filter"></span>
 				</button>
 			</div>
 		</th>
@@ -72,8 +70,8 @@
 			{{lang_kvmSupport}}
 			<div class="btn-group pull-right">
 			<button class="btn btn-default btn-xs" id="sortButton-kvmstate"></button>
-			<button class="btn btn-xs btn-filter ">
-				<span id="btn_filter_kvmstate" class="glyphicon glyphicon-filter" onclick="popupFilter('kvmstate')"></span>
+			<button class="btn btn-default btn-xs" onclick="popupFilter('kvmstate')">
+				<span id="btn_filter_kvmstate" class="glyphicon glyphicon-filter"></span>
 			</button>
 			</div>
 		</th>
@@ -81,20 +79,26 @@
 			{{lang_gbRam}}
 			<div class="btn-group pull-right">
 				<button class="btn btn-default btn-xs" id="sortButton-gbram"></button>
-				<button class="btn btn-default btn-xs" ><span id="btn_filter_gbram" class="glyphicon glyphicon-filter" onclick="popupFilter('gbram')"></span></button>
+				<button class="btn btn-default btn-xs" onclick="popupFilter('gbram')">
+					<span id="btn_filter_gbram" class="glyphicon glyphicon-filter"></span>
+				</button>
 			</div>
 		</th>
 		<th class="text-right">
 			{{lang_tmpGb}}
 			<div class="btn-group pull-right">
 			<button class="btn btn-default btn-xs" id="sortButton-hddgb"></button>
-			<button  class="btn btn-xs btn-filter "> <span id="btn_filter_hddgb" class="glyphicon glyphicon-filter" onclick="popupFilter('hddgb')"></span></button>
+			<button class="btn btn-default btn-xs" onclick="popupFilter('hddgb')">
+				<span id="btn_filter_hddgb" class="glyphicon glyphicon-filter"></span>
+			</button>
 			</div>
 		</th>
 		<th>{{lang_cpuModel}}
 			<div class="btn-group pull-right">
 			<button class="btn btn-default btn-xs" id="sortButton-realcores"></button>
-			<button class="btn btn-xs btn-filter"><span id="btn_filter_cpu" class="glyphicon glyphicon-filter" onclick="popupFilter('realcores')"></span></button>
+			<button class="btn btn-default btn-xs" onclick="popupFilter('realcores')">
+				<span id="btn_filter_cpu" class="glyphicon glyphicon-filter"></span>
+			</button>
 			</div>
 		</th>
 	</tr>
