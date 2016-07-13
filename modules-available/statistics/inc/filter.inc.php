@@ -4,9 +4,15 @@
  * WARNING: argument is escaped, but $column and $operator are passed unfiltered into SQL */
 class Filter
 {
+    /**
+     * Delimiter for js_selectize filters
+     */
+    const DELIMITER = '~,~';
+
     public $column;
     public $operator;
     public $argument;
+
     public function __construct($column, $operator, $argument = null)
     {
         $this->column = trim($column);
@@ -40,11 +46,11 @@ class Filter
     {
         $operators = ['<=', '>=', '!=', '!~', '=', '~', '<', '>'];
         $filters = [];
-        foreach (explode(',', $query) as $q) {
+        foreach (explode(self::DELIMITER, $query) as $q) {
             $q = trim($q);
                     /* find position of first operator */
                     $pos = 10000;
-            $operator;
+            $operator = false;
             foreach ($operators as $op) {
                 $newpos = strpos($q, $op);
                 if ($newpos > -1 && ($newpos < $pos)) {
@@ -75,7 +81,7 @@ class Filter
                 if (array_key_exists($lhs, Page_Statistics::$columns) && Page_Statistics::$columns[$lhs]['column']) {
                     $filters[] = new Filter($lhs, $operator, $rhs);
                 } else {
-                    Message::addError('invalid-filter');
+                    Message::addError('invalid-filter-key', $lhs);
                 }
             }
         }
@@ -165,8 +171,7 @@ class StateFilter extends Filter
         } elseif ($this->argument === 'occupied') {
             return " $neg (lastseen + 600 > UNIX_TIMESTAMP() AND logintime <> 0 ) ";
         } else {
-            Message::addError('invalid-filter');
-
+            Message::addError('invalid-filter-argument', 'state', $this->argument);
             return ' 1';
         }
     }

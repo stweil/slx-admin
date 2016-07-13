@@ -16,7 +16,7 @@
 				<input name="argument" id="argumentInput" class="form-control col-4-xs"> </input>
 				<select name="argument" id="argumentSelect" class="form-control col-4-xs"> </select>
 			</div>
-			<button type="button" class="btn btn-primary" onclick="addFilter()" >
+			<button type="button" class="btn btn-primary" onclick="addFilterFromForm()" >
 				<span class="glyphicon glyphicon-plus"></span>
 				{{lang_add}}</button>
 		</form>
@@ -30,7 +30,6 @@
 <div>
 	<!-- use GET here, to avoid the "resend form?" confirmation, and anyway this is stateless, so GET makes more sense -->
 <form id="queryForm" method="GET" action="?do=Statistics&show=list" class="" role="form">
-			<input type="hidden" name="token" value="{{token}}"/>
 			<input type="hidden" name="do" value="Statistics"/>
 			<input type="hidden" name="show" value="list"/>
 			<label for="filterInput">{{lang_labelFilter}}</label>
@@ -137,16 +136,28 @@
 
 var filterSelectize;
 
-document.addEventListener("DOMContentLoaded", function () {
+var slxFilterNames = {
+	machineuuid: '{{lang_uuid}}',
+	macaddr: '{{lang_macAddr}}',
+	firstseen: '{{lang_firstSeen}}',
+	lastseen: '{{lang_lastSeen}}',
+	lastboot: '{{lang_lastBoot}}',
+	logintime: '{{lang_lastLogin}}',
+	realcores: '{{lang_cores}}',
+	systemmodel: '{{lang_model}}',
+	cpumodel: '{{lang_cpuModel}}',
+	hddgb: '{{lang_tmpGb}}',
+	gbram: '{{lang_gbRam}}',
+	kvmstate: '{{lang_kvmSupport}}',
+	badsectors: '{{lang_reallocatedSectors}}',
+	clientip: '{{lang_ip}}',
+	state: '{{lang_usageState}}'
+};
 
-	var initComplete = false;
-	var comp = ['=', '!='];
-	var ordered = ['<', '<=', '=', '>=', '>'];
-	// var filter = {
-	// 	'machine' : {'op' : comp, 'type' : 'string'},
-	// 	'ram' : {'op' : ordered, 'type' : 'string'},
-	// 	'lastSeen' : {'op' : ordered, 'type' : 'date'},
-	// };
+var slxFilterDel = '{{delimiter}}';
+
+
+document.addEventListener("DOMContentLoaded", function () {
 
 	/* some objects */
 	var $columnSelect = $('#columnSelect');
@@ -158,13 +169,13 @@ document.addEventListener("DOMContentLoaded", function () {
 	/* add options to column select */
 	for (var key in columns) {
 		$columnSelect.append($('<option>', {
-			value: key, text: key}));
+			value: key, text: (slxFilterNames[key] ? slxFilterNames[key] : key) }));
 	};
 
 
 	/* initialize selectize */
 	filterSelectize = $('#filterInput').selectize({
-		delimiter: ',',
+		delimiter: slxFilterDel,
 		plugins: ['restore_on_backspace', 'remove_button'],
 		create: function(input) {
 			return {value: input, text: input}
@@ -177,9 +188,15 @@ document.addEventListener("DOMContentLoaded", function () {
 	})[0].selectize;
 	/* add query */
 	var str = "{{{query}}}";
-	str.split(",").forEach(function(v) {
-		filterSelectize.addOption({value: v, text: v});
-		filterSelectize.addItem(v);
+	var eExp = /^(\w+)\s*([=><!]+)\s*(.*)$/;
+	str.split(slxFilterDel).forEach(function(v) {
+		var match = eExp.exec(v);
+		if (match && match.length === 4) {
+			addFilter(match[1], match[2], match[3]);
+		} else {
+			filterSelectize.addOption({value: v, text: v});
+			filterSelectize.addItem(v);
+		}
 	});
 
 	$('#columnSelect').on('change', function() {
@@ -211,7 +228,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	initButtons();
-	initComplete = true;
 
 }, false);
 
@@ -258,21 +274,25 @@ function popupFilter(field) {
 		$modal.modal('show');
 }
 
-function addFilter() {
+function addFilterFromForm() {
 	var argument1 = $('#argumentInput').val();
 	var argument2 = $('#argumentSelect').val();
 	var argument = argument1 == '' ? argument2 : argument1;
+	var col = $('#columnSelect').val();
+	var op = $('#operatorSelect').val();
 
-	var ft = $('#columnSelect').val() + ' ' + $('#operatorSelect').val() + ' ' + argument;
-	filterSelectize.addOption({value: ft, text: ft});
-	filterSelectize.addItem(ft);
+	addFilter(col, op, argument);
+	refresh(); // TODO: AJAX
+}
 
-	//$modal.modal('hide');
-	refresh();
-
-	// $('#columnSelect').val('');
-	// $('#operatorSelect option').remove();
-	// $('#argumentInput').val('');
+function addFilter(col, op, argument) {
+	var filterValue = col + ' ' + op + ' ' + argument;
+	var filterText = filterValue;
+	if (slxFilterNames[col]) {
+		filterText = slxFilterNames[col] + ' ' + op + ' ' + argument;
+	}
+	filterSelectize.addOption({value: filterValue, text: filterText});
+	filterSelectize.addItem(filterValue);
 }
 
 function toggleSort(field) {

@@ -53,11 +53,6 @@ class Page_Statistics extends Page
 				'type' => 'date',
 				'column' => true,
 			],
-			'position' => [
-				'op' => Page_Statistics::$op_nominal,
-				'type' => 'string',
-				'column' => true,
-			],
 			'realcores' => [
 				'op' => Page_Statistics::$op_ordinal,
 				'type' => 'int',
@@ -544,8 +539,16 @@ class Page_Statistics extends Page
 			}
 			$rows[] = $row;
 		}
-		Render::addTemplate('clientlist', array('rows' => $rows, 'filter' => $filter,
-			'query' => $query, 'sortDirection' => $sortDirection, 'sortColumn' => $sortColumn, 'argument' => $argument, 'columns' => json_encode(Page_Statistics::$columns),));
+		Render::addTemplate('clientlist', array(
+			'rows' => $rows,
+			'filter' => $filter,
+			'query' => $query,
+			'delimiter' => Filter::DELIMITER,
+			'sortDirection' => $sortDirection,
+			'sortColumn' => $sortColumn,
+			'argument' => $argument,
+			'columns' => json_encode(Page_Statistics::$columns),
+		));
 	}
 
 	private function ramColorClass($mb)
