@@ -435,7 +435,6 @@ class Page_Statistics extends Page
                         $sort = " ORDER BY $sortColumn $sortDirection";
                 }
         } else {
-                die('no sort');
                 $sort = "";
         }
 
