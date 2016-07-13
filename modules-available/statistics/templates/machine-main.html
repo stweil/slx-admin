@@ -2,11 +2,12 @@
 	{{hostname}} {{#hostname}}–{{/hostname}} {{clientip}}
 	{{#notes}}<a href="#usernotes"><span class="glyphicon glyphicon-exclamation-sign"></span></a>{{/notes}}
 </h1>
-<div>
+<ol class="breadcrumb">
 	{{#locations}}
-	&raquo; <a href="?do=statistics&amp;filter=location&amp;argument={{locationid}}">{{locationname}}</a>
+	<li><a href="?do=statistics&amp;show=list&amp;filters=location={{locationid}}">{{locationname}}</a></li>
 	{{/locations}}
-</div>
+	<li class="active">{{hostname}} {{^hostname}} {{clientip}} {{/hostname}}</li>
+</ol>
 
 <div class="row">
 	<div class="col-md-6">

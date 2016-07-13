@@ -151,8 +151,11 @@ var slxFilterNames = {
 	kvmstate: '{{lang_kvmSupport}}',
 	badsectors: '{{lang_reallocatedSectors}}',
 	clientip: '{{lang_ip}}',
-	state: '{{lang_usageState}}'
+	state: '{{lang_usageState}}',
+	location: '{{lang_location}}'
 };
+
+slxLocations = {{{locations}}};
 
 var slxFilterDel = '{{delimiter}}';
 
@@ -188,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	})[0].selectize;
 	/* add query */
 	var str = "{{{query}}}";
-	var eExp = /^(\w+)\s*([=><!]+)\s*(.*)$/;
+	var eExp = /^(\w+)\s*([=><!~]+)\s*(.*)$/;
 	str.split(slxFilterDel).forEach(function(v) {
 		var match = eExp.exec(v);
 		if (match && match.length === 4) {
@@ -217,7 +220,11 @@ document.addEventListener("DOMContentLoaded", function () {
 			$('#argumentInput').hide();
 			$('#argumentSelect').show();
 			columns[col]['values'].forEach(function (v) {
-				$('#argumentSelect').append($('<option>', { value: v, text: v }));
+				var t = v;
+				if (col === 'location' && slxLocations['L' + v]) {
+					t = slxLocations['L' + v].pad + ' ' + slxLocations['L' + v].name;
+				}
+				$('#argumentSelect').append($('<option>', { value: v, text: t }));
 			});
 		} else {
 			$('#argumentInput').datepicker('remove');
@@ -288,8 +295,12 @@ function addFilterFromForm() {
 function addFilter(col, op, argument) {
 	var filterValue = col + ' ' + op + ' ' + argument;
 	var filterText = filterValue;
+	var displayArgument = argument;
+	if (col === 'location' && slxLocations['L' + argument]) {
+		displayArgument = slxLocations['L' + argument].name;
+	}
 	if (slxFilterNames[col]) {
-		filterText = slxFilterNames[col] + ' ' + op + ' ' + argument;
+		filterText = slxFilterNames[col] + ' ' + op + ' ' + displayArgument;
 	}
 	filterSelectize.addOption({value: filterValue, text: filterText});
 	filterSelectize.addItem(filterValue);

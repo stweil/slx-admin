@@ -15,7 +15,6 @@ class Page_Statistics extends Page
 	/* some constants, TODO: Find a better place */
 	public static $op_nominal;
 	public static $op_ordinal;
-	public static $op_element;
 	public static $op_stringcmp;
 	public static $columns;
 
@@ -24,7 +23,6 @@ class Page_Statistics extends Page
 	{
 		Page_Statistics::$op_nominal = ['!=', '='];
 		Page_Statistics::$op_ordinal = ['!=', '<=', '>=', '=', '<', '>'];
-		Page_Statistics::$op_element = ['in', 'not in'];
 		Page_Statistics::$op_stringcmp = ['!~', '~', '=', '!='];
 
 		Page_Statistics::$columns = [
@@ -107,6 +105,14 @@ class Page_Statistics extends Page
 				'column' => false
 			]
 		];
+		if (Module::isAvailable('locations')) {
+			Page_Statistics::$columns['location'] = [
+				'op' => Page_Statistics::$op_nominal,
+				'type' => 'enum',
+				'column' => false,
+				'values' => array_keys(Location::getLocationsAssoc()),
+			];
+		}
 		/* TODO ... */
 	}
 
@@ -539,6 +545,15 @@ class Page_Statistics extends Page
 			}
 			$rows[] = $row;
 		}
+		$locsFlat = array();
+		if (Module::isAvailable('locations')) {
+			foreach (Location::getLocations() as $loc) {
+				$locsFlat['L' . $loc['locationid']] = array(
+					'pad' => $loc['locationpad'],
+					'name' => $loc['locationname']
+				);
+			}
+		}
 		Render::addTemplate('clientlist', array(
 			'rows' => $rows,
 			'filter' => $filter,
@@ -548,6 +563,7 @@ class Page_Statistics extends Page
 			'sortColumn' => $sortColumn,
 			'argument' => $argument,
 			'columns' => json_encode(Page_Statistics::$columns),
+			'locations' => json_encode($locsFlat),
 		));
 	}
 
