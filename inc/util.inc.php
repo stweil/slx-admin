@@ -12,32 +12,38 @@ class Util
 	 */
 	public static function traceError($message)
 	{
-		if (defined('API')) {
+		if (defined('API') && API) {
 			error_log('API ERROR: ' . $message);
 		}
 		Header('HTTP/1.1 500 Internal Server Error');
-		Header('Content-Type: text/plain; charset=utf-8');
-		echo "--------------------\nFlagrant system error:\n$message\n--------------------\n\n";
+		Header('Content-Type: text/html; charset=utf-8');
+		echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>', "\n",
+			".arg { color: red; background: white; }\n",
+			"h1 a { color: inherit; text-decoration: inherit; font-weight: inherit; }\n",
+			'</style><title>Fatal Error</title></head><body>';
+		echo '<h1>Flagrant <a href="https://www.youtube.com/watch?v=7rrZ-sA4FQc&t=2m2s" target="_blank">S</a>ystem error</h1>';
+		echo "<h2>Message</h2><pre>$message</pre>";
+		if (strpos($message, 'Database') !== false) {
+			echo '<div><a href="install.php">Try running database setup</a></div>';
+		}
+		echo "<br><br>";
 		if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 			global $SLX_ERRORS;
-/*
-  			'errno' => $errno,
-			'errstr' => $errstr,
-			'errfile' => $errfile,
-			'errline' => $errline,
- */
 			if (!empty($SLX_ERRORS)) {
+				echo '<h2>PHP Errors</h2><pre>';
 				foreach ($SLX_ERRORS as $error) {
-					echo "{$error['errstr']} ({$error['errfile']}:{$error['errline']}\n";
+					echo htmlspecialchars("{$error['errstr']} ({$error['errfile']}:{$error['errline']}\n");
 				}
-				echo "--------------------\n";
+				echo '</pre>';
 			}
-			debug_print_backtrace();
-			echo "\n\nSome variables for your entertainment:\n";
-			print_r($GLOBALS);
+			echo "<h2>Stack Trace</h2>";
+			echo '<pre>', self::formatBacktrace(debug_backtrace()), '</pre>';
+			echo "<h2>Globals</h2><pre>";
+			echo print_r($GLOBALS, true);
+			echo '</pre>';
 		} else {
 			echo <<<SADFACE
-
+<pre>
 ________________________¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶________
 ____________________¶¶¶___________________¶¶¶¶_____
 ________________¶¶¶_________________________¶¶¶¶___
@@ -61,9 +67,37 @@ __¶¶¶________________________________¶¶____________
 ___¶¶¶____________________________¶¶_______________
 ____¶¶¶¶______________________¶¶¶__________________
 _______¶¶¶¶¶_____________¶¶¶¶¶_____________________
+</pre>
 SADFACE;
 		}
+		echo '</body></html>';
 		exit(0);
+	}
+
+	public static function formatBacktrace($trace, $escape = true)
+	{
+		$output = '';
+		foreach ($trace as $idx => $line) {
+			$args = array();
+			foreach ($line['args'] as $arg) {
+				if (is_string($arg)) {
+					$arg = "'$arg'";
+				} elseif (is_object($arg)) {
+					$arg = 'instanceof ' . get_class($arg);
+				} elseif (is_array($arg)) {
+					$arg = 'Array(' . count($arg) . ')';
+				}
+				$args[] = '<span class="arg">' . htmlspecialchars($arg) . '</span>';
+			}
+			$frame = str_pad('#' . $idx, 3, ' ', STR_PAD_LEFT);
+			$function = htmlspecialchars($line['function']);
+			$args = implode(', ', $args);
+			$file = preg_replace('~(/[^/]+)$~', '<b>$1</b>', htmlspecialchars($line['file']));
+			// Add line
+			$output .= $frame . ' ' . $function . '<b>(</b>'
+				. $args . '<b>)</b>' . ' @ <i>' . $file . '</i>:' . $line['line'] . "\n";
+		}
+		return $output;
 	}
 
 	/**
