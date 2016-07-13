@@ -1,5 +1,7 @@
 {
     "lang_64bitSupport": "64\u2009Bit guest support",
+    "lang_add": "Add",
+    "lang_add_filter": "Add Filter",
     "lang_address": "Address",
     "lang_clientList": "List of selected machines",
     "lang_cores": "Cores",
@@ -52,6 +54,7 @@
     "lang_ramSlots": "Memory slots",
     "lang_realCores": "Cores",
     "lang_reallocatedSectors": "Bad sectors",
+    "lang_refresh": "Refresh",
     "lang_serialNo": "Serial no",
     "lang_sockets": "Sockets",
     "lang_tempPart": "Temp. partition",

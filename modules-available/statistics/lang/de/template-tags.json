@@ -1,5 +1,7 @@
 {
     "lang_64bitSupport": "64\u2009Bit Gast-Support",
+    "lang_add": "Hinzuf\u00fcgen",
+    "lang_add_filter": "Filter hinzuf\u00fcgen",
     "lang_address": "Adresse",
     "lang_clientList": "Liste ausgew\u00e4hlter Rechner",
     "lang_cores": "Kerne",
@@ -52,6 +54,7 @@
     "lang_ramSlots": "Speicher-Slots",
     "lang_realCores": "Kerne",
     "lang_reallocatedSectors": "Defekte Sektoren",
+    "lang_refresh": "Ansicht aktualisieren",
     "lang_serialNo": "Serien-Nr",
     "lang_sockets": "Sockel",
     "lang_tempPart": "Temp. Partition",

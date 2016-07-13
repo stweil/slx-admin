@@ -25,7 +25,7 @@
 				<td class="slx-nowrap" align="right">
 					{{#havestatistics}}
 					{{clientCount}}
-					<a class="btn btn-default btn-xs" href="?do=Statistics&amp;filter=location&amp;argument={{locationid}}"><span class="glyphicon glyphicon-eye-open"></span></a>
+					<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}"><span class="glyphicon glyphicon-eye-open"></span></a>
 					{{/havestatistics}}
 				</td>
 				<td class="slx-nowrap">
@@ -55,7 +55,7 @@
 			<td>{{lang_unassignedMachines}}</td>
 			<td class="slx-nowrap" align="right">
 				{{unassignedCount}}
-				<a class="btn btn-default btn-xs" href="?do=Statistics&amp;filter=location&amp;argument=0">
+				<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location=0">
 					<span class="glyphicon glyphicon-eye-open"></span>
 				</a>
 			</td>

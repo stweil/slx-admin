@@ -1,16 +1,102 @@
+
+<div id="modal-add-filter" class="modal modal-sm fade" role="dialog" style="position:absolute; min-width:600px; min-height: 400px;margin:auto">
+	<div class="modal-content">
+		<div class="modal-header">
+			{{lang_add_filter}}
+		</div>
+		<form class="modal-body form-inline center">
+			<div class="form-group">
+				<label for="column"></label>
+				<select id="columnSelect" name="column" class="form-control col-4-xs">  </select>
+			</div>
+			<div class="form-group">
+				<label for="operator"></label>
+				<select id="operatorSelect" name="operator" class="form-control col-4-xs"> </select>
+			</div>
+			<div class="form-group">
+				<label for="argument"></label>
+				<input name="argument" id="argumentInput" class="form-control col-4-xs"> </input>
+				<select name="argument" id="argumentSelect" class="form-control col-4-xs"> </select>
+			</div>
+			<button type="button" class="btn btn-primary" onclick="addFilter()" >
+				<span class="glyphicon glyphicon-plus"></span>
+				{{lang_add}}</button>
+		</form>
+	</div>
+</div>
+
+
+
 <h1>{{lang_clientList}}</h1>
-<div class="pull-right">{{filter}} ~= {{argument}}</div>
-<div class="clearfix"></div>
+
+<div>
+	<!-- use GET here, to avoid the "resend form?" confirmation, and anyway this is stateless, so GET makes more sense -->
+<form id="queryForm" method="GET" action="?do=Statistics&show=list" class="" role="form">
+			<input type="hidden" name="token" value="{{token}}"/>
+			<input type="hidden" name="do" value="Statistics"/>
+			<input type="hidden" name="show" value="list"/>
+			<label for="filters">{{lang_labelFilter}}</label>
+			<input type="text" name="filters" class="" id="filterInput"/>
+			<input type="hidden" name="sortColumn" id="sortColumn" value="{{sortColumn}}"/>
+			<input type="hidden" name="sortDirection" id="sortDirection" value="{{sortDirection}}"/>
+
+			<button type="button" class="btn btn-success" onclick="popupFilter(null)">
+				<span class="glyphicon glyphicon-plus"></span>
+				{{lang_add_filter}}</button>
+			<button class="btn btn-primary pull-right" type="submit">
+				<span class="glyphicon glyphicon-refresh"></span>
+				{{lang_refresh}}</button>
+</form>
+<br/>
+<br/>
+</div>
 
 <table class="table table-condensed table-striped">
 	<tr>
 		<th>{{lang_machine}}</th>
-		<th>{{lang_address}}</th>
-		<th class="text-right">{{lang_lastSeen}}</th>
-		<th>{{lang_kvmSupport}}</th>
-		<th class="text-right">{{lang_gbRam}}</th>
-		<th class="text-right">{{lang_tmpGb}}</th>
-		<th>{{lang_cpuModel}}</th>
+		<th>{{lang_address}}
+			<div class="btn-group pull-right">
+				<button class="btn btn-default btn-xs" id="sortButton-clientip"></button>
+			</div>
+
+		</th>
+		<th class="text-right">{{lang_lastSeen}}
+			<div class="btn-group pull-right">
+				<button class="btn btn-default btn-xs" id="sortButton-lastseen"></button>
+				<button class="btn btn-xs btn-filter ">
+					<span id="btn_filter_lastseen" class="glyphicon glyphicon-filter" onclick="popupFilter('lastseen')"></span>
+				</button>
+			</div>
+		</th>
+		<th>
+			{{lang_kvmSupport}}
+			<div class="btn-group pull-right">
+			<button class="btn btn-default btn-xs" id="sortButton-kvmstate"></button>
+			<button class="btn btn-xs btn-filter ">
+				<span id="btn_filter_kvmstate" class="glyphicon glyphicon-filter" onclick="popupFilter('kvmstate')"></span>
+			</button>
+			</div>
+		</th>
+		<th class="text-right">
+			{{lang_gbRam}}
+			<div class="btn-group pull-right">
+				<button class="btn btn-default btn-xs" id="sortButton-gbram"></button>
+				<button class="btn btn-default btn-xs" ><span id="btn_filter_gbram" class="glyphicon glyphicon-filter" onclick="popupFilter('gbram')"></span></button>
+			</div>
+		</th>
+		<th class="text-right">
+			{{lang_tmpGb}}
+			<div class="btn-group pull-right">
+			<button class="btn btn-default btn-xs" id="sortButton-hddgb"></button>
+			<button  class="btn btn-xs btn-filter "> <span id="btn_filter_hddgb" class="glyphicon glyphicon-filter" onclick="popupFilter('hddgb')"></span></button>
+			</div>
+		</th>
+		<th>{{lang_cpuModel}}
+			<div class="btn-group pull-right">
+			<button class="btn btn-default btn-xs" id="sortButton-realcores"></button>
+			<button class="btn btn-xs btn-filter"><span id="btn_filter_cpu" class="glyphicon glyphicon-filter" onclick="popupFilter('realcores')"></span></button>
+			</div>
+		</th>
 	</tr>
 	{{#rows}}
 	<tr>
@@ -28,7 +114,7 @@
 			<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
 			<div class="small">{{machineuuid}}</div>
 		</td>
-		<td><b><a href="?do=Statistics&amp;filter=subnet&amp;argument={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
+		<td><b><a href="?do=Statistics&amp;show=list&amp;filters=subnet={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
 		<td class="text-right">{{lastseen}}</td>
 		<td class="{{kvmclass}}">{{kvmstate}}</td>
 		<td class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
@@ -43,3 +129,163 @@
 	</tr>
 	{{/rows}}
 </table>
+<script type="application/javascript"><!--
+
+var filterSelectize;
+
+document.addEventListener("DOMContentLoaded", function () {
+
+	var initComplete = false;
+	var comp = ['=', '!='];
+	var ordered = ['<', '<=', '=', '>=', '>'];
+	// var filter = {
+	// 	'machine' : {'op' : comp, 'type' : 'string'},
+	// 	'ram' : {'op' : ordered, 'type' : 'string'},
+	// 	'lastSeen' : {'op' : ordered, 'type' : 'date'},
+	// };
+
+	/* some objects */
+	var $columnSelect = $('#columnSelect');
+	$modal = $('#modal-add-filter');
+	$queryForm = $('#queryForm');
+
+	var columns= {{{columns}}};
+
+	/* add options to column select */
+	for (var key in columns) {
+		$columnSelect.append($('<option>', {
+			value: key, text: key}));
+	};
+
+
+	/* initialize selectize */
+	filterSelectize = $('#filterInput').selectize({
+		delimiter: ',',
+		plugins: ['restore_on_backspace', 'remove_button'],
+		create: function(input) {
+			return {value: input, text: input}
+		},
+		onChange: function() {
+			// if (initComplete && !$('#filterInput').is(':focus')) {
+			// reload();
+			// }
+		}
+	})[0].selectize;
+	/* add query */
+	var str = "{{{query}}}";
+	str.split(",").forEach(function(v) {
+		filterSelectize.addOption({value: v, text: v});
+		filterSelectize.addItem(v);
+	});
+
+	$('#columnSelect').on('change', function() {
+		$('#operatorSelect option').remove();
+		var col = $('#columnSelect').val();
+		var opS = $('#operatorSelect');
+		columns[col]['op'].sort(myOpSort);
+		columns[col]['op'].forEach(function (v) {
+			$(opS).append($('<option>', {
+				value: v, text: v
+			}));
+		});
+		/* also set the type of the input */
+		if (columns[col]['type'] == 'date') {
+			$('#argumentInput').datepicker({format : 'yyyy-mm-dd'});
+			$('#argumentSelect').hide();
+		} else if(columns[col]['type'] == 'enum') {
+			$('#argumentInput').hide();
+			$('#argumentSelect').show();
+			columns[col]['values'].forEach(function (v) {
+				$('#argumentSelect').append($('<option>', { value: v, text: v }));
+			});
+		} else {
+			$('#argumentInput').datepicker('remove');
+			$('#argumentSelect option').remove();
+			$('#argumentInput').show();
+			$('#argumentSelect').hide();
+		}
+	});
+
+	initButtons();
+	initComplete = true;
+
+}, false);
+
+
+function initButtons() {
+	['gbram', 'hddgb', 'realcores', 'kvmstate', 'lastseen', 'clientip'].forEach(function (v) {
+		var $sortBtn = $('#sortButton-' + v);
+		var order = 'up'; /* default */
+		if ($('#sortColumn').val() == v) {
+			$sortBtn.addClass('btn-success');
+			order = $('#sortDirection').val() == 'ASC' ? 'up' : 'down';
+		}
+		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
+		$sortBtn.attr('onclick', 'toggleButton(\'' + v + '\');');
+	});
+}
+
+function toggleButton(v) {
+	var $sortBtn = $('#sortButton-' + v);
+	var $col = $('#sortColumn');
+	var $dir = $('#sortDirection');
+	if ($col.val() == v) {
+		/* toggle direction */
+		var newDir = $dir.val() == 'ASC' ? 'DESC' : 'ASC';
+		$dir.val(newDir);
+		/* update button */
+		var order =  newDir == 'ASC' ? 'up' : 'down';
+		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
+	} else {
+		/* remove "btn-success" from current sorting */
+		$('#sortButton-'+v).removeClass('btn-success');
+		$sortBtn.addClass('btn-success');
+		$col.val(v);
+		$dir = 'ASC';
+	}
+	refresh();
+}
+
+function popupFilter(field) {
+		if (field != null) {
+			$('#columnSelect').val(field);
+		}
+		$('#columnSelect').change();
+		$modal.modal('show');
+}
+
+function addFilter() {
+	var argument1 = $('#argumentInput').val();
+	var argument2 = $('#argumentSelect').val();
+	var argument = argument1 == '' ? argument2 : argument1;
+
+	var ft = $('#columnSelect').val() + ' ' + $('#operatorSelect').val() + ' ' + argument;
+	filterSelectize.addOption({value: ft, text: ft});
+	filterSelectize.addItem(ft);
+
+	//$modal.modal('hide');
+	refresh();
+
+	// $('#columnSelect').val('');
+	// $('#operatorSelect option').remove();
+	// $('#argumentInput').val('');
+}
+
+function toggleSort(field) {
+	$('#sort').val(field + ' ' + order);
+	refresh();
+}
+
+/* equal sign should always be first, the rest doesn't matter*/
+function myOpSort(a,b) {
+	if (a == '=') { return -1; }
+	else if (a == b) {return 0}
+	else { return 1;}
+
+}
+
+function refresh() {
+	console.log('refresh');
+	$queryForm.submit(); /* TODO: use AJAX */
+}
+// --></script>
