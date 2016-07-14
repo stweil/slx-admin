@@ -21,6 +21,7 @@ if (!isset($_POST['description'])) die('Missing options..');
 $description = $_POST['description'];
 $longdesc = '';
 if (isset($_POST['longdesc'])) $longdesc = $_POST['longdesc'];
+$longdesc = Request::post('longdesc', '', 'string');
 
 if ($type{0} !== '.' && $type{0} !== '~') {
 
@@ -28,11 +29,12 @@ if ($type{0} !== '.' && $type{0} !== '~') {
 	$row = Database::queryFirst('SELECT Count(*) AS cnt FROM clientlog WHERE clientip = :client AND dateline + 3600 > UNIX_TIMESTAMP()', array(':client' => $ip));
 	if ($row !== false && $row['cnt'] > 150) exit(0);
 
-	Database::exec('INSERT INTO clientlog (dateline, logtypeid, clientip, description, extra) VALUES (UNIX_TIMESTAMP(), :type, :client, :description, :longdesc)', array(
+	Database::exec('INSERT INTO clientlog (dateline, logtypeid, clientip, machineuuid, description, extra) VALUES (UNIX_TIMESTAMP(), :type, :client, :uuid, :description, :longdesc)', array(
 		'type'        => $type,
 		'client'      => $ip,
 		'description' => $description,
 		'longdesc'    => $longdesc,
+		'uuid'        => $uuid,
 	));
 
 }
