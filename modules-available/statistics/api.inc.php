@@ -18,7 +18,7 @@ if ($type{0} === '~') {
 	$macaddr = Request::post('macaddr', '', 'string');
 	if (!empty($macaddr) && substr($uuid, 0, 16) === '000000000000000-') {
 		// Override uuid if the mac is known and unique
-		$res = Database::simpleQuery('SELECT machineuuid FROM machine WHERE macaddr = :macaddr', array('macaddr' => $macaddr));
+		$res = Database::simpleQuery('SELECT machineuuid FROM machine WHERE macaddr = :macaddr AND machineuuid <> :uuid', compact('macaddr', 'uuid'));
 		$override = false;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($override !== false) {
@@ -46,7 +46,7 @@ if ($type{0} === '~') {
 		$realcores = Request::post('realcores', 0, 'integer');
 		if ($realcores < 0 || $realcores > 512) $realcores = 0;
 		$mbram = Request::post('mbram', 0, 'integer');
-		if ($mbram < 0 || $mbram > 102400) $mbram = 0;
+		if ($mbram < 0 || $mbram > 2048000) $mbram = 0;
 		$kvmstate = Request::post('kvmstate', 'UNKNOWN', 'string');
 		$valid = array('UNKNOWN', 'UNSUPPORTED', 'DISABLED', 'ENABLED');
 		if (!in_array($kvmstate, $valid)) $kvmstate = 'UNKNOWN';
