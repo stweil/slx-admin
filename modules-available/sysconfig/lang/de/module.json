@@ -1,4 +1,10 @@
 {
+    "lang_clientSshConfig": "SSH-Konfiguration",
+    "lang_configurationCompilation": "Konfiguration zusammenstellen",
+    "lang_contentOf": "Inhalt von",
+    "lang_moduleAdd": "Modul hinzuf\u00fcgen",
+    "lang_noModuleFromThisGroup": "(Kein Modul dieser Gruppe)",
+    "lang_unknwonTaskManager": "Unbekannter Taskmanager-Fehler",
     "module_name": "Lokalisierung + Integration",
     "page_title": "Lokalisierung + Integration"
 }
