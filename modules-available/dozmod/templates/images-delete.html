@@ -16,9 +16,12 @@
 							<th>{{lang_image}}</th>
 							<th>{{lang_version}}</th>
 							<th>{{lang_owner}}</th>
-							<th><span class="glyphicon glyphicon-upload" title="{{lang_hasNewer}}"></th>
+							<th><span class="glyphicon glyphicon-upload" title="{{lang_hasNewer}}"></span></th>
 							<th>{{lang_size}}</th>
-							<th><span class="glyphicon glyphicon-trash" title="{{lang_delete}}"></span></th>
+							<th>
+								<input id="del-all" type="checkbox" onclick="slxChangeAll()">
+								<span class="glyphicon glyphicon-trash" title="{{lang_delete}}"></span>
+							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -29,7 +32,7 @@
 							<td class="text-left slx-nowrap"><a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a></td>
 							<td class="text-left slx-nowrap"><span class="glyphicon {{hasNewerClass}}"></span></td>
 							<td class="text-right slx-nowrap">{{filesize}}</td>
-							<td><input name="images[{{imageversionid}}]" type="checkbox" checked="checked"></td>
+							<td><input class="del-check" name="images[{{imageversionid}}]" type="checkbox" {{checked}}></td>
 						</tr>
 						{{/images}}
 					</tbody>
@@ -53,5 +56,33 @@ function slxPostdel() {
 	});
 	return false;
 }
+
+function slxChangeAll()
+{
+	if ($('#del-all').is(':checked')) {
+		$('.del-check').prop('checked', true);
+	} else {
+		$('.del-check').prop('checked', false);
+	}
+}
+
+function slxChangeSingle()
+{
+	var ons = 0;
+	var offs = 0;
+	$('.del-check').each(function(idx, elem) {
+		if (elem.checked) {
+			ons++;
+		} else {
+			offs++;
+		}
+	});
+	$('#del-all').prop('checked', offs === 0).prop('indeterminate', ons > 0 && offs > 0);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+	$('.del-check').click(slxChangeSingle);
+	slxChangeSingle();
+}, false);
 
 --> </script>

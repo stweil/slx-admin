@@ -60,6 +60,7 @@ class Page_DozMod extends Page
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($row['latexptime'] > $NOW && $row['latdelstate'] === 'KEEP') {
 				$row['hasNewerClass'] = 'glyphicon-ok green';
+				$row['checked'] = 'checked';
 			} else {
 				$row['hasNewerClass'] = 'glyphicon-remove red';
 			}
@@ -119,7 +120,7 @@ class Page_DozMod extends Page
 				));
 			}
 			if (!empty($images)) {
-				$ret = Download::asStringPost('http://127.0.0.1:9080/do/delete-images', false, 2, $code);
+				$ret = Download::asStringPost('http://127.0.0.1:9080/do/delete-images', false, 10, $code);
 				if ($code == 999) {
 					$ret .= "\nConnection to DMSD failed.";
 				}
@@ -140,7 +141,12 @@ class Page_DozMod extends Page
 			if (!preg_match('/.+@.+\..+/', $data['recipient'])) {
 				$result = 'No recipient given!';
 			} else {
-				$result = Download::asStringPost('http://127.0.0.1:9080/do/mailtest', $data, 2, $code);
+				$result = Download::asStringPost('http://127.0.0.1:9080/do/mailtest', $data, 10, $code);
+				if ($code == 999) {
+					$result .= "\nTimeout.";
+				} elseif ($code != 200) {
+					$result .= "\nReturn code $code";
+				}
 			}
 			die($result);
 		}
