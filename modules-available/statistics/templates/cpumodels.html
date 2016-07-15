@@ -15,9 +15,9 @@
 						{{#rows}}
 						<tr id="{{id}}">
 							<td class="text-left slx-nowrap">
-								<a href="?do=Statistics&amp;show=list&amp;filters=systemmodel={{urlsystemmodel}}">{{systemmodel}}</a>
+								<a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~systemmodel={{urlsystemmodel}}">{{systemmodel}}</a>
 							</td>
-							<td class="text-right"><a href="?do=Statistics&amp;show=list&amp;filters=realcores={{cores}}">{{cores}}</a></td>
+							<td class="text-right"><a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~realcores={{cores}}">{{cores}}</a></td>
 							<td class="text-right">{{count}}</td>
 						</tr>
 						{{/rows}}

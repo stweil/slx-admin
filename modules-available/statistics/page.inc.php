@@ -2,6 +2,7 @@
 
 global $STATS_COLORS, $SIZE_ID44, $SIZE_RAM;
 global $unique_key;
+
 $STATS_COLORS = array();
 for ($i = 0; $i < 10; ++$i) {
 	$STATS_COLORS[] = '#55' . sprintf('%02s%02s', dechex((($i + 1) * ($i + 1)) / .3922), dechex(abs((5 - $i) * 51)));
@@ -17,6 +18,8 @@ class Page_Statistics extends Page
 	public static $op_ordinal;
 	public static $op_stringcmp;
 	public static $columns;
+
+	private $query;
 
 	/* PHP sucks, no static, const array definitions... Or am I missing something? */
 	public function initConstants()
@@ -56,11 +59,6 @@ class Page_Statistics extends Page
 				'type' => 'int',
 				'column' => true,
 			],
-//                        'mbram' => [
-//                                'op' => Page_Statistics::$op_ordinal,
-//                                'type' => 'int',
-//                                'column' => true,
-//                        ],
 			'systemmodel' => [
 				'op' => Page_Statistics::$op_stringcmp,
 				'type' => 'string',
@@ -148,24 +146,68 @@ class Page_Statistics extends Page
 
 			return;
 		}
-		$filter = Request::get('filter', false, 'string');
-		$show = Request::get('show', 'stat', 'string');
-		if ($filter !== false || $show == 'list') {
-			$argument = Request::get('argument', false, 'string');
-			$this->showMachineList($filter, $argument);
 
+		/* read filter */
+		$this->query = Request::any('filters');
+		$sortColumn = Request::any('sortColumn');
+		$sortDirection = Request::any('sortDirection');
+		$filters = Filter::parseQuery($this->query);
+
+		$filterSet = new FilterSet($filters);
+		$filterSet->setSort($sortColumn, $sortDirection);
+
+
+		$show = Request::get('show', 'stat', 'string');
+		if ($show == 'list') {
+			$this->showFilter('list', $filterSet);
+			$this->showMachineList($filterSet);
 			return;
 		}
 		Render::openTag('div', array('class' => 'row'));
-		$this->showSummary();
-		$this->showMemory();
-		$this->showId44();
-		$this->showKvmState();
-		$this->showLatestMachines();
-		$this->showSystemModels();
+		$this->showFilter('stat', $filterSet);
+		$this->showSummary($filterSet);
+		$this->showMemory($filterSet);
+		$this->showId44($filterSet);
+		$this->showKvmState($filterSet);
+		$this->showLatestMachines($filterSet);
+		$this->showSystemModels($filterSet);
 		Render::closeTag('div');
 	}
 
+	private function showFilter($show, $filterSet)
+	{
+		$data =  array(
+			'show' => $show,
+			'query' => $this->query,
+			'delimiter' => Filter::DELIMITER,
+			'sortDirection' => $filterSet->getSortDirection(),
+			'sortColumn' => $filterSet->getSortColumn(),
+			'columns' => json_encode(Page_Statistics::$columns),
+			'showList' => 1);
+
+		$data['showList'] = ($show == 'list');
+
+
+		$locsFlat = array();
+		if (Module::isAvailable('locations')) {
+			foreach (Location::getLocations() as $loc) {
+				$locsFlat['L' . $loc['locationid']] = array(
+					'pad' => $loc['locationpad'],
+					'name' => $loc['locationname']
+				);
+			}
+		}
+
+		$data['locations'] = json_encode($locsFlat);
+		// if($show == 'list') {
+		// 	$data['showList'] = true;
+		// } else {
+		// 	$data['showList'] = false;
+		// }
+		Render::addTemplate('filterbox', $data);
+
+
+	}
 	private function capChart(&$json, $cutoff, $minSlice = 0.015)
 	{
 		$total = 0;
@@ -195,14 +237,16 @@ class Page_Statistics extends Page
 		}
 	}
 
-	private function showSummary()
+	private function showSummary($filterSet)
 	{
+		$filterSet->makeFragments($where, $join, $sort, $args);
+
 		$cutoff = time() - 86400 * 30;
 		$online = time() - 610;
-		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $cutoff");
-		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $online");
-		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $online AND logintime <> 0");
-		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE badsectors > 10 AND lastseen > $cutoff");
+		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $cutoff AND $where", $args);
+		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $online AND $where", $args);
+		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $online AND logintime <> 0 AND $where", $args);
+		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE badsectors > 10 AND lastseen > $cutoff AND $where", $args);
 		if ($on['val'] != 0) {
 			$usedpercent = round($used['val'] / $on['val'] * 100);
 		} else {
@@ -238,15 +282,19 @@ class Page_Statistics extends Page
 			}
 		}
 		$data['json'] = json_encode(array('labels' => $labels, 'datasets' => array($points1, $points2)));
+		$data['query'] = $this->query;
 		// Draw
 		Render::addTemplate('summary', $data);
 	}
 
-	private function showSystemModels()
+	private function showSystemModels($filterSet)
 	{
 		global $STATS_COLORS;
+
+		$filterSet->makeFragments($where, $join, $sort, $args);
+
 		$res = Database::simpleQuery('SELECT systemmodel, Round(AVG(realcores)) AS cores, Count(*) AS `count` FROM machine'
-			. ' GROUP BY systemmodel ORDER BY `count` DESC, systemmodel ASC');
+			. " $join WHERE $where GROUP BY systemmodel ORDER BY `count` DESC, systemmodel ASC", $args);
 		$lines = array();
 		$json = array();
 		$id = 0;
@@ -266,13 +314,16 @@ class Page_Statistics extends Page
 			++$id;
 		}
 		$this->capChart($json, 0.92);
-		Render::addTemplate('cpumodels', array('rows' => $lines, 'json' => json_encode($json)));
+		Render::addTemplate('cpumodels', array('rows' => $lines, 'query' => $this->query, 'json' => json_encode($json)));
 	}
 
-	private function showMemory()
+	private function showMemory($filterSet)
 	{
 		global $STATS_COLORS, $SIZE_RAM;
-		$res = Database::simpleQuery('SELECT mbram, Count(*) AS `count` FROM machine GROUP BY mbram');
+
+		$filterSet->makeFragments($where, $join, $sort, $args);
+
+		$res = Database::simpleQuery("SELECT mbram, Count(*) AS `count` FROM machine $join WHERE $where  GROUP BY mbram", $args);
 		$lines = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$gb = ceil($row['mbram'] / 1024);
@@ -307,13 +358,16 @@ class Page_Statistics extends Page
 		}
 		$this->capChart($json, 0.92);
 		$data['json'] = json_encode($json);
+		$data['query'] = $this->query;
 		Render::addTemplate('memory', $data);
 	}
 
-	private function showKvmState()
+	private function showKvmState($filterSet)
 	{
+		$filterSet->makeFragments($where, $join, $sort, $args);
+
 		$colors = array('UNKNOWN' => '#666', 'UNSUPPORTED' => '#ea5', 'DISABLED' => '#e55', 'ENABLED' => '#6d6');
-		$res = Database::simpleQuery('SELECT kvmstate, Count(*) AS `count` FROM machine GROUP BY kvmstate ORDER BY `count` DESC');
+		$res = Database::simpleQuery("SELECT kvmstate, Count(*) AS `count` FROM machine $join WHERE $where GROUP BY kvmstate ORDER BY `count` DESC", $args);
 		$lines = array();
 		$json = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -324,13 +378,16 @@ class Page_Statistics extends Page
 				'value' => $row['count'],
 			);
 		}
-		Render::addTemplate('kvmstate', array('rows' => $lines, 'json' => json_encode($json)));
+		Render::addTemplate('kvmstate', array('rows' => $lines, 'query' => $this->query,'json' => json_encode($json)));
 	}
 
-	private function showId44()
+	private function showId44($filterSet)
 	{
 		global $STATS_COLORS, $SIZE_ID44;
-		$res = Database::simpleQuery('SELECT id44mb, Count(*) AS `count` FROM machine GROUP BY id44mb');
+
+		$filterSet->makeFragments($where, $join, $sort, $args);
+
+		$res = Database::simpleQuery("SELECT id44mb, Count(*) AS `count` FROM machine $join WHERE $where GROUP BY id44mb", $args);
 		$lines = array();
 		$total = 0;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -371,14 +428,18 @@ class Page_Statistics extends Page
 		}
 		$this->capChart($json, 0.95);
 		$data['json'] = json_encode($json);
+		$data['query'] = $this->query;
 		Render::addTemplate('id44', $data);
 	}
 
-	private function showLatestMachines()
+	private function showLatestMachines($filterSet)
 	{
-		$data = array('cutoff' => ceil(time() / 3600) * 3600 - 86400 * 7);
-		$res = Database::simpleQuery('SELECT machineuuid, clientip, hostname, firstseen, mbram, kvmstate, id44mb FROM machine'
-			. ' WHERE firstseen > :cutoff ORDER BY firstseen DESC LIMIT 32', $data);
+		$filterSet->makeFragments($where, $join, $sort, $args);
+
+		$args['cutoff'] = ceil(time() / 3600) * 3600 - 86400 * 7;
+
+		$res = Database::simpleQuery("SELECT machineuuid, clientip, hostname, firstseen, mbram, kvmstate, id44mb FROM machine $join"
+			. " WHERE firstseen > :cutoff AND $where ORDER BY firstseen DESC LIMIT 32", $args);
 		$rows = array();
 		$count = 0;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -401,119 +462,10 @@ class Page_Statistics extends Page
 	}
 
 
-	private function showMachineList($filter, $argument)
+	private function showMachineList($filterSet)
 	{
-		$query = Request::any('filters');
-		$sortColumn = Request::any('sortColumn');
-		$sortDirection = Request::any('sortDirection');
+		$filterSet->makeFragments($where, $join, $sort, $args);
 
-		$filters = Filter::parseQuery($query);
-
-		/* generate where clause & arguments */
-		$where = '';
-		$joins = [];
-		$args = [];
-		error_log('number of filters: ' . count($filters));
-		if (empty($filters)) {
-			$where = ' 1 ';
-		} else {
-			foreach ($filters as $filter) {
-				$sep = ($where != '' ? ' AND ' : '');
-				$where .= $sep . $filter->whereClause($args, $joins);
-			}
-		}
-		$join = implode('', array_unique($joins));
-
-
-		if (!in_array($sortDirection, ['ASC', 'DESC'])) {
-			$sortDirection = 'ASC';
-		}
-		if (array_key_exists($sortColumn, Page_Statistics::$columns)) {
-			if (array_key_exists('map_sort', Page_Statistics::$columns[$sortColumn])) {
-				/* use the column mapping */
-				$actualCol = Page_Statistics::$columns[$sortColumn]['map_sort'];
-				$sort = " ORDER BY $actualCol $sortDirection";
-			} else {
-				$sort = " ORDER BY $sortColumn $sortDirection";
-			}
-		} else {
-			$sort = "";
-		}
-
-
-		// /* find the sorting */
-		// $sort = explode(' ', Request::any('sort', 'clientip asc'));
-		// $sort[1] = strtoupper($sort[1]);
-		// if (array_key_exists($sort[0], Page_Statistics::$columns) && ($sort[1] == 'ASC' || $sort[1] == 'DESC')) {
-
-		//         /* check map_sort mapping */
-		//         if(array_key_exists('map_sort', Page_Statistics::$columns[$sort[0]])) {
-		//                 $sort[0] = Page_Statistics::$columns[$sort[0]]['map_sort'];
-		//         }
-		//         $sort = "ORDER BY " . $sort[0] . ' ' .  $sort[1];
-		// } else {
-		//         $sort = "";
-		// }
-
-		error_log(" JOIN is " . $join);
-		error_log($where);
-		global $SIZE_RAM, $SIZE_ID44;
-		// $filters = array('cpumodel', 'realcores', 'kvmstate', 'clientip', 'macaddr', 'machineuuid', 'systemmodel');
-		// if (in_array($filter, $filters)) {
-		//     // Simple filters mapping into db
-		//     $where = " $filter = :argument";
-		//     $args = array('argument' => $argument);
-		// } elseif ($filter === 'gbram') {
-		//     // Memory by rounded GB
-		//     $lower = floor($this->findBestValue($SIZE_RAM, $argument, false) * 1024 - 100);
-		//     $upper = ceil($this->findBestValue($SIZE_RAM, $argument, true) * 1024 + 100);
-		//     $where = " mbram BETWEEN $lower AND $upper";
-		//     $args = array();
-		// } elseif ($filter === 'hddgb') {
-		//     // HDD by rounded GB
-		//     $lower = floor($this->findBestValue($SIZE_ID44, $argument, false) * 1024 - 100);
-		//     $upper = ceil($this->findBestValue($SIZE_ID44, $argument, true) * 1024 + 100);
-		//     $where = " id44mb BETWEEN $lower AND $upper";
-		//     $args = array();
-		// } elseif ($filter === 'subnet') {
-		//     $argument = preg_replace('/[^0-9\.:]/', '', $argument);
-		//     $where = " clientip LIKE '$argument%'";
-		//     $args = array();
-		// } elseif ($filter === 'badsectors') {
-		//     $where = ' badsectors >= :argument ';
-		//     $args = array('argument' => $argument);
-		// } elseif ($filter === 'state') {
-		//     if ($argument === 'on') {
-		//         $where = ' lastseen + 600 > UNIX_TIMESTAMP() ';
-		//     } elseif ($argument === 'off') {
-		//         $where = ' lastseen + 600 < UNIX_TIMESTAMP() ';
-		//     } elseif ($argument === 'idle') {
-		//         $where = ' lastseen + 600 > UNIX_TIMESTAMP() AND logintime = 0 ';
-		//     } elseif ($argument === 'occupied') {
-		//         $where = ' lastseen + 600 > UNIX_TIMESTAMP() AND logintime <> 0 ';
-		//     } else {
-		//         Message::addError('invalid-filter');
-
-		//         return;
-		//     }
-		// } elseif ($filter === 'location') {
-		//     settype($argument, 'int');
-		//     if ($argument === 0) {
-		//         $where = 'machine.locationid IS NULL AND s.locationid IS NULL';
-		//         $join = 'LEFT JOIN subnet s ON (INET_ATON(machine.clientip) BETWEEN s.startaddr AND s.endaddr)';
-		//     } else {
-		//         $where = 'subnet.locationid = :lid OR machine.locationid = :lid';
-		//         $join = ' INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) ';
-		//         $args = array('lid' => $argument);
-		//     }
-		// } else {
-		//     //Message::addError('invalid-filter');
-		//     // return;
-		//     $where = '1';
-		//     $args = [];
-		// }
-
-		// $where and $args
 		$res = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, firstseen, lastseen,'
 			. ' logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes, badsectors FROM machine'
 			. " $join WHERE $where $sort", $args);
@@ -545,25 +497,16 @@ class Page_Statistics extends Page
 			}
 			$rows[] = $row;
 		}
-		$locsFlat = array();
-		if (Module::isAvailable('locations')) {
-			foreach (Location::getLocations() as $loc) {
-				$locsFlat['L' . $loc['locationid']] = array(
-					'pad' => $loc['locationpad'],
-					'name' => $loc['locationname']
-				);
-			}
-		}
 		Render::addTemplate('clientlist', array(
 			'rows' => $rows,
-			'filter' => $filter,
-			'query' => $query,
+			'query' => $this->query,
 			'delimiter' => Filter::DELIMITER,
-			'sortDirection' => $sortDirection,
-			'sortColumn' => $sortColumn,
-			'argument' => $argument,
+			'sortDirection' => $filterSet->getSortDirection(),
+			'sortColumn' => $filterSet->getSortColumn(),
 			'columns' => json_encode(Page_Statistics::$columns),
 			'locations' => json_encode($locsFlat),
+			'showList' => 1,
+			'show' => 'list'
 		));
 	}
 
@@ -678,21 +621,21 @@ class Page_Statistics extends Page
 		if (preg_match_all('/##### ([^#]+) #+$(.*?)^#####/ims', $client['data'] . '########', $out, PREG_SET_ORDER)) {
 			foreach ($out as $section) {
 				if ($section[1] === 'CPU') {
-					$this->parseCpu($client, $section[2]);
+					Parser::parseCpu($client, $section[2]);
 				}
 				if ($section[1] === 'dmidecode') {
-					$this->parseDmiDecode($client, $section[2]);
+					Parser::parseDmiDecode($client, $section[2]);
 				}
 				if ($section[1] === 'Partition tables') {
-					$this->parseHdd($hdds, $section[2]);
+					Parser::parseHdd($hdds, $section[2]);
 				}
 				if ($section[1] === 'PCI ID') {
 					$client['lspci1'] = $client['lspci2'] = array();
-					$this->parsePci($client['lspci1'], $client['lspci2'], $section[2]);
+					Parser::parsePci($client['lspci1'], $client['lspci2'], $section[2]);
 				}
 				if (isset($hdds['hdds']) && $section[1] === 'smartctl') {
 					// This currently required that the partition table section comes first...
-					$this->parseSmartctl($hdds['hdds'], $section[2]);
+					Parser::parseSmartctl($hdds['hdds'], $section[2]);
 				}
 			}
 		}
@@ -840,257 +783,6 @@ class Page_Statistics extends Page
 		}
 	}
 
-	private function parseCpu(&$row, $data)
-	{
-		if (0 >= preg_match_all('/^(.+):\s+(\d+)$/im', $data, $out, PREG_SET_ORDER)) {
-			return;
-		}
-		foreach ($out as $entry) {
-			$row[str_replace(' ', '', $entry[1])] = $entry[2];
-		}
-	}
-
-	private function parseDmiDecode(&$row, $data)
-	{
-		$lines = preg_split("/[\r\n]+/", $data);
-		$section = false;
-		$ramOk = false;
-		$ramForm = $ramType = $ramSpeed = $ramClockSpeed = false;
-		foreach ($lines as $line) {
-			if (empty($line)) {
-				continue;
-			}
-			if ($line{0} !== "\t" && $line{0} !== ' ') {
-				$section = $line;
-				$ramOk = false;
-				if (($ramForm || $ramType) && ($ramSpeed || $ramClockSpeed)) {
-					if (isset($row['ramtype']) && !$ramClockSpeed) {
-						continue;
-					}
-					$row['ramtype'] = $ramType . ' ' . $ramForm;
-					if ($ramClockSpeed) {
-						$row['ramtype'] .= ', ' . $ramClockSpeed;
-					} elseif ($ramSpeed) {
-						$row['ramtype'] .= ', ' . $ramSpeed;
-					}
-					$ramForm = false;
-					$ramType = false;
-					$ramClockSpeed = false;
-				}
-				continue;
-			}
-			if ($section === 'System Information' || $section === 'Base Board Information') {
-				if (empty($row['pcmodel']) && preg_match('/^\s*Product Name: +(\S.+?) *$/i', $line, $out)) {
-					$row['pcmodel'] = $out[1];
-				}
-				if (empty($row['manufacturer']) && preg_match('/^\s*Manufacturer: +(\S.+?) *$/i', $line, $out)) {
-					$row['manufacturer'] = $out[1];
-				}
-			} elseif ($section === 'Physical Memory Array') {
-				if (!$ramOk && preg_match('/Use: System Memory/i', $line)) {
-					$ramOk = true;
-				}
-				if ($ramOk && preg_match('/^\s*Number Of Devices: +(\S.+?) *$/i', $line, $out)) {
-					$row['ramslotcount'] = $out[1];
-				}
-				if ($ramOk && preg_match('/^\s*Maximum Capacity: +(\S.+?)\s*$/i', $line, $out)) {
-					$row['maxram'] = preg_replace('/([MGT])B/', '$1iB', $out[1]);
-				}
-			} elseif ($section === 'Memory Device') {
-				if (preg_match('/^\s*Size:\s*(.*?)\s*$/i', $line, $out)) {
-					$row['extram'] = true;
-					if (preg_match('/(\d+)\s*(\w)i?B/i', $out[1], $out)) {
-						$out[2] = strtoupper($out[2]);
-						if ($out[2] === 'K' || ($out[2] === 'M' && $out[1] < 500)) {
-							$ramForm = $ramType = $ramSpeed = $ramClockSpeed = false;
-							continue;
-						}
-						if ($out[2] === 'M' && $out[1] >= 1024) {
-							$out[2] = 'G';
-							$out[1] = floor(($out[1] + 100) / 1024);
-						}
-						$row['ramslot'][]['size'] = $out[1] . ' ' . strtoupper($out[2]) . 'iB';
-					} elseif (!isset($row['ramslot']) || (count($row['ramslot']) < 8 && (!isset($row['ramslotcount']) || $row['ramslotcount'] <= 8))) {
-						$row['ramslot'][]['size'] = '_____';
-					}
-				}
-				if (preg_match('/^\s*Form Factor:\s*(.*?)\s*$/i', $line, $out) && $out[1] !== 'Unknown') {
-					$ramForm = $out[1];
-				}
-				if (preg_match('/^\s*Type:\s*(.*?)\s*$/i', $line, $out) && $out[1] !== 'Unknown') {
-					$ramType = $out[1];
-				}
-				if (preg_match('/^\s*Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
-					$ramSpeed = $out[1];
-				}
-				if (preg_match('/^\s*Configured Clock Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
-					$ramClockSpeed = $out[1];
-				}
-			}
-		}
-		if (empty($row['ramslotcount'])) {
-			$row['ramslotcount'] = count($row['ramslot']);
-		}
-	}
-
-	private function parseHdd(&$row, $data)
-	{
-		$hdds = array();
-		// Could have more than one disk - linear scan
-		$lines = preg_split("/[\r\n]+/", $data);
-		$dev = false;
-		$i = 0;
-		foreach ($lines as $line) {
-			if (preg_match('/^Disk (\S+):.* (\d+) bytes/i', $line, $out)) {
-				// disk total size and name
-				unset($hdd);
-				$unit = 0;
-				$hdd = array(
-					'devid' => 'devid-' . ++$i,
-					'dev' => $out[1],
-					'size' => round($out[2] / (1024 * 1024 * 1024)),
-					'used' => 0,
-					'partitions' => array(),
-					'json' => array(),
-				);
-				$hdds[] = &$hdd;
-			} elseif (preg_match('/^Units =.*= (\d+) bytes/i', $line, $out)) {
-				// Unit for start and end
-				$unit = $out[1] / (1024 * 1024); // Convert so that multiplying by unit yields MiB
-			} elseif (isset($hdd) && $unit !== 0 && preg_match(',^/dev/(\S+)\s+.*\s(\d+)[\+\-]?\s+(\d+)[\+\-]?\s+\d+[\+\-]?\s+([0-9a-f]+)\s+(.*)$,i', $line, $out)) {
-				// Some partition
-				$type = strtolower($out[4]);
-				if ($type === '5' || $type === 'f' || $type === '85') {
-					continue;
-				}
-				$partsize = round(($out[3] - $out[2]) * $unit);
-				$hdd['partitions'][] = array(
-					'id' => $out[1],
-					'name' => $out[1],
-					'size' => round($partsize / 1024, $partsize < 1024 ? 1 : 0),
-					'type' => ($type === '44' ? 'OpenSLX' : $out[5]),
-				);
-				$hdd['json'][] = array(
-					'label' => $out[1],
-					'value' => $partsize,
-					'color' => ($type === '44' ? '#4d4' : ($type === '82' ? '#48f' : '#e55')),
-				);
-				$hdd['used'] += $partsize;
-			}
-		}
-		unset($hdd);
-		$i = 0;
-		foreach ($hdds as &$hdd) {
-			$hdd['used'] = round($hdd['used'] / 1024);
-			$free = $hdd['size'] - $hdd['used'];
-			if ($free > 5) {
-				$hdd['partitions'][] = array(
-					'id' => 'free-id-' . $i,
-					'name' => Dictionary::translate('unused'),
-					'size' => $free,
-					'type' => '-',
-				);
-				$hdd['json'][] = array(
-					'label' => 'free-id-' . $i,
-					'value' => $free * 1024,
-					'color' => '#aaa',
-				);
-				++$i;
-			}
-			$hdd['json'] = json_encode($hdd['json']);
-		}
-		unset($hdd);
-		$row['hdds'] = &$hdds;
-	}
-
-	private function parsePci(&$pci1, &$pci2, $data)
-	{
-		preg_match_all('/[a-f0-9\:\.]{7}\s+"(Class\s*)?(?<class>[a-f0-9]{4})"\s+"(?<ven>[a-f0-9]{4})"\s+"(?<dev>[a-f0-9]{4})"/is', $data, $out, PREG_SET_ORDER);
-		$NOW = time();
-		$pci = array();
-		foreach ($out as $entry) {
-			if (!isset($pci[$entry['class']])) {
-				$class = 'c.' . $entry['class'];
-				$res = $this->getPciId('CLASS', $class);
-				if ($res === false || $res['dateline'] < $NOW) {
-					$pci[$entry['class']]['lookupClass'] = 'do-lookup';
-					$pci[$entry['class']]['class'] = $class;
-				} else {
-					$pci[$entry['class']]['class'] = $res['value'];
-				}
-			}
-			$new = array(
-				'ven' => $entry['ven'],
-				'dev' => $entry['ven'] . ':' . $entry['dev'],
-			);
-			$res = $this->getPciId('VENDOR', $new['ven']);
-			if ($res === false || $res['dateline'] < $NOW) {
-				$new['lookupVen'] = 'do-lookup';
-			} else {
-				$new['ven'] = $res['value'];
-			}
-			$res = $this->getPciId('DEVICE', $new['ven'] . ':' . $new['dev']);
-			if ($res === false || $res['dateline'] < $NOW) {
-				$new['lookupDev'] = 'do-lookup';
-			} else {
-				$new['dev'] = $res['value'];
-			}
-			$pci[$entry['class']]['entries'][] = $new;
-		}
-		ksort($pci);
-		foreach ($pci as $class => $entry) {
-			if ($class === '0300' || $class === '0200' || $class === '0403') {
-				$pci1[] = $entry;
-			} else {
-				$pci2[] = $entry;
-			}
-		}
-	}
-
-	private function parseSmartctl(&$hdds, $data)
-	{
-		$lines = preg_split("/[\r\n]+/", $data);
-		$i = 0;
-		foreach ($lines as $line) {
-			if (preg_match('/^NEXTHDD=(.+)$/', $line, $out)) {
-				unset($dev);
-				foreach ($hdds as &$hdd) {
-					if ($hdd['dev'] === $out[1]) {
-						$dev = &$hdd;
-					}
-				}
-				continue;
-			}
-			if (!isset($dev)) {
-				continue;
-			}
-			if (preg_match('/^([A-Z][^:]+):\s*(.*)$/', $line, $out)) {
-				$dev['s_' . preg_replace('/\s|-|_/', '', $out[1])] = $out[2];
-			} elseif (preg_match('/^\s*\d+\s+(\S+)\s+\S+\s+\d+\s+\d+\s+\d+\s+\S+\s+(\d+)(\s|$)/', $line, $out)) {
-				$dev['s_' . preg_replace('/\s|-|_/', '', $out[1])] = $out[2];
-			}
-		}
-		// Format strings
-		foreach ($hdds as &$hdd) {
-			if (isset($hdd['s_PowerOnHours'])) {
-				$hdd['PowerOnTime'] = '';
-				$val = (int)$hdd['s_PowerOnHours'];
-				if ($val > 8760) {
-					$hdd['PowerOnTime'] .= floor($val / 8760) . 'Y, ';
-					$val %= 8760;
-				}
-				if ($val > 720) {
-					$hdd['PowerOnTime'] .= floor($val / 720) . 'M, ';
-					$val %= 720;
-				}
-				if ($val > 24) {
-					$hdd['PowerOnTime'] .= floor($val / 24) . 'd, ';
-					$val %= 24;
-				}
-				$hdd['PowerOnTime'] .= $val . 'h';
-			}
-		}
-	}
 
 	protected function doAjax()
 	{
@@ -1112,7 +804,7 @@ class Page_Statistics extends Page
 		} else {
 			die('Invalid format requested');
 		}
-		$cached = $this->getPciId($cat, $param);
+		$cached = Page_Statistics::getPciId($cat, $param);
 		if ($cached !== false && $cached['dateline'] > time()) {
 			echo $cached['value'], $add;
 			exit;
@@ -1122,7 +814,7 @@ class Page_Statistics extends Page
 			foreach ($res as $entry) {
 				if (isset($entry['txt']) && substr($entry['txt'], 0, 2) === 'i=') {
 					$string = substr($entry['txt'], 2);
-					$this->setPciId($cat, $param, $string);
+					Page_Statistic::setPciId($cat, $param, $string);
 					echo $string, $add;
 					exit;
 				}
@@ -1135,13 +827,13 @@ class Page_Statistics extends Page
 		die('Not found');
 	}
 
-	private function getPciId($cat, $id)
+	public static function getPciId($cat, $id)
 	{
 		return Database::queryFirst('SELECT value, dateline FROM pciid WHERE category = :cat AND id = :id LIMIT 1',
 			array('cat' => $cat, 'id' => $id));
 	}
 
-	private function setPciId($cat, $id, $value)
+	private static function setPciId($cat, $id, $value)
 	{
 		Database::exec('INSERT INTO pciid (category, id, value, dateline) VALUES (:cat, :id, :value, :timeout)'
 			. ' ON DUPLICATE KEY UPDATE value = VALUES(value), dateline = VALUES(dateline)',

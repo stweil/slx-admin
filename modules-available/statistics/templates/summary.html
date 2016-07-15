@@ -3,13 +3,13 @@
 		<div class="panel-body">
 			<div>
 				{{lang_knownMachines}}: <b>{{known}}</b>&emsp;
-				<a href="?do=Statistics&amp;show=list&amp;filters=state=on">{{lang_onlineMachines}}</a>: <b>{{online}}</b>&emsp;
-				<a href="?do=Statistics&amp;show=list&amp;filters=state=occupied">{{lang_inUseMachines}}</a>: <b>{{used}}</b> (<b>{{usedpercent}}%</b>)
+				<a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~state=on">{{lang_onlineMachines}}</a>: <b>{{online}}</b>&emsp;
+				<a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~state=occupied">{{lang_inUseMachines}}</a>: <b>{{used}}</b> (<b>{{usedpercent}}%</b>)
 			</div>
 			{{#badhdd}}
 			<div>
 				<span class="glyphicon glyphicon-exclamation-sign red"></span>
-				<a href="?do=Statistics&amp;show=list&amp;filters=badsectors>=10">
+				<a href="?do=Statistics&amp;show=list&amp;filters={{query}}~,~badsectors>=10">
 					{{lang_withBadSectors}}: <b>{{badhdd}}</b>
 				</a>
 			</div>
