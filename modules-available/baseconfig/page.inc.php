@@ -248,42 +248,45 @@ class Page_BaseConfig extends Page
 	private function makeInput($validator, $setting, $current, $shadows)
 	{
 
-		$shadowjs = "";
-		if(!empty($shadows)) {
-			$shadowjs = " data-shadows=\"$shadows\"";
-		}
-
-		error_log(print_r($shadows, true));
+		/* for the html snippet we need: */
+		$tag = 'input';
+		$type = 'text';
+		$shadowjs = empty($shadows) ? "" :  " data-shadows=\"$shadows\"";
+		$classes = "form-control";
+		$extras= "";
+		$inner = "";
+		/* -- */
 
 		$parts = explode(':', $validator, 2);
 		if ($parts[0] === 'list' || $parts[0] == 'multilist') {
 			$items = explode('|', $parts[1]);
 			$multiple = $parts[0] == 'multilist';
-			$extras = $multiple ? ' multiple class="multilist"' : 'class="form-control"';
-			$ret = '<select id="' .$setting . '" name="setting[' . $setting . ']" ' . $extras .  $shadowjs . '>';
+			if ($multiple) {
+				$extras = 'multiple ';
+				$classes .= " multilist";
+			}
+			$tag = 'select';
+
 			foreach ($items as $item) {
 				if ($item === $current) {
-					$ret .= '<option selected="selected">' . $item . '</option>';
+					$inner .= '<option selected="selected">' . $item . '</option>';
 				} else {
-					$ret .= '<option>' . $item . '</option>';
+					$inner .= '<option>' . $item . '</option>';
 				}
 			}
-			return $ret . '</select>';
 		}
 		/* multiinput: enter multiple free-form strings*/
 		if (strtolower($validator) == 'multiinput') {
-			return '<input id="' . $setting . '"name="setting[' . $setting . ']" ' . $shadowjs . ' class="multiinput" value="' . $current . '"></input>';
+			$classes .= " multiinput";
 		}
 
-
-		// Password field guessing
+		/* Password field guessing */
 		if (stripos($validator, 'password') !== false) {
 			$type = Property::getPasswordFieldType();
-		} else {
-			$type = 'text';
 		}
-		// Fallback: single line input
-		return '<input type="' . $type . '" id="' .$setting . '" name="setting[' . $setting . ']"' . $shadowjs . ' class="form-control" size="30" value="' . $current . '">';
+
+		return "<$tag type=\"$type\" id=\"$setting\" name=\"setting['$setting']\" $shadowjs $extras class=\"$classes\" value=\"$current\""
+			. ($inner == "" ? "/>" : ">$inner </$tag>");
 	}
 
 }
