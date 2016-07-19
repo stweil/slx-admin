@@ -170,7 +170,8 @@ class Page_BaseConfig extends Page
 				$settings[$var['catid']]['settings'][$key]['displayvalue'] = $var['defaultvalue'];
 			}
 			$settings[$var['catid']]['settings'][$key] += array(
-				'item' => $this->makeInput($var['validator'], $key, $settings[$var['catid']]['settings'][$key]['displayvalue']),
+				'item' => $this->makeInput($var['validator'], $key, $settings[$var['catid']]['settings'][$key]['displayvalue'], $settings[$var['catid']]['settings'][$key]['shadows']
+			),
 				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key))
 			);
 		}
@@ -244,12 +245,22 @@ class Page_BaseConfig extends Page
 	 * @param type $validator
 	 * @return boolean
 	 */
-	private function makeInput($validator, $setting, $current)
+	private function makeInput($validator, $setting, $current, $shadows)
 	{
+
+		$shadowjs = "";
+		if(!empty($shadows)) {
+			$shadowjs = " data-shadows=\"$shadows\"";
+		}
+
+		error_log(print_r($shadows, true));
+
 		$parts = explode(':', $validator, 2);
-		if ($parts[0] === 'list') {
+		if ($parts[0] === 'list' || $parts[0] == 'multilist') {
 			$items = explode('|', $parts[1]);
-			$ret = '<select name="setting[' . $setting . ']" class="form-control">';
+			$multiple = $parts[0] == 'multilist';
+			$extras = $multiple ? ' multiple class="multilist"' : 'class="form-control"';
+			$ret = '<select id="' .$setting . '" name="setting[' . $setting . ']" ' . $extras .  $shadowjs . '>';
 			foreach ($items as $item) {
 				if ($item === $current) {
 					$ret .= '<option selected="selected">' . $item . '</option>';
@@ -259,6 +270,12 @@ class Page_BaseConfig extends Page
 			}
 			return $ret . '</select>';
 		}
+		/* multiinput: enter multiple free-form strings*/
+		if (strtolower($validator) == 'multiinput') {
+			return '<input id="' . $setting . '"name="setting[' . $setting . ']" ' . $shadowjs . ' class="multiinput" value="' . $current . '"></input>';
+		}
+
+
 		// Password field guessing
 		if (stripos($validator, 'password') !== false) {
 			$type = Property::getPasswordFieldType();
@@ -266,7 +283,7 @@ class Page_BaseConfig extends Page
 			$type = 'text';
 		}
 		// Fallback: single line input
-		return '<input type="' . $type . '" name="setting[' . $setting . ']" class="form-control" size="30" value="' . $current . '">';
+		return '<input type="' . $type . '" id="' .$setting . '" name="setting[' . $setting . ']"' . $shadowjs . ' class="form-control" size="30" value="' . $current . '">';
 	}
 
 }

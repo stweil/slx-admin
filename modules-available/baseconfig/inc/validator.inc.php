@@ -29,11 +29,16 @@ class Validator
 				return self::validateList($data[1], $displayValue);
 			case 'function':
 				return self::$data[1]($displayValue);
+			case 'multilist':
+				return self::validateList($data[1], $displayValue);
+			case 'multiinput':
+				return self::validateMultiInput($data[1], $displayValue);
 			default:
 				Util::traceError('Unknown validation method: ' . $data[0]);
 		}
 		return false; // make code inspector happy - doesn't know traceError doesn't return
 	}
+
 
 	/**
 	 * Validate linux password. If already in $6$ hash form,
@@ -82,4 +87,11 @@ class Validator
 		return false;
 	}
 
+	private static function validateMultiInput(&$list, &$displayValue)
+	{
+		return $displayValue;
+		//die("validateMultiInput: " . print_r($list, true) . ", disp = " . $displayValue);
+		//return implode('~,~', $displayValue);
+		/* TODO: DO I have to do validation */
+	}
 }
