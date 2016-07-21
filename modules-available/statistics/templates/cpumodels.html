@@ -6,7 +6,8 @@
 		<div class="panel-body">
 			<div class="row">
 				<div class="col-md-8">
-					<table class="table table-condensed table-striped">
+					<table class="table table-condensed table-striped table-responsive"
+						style="table-layout: fixed;">
 						<tr>
 							<th>{{lang_modelName}}</th>
 							<th class="text-right">{{lang_cpuCores}}</th>
@@ -14,7 +15,7 @@
 						</tr>
 						{{#rows}}
 						<tr id="{{id}}">
-							<td class="text-left slx-nowrap">
+							<td class="text-left slx-nowrap" style="overflow:hidden;text-overflow: ellipsis;">
 								<a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~systemmodel={{urlsystemmodel}}">{{systemmodel}}</a>
 							</td>
 							<td class="text-right"><a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~realcores={{cores}}">{{cores}}</a></td>
