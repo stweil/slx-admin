@@ -6,7 +6,8 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="config">
 	<input type="hidden" name="activate" value="{{configid}}">
-	<div class="pull-left">
-		<button type="submit" class="btn btn-primary">{{lang_configurationActive}}</button>
+	<div class="btn-group">
+			<button type="submit" class="btn btn-primary">{{lang_configurationActive}}</button>
+			<a href="?do=SysConfig" class="btn btn-default"> {{lang_configurationActivateLater}}</a>
 	</div>
 </form>
