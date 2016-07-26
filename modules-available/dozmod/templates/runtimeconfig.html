@@ -1,0 +1,118 @@
+<h2>{{lang_runtimeConfigHeadline}}</h2>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_runtimeConfig}}
+	</div>
+	<div class="panel-body">
+		<p> {{lang_descriptionRuntimeConfig}}</p>
+		<form action="?do=DozMod" method="post" id="runtimeconf" role="form">
+			<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="position:absolute;top:-200px" tabindex="-1">
+			<input type="password" name="password_fake" id="password_fake" value="" style="position:absolute;top:-200px" tabindex="-1">
+
+
+			<fieldset class="form-group">
+				<h4>{{lang_defaultLecturePermissions}}</h4>
+
+					<input type="hidden" 	name="defaultLecturePermissions[edit]" value="0"/>
+					<input type="hidden" 	name="defaultLecturePermissions[admin]" value="0"/>
+
+					<div class="checkbox">
+						<input type="checkbox" name="defaultLecturePermissions[edit]" value="1" {{defaultLecturePermissions.edit}} id ="lecture_edit" class="form-control"/>
+						<label>
+							{{lang_lecturePermissionEdit}}*
+						</label>
+					</div>
+				<div class="checkbox">
+						<input type="checkbox"  name="defaultLecturePermissions[admin]" value="1" {{defaultLecturePermissions.admin}} id ="lecture_admin" class="form-control"/>
+					<label> 
+						{{lang_lecturePermissionAdmin}}*
+					</label>
+				</div>
+
+			</fieldset>
+
+			<fieldset class="xform-group">
+				<h4>{{lang_defaultImagePermissions}}</h4>
+				<input type="hidden" 	name="defaultImagePermissions[edit]" value="0"/>
+				<input type="hidden" 	name="defaultImagePermissions[admin]" value="0"/>
+				<input type="hidden" 	name="defaultImagePermissions[download]" value="0"/>
+				<input type="hidden" 	name="defaultImagePermissions[link]" value="0"/>
+
+				<div class="checkbox">
+						<input type="checkbox" name="defaultImagePermissions[edit]" value="1" {{defaultImagePermissions.edit}} id ="image_edit" class="form-control"/>
+					<label>
+						{{lang_defaultImagePermissionEdit}} *
+					</label>
+				</div>
+				<div class="checkbox">
+						<input type="checkbox"  name="defaultImagePermissions[admin]" value="1" {{defaultImagePermissions.admin}} id ="image_admin" class="form-control"/ >
+					<label class="" for="image_admin">
+						{{lang_defaultImagePermissionAdmin}} *
+					</label>
+				</div>
+
+				<div class="checkbox">
+					<input type="checkbox"  name="defaultImagePermissions[download]" value="1" {{defaultImagePermissions.download}} id ="image_download" class="form-control"/ >
+					<label>
+						{{lang_defaultImagePermissionDownload}} *
+					</label>
+				</div>
+				<div class="checkbox">
+					<input type="checkbox"  name="defaultImagePermissions[link]" value="1" {{defaultImagePermissions.link}} id ="image_link" class="form-control"/ >
+					<label>
+						{{lang_defaultImagePermissionLink}} *
+					</label>
+				</div>
+
+
+			</fieldset>
+			<fieldset>
+				<h4>{{lang_runtimeConfigLimits}}</h4>
+				<div class="input-group">
+					<label class="input-group-addon slx-ga2" for="max_image_validity">{{lang_maxImageValidity}} *</label>
+					<input name="maxImageValidityDays" id ="max_image_validity" class="form-control" type="number" value="{{maxImageValidityDays}}"></input>
+				</div>
+				<div class="input-group">
+					<label class="input-group-addon slx-ga2" for="max_lecture_validity">{{lang_maxLectureVisibility}} *</label>
+					<input name="maxLectureValidityDays" id ="max_lecture_validity" class="form-control" type="number" value="{{maxLectureValidityDays}}"></input>
+				</div>
+				<div class="input-group">
+					<label class="input-group-addon slx-ga2" for="max_transfers">{{lang_maxTransfers}} *</label>
+					<input name="maxTransfers" id ="max_transfers" class="form-control" type="number" value="{{maxTransfers}}"></input>
+				</div>
+
+			</fieldset>
+
+
+			<br>
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="runtime">
+			<button class="btn btn-primary btn-sm" type="submit" name="button" value="save">{{lang_save}}</button>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript"><!--
+function slxTestConfig() {
+		$('#test-button').prop('disabled', true);
+		$('#test-spin').css('display', '');
+		var str = $('#mailconf').serialize();
+		str += '&button=test';
+		console.log(str);
+		$.post('?do=DozMod', str).done(function(data) {
+			console.log('Success');
+			console.log(data);
+			checkRes(data);
+		}).fail(function() {
+			checkRes('DozMod refused the connection');
+		}).always(function() {
+			$('#test-button').prop('disabled', false);
+			$('#test-spin').css('display', 'none');
+		});
+	}
+
+	function checkRes(text) {
+		$('#test-output').css('display', '').text(text);
+	}
+// --> </script>

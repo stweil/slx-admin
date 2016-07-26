@@ -17,6 +17,9 @@ class Page_DozMod extends Page
 		if ($action === 'mail') {
 			$this->mailHandler();
 		}
+		if ($action === 'runtime') {
+			$this->runtimeHandler();
+		}
 		if ($action === 'delimages') {
 			$result = $this->handleDeleteImages();
 			if (!empty($result)) {
@@ -30,14 +33,42 @@ class Page_DozMod extends Page
 	{
 		$this->listDeletePendingImages();
 		// Mail config
-		$conf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'mailconfig'));
-		if ($conf != null) {
-			$conf = @json_decode($conf['value'], true);
-			if (is_array($conf)) {
-				$conf['set_' . $conf['ssl']] = 'selected="selected"';
+		$mailConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'mailconfig'));
+		if ($mailConf != null) {
+			$mailConf = @json_decode($mailConf['value'], true);
+			if (is_array($mailConf)) {
+				$mailConf['set_' . $mailConf['ssl']] = 'selected="selected"';
 			}
 		}
-		Render::addTemplate('mailconfig', $conf);
+		Render::addTemplate('mailconfig', $mailConf);
+		// Runtime config
+		$runtimeConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'runtimelimits'));
+		if ($runtimeConf != null) {
+			$runtimeConf = json_decode($runtimeConf['value'], true);
+
+			/* convert some value to corresponding "selected" texts */
+			if ($runtimeConf['defaultLecturePermissions']['edit']) {
+				$runtimeConf['defaultLecturePermissions']['edit'] = 'checked="checked"';
+			}
+			if ($runtimeConf['defaultLecturePermissions']['admin']) {
+				$runtimeConf['defaultLecturePermissions']['admin'] = 'checked="checked"';
+			}
+			if ($runtimeConf['defaultImagePermissions']['edit']) {
+				$runtimeConf['defaultImagePermissions']['edit'] = 'checked="checked"';
+			}
+			if ($runtimeConf['defaultImagePermissions']['admin']) {
+				$runtimeConf['defaultImagePermissions']['admin'] = 'checked="checked"';
+			}
+			if ($runtimeConf['defaultImagePermissions']['link']) {
+				$runtimeConf['defaultImagePermissions']['link'] = 'checked="checked"';
+			}
+			if ($runtimeConf['defaultImagePermissions']['download']) {
+				$runtimeConf['defaultImagePermissions']['download'] = 'checked="checked"';
+			}
+
+		}
+		Render::addTemplate('runtimeconfig', $runtimeConf);
+
 		// User list for making people admin
 		$this->listUsers();
 		$this->listOrganizations();
@@ -167,6 +198,43 @@ class Page_DozMod extends Page
 				'value' => $data
 			));
 			Message::addSuccess('mail-config-saved');
+		}
+		Util::redirect('?do=DozMod');
+	}
+
+	private function runtimeHandler()
+	{
+		// Check action
+		$do = Request::post('button');
+		if ($do === 'save') {
+			$data = [];
+			$data['defaultLecturePermissions'] = Request::post('defaultLecturePermissions', NULL, "array");
+			$data['defaultImagePermissions'] = Request::post('defaultImagePermissions', NULL, "array");
+
+			foreach(['maxImageValidityDays', 'maxLectureValidityDays', 'maxTransfers'] as $field) {
+				$value = Request::post($field);
+				$data[$field] = $value;
+			}
+
+			/* ensure types */
+			settype($data['defaultLecturePermissions']['edit'], 'boolean');
+			settype($data['defaultLecturePermissions']['admin'], 'boolean');
+			settype($data['defaultImagePermissions']['edit'], 'boolean');
+			settype($data['defaultImagePermissions']['admin'], 'boolean');
+			settype($data['defaultImagePermissions']['link'], 'boolean');
+			settype($data['defaultImagePermissions']['download'], 'boolean');
+			settype($data['maxImageValidityDays'], 'int');
+			settype($data['maxLectureValidityDays'], 'int');
+			settype($data['maxTransfers'], 'int');
+
+			$data = json_encode($data);
+			Database::exec('INSERT INTO sat.configuration (parameter, value)'
+				. ' VALUES (:param, :value)'
+				. ' ON DUPLICATE KEY UPDATE value = VALUES(value)', array(
+				'param' => 'runtimelimits',
+				'value' => $data
+			));
+			Message::addSuccess('runtimelimits-config-saved');
 		}
 		Util::redirect('?do=DozMod');
 	}
