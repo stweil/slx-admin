@@ -170,7 +170,8 @@ class Page_BaseConfig extends Page
 				$settings[$var['catid']]['settings'][$key]['displayvalue'] = $var['defaultvalue'];
 			}
 			$settings[$var['catid']]['settings'][$key] += array(
-				'item' => $this->makeInput($var['validator'], $key, $settings[$var['catid']]['settings'][$key]['displayvalue']),
+				'item' => $this->makeInput($var['validator'], $key, $settings[$var['catid']]['settings'][$key]['displayvalue'], $settings[$var['catid']]['settings'][$key]['shadows']
+			),
 				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key))
 			);
 		}
@@ -244,29 +245,48 @@ class Page_BaseConfig extends Page
 	 * @param type $validator
 	 * @return boolean
 	 */
-	private function makeInput($validator, $setting, $current)
+	private function makeInput($validator, $setting, $current, $shadows)
 	{
+
+		/* for the html snippet we need: */
+		$tag = 'input';
+		$type = 'text';
+		$shadowjs = empty($shadows) ? "" :  " data-shadows=\"$shadows\"";
+		$classes = "form-control";
+		$extras= "";
+		$inner = "";
+		/* -- */
+
 		$parts = explode(':', $validator, 2);
-		if ($parts[0] === 'list') {
+		if ($parts[0] === 'list' || $parts[0] == 'multilist') {
 			$items = explode('|', $parts[1]);
-			$ret = '<select name="setting[' . $setting . ']" class="form-control">';
+			$multiple = $parts[0] == 'multilist';
+			if ($multiple) {
+				$extras = 'multiple ';
+				$classes .= " multilist";
+			}
+			$tag = 'select';
+
 			foreach ($items as $item) {
 				if ($item === $current) {
-					$ret .= '<option selected="selected">' . $item . '</option>';
+					$inner .= '<option selected="selected">' . $item . '</option>';
 				} else {
-					$ret .= '<option>' . $item . '</option>';
+					$inner .= '<option>' . $item . '</option>';
 				}
 			}
-			return $ret . '</select>';
 		}
-		// Password field guessing
+		/* multiinput: enter multiple free-form strings*/
+		if (strtolower($validator) == 'multiinput') {
+			$classes .= " multiinput";
+		}
+
+		/* Password field guessing */
 		if (stripos($validator, 'password') !== false) {
 			$type = Property::getPasswordFieldType();
-		} else {
-			$type = 'text';
 		}
-		// Fallback: single line input
-		return '<input type="' . $type . '" name="setting[' . $setting . ']" class="form-control" size="30" value="' . $current . '">';
+
+		return "<$tag type=\"$type\" id=\"$setting\" name=\"setting['$setting']\" $shadowjs $extras class=\"$classes\" value=\"$current\""
+			. ($inner == "" ? "/>" : ">$inner </$tag>");
 	}
 
 }

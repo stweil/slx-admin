@@ -27,13 +27,13 @@
 		"catid": "timesync",
 		"defaultvalue": "0.de.pool.ntp.org 1.de.pool.ntp.org",
 		"permissions": "2",
-		"validator": ""
+		"validator": "multiinput"
 	},
 	"SLX_PROXY_BLACKLIST": {
 		"catid": "networking",
 		"defaultvalue": "",
 		"permissions": "2",
-		"validator": ""
+		"validator": "multiinput"
 	},
 	"SLX_PROXY_IP": {
 		"catid": "networking",
@@ -118,5 +118,18 @@
 		"defaultvalue": "BUMP",
 		"permissions": "2",
 		"validator": "list:IGNORE|BUMP|EXCLUSIVE"
+	},
+	"SLX_VMCHOOSER_DUMMYSETTING_ONE": {
+		"catid": "vmchooser",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "list:ON|OFF",
+		"shadows": "OFF -> SLX_LOGOUT_TIMEOUT, OFF -> SLX_VMCHOOSER_DUMMYSETTING_TWO"
+	},
+	"SLX_VMCHOOSER_DUMMYSETTING_TWO": {
+		"catid": "vmchooser",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "multilist:Apples|Bananas|Pears"
 	}
 }

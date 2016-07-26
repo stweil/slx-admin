@@ -66,3 +66,51 @@
 	<a class="btn btn-default" href="api.php?do=baseconfig&amp;user={{userid}}&amp;module={{target_module}}&amp;value={{field_value}}&amp;force=1">Download</a>
 	{{/override}}
 </form>
+
+<script type="text/javascript">
+
+function updateShadows(e) {
+	var shadowStr = $(e.target).data('shadows');
+	var currentValue = $(e.target).val();
+	var rules = shadowStr.split(',');
+	rules.forEach(function(rule) {
+		var rule_parts = rule.split('->');
+		var triggerVal = rule_parts[0].trim();
+		var target = rule_parts[1].trim();
+
+		if (currentValue == triggerVal) {
+			$('#' + target).prop('disabled', true);
+			$('#' + target + '.multilist').multiselect('disable');
+		} else {
+			$('#' + target).prop('disabled', false);
+			$('#' + target + '.multilist').multiselect('enable');
+		}
+	});
+	console.log(shadowStr);
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+	/* apply selectize on all multiinput-selectize inputs */
+	var $multiinputs = $("input.multiinput");
+	$multiinputs.selectize({
+		delimiter: ' ',
+		create: true,
+		plugins: ['restore_on_backspace', 'remove_button'],
+		maxItems: 10000
+
+	});
+
+	var $multilists = $("select.multilist");
+	$multilists.multiselect({
+		includeSelectAllOption: true,
+		buttonWidth: '100%',
+		buttonClass: 'form-control'
+	});
+
+	/* data-shadowing bindings */
+	$allShadowingFields = $('[data-shadows]');
+	$allShadowingFields.on('change', updateShadows);
+
+});
+</script>

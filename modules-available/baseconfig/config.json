@@ -1,3 +1,4 @@
 {
-	"category": "main.settings-client"
+	"category": "main.settings-client",
+	"dependencies" : ["js_selectize", "bootstrap_multiselect"]
 }
