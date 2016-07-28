@@ -2,7 +2,10 @@
 
 if (isset($configVars["SLX_LOCATIONS"])) {
 	$locationIds = explode(' ', $configVars["SLX_LOCATIONS"]);
-	if (Exams::isInExamMode($locationIds)) {
+	if (Exams::isInExamMode($locationIds, $lectureId)) {
 		$configVars['SLX_EXAM'] = 'yes';
+		if (strlen($lectureId) > 0) {
+			$configVars['SLX_EXAM_START'] = $lectureId;
+		}
 	}
 }
