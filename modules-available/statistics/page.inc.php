@@ -162,7 +162,9 @@ class Page_Statistics extends Page
 
 		$show = Request::get('show', 'stat', 'string');
 		if ($show == 'list') {
+			Render::openTag('div', array('class' => 'row'));
 			$this->showFilter('list', $filterSet);
+			Render::closeTag('div');
 			$this->showMachineList($filterSet);
 			return;
 		}
@@ -189,9 +191,15 @@ class Page_Statistics extends Page
 			'sortDirection' => $filterSet->getSortDirection(),
 			'sortColumn' => $filterSet->getSortColumn(),
 			'columns' => json_encode(Page_Statistics::$columns),
-			'showList' => 1);
+		);
 
-		$data['showList'] = ($show == 'list');
+		if ($show === 'list') {
+			$data['listButtonClass'] = 'btn-primary';
+			$data['statButtonClass'] = 'btn-default';
+		} else {
+			$data['listButtonClass'] = 'btn-default';
+			$data['statButtonClass'] = 'btn-primary';
+		}
 
 
 		$locsFlat = array();
@@ -205,11 +213,6 @@ class Page_Statistics extends Page
 		}
 
 		$data['locations'] = json_encode($locsFlat);
-		// if($show == 'list') {
-		// 	$data['showList'] = true;
-		// } else {
-		// 	$data['showList'] = false;
-		// }
 		Render::addTemplate('filterbox', $data);
 
 
