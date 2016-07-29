@@ -99,7 +99,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	/* initialize selectize */
 	filterSelectize = $('#filterInput').selectize({
 		delimiter: slxFilterDel,
-		plugins: ['restore_on_backspace', 'remove_button'],
+		persist: false,
+		plugins: ['remove_button'],
 		create: function(input) {
 			return {value: input, text: input}
 		},
@@ -155,6 +156,22 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	initButtons();
+
+	$('.filter-col').each(function(idx, elem) {
+		var e = $(elem);
+		var col = e.data('filter-col');
+		if (!col) return;
+		e.find('.filter-val').each(function(idx, elem) {
+			var e = $(elem);
+			var val = e.data('filter-val');
+			if (!val) return;
+			e.click(function(ev) {
+				ev.preventDefault();
+				addFilter(col, '=', val);
+				refresh();
+			});
+		});
+	});
 
 }, false);
 

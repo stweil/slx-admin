@@ -15,10 +15,12 @@
 						</tr>
 						{{#rows}}
 						<tr id="{{id}}">
-							<td class="text-left slx-nowrap" style="overflow:hidden;text-overflow: ellipsis;">
-								<a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~systemmodel={{urlsystemmodel}}">{{systemmodel}}</a>
+							<td class="text-left text-nowrap filter-col" data-filter-col="systemmodel" style="overflow:hidden;text-overflow: ellipsis;">
+								<a class="filter-val" data-filter-val="{{systemmodel}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~systemmodel={{urlsystemmodel}}">{{systemmodel}}</a>
 							</td>
-							<td class="text-right"><a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~realcores={{cores}}">{{cores}}</a></td>
+							<td class="text-right filter-col" data-filter-col="realcores">
+								<a class="filter-val" data-filter-val="{{cores}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~realcores={{cores}}">{{cores}}</a>
+							</td>
 							<td class="text-right">{{count}}</td>
 						</tr>
 						{{/rows}}

@@ -6,14 +6,16 @@
 		<div class="panel-body">
 			<div class="row">
 				<div class="col-sm-6">
-					<table class="table table-condensed table-striped">
+					<table class="filter-col table table-condensed table-striped" data-filter-col="hddgb">
 						<tr>
 							<th>{{lang_partitionSize}}</th>
 							<th class="text-right">{{lang_machineCount}}</th>
 						</tr>
 						{{#rows}}
 						<tr id="tmpid{{gb}}" class="{{class}}">
-							<td class="text-left slx-nowrap"><a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~hddgb={{gb}}">{{gb}}&thinsp;GiB</td>
+							<td class="text-left text-nowrap">
+								<a class="filter-val" data-filter-val="{{gb}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~hddgb={{gb}}">{{gb}}&thinsp;GiB</a>
+							</td>
 							<td class="text-right">{{count}}</td>
 						</tr>
 						{{/rows}}
@@ -35,7 +37,6 @@
 										return;
 									}
 									sel = $('#tmpid' + String(tooltip.text));
-									console.log('#tmpid' + String(tooltip.text));
 									sel.addClass('slx-bold');
 								}
 							});
