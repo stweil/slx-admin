@@ -1,0 +1,23 @@
+The tools in this directory must be run when the current working directory
+is the slx-admin root.
+
+Warning: These scripts are very quick and dirty, so make sure to ONLY run
+them if your working set is clean, so you can check "git diff" first and
+revert easily if something goes wrong.
+
+
+-- move-lang-files.sh
+This is supposed to be run first.
+Move translation files from ./lang/... to ./modules/<mod>/lang/...
+Pass either "modules" or "templates" as parameter
+
+-- convert-modules.php
+Run on the command line via
+"php tools/convert-modules.php"
+This is supposed to somewhat intelligently merge and rearrange most
+of the remaining translations from the global lang directory to the
+respective modules.
+
+
+After running both scripts, double-check the git diff output and the
+web interface itself if in doubt.
