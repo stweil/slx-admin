@@ -51,6 +51,17 @@ function setu(action, el, uid) {
 		} else {
 			el.checked = (data == 1);
 		}
+		/* show success notification */
+		$notification = $('<span></span>')
+			.addClass('glyphicon glyphicon-saved')
+			.css('color', '#2ecc71')
+			.css('width', '0px')
+			.css('position', 'relative')
+			.css('right', '20px')
+			.hide();
+		box.before($notification);
+		$notification.fadeIn('slow', function () {$notification.fadeOut('fast');});
+
 		box.css('display', '');
 	}).fail(function() {
 		el.checked = !old;
