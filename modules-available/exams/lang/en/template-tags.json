@@ -3,6 +3,9 @@
     "lang_addExam": "Add exam period",
     "lang_addingBasedOnLecture": "Adding exam period based on lecture",
     "lang_allExamPeriods": "All exam periods",
+    "lang_autoStartInfo": "Here you can select a course that will be launched automatically after the client finishes booting up. This will skip the login prompt and vmChooser screen, and directly start the selected couse. In this case, no personalization like mapping of home directories can happen in the VM, so this is mostly useful if the exam relies on other means of authentication, e.g. logging in to an LMS system where results need to be submitted.",
+    "lang_autoStartLecture": "Automatically launched course",
+    "lang_autostart": "Autorun lecture",
     "lang_begin": "Begin",
     "lang_begin_date": "Begin Date",
     "lang_begin_time": "Time",
@@ -20,8 +23,11 @@
     "lang_headingMain": "bwLehrpool exam mode",
     "lang_id": "ID",
     "lang_lectureName": "Lecture name",
+    "lang_lectureOutOfRange": "Hint: Start or end date of given lecture lies outside of exam period given above",
     "lang_location": "Room\/Location",
+    "lang_locationInfo": "Select the rooms and locations you want to enable the exam mode in. Selecting nothing at all means that all clients will boot into exam mode during the given time period.",
     "lang_locations": "Rooms\/Locations",
     "lang_noDescription": "No description",
+    "lang_none": "(None)",
     "lang_timeFrame": "Time frame"
 }

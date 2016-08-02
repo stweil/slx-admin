@@ -17,6 +17,11 @@
 				{{^locationnames}}
 				<i>{{lang_global}}</i>
 				{{/locationnames}}
+				{{#lecturename}}
+				<div>
+					<b>{{lang_autostart}}</b>: {{lecturename}}
+				</div>
+				{{/lecturename}}
 				<div class="small">
 					{{description}}
 					{{^description}}
@@ -24,9 +29,9 @@
 					{{/description}}
 				</div>
 			</td>
-			<td class="slx-nowrap">{{starttime_s}}</td>
-			<td class="slx-nowrap">{{endtime_s}}</td>
-			<td class="slx-nowrap">
+			<td class="text-nowrap">{{starttime_s}}</td>
+			<td class="text-nowrap">{{endtime_s}}</td>
+			<td class="text-nowrap text-right">
 				<form method="POST" action="?do=exams&action=delete" {{^liesInPast}}onsubmit="return confirm('{{lang_deleteConfirmation}}');"{{/liesInPast}} >
 					{{^liesInPast}}
 					<a onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></a>

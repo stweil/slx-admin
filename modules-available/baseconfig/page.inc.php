@@ -49,6 +49,9 @@ class Page_BaseConfig extends Page
 					Util::redirect('?do=BaseConfig');
 				}
 			}
+			//echo "<pre>";
+			//var_dump($_POST);
+			//echo "</pre>";
 			// Honor override/enabled checkbox
 			$override = Request::post('override', array());
 			// Load all existing config options to validate input
@@ -169,12 +172,25 @@ class Page_BaseConfig extends Page
 			if (!isset($settings[$var['catid']]['settings'][$key]['displayvalue'])) {
 				$settings[$var['catid']]['settings'][$key]['displayvalue'] = $var['defaultvalue'];
 			}
+			if (!isset($settings[$var['catid']]['settings'][$key]['shadows'])) {
+				$settings[$var['catid']]['settings'][$key]['shadows'] = null;
+			}
+			//echo "<pre>";
+			//var_dump($settings[$var['catid']]['settings'][$key]);
+			//echo "</pre>";
 			$settings[$var['catid']]['settings'][$key] += array(
-				'item' => $this->makeInput($var['validator'], $key, $settings[$var['catid']]['settings'][$key]['displayvalue'], $settings[$var['catid']]['settings'][$key]['shadows']
+				'item' => $this->makeInput(
+										$var['validator'],
+										$key,
+										$settings[$var['catid']]['settings'][$key]['displayvalue'],
+									   	$settings[$var['catid']]['settings'][$key]['shadows']
 			),
 				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key))
 			);
 		}
+		//die();
+
+
 		// Sort categories
 		$sortvals = array();
 		foreach ($settings as $catid => &$setting) {
@@ -247,46 +263,74 @@ class Page_BaseConfig extends Page
 	 */
 	private function makeInput($validator, $setting, $current, $shadows)
 	{
-
 		/* for the html snippet we need: */
 		$tag = 'input';
-		$type = 'text';
-		$shadowjs = empty($shadows) ? "" :  " data-shadows=\"$shadows\"";
-		$classes = "form-control";
-		$extras= "";
+		$args = array('type' => 'text', 'class' => 'form-control', 'name' => "setting[$setting]", 'id' => $setting);
+		if (!empty($shadows)) {
+			$args['data-shadows'] = $shadows;
+		}
 		$inner = "";
 		/* -- */
 
 		$parts = explode(':', $validator, 2);
-		if ($parts[0] === 'list' || $parts[0] == 'multilist') {
-			$items = explode('|', $parts[1]);
-			$multiple = $parts[0] == 'multilist';
-			if ($multiple) {
-				$extras = 'multiple ';
-				$classes .= " multilist";
-			}
-			$tag = 'select';
+		$items = explode('|', $parts[1]);
+		if ($parts[0] === 'list') {
 
 			foreach ($items as $item) {
 				if ($item === $current) {
-					$inner .= '<option selected="selected">' . $item . '</option>';
+					$inner .= "<option selected=\"selected\" value=\"$item\"> $item  </option>";
 				} else {
-					$inner .= '<option>' . $item . '</option>';
+					$inner .= "<option value=\"$item\"> $item </option>";
 				}
 			}
+
+			$tag = 'select';
+			unset($args['type']);
+			$current = '';
+
 		}
+		if ($parts[0] == 'multilist') {
+
+			$args['multiple'] = 'multiple';
+			$args['class'] 	 .= " multilist";
+			$args['name']    .= '[]';
+
+			$selected = explode(' ', $current);
+
+			foreach ($items as $item) {
+				if (in_array($item, $selected)) {
+					$inner .= "<option selected=\"selected\" value=\"$item\"> $item  </option>";
+				} else {
+					$inner .= "<option value=\"$item\"> $item </option>";
+				}
+			}
+			$tag = 'select';
+			unset($args['type']);
+			$current = '';
+		}
+
 		/* multiinput: enter multiple free-form strings*/
-		if (strtolower($validator) == 'multiinput') {
-			$classes .= " multiinput";
+		if ($validator === 'multiinput') {
+			$args['class'] .= " multiinput";
+			$args['value'] = $current;
 		}
 
 		/* Password field guessing */
 		if (stripos($validator, 'password') !== false) {
-			$type = Property::getPasswordFieldType();
+			$args['type'] = Property::getPasswordFieldType();
 		}
 
-		return "<$tag type=\"$type\" id=\"$setting\" name=\"setting['$setting']\" $shadowjs $extras class=\"$classes\" value=\"$current\""
-			. ($inner == "" ? "/>" : ">$inner </$tag>");
+		$output = "<$tag ";
+		foreach ($args as $key => $val) {
+			$output .= "$key=\"" . htmlspecialchars($val) . '" ';
+		}
+		if (empty($inner)) {
+			$output .= '/>';
+		} else {
+			$output .= '>' . $inner . "</$tag>";
+		}
+
+		return $output;
 	}
 
 }

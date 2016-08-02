@@ -12,6 +12,7 @@
 	<div class="form-group">
 		<div>
 			<label for="locations">{{lang_location}}</label>
+			<p><i>{{lang_locationInfo}}</i></p>
 		</div>
 		<select id="locations" multiple name="locations[]">
 			{{#locations}}
@@ -76,6 +77,27 @@
 
 	<div class="row form-group">
 		<div class="form-group col-xs-12">
+			<label for="description">{{lang_autoStartLecture}}</label>
+			<p><i>{{lang_autoStartInfo}}</i></p>
+			<div class="input-group">
+				<span class="input-group-addon">
+					<span class="glyphicon glyphicon-pencil"></span>
+				</span>
+				<select class="form-control" id="lecturelist" name="lectureid">
+					<option value="">{{lang_none}}</option>
+					{{#lectures}}
+					<option data-from="{{starttime}}" data-to="{{endtime}}" value="{{lectureid}}" {{selected}} >{{displayname}}</option>
+					{{/lectures}}
+				</select>
+			</div>
+		</div>
+		<div class="col-xs-12" id="lecture-info">
+			bla
+		</div>
+	</div>
+
+	<div class="row form-group">
+		<div class="form-group col-xs-12">
 			<label for="description">{{lang_description}}</label>
 			<textarea class="form-control" type="textarea" name="description" id="description">{{exam.description}}</textarea>
 		</div>
@@ -112,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		$('.datepicker').datepicker(dateSettings);
 		$('.timepicker2').timepicker(timeSettings);
 
-		showDuration();
+		startEndChanged();
 	});
 
 	$('#locations').multiselect({numberDisplayed: 1});
@@ -137,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
-	var showDuration = function () {
+	var startEndChanged = function () {
 		var sd = slxMoment(start_date.val() + ' ' + start_time.val(), 'YYYY-MM-DD H:mm');
 		var ed = slxMoment(end_date.val() + ' ' + end_time.val(), 'YYYY-MM-DD H:mm');
 		if (!sd.isValid() || !ed.isValid()) {
@@ -145,12 +167,40 @@ document.addEventListener("DOMContentLoaded", function () {
 			return;
 		}
 		rspan.text(slxMoment.duration(ed.diff(sd)).humanize());
+		// Lecture selection
+		$('#lecturelist option').each(function (idx, elem) {
+			var e = $(elem);
+			var from = e.data('from');
+			var to = e.data('to');
+			if (!from || !to)
+				return;
+			from = slxMoment(from);
+			to = slxMoment(to);
+			if (from.isBefore(sd) || to.isAfter(ed)) {
+				e.css('color', '#999');
+				e.data('inrange', false)
+			} else {
+				e.css('color', '');
+				e.data('inrange', true);
+			}
+		});
+		updateLectureInfo();
 	}
 
-	start_date.change(showDuration);
-	start_time.change(showDuration);
-	end_date.change(showDuration);
-	end_time.change(showDuration);
+	var updateLectureInfo = function() {
+		var sel = $('#lecturelist option:selected');
+		if (sel.val() === '' || sel.data('inrange')) {
+			$('#lecture-info').text('-');
+		} else {
+			$('#lecture-info').text('{{lang_lectureOutOfRange}} (' + slxMoment(sel.data('from')).format('YYYY-MM-DD H:mm') + ' - ' + slxMoment(sel.data('to')).format('YYYY-MM-DD H:mm') + ')');
+		}
+	}
+
+	start_date.change(startEndChanged);
+	start_time.change(startEndChanged);
+	end_date.change(startEndChanged);
+	end_time.change(startEndChanged);
+	$('#lecturelist').change(updateLectureInfo);
 
 }, false);
 // --></script>

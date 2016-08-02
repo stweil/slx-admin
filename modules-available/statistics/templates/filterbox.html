@@ -1,12 +1,14 @@
-<div id="modal-add-filter" class="modal modal-sm fade" role="dialog" style="position:absolute; min-width:600px; min-height: 400px;margin:auto">
+<div id="modal-add-filter" class="modal modal-sm fade" role="dialog"
+	  style="position:absolute; min-width:600px; min-height: 400px;margin:auto">
 	<div class="modal-content">
 		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+					class="sr-only">Close</span></button>
 			{{lang_add_filter}}
 		</div>
 		<form class="modal-body form-inline center">
 			<div class="form-group">
-				<select id="columnSelect" name="column" class="form-control col-4-xs">  </select>
+				<select id="columnSelect" name="column" class="form-control col-4-xs"> </select>
 			</div>
 			<div class="form-group">
 				<select id="operatorSelect" name="operator" class="form-control col-4-xs"> </select>
@@ -15,42 +17,41 @@
 				<input name="argument" id="argumentInput" class="form-control col-4-xs"> </input>
 				<select name="argument" id="argumentSelect" class="form-control col-4-xs"> </select>
 			</div>
-			<button type="button" class="btn btn-primary" onclick="addFilterFromForm()" >
+			<button type="button" class="btn btn-primary" onclick="addFilterFromForm()">
 				<span class="glyphicon glyphicon-plus"></span>
-				{{lang_add}}</button>
+				{{lang_add}}
+			</button>
 		</form>
 	</div>
 </div>
 
 
-<div style="height:120px">
+<div style="height:120px" class="col-xs-12">
 	<!-- use GET here, to avoid the "resend form?" confirmation, and anyway this is stateless, so GET makes more sense -->
 	<form id="queryForm" method="GET" action="?do=Statistics" class="" role="form">
-			<input type="hidden" name="do" value="Statistics"/>
-			<label for="filters">{{lang_labelFilter}}</label>
-			<input type="text" name="filters" class="" id="filterInput"/>
-			<input type="hidden" name="sortColumn" id="sortColumn" value="{{sortColumn}}"/>
-			<input type="hidden" name="sortDirection" id="sortDirection" value="{{sortDirection}}"/>
+		<input type="hidden" name="do" value="Statistics"/>
+		<label for="filterInput">{{lang_labelFilter}}</label>
+		<input type="text" name="filters" class="" id="filterInput"/>
+		<input type="hidden" name="sortColumn" id="sortColumn" value="{{sortColumn}}"/>
+		<input type="hidden" name="sortDirection" id="sortDirection" value="{{sortDirection}}"/>
 
-			<button type="button" class="btn btn-success" onclick="popupFilter(null)">
-				<span class="glyphicon glyphicon-plus"></span>
-				{{lang_add_filter}}</button>
-			<button class="btn btn-primary pull-right" type="submit" name="show" value="{{show}}">
-				<span class="glyphicon glyphicon-refresh"></span>
-				{{lang_refresh}}</button>
-			{{#showList}}
-			<button class="btn btn-secondary pull-right" type="submit" name="show" value="stat">
+		<button type="button" class="btn btn-success pull-left" onclick="popupFilter(null)">
+			<span class="glyphicon glyphicon-plus"></span>
+			{{lang_add_filter}}
+		</button>
+		<div class="btn-group pull-right">
+			<button class="btn {{statButtonClass}}" type="submit" name="show" value="stat">
 				<span class="glyphicon glyphicon-stats"></span>
-				{{lang_showVisualization}}</button>
-			{{/showList}}
-			{{^showList}}
-			<button class="btn btn-secondary pull-right" type="submit" name="show" value="list">
+				{{lang_showVisualization}}
+			</button>
+			<button class="btn {{listButtonClass}}" type="submit" name="show" value="list">
 				<span class="glyphicon glyphicon-list"></span>
-				{{lang_showList}}</button>
-			{{/showList}}
-</form>
-<br/>
-<br/>
+				{{lang_showList}}
+			</button>
+		</div>
+	</form>
+	<br/>
+	<br/>
 </div>
 <script type="application/javascript"><!--
 
@@ -99,7 +100,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	/* initialize selectize */
 	filterSelectize = $('#filterInput').selectize({
 		delimiter: slxFilterDel,
-		plugins: ['restore_on_backspace', 'remove_button'],
+		persist: false,
+		plugins: ['remove_button'],
 		create: function(input) {
 			return {value: input, text: input}
 		},
@@ -155,6 +157,22 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	initButtons();
+
+	$('.filter-col').each(function(idx, elem) {
+		var e = $(elem);
+		var col = e.data('filter-col');
+		if (!col) return;
+		e.find('.filter-val').each(function(idx, elem) {
+			var e = $(elem);
+			var val = e.data('filter-val');
+			if (!val) return;
+			e.click(function(ev) {
+				ev.preventDefault();
+				addFilter(col, '=', val);
+				refresh();
+			});
+		});
+	});
 
 }, false);
 

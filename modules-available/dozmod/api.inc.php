@@ -17,7 +17,7 @@ if (!Module::isAvailable('locations')) {
 
 define('LIST_URL', CONFIG_DOZMOD_URL . '/vmchooser/list');
 define('VMX_URL', CONFIG_DOZMOD_URL . '/vmchooser/lecture');
-$availableRessources = ['list', 'vmx', 'test', 'netrules'];
+$availableRessources = ['list', 'vmx', 'test', 'netrules', 'runscript'];
 
 /* BEGIN: A simple caching mechanism ---------------------------- */
 
@@ -148,9 +148,12 @@ function outputLectureXmlForLocation($locationIds)
 	return getListForLocations($locationIds, true);
 }
 
-function _getVMX($lecture_uuid)
+function _getVmData($lecture_uuid, $subResource = false)
 {
 	$url = VMX_URL . '/' . $lecture_uuid;
+	if ($subResource !== false) {
+		$url .= '/' . $subResource;
+	}
 	$response = Download::asString($url, 60, $code);
 	return $response;
 }
@@ -162,7 +165,35 @@ function outputVMX($lecture_uuid)
 	if (cache_has($key)) {
 		cache_get_passthru($key);
 	} else {
-		$value = _getVMX($lecture_uuid);
+		$value = _getVmData($lecture_uuid);
+		if ($value === false)
+			return false;
+		cache_put($key, $value);
+		die($value);
+	}
+}
+
+function outputNetrules($lecture_uuid)
+{
+	$key = 'netrules_' . $lecture_uuid;
+	if (cache_has($key)) {
+		cache_get_passthru($key);
+	} else {
+		$value = _getVmData($lecture_uuid, 'netrules');
+		if ($value === false)
+			return false;
+		cache_put($key, $value);
+		die($value);
+	}
+}
+
+function outputRunscript($lecture_uuid)
+{
+	$key = 'netrules_' . $lecture_uuid;
+	if (cache_has($key)) {
+		cache_get_passthru($key);
+	} else {
+		$value = _getVmData($lecture_uuid, 'runscript');
 		if ($value === false)
 			return false;
 		cache_put($key, $value);
@@ -223,6 +254,20 @@ if ($resource === 'vmx') {
 	$lecture = readLectureParam();
 	outputVMX($lecture);
 	// outputVMX does not return on success
+	fatalDozmodUnreachable();
+}
+
+if ($resource === 'netrules') {
+	$lecture = readLectureParam();
+	outputNetrules($lecture);
+	// no return on success
+	fatalDozmodUnreachable();
+}
+
+if ($resource === 'runscript') {
+	$lecture = readLectureParam();
+	outputRunscript($lecture);
+	// no return on success
 	fatalDozmodUnreachable();
 }
 

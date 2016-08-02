@@ -148,7 +148,10 @@ class Page_Statistics extends Page
 		}
 
 		/* read filter */
-		$this->query = Request::any('filters');
+		$this->query = Request::any('filters', false);
+		if ($this->query === false) {
+			$this->query = 'lastseen > ' . gmdate('Y-m-d', strtotime('-30 day'));
+		}
 		$sortColumn = Request::any('sortColumn');
 		$sortDirection = Request::any('sortDirection');
 		$filters = Filter::parseQuery($this->query);
@@ -159,7 +162,9 @@ class Page_Statistics extends Page
 
 		$show = Request::get('show', 'stat', 'string');
 		if ($show == 'list') {
+			Render::openTag('div', array('class' => 'row'));
 			$this->showFilter('list', $filterSet);
+			Render::closeTag('div');
 			$this->showMachineList($filterSet);
 			return;
 		}
@@ -174,6 +179,9 @@ class Page_Statistics extends Page
 		Render::closeTag('div');
 	}
 
+	/**
+	 * @param \FilterSet $filterSet
+	 */
 	private function showFilter($show, $filterSet)
 	{
 		$data =  array(
@@ -183,9 +191,15 @@ class Page_Statistics extends Page
 			'sortDirection' => $filterSet->getSortDirection(),
 			'sortColumn' => $filterSet->getSortColumn(),
 			'columns' => json_encode(Page_Statistics::$columns),
-			'showList' => 1);
+		);
 
-		$data['showList'] = ($show == 'list');
+		if ($show === 'list') {
+			$data['listButtonClass'] = 'btn-primary';
+			$data['statButtonClass'] = 'btn-default';
+		} else {
+			$data['listButtonClass'] = 'btn-default';
+			$data['statButtonClass'] = 'btn-primary';
+		}
 
 
 		$locsFlat = array();
@@ -199,11 +213,6 @@ class Page_Statistics extends Page
 		}
 
 		$data['locations'] = json_encode($locsFlat);
-		// if($show == 'list') {
-		// 	$data['showList'] = true;
-		// } else {
-		// 	$data['showList'] = false;
-		// }
 		Render::addTemplate('filterbox', $data);
 
 
@@ -237,16 +246,18 @@ class Page_Statistics extends Page
 		}
 	}
 
+	/**
+	 * @param \FilterSet $filterSet
+	 */
 	private function showSummary($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
 
-		$cutoff = time() - 86400 * 30;
 		$online = time() - 610;
-		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $cutoff AND $where", $args);
-		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $online AND $where", $args);
-		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $online AND logintime <> 0 AND $where", $args);
-		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE badsectors > 10 AND lastseen > $cutoff AND $where", $args);
+		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE ($where)", $args);
+		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $online AND ($where)", $args);
+		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $online AND logintime <> 0 AND ($where)", $args);
+		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE badsectors >= 10 AND ($where)", $args);
 		if ($on['val'] != 0) {
 			$usedpercent = round($used['val'] / $on['val'] * 100);
 		} else {
@@ -287,6 +298,9 @@ class Page_Statistics extends Page
 		Render::addTemplate('summary', $data);
 	}
 
+	/**
+	 * @param \FilterSet $filterSet
+	 */
 	private function showSystemModels($filterSet)
 	{
 		global $STATS_COLORS;
@@ -317,6 +331,9 @@ class Page_Statistics extends Page
 		Render::addTemplate('cpumodels', array('rows' => $lines, 'query' => $this->query, 'json' => json_encode($json)));
 	}
 
+	/**
+	 * @param \FilterSet $filterSet
+	 */
 	private function showMemory($filterSet)
 	{
 		global $STATS_COLORS, $SIZE_RAM;
@@ -362,6 +379,9 @@ class Page_Statistics extends Page
 		Render::addTemplate('memory', $data);
 	}
 
+	/**
+	 * @param \FilterSet $filterSet
+	 */
 	private function showKvmState($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
@@ -381,6 +401,9 @@ class Page_Statistics extends Page
 		Render::addTemplate('kvmstate', array('rows' => $lines, 'query' => $this->query,'json' => json_encode($json)));
 	}
 
+	/**
+	 * @param \FilterSet $filterSet
+	 */
 	private function showId44($filterSet)
 	{
 		global $STATS_COLORS, $SIZE_ID44;
@@ -432,6 +455,9 @@ class Page_Statistics extends Page
 		Render::addTemplate('id44', $data);
 	}
 
+	/**
+	 * @param \FilterSet $filterSet
+	 */
 	private function showLatestMachines($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
@@ -461,7 +487,9 @@ class Page_Statistics extends Page
 		Render::addTemplate('newclients', array('rows' => $rows, 'openbutton' => $count > 5));
 	}
 
-
+	/**
+	 * @param \FilterSet $filterSet
+	 */
 	private function showMachineList($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
@@ -504,7 +532,6 @@ class Page_Statistics extends Page
 			'sortDirection' => $filterSet->getSortDirection(),
 			'sortColumn' => $filterSet->getSortColumn(),
 			'columns' => json_encode(Page_Statistics::$columns),
-			'locations' => json_encode($locsFlat),
 			'showList' => 1,
 			'show' => 'list'
 		));
@@ -814,7 +841,7 @@ class Page_Statistics extends Page
 			foreach ($res as $entry) {
 				if (isset($entry['txt']) && substr($entry['txt'], 0, 2) === 'i=') {
 					$string = substr($entry['txt'], 2);
-					Page_Statistic::setPciId($cat, $param, $string);
+					Page_Statistics::setPciId($cat, $param, $string);
 					echo $string, $add;
 					exit;
 				}

@@ -2,27 +2,31 @@
 
 class FilterSet
 {
-    private $filters;
-    private $sortDirection;
-    private $sortColumn;
+	private $filters;
+	private $sortDirection;
+	private $sortColumn;
 
-    public function __construct($filters) {
-        $this->filters = $filters;
-    }
+	public function __construct($filters)
+	{
+		$this->filters = $filters;
+	}
 
-    public function setSort($col, $direction) {
-        $this->sortDirection = $direction === 'DESC' ? 'DESC' : 'ASC';
+	public function setSort($col, $direction)
+	{
+		$this->sortDirection = $direction === 'DESC' ? 'DESC' : 'ASC';
 
 		if (array_key_exists($col, Page_Statistics::$columns)) {
-            $isMapped =  array_key_exists('map_sort', Page_Statistics::$columns[$col]);
-            $this->sortColumn = $isMapped ? Page_Statistics::$columns[$col]['map_sort'] : $col;
-        } else {
-            /* default sorting column is clientip */
-            $this->sortColumn = 'clientip';
-        }
+			$isMapped = array_key_exists('map_sort', Page_Statistics::$columns[$col]);
+			$this->sortColumn = $isMapped ? Page_Statistics::$columns[$col]['map_sort'] : $col;
+		} else {
+			/* default sorting column is clientip */
+			$this->sortColumn = 'clientip';
+		}
 
-    }
-    public function makeFragments(&$where, &$join, &$sort, &$args) {
+	}
+
+	public function makeFragments(&$where, &$join, &$sort, &$args)
+	{
 		/* generate where clause & arguments */
 		$where = '';
 		$joins = [];
@@ -39,12 +43,16 @@ class FilterSet
 		$join = implode('', array_unique($joins));
 
 
-        $sort = " ORDER BY " . $this->sortColumn . " "  . $this->sortDirection;
-    }
-    public function getSortDirection() {
-        return $this->sortDirection;
-    }
-    public function getSortColumn() {
-        return $this->sortColumn;
-    }
+		$sort = " ORDER BY " . $this->sortColumn . " " . $this->sortDirection;
+	}
+
+	public function getSortDirection()
+	{
+		return $this->sortDirection;
+	}
+
+	public function getSortColumn()
+	{
+		return $this->sortColumn;
+	}
 }

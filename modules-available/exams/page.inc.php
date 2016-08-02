@@ -30,9 +30,12 @@ class Page_Exams extends Page
 
 	protected function readExams()
 	{
-		$tmp = Database::simpleQuery("SELECT examid, starttime, endtime, description, GROUP_CONCAT(locationid) AS locationids, "
-			. "GROUP_CONCAT(locationname SEPARATOR ', ') AS locationnames FROM exams "
-			. "NATURAL LEFT JOIN exams_x_location NATURAL LEFT JOIN location GROUP BY examid");
+		$tmp = Database::simpleQuery("SELECT e.examid, l.displayname AS lecturename, e.starttime, e.endtime, e.description, GROUP_CONCAT(exl.locationid) AS locationids, "
+			. "GROUP_CONCAT(loc.locationname SEPARATOR ', ') AS locationnames FROM exams e "
+			. "NATURAL LEFT JOIN exams_x_location exl "
+			. "NATURAL LEFT JOIN location loc "
+			. "LEFT JOIN sat.lecture l USING (lectureid) "
+			. "GROUP BY examid ");
 		while ($exam = $tmp->fetch(PDO::FETCH_ASSOC)) {
 			$this->exams[] = $exam;
 		}
@@ -211,7 +214,8 @@ class Page_Exams extends Page
 		$examid = Request::post('examid', 0, 'int');
 		$starttime = strtotime(Request::post('starttime_date') . " " . Request::post('starttime_time'));
 		$endtime = strtotime(Request::post('endtime_date') . " " . Request::post('endtime_time'));
-		$description = Request::post('description');
+		$description = Request::post('description', '', 'string');
+		$lectureid = Request::post('lectureid', '', 'string');
 		if (!$this->isDateSane($starttime)) {
 			Message::addError('starttime-invalid', Request::post('starttime_date') . " " . Request::post('starttime_time'));
 			Util::redirect('?do=exams');
@@ -227,8 +231,8 @@ class Page_Exams extends Page
 
 		if ($examid === 0) {
 			// No examid given, is add
-			$res = Database::exec("INSERT INTO exams(starttime, endtime, description) VALUES(:starttime, :endtime, :description);",
-					compact('starttime', 'endtime', 'description')) !== false;
+			$res = Database::exec("INSERT INTO exams(lectureid, starttime, endtime, description) VALUES(:lectureid, :starttime, :endtime, :description);",
+					compact('lectureid', 'starttime', 'endtime', 'description')) !== false;
 
 			$exam_id = Database::lastInsertId();
 			foreach ($locationids as $lid) {
@@ -251,8 +255,8 @@ class Page_Exams extends Page
 		}
 
 		/* update fields */
-		$res = Database::exec("UPDATE exams SET starttime = :starttime, endtime = :endtime, description = :description WHERE examid = :examid",
-				compact('starttime', 'endtime', 'description', 'examid')) !== false;
+		$res = Database::exec("UPDATE exams SET lectureid = :lectureid, starttime = :starttime, endtime = :endtime, description = :description WHERE examid = :examid",
+				compact('lectureid', 'starttime', 'endtime', 'description', 'examid')) !== false;
 		/* drop all connections and reconnect to rooms */
 		$res = $res && Database::exec("DELETE FROM exams_x_location WHERE examid = :examid", compact('examid')) !== false;
 		/* reconnect */
@@ -369,14 +373,17 @@ class Page_Exams extends Page
 			$baseLecture = Request::any('lectureid', false, 'string');
 			$locations = null;
 			if ($baseLecture !== false) {
-				foreach ($this->lectures as $lecture) {
+				foreach ($this->lectures as &$lecture) {
 					if ($lecture['lectureid'] === $baseLecture) {
 						$data['exam'] = $this->makeEditFromArray($lecture);
 						$locations = explode(',', $lecture['lids']);
+						$lecture['selected'] = 'selected';
 						break;
 					}
 				}
+				unset($lecture);
 			}
+			$data['lectures'] = $this->lectures;
 			$this->readLocations($locations);
 			$data['locations'] = $this->locations;
 			Render::addTemplate('page-add-edit-exam', $data);
@@ -385,7 +392,12 @@ class Page_Exams extends Page
 
 			Render::setTitle(Dictionary::translate('title_edit-exam'));
 			$exam = $this->makeEditFromArray($this->currentExam);
-			Render::addTemplate('page-add-edit-exam', ['exam' => $exam, 'locations' => $this->locations]);
+			foreach ($this->lectures as &$lecture) {
+				if ($lecture['lectureid'] === $this->currentExam['lectureid']) {
+					$lecture['selected'] = 'selected';
+				}
+			}
+			Render::addTemplate('page-add-edit-exam', ['exam' => $exam, 'locations' => $this->locations, 'lectures' => $this->lectures]);
 
 		}
 	}

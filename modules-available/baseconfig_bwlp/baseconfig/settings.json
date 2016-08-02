@@ -119,17 +119,23 @@
 		"permissions": "2",
 		"validator": "list:IGNORE|BUMP|EXCLUSIVE"
 	},
-	"SLX_VMCHOOSER_DUMMYSETTING_ONE": {
+	"SLX_VMCHOOSER_DUMMYSETTING1": {
 		"catid": "vmchooser",
 		"defaultvalue": "",
 		"permissions": "2",
 		"validator": "list:ON|OFF",
-		"shadows": "OFF -> SLX_LOGOUT_TIMEOUT, OFF -> SLX_VMCHOOSER_DUMMYSETTING_TWO"
+		"shadows": "OFF -> SLX_LOGOUT_TIMEOUT, OFF -> SLX_VMCHOOSER_DUMMYSETTING2"
 	},
-	"SLX_VMCHOOSER_DUMMYSETTING_TWO": {
+	"SLX_VMCHOOSER_DUMMYSETTING2": {
 		"catid": "vmchooser",
 		"defaultvalue": "",
 		"permissions": "2",
 		"validator": "multilist:Apples|Bananas|Pears"
+	},
+	"SLX_VMCHOOSER_DUMMYSETTING3": {
+		"catid": "vmchooser",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "multiinput"
 	}
 }
