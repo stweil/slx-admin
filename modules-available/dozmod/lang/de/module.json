@@ -1,4 +1,8 @@
 {
     "module_name": "Dozentenmodul",
-    "page_title": "Verwalten des Dozentenmoduls"
+    "page_title": "Verwalten des Dozentenmoduls",
+    "submenu_mailconfig": "Email-Konfiguration",
+    "submenu_runtime": "Laufzeit",
+    "submenu_templates": "Vorlagen E-Mail",
+    "submenu_users": "Benutzer"
 }

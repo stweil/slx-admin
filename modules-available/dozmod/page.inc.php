@@ -2,6 +2,8 @@
 
 class Page_DozMod extends Page
 {
+	/* sub page classes */
+	private $mail_templates;
 
 	protected function doPreprocess()
 	{
@@ -12,6 +14,25 @@ class Page_DozMod extends Page
 			Util::redirect('?do=Main');
 		}
 
+		/* add sub-menus */
+		Dashboard::addSubmenu('?do=dozmod', Dictionary::translate('submenu_mailconfig'));
+		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates'));
+		Dashboard::addSubmenu('?do=dozmod#runtime-configuration', Dictionary::translate('submenu_runtime'));
+		Dashboard::addSubmenu('?do=dozmod#users', Dictionary::translate('submenu_users'));
+
+		/* instantiate sub pages */
+		$this->mail_templates = new Page_mail_templates();
+
+
+
+		/* different pages for different sections */
+		$section = Request::get('section', 'mailconfig', 'string');
+		if ($section == 'templates') {
+			$this->mail_templates->doPreprocess();
+			return;
+		}
+
+		/* execute actions */
 		$action = Request::post('action');
 
 		if ($action === 'mail') {
@@ -31,6 +52,16 @@ class Page_DozMod extends Page
 
 	protected function doRender()
 	{
+		/* different pages for different sections */
+		$section = Request::get('section', 'mailconfig', 'string');
+		if ($section == 'templates') {
+			$this->mail_templates->doRender();
+			return;
+		}
+
+
+
+
 		$this->listDeletePendingImages();
 		// Mail config
 		$mailConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'mailconfig'));
