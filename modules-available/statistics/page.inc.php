@@ -841,7 +841,7 @@ class Page_Statistics extends Page
 			foreach ($res as $entry) {
 				if (isset($entry['txt']) && substr($entry['txt'], 0, 2) === 'i=') {
 					$string = substr($entry['txt'], 2);
-					Page_Statistic::setPciId($cat, $param, $string);
+					Page_Statistics::setPciId($cat, $param, $string);
 					echo $string, $add;
 					exit;
 				}
