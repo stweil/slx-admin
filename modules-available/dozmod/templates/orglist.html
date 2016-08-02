@@ -17,7 +17,9 @@
 					{{#organizations}}
 					<tr>
 						<td class="text-left slx-nowrap">{{displayname}}</td>
-						<td><input onclick="seto('setorglogin', this, '{{organizationid}}')" type="checkbox" {{{canlogin}}}></td>
+						<td class="text-nowrap">
+							<input onclick="seto('setorglogin', this, '{{organizationid}}')" type="checkbox" {{{canlogin}}}>
+						</td>
 					</tr>
 					{{/organizations}}
 				</tbody>
@@ -41,6 +43,21 @@ function seto(action, el, orgid) {
 			el.checked = (data == 1);
 		}
 		box.css('display', '');
+
+		/* show success notification */
+		$notification = $('<span></span>')
+			.addClass('glyphicon glyphicon-saved')
+			.css('color', '#2ecc71')
+			.css('width', '0px')
+			.css('position', 'relative')
+			.css('right', '20px')
+			.hide();
+		box.before($notification);
+		$notification.fadeIn('slow', function () {$notification.fadeOut('fast');});
+
+
+
+
 	}).fail(function() {
 		el.checked = !old;
 		box.parent().css('background-color', 'red !important');
