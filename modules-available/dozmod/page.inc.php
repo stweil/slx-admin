@@ -15,10 +15,10 @@ class Page_DozMod extends Page
 		}
 
 		/* add sub-menus */
-		Dashboard::addSubmenu('?do=dozmod', Dictionary::translate('submenu_mailconfig'));
+		Dashboard::addSubmenu('?do=dozmod&section=mailconfig', Dictionary::translate('submenu_mailconfig'));
 		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates'));
-		Dashboard::addSubmenu('?do=dozmod#runtime-configuration', Dictionary::translate('submenu_runtime'));
-		Dashboard::addSubmenu('?do=dozmod#users', Dictionary::translate('submenu_users'));
+		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime'));
+		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users'));
 
 		/* instantiate sub pages */
 		$this->mail_templates = new Page_mail_templates();
@@ -60,49 +60,54 @@ class Page_DozMod extends Page
 		}
 
 
-
-
 		$this->listDeletePendingImages();
-		// Mail config
-		$mailConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'mailconfig'));
-		if ($mailConf != null) {
-			$mailConf = @json_decode($mailConf['value'], true);
-			if (is_array($mailConf)) {
-				$mailConf['set_' . $mailConf['ssl']] = 'selected="selected"';
-			}
-		}
-		Render::addTemplate('mailconfig', $mailConf);
-		// Runtime config
-		$runtimeConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'runtimelimits'));
-		if ($runtimeConf != null) {
-			$runtimeConf = json_decode($runtimeConf['value'], true);
 
-			/* convert some value to corresponding "selected" texts */
-			if ($runtimeConf['defaultLecturePermissions']['edit']) {
-				$runtimeConf['defaultLecturePermissions']['edit'] = 'checked="checked"';
+		if ($section === 'mailconfig') {
+			// Mail config
+			$mailConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'mailconfig'));
+			if ($mailConf != null) {
+				$mailConf = @json_decode($mailConf['value'], true);
+				if (is_array($mailConf)) {
+					$mailConf['set_' . $mailConf['ssl']] = 'selected="selected"';
+				}
 			}
-			if ($runtimeConf['defaultLecturePermissions']['admin']) {
-				$runtimeConf['defaultLecturePermissions']['admin'] = 'checked="checked"';
-			}
-			if ($runtimeConf['defaultImagePermissions']['edit']) {
-				$runtimeConf['defaultImagePermissions']['edit'] = 'checked="checked"';
-			}
-			if ($runtimeConf['defaultImagePermissions']['admin']) {
-				$runtimeConf['defaultImagePermissions']['admin'] = 'checked="checked"';
-			}
-			if ($runtimeConf['defaultImagePermissions']['link']) {
-				$runtimeConf['defaultImagePermissions']['link'] = 'checked="checked"';
-			}
-			if ($runtimeConf['defaultImagePermissions']['download']) {
-				$runtimeConf['defaultImagePermissions']['download'] = 'checked="checked"';
-			}
-
+			Render::addTemplate('mailconfig', $mailConf);
 		}
-		Render::addTemplate('runtimeconfig', $runtimeConf);
+		if ($section === 'runtimeconfig') {
+			// Runtime config
+			$runtimeConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'runtimelimits'));
+			if ($runtimeConf != null) {
+				$runtimeConf = json_decode($runtimeConf['value'], true);
+
+				/* convert some value to corresponding "selected" texts */
+				if ($runtimeConf['defaultLecturePermissions']['edit']) {
+					$runtimeConf['defaultLecturePermissions']['edit'] = 'checked="checked"';
+				}
+				if ($runtimeConf['defaultLecturePermissions']['admin']) {
+					$runtimeConf['defaultLecturePermissions']['admin'] = 'checked="checked"';
+				}
+				if ($runtimeConf['defaultImagePermissions']['edit']) {
+					$runtimeConf['defaultImagePermissions']['edit'] = 'checked="checked"';
+				}
+				if ($runtimeConf['defaultImagePermissions']['admin']) {
+					$runtimeConf['defaultImagePermissions']['admin'] = 'checked="checked"';
+				}
+				if ($runtimeConf['defaultImagePermissions']['link']) {
+					$runtimeConf['defaultImagePermissions']['link'] = 'checked="checked"';
+				}
+				if ($runtimeConf['defaultImagePermissions']['download']) {
+					$runtimeConf['defaultImagePermissions']['download'] = 'checked="checked"';
+				}
+
+			}
+			Render::addTemplate('runtimeconfig', $runtimeConf);
+		}
 
 		// User list for making people admin
-		$this->listUsers();
-		$this->listOrganizations();
+		if ($section === 'users') {
+			$this->listUsers();
+			$this->listOrganizations();
+		}
 	}
 
 	private function listDeletePendingImages()
@@ -230,7 +235,7 @@ class Page_DozMod extends Page
 			));
 			Message::addSuccess('mail-config-saved');
 		}
-		Util::redirect('?do=DozMod');
+		Util::redirect('?do=DozMod&section=mailconfig');
 	}
 
 	private function runtimeHandler()
@@ -267,7 +272,7 @@ class Page_DozMod extends Page
 			));
 			Message::addSuccess('runtimelimits-config-saved');
 		}
-		Util::redirect('?do=DozMod');
+		Util::redirect('?do=DozMod&section=runtimeconfig');
 	}
 
 	private function listUsers()
