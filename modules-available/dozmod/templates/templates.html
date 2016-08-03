@@ -1,0 +1,140 @@
+<h1> Templates</h1>
+
+<form id="templateForm" role="form" method="POST" action="?do=dozmod&section=templates&action=save">
+	<input type="hidden" name="token" value="{{token}}">
+
+
+	<div class="panel-group" id="accordion">
+
+	{{#templates}}
+
+	<div class="panel panel-default">
+		<div id="heading_{{name}}" class="panel-heading">
+			<div class="panel-title">
+				<h4>
+					<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#panel_{{name}}">
+					{{name}}
+					</a>
+				</h4>
+				<small>{{description}}</small>
+
+			</div>
+		</div>
+		<div id="panel_{{name}}" class="panel-collapse collapse">
+			<div class="panel-body">
+				<div id="msgbox_{{name}}">
+				</div>
+				<label for="n_{{name}}">{{lang_name}}</label>
+				<input name="templates[{{name}}][name]" value="{{name}}" class="form-control"/>
+
+				<label for="n_{{description}}">{{lang_description}}</label>
+				<input name="templates[{{name}}][description]" value="{{description}}" class="form-control"/>
+
+
+
+				<label for="ta_{{name}}">{{lang_template}}</label>
+				<br/>
+				<textarea data-mandatory="{{list_mandatoryVariables}}" name="templates[{{name}}][template]" data-setting="{{name}}" id="ta_{{name}}"
+																								class="form-control templateEditor" style="min-height:200px"
+															>{{template}}</textarea>
+
+				<h3>{{lang_placeholders}}</h3>
+				<select name="templates[{{name}}][mandatory_variables]" multiple="multiple" class="hidden">
+					{{{html_mandatoryVariables}}}
+				</select>
+				<select name="templates[{{name}}][optional_variables]" multiple="multiple" class="hidden">
+					{{{html_optionalVariables}}}
+				</select>
+				<ul>
+					{{{html_availableVariables}}}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+
+	{{/templates}}
+	</div>
+
+	<div class="btn-group">
+		<button type="button" onclick="sendForm()" class="btn btn-primary">{{lang_save}}</button>
+	</div>
+</form>
+<script type="application/javascript"><!--
+
+
+/* check that all necessary placeholders are used */
+function validateForm() {
+	var ok = true;
+
+	$('.templateEditor').each(function (i, editor) {
+
+		var id = $(editor).attr('id');
+		var setting = $(editor).attr('data-setting');
+		var mandatory = $(editor).attr('data-mandatory').split(",");
+		var value = $(editor).val();
+
+
+		/* ? */
+		if (mandatory.length == 1 && mandatory[0] == "") {
+			mandatory = [];
+		}
+
+		var missing = [];
+
+		mandatory.forEach(function (v,i) {
+			if (value.indexOf("%" + v + "%") == -1) {
+				missing.push(v);
+			}
+		});
+		console.log("missing are");
+		console.log(missing);
+
+		var $msgBox = $("#msgbox_" + setting);
+		var $panel = $("#panel_" + setting);
+		var $header = $("#heading_" + setting);
+
+
+		if (missing.length > 0) {
+			/* add errors */
+			var missingL = missing.join(", ");
+			var msg="<strong>Fehler:</strong> Folgende wichtige Platzhalter wurden nicht verwendet: " +missingL;
+			console.log("msg box has " + $msgBox.size());
+			$msgBox.html('<div class="alert alert-danger">' + msg + '</div>');
+			$panel.addClass('witherror');
+			$header.addClass('witherror');
+			/* overall result */
+			ok = false;
+		} else {
+			$msgBox.html("");
+			$panel.removeClass('witherror');
+			$header.removeClass('witherror');
+		}
+
+
+	});
+	return ok;
+}
+
+function submitForm() {
+	console.log('sending form');
+	$('#templateForm').submit();
+}
+
+
+function sendForm() {
+	var ok = validateForm();
+	if (ok) {
+		console.log("is ok");
+		submitForm();
+	} else {
+		console.log("form is not ok");
+	}
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+
+
+
+});
+</script>
