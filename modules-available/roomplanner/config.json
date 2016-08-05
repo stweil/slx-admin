@@ -1,0 +1,4 @@
+{
+	"category":"main.content",
+	"dependencies": ["js_jqueryui", "js_selectize"]
+}
