@@ -2,30 +2,38 @@
 
 class Page_Roomplanner extends Page
 {
-	protected function doPreprocess()
-	{
-		User::load();
+    protected function doPreprocess()
+    {
+        User::load();
 
-		if (!User::hasPermission('superadmin')) {
-			Message::addError('main.no-permission');
-			Util::redirect('?do=Main');
-		}
+        if (!User::hasPermission('superadmin')) {
+            Message::addError('main.no-permission');
+            Util::redirect('?do=Main');
+        }
+    }
 
-	}
+    protected function doRender()
+    {
+        $locationid = Request::get('locationid', null, 'integer');
 
-	protected function doRender()
-	{
-		Render::addTemplate('page', []);
-	}
+        if ($locationid === null) {
+            die('please specify locationid');
+        }
 
-	protected function doAjax()
-	{
-		$action = Request::get('action', null, 'string');
+        $subnetMachines = $this->getPotentialMachines($locationid);
 
-		if ($action === 'getmachines') {
-			$query = Request::get('query', null, 'string');
+        Render::addTemplate('page', ['subnetMachines' => json_encode($subnetMachines),
+                                    ]);
+    }
 
-			/* the query could be anything: UUID, IP or macaddr */
+    protected function doAjax()
+    {
+        $action = Request::get('action', null, 'string');
+
+        if ($action === 'getmachines') {
+            $query = Request::get('query', null, 'string');
+
+            /* the query could be anything: UUID, IP or macaddr */
 //			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
 //				. ', MATCH (machineuuid, macaddr, clientip, hostname) AGAINST (:query) AS relevance '
 //				. 'FROM machine '
@@ -34,20 +42,35 @@ class Page_Roomplanner extends Page
 //				. 'LIMIT 5'
 //				, ['query' => $query]);
 //
-			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
-				. 'FROM machine '
-				. "WHERE machineuuid LIKE :query "
-				.   " OR macaddr  	 LIKE :query "
-				.   " OR clientip    LIKE :query "
-				.   " OR hostname	 LIKE :query ", ['query' => "%$query%"]);
+            $result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
+                .'FROM machine '
+                .'WHERE machineuuid LIKE :query '
+                .' OR macaddr  	 LIKE :query '
+                .' OR clientip    LIKE :query '
+                .' OR hostname	 LIKE :query ', ['query' => "%$query%"]);
 
-			$returnObject = ['machines' => []];
+            $returnObject = ['machines' => []];
 
-			while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-				$returnObject['machines'][] = $row;
-			}
-			echo json_encode($returnObject, JSON_PRETTY_PRINT);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $returnObject['machines'][] = $row;
+            }
+            echo json_encode($returnObject, JSON_PRETTY_PRINT);
+        }
+    }
 
-		}
-	}
+    protected function getPotentialMachines($locationid)
+    {
+        $result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
+            .'FROM machine INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) '
+            .'WHERE subnet.locationid = :locationid', ['locationid' => $locationid]);
+
+        $machines = [];
+
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $row['combined'] = implode(' ', array_values($row));
+            $machines[] = $row;
+        }
+
+        return $machines;
+    }
 }

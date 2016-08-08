@@ -48,37 +48,6 @@ function loadMachines(query, callback) {
 }
 
 
-var searchSettings = {
-    plugins : ["remove_button"],
-    valueField: 'machineuuid',
-    searchField: "combined",
-    //labelField: "combined",
-    openOnFocus: false,
-    create: false,
-    render : { option : renderMachineEntry, item: renderMachineEntry},
-    load: loadMachines,
-    maxItems: 1,
-    sortField: 'clientip',
-    sortDirection: 'asc',
-    onChange: clearSubnetBox
-
-}
-
-var subnetSettings = {
-    plugins : ["remove_button"],
-    valueField: 'machineuuid',
-    searchField: "combined",
-    //labelField: "combined",
-    openOnFocus: false,
-    create: false,
-    render : { option : renderMachineEntry, item: renderMachineEntry},
-    load: loadMachines,
-    maxItems: 1,
-    sortField: 'clientip',
-    sortDirection: 'asc',
-    onChange: clearSearchBox
-
-}
 
 function clearSearchBox() {
     $selectizeSearch[0].selectize.setValue([], true);
@@ -92,8 +61,37 @@ function initSelectize() {
         console.log("initializing selectize");
         /* init modal */
         $modal = $('#selectMachineModal');
-        $selectizeSearch = $('#machineSearchBox').selectize(searchSettings);
-        $selectizeSubnet = $('#subnetBox').selectize(subnetSettings);
+
+        /* for the search */
+        $selectizeSearch = $('#machineSearchBox').selectize({
+            plugins : ["remove_button"],
+            valueField: 'machineuuid',
+            searchField: "combined",
+            openOnFocus: false,
+            create: false,
+            render : { option : renderMachineEntry, item: renderMachineEntry},
+            load: loadMachines,
+            maxItems: 1,
+            sortField: 'clientip',
+            sortDirection: 'asc',
+            onChange: clearSubnetBox
+        });
+
+
+        /* for the subnet box */
+        $selectizeSubnet = $('#subnetBox').selectize({
+            options: subnetMachines,
+            plugins : ["remove_button"],
+            valueField: 'machineuuid',
+            searchField: "combined",
+            openOnFocus:  true,
+            create: false,
+            render : { option : renderMachineEntry, item: renderMachineEntry},
+            maxItems: 1,
+            sortField: 'clientip',
+            sortDirection: 'asc',
+            onChange: clearSearchBox
+        });
 
         $('#selectMachineButton').on('click', onBtnSelect);
 

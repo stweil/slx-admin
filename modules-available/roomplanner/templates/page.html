@@ -333,6 +333,8 @@
 <script type="application/javascript"><!--
 document.addEventListener("DOMContentLoaded", function () {
 
+	subnetMachines = {{{subnetMachines}}};
+
 	$.when(
 		$.getScript("modules/roomplanner/js/lib/jquery-collision.js"),
 		$.getScript("modules/roomplanner/js/lib/jquery-ui-draggable-collision.js"),
@@ -343,6 +345,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	).done(function() {
 		$.getScript("modules/roomplanner/js/init.js", function() {
 			initRoomplanner();
+			console.log(subnetMachines);
 		});
 	});
 });
