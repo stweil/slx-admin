@@ -70,35 +70,41 @@
 <script type="text/javascript">
 
 function updateShadows(e) {
-	var shadowStr = $(e.target).data('shadows');
-	var currentValue = $(e.target).val();
+	var shadowStr = $(e).data('shadows');
+	var currentValue = $(e).val();
 	var rules = shadowStr.split(',');
 	rules.forEach(function(rule) {
 		var rule_parts = rule.split('->');
 		var triggerVal = rule_parts[0].trim();
 		var target = rule_parts[1].trim();
+		var inp = $('#' + target);
+		var selitem = inp.data('selitem');
 
-		if (currentValue == triggerVal) {
-			$('#' + target).prop('disabled', true);
+		if (currentValue === triggerVal) {
+			inp.prop('disabled', true);
+			if (selitem) selitem.disable();
 			$('#' + target + '.multilist').multiselect('disable');
 		} else {
-			$('#' + target).prop('disabled', false);
+			inp.prop('disabled', false);
+			if (selitem) selitem.enable();
 			$('#' + target + '.multilist').multiselect('enable');
+
 		}
 	});
-	console.log(shadowStr);
 }
 
 
 document.addEventListener("DOMContentLoaded", function () {
 	/* apply selectize on all multiinput-selectize inputs */
-	var $multiinputs = $("input.multiinput");
-	$multiinputs.selectize({
-		delimiter: ' ',
-		create: true,
-		plugins: ['restore_on_backspace', 'remove_button'],
-		maxItems: 10000
+	$("input.multiinput").each(function (idx, elem) {
+		var e = $(elem);
+		e.data('selitem', e.selectize({
+			delimiter: ' ',
+			create: true,
+			plugins: ['restore_on_backspace', 'remove_button'],
+			maxItems: 10000
 
+		})[0].selectize);
 	});
 
 	var $multilists = $("select.multilist");
@@ -110,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	/* data-shadowing bindings */
 	$allShadowingFields = $('[data-shadows]');
-	$allShadowingFields.on('change', updateShadows);
-
+	$allShadowingFields.on('change', function (event) { updateShadows(event.target); });
+	$allShadowingFields.each(function (idx, elem) { updateShadows(elem); });
 });
 </script>

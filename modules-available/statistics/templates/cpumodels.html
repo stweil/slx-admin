@@ -6,17 +6,18 @@
 		<div class="panel-body">
 			<div class="row">
 				<div class="col-md-8">
-					<table class="table table-condensed table-striped table-responsive"
-						style="table-layout: fixed;">
+					<table class="table table-condensed table-striped table-responsive">
 						<tr>
 							<th>{{lang_modelName}}</th>
-							<th class="text-right">{{lang_cpuCores}}</th>
-							<th class="text-right">{{lang_modelCount}}</th>
+							<th class="text-right text-nowrap">{{lang_cpuCores}}</th>
+							<th class="text-right text-nowrap">{{lang_modelCount}}</th>
 						</tr>
 						{{#rows}}
 						<tr id="{{id}}">
-							<td class="text-left text-nowrap filter-col" data-filter-col="systemmodel" style="overflow:hidden;text-overflow: ellipsis;">
+							<td class="text-left text-nowrap filter-col" data-filter-col="systemmodel">
+								<table style="width:100%; table-layout: fixed;"><tr><td style="overflow:hidden;text-overflow: ellipsis;">
 								<a class="filter-val" data-filter-val="{{systemmodel}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~systemmodel={{urlsystemmodel}}">{{systemmodel}}</a>
+								</td></tr></table>
 							</td>
 							<td class="text-right filter-col" data-filter-col="realcores">
 								<a class="filter-val" data-filter-val="{{cores}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~realcores={{cores}}">{{cores}}</a>
