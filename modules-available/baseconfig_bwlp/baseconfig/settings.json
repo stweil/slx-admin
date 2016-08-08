@@ -45,7 +45,8 @@
 		"catid": "networking",
 		"defaultvalue": "off",
 		"permissions": "2",
-		"validator": "list:off|on|auto"
+		"validator": "list:off|on|auto",
+		"shadows": "off -> SLX_PROXY_PORT, off -> SLX_PROXY_TYPE, off -> SLX_PROXY_IP, off -> SLX_PROXY_BLACKLIST"
 	},
 	"SLX_PROXY_PORT": {
 		"catid": "networking",
@@ -91,15 +92,15 @@
 	},
 	"SLX_SHUTDOWN_TIMEOUT": {
 		"catid": "power",
-		"defaultvalue": "1200",
+		"defaultvalue": "1800",
 		"permissions": "2",
 		"validator": "regex:\/^\\d*$\/"
 	},
-	"SLX_BENCHMARK_VM": {
-		"catid": "other",
-		"defaultvalue": "",
+	"SLX_SCREEN_STANDBY_TIMEOUT": {
+		"catid": "power",
+		"defaultvalue": "600",
 		"permissions": "2",
-		"validator": ""
+		"validator": "regex:\/^\\d*$\/"
 	},
 	"SLX_VMCHOOSER_TAB": {
 		"catid": "vmchooser",
@@ -118,24 +119,5 @@
 		"defaultvalue": "BUMP",
 		"permissions": "2",
 		"validator": "list:IGNORE|BUMP|EXCLUSIVE"
-	},
-	"SLX_VMCHOOSER_DUMMYSETTING1": {
-		"catid": "vmchooser",
-		"defaultvalue": "",
-		"permissions": "2",
-		"validator": "list:ON|OFF",
-		"shadows": "OFF -> SLX_LOGOUT_TIMEOUT, OFF -> SLX_VMCHOOSER_DUMMYSETTING2"
-	},
-	"SLX_VMCHOOSER_DUMMYSETTING2": {
-		"catid": "vmchooser",
-		"defaultvalue": "",
-		"permissions": "2",
-		"validator": "multilist:Apples|Bananas|Pears"
-	},
-	"SLX_VMCHOOSER_DUMMYSETTING3": {
-		"catid": "vmchooser",
-		"defaultvalue": "",
-		"permissions": "2",
-		"validator": "multiinput"
 	}
 }
