@@ -1,0 +1,763 @@
+@CHARSET "UTF-8";
+
+body.split #drawpanel {
+	width:60%;
+	float: right;}
+
+
+body.full #drawpanel {
+	width:90%;
+	float: none;
+	margin: 0 auto 20px;
+	}
+
+#drawpanel {
+	position:relative;}
+
+#drawarea {
+	background: url('images/grid_100_sep.png');
+	background-size: 100px 100px;}
+
+#drawpanel .panel-body {
+	padding:0;
+	margin: 0;
+	overflow: hidden;
+	height: 350px;}
+
+#scaleContainer {
+	position: absolute;
+	bottom: 5px;
+	right: 30px;
+	width: 15%;
+	z-index: 10000;}
+
+#scaleslider {
+	position:relative;}
+
+
+
+#scaleContainer .glyphicon {
+	position: absolute;
+	top: -2px;
+	font-size: 1.1em;}
+
+#scaleContainer .glyphicon-zoom-out {
+	left:-20px;}
+
+#scaleContainer .glyphicon-zoom-in {
+	right:-20px; }
+
+
+[itemlook="computer"] { background: url('images/computer/computer.png') no-repeat;}
+
+
+[itemlook="door-nw"] { background: url('images/wall/door-nw.png') no-repeat;}
+[itemlook="door-ne"] { background: url('images/wall/door-ne.png') no-repeat;}
+[itemlook="door-sw"] { background: url('images/wall/door-sw.png') no-repeat;}
+[itemlook="door-se"] { background: url('images/wall/door-se.png') no-repeat;}
+[itemlook="door-en"] { background: url('images/wall/door-en.png') no-repeat;}
+[itemlook="door-es"] { background: url('images/wall/door-es.png') no-repeat;}
+[itemlook="door-wn"] { background: url('images/wall/door-wn.png') no-repeat;}
+[itemlook="door-ws"] { background: url('images/wall/door-ws.png') no-repeat;}
+
+[itemlook="copier"] {
+	background: url('images/electricalDevices_wIP/copier.png') no-repeat;
+	}
+
+/*
+[itemlook="pc"] {
+	background: url('images/electricalDevices_wIP/pc.png') no-repeat;
+	z-index:100;
+	}
+*/
+[itemlook="pc-east"] {
+	background: url('images/electricalDevices_wIP/pc_east.png') no-repeat;
+	}
+
+[itemlook="pc-south"] {
+	background: url('images/electricalDevices_wIP/pc_south.png') no-repeat;
+	}
+
+[itemlook="pc-west"] {
+	background: url('images/electricalDevices_wIP/pc_west.png') no-repeat;
+	}
+
+[itemlook="pc-north"] {
+	background: url('images/electricalDevices_wIP/pc_north.png') no-repeat;
+
+	}
+
+[itemlook="printer"] {
+	background: url('images/electricalDevices_wIP/printer.png') no-repeat;
+
+	}
+
+[itemlook="telephone"] {
+	background: url('images/electricalDevices_wIP/telephone.png') no-repeat;
+
+	}
+
+[itemlook="flatscreen"] {
+	background: url('images/electricalDevices_woIP/flatscreen.png') no-repeat;
+
+	}
+
+[itemlook="lamp"] {
+	background: url('images/electricalDevices_woIP/lamp.png') no-repeat;
+
+	}
+
+[itemlook="tvcamera"] {
+	background: url('images/electricalDevices_woIP/tvcamera.png') no-repeat;
+
+	}
+
+[itemlook="4chairs1squaretable"] {
+	background: url('images/furniture/4chairs1squaretable.png') no-repeat;
+
+	}
+
+/*
+[itemlook="6chairs1table"] {
+	background: url('images/furniture/6chairs1table.png') no-repeat;
+
+	}
+*/
+
+[itemlook="6chairs1table-horizontal"] {
+	background: url('images/furniture/6chairs1table_horizontal.png') no-repeat;
+
+	}
+
+[itemlook="6chairs1table-vertical"] {
+	background: url('images/furniture/6chairs1table_vertical.png') no-repeat;
+
+	}
+
+/*
+[itemlook="8chairs1conferencetable"] {
+	background: url('images/furniture/8chairs1conferencetable.png') no-repeat;
+
+	}
+*/
+
+
+[itemlook="8chairs1conferencetable-horizontal"] {
+	background: url('images/furniture/8chairs1conferencetable_horizontal.png') no-repeat;
+
+	}
+
+
+[itemlook="8chairs1conferencetable-vertical"] {
+	background: url('images/furniture/8chairs1conferencetable_vertical.png') no-repeat;
+
+	}
+
+/*
+[itemlook="armchair"] {
+	background: url('images/furniture/armchair.png') no-repeat;
+
+		}
+*/
+
+[itemlook="armchair-east"] {
+	background: url('images/furniture/armchair_east.png') no-repeat;
+
+		}
+
+[itemlook="armchair-south"] {
+	background: url('images/furniture/armchair_south.png') no-repeat;
+
+		}
+
+[itemlook="armchair-west"] {
+	background: url('images/furniture/armchair_west.png') no-repeat;
+
+		}
+
+[itemlook="armchair-north"] {
+	background: url('images/furniture/armchair_north.png') no-repeat;
+
+		}
+
+/*
+[itemlook="chair"] {
+	background: url('images/furniture/chair.png') no-repeat;
+
+		}
+*/
+
+[itemlook="chair-east"] {
+	background: url('images/furniture/chair_east.png') no-repeat;
+
+		}
+
+[itemlook="chair-south"] {
+	background: url('images/furniture/chair_south.png') no-repeat;
+
+		}
+
+[itemlook="chair-west"] {
+	background: url('images/furniture/chair_west.png') no-repeat;
+
+		}
+
+[itemlook="chair-north"] {
+	background: url('images/furniture/chair_north.png') no-repeat;
+
+		}
+
+/*
+[itemlook="chair2"] {
+	background: url('images/furniture/chair2.png') no-repeat;
+
+		}
+*/
+
+[itemlook="chair2-east"] {
+	background: url('images/furniture/chair2_east.png') no-repeat;
+
+		}
+
+[itemlook="chair2-south"] {
+	background: url('images/furniture/chair2_south.png') no-repeat;
+
+		}
+
+[itemlook="chair2-west"] {
+	background: url('images/furniture/chair2_west.png') no-repeat;
+
+		}
+
+[itemlook="chair2-north"] {
+	background: url('images/furniture/chair2_north.png') no-repeat;
+
+		}
+
+/*
+[itemlook="classroomdesk"] {
+	background: url('images/furniture/classroomdesk.png') no-repeat;
+
+	}
+*/
+
+[itemlook="classroomdesk-east"] {
+	background: url('images/furniture/classroomdesk_east.png') no-repeat;
+
+	}
+
+[itemlook="classroomdesk-south"] {
+	background: url('images/furniture/classroomdesk_south.png') no-repeat;
+
+	}
+
+[itemlook="classroomdesk-west"] {
+	background: url('images/furniture/classroomdesk_west.png') no-repeat;
+
+	}
+
+[itemlook="classroomdesk-north"] {
+	background: url('images/furniture/classroomdesk_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="classroomdeskchair"] {
+	background: url('images/furniture/classroomdeskchair.png') no-repeat;
+
+	}
+*/
+
+[itemlook="classroomdeskchair-east"] {
+	background: url('images/furniture/classroomdeskchair_east.png') no-repeat;
+
+	}
+
+[itemlook="classroomdeskchair-south"] {
+	background: url('images/furniture/classroomdeskchair_south.png') no-repeat;
+
+	}
+
+[itemlook="classroomdeskchair-west"] {
+	background: url('images/furniture/classroomdeskchair_west.png') no-repeat;
+
+	}
+
+[itemlook="classroomdeskchair-north"] {
+	background: url('images/furniture/classroomdeskchair_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="classroomtable"] {
+	background: url('images/furniture/classroomtable.png') no-repeat;
+
+	}
+*/
+
+[itemlook="classroomtable-east"] {
+	background: url('images/furniture/classroomtable_east.png') no-repeat;
+
+	}
+
+[itemlook="classroomtable-south"] {
+	background: url('images/furniture/classroomtable_south.png') no-repeat;
+
+	}
+
+[itemlook="classroomtable-west"] {
+	background: url('images/furniture/classroomtable_west.png') no-repeat;
+
+	}
+
+[itemlook="classroomtable-north"] {
+	background: url('images/furniture/classroomtable_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="classroomtablechair"] {
+	background: url('images/furniture/classroomtablechair.png') no-repeat;
+
+	}
+*/
+
+[itemlook="classroomtablechair-east"] {
+	background: url('images/furniture/classroomtablechair_east.png') no-repeat;
+
+	}
+
+[itemlook="classroomtablechair-south"] {
+	background: url('images/furniture/classroomtablechair_south.png') no-repeat;
+
+	}
+
+[itemlook="classroomtablechair-west"] {
+	background: url('images/furniture/classroomtablechair_west.png') no-repeat;
+
+	}
+
+[itemlook="classroomtablechair-north"] {
+	background: url('images/furniture/classroomtablechair_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="coatrack"] {
+	background: url('images/furniture/coatrack.png') no-repeat;
+
+	}
+*/
+
+[itemlook="coatrack-east"] {
+	background: url('images/furniture/coatrack_east.png') no-repeat;
+
+	}
+
+[itemlook="coatrack-south"] {
+	background: url('images/furniture/coatrack_south.png') no-repeat;
+
+	}
+
+[itemlook="coatrack-west"] {
+	background: url('images/furniture/coatrack_west.png') no-repeat;
+
+	}
+
+[itemlook="coatrack-north"] {
+	background: url('images/furniture/coatrack_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="conferencetable"] {
+	background: url('images/furniture/conferencetable.png') no-repeat;
+
+	}
+*/
+
+[itemlook="conferencetable-horizontal"] {
+	background: url('images/furniture/conferencetable_horizontal.png') no-repeat;
+
+	}
+
+[itemlook="conferencetable-vertical"] {
+	background: url('images/furniture/conferencetable_vertical.png') no-repeat;
+
+	}
+
+/*
+[itemlook="couch"] {
+	background: url('images/furniture/couch.png') no-repeat;
+
+	}
+*/
+
+[itemlook="couch-east"] {
+	background: url('images/furniture/couch_east.png') no-repeat;
+
+	}
+
+[itemlook="couch-south"] {
+	background: url('images/furniture/couch_south.png') no-repeat;
+
+	}
+
+[itemlook="couch-west"] {
+	background: url('images/furniture/couch_west.png') no-repeat;
+
+	}
+
+[itemlook="couch-north"] {
+	background: url('images/furniture/couch_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="greenchair"] {
+	background: url('images/furniture/greenchair.png') no-repeat;
+
+	}
+*/
+
+[itemlook="greenchair-east"] {
+	background: url('images/furniture/greenchair_east.png') no-repeat;
+
+	}
+
+[itemlook="greenchair-south"] {
+	background: url('images/furniture/greenchair_south.png') no-repeat;
+
+	}
+
+[itemlook="greenchair-west"] {
+	background: url('images/furniture/greenchair_west.png') no-repeat;
+
+	}
+
+[itemlook="greenchair-north"] {
+	background: url('images/furniture/greenchair_north.png') no-repeat;
+
+	}
+
+[itemlook="lecturetheaterrow"] {
+	background: url('images/furniture/lecturetheaterrow.png') no-repeat;
+
+	}
+
+[itemlook="lecturetheaterrowseats"] {
+	background: url('images/furniture/lecturetheaterrowseats.png') no-repeat;
+
+	}
+
+/*
+[itemlook="locker"] {
+	background: url('images/furniture/locker.png') no-repeat;
+
+	}
+*/
+
+[itemlook="locker-east"] {
+	background: url('images/furniture/locker_east.png') no-repeat;
+
+	}
+
+[itemlook="locker-south"] {
+	background: url('images/furniture/locker_south.png') no-repeat;
+
+	}
+
+[itemlook="locker-west"] {
+	background: url('images/furniture/locker_west.png') no-repeat;
+
+	}
+
+[itemlook="locker-north"] {
+	background: url('images/furniture/locker_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="podium"] {
+	background: url('images/furniture/podium.png') no-repeat;
+
+	}
+*/
+
+[itemlook="podium-east"] {
+	background: url('images/furniture/podium_east.png') no-repeat;
+
+	}
+
+[itemlook="podium-south"] {
+	background: url('images/furniture/podium_south.png') no-repeat;
+
+	}
+
+[itemlook="podium-west"] {
+	background: url('images/furniture/podium_west.png') no-repeat;
+
+	}
+
+[itemlook="podium-north"] {
+	background: url('images/furniture/podium_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="roundeddesk"] {
+	background: url('images/furniture/roundeddesk.png') no-repeat;
+
+	}
+*/
+
+[itemlook="roundeddesk-east"] {
+	background: url('images/furniture/roundeddesk_east.png') no-repeat;
+
+	}
+
+[itemlook="roundeddesk-south"] {
+	background: url('images/furniture/roundeddesk_south.png') no-repeat;
+
+	}
+
+[itemlook="roundeddesk-west"] {
+	background: url('images/furniture/roundeddesk_west.png') no-repeat;
+
+	}
+
+[itemlook="roundeddesk-north"] {
+	background: url('images/furniture/roundeddesk_north.png') no-repeat;
+
+	}
+
+[itemlook="roundtable"] {
+	background: url('images/furniture/roundtable.png') no-repeat;
+
+	}
+
+/*
+[itemlook="semicirculartable"] {
+	background: url('images/furniture/semicirculartable.png') no-repeat;
+
+	}
+*/
+
+[itemlook="semicirculartable-east"] {
+	background: url('images/furniture/semicirculartable_east.png') no-repeat;
+
+	}
+
+[itemlook="semicirculartable-south"] {
+	background: url('images/furniture/semicirculartable_south.png') no-repeat;
+
+	}
+
+[itemlook="semicirculartable-west"] {
+	background: url('images/furniture/semicirculartable_west.png') no-repeat;
+
+	}
+
+[itemlook="semicirculartable-north"] {
+	background: url('images/furniture/semicirculartable_north.png') no-repeat;
+
+	}
+
+[itemlook="squaretable"] {
+	background: url('images/furniture/squaretable.png') no-repeat;
+
+	}
+
+/*
+[itemlook="studentdesk"] {
+	background: url('images/furniture/studentdesk.png') no-repeat;
+
+	}
+*/
+
+[itemlook="studentdesk-east"] {
+	background: url('images/furniture/studentdesk_east.png') no-repeat;
+
+	}
+
+[itemlook="studentdesk-south"] {
+	background: url('images/furniture/studentdesk_south.png') no-repeat;
+
+	}
+
+[itemlook="studentdesk-west"] {
+	background: url('images/furniture/studentdesk_west.png') no-repeat;
+
+	}
+
+[itemlook="studentdesk-north"] {
+	background: url('images/furniture/studentdesk_north.png') no-repeat;
+
+	}
+
+/*
+[itemlook="studentdeskchair"] {
+	background: url('images/furniture/studentdeskchair.png') no-repeat;
+
+	}
+*/
+
+[itemlook="studentdeskchair-east"] {
+	background: url('images/furniture/studentdeskchair_east.png') no-repeat;
+
+	}
+
+[itemlook="studentdeskchair-south"] {
+	background: url('images/furniture/studentdeskchair_south.png') no-repeat;
+
+	}
+
+[itemlook="studentdeskchair-west"] {
+	background: url('images/furniture/studentdeskchair_west.png') no-repeat;
+
+	}
+
+[itemlook="studentdeskchair-north"] {
+	background: url('images/furniture/studentdeskchair_north.png') no-repeat;
+
+	}
+
+[itemlook="projectionscreen"] {
+	background: url('images/misc/projectionscreen.png') no-repeat;
+
+	}
+
+[itemlook="papertray"] {
+	background: url('images/officeSupply/papertray.png') no-repeat;
+
+	}
+
+[itemlook="wastecan"] {
+	background: url('images/officeSupply/wastecan.png') no-repeat;
+
+	}
+
+
+[itemlook="plant"] {
+	background: url('images/plants/plant.png') no-repeat;
+
+	}
+
+[itemlook="plant2"] {
+	background: url('images/plants/plant2.png') no-repeat;
+
+	}
+
+[itemlook="plant3"] {
+	background: url('images/plants/plant3.png') no-repeat;
+
+	}
+
+
+[itemlook|="door"] {
+	z-index:99;
+	background-size: 100% 100%;}
+
+
+[itemlook|="window"] {
+	z-index: 99;
+	background: #ffffff;
+	border: 1px solid #000000;}
+
+
+.collides {
+	background-color: red;}
+
+.marked {
+	background-color: blue;}
+
+ul.toollist {
+	list-style: none;}
+
+ul.toollist li {
+	display: inline-block;
+	padding: 2px;
+	margin-right: 10px;}
+
+
+.deleteHandle {
+	display:none;
+	float: right;}
+
+.rotationHandle {
+	display:none;
+	float: left;}
+
+div.draggable:hover .rotationHandle {
+	display:inline;
+	cursor: pointer;}
+
+div.draggable:hover .deleteHandle {
+	display:inline;
+	cursor: pointer;}
+
+
+[itemtype="furniture"], [itemtype="furniture_drag"] {
+	z-index: 99;
+	background-size: 100% 100%;}
+
+[itemtype="pc"], [itemtype="pc_drag"] {
+	z-index: 100;
+	background-size: 100% 100%;
+}
+
+[itemlook="wall-horizontal"] {
+	background: url('images/wall/wall-horizontal.png') repeat #ffffff;
+	border: 1px solid #000000;
+	background-size: auto 15%;
+}
+
+[itemlook="wall-vertical"] {
+	background: url('images/wall/wall-vertical.png') repeat #ffffff;
+	border: 1px solid #000000;
+	background-size: 15% auto;
+}
+
+
+
+/* select popup */
+.machine-entry {
+	width: 100%;
+	border: 1px solid #999;
+	border-radius: 5px;
+	margin: 5px 20px 5px 2px;
+	padding: 5px 10px 5px 10px;
+}
+
+.machine-entry .table {
+	font-size:12px;
+	margin-bottom: -5px;
+}
+.machine-entry .table tr {
+	line-height: 5px;
+}
+
+
+.machine-logo {
+	float: left;
+	width:36px;
+}
+.machine-logo i {
+	font-size: 20px;
+	line-height: 50px;
+}
+.machine-entry-header {
+	font-weight: bolder;
+	font-size: 18px;
+}
+
+.machine-uuid {
+}
+
+.machine-ip {
+}
+
+.selectize-dropdown-content {
+	max-height : 600px;
+}
+
