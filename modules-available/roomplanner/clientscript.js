@@ -4,8 +4,10 @@
  * Copyright 2016 Christian Klinger
  * */
 
-/* uuid -> obj */
+/* Map: uuid -> obj */
 machineCache = {};
+
+selectMachinInitialized = false;
 
 
 
@@ -79,47 +81,47 @@ var subnetSettings = {
 }
 
 function clearSearchBox() {
-    console.log("clearSearchBox()");
-    $selectizeSearch[0].selectize.clear(false);
+    $selectizeSearch[0].selectize.setValue([], true);
 }
 function clearSubnetBox() {
-    console.log("clearSubnetBox()");
-    $selectizeSubnet[0].selectize.clear(false);
+    $selectizeSubnet[0].selectize.setValue([], true);
 }
 
-function selectMachine(usedUuids, callback) {
-    /* show a popup */
-    $modal = $('#selectMachineModal');
-    $selectizeSearch = $('#machineSearchBox').selectize(searchSettings);
-    $selectizeSubnet = $('#subnetBox').selectize(subnetSettings);
+function initSelectize() {
+    if(!selectMachinInitialized) {
+        console.log("initializing selectize");
+        /* init modal */
+        $modal = $('#selectMachineModal');
+        $selectizeSearch = $('#machineSearchBox').selectize(searchSettings);
+        $selectizeSubnet = $('#subnetBox').selectize(subnetSettings);
 
-    /* connect subnet tab and search tab such that on change of one the other gets emptied */
+        $('#selectMachineButton').on('click', onBtnSelect);
 
-
-    $modal.modal('show');
-
-    $('#selectMachineButton').on('click', function() {
-
+        selectMachinInitialized = true;
+    }
+}
+function onBtnSelect() {
         /* check which one has a value */
+        console.assert($selectizeSubnet.length == 1);
+        console.assert($selectizeSearch.length == 1);
+
         var bySubnet = machineCache[$selectizeSubnet[0].selectize.getValue()];
         var bySearch = machineCache[$selectizeSearch[0].selectize.getValue()];
 
-        var selected = bySubnet; // (bySubnet === undefined || bySubnet == "")? bySearch : bySubnet;
+        var value = (bySubnet === undefined || bySubnet == "") ? bySearch : bySubnet;
+        var result = {muuid: value.machineuuid, ip: value.clientip, mac_address : value.macaddr, hostname: value.hostname};
 
-        console.log('value is ');
-        console.log($selectizeSubnet[0].selectize.getValue());
-        console.log(machineCache);
-        console.log('selected is ');
-        console.log(selected);
+        currentCallback(result);
 
-        var result = {muuid: selected.machineuuid, ip: selected.clientip, mac_address : selected.macaddr, hostname: selected.hostname};
         $modal.modal('hide');
         clearSubnetBox();
         clearSearchBox();
-        callback(result);
-    });
-
-    var result = {muuid: "blabla", ip: "blabla", mac_address: "blub", hostname: "lalala"};
-
-    callback(result);
 }
+
+/* to be called from berryous' code */
+function selectMachine(usedUuids, callback) {
+    initSelectize();
+    currentCallback = callback;
+    $modal.modal('show');
+}
+
