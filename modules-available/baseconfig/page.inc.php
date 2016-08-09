@@ -155,9 +155,9 @@ class Page_BaseConfig extends Page
 		}
 		// Add entries that weren't in the db (global), setup override checkbox (module specific)
 		foreach ($vars as $key => $var) {
-			if (isset($settings[$var['catid']]['settings'][$key]['enabled'])) {
+			if ($this->targetModule === false) {
 				// Global settings - honor enabled field in db
-				if ($settings[$var['catid']]['settings'][$key]['enabled'] == 1) {
+				if (!isset($settings[$var['catid']]['settings'][$key]['enabled']) || $settings[$var['catid']]['settings'][$key]['enabled'] == 1) {
 					$settings[$var['catid']]['settings'][$key]['checked'] = 'checked';
 				}
 			} elseif (isset($settings[$var['catid']]['settings'][$key])) {
@@ -273,9 +273,10 @@ class Page_BaseConfig extends Page
 		/* -- */
 
 		$parts = explode(':', $validator, 2);
-		$items = explode('|', $parts[1]);
+
 		if ($parts[0] === 'list') {
 
+			$items = explode('|', $parts[1]);
 			foreach ($items as $item) {
 				if ($item === $current) {
 					$inner .= "<option selected=\"selected\" value=\"$item\"> $item  </option>";
@@ -288,9 +289,9 @@ class Page_BaseConfig extends Page
 			unset($args['type']);
 			$current = '';
 
-		}
-		if ($parts[0] == 'multilist') {
+		} elseif ($parts[0] == 'multilist') {
 
+			$items = explode('|', $parts[1]);
 			$args['multiple'] = 'multiple';
 			$args['class'] 	 .= " multilist";
 			$args['name']    .= '[]';
