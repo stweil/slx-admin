@@ -729,6 +729,11 @@ div.draggable:hover .deleteHandle {
 	padding: 5px 10px 5px 10px;
 }
 
+/* in case it is already in the sketchboard */
+.machine-entry.used {
+	color: #666;
+}
+
 .machine-entry .table {
 	font-size:12px;
 	margin-bottom: -5px;

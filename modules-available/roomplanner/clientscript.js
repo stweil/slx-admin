@@ -9,14 +9,25 @@ machineCache = {};
 
 selectMachinInitialized = false;
 
+placedMachines = [];
+
 
 
 function renderMachineEntry(item, escape) {
     machineCache[item.machineuuid] = item;
-    return '<div class="machine-entry">'
+    // console.log('rendering ' + item.machineuuid);
+    // console.log('used uuids is ');
+    // console.log(placedMachines);
+
+    var isUsed = $.inArray(item.machineuuid, placedMachines) > -1;
+    var extra = isUsed ? ' used ' : '';
+    if (isUsed) {
+        console.log('rendering used');
+    }
+    return '<div class="machine-entry ' + extra +'">'
             //+ ' <div class="machine-logo"><i class="glyphicon glyphicon-hdd"></i></div>'
             + ' <div class="machine-body">'
-            + '    <div class="machine-entry-header"> ' + escape(item.hostname) + '</div>'
+            + '    <div class="machine-entry-header"> ' + escape(item.hostname) + (isUsed ? ' (already placed)' : '') + '</div>'
             + '          <table class="table table-sm">'
             +               '<tr><td>UUID:</td> <td>' +  escape(item.machineuuid) + '</td></tr>'
             +               '<tr><td>MAC:</td> <td>' +  escape(item.macaddr) + '</td></tr>'
@@ -51,9 +62,11 @@ function loadMachines(query, callback) {
 
 function clearSearchBox() {
     $selectizeSearch[0].selectize.setValue([], true);
+    $selectizeSearch[0].selectize.clearCache();
 }
 function clearSubnetBox() {
     $selectizeSubnet[0].selectize.setValue([], true);
+    $selectizeSubnet[0].selectize.clearCache();
 }
 
 function initSelectize() {
@@ -120,6 +133,7 @@ function onBtnSelect() {
 function selectMachine(usedUuids, callback) {
     initSelectize();
     currentCallback = callback;
+    placedMachines =  usedUuids;
     $modal.modal('show');
 }
 

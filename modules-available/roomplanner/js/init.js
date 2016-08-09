@@ -20,6 +20,11 @@ function initRoomplanner() {
 	$("#serializeButton").click(function() {
 		$('#serializedRoom').val(roomplanner.serialize());
 	});
+
+	$("#saveBtn").click(function() {
+		$('#serializedRoom').val(roomplanner.serialize());
+		$('#roomForm').submit();
+	});
 }
 
 var translation = {

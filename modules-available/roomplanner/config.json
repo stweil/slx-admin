@@ -1,4 +1,4 @@
 {
 	"category":"main.content",
-	"dependencies": ["js_jqueryui", "js_selectize"]
+	"dependencies": ["js_jqueryui", "js_selectize", "bootstrap_dialog"]
 }

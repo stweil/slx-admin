@@ -14,16 +14,36 @@ class Page_Roomplanner extends Page
 
     protected function doRender()
     {
+
         $locationid = Request::get('locationid', null, 'integer');
 
-        if ($locationid === null) {
-            die('please specify locationid');
+        if ($locationid === null) { die('please specify locationid'); }
+
+
+        $furniture      = $this->getFurniture($locationid);
+        $subnetMachines = $this->getPotentialMachines($locationid);
+        $machinesOnPlan = $this->getMachinesOnPlan($locationid);
+
+        $action = Request::any('action', 'show', 'string');
+
+        $roomConfig = array_merge($furniture, $machinesOnPlan);
+
+
+        if ($action === 'show') {
+            /* do nothing */
+            Render::addTemplate('page', [
+                'subnetMachines' => json_encode($subnetMachines),
+                'locationid' => $locationid,
+                'roomConfiguration' => json_encode($roomConfig, JSON_PRETTY_PRINT)]);
+        } else if ($action === 'save') {
+            /* save */
+            $config = Request::post('serializedRoom', null, 'string');
+            $config = json_decode($config, true);
+            $this->saveRoomConfig($locationid, $config['furniture']);
+            $this->saveComputerConfig($locationid, $config['computers'], $machinesOnPlan);
+            Util::redirect("?do=roomplanner&locationid=$locationid&action=show");
         }
 
-        $subnetMachines = $this->getPotentialMachines($locationid);
-
-        Render::addTemplate('page', ['subnetMachines' => json_encode($subnetMachines),
-                                    ]);
     }
 
     protected function doAjax()
@@ -56,6 +76,67 @@ class Page_Roomplanner extends Page
             }
             echo json_encode($returnObject, JSON_PRETTY_PRINT);
         }
+    }
+
+    protected function saveComputerConfig($locationid, $computers, $oldComputers) {
+
+        $oldUuids = [];
+        /* collect all uuids  from the old computers */
+        foreach($oldComputers['computers'] as $c) {
+            $oldUuids[] = $c['muuid'];
+        }
+
+        $newUuids = [];
+        foreach($computers as $computer) {
+            $newUuids[] =  $computer['muuid'];
+
+            $position = json_encode(['gridRow' => $computer['gridRow'],
+                                     'gridCol' => $computer['gridCol'],
+                                     'itemlook' => $computer['itemlook']], JSON_PRETTY_PRINT);
+
+            Database::exec('UPDATE machine SET position = :position, locationid = :locationid WHERE machineuuid = :muuid',
+            ['locationid' => $locationid, 'muuid' => $computer['muuid'], 'position' => $position]);
+        }
+
+        $toDelete = array_diff($oldUuids, $newUuids);
+
+        foreach($toDelete as $d) {
+            Database::exec("UPDATE machine SET position = '', locationid = NULL WHERE machineuuid = :uuid", ['uuid' => $d]);
+        }
+    }
+    protected function saveRoomConfig($locationid, $furniture) {
+        $obj = json_encode(['furniture' => $furniture], JSON_PRETTY_PRINT);
+        Database::exec('INSERT INTO location_roomplan (locationid, roomplan) VALUES (:locationid, :roomplan) ON DUPLICATE KEY UPDATE roomplan=:roomplan',
+            ['locationid' => $locationid,
+             'roomplan' => $obj]);
+    }
+
+    protected function getFurniture($locationid) {
+        $config = Database::queryFirst('SELECT roomplan FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $locationid]);
+        if ($config == null) { return null; }
+        $config = json_decode($config['roomplan'], true);
+        return $config;
+    }
+    protected function getMachinesOnPlan($locationid) {
+        $result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname, position FROM machine WHERE locationid = :locationid',
+            ['locationid' => $locationid]);
+        $machines = [];
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $machine = [];
+            $pos = json_decode($row['position'], true);
+
+            $machine['muuid'] = $row['machineuuid'];
+            $machine['ip']      = $row['clientip'];
+            $machine['mac_address'] = $row['macaddr'];
+            $machine['hostname'] = $row['hostname'];
+            $machine['gridRow'] = (int) $pos['gridRow'];
+            $machine['gridCol'] = (int) $pos['gridCol'];
+            $machine['itemlook'] = $pos['itemlook'];
+            $machine['data-width'] = 100;
+            $machine['data-height'] = 100;
+            $machines[] = $machine;
+        }
+        return ['computers' => $machines];
     }
 
     protected function getPotentialMachines($locationid)
