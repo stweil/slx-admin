@@ -6,27 +6,27 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4>Add Machine</h4>
+				<h4>{{lang_titleAddMachine}}</h4>
 			</div>
 			<div class="modal-body">
 				<ul class="nav nav-tabs">
-					<li class="active"><a data-toggle="tab" href="#subnet">Subnet</a></li>
-					<li><a data-toggle="tab" href="#search">Search</a></li>
+					<li class="active"><a data-toggle="tab" href="#subnet">{{lang_titleBySubnet}}</a></li>
+					<li><a data-toggle="tab" href="#search">{{lang_titleBySearch}}</a></li>
 				</ul>
 				<div class="tab-content">
 					<div id="subnet" class="tab-pane fade in active">
 						<br/>
 						<p>
-						blah blah blah
+							{{lang_descriptionBySubnet}}
 						</p>
-						<label for="subnetBox">Machines in this IP-Range</label>
+						<label for="subnetBox">{{lang_labelBySubnet}}</label>
 						<input id="subnetBox" class="form-control"/>
 					</div>
 					<div id="search" class="tab-pane fade">
 						<br/>
-							<p> Hier können sie durch alle bekannten Maschinen suchen, bla blah blah.  </p>
-								<label for="machineSearchBox">All Machines</label>
-								<input id="machineSearchBox" class="form-control" />
+						<p> {{lang_descriptionBySearch}}</p>
+							<label for="machineSearchBox">{{lang_labelBySearch}}</label>
+							<input id="machineSearchBox" class="form-control" />
 					</div>
 
 				</div>
@@ -34,8 +34,8 @@
 
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-default pull-left">Cancel</button>
-				<button class="btn btn-primary" id="selectMachineButton">Select</button>
+				<button class="btn btn-default pull-left">{{lang_cancel}}</button>
+				<button class="btn btn-primary" id="selectMachineButton">{{lang_select}}</button>
 			</div>
 		</div>
 	</div>
@@ -44,7 +44,7 @@
 <!--  berryous raumplaner -->
 </head>
 <body class="full">
-	<h1>Raumplaner</h1>
+	<h1>{{lang_roomplanner}}</h1>
 
 	<div id="toolpanel" class="panel panel-default" style="z-index:200;">
 		<div class="panel-heading">
@@ -53,23 +53,23 @@
 		<div class="panel-body">
 			<ul role="tablist" class="nav nav-tabs">
 				<li role="presentation" class="active"><a href="#computers"
-					aria-controls="computers" role="tab" data-toggle="tab">Rechner</a></li>	
+											  aria-controls="computers" role="tab" data-toggle="tab">{{lang_catComputers}}</a></li>	
 				<li role="presentation"><a href="#walls"
-					aria-controls="walls" role="tab" data-toggle="tab">Bauelemente</a></li>
+							   aria-controls="walls" role="tab" data-toggle="tab">{{lang_catWalls}}</a></li>
 				<li role="presentation"><a href="#electricaldevices"
-					aria-controls="electricaldevices" role="tab" data-toggle="tab">Elektrische Geräte</a></li>
+							   aria-controls="electricaldevices" role="tab" data-toggle="tab">{{lang_catElectricalDevices}}</a></li>
 				<li role="presentation"><a href="#tables"
-					aria-controls="tables" role="tab" data-toggle="tab">Tische</a></li>
+							   aria-controls="tables" role="tab" data-toggle="tab">{{lang_catTables}}</a></li>
 				<li role="presentation"><a href="#chairs"
-					aria-controls="chairs" role="tab" data-toggle="tab">Stühle</a></li>
+							   aria-controls="chairs" role="tab" data-toggle="tab">{{lang_catChairs}}</a></li>
 				<li role="presentation"><a href="#furniture"
-					aria-controls="furniture" role="tab" data-toggle="tab">Sonstige Möbel</a></li>
+							   aria-controls="furniture" role="tab" data-toggle="tab">{{lang_catFurniture}}</a></li>
 				<li role="presentation"><a href="#officesupply"
-					aria-controls="officesupply" role="tab" data-toggle="tab">Bürobedarf</a></li>
+							   aria-controls="officesupply" role="tab" data-toggle="tab">{{lang_catOfficeSupply}}</a></li>
 				<li role="presentation"><a href="#plants"
-					aria-controls="plants" role="tab" data-toggle="tab">Pflanzen</a></li>
+							   aria-controls="plants" role="tab" data-toggle="tab">{{lang_catPlants}}</a></li>
 				<li role="presentation"><a href="#misc"
-					aria-controls="misc" role="tab" data-toggle="tab">Anderes</a></li>
+							   aria-controls="misc" role="tab" data-toggle="tab">{{lang_catMisc}}</a></li>
 			</ul>
 			<div class="tab-content">
 				<div role="tabpanel" class="tab-pane" id="walls">
@@ -89,28 +89,28 @@
 						
 						 
 						<li>
-							<div itemtype="furniture" itemlook="door-nw" class="draggable" obstacle=true style="width:50px; height:100px;" data-height="100" data-width="50" title="Tür"></div>
+							<div itemtype="furniture" itemlook="door-nw" class="draggable" obstacle=true style="width:50px; height:100px;" data-height="100" data-width="50" title="{{lang_door}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="door-ne" class="draggable" obstacle=true style="width:50px; height:100px;" data-height="100" data-width="50" title="Tür"></div>
+							<div itemtype="furniture" itemlook="door-ne" class="draggable" obstacle=true style="width:50px; height:100px;" data-height="100" data-width="50" title="{{lang_door}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="door-sw" class="draggable" obstacle=true style="width:50px; height:100px;" data-height="100" data-width="50" title="Tür"></div>
+							<div itemtype="furniture" itemlook="door-sw" class="draggable" obstacle=true style="width:50px; height:100px;" data-height="100" data-width="50" title="{{lang_door}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="door-se" class="draggable" obstacle=true style="width:50px; height:100px;" data-height="100" data-width="50" title="Tür"></div>
+							<div itemtype="furniture" itemlook="door-se" class="draggable" obstacle=true style="width:50px; height:100px;" data-height="100" data-width="50" title="{{lang_door}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="door-wn" class="draggable" obstacle=true style="width:100px; height:50px;" data-height="50" data-width="100" title="Tür"></div>
+							<div itemtype="furniture" itemlook="door-wn" class="draggable" obstacle=true style="width:100px; height:50px;" data-height="50" data-width="100" title="{{lang_door}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="door-ws" class="draggable" obstacle=true style="width:100px; height:50px;" data-height="50" data-width="100" title="Tür"></div>
+							<div itemtype="furniture" itemlook="door-ws" class="draggable" obstacle=true style="width:100px; height:50px;" data-height="50" data-width="100" title="{{lang_door}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="door-en" class="draggable" obstacle=true style="width:100px; height:50px;" data-height="50" data-width="100" title="Tür"></div>
+							<div itemtype="furniture" itemlook="door-en" class="draggable" obstacle=true style="width:100px; height:50px;" data-height="50" data-width="100" title="{{lang_door}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="door-es" class="draggable" obstacle=true style="width:100px; height:50px;" data-height="50" data-width="100" title="Tür"></div>
+							<div itemtype="furniture" itemlook="door-es" class="draggable" obstacle=true style="width:100px; height:50px;" data-height="50" data-width="100" title="{{lang_door}}"></div>
 						</li>
 						 
 					</ul>
@@ -123,13 +123,13 @@
 							<div itemtype="pc" itemlook="pc-south" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="PC" noresize=1></div>
 						</li>
 						<li>
-							<div itemtype="pc" itemlook="copier" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="Kopierer" noresize=1></div>
+							<div itemtype="pc" itemlook="copier" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="{{lang_photocopier}}" noresize=1></div>
 						</li>
 						<li>
-							<div itemtype="pc" itemlook="printer" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="Drucker" noresize=1></div>
+							<div itemtype="pc" itemlook="printer" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_printer}}" noresize=1></div>
 						</li>
 						<li>
-							<div itemtype="pc" itemlook="telephone" class="draggable" obstacle=true style="width:50px; height:50px;" data-height="50" data-width="50" title="Telefon" noresize=1></div>
+							<div itemtype="pc" itemlook="telephone" class="draggable" obstacle=true style="width:50px; height:50px;" data-height="50" data-width="50" title="{{lang_telephone}}" noresize=1></div>
 						</li>
 					</ul>
 				</div>
@@ -137,13 +137,13 @@
 				<div role="tabpanel" class="tab-pane" id="electricaldevices">
 					<ul class="toollist">
 						<li>
-							<div itemtype="furniture" itemlook="flatscreen" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="Flatscreen"></div>
+							<div itemtype="furniture" itemlook="flatscreen" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="{{lang_flatscreen}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="lamp" class="draggable" obstacle=true style="width:125px; height:50px;" data-height="50" data-width="125" title="Schreibtischlampe"></div>
+							<div itemtype="furniture" itemlook="lamp" class="draggable" obstacle=true style="width:125px; height:50px;" data-height="50" data-width="125" title="{{lang_deskLamp}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="tvcamera" class="draggable" obstacle=true style="width:125px; height:50px;" data-height="50" data-width="125" title="Projektor"></div>
+							<div itemtype="furniture" itemlook="tvcamera" class="draggable" obstacle=true style="width:125px; height:50px;" data-height="50" data-width="125" title="{{lang_projector}}"></div>
 						</li>
 					</ul>
 				</div>
@@ -151,50 +151,50 @@
 				<div role="tabpanel" class="tab-pane" id="tables">
 					<ul class="toollist">
 						<li>
-							<div itemtype="furniture" itemlook="4chairs1squaretable" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="4 Stühle und ein quadratischer Tisch"></div>
+							<div itemtype="furniture" itemlook="4chairs1squaretable" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_4chairs1squaretable}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="6chairs1table-horizontal" class="draggable" obstacle=true style="width:100px; height:75px;" data-height="75" data-width="100" title="6 Stühle und ein Tisch"></div>
+							<div itemtype="furniture" itemlook="6chairs1table-horizontal" class="draggable" obstacle=true style="width:100px; height:75px;" data-height="75" data-width="100" title="{{lang_6chairs1table}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="8chairs1conferencetable-horizontal" class="draggable" obstacle=true style="width:175px; height:100px;" data-height="100" data-width="175" title="8 Stühle und 1 Konferenztisch"></div>
-						</li>
-						
-						<li>
-							<div itemtype="furniture" itemlook="classroomdesk-north" class="draggable" obstacle=true style="width:275px; height:100px;" data-height="100" data-width="275" title="Klassenzimmerpult"></div>
-						</li>
-						<li>
-							<div itemtype="furniture" itemlook="classroomdeskchair-north" class="draggable" obstacle=true style="width:175px; height:100px;" data-height="100" data-width="175" title="Klassenzimmerpult mit Stuhl"></div>
-						</li>
-						<li>
-							<div itemtype="furniture" itemlook="classroomtable-east" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="Klassenzimmertisch"></div>
-						</li>
-						<li>
-							<div itemtype="furniture" itemlook="classroomtablechair-north" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="Klassenzimmertisch mit Stuhl"></div>
+							<div itemtype="furniture" itemlook="8chairs1conferencetable-horizontal" class="draggable" obstacle=true style="width:175px; height:100px;" data-height="100" data-width="175" title="{{lang_8chairs1conferencetable}}"></div>
 						</li>
 						
 						<li>
-							<div itemtype="furniture" itemlook="conferencetable-horizontal" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="Konferenztisch"></div>
+							<div itemtype="furniture" itemlook="classroomdesk-north" class="draggable" obstacle=true style="width:275px; height:100px;" data-height="100" data-width="275" title="{{lang_classroomdesk}}"></div>
+						</li>
+						<li>
+							<div itemtype="furniture" itemlook="classroomdeskchair-north" class="draggable" obstacle=true style="width:175px; height:100px;" data-height="100" data-width="175" title="{{lang_classroomdeskchair}}"></div>
+						</li>
+						<li>
+							<div itemtype="furniture" itemlook="classroomtable-east" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="{{lang_classroomtable}}"></div>
+						</li>
+						<li>
+							<div itemtype="furniture" itemlook="classroomtablechair-north" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="{{lang_classroomdeskchair}}"></div>
+						</li>
+						
+						<li>
+							<div itemtype="furniture" itemlook="conferencetable-horizontal" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="{{lang_conferencetable}}"></div>
 						</li>
 												
 
 						<li>
-							<div itemtype="furniture" itemlook="podium-north" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="Podium"></div>
+							<div itemtype="furniture" itemlook="podium-north" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="{{lang_podium}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="roundeddesk-east" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="Eckschreibtisch"></div>
+							<div itemtype="furniture" itemlook="roundeddesk-east" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="{{lang_roundeddesk}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="roundtable" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="Runder Tisch"></div>
+							<div itemtype="furniture" itemlook="roundtable" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_roundtable}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="semicirculartable-north" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="Nierentisch"></div>
+							<div itemtype="furniture" itemlook="semicirculartable-north" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="{{lang_semicirculartable}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="squaretable" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="Quadratischer Tisch"></div>
+							<div itemtype="furniture" itemlook="squaretable" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_squaretable}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="studentdesk-north" class="draggable" obstacle=true style="width:150px; height:100px;" data-height="100" data-width="150" title="Schülerpult"></div>
+							<div itemtype="furniture" itemlook="studentdesk-north" class="draggable" obstacle=true style="width:150px; height:100px;" data-height="100" data-width="150" title="{{lang_studentdesk}}"></div>
 						</li>
 																
 						
@@ -205,25 +205,25 @@
 				<div role="tabpanel" class="tab-pane" id="chairs">
 					<ul class="toollist">
 						<li>
-							<div itemtype="furniture" itemlook="armchair-south" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="Sessel"></div>
+							<div itemtype="furniture" itemlook="armchair-south" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_armchair}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="chair-south" class="draggable" obstacle=true style="width:125px; height:100px;" data-height="100" data-width="125" title="Stuhl"></div>
+							<div itemtype="furniture" itemlook="chair-south" class="draggable" obstacle=true style="width:125px; height:100px;" data-height="100" data-width="125" title="{{lang_chair}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="chair2-south" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="Stuhl"></div>
-						</li>
-					
-					
-						<li>
-							<div itemtype="furniture" itemlook="couch-south" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="Couch"></div>
-						</li>
-						<li>
-							<div itemtype="furniture" itemlook="greenchair-south" class="draggable" obstacle=true style="width:125px; height:100px;" data-height="100" data-width="125" title="Stuhl"></div>
+							<div itemtype="furniture" itemlook="chair2-south" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_chair}}"></div>
 						</li>
 					
+					
 						<li>
-							<div itemtype="furniture" itemlook="studentdeskchair-north" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="Schülerpult mit Stuhl"></div>
+							<div itemtype="furniture" itemlook="couch-south" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_couch}}"></div>
+						</li>
+						<li>
+							<div itemtype="furniture" itemlook="greenchair-south" class="draggable" obstacle=true style="width:125px; height:100px;" data-height="100" data-width="125" title="{{lang_greenchair}}"></div>
+						</li>
+					
+						<li>
+							<div itemtype="furniture" itemlook="studentdeskchair-north" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_studentdeskchair}}"></div>
 						</li>
 					</ul>
 				</div>
@@ -231,25 +231,25 @@
 				<div role="tabpanel" class="tab-pane" id="furniture">
 					<ul class="toollist">
 						<li>
-							<div itemtype="furniture" itemlook="locker-east" class="draggable" obstacle=true style="width:100px; height:75px;" data-height="75" data-width="100" title="Schließfach"></div>
+							<div itemtype="furniture" itemlook="locker-east" class="draggable" obstacle=true style="width:100px; height:75px;" data-height="75" data-width="100" title="{{lang_locker}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="locker-north" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="Schließfach"></div>
-						</li>
-						
-						<li>
-							<div itemtype="furniture" itemlook="coatrack-east" class="draggable" obstacle=true style="width:25px; height:150px;" data-height="150" data-width="25" title="Garderobe"></div>
-						</li>
-						<li>
-							<div itemtype="furniture" itemlook="coatrack-north" class="draggable" obstacle=true style="width:150px; height:25px;" data-height="25" data-width="150" title="Garderobe"></div>
+							<div itemtype="furniture" itemlook="locker-north" class="draggable" obstacle=true style="width:75px; height:100px;" data-height="100" data-width="75" title="{{lang_locker}}"></div>
 						</li>
 						
-						
 						<li>
-							<div itemtype="furniture" itemlook="lecturetheaterrow" class="draggable" obstacle=true style="width:725px; height:100px;" data-height="100" data-width="725" title="Vorlesungssaalreihe mit Stühlen"></div>
+							<div itemtype="furniture" itemlook="coatrack-east" class="draggable" obstacle=true style="width:25px; height:150px;" data-height="150" data-width="25" title="{{lang_coatrack}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="lecturetheaterrowseats" class="draggable" obstacle=true style="width:725px; height:50px;" data-height="50" data-width="725" title="Vorlesungssaalstuhlreihe"></div>
+							<div itemtype="furniture" itemlook="coatrack-north" class="draggable" obstacle=true style="width:150px; height:25px;" data-height="25" data-width="150" title="{{lang_coatrack}}"></div>
+						</li>
+						
+						
+						<li>
+							<div itemtype="furniture" itemlook="lecturetheaterrow" class="draggable" obstacle=true style="width:725px; height:100px;" data-height="100" data-width="725" title="{{lang_lecturetheaterrow}}"></div>
+						</li>
+						<li>
+							<div itemtype="furniture" itemlook="lecturetheaterrowseats" class="draggable" obstacle=true style="width:725px; height:50px;" data-height="50" data-width="725" title="{{lang_lecturetheaterrow}}"></div>
 						</li>
 						
 					</ul>
@@ -258,10 +258,10 @@
 				<div role="tabpanel" class="tab-pane" id="officesupply">
 					<ul class="toollist">
 						<li>
-							<div itemtype="furniture" itemlook="papertray" class="draggable" obstacle=true style="width:25px; height:50px;" data-height="50" data-width="25" title="Papierfach"></div>
+							<div itemtype="furniture" itemlook="papertray" class="draggable" obstacle=true style="width:25px; height:50px;" data-height="50" data-width="25" title="{{lang_papertray}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="wastecan" class="draggable" obstacle=true style="width:50px; height:50px;" data-height="50" data-width="50" title="Papierkorb"></div>
+							<div itemtype="furniture" itemlook="wastecan" class="draggable" obstacle=true style="width:50px; height:50px;" data-height="50" data-width="50" title="{{lang_wastecan}}"></div>
 						</li>
 						
 					</ul>
@@ -269,20 +269,20 @@
 				<div role="tabpanel" class="tab-pane" id="plants">
 					<ul class="toollist">
 						<li>
-							<div itemtype="furniture" itemlook="plant" class="draggable" obstacle=true style="width:75px; height:75px;" data-height="75" data-width="75" title="Pflanze"></div>
+							<div itemtype="furniture" itemlook="plant" class="draggable" obstacle=true style="width:75px; height:75px;" data-height="75" data-width="75" title="{{lang_plant}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="plant2" class="draggable" obstacle=true style="width:75px; height:75px;" data-height="75" data-width="75" title="Pflanze"></div>
+							<div itemtype="furniture" itemlook="plant2" class="draggable" obstacle=true style="width:75px; height:75px;" data-height="75" data-width="75" title="{{lang_plant}}"></div>
 						</li>
 						<li>
-							<div itemtype="furniture" itemlook="plant3" class="draggable" obstacle=true style="width:75px; height:75px;" data-height="75" data-width="75" title="Pflanze"></div>
+							<div itemtype="furniture" itemlook="plant3" class="draggable" obstacle=true style="width:75px; height:75px;" data-height="75" data-width="75" title="{{lang_plant}}"></div>
 						</li>
 					</ul>
 				</div>				
 				<div role="tabpanel" class="tab-pane" id="misc">
 					<ul class="toollist">
 						<li>
-							<div itemtype="furniture" itemlook="projectionscreen" class="draggable" obstacle=true style="width:525px; height:25px;" data-height="25" data-width="525" title="Projektionswand"></div>
+							<div itemtype="furniture" itemlook="projectionscreen" class="draggable" obstacle=true style="width:525px; height:25px;" data-height="25" data-width="525" title="{{lang_plant}}"></div>
 						</li>
 					</ul>
 				</div>
@@ -295,7 +295,7 @@
 
 	<div class="panel panel-default" id="drawpanel">
 		<div class="panel-heading">
-			<h3 class="panel-title">Sketchboard</h3>
+			<h3 class="panel-title">{{lang_roomplan}}</h3>
 		</div>
 		<div class="panel-body">
 			<div id="drawarea" style="top:0px; left:0px;">
