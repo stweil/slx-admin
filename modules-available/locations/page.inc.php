@@ -412,6 +412,7 @@ class Page_Locations extends Page
 			'locationid' => $loc['locationid'],
 			'locationname' => $loc['locationname'],
 			'list' => $rows,
+			'isLeaf' => Location::isLeaf($locationId),
 			'parents' => Location::getLocations($loc['parentlocationid'], $locationId, true)
 		);
 		if (Module::get('dozmod') !== false) {
@@ -443,6 +444,14 @@ class Page_Locations extends Page
 		$data['machines_online'] = $online;
 		$data['machines_used'] = $used;
 		$data['used_percent'] = $online === 0 ? 0 : round(100 * $used / $online);
+
+
+		$data['havebaseconfig'] = Module::get('baseconfig') !== false;
+		$data['havesysconfig'] = Module::get('sysconfig') !== false;
+
+		// echo '<pre>';
+		// var_dump($data);
+		// echo '</pre>';
 		echo Render::parse('location-subnets', $data);
 	}
 	

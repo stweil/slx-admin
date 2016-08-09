@@ -137,6 +137,7 @@ class Location
 				'locationid' => $node['locationid'],
 				'locationname' => $node['locationname'],
 				'locationpad' => str_repeat('--', $depth),
+				'isleaf'	=> empty($node['children']),
 				'depth' => $depth
 			);
 			if (!empty($node['children'])) {
@@ -144,6 +145,15 @@ class Location
 			}
 		}
 		return $output;
+	}
+
+	public static function isLeaf($locationid) {
+		$result = Database::queryFirst('SELECT COUNT(locationid) = 0 AS isleaf '
+			. 'FROM location '
+			. 'WHERE parentlocationid = :locationid', ['locationid' => $locationid]);
+		$result = $result['isleaf'];
+		settype($result, 'bool');
+		return $result;
 	}
 
 	public static function extractIds($tree)
@@ -297,6 +307,7 @@ class Location
 		}
 		return $locs;
 	}
+
 
 	private static function findOverlap($locs, $subnets, &$overlapSelf, &$overlapOther)
 	{

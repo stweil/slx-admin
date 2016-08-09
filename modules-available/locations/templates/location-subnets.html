@@ -59,6 +59,12 @@
 			</tr>
 		</table>
 		<br>
+		<div class="btn-group">
+			{{#isLeaf}}
+			<a class="btn btn-default" href="?do=roomplanner&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-move"></span>{{lang_editRoomplan}}</a>
+			{{/isLeaf}}
+
+		</div>
 		<div class="pull-right">
 			<button type="submit" class="btn btn-primary">{{lang_save}}</button>
 		</div>
