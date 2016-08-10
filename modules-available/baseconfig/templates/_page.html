@@ -70,27 +70,27 @@
 <script type="text/javascript">
 
 function updateShadows(e) {
-	var shadowStr = $(e).data('shadows');
+	var rules = $(e).data('shadows');
+	if (!rules) return;
 	var currentValue = $(e).val();
-	var rules = shadowStr.split(',');
-	rules.forEach(function(rule) {
-		var rule_parts = rule.split('->');
-		var triggerVal = rule_parts[0].trim();
-		var target = rule_parts[1].trim();
-		var inp = $('#' + target);
-		var selitem = inp.data('selitem');
+	for (var triggerVal in rules) {
+		var targets = rules[triggerVal];
+		for (var i = 0; i < targets.length; ++i) {
+			var target = targets[i];
+			var inp = $('#' + target);
+			var selitem = inp.data('selitem');
 
-		if (currentValue === triggerVal) {
-			inp.prop('disabled', true);
-			if (selitem) selitem.disable();
-			$('#' + target + '.multilist').multiselect('disable');
-		} else {
-			inp.prop('disabled', false);
-			if (selitem) selitem.enable();
-			$('#' + target + '.multilist').multiselect('enable');
-
+			if (currentValue === triggerVal) {
+				inp.prop('disabled', true);
+				if (selitem) selitem.disable();
+				$('#' + target + '.multilist').multiselect('disable');
+			} else {
+				inp.prop('disabled', false);
+				if (selitem) selitem.enable();
+				$('#' + target + '.multilist').multiselect('enable');
+			}
 		}
-	});
+	}
 }
 
 

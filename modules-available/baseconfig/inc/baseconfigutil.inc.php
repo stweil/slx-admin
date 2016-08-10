@@ -47,4 +47,26 @@ class BaseConfigUtil
 		return $categories;
 	}
 
+	/**
+	 * Mark variables that would be shadowed according to the given values.
+	 *
+	 * @param $vars list of vars as obtained from BaseConfigUtil::getVariables()
+	 * @param $values key-value-pairs of variable assignments to work with
+	 */
+	public static function markShadowedVars(&$vars, $values) {
+		foreach ($vars as $key => &$var) {
+			if (!isset($var['shadows']))
+				continue;
+			foreach ($var['shadows'] as $triggerVal => $destSettings) {
+				if (isset($values[$key]) && $values[$key] !== $triggerVal)
+					continue;
+				foreach ($destSettings as $destSetting) {
+					if (isset($vars[$destSetting])) {
+						$vars[$destSetting]['shadowed'] = true;
+					}
+				}
+			}
+		}
+	}
+
 }
