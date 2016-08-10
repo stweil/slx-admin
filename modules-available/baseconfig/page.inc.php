@@ -103,7 +103,7 @@ class Page_BaseConfig extends Page
 		foreach ($this->categories as $catid => $val) {
 			Dashboard::addSubmenu(
 				'#category_' . $catid,
-				Dictionary::translateFileModule($this->categories[$catid]['module'], 'config-variable-categories', $catid)
+				Dictionary::translateFileModule($this->categories[$catid]['module'], 'config-variable-categories', $catid, true)
 			);
 		}
 	}

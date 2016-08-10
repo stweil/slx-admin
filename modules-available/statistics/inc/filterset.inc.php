@@ -15,7 +15,7 @@ class FilterSet
 	{
 		$this->sortDirection = $direction === 'DESC' ? 'DESC' : 'ASC';
 
-		if (array_key_exists($col, Page_Statistics::$columns)) {
+		if (is_string($col) && array_key_exists($col, Page_Statistics::$columns)) {
 			$isMapped = array_key_exists('map_sort', Page_Statistics::$columns[$col]);
 			$this->sortColumn = $isMapped ? Page_Statistics::$columns[$col]['map_sort'] : $col;
 		} else {

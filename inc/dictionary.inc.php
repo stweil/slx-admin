@@ -69,10 +69,13 @@ class Dictionary
 		return self::$stringCache[$file] = $json;
 	}
 
-	public static function translateFileModule($moduleId, $path, $tag)
+	public static function translateFileModule($moduleId, $path, $tag, $returnTagOnMissing = false)
 	{
 		$strings = self::getArray($moduleId, $path);
 		if (!isset($strings[$tag])) {
+			if ($returnTagOnMissing) {
+				return '{{' . $tag . '}}';
+			}
 			return false;
 		}
 		return $strings[$tag];
@@ -85,12 +88,15 @@ class Dictionary
 		return self::translateFileModule(Page::getModule()->getIdentifier(), $path, $tag);
 	}
 
-	public static function translate($tag)
+	public static function translate($tag, $returnTagOnMissing = false)
 	{
 		$string = self::translateFile('module', $tag);
 		if ($string !== false)
 			return $string;
-		return self::translateFileModule('main', 'global-tags', $tag);
+		$string = self::translateFileModule('main', 'global-tags', $tag);
+		if ($string !== false || !$returnTagOnMissing)
+			return $string;
+		return '{{' . $tag . '}}';
 	}
 
 	public static function getMessage($module, $id)

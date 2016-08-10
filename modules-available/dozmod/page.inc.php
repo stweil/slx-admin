@@ -15,10 +15,10 @@ class Page_DozMod extends Page
 		}
 
 		/* add sub-menus */
-		Dashboard::addSubmenu('?do=dozmod&section=mailconfig', Dictionary::translate('submenu_mailconfig'));
-		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates'));
-		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime'));
-		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users'));
+		Dashboard::addSubmenu('?do=dozmod&section=mailconfig', Dictionary::translate('submenu_mailconfig', true));
+		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates', true));
+		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime', true));
+		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users', true));
 
 		/* instantiate sub pages */
 		$this->mail_templates = new Page_mail_templates();
