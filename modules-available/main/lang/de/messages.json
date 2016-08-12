@@ -3,6 +3,7 @@
     "empty-field": "Ein Feld wurde nicht ausgef\u00fcllt",
     "error-read": "Fehler beim Lesen von {{0}}",
     "error-write": "Fehler beim Schreiben von {{0}}",
+    "invalid-action": "Ung\u00fcltige Aktion '{{0}}'",
     "module-missing-deps": "Modul {{0}} hat fehlende Abh\u00e4ngigkeiten",
     "no-permission": "Keine ausreichenden Rechte, um auf diese Seite zuzugreifen",
     "no-such-module": "Modul {{0}} existiert nicht oder ist nicht aktiv",

@@ -1,8 +1,8 @@
 {
-    "module_name": "Dozentenmodul",
-    "page_title": "Verwalten des Dozentenmoduls",
+    "module_name": "bwLehrpool-Suite",
+    "page_title": "Verwalten der bwLehrpool-Suite",
     "submenu_mailconfig": "Email-Konfiguration",
-    "submenu_runtime": "Laufzeit",
-    "submenu_templates": "Vorlagen E-Mail",
-    "submenu_users": "Benutzer"
+    "submenu_runtime": "Limits und Standardwerte",
+    "submenu_templates": "Textbausteine f\u00fcr E-Mails",
+    "submenu_users": "Benutzer und Berechtigungen"
 }
