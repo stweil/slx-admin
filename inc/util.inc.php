@@ -14,6 +14,7 @@ class Util
 	{
 		if (defined('API') && API) {
 			error_log('API ERROR: ' . $message);
+			error_log(print_r(debug_backtrace(), true));
 		}
 		Header('HTTP/1.1 500 Internal Server Error');
 		Header('Content-Type: text/html; charset=utf-8');

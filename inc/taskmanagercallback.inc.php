@@ -38,7 +38,11 @@ class TaskmanagerCallback
 				. " VALUES (:task, UNIX_TIMESTAMP(), :callback, :args)", $data, true) !== false) {
 			return;
 		}
-		Database::exec("INSERT INTO callback (taskid, dateline, cbfunction) VALUES (:task, UNIX_TIMESTAMP(), :callback)", $data);
+		// Most likely the args column is missing - try to add it on-the-fly so the update routine can properly
+		// use it (confmod updates - otherwise the status of modules is not updated properly)
+		Database::exec("ALTER TABLE `callback` ADD `args` TEXT NOT NULL DEFAULT ''", array(), true);
+		Database::exec("INSERT INTO callback (taskid, dateline, cbfunction, args)"
+			. " VALUES (:task, UNIX_TIMESTAMP(), :callback, :args)", $data);
 	}
 
 	/**
