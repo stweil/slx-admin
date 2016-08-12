@@ -20,8 +20,6 @@ class Event
 		EventLog::info('System boot...');
 		$everythingFine = true;
 
-		DefaultData::populate();
-
 		// Tasks: fire away
 		$mountId = Trigger::mount();
 		$autoIp = Trigger::autoUpdateServerIp();
