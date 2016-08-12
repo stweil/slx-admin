@@ -234,6 +234,8 @@ class Page_DozMod extends Page
 				'value' => $data
 			));
 			Message::addSuccess('mail-config-saved');
+		} else {
+			Message::addError('main.invalid-action', $do);
 		}
 		Util::redirect('?do=DozMod&section=mailconfig');
 	}
