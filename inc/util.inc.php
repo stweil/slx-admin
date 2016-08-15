@@ -44,7 +44,7 @@ class Util
 			echo "<h2>Stack Trace</h2>";
 			echo '<pre>', self::formatBacktraceHtml(debug_backtrace()), '</pre>';
 			echo "<h2>Globals</h2><pre>";
-			echo print_r($GLOBALS, true);
+			echo htmlspecialchars(print_r($GLOBALS, true));
 			echo '</pre>';
 		} else {
 			echo <<<SADFACE
