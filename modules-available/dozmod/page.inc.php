@@ -249,9 +249,14 @@ class Page_DozMod extends Page
 			$data['defaultLecturePermissions'] = Request::post('defaultLecturePermissions', NULL, "array");
 			$data['defaultImagePermissions'] = Request::post('defaultImagePermissions', NULL, "array");
 
-			foreach(['maxImageValidityDays', 'maxLectureValidityDays', 'maxTransfers'] as $field) {
-				$value = Request::post($field);
-				$data[$field] = $value;
+			$intParams = [
+				'maxImageValidityDays' => array('min' => 7, 'max' => 999),
+				'maxLectureValidityDays' => array('min' => 7, 'max' => 999),
+				'maxTransfers' => array('min' => 1, 'max' => 10),
+			];
+			foreach($intParams as $field => $limits) {
+				$value = Request::post($field, 0, 'int');
+				$data[$field] = max(min($value, $limits['max']), $limits['min']);
 			}
 
 			/* ensure types */
