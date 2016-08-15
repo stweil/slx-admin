@@ -16,8 +16,7 @@ class FilterSet
 		$this->sortDirection = $direction === 'DESC' ? 'DESC' : 'ASC';
 
 		if (is_string($col) && array_key_exists($col, Page_Statistics::$columns)) {
-			$isMapped = array_key_exists('map_sort', Page_Statistics::$columns[$col]);
-			$this->sortColumn = $isMapped ? Page_Statistics::$columns[$col]['map_sort'] : $col;
+			$this->sortColumn = $col;
 		} else {
 			/* default sorting column is clientip */
 			$this->sortColumn = 'clientip';
@@ -42,8 +41,10 @@ class FilterSet
 		}
 		$join = implode('', array_unique($joins));
 
-
-		$sort = " ORDER BY " . $this->sortColumn . " " . $this->sortDirection;
+		$col = $this->sortColumn;
+		$isMapped = array_key_exists('map_sort', Page_Statistics::$columns[$col]);
+		$sort = " ORDER BY " . ($isMapped ? Page_Statistics::$columns[$col]['map_sort'] : $col) . " " . $this->sortDirection
+			. ", machineuuid ASC";
 	}
 
 	public function getSortDirection()
