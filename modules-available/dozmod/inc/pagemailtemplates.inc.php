@@ -7,13 +7,6 @@ class Page_mail_templates extends Page
 
 	protected function doPreprocess()
 	{
-		User::load();
-
-		if (!User::hasPermission('superadmin')) {
-			Message::addError('main.no-permission');
-			Util::redirect('?do=Main');
-		}
-
 		$action = Request::post('action', 'show', 'string');
 		if ($action === 'show') {
 			$this->fetchTemplates();

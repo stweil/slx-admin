@@ -2,8 +2,26 @@
 
 class Page_DozMod extends Page
 {
-	/* sub page classes */
-	private $mail_templates;
+	/** @var \Page sub page classes */
+	private $subPage = false;
+
+	private function setupSubPage()
+	{
+		if ($this->subPage !== false)
+			return;
+		/* different pages for different sections */
+		$section = Request::any('section', 'mailconfig', 'string');
+		/* instantiate sub pages */
+		if ($section === 'templates') {
+			$this->subPage = new Page_mail_templates();
+		}
+		if ($section === 'users') {
+			$this->subPage = new Page_dozmod_users();
+		}
+		if ($section === 'actionlog') {
+			$this->subPage = new Page_dozmod_log();
+		}
+	}
 
 	protected function doPreprocess()
 	{
@@ -19,16 +37,11 @@ class Page_DozMod extends Page
 		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates', true));
 		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime', true));
 		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users', true));
+		Dashboard::addSubmenu('?do=dozmod&section=actionlog', Dictionary::translate('submenu_actionlog', true));
 
-		/* instantiate sub pages */
-		$this->mail_templates = new Page_mail_templates();
-
-
-
-		/* different pages for different sections */
-		$section = Request::get('section', 'mailconfig', 'string');
-		if ($section == 'templates') {
-			$this->mail_templates->doPreprocess();
+		$this->setupSubPage();
+		if ($this->subPage !== false) {
+			$this->subPage->doPreprocess();
 			return;
 		}
 
@@ -52,15 +65,15 @@ class Page_DozMod extends Page
 
 	protected function doRender()
 	{
+		$this->listDeletePendingImages();
+
 		/* different pages for different sections */
-		$section = Request::get('section', 'mailconfig', 'string');
-		if ($section == 'templates') {
-			$this->mail_templates->doRender();
+		if ($this->subPage !== false) {
+			$this->subPage->doRender();
 			return;
 		}
 
-
-		$this->listDeletePendingImages();
+		$section = Request::get('section', 'mailconfig', 'string');
 
 		if ($section === 'mailconfig') {
 			// Mail config
@@ -103,11 +116,6 @@ class Page_DozMod extends Page
 			Render::addTemplate('runtimeconfig', $runtimeConf);
 		}
 
-		// User list for making people admin
-		if ($section === 'users') {
-			$this->listUsers();
-			$this->listOrganizations();
-		}
 	}
 
 	private function listDeletePendingImages()
@@ -159,16 +167,19 @@ class Page_DozMod extends Page
 
 	protected function doAjax()
 	{
+		User::load();
 		if (!User::hasPermission('superadmin'))
 			return;
+
+		$this->setupSubPage();
+		if ($this->subPage !== false) {
+			$this->subPage->doAjax();
+			return;
+		}
 
 		$action = Request::post('action');
 		if ($action === 'mail') {
 			$this->handleTestMail();
-		} elseif ($action === 'setmail' || $action === 'setsu' || $action == 'setlogin') {
-			$this->setUserOption($action);
-		} elseif ($action === 'setorglogin') {
-			$this->setOrgOption($action);
 		} elseif ($action === 'delimages') {
 			die($this->handleDeleteImages());
 		}
@@ -280,90 +291,6 @@ class Page_DozMod extends Page
 			Message::addSuccess('runtimelimits-config-saved');
 		}
 		Util::redirect('?do=DozMod&section=runtimeconfig');
-	}
-
-	private function listUsers()
-	{
-		$res = Database::simpleQuery('SELECT userid, firstname, lastname, email, lastlogin, user.canlogin, issuperuser, emailnotifications,'
-				. ' organization.displayname AS orgname FROM sat.user'
-				. ' LEFT JOIN sat.organization USING (organizationid)'
-				. ' ORDER BY lastname ASC, firstname ASC');
-		$rows = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['canlogin'] = $this->checked($row['canlogin']);
-			$row['issuperuser'] = $this->checked($row['issuperuser']);
-			$row['emailnotifications'] = $this->checked($row['emailnotifications']);
-			$row['lastlogin'] = date('d.m.Y', $row['lastlogin']);
-			$rows[] = $row;
-		}
-		Render::addTemplate('userlist', array('users' => $rows));
-	}
-
-	private function listOrganizations()
-	{
-		$res = Database::simpleQuery('SELECT organizationid, displayname, canlogin FROM sat.organization'
-				. ' ORDER BY displayname ASC');
-		$rows = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['canlogin'] = $this->checked($row['canlogin']);
-			$rows[] = $row;
-		}
-		Render::addTemplate('orglist', array('organizations' => $rows));
-	}
-
-	private function checked($val)
-	{
-		if ($val)
-			return 'checked="checked"';
-		return '';
-	}
-
-	private function setUserOption($option)
-	{
-		$val = (string) Request::post('value', '-');
-		if ($val !== '1' && $val !== '0')
-			die('Nein');
-		if ($option === 'setmail') {
-			$field = 'emailnotifications';
-		} elseif ($option === 'setsu') {
-			$field = 'issuperuser';
-		} elseif ($option === 'setlogin') {
-			$field = 'canlogin';
-		} else {
-			die('Unknown');
-		}
-		$user = (string) Request::post('userid', '?');
-		$ret = Database::exec("UPDATE sat.user SET $field = :onoff WHERE userid = :userid", array(
-				'userid' => $user,
-				'onoff' => $val
-		));
-		error_log("Setting $field to $val for $user - affected: $ret");
-		if ($ret === false)
-			die('Error');
-		if ($ret == 0)
-			die(1 - $val);
-		die($val);
-	}
-
-	private function setOrgOption($option)
-	{
-		$val = (string) Request::post('value', '-');
-		if ($val !== '1' && $val !== '0')
-			die('Nein');
-		if ($option === 'setorglogin') {
-			$field = 'canlogin';
-		} else {
-			die('Unknown');
-		}
-		$ret = Database::exec("UPDATE sat.organization SET $field = :onoff WHERE organizationid = :organizationid", array(
-				'organizationid' => (string) Request::post('organizationid', ''),
-				'onoff' => $val
-		));
-		if ($ret === false)
-			die('Error');
-		if ($ret === 0)
-			die(1 - $val);
-		die($val);
 	}
 
 }

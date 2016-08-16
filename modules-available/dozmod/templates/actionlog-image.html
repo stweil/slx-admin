@@ -1,0 +1,30 @@
+<h3>{{lang_currentFilter}}</h3>
+<table class="table table-bordered table-striped" style="width: auto">
+	<tr>
+		<th class="text-nowrap">{{lang_image}}</th>
+		<td>{{displayname}}</td>
+	</tr>
+	<tr>
+		<th class="text-nowrap">{{lang_os}}</th>
+		<td>{{osname}}</td>
+	</tr>
+	<tr>
+		<th class="text-nowrap">{{lang_owner}}</th>
+		<td><a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{ouserid}}">{{ofirstname}} {{olastname}}</a></td>
+	</tr>
+	<tr>
+		<th class="text-nowrap">{{lang_lastEditor}}</th>
+		<td><a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{uuserid}}">{{ufirstname}} {{ulastname}}</a></td>
+	</tr>
+	<tr>
+		<th class="text-nowrap">{{lang_createTime}}</th>
+		<td>{{createtime_s}}</td>
+	</tr>
+	<tr>
+		<th class="text-nowrap">{{lang_updateTime}}</th>
+		<td>{{updatetime_s}}</td>
+	</tr>
+	<tr>
+		<td colspan="2">{{{descriptionHtml}}}</td>
+	</tr>
+</table>
