@@ -270,9 +270,6 @@ class Render
 		}
 		// Load from disk
 		$data = @file_get_contents('modules/' . $module . '/templates/' . $template . '.html');
-		if ($data === false) {
-			$data = '<b>Non-existent/unreadable template ' . $template . ' requested!</b>';
-		}
 		self::$templateCache[$id] =& $data;
 		return $data;
 	}
