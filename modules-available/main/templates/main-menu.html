@@ -1,8 +1,5 @@
 <div class="slx-topbar">
 	<div>
-		{{#dbupdate}}
-		<a href="api.php?do=update"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> DB-Update</span></a>
-		{{/dbupdate}}
 		{{#warning}}
 		<a href="?do=EventLog"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_warning}}</span></a>
 		{{/warning}}
@@ -34,7 +31,7 @@
 						{{#modules}}
 						<li class="{{className}}"><a href="?do={{identifier}}">{{displayName}}</a></li>
 						{{#subMenu}}
-						<li class="slx-submenu"><a href="{{url}}">{{name}}</a></li>
+						<li class="slx-submenu visible-lg"><a href="{{url}}">{{name}}</a></li>
 						{{/subMenu}}
 						{{/modules}}
 					</ul>
@@ -86,10 +83,22 @@
 						</ul>
 					{{/user}}
 					{{^user}}
-						<a type="button" href="?do=Session&action=login" class="btn btn-default">{{lang_login}}</a>
+						<a type="button" href="?do=Session&amp;action=login" class="btn btn-default">{{lang_login}}</a>
 					{{/user}}
 				</li>
 			</ul>
 		</div>
 	</div>
+	<div class="hidden-lg small">
+		<ol class="slx-smallsubmenu">
+		{{#categories}}
+		{{#modules}}
+		{{#subMenu}}
+		<li><a href="{{url}}">{{name}}</a></li>
+		{{/subMenu}}
+		{{/modules}}
+		{{/categories}}
+		</ol>
+	</div>
 </nav>
+

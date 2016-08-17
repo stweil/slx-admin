@@ -491,3 +491,17 @@ li.slx-submenu a {
 nav.navbar.sidebar {
 	color: #eee;
 }
+
+.slx-smallsubmenu > li {
+	display: inline-block;
+}
+
+.slx-smallsubmenu > li + li:before {
+	padding: 0 3px;
+	content: "\2022\00a0";
+	color: #ccc;
+}
+
+.slx-smallsubmenu a {
+	color: #fff;
+}
