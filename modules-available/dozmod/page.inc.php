@@ -115,7 +115,23 @@ class Page_DozMod extends Page
 			}
 			Render::addTemplate('runtimeconfig', $runtimeConf);
 		}
+		if ($section === 'blockstats') {
+			$this->showBlockStats();
+		}
 
+	}
+
+	private function showBlockStats()
+	{
+		$res = Database::simpleQuery("SELECT blocksha1, blocksize, Count(*) AS blockcount FROM sat.imageblock"
+			. " GROUP BY blocksha1, blocksize HAVING blockcount > 1 ORDER BY blockcount DESC, blocksha1 ASC");
+		$data = array('hashes' => array());
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['hash_hex'] = bin2hex($row['blocksha1']);
+			$row['blocksize_s'] = Util::readableFileSize($row['blocksize']);
+			$data['hashes'][] = $row;
+		}
+		Render::addTemplate('blockstats', $data);
 	}
 
 	private function listDeletePendingImages()
@@ -182,7 +198,38 @@ class Page_DozMod extends Page
 			$this->handleTestMail();
 		} elseif ($action === 'delimages') {
 			die($this->handleDeleteImages());
+		} elseif ($action === 'getblockinfo') {
+			$this->ajaxGetBlockInfo();
 		}
+	}
+
+	private function ajaxGetBlockInfo()
+	{
+		$hash = Request::any('hash', false, 'string');
+		$size = Request::any('size', false, 'string');
+		if ($hash === false || $size === false) {
+			die('Missing parameter');
+		}
+		if (!is_numeric($size) || strlen($hash) !== 40 || !preg_match('/^[a-f0-9]+$/i', $hash)) {
+			die('Malformed parameter');
+		}
+		$res = Database::simpleQuery("SELECT i.displayname, v.createtime, v.filesize, Count(*) AS blockcount FROM sat.imageblock ib"
+			. " INNER JOIN sat.imageversion v USING (imageversionid)"
+			. " INNER JOIN sat.imagebase i USING (imagebaseid)"
+			. " WHERE ib.blocksha1 = :hash AND ib.blocksize = :size"
+			. " GROUP BY ib.imageversionid"
+			. " ORDER BY i.displayname ASC, v.createtime ASC",
+			array('hash' => hex2bin($hash), 'size' => $size), true);
+		if ($res === false) {
+			die('Database error: ' . Database::lastError());
+		}
+		$data = array('rows' => array());
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['createtime_s'] = date('d.m.Y H:i', $row['createtime']);
+			$row['filesize_s'] = Util::readableFileSize($row['filesize']);
+			$data['rows'][] = $row;
+		}
+		die(Render::parse('blockstats-details', $data));
 	}
 
 	private function handleDeleteImages()

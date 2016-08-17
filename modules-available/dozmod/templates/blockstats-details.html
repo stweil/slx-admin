@@ -1,0 +1,16 @@
+<table class="table table-bordered table-striped">
+	<tr>
+		<th>{{lang_imageName}}</th>
+		<th>{{lang_createTime}}</th>
+		<th>{{lang_fileSize}}</th>
+		<th>{{lang_blockCount}}</th>
+	</tr>
+	{{#rows}}
+	<tr>
+		<td>{{displayname}}</td>
+		<td>{{createtime_s}}</td>
+		<td>{{filesize_s}}</td>
+		<td>{{blockcount}}</td>
+	</tr>
+	{{/rows}}
+</table>
