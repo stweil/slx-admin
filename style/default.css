@@ -84,10 +84,6 @@ body {
   height: 34px;
 }
 
-.isdir {
-	font-weight: bold;
-}
-
 .slx-litehead {
 	margin: 0px 10px 5px 10px;
 	color: #aaa;
@@ -137,10 +133,6 @@ body {
 	background-color: #eee;
 }
 
-.slx-bold {
-	font-weight: bold;
-}
-
 .slx-ellipsis {
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -153,10 +145,6 @@ body {
 	white-space: nowrap;
 	overflow: hidden;
 	display: block;
-}
-
-.slx-nowrap {
-	white-space: nowrap;
 }
 
 .slx-space {

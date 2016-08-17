@@ -21,7 +21,7 @@
 				<table id="conftable" class="slx-table" style="max-width:100px !important">
 					{{#configs}}
 					<tr>
-						<td data-modlist="{{modlist}}" class="slx-pointer slx-width-ignore slx-nowrap"onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')" width="100%">
+						<td data-modlist="{{modlist}}" class="slx-pointer slx-width-ignore text-nowrap"onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')" width="100%">
 							<div class="slx-dyn-ellipsis">{{config}}</div>
 						</td>
 						<td>
@@ -45,7 +45,7 @@
 							</span>
 							{{/locationCount}}
 						</td>
-						<td class="slx-nowrap">
+						<td class="text-nowrap">
 							<button
 									{{#needrebuild}}
 									class="refconf btn btn-primary btn-xs"
@@ -55,7 +55,7 @@
 							{{/needrebuild}}
 							name="rebuild" value="{{configid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
 						</td>
-						<td class="slx-nowrap">
+						<td class="text-nowrap">
 							<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addconfig&amp;edit={{configid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
 							<button class="btn btn-danger btn-xs" name="del" value="{{configid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
 						</td>

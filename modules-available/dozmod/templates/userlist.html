@@ -22,10 +22,10 @@
 				<tbody>
 					{{#users}}
 					<tr>
-						<td class="text-left slx-nowrap"><a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{userid}}">{{lastname}}, {{firstname}}</a></td>
-						<td class="text-left slx-nowrap">{{orgname}}</td>
-						<td class="text-left slx-nowrap">{{lastlogin}}</td>
-						<td class="text-left slx-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>
+						<td class="text-left text-nowrap"><a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{userid}}">{{lastname}}, {{firstname}}</a></td>
+						<td class="text-left text-nowrap">{{orgname}}</td>
+						<td class="text-left text-nowrap">{{lastlogin}}</td>
+						<td class="text-left text-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>
 						<td><input onclick="setu('setmail', this, '{{userid}}')" type="checkbox" {{{emailnotifications}}}></td>
 						<td><input onclick="setu('setsu', this, '{{userid}}')" type="checkbox" {{{issuperuser}}}></td>
 						<td><input onclick="setu('setlogin', this, '{{userid}}')" type="checkbox" {{{canlogin}}}></td>
