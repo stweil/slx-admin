@@ -189,7 +189,7 @@ function outputNetrules($lecture_uuid)
 
 function outputRunscript($lecture_uuid)
 {
-	$key = 'netrules_' . $lecture_uuid;
+	$key = 'runscript_' . $lecture_uuid;
 	if (cache_has($key)) {
 		cache_get_passthru($key);
 	} else {
