@@ -136,6 +136,8 @@ class Page_Statistics extends Page
 			Message::addSuccess('notes-saved');
 			Util::redirect('?do=Statistics&uuid=' . $uuid);
 		}
+		// Fix online state of machines that crashed -- TODO: Make cronjob for this
+		Database::exec("UPDATE machine SET lastboot = 0 WHERE lastseen < UNIX_TIMESTAMP() - 610");
 	}
 
 	protected function doRender()
@@ -253,10 +255,9 @@ class Page_Statistics extends Page
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
 
-		$online = time() - 610;
 		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE ($where)", $args);
-		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $online AND ($where)", $args);
-		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastseen > $online AND logintime <> 0 AND ($where)", $args);
+		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastboot <> 0 AND ($where)", $args);
+		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastboot <> 0 AND logintime <> 0 AND ($where)", $args);
 		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE badsectors >= 10 AND ($where)", $args);
 		if ($on['val'] != 0) {
 			$usedpercent = round($used['val'] / $on['val'] * 100);
@@ -500,7 +501,7 @@ class Page_Statistics extends Page
 		$rows = array();
 		$NOW = time();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if ($NOW - $row['lastseen'] > 610) {
+			if ($row['lastboot'] == 0) {
 				$row['state_off'] = true;
 			} elseif ($row['logintime'] == 0) {
 				$row['state_idle'] = true;
@@ -620,9 +621,14 @@ class Page_Statistics extends Page
 		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,'
 			. ' mbram, kvmstate, cpumodel, id44mb, data, hostname, notes FROM machine WHERE machineuuid = :uuid',
 			array('uuid' => $uuid));
+		// Hack: Get raw collected data
+		if (Request::get('raw', false)) {
+			Header('Content-Type: text/plain; charset=utf-8');
+			die($client['data']);
+		}
 		// Mangle fields
 		$NOW = time();
-		if ($NOW - $client['lastseen'] > 610) {
+		if ($client['lastboot'] == 0) {
 			$client['state_off'] = true;
 		} elseif ($client['logintime'] == 0) {
 			$client['state_idle'] = true;
@@ -632,10 +638,14 @@ class Page_Statistics extends Page
 		}
 		$client['firstseen_s'] = date('d.m.Y H:i', $client['firstseen']);
 		$client['lastseen_s'] = date('d.m.Y H:i', $client['lastseen']);
-		$uptime = $NOW - $client['lastboot'];
-		$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']);
-		if (!isset($client['state_off']) || !$client['state_off']) {
-			$client['lastboot_s'] .= ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
+		if ($client['lastboot'] == 0) {
+			$client['lastboot_s'] = '-';
+		} else {
+			$uptime = $NOW - $client['lastboot'];
+			$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']);
+			if (!isset($client['state_off']) || !$client['state_off']) {
+				$client['lastboot_s'] .= ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
+			}
 		}
 		$client['logintime_s'] = date('d.m.Y H:i', $client['logintime']);
 		$client['gbram'] = round(round($client['mbram'] / 500) / 2, 1);

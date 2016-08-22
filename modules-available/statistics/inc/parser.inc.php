@@ -103,6 +103,8 @@ class Parser {
 		$i = 0;
 		foreach ($lines as $line) {
 			if (preg_match('/^Disk (\S+):.* (\d+) bytes/i', $line, $out)) {
+				if ($out[2] < 10000) // sometimes vmware reports lots of 512byte disks
+					continue;
 				// disk total size and name
 				unset($hdd);
 				$unit = 0;
@@ -144,7 +146,7 @@ class Parser {
 		foreach ($hdds as &$hdd) {
 			$hdd['used'] = round($hdd['used'] / 1024);
 			$free = $hdd['size'] - $hdd['used'];
-			if ($free > 5) {
+			if ($free > 5 || ($free / $hdd['size']) > 0.1) {
 				$hdd['partitions'][] = array(
 					'id' => 'free-id-' . $i,
 					'name' => Dictionary::translate('unused'),
