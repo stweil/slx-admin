@@ -84,9 +84,8 @@ if (!roomplanner) var roomplanner = {
 				$(roomplanner.computerAttributes).each(function(i,key){
 					tip += __(key)+": "+$(el).attr(key)+"<br>";
 				});
-				
-				$(el).attr('data-togle','tooltip');
-				$(el).attr('title',tip);
+
+				$(el).attr('title', tip);
 				$(el).tooltip({html: true});
 			}
 		},
