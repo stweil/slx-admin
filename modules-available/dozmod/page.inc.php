@@ -126,11 +126,14 @@ class Page_DozMod extends Page
 		$res = Database::simpleQuery("SELECT blocksha1, blocksize, Count(*) AS blockcount FROM sat.imageblock"
 			. " GROUP BY blocksha1, blocksize HAVING blockcount > 1 ORDER BY blockcount DESC, blocksha1 ASC");
 		$data = array('hashes' => array());
+		$spaceWasted = 0;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$row['hash_hex'] = bin2hex($row['blocksha1']);
 			$row['blocksize_s'] = Util::readableFileSize($row['blocksize']);
 			$data['hashes'][] = $row;
+			$spaceWasted += $row['blocksize'] * ($row['blockcount'] - 1);
 		}
+		$data['spacewasted'] = Util::readableFileSize($spaceWasted);
 		Render::addTemplate('blockstats', $data);
 	}
 
