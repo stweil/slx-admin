@@ -361,6 +361,8 @@ nav.sidebar li {
 	.main
 	{
 	  float: right;
+	  width: 900px;
+	  width: calc(100% - 240px); /* needed for roomplanner */
 	  margin-left: 240px;
 	  margin-top: 32px;
 	  min-width: 900px;
