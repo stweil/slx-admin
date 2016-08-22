@@ -10,41 +10,29 @@
 if (!isLocalExecution())
 	exit(0);
 
+// Hooks by other modules
+function handleModule($file)
+{
+	include_once $file;
+}
+
+foreach (glob('modules/*/hooks/cron.inc.php') as $file) {
+	preg_match('#^modules/([^/]+)/#', $file, $out);
+	$mod = Module::get($out[1]);
+	if ($mod === false)
+		continue;
+	$mod->activate();
+	handleModule($file);
+}
+
 switch (mt_rand(1, 10)) {
-case 1:
-	Database::exec("DELETE FROM clientlog WHERE (UNIX_TIMESTAMP() - dateline) > 86400 * 90");
-	break;
-case 2:
-	Database::exec("DELETE FROM eventlog WHERE (UNIX_TIMESTAMP() - dateline) > 86400 * 90");
-	break;
 case 3:
 	Database::exec("DELETE FROM property WHERE dateline <> 0 AND dateline < UNIX_TIMESTAMP()");
 	break;
 case 4:
 	Database::exec("DELETE FROM callback WHERE (UNIX_TIMESTAMP() - dateline) > 86400");
 	break;
-case 5:
-	Database::exec("DELETE FROM statistic WHERE (UNIX_TIMESTAMP() - dateline) > 86400 * 90");
-	break;
-case 6:
-	Database::exec("DELETE FROM machine WHERE (UNIX_TIMESTAMP() - lastseen) > 86400 * 365");
-	break;
 }
-
-// TODO: Move to some module
-function logstats() {
-	$NOW = time();
-	$cutoff = $NOW - 86400 * 30;
-	$online = $NOW - 610;
-	$known = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $cutoff");
-	$on = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $online");
-	$used = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $online AND logintime <> 0");
-	Database::exec("INSERT INTO statistic (dateline, typeid, clientip, username, data) VALUES (:now, '~stats', '', '', :vals)", array(
-		'now' => $NOW,
-		'vals' => $known['val'] . '#' . $on['val'] . '#' . $used['val'],
-	));
-}
-logstats();
 
 Trigger::checkCallbacks();
 Trigger::ldadp();
