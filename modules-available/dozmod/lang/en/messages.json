@@ -1,5 +1,11 @@
 {
+    "all-templates-reset": "All templates have been reset",
     "delete-images": "Delete: {{0}}",
+    "dozmod-error": "Error communicating with the bwLehrpool-Suite server: {{0}}",
     "images-pending-delete-exist": "Images marked for deletion: {{0}}",
-    "mail-config-saved": "Mail config saved"
+    "mail-config-saved": "Mail config saved",
+    "nothing-submitted": "There was nothing submitted",
+    "runtimelimits-config-saved": "Configuration saved successfully",
+    "templates-saved": "Templates saved successfully",
+    "timeout": "Timeout"
 }

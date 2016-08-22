@@ -11,8 +11,6 @@ class Exams
 	{
 		if (!is_array($locationIds)) {
 			$locationIds = array($locationIds);
-		} elseif (empty($locationIds)) {
-			return false;
 		}
 		$l = str_repeat(',?', count($locationIds));
 		$res = Database::queryFirst("SELECT lectureid FROM exams"

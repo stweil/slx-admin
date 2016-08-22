@@ -27,11 +27,11 @@
 					<tbody>
 						{{#images}}
 						<tr>
-							<td class="text-left slx-nowrap {{name_extra_class}}">{{displayname}}<br><span class="small">{{imageversionid}}</span></td>
-							<td class="text-left slx-nowrap">{{version}}</td>
-							<td class="text-left slx-nowrap"><a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a></td>
-							<td class="text-left slx-nowrap"><span class="glyphicon {{hasNewerClass}}"></span></td>
-							<td class="text-right slx-nowrap">{{filesize}}</td>
+							<td class="text-left text-nowrap {{name_extra_class}}">{{displayname}}<br><span class="small">{{imageversionid}}</span></td>
+							<td class="text-left text-nowrap">{{version}}</td>
+							<td class="text-left text-nowrap"><a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a></td>
+							<td class="text-left text-nowrap"><span class="glyphicon {{hasNewerClass}}"></span></td>
+							<td class="text-right text-nowrap">{{filesize}}</td>
 							<td><input class="del-check" name="images[{{imageversionid}}]" type="checkbox" {{checked}}></td>
 						</tr>
 						{{/images}}
@@ -85,4 +85,4 @@ document.addEventListener("DOMContentLoaded", function() {
 	slxChangeSingle();
 }, false);
 
---> </script>
+//--> </script>

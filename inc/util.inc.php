@@ -14,6 +14,11 @@ class Util
 	{
 		if (defined('API') && API) {
 			error_log('API ERROR: ' . $message);
+			error_log(self::formatBacktracePlain(debug_backtrace()));
+		}
+		if (php_sapi_name() === 'cli') {
+			// Don't spam HTML when invoked via cli, above error_log should have gone to stdout/stderr
+			exit(1);
 		}
 		Header('HTTP/1.1 500 Internal Server Error');
 		Header('Content-Type: text/html; charset=utf-8');
@@ -37,9 +42,9 @@ class Util
 				echo '</pre>';
 			}
 			echo "<h2>Stack Trace</h2>";
-			echo '<pre>', self::formatBacktrace(debug_backtrace()), '</pre>';
+			echo '<pre>', self::formatBacktraceHtml(debug_backtrace()), '</pre>';
 			echo "<h2>Globals</h2><pre>";
-			echo print_r($GLOBALS, true);
+			echo htmlspecialchars(print_r($GLOBALS, true));
 			echo '</pre>';
 		} else {
 			echo <<<SADFACE
@@ -74,7 +79,7 @@ SADFACE;
 		exit(0);
 	}
 
-	public static function formatBacktrace($trace, $escape = true)
+	public static function formatBacktraceHtml($trace, $escape = true)
 	{
 		$output = '';
 		foreach ($trace as $idx => $line) {
@@ -96,6 +101,30 @@ SADFACE;
 			// Add line
 			$output .= $frame . ' ' . $function . '<b>(</b>'
 				. $args . '<b>)</b>' . ' @ <i>' . $file . '</i>:' . $line['line'] . "\n";
+		}
+		return $output;
+	}
+
+	public static function formatBacktracePlain($trace)
+	{
+		$output = '';
+		foreach ($trace as $idx => $line) {
+			$args = array();
+			foreach ($line['args'] as $arg) {
+				if (is_string($arg)) {
+					$arg = "'$arg'";
+				} elseif (is_object($arg)) {
+					$arg = 'instanceof ' . get_class($arg);
+				} elseif (is_array($arg)) {
+					$arg = 'Array(' . count($arg) . ')';
+				}
+				$args[] = $arg;
+			}
+			$frame = str_pad('#' . $idx, 3, ' ', STR_PAD_LEFT);
+			$args = implode(', ', $args);
+			// Add line
+			$output .= "\n" . $frame . ' ' . $line['function'] . '('
+				. $args . ')' . ' @ ' . $line['file'] . ':' . $line['line'];
 		}
 		return $output;
 	}

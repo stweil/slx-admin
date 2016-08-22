@@ -2,8 +2,26 @@
 
 class Page_DozMod extends Page
 {
-	/* sub page classes */
-	private $mail_templates;
+	/** @var \Page sub page classes */
+	private $subPage = false;
+
+	private function setupSubPage()
+	{
+		if ($this->subPage !== false)
+			return;
+		/* different pages for different sections */
+		$section = Request::any('section', 'mailconfig', 'string');
+		/* instantiate sub pages */
+		if ($section === 'templates') {
+			$this->subPage = new Page_mail_templates();
+		}
+		if ($section === 'users') {
+			$this->subPage = new Page_dozmod_users();
+		}
+		if ($section === 'actionlog') {
+			$this->subPage = new Page_dozmod_log();
+		}
+	}
 
 	protected function doPreprocess()
 	{
@@ -15,20 +33,15 @@ class Page_DozMod extends Page
 		}
 
 		/* add sub-menus */
-		Dashboard::addSubmenu('?do=dozmod&section=mailconfig', Dictionary::translate('submenu_mailconfig'));
-		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates'));
-		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime'));
-		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users'));
+		Dashboard::addSubmenu('?do=dozmod&section=mailconfig', Dictionary::translate('submenu_mailconfig', true));
+		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates', true));
+		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime', true));
+		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users', true));
+		Dashboard::addSubmenu('?do=dozmod&section=actionlog', Dictionary::translate('submenu_actionlog', true));
 
-		/* instantiate sub pages */
-		$this->mail_templates = new Page_mail_templates();
-
-
-
-		/* different pages for different sections */
-		$section = Request::get('section', 'mailconfig', 'string');
-		if ($section == 'templates') {
-			$this->mail_templates->doPreprocess();
+		$this->setupSubPage();
+		if ($this->subPage !== false) {
+			$this->subPage->doPreprocess();
 			return;
 		}
 
@@ -52,15 +65,15 @@ class Page_DozMod extends Page
 
 	protected function doRender()
 	{
+		$this->listDeletePendingImages();
+
 		/* different pages for different sections */
-		$section = Request::get('section', 'mailconfig', 'string');
-		if ($section == 'templates') {
-			$this->mail_templates->doRender();
+		if ($this->subPage !== false) {
+			$this->subPage->doRender();
 			return;
 		}
 
-
-		$this->listDeletePendingImages();
+		$section = Request::get('section', 'mailconfig', 'string');
 
 		if ($section === 'mailconfig') {
 			// Mail config
@@ -102,12 +115,23 @@ class Page_DozMod extends Page
 			}
 			Render::addTemplate('runtimeconfig', $runtimeConf);
 		}
-
-		// User list for making people admin
-		if ($section === 'users') {
-			$this->listUsers();
-			$this->listOrganizations();
+		if ($section === 'blockstats') {
+			$this->showBlockStats();
 		}
+
+	}
+
+	private function showBlockStats()
+	{
+		$res = Database::simpleQuery("SELECT blocksha1, blocksize, Count(*) AS blockcount FROM sat.imageblock"
+			. " GROUP BY blocksha1, blocksize HAVING blockcount > 1 ORDER BY blockcount DESC, blocksha1 ASC");
+		$data = array('hashes' => array());
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['hash_hex'] = bin2hex($row['blocksha1']);
+			$row['blocksize_s'] = Util::readableFileSize($row['blocksize']);
+			$data['hashes'][] = $row;
+		}
+		Render::addTemplate('blockstats', $data);
 	}
 
 	private function listDeletePendingImages()
@@ -159,19 +183,53 @@ class Page_DozMod extends Page
 
 	protected function doAjax()
 	{
+		User::load();
 		if (!User::hasPermission('superadmin'))
 			return;
+
+		$this->setupSubPage();
+		if ($this->subPage !== false) {
+			$this->subPage->doAjax();
+			return;
+		}
 
 		$action = Request::post('action');
 		if ($action === 'mail') {
 			$this->handleTestMail();
-		} elseif ($action === 'setmail' || $action === 'setsu' || $action == 'setlogin') {
-			$this->setUserOption($action);
-		} elseif ($action === 'setorglogin') {
-			$this->setOrgOption($action);
 		} elseif ($action === 'delimages') {
 			die($this->handleDeleteImages());
+		} elseif ($action === 'getblockinfo') {
+			$this->ajaxGetBlockInfo();
 		}
+	}
+
+	private function ajaxGetBlockInfo()
+	{
+		$hash = Request::any('hash', false, 'string');
+		$size = Request::any('size', false, 'string');
+		if ($hash === false || $size === false) {
+			die('Missing parameter');
+		}
+		if (!is_numeric($size) || strlen($hash) !== 40 || !preg_match('/^[a-f0-9]+$/i', $hash)) {
+			die('Malformed parameter');
+		}
+		$res = Database::simpleQuery("SELECT i.displayname, v.createtime, v.filesize, Count(*) AS blockcount FROM sat.imageblock ib"
+			. " INNER JOIN sat.imageversion v USING (imageversionid)"
+			. " INNER JOIN sat.imagebase i USING (imagebaseid)"
+			. " WHERE ib.blocksha1 = :hash AND ib.blocksize = :size"
+			. " GROUP BY ib.imageversionid"
+			. " ORDER BY i.displayname ASC, v.createtime ASC",
+			array('hash' => hex2bin($hash), 'size' => $size), true);
+		if ($res === false) {
+			die('Database error: ' . Database::lastError());
+		}
+		$data = array('rows' => array());
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['createtime_s'] = date('d.m.Y H:i', $row['createtime']);
+			$row['filesize_s'] = Util::readableFileSize($row['filesize']);
+			$data['rows'][] = $row;
+		}
+		die(Render::parse('blockstats-details', $data));
 	}
 
 	private function handleDeleteImages()
@@ -234,6 +292,8 @@ class Page_DozMod extends Page
 				'value' => $data
 			));
 			Message::addSuccess('mail-config-saved');
+		} else {
+			Message::addError('main.invalid-action', $do);
 		}
 		Util::redirect('?do=DozMod&section=mailconfig');
 	}
@@ -247,9 +307,14 @@ class Page_DozMod extends Page
 			$data['defaultLecturePermissions'] = Request::post('defaultLecturePermissions', NULL, "array");
 			$data['defaultImagePermissions'] = Request::post('defaultImagePermissions', NULL, "array");
 
-			foreach(['maxImageValidityDays', 'maxLectureValidityDays', 'maxTransfers'] as $field) {
-				$value = Request::post($field);
-				$data[$field] = $value;
+			$intParams = [
+				'maxImageValidityDays' => array('min' => 7, 'max' => 999),
+				'maxLectureValidityDays' => array('min' => 7, 'max' => 999),
+				'maxTransfers' => array('min' => 1, 'max' => 10),
+			];
+			foreach($intParams as $field => $limits) {
+				$value = Request::post($field, 0, 'int');
+				$data[$field] = max(min($value, $limits['max']), $limits['min']);
 			}
 
 			/* ensure types */
@@ -273,90 +338,6 @@ class Page_DozMod extends Page
 			Message::addSuccess('runtimelimits-config-saved');
 		}
 		Util::redirect('?do=DozMod&section=runtimeconfig');
-	}
-
-	private function listUsers()
-	{
-		$res = Database::simpleQuery('SELECT userid, firstname, lastname, email, lastlogin, user.canlogin, issuperuser, emailnotifications,'
-				. ' organization.displayname AS orgname FROM sat.user'
-				. ' LEFT JOIN sat.organization USING (organizationid)'
-				. ' ORDER BY lastname ASC, firstname ASC');
-		$rows = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['canlogin'] = $this->checked($row['canlogin']);
-			$row['issuperuser'] = $this->checked($row['issuperuser']);
-			$row['emailnotifications'] = $this->checked($row['emailnotifications']);
-			$row['lastlogin'] = date('d.m.Y', $row['lastlogin']);
-			$rows[] = $row;
-		}
-		Render::addTemplate('userlist', array('users' => $rows));
-	}
-
-	private function listOrganizations()
-	{
-		$res = Database::simpleQuery('SELECT organizationid, displayname, canlogin FROM sat.organization'
-				. ' ORDER BY displayname ASC');
-		$rows = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['canlogin'] = $this->checked($row['canlogin']);
-			$rows[] = $row;
-		}
-		Render::addTemplate('orglist', array('organizations' => $rows));
-	}
-
-	private function checked($val)
-	{
-		if ($val)
-			return 'checked="checked"';
-		return '';
-	}
-
-	private function setUserOption($option)
-	{
-		$val = (string) Request::post('value', '-');
-		if ($val !== '1' && $val !== '0')
-			die('Nein');
-		if ($option === 'setmail') {
-			$field = 'emailnotifications';
-		} elseif ($option === 'setsu') {
-			$field = 'issuperuser';
-		} elseif ($option === 'setlogin') {
-			$field = 'canlogin';
-		} else {
-			die('Unknown');
-		}
-		$user = (string) Request::post('userid', '?');
-		$ret = Database::exec("UPDATE sat.user SET $field = :onoff WHERE userid = :userid", array(
-				'userid' => $user,
-				'onoff' => $val
-		));
-		error_log("Setting $field to $val for $user - affected: $ret");
-		if ($ret === false)
-			die('Error');
-		if ($ret == 0)
-			die(1 - $val);
-		die($val);
-	}
-
-	private function setOrgOption($option)
-	{
-		$val = (string) Request::post('value', '-');
-		if ($val !== '1' && $val !== '0')
-			die('Nein');
-		if ($option === 'setorglogin') {
-			$field = 'canlogin';
-		} else {
-			die('Unknown');
-		}
-		$ret = Database::exec("UPDATE sat.organization SET $field = :onoff WHERE organizationid = :organizationid", array(
-				'organizationid' => (string) Request::post('organizationid', ''),
-				'onoff' => $val
-		));
-		if ($ret === false)
-			die('Error');
-		if ($ret === 0)
-			die(1 - $val);
-		die($val);
 	}
 
 }

@@ -46,7 +46,14 @@
 		"defaultvalue": "off",
 		"permissions": "2",
 		"validator": "list:off|on|auto",
-		"shadows": "off -> SLX_PROXY_PORT, off -> SLX_PROXY_TYPE, off -> SLX_PROXY_IP, off -> SLX_PROXY_BLACKLIST"
+		"shadows": {
+			"off": [
+				"SLX_PROXY_PORT",
+				"SLX_PROXY_TYPE",
+				"SLX_PROXY_IP",
+				"SLX_PROXY_BLACKLIST"
+			]
+		}
 	},
 	"SLX_PROXY_PORT": {
 		"catid": "networking",

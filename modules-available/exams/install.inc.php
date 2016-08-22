@@ -4,7 +4,7 @@ $res = array();
 
 $res[] = tableCreate('exams', '
 	 `examid` int(11) NOT NULL AUTO_INCREMENT,
-	 `lectureid` char(36) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL
+	 `lectureid` char(36) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,
 	 `starttime` int(11) NOT NULL,
 	 `endtime` int(11) NOT NULL,
 	 `description` varchar(500) DEFAULT NULL,

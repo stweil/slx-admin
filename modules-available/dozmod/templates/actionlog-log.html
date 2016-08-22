@@ -1,0 +1,41 @@
+<table class="table table-striped table-bordered">
+	<tr>
+		<th class="text-nowrap">{{lang_when}}</th>
+		{{#showActor}}
+		<th class="text-nowrap">{{lang_user}}</th>
+		{{/showActor}}
+		{{#showTarget}}
+		<th class="text-nowrap">{{lang_actionTarget}}</th>
+		{{/showTarget}}
+		<th class="text-nowrap">{{lang_event}}</th>
+	</tr>
+	{{#events}}
+	<tr>
+		<td>{{dateline_s}}</td>
+		{{#showActor}}
+		<td>
+			{{#uuserid}}
+			<a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{uuserid}}">{{ulastname}}, {{ufirstname}}</a>
+			{{/uuserid}}
+			{{^uuserid}}
+			{{lang_system}}
+			{{/uuserid}}
+		</td>
+		{{/showActor}}
+		{{#showTarget}}
+		<td>
+			{{#targeturl}}
+			<a href="{{targeturl}}">{{targetname}}</a>
+			{{/targeturl}}
+			{{^targeturl}}
+			{{targetname}}
+			{{^targetname}}
+			<span class="small">{{targetid}}</span>
+			{{/targetname}}
+			{{/targeturl}}
+		</td>
+		{{/showTarget}}
+		<td>{{description}}</td>
+	</tr>
+	{{/events}}
+</table>

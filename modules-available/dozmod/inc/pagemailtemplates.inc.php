@@ -7,19 +7,16 @@ class Page_mail_templates extends Page
 
 	protected function doPreprocess()
 	{
-		User::load();
-
-		if (!User::hasPermission('superadmin')) {
-			Message::addError('main.no-permission');
-			Util::redirect('?do=Main');
-		}
-
-		$action = Request::get('action', 'show', 'string');
-
+		$action = Request::post('action', 'show', 'string');
 		if ($action === 'show') {
 			$this->fetchTemplates();
 		} elseif ($action === 'save') {
 			$this->handleSave();
+		} elseif ($action === 'reset') {
+			$this->handleReset();
+		} else {
+			Message::addError('main.invalid-action', $action);
+			Util::redirect('?do=dozmod&section=templates');
 		}
 	}
 
@@ -54,32 +51,41 @@ class Page_mail_templates extends Page
 	}
 	protected function doRender()
 	{
-		//echo '<pre>';
-		//var_dump($this->templates);
-		//echo '</pre>';
-		//die();
 		$this->enrichHtml();
 		Render::addTemplate('templates', ['templates' => $this->templates]);
 	}
 
 	private function handleSave() {
-		$data = [];
-		$data['templates'] = Request::post('templates');
-		$data = $this->cleanTemplateArray($data);
-		if ($data!= NULL) {
-			$data = json_encode($data, JSON_PRETTY_PRINT);
-			//echo '<pre>';
-			//print_r($data);
-			//echo '</pre>';
-			//die();
+		$data = Request::post('templates');
+		if (is_array($data)) {
+			$this->fetchTemplates();
+			foreach ($this->templates as &$template) {
+				if (isset($data[$template['name']])) {
+					$template['template'] = $data[$template['name']]['template'];
+				}
+			}
+			unset($template);
+			$data = json_encode(array('templates' => $this->templates));
 			Database::exec("UPDATE sat.configuration SET value = :value WHERE parameter = 'templates'", array('value' => $data));
 			Message::addSuccess('templates-saved');
 
-			Util::redirect('?do=dozmod&section=templates&action=show');
 		} else {
-			die('error while encoding');
+			Message::addError('nothing-submitted');
 		}
+		Util::redirect('?do=dozmod&section=templates');
+	}
 
+	private function handleReset()
+	{
+		$result = Download::asStringPost('http://127.0.0.1:9080/do/reset-mail-templates', array(), 10, $code);
+		if ($code == 999) {
+			Message::addError('timeout');
+		} elseif ($code != 200) {
+			Message::addError('dozmod-error', $code);
+		} else {
+			Message::addSuccess('all-templates-reset', $result);
+		}
+		Util::redirect('?do=dozmod&section=templates');
 	}
 
 	private function fetchTemplates() {
@@ -87,33 +93,12 @@ class Page_mail_templates extends Page
 		if ($templates != null) {
 			$templates = @json_decode($templates['value'], true);
 			if (is_array($templates)) {
+				$names = array_map(function ($e) { return $e['name']; }, $templates['templates']);
+				array_multisort($names, SORT_ASC, $templates['templates']);
 				$this->templates = $templates['templates'];
 			}
 		}
 
 	}
 
-	private function cleanTemplateArray($in) {
-		$out = [];
-		foreach ($in['templates'] as $t) {
-			$tcopy = $t;
-			$tcopy['mandatory_variables'] = $this->toArray($t['mandatory_variables']);
-			$tcopy['optional_variables'] = $this->toArray($t['optional_variables']);
-			$tcopy['description'] = $t['description'];
-			$tcopy['name'] = $t['name'];
-
-			$out['templates'][] = $tcopy;
-		}
-		return $out;
-	}
-
-	private function toArray($value) {
-		if (empty($value)) {
-			return [];
-		} else if(is_array($value)) {
-			return $value;
-		} else {
-			return array($value);
-		}
-	}
 }

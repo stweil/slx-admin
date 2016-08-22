@@ -11,15 +11,15 @@
 				<table id="modtable" class="slx-table" style="max-width:100px !important">
 					{{#modules}}
 					<tr>
-						<td class="badge slx-nowrap">{{moduleType}}</td>
-						<td data-id="{{id}}" class="modrow slx-width-ignore slx-nowrap" width="100%"><div class="slx-dyn-ellipsis">{{title}}</div></td>
-						<td class="slx-nowrap">
+						<td class="badge text-nowrap">{{moduleType}}</td>
+						<td data-id="{{id}}" class="modrow slx-width-ignore text-nowrap" width="100%"><div class="slx-dyn-ellipsis">{{title}}</div></td>
+						<td class="text-nowrap">
 							{{#allowDownload}}
 							<button class="btn btn-default btn-xs" name="list" value="{{id}}" title="{{lang_show}}"><span class="glyphicon glyphicon-eye-open"></span></button>
 							<button class="btn btn-default btn-xs" name="download" value="{{id}}" title="{{lang_download}}"><span class="glyphicon glyphicon-download-alt"></span></button>
 							{{/allowDownload}}
 						</td>
-						<td class="slx-nowrap">
+						<td class="text-nowrap">
 							<button
 									{{#needRebuild}}
 									class="refmod btn btn-primary btn-xs"

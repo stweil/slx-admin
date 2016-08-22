@@ -9,10 +9,10 @@
 			<th>
 				{{#havestatistics}}{{lang_machineCount}}{{/havestatistics}}
 			</th>
-			<th class="slx-nowrap">
+			<th class="text-nowrap">
 				{{#havebaseconfig}}{{lang_editConfigVariables}}{{/havebaseconfig}}
 			</th>
-			<th class="slx-nowrap">
+			<th class="text-nowrap">
 				{{#havesysconfig}}{{lang_sysConfig}}{{/havesysconfig}}
 			</th>
 		</tr>
@@ -22,13 +22,13 @@
 					<div style="display:inline-block;width:{{depth}}em"></div>
 					<a href="#" onclick="slxOpenLocation(this, {{locationid}})">{{locationname}} <b class="caret"></b></a>
 				</td>
-				<td class="slx-nowrap" align="right">
+				<td class="text-nowrap" align="right">
 					{{#havestatistics}}
 					{{clientCount}}
 					<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}"><span class="glyphicon glyphicon-eye-open"></span></a>
 					{{/havestatistics}}
 				</td>
-				<td class="slx-nowrap">
+				<td class="text-nowrap">
 					{{#havebaseconfig}}
 					<div class="pull-right" style="z-index:-1">
 						<a class="btn btn-default btn-xs" href="?do=baseconfig&amp;module=locations&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
@@ -38,7 +38,7 @@
 					{{/overriddenVars}}
 					{{/havebaseconfig}}
 				</td>
-				<td class="slx-nowrap">
+				<td class="text-nowrap">
 					{{#havesysconfig}}
 					<div class="pull-right">
 						<a class="btn btn-default btn-xs" href="?do=sysconfig&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
@@ -53,7 +53,7 @@
 		{{#unassignedCount}}
 		<tr>
 			<td>{{lang_unassignedMachines}}</td>
-			<td class="slx-nowrap" align="right">
+			<td class="text-nowrap" align="right">
 				{{unassignedCount}}
 				<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location=0">
 					<span class="glyphicon glyphicon-eye-open"></span>

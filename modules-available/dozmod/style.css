@@ -1,9 +1,3 @@
-
-
-input[type=checkbox] {
-    border: 2px solid green !important;
-}
-
 /* this is based on https://github.com/flatlogic/awesome-bootstrap-checkbox */
 
 .checkbox {
@@ -47,6 +41,7 @@ input[type=checkbox] {
 .checkbox input[type="radio"] {
   opacity: 0;
   z-index: 1;
+  top: -6px;
 }
 
 
@@ -58,18 +53,44 @@ input[type=checkbox] {
 }
 .checkbox input[type="checkbox"]:checked + label::after,
 .checkbox input[type="radio"]:checked + label::after {
-  font-family: "FontAwesome";
-  content: "\f00c";
+  font-family: "Glyphicons Halflings";
+  content: "\E013";
 }
 
+.witherror {
+  border: 1px solid red;
+}
 
-input[type="checkbox"].styled:checked + label:after {
-  font-family: 'FontAwesome';
-  content: "\f00c";
+/*
+.table-input-group tr:first-child {
+  background: #EEEEEE url("./style/bg.png");
+  border-style: solid none solid solid;
+  border-radius: 4px 0px 0px 4px;
+  border-color: #CCCCCC #555555 #CCCCCC #CCCCCC;
+  border-width: 1px 0px 1px 1px;
+  color: #555555;
 }
-input[type="checkbox"] .styled:checked + label::before {
-  color: #fff;
+*/
+
+.table-input-group {
+  border-collapse: separate;
 }
-input[type="checkbox"] .styled:checked + label::after {
-  color: #fff;
+
+.table-input-group tr.input-group {
+  display: table-row;
+  width: auto;
+  border-collapse: separate;
+}
+
+.table-input-group tr.input-group td.input-group-addon {
+  text-align: left;
+  border-collapse: separate;
+}
+
+.table-input-group tr.input-group input.form-control {
+  width: auto;
+}
+
+.table-input-group tr.input-group td:last-child input {
+  border-radius: 0px 4px 4px 0px;
 }

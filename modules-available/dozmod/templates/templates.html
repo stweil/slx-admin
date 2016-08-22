@@ -1,15 +1,18 @@
-<h1> Templates</h1>
+<h1>{{lang_mailTemplates}}</h1>
 
-<form id="templateForm" role="form" method="POST" action="?do=dozmod&section=templates&action=save">
+<p><i>{{lang_templatePageDescription}}</i></p>
+
+<form id="templateForm" role="form" method="POST" action="?do=dozmod&amp;section=templates">
 	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="save">
 
 
 	<div class="panel-group" id="accordion">
 
 	{{#templates}}
 
-	<div class="panel panel-default">
-		<div id="heading_{{name}}" class="panel-heading">
+	<div id="frame_{{name}}" class="panel panel-default">
+		<div class="panel-heading">
 			<div class="panel-title">
 				<h4>
 					<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#panel_{{name}}">
@@ -24,21 +27,26 @@
 			<div class="panel-body">
 				<div id="msgbox_{{name}}">
 				</div>
+				<!--
 				<label for="n_{{name}}">{{lang_name}}</label>
-				<input name="templates[{{name}}][name]" value="{{name}}" class="form-control"/>
+				<div class="form-group">
+					<input id="n_{{name}}" name="templates[{{name}}][name]" value="{{name}}" class="form-control"/>
+				</div>
 
-				<label for="n_{{description}}">{{lang_description}}</label>
-				<input name="templates[{{name}}][description]" value="{{description}}" class="form-control"/>
-
-
+				<label for="d_{{name}}">{{lang_description}}</label>
+				<div class="form-group">
+					<input id="d_{{name}}" name="templates[{{name}}][description]" value="{{description}}" class="form-control"/>
+				</div>
+				-->
 
 				<label for="ta_{{name}}">{{lang_template}}</label>
-				<br/>
-				<textarea data-mandatory="{{list_mandatoryVariables}}" name="templates[{{name}}][template]" data-setting="{{name}}" id="ta_{{name}}"
-																								class="form-control templateEditor" style="min-height:200px"
-															>{{template}}</textarea>
+				<div class="form-group">
+					<textarea data-mandatory="{{list_mandatoryVariables}}" name="templates[{{name}}][template]"
+								 data-setting="{{name}}" id="ta_{{name}}"
+								 class="form-control templateEditor" style="min-height:200px">{{template}}</textarea>
+				</div>
 
-				<h3>{{lang_placeholders}}</h3>
+				<h4>{{lang_placeholders}}</h4>
 				<select name="templates[{{name}}][mandatory_variables]" multiple="multiple" class="hidden">
 					{{{html_mandatoryVariables}}}
 				</select>
@@ -56,16 +64,25 @@
 	{{/templates}}
 	</div>
 
-	<div class="btn-group">
-		<button type="button" onclick="sendForm()" class="btn btn-primary">{{lang_save}}</button>
+	<div class="pull-left">
+		<button type="submit" onclick="return validateForm()" class="btn btn-primary">{{lang_save}}</button>
 	</div>
 </form>
+<form method="POST" action="?do=dozmod&amp;section=templates">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="reset">
+	<div>
+		<button type="submit" onclick="return confirm('{{lang_reallyResetTemplates}}')" class="btn btn-danger">{{lang_loadDefaults}}</button>
+	</div>
+</form>
+<div class="clearfix"></div>
 <script type="application/javascript"><!--
 
 
 /* check that all necessary placeholders are used */
 function validateForm() {
 	var ok = true;
+	var $toppest = false;
 
 	$('.templateEditor').each(function (i, editor) {
 
@@ -76,7 +93,7 @@ function validateForm() {
 
 
 		/* ? */
-		if (mandatory.length == 1 && mandatory[0] == "") {
+		if (mandatory.length === 1 && mandatory[0] === "") {
 			mandatory = [];
 		}
 
@@ -87,54 +104,36 @@ function validateForm() {
 				missing.push(v);
 			}
 		});
-		console.log("missing are");
-		console.log(missing);
 
 		var $msgBox = $("#msgbox_" + setting);
-		var $panel = $("#panel_" + setting);
-		var $header = $("#heading_" + setting);
-
+		var $frame = $("#frame_" + setting);
 
 		if (missing.length > 0) {
 			/* add errors */
 			var missingL = missing.join(", ");
-			var msg="<strong>Fehler:</strong> Folgende wichtige Platzhalter wurden nicht verwendet: " +missingL;
-			console.log("msg box has " + $msgBox.size());
+			var msg="<strong>{{lang_error}}:</strong> {{lang_followingPlaceholdersUnused}}: " +missingL;
 			$msgBox.html('<div class="alert alert-danger">' + msg + '</div>');
-			$panel.addClass('witherror');
-			$header.addClass('witherror');
+			$frame.addClass('witherror');
+			if ($toppest === false || $toppest.offset().top > $frame.offset().top) {
+				$toppest = $frame;
+			}
 			/* overall result */
 			ok = false;
 		} else {
 			$msgBox.html("");
-			$panel.removeClass('witherror');
-			$header.removeClass('witherror');
+			$frame.removeClass('witherror');
 		}
 
 
 	});
+	if ($toppest !== false) {
+		$toppest[0].scrollIntoView();
+	}
 	return ok;
 }
 
-function submitForm() {
-	console.log('sending form');
-	$('#templateForm').submit();
-}
-
-
-function sendForm() {
-	var ok = validateForm();
-	if (ok) {
-		console.log("is ok");
-		submitForm();
-	} else {
-		console.log("form is not ok");
-	}
-}
-
 document.addEventListener("DOMContentLoaded", function () {
-
-
-
+	validateForm(); // Do once in case invalid templates are in DB
 });
-</script>
+
+//--></script>

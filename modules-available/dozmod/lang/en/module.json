@@ -1,3 +1,9 @@
 {
-    "module_name": "Tutor Module"
+    "module_name": "bwLehrpool-Suite",
+    "page_title": "Manage the bwLehrpool-Suite",
+    "submenu_actionlog": "action log",
+    "submenu_mailconfig": "email configuration",
+    "submenu_runtime": "limits and defaults",
+    "submenu_templates": "templates",
+    "submenu_users": "users and permissions"
 }

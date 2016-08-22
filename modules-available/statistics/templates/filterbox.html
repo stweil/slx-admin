@@ -29,7 +29,8 @@
 <div style="height:120px" class="col-xs-12">
 	<!-- use GET here, to avoid the "resend form?" confirmation, and anyway this is stateless, so GET makes more sense -->
 	<form id="queryForm" method="GET" action="?do=Statistics" class="" role="form">
-		<input type="hidden" name="do" value="Statistics"/>
+		<input type="hidden" name="do" value="statistics">
+		<input type="hidden" name="show" value="{{show}}">
 		<label for="filterInput">{{lang_labelFilter}}</label>
 		<input type="text" name="filters" class="" id="filterInput"/>
 		<input type="hidden" name="sortColumn" id="sortColumn" value="{{sortColumn}}"/>
@@ -115,6 +116,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	var str = "{{{query}}}";
 	var eExp = /^(\w+)\s*([=><!~]+)\s*(.*)$/;
 	str.split(slxFilterDel).forEach(function(v) {
+		if (v.trim().length === 0)
+			return;
 		var match = eExp.exec(v);
 		if (match && match.length === 4) {
 			addFilter(match[1], match[2], match[3]);
@@ -156,8 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
-	initButtons();
-
 	$('.filter-col').each(function(idx, elem) {
 		var e = $(elem);
 		var col = e.data('filter-col');
@@ -175,41 +176,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 }, false);
-
-
-function initButtons() {
-	['gbram', 'hddgb', 'realcores', 'kvmstate', 'lastseen', 'clientip'].forEach(function (v) {
-		var $sortBtn = $('#sortButton-' + v);
-		var order = 'up'; /* default */
-		if ($('#sortColumn').val() == v) {
-			$sortBtn.addClass('btn-success');
-			order = $('#sortDirection').val() == 'ASC' ? 'up' : 'down';
-		}
-		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
-		$sortBtn.attr('onclick', 'toggleButton(\'' + v + '\');');
-	});
-}
-
-function toggleButton(v) {
-	var $sortBtn = $('#sortButton-' + v);
-	var $col = $('#sortColumn');
-	var $dir = $('#sortDirection');
-	if ($col.val() == v) {
-		/* toggle direction */
-		var newDir = $dir.val() == 'ASC' ? 'DESC' : 'ASC';
-		$dir.val(newDir);
-		/* update button */
-		var order =  newDir == 'ASC' ? 'up' : 'down';
-		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
-	} else {
-		/* remove "btn-success" from current sorting */
-		$('#sortButton-'+v).removeClass('btn-success');
-		$sortBtn.addClass('btn-success');
-		$col.val(v);
-		$dir = 'ASC';
-	}
-	refresh();
-}
 
 function popupFilter(field) {
 		if (field != null) {
@@ -258,7 +224,6 @@ function myOpSort(a,b) {
 }
 
 function refresh() {
-	console.log('refresh');
 	$queryForm.submit(); /* TODO: use AJAX */
 }
 // --></script>

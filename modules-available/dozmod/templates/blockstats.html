@@ -1,0 +1,33 @@
+<table class="table table-condensed table-striped" style="width: auto">
+	<tr>
+		<th>{{lang_hash}}</th>
+		<th>{{lang_size}}</th>
+		<th>{{lang_count}}</th>
+	</tr>
+	{{#hashes}}
+	<tr>
+		<td>{{hash_hex}}</td>
+		<td>{{blocksize_s}}</td>
+		<td>{{blockcount}} <button class="btn btn-xs btn-default" onclick="slxLoadBlocks('{{hash_hex}}', '{{blocksize}}')"><span class="glyphicon glyphicon-eye-open"></span></button></td>
+	</tr>
+	{{/hashes}}
+</table>
+
+<div class="modal fade" id="block-details" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header"></div>
+			<div class="modal-body"></div>
+			<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
+		</div>
+	</div>
+</div>
+
+<script type="application/javascript"><!--
+function slxLoadBlocks(hash, size) {
+	$('#block-details .modal-header').text(hash + '/' + size);
+	$('#block-details .modal-body').html('<div class="slx-rotation"><span class="glyphicon glyphicon-refresh"></span></div>');
+	$('#block-details').modal('show');
+	$('#block-details .modal-body').load('?do=dozmod&section=blockstats', { token: TOKEN, action: 'getblockinfo', hash: hash, size: size });
+}
+//--></script>

@@ -99,18 +99,66 @@ function xmlToLectureIds($responseXML)
 	return $uuids;
 }
 
+function sendExamModeMismatch()
+{
+	Header('Content-Type: text/xml; charset=utf-8');
+	echo
+	<<<BLA
+	<settings>
+		<eintrag>
+			<image_name param="null"/>
+			<priority param="100"/>
+			<creator param="Ernie Esslingen"/>
+			<short_description param="Klausurmodus geändert, bitte PC neustarten"/>
+			<long_description param="Der Klausurmodus wurde ein- oder ausgeschaltet, bitte starten Sie den PC neu"/>
+			<uuid param="exam-mode-warning"/>
+			<virtualmachine param="exam-mode-warning"/>
+			<os param="debian8"/>
+			<virtualizer_name param="null"/>
+			<os_name param="null"/>
+			<for_location param="0"/>
+			<is_template param="0"/>
+		</eintrag>
+		<eintrag>
+			<image_name param="null"/>
+			<priority param="200"/>
+			<creator param="Ernie Esslingen"/>
+			<short_description param="Exam mode changed, please reboot PC"/>
+			<long_description param="Exam mode has been activated or deactivated since this PC was booted; please reboot the PC"/>
+			<uuid param="exam-mode-warning"/>
+			<virtualmachine param="exam-mode-warning"/>
+			<os param="debian8"/>
+			<virtualizer_name param="null"/>
+			<os_name param="null"/>
+			<for_location param="0"/>
+			<is_template param="0"/>
+		</eintrag>
+	</settings>
+BLA;
+	exit(0);
+}
+
 /** Caching wrapper around _getLecturesForLocations() */
 function getListForLocations($locationIds, $raw)
 {
 	/* if in any of the locations there is an exam active, consider the client
 		 to be in "exam-mode" and only offer him exams (no lectures) */
 	$key = 'lectures_' . cache_hash($locationIds);
-	$examMode = false;
+	$examMode = Request::get('exams', 'normal-mode', 'string') !== 'normal-mode';
+	$clientServerMismatch = false;
 	if (Module::isAvailable('exams')) {
-		$examMode = Exams::isInExamMode($locationIds);
-		if ($examMode) {
-			$key .= '_exams';
-		}
+		// If we have the exam mode module, we can enforce a server side check and make sure it agrees with the client
+		$serverExamMode = Exams::isInExamMode($locationIds);
+		$clientServerMismatch = ($serverExamMode !== $examMode);
+		$examMode = $serverExamMode;
+	}
+	// Only enforce exam mode validity check if the client requests the raw xml data
+	if ($raw && $clientServerMismatch) {
+		sendExamModeMismatch(); // does not return
+	}
+	// Proceed normally from here on
+	if ($examMode) {
+		$key .= '_exams';
 	}
 	$rawKey = $key . '_raw';
 	if ($raw) {
@@ -189,7 +237,7 @@ function outputNetrules($lecture_uuid)
 
 function outputRunscript($lecture_uuid)
 {
-	$key = 'netrules_' . $lecture_uuid;
+	$key = 'runscript_' . $lecture_uuid;
 	if (cache_has($key)) {
 		cache_get_passthru($key);
 	} else {

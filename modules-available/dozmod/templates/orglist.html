@@ -16,7 +16,7 @@
 				<tbody>
 					{{#organizations}}
 					<tr>
-						<td class="text-left slx-nowrap">{{displayname}}</td>
+						<td class="text-left text-nowrap">{{displayname}}</td>
 						<td class="text-nowrap">
 							<input onclick="seto('setorglogin', this, '{{organizationid}}')" type="checkbox" {{{canlogin}}}>
 						</td>
@@ -35,33 +35,35 @@ function seto(action, el, orgid) {
 	var v = el.checked ? '1' : '0';
 	var old = el.checked == true;
 	box.css('display', 'none');
-	$.post('?do=DozMod', { token: TOKEN, action: action, organizationid: orgid, value: v }).done(function (data) {
-		if (data != 1 && data != 0) {
+	$.post('?do=DozMod', { token: TOKEN, section: 'users', action: action, organizationid: orgid, value: v }).done(function (data) {
+
+		if (data !== '1' && data !== '0') {
 			el.checked = !old;
 			box.parent().css('background-color', 'red !important');
 		} else {
 			el.checked = (data == 1);
+			box.parent().css('background-color', '');
+			/* show success notification */
+			$notification = $('<span></span>')
+					.addClass('glyphicon glyphicon-saved')
+					.css('color', '#2ecc71')
+					.css('width', '0px')
+					.css('position', 'relative')
+					.css('right', '20px')
+					.hide();
+			box.before($notification);
+			$notification.fadeIn('fast', function () {
+				$notification.fadeOut('slow', function () { $notification.remove() });
+			});
 		}
 		box.css('display', '');
 
-		/* show success notification */
-		$notification = $('<span></span>')
-			.addClass('glyphicon glyphicon-saved')
-			.css('color', '#2ecc71')
-			.css('width', '0px')
-			.css('position', 'relative')
-			.css('right', '20px')
-			.hide();
-		box.before($notification);
-		$notification.fadeIn('slow', function () {$notification.fadeOut('fast');});
-
-
-
-
 	}).fail(function() {
+
 		el.checked = !old;
 		box.parent().css('background-color', 'red !important');
 		box.css('display', '');
+
 	});
 }
 

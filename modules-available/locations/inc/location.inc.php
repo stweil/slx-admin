@@ -362,8 +362,7 @@ class Location
 
 	private static function overlap($net1, $net2)
 	{
-		return ($net1['startaddr'] >= $net2['startaddr'] && $net1['startaddr'] <= $net2['endaddr'])
-		|| ($net1['endaddr'] >= $net2['startaddr'] && $net1['endaddr'] <= $net2['endaddr']);
+		return ($net1['startaddr'] <= $net2['endaddr'] && $net1['endaddr'] >= $net2['startaddr']);
 	}
 
 }

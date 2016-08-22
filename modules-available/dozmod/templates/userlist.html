@@ -22,10 +22,10 @@
 				<tbody>
 					{{#users}}
 					<tr>
-						<td class="text-left slx-nowrap">{{lastname}}, {{firstname}}</td>
-						<td class="text-left slx-nowrap">{{orgname}}</td>
-						<td class="text-left slx-nowrap">{{lastlogin}}</td>
-						<td class="text-left slx-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>
+						<td class="text-left text-nowrap"><a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{userid}}">{{lastname}}, {{firstname}}</a></td>
+						<td class="text-left text-nowrap">{{orgname}}</td>
+						<td class="text-left text-nowrap">{{lastlogin}}</td>
+						<td class="text-left text-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>
 						<td><input onclick="setu('setmail', this, '{{userid}}')" type="checkbox" {{{emailnotifications}}}></td>
 						<td><input onclick="setu('setsu', this, '{{userid}}')" type="checkbox" {{{issuperuser}}}></td>
 						<td><input onclick="setu('setlogin', this, '{{userid}}')" type="checkbox" {{{canlogin}}}></td>
@@ -44,29 +44,35 @@ function setu(action, el, uid) {
 	var v = el.checked ? '1' : '0';
 	var old = el.checked == true;
 	box.css('display', 'none');
-	$.post('?do=DozMod', { token: TOKEN, action: action, userid: uid, value: v }).done(function (data) {
-		if (data != 1 && data != 0) {
+	$.post('?do=DozMod', { token: TOKEN, section: 'users', action: action, userid: uid, value: v }).done(function (data) {
+
+		if (data !== '1' && data !== '0') {
 			el.checked = !old;
 			box.parent().css('background-color', 'red !important');
 		} else {
 			el.checked = (data == 1);
+			box.parent().css('background-color', '');
+			/* show success notification */
+			$notification = $('<span></span>')
+					.addClass('glyphicon glyphicon-saved')
+					.css('color', '#2ecc71')
+					.css('width', '0px')
+					.css('position', 'relative')
+					.css('right', '20px')
+					.hide();
+			box.before($notification);
+			$notification.fadeIn('fast', function () {
+				$notification.fadeOut('slow', function () { $notification.remove() });
+			});
 		}
-		/* show success notification */
-		$notification = $('<span></span>')
-			.addClass('glyphicon glyphicon-saved')
-			.css('color', '#2ecc71')
-			.css('width', '0px')
-			.css('position', 'relative')
-			.css('right', '20px')
-			.hide();
-		box.before($notification);
-		$notification.fadeIn('slow', function () {$notification.fadeOut('fast');});
-
 		box.css('display', '');
+
 	}).fail(function() {
+
 		el.checked = !old;
 		box.parent().css('background-color', 'red !important');
 		box.css('display', '');
+
 	});
 }
 

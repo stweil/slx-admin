@@ -58,7 +58,7 @@
 	</tr>
 	{{#rows}}
 	<tr>
-		<td class="slx-nowrap">
+		<td class="text-nowrap">
 			{{#hasnotes}}<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>{{/hasnotes}}
 			{{#state_off}}
 			<span class="glyphicon glyphicon-off" title="{{lang_machineOff}}"></span>
@@ -87,3 +87,40 @@
 	</tr>
 	{{/rows}}
 </table>
+
+<script type="application/javascript"><!--
+document.addEventListener("DOMContentLoaded", function () {
+	['gbram', 'hddgb', 'realcores', 'kvmstate', 'lastseen', 'clientip'].forEach(function (v) {
+		var $sortBtn = $('#sortButton-' + v);
+		var order = 'up'; /* default */
+		if ($('#sortColumn').val() == v) {
+			$sortBtn.addClass('btn-success');
+			order = $('#sortDirection').val() == 'ASC' ? 'up' : 'down';
+		}
+		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
+		$sortBtn.attr('onclick', 'toggleButton(\'' + v + '\');');
+	});
+});
+
+function toggleButton(v) {
+	var $sortBtn = $('#sortButton-' + v);
+	var $col = $('#sortColumn');
+	var $dir = $('#sortDirection');
+	if ($col.val() == v) {
+		/* toggle direction */
+		var newDir = $dir.val() == 'ASC' ? 'DESC' : 'ASC';
+		$dir.val(newDir);
+		/* update button */
+		var order =  newDir == 'ASC' ? 'up' : 'down';
+		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
+	} else {
+		/* remove "btn-success" from current sorting */
+		$('#sortButton-'+v).removeClass('btn-success');
+		$sortBtn.addClass('btn-success');
+		$col.val(v);
+		$dir = 'ASC';
+	}
+	$queryForm.submit();
+}
+
+//--></script>

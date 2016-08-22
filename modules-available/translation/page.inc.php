@@ -474,7 +474,7 @@ class Page_Translation extends Page
 		if ($module === false) {
 			$module = $this->module;
 		}
-		$tags = $this->loadTagsFromPhp('/Dictionary\s*::\s*translate\s*\(\s*[\'"](?<tag>[^\'"\.]*)[\'"]\s*\)/i',
+		$tags = $this->loadTagsFromPhp('/Dictionary\s*::\s*translate\s*\(\s*[\'"](?<tag>[^\'"\.]*)[\'"]\s*[\),]/i',
 			$this->getModulePhpFiles($module));
 		foreach ($tags as &$tag) {
 			$tag = true;

@@ -49,14 +49,16 @@ class Page_BaseConfig extends Page
 					Util::redirect('?do=BaseConfig');
 				}
 			}
-			//echo "<pre>";
-			//var_dump($_POST);
-			//echo "</pre>";
 			// Honor override/enabled checkbox
 			$override = Request::post('override', array());
 			// Load all existing config options to validate input
 			$vars = BaseConfigUtil::getVariables();
+			// First, handle shadowing so we don't create warnings for empty fields
+			BaseConfigUtil::markShadowedVars($vars, $newValues);
+			// Validate input
 			foreach ($vars as $key => $var) {
+				if (isset($var['shadowed']))
+					continue;
 				if ($this->targetModule === false) {
 					// Global mode
 					$params['enabled'] = (is_array($override) && isset($override[$key]) && $override[$key] === 'on') ? 1 : 0;
@@ -103,7 +105,7 @@ class Page_BaseConfig extends Page
 		foreach ($this->categories as $catid => $val) {
 			Dashboard::addSubmenu(
 				'#category_' . $catid,
-				Dictionary::translateFileModule($this->categories[$catid]['module'], 'config-variable-categories', $catid)
+				Dictionary::translateFileModule($this->categories[$catid]['module'], 'config-variable-categories', $catid, true)
 			);
 		}
 	}
@@ -180,12 +182,13 @@ class Page_BaseConfig extends Page
 			//echo "</pre>";
 			$settings[$var['catid']]['settings'][$key] += array(
 				'item' => $this->makeInput(
-										$var['validator'],
-										$key,
-										$settings[$var['catid']]['settings'][$key]['displayvalue'],
-									   	$settings[$var['catid']]['settings'][$key]['shadows']
-			),
-				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key))
+					$var['validator'],
+					$key,
+					$settings[$var['catid']]['settings'][$key]['displayvalue'],
+					$settings[$var['catid']]['settings'][$key]['shadows']
+				),
+				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key)),
+				'setting' => $key,
 			);
 		}
 		//die();
@@ -264,10 +267,9 @@ class Page_BaseConfig extends Page
 	private function makeInput($validator, $setting, $current, $shadows)
 	{
 		/* for the html snippet we need: */
-		$tag = 'input';
-		$args = array('type' => 'text', 'class' => 'form-control', 'name' => "setting[$setting]", 'id' => $setting);
+		$args = array('class' => 'form-control', 'name' => "setting[$setting]", 'id' => $setting);
 		if (!empty($shadows)) {
-			$args['data-shadows'] = $shadows;
+			$args['data-shadows'] = json_encode($shadows);
 		}
 		$inner = "";
 		/* -- */
@@ -308,17 +310,20 @@ class Page_BaseConfig extends Page
 			$tag = 'select';
 			unset($args['type']);
 			$current = '';
+		} else {
+			// Everything else is a text input for now
+			$tag = 'input';
+			$args['value'] = $current;
+			$args['type'] = 'text';
+			/* Password field guessing */
+			if (stripos($validator, 'password') !== false) {
+				$args['type'] = Property::getPasswordFieldType();
+			}
 		}
 
 		/* multiinput: enter multiple free-form strings*/
 		if ($validator === 'multiinput') {
 			$args['class'] .= " multiinput";
-			$args['value'] = $current;
-		}
-
-		/* Password field guessing */
-		if (stripos($validator, 'password') !== false) {
-			$args['type'] = Property::getPasswordFieldType();
 		}
 
 		$output = "<$tag ";
