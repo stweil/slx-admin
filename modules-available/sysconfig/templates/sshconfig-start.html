@@ -22,6 +22,11 @@
 		<input class="form-control" type="text" name="listenPort" value="{{listenPort}}" id="port" pattern="\d+">
 		<i>{{lang_listenPortInfo}}</i>
 	</div>
-	<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	<div class="btn-group">
+		<a class="btn btn-default" href="?do=SysConfig&action=addmodule">{{lang_back}}</a>
+	</div>
+	<div class="btn-group pull-right">
+		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	</div>
 </form>
 
