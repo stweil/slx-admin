@@ -135,5 +135,8 @@ function selectMachine(usedUuids, callback) {
     currentCallback = callback;
     placedMachines =  usedUuids;
     $modal.modal('show');
+    $modal.one('hidden.bs.modal', function () {
+        currentCallback(false);
+    });
 }
 

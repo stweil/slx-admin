@@ -29,7 +29,7 @@ body.full #drawpanel {
 	bottom: 5px;
 	right: 30px;
 	width: 15%;
-	z-index: 10000;}
+	}
 
 #scaleslider {
 	position:relative;}

@@ -30,7 +30,6 @@
 	<!-- use GET here, to avoid the "resend form?" confirmation, and anyway this is stateless, so GET makes more sense -->
 	<form id="queryForm" method="GET" action="?do=Statistics" class="" role="form">
 		<input type="hidden" name="do" value="statistics">
-		<input type="hidden" name="show" value="{{show}}">
 		<label for="filterInput">{{lang_labelFilter}}</label>
 		<input type="text" name="filters" class="" id="filterInput"/>
 		<input type="hidden" name="sortColumn" id="sortColumn" value="{{sortColumn}}"/>
@@ -50,6 +49,7 @@
 				{{lang_showList}}
 			</button>
 		</div>
+		<input type="hidden" name="show" value="{{show}}">
 	</form>
 	<br/>
 	<br/>
