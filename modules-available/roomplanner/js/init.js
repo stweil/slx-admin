@@ -6,7 +6,7 @@ function initRoomplanner() {
 
 	/* make it fullscreen, otherwise there are too many positioning bugs */
 	$('.sidebar-bg, .navbar').hide();
-	$('#mainpage').css('position', 'static').css('width', '100%').css('left', '0px');
+	$('#mainpage').css('position', 'static').css('width', '100%').css('max-width', '100%').css('left', '0px');
 
 
 	$('#drawarea').css('top',(-roomplanner.settings.scale*10)+'px');

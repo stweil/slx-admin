@@ -123,6 +123,7 @@ function onBtnSelect() {
         var result = {muuid: value.machineuuid, ip: value.clientip, mac_address : value.macaddr, hostname: value.hostname};
 
         currentCallback(result);
+        currentCallback = null;
 
         $modal.modal('hide');
         clearSubnetBox();
@@ -136,7 +137,9 @@ function selectMachine(usedUuids, callback) {
     placedMachines =  usedUuids;
     $modal.modal('show');
     $modal.one('hidden.bs.modal', function () {
-        currentCallback(false);
+        if (currentCallback != null) {
+            currentCallback(false);
+        }
     });
 }
 
