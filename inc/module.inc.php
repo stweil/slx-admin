@@ -175,7 +175,7 @@ class Module
 	public function activate($depth = 1)
 	{
 		if ($this->activated !== false || $this->depsMissing)
-			return;
+			return $this->activated !== false;
 		$this->activated = $depth;
 		spl_autoload_register(function($class) {
 			$file = 'modules/' . $this->name . '/inc/' . preg_replace('/[^a-z0-9]/', '', strtolower($class)) . '.inc.php';
@@ -189,6 +189,7 @@ class Module
 				$get->activate($depth + 1);
 			}
 		}
+		return true;
 	}
 
 	public function getDependencies()

@@ -18,8 +18,9 @@ $HANDLER['subsections'] = array(
  * Configuration categories
  */
 $HANDLER['grep_config-variable-categories'] = function($module) {
-	$module->activate();
-	$want = BaseConfigUtil::getCategories();
+	if (!$module->activate())
+		return array();
+	$want = BaseConfigUtil::getCategories($module);
 	foreach ($want as &$entry) {
 		$entry = true;
 	}
@@ -30,8 +31,9 @@ $HANDLER['grep_config-variable-categories'] = function($module) {
  * Configuration variables
  */
 $HANDLER['grep_config-variables'] = function($module) {
-	$module->activate();
-	$want = BaseConfigUtil::getVariables();
+	if (!$module->activate())
+		return array();
+	$want = BaseConfigUtil::getVariables($module);
 	foreach ($want as &$entry) {
 		$entry = true;
 	}

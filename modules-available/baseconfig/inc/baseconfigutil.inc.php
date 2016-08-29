@@ -13,12 +13,18 @@ class BaseConfigUtil
 	 *     validator => xx,
 	 * )
 	 *
+	 * @param \Module $module optional, only consider given module, not all enabled modules
 	 * @return array all known config variables
 	 */
-	public static function getVariables()
+	public static function getVariables($module = false)
 	{
 		$settings = array();
-		foreach (glob('modules/*/baseconfig/settings.json', GLOB_NOSORT) as $file) {
+		if ($module === false) {
+			$module = '*';
+		} else {
+			$module = $module->getIdentifier();
+		}
+		foreach (glob("modules/{$module}/baseconfig/settings.json", GLOB_NOSORT) as $file) {
 			$data = json_decode(file_get_contents($file), true);
 			if (!is_array($data))
 				continue;
@@ -31,10 +37,15 @@ class BaseConfigUtil
 		return $settings;
 	}
 
-	public static function getCategories()
+	public static function getCategories($module = false)
 	{
 		$categories = array();
-		foreach (glob('modules/*/baseconfig/categories.json', GLOB_NOSORT) as $file) {
+		if ($module === false) {
+			$module = '*';
+		} else {
+			$module = $module->getIdentifier();
+		}
+		foreach (glob("modules/{$module}/baseconfig/categories.json", GLOB_NOSORT) as $file) {
 			$data = json_decode(file_get_contents($file), true);
 			if (!is_array($data))
 				continue;
