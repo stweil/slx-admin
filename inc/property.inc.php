@@ -16,7 +16,7 @@ class Property
 	 * @param mixed $default value to return if $key does not exist in the property store
 	 * @return mixed the value attached to $key, or $default if $key does not exist
 	 */
-	private static function get($key, $default = false)
+	public static function get($key, $default = false)
 	{
 		if (self::$cache === false) {
 			$NOW = time();
@@ -37,16 +37,16 @@ class Property
 	 *
 	 * @param string $key key of value to set
 	 * @param type $value the value to store for $key
-	 * @param int $minage how long to keep this entry around at least, in minutes. 0 for infinite
+	 * @param int $maxAgeMinutes how long to keep this entry around at least, in minutes. 0 for infinite
 	 */
-	private static function set($key, $value, $minage = 0)
+	public static function set($key, $value, $maxAgeMinutes = 0)
 	{
 		if (self::$cache === false || self::get($key) != $value) { // Simple compare, so it works for numbers accidentally casted to string somewhere
 			Database::exec("INSERT INTO property (name, value, dateline) VALUES (:key, :value, :dateline)"
 				. " ON DUPLICATE KEY UPDATE value = VALUES(value), dateline = VALUES(dateline)", array(
 				'key' => $key,
 				'value' => $value,
-				'dateline' => ($minage === 0 ? 0 : time() + ($minage * 60))
+				'dateline' => ($maxAgeMinutes === 0 ? 0 : time() + ($maxAgeMinutes * 60))
 			));
 		}
 		if (self::$cache !== false) {
