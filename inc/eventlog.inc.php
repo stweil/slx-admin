@@ -22,7 +22,7 @@ class EventLog
 				'type' => $type,
 				'message' => $message,
 				'details' => $details
-		));
+		), true);
 	}
 	
 	public static function failure($message, $details = '')
