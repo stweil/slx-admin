@@ -1,0 +1,4 @@
+{
+    "SLX_BWIDM_AUTH": "Enable logging in on clients using bwIDM credentials.\r\n\r\nSetting this to *yes* means that all members of an organization in the bwIDM federation can log in to bwLehrpool machines.\r\nSelecting *selective* means you can explicitly pick the organizations which are entitled to login via bwIDM. The organizations can be specified in the *SLX_BWIDM_ORGS* setting.",
+    "SLX_BWIDM_ORGS": "If you set *SLX_BWIDM_AUTH* to *selective* this list will be used to determine which organizations are allowed to login via bwIDM on the client computers."
+}

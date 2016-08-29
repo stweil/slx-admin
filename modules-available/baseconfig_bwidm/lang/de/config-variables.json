@@ -1,0 +1,4 @@
+{
+    "SLX_BWIDM_AUTH": "Anmeldung am Client mittels bwIDM zulassen.\r\n\r\nWenn Sie hier *yes* w\u00e4hlen, k\u00f6nnen sich alle Nutzer, die Mitglieder einer Organisation im bwIDM-Verbund sind, an einem bwLehrpool-Rechner einloggen.\r\n\r\nMit der Option *selective* k\u00f6nnen Sie die Gruppe der zugelassenen Einrichtungen weiter einschr\u00e4nken, indem Sie in der Option *SLX_BWIDM_ORGS* nur bestimmte Einrichtungen ausw\u00e4hlen.",
+    "SLX_BWIDM_ORGS": "Wenn die Option *SLX_BWIDM_AUTH* auf *selective* steht, sind nur die hier ausgew\u00e4hlten Einrichtungen zu einem Login via bwIDM berechtigt."
+}

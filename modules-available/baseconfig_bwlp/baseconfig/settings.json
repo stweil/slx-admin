@@ -85,12 +85,6 @@
 		"permissions": "2",
 		"validator": "function:linuxPassword"
 	},
-	"SLX_BWIDM_AUTH": {
-		"catid": "sysconfig",
-		"defaultvalue": "no",
-		"permissions": "2",
-		"validator": "list:yes|no"
-	},
 	"SLX_SHUTDOWN_SCHEDULE": {
 		"catid": "power",
 		"defaultvalue": "22:10 00:00",
