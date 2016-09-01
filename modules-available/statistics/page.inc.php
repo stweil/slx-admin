@@ -101,6 +101,11 @@ class Page_Statistics extends Page
 				'op' => Page_Statistics::$op_nominal,
 				'type' => 'string',
 				'column' => false
+			],
+			'currentuser' => [
+				'op' => Page_Statistics::$op_nominal,
+				'type' => 'string',
+				'column' => false
 			]
 		];
 		if (Module::isAvailable('locations')) {
@@ -597,7 +602,20 @@ class Page_Statistics extends Page
 
 	private function fillSessionInfo(&$row)
 	{
-		$res = Database::simpleQuery('SELECT dateline, username, data FROM statistic'
+		if (!empty($row['currentuser'])) {
+			$row['username'] = $row['currentuser'];
+			if (strlen($row['currentsession']) === 36 && Module::isAvailable('dozmod')) {
+				$lecture = Database::simpleQuery("SELECT lectureid, displayname FROM sat.lecture WHERE lectureid = :lectureid",
+					array('lectureid' => $row['currentsession']));
+				if ($lecture !== false) {
+					$row['currentsession'] = $lecture['displayname'];
+					$row['lectureid'] = $lecture['lectureid'];
+				}
+			}
+			$row['session'] = $row['currentsession'];
+			return;
+		}
+		$res = Database::queryFirst('SELECT dateline, username, data FROM statistic'
 			. " WHERE clientip = :ip AND typeid = '.vmchooser-session-name'"
 			. ' AND dateline BETWEEN :start AND :end', array(
 			'ip' => $row['clientip'],
@@ -619,7 +637,7 @@ class Page_Statistics extends Page
 	private function showMachine($uuid)
 	{
 		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,'
-			. ' mbram, kvmstate, cpumodel, id44mb, data, hostname, notes FROM machine WHERE machineuuid = :uuid',
+			. ' mbram, kvmstate, cpumodel, id44mb, data, hostname, currentuser, currentsession, notes FROM machine WHERE machineuuid = :uuid',
 			array('uuid' => $uuid));
 		// Hack: Get raw collected data
 		if (Request::get('raw', false)) {

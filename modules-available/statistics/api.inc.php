@@ -100,7 +100,7 @@ if ($type{0} === '~') {
 			. ' macaddr = VALUES(macaddr),'
 			. ' clientip = VALUES(clientip),'
 			. ' lastseen = VALUES(lastseen),'
-			. ($uptime < 180 ? ' logintime = 0,' : '')
+			. ($uptime < 180 ? ' logintime = 0, currentuser = NULL, currentsession = NULL,' : '')
 			. ' lastboot = VALUES(lastboot),'
 			. ' realcores = VALUES(realcores),'
 			. ' mbram = VALUES(mbram),'
@@ -194,24 +194,42 @@ if ($type{0} === '~') {
  * Session information
  */
 
-if (!isset($_POST['description'])) die('Missing options..');
-$description = $_POST['description'];
-
-
-// For backwards compat, we require the . prefix and username embedded in message
-if ($type{0} === '.' && preg_match('#^\[([^\]]+)\]\s*(.*)$#', $description, $out)) {
-
+function writeStatisticLog($type, $username, $data)
+{
+	global $ip;
 	// Spam from IP
 	$row = Database::queryFirst('SELECT Count(*) AS cnt FROM statistic WHERE clientip = :client AND dateline + 300 > UNIX_TIMESTAMP()', array(':client' => $ip));
-	if ($row !== false && $row['cnt'] > 4) exit(0);
+	if ($row !== false && $row['cnt'] > 8) {
+		return;
+	}
 
 	Database::exec('INSERT INTO statistic (dateline, typeid, clientip, username, data) VALUES (UNIX_TIMESTAMP(), :type, :client, :username, :data)', array(
-		'type'        => $type,
-		'client'      => $ip,
-		'username'    => $out[1],
-		'data'        => $out[2],
+		'type' => $type,
+		'client' => $ip,
+		'username' => $username,
+		'data' => $data,
 	));
+}
 
+// For backwards compat, we require the . prefix
+if ($type{0} === '.') {
+	if ($type === '.vmchooser-session') {
+		$user = Request::post('user', 'unknown', 'string');
+		$loguser = Request::post('loguser', 0, 'int') !== 0;
+		$sessionName = Request::post('name', 'unknown', 'string');
+		$sessionUuid = Request::post('uuid', '', 'string');
+		$session = strlen($sessionUuid) === 36 ? $sessionUuid : $sessionName;
+		Database::exec("UPDATE machine SET currentuser = :user, currentsession = :session WHERE clientip = :ip",
+			compact('user', 'session', 'ip'));
+		writeStatisticLog('.vmchooser-session-name', ($loguser ? $user : 'anonymous'), $sessionName);
+	} else {
+		if (!isset($_POST['description'])) die('Missing options..');
+		$description = $_POST['description'];
+		// and username embedded in message
+		if (preg_match('#^\[([^\]]+)\]\s*(.*)$#m', $description, $out)) {
+			writeStatisticLog($type, $out[1], $out[2]);
+		}
+	}
 }
 
 echo "OK.\n";
