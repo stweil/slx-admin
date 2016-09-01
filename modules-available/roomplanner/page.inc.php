@@ -34,7 +34,7 @@ class Page_Roomplanner extends Page
             Render::addTemplate('page', [
                 'subnetMachines' => json_encode($subnetMachines),
                 'locationid' => $locationid,
-                'roomConfiguration' => json_encode($roomConfig, JSON_PRETTY_PRINT)]);
+                'roomConfiguration' => json_encode($roomConfig)]);
         } else if ($action === 'save') {
             /* save */
             $config = Request::post('serializedRoom', null, 'string');
@@ -74,7 +74,7 @@ class Page_Roomplanner extends Page
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $returnObject['machines'][] = $row;
             }
-            echo json_encode($returnObject, JSON_PRETTY_PRINT);
+            echo json_encode($returnObject);
         }
     }
 
@@ -92,7 +92,7 @@ class Page_Roomplanner extends Page
 
             $position = json_encode(['gridRow' => $computer['gridRow'],
                                      'gridCol' => $computer['gridCol'],
-                                     'itemlook' => $computer['itemlook']], JSON_PRETTY_PRINT);
+                                     'itemlook' => $computer['itemlook']]);
 
             Database::exec('UPDATE machine SET position = :position, locationid = :locationid WHERE machineuuid = :muuid',
             ['locationid' => $locationid, 'muuid' => $computer['muuid'], 'position' => $position]);
@@ -105,7 +105,7 @@ class Page_Roomplanner extends Page
         }
     }
     protected function saveRoomConfig($locationid, $furniture) {
-        $obj = json_encode(['furniture' => $furniture], JSON_PRETTY_PRINT);
+        $obj = json_encode(['furniture' => $furniture]);
         Database::exec('INSERT INTO location_roomplan (locationid, roomplan) VALUES (:locationid, :roomplan) ON DUPLICATE KEY UPDATE roomplan=:roomplan',
             ['locationid' => $locationid,
              'roomplan' => $obj]);
@@ -124,6 +124,7 @@ class Page_Roomplanner extends Page
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $machine = [];
             $pos = json_decode($row['position'], true);
+			  // TODO: Check if pos is valid (has required keys)
 
             $machine['muuid'] = $row['machineuuid'];
             $machine['ip']      = $row['clientip'];
