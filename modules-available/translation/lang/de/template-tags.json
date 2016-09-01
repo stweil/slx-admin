@@ -13,7 +13,7 @@
     "lang_tag": "Tag",
     "lang_tags": "Tags",
     "lang_templateAdminHelp": "Hier k\u00f6nnen Sie die verwendeten Texte und S\u00e4tze \u00fcbersetzen.",
-    "lang_templateHint": "Hinweis: Gelbe Linie zeigt eine \u00dcbersetzung fehlt und roten Linien zeigen ein Tag wird nicht von das Template verwendet.",
+    "lang_templateHint": "Hinweis: Gelbe Linien zeigen an, dass eine \u00dcbersetzung fehlt, rote Linien, dass ein Tag nicht von dem jeweiligen Template verwendet wird.",
     "lang_templates": "Templates",
     "lang_translation": "\u00dcbersetzung",
     "lang_translationHeading": "Verwalten der \u00dcbersetzungen",
