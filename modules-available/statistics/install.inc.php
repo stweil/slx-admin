@@ -29,7 +29,7 @@ $res[] = tableCreate('machine', "
   `firstseen` int(10) unsigned NOT NULL,
   `lastseen` int(10) unsigned NOT NULL,
   `logintime` int(10) unsigned NOT NULL,
-  `position` varchar(40) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `position` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `lastboot` int(10) unsigned NOT NULL,
   `realcores` smallint(5) unsigned NOT NULL,
   `mbram` int(10) unsigned NOT NULL,
@@ -40,6 +40,8 @@ $res[] = tableCreate('machine', "
   `badsectors` int(10) unsigned NOT NULL,
   `data` mediumtext NOT NULL,
   `hostname` varchar(200) NOT NULL DEFAULT '',
+  `currentsession` varchar(120) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `currentuser` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `notes` text,
   PRIMARY KEY (`machineuuid`),
   KEY `macaddr` (`macaddr`),
@@ -79,6 +81,7 @@ if (!tableHasColumn('statistic', 'machineuuid')) {
 	$res[] = UPDATE_DONE;
 }
 
+// Rename roomid to locationid
 if (tableHasColumn('machine', 'roomid')) {
 	$ret = Database::exec("ALTER TABLE `machine` CHANGE `roomid` `locationid` INT(11) DEFAULT NULL") !== false;
 	$ret = Database::exec("ALTER TABLE `machine` DROP `roomid`") !== false || $ret;
@@ -86,6 +89,27 @@ if (tableHasColumn('machine', 'roomid')) {
 		finalResponse(UPDATE_FAILED, 'Renaming roomid to locationid in statistic failed: ' . Database::lastError());
 	}
 	$res[] = UPDATE_DONE;
+}
+
+// 2016-08-31: Add lectureid and user name
+if (!tableHasColumn('machine', 'currentsession')) {
+	$ret = Database::exec("ALTER TABLE `machine` ADD COLUMN `currentsession` varchar(120) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL AFTER hostname") !== false;
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding currentsession to machine failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+if (!tableHasColumn('machine', 'currentuser')) {
+	$ret = Database::exec("ALTER TABLE `machine` ADD COLUMN `currentuser` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL AFTER currentsession") !== false;
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding currentuser to machine failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+// 2016-09-01: Fix position column size
+$ret = Database::exec("ALTER TABLE `machine` CHANGE `position` `position` VARCHAR( 200 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL");
+if ($ret === false) {
+	finalResponse(UPDATE_FAILED, 'Expanding position column failed: ' . Database::lastError());
 }
 
 // Create response
