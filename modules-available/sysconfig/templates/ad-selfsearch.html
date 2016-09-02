@@ -1,7 +1,10 @@
 <p>
 	{{lang_dnLookup}}
 </p>
-
+<p>
+	{{binddn}} @ {{server}}<br>
+	SearchBase: {{searchbase}}
+</p>
 <div id="zeug">
 	<div data-tm-id="{{self-search}}" data-tm-log="messages" data-tm-callback="selfCb">LDAP Self-Query</div>
 	<pre style="display:none" id="result"></pre>
@@ -102,6 +105,7 @@
 			}
 		} else {
 			$('#nextbutton').html('{{lang_continueAnyway}}');
+			$('#zeug').append('<div>Debug:</div>').append( $('<pre></pre>').text(JSON.stringify(task, null, 3)) );
 		}
 		$('#nextbutton').show();
 	}
