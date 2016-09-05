@@ -19,6 +19,13 @@ class Page_Roomplanner extends Page
 
         if ($locationid === null) { die('please specify locationid'); }
 
+        if (Request::get('pvs', false, 'bool')) {
+                /* return a pvs-file */
+                echo "<pre>";
+                echo PvsGenerator::generate($locationid);
+                echo "</pre>";
+                die();
+        }
 
         $furniture      = $this->getFurniture($locationid);
         $subnetMachines = $this->getPotentialMachines($locationid);
