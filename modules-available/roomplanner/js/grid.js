@@ -101,32 +101,26 @@ if (!roomplanner) var roomplanner = {
 							$(this).addClass("obstacle");
 						}
 						
-						if ($(this).attr('itemtype') == "pc_drag") {
-							$(this).attr('itemtype','pc');
+						if ($(this).attr('itemtype').indexOf('_drag') > -1) {
+							var itemtype = $(this).attr('itemtype').replace('_drag','');
+							$(this).attr('itemtype',itemtype);
 						}
-						
 					},
 					"preventCollision" : true,
 					"restraint": "#draw-element-area",
-					"obstacle" : ".obstacle",
+					"obstacle" : '[itemtype="'+$(el).attr('itemtype')+'"]',
 					"start": function(ev,ui) {
 						if (roomplanner.isElementResizable(this)) {
 							$(this).resizable("option","maxHeight",null);
 							$(this).resizable("option","maxWidth",null);
 						}
 						
-						if ($(this).attr('itemtype') == "pc") {
-							$(this).attr('itemtype','pc_drag');
-						}
+						var itemtype = $(this).attr('itemtype');
+						$(this).attr('itemtype',itemtype+'_drag');
 						
 						$(this).removeClass("obstacle");
 					}
 			};
-			
-			// pcs can be placed everywhere
-			if ($(el).attr('itemtype') == "pc") {
-				options.obstacle = '[itemtype="pc"]';
-			}
 			
 			for (var o in options) {
 				$(el).draggable("option",o,options[o]);
@@ -137,7 +131,7 @@ if (!roomplanner) var roomplanner = {
 						
 			$(el).resizable({
 				containment : "#draw-element-area",
-				obstacle: ".obstacle",
+				obstacle: '[itemtype="'+$(el).attr('itemtype')+'"]',
 				handles: "se",
 				autoHide: true,
 				grid: [(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)],
@@ -145,7 +139,10 @@ if (!roomplanner) var roomplanner = {
 					var gridSteps = $(this).resizable("option","grid");
 								
 					
-					var collides = $(this).collision(".obstacle");
+					var collides = $(this).collision('[itemtype="'+$(el).attr('itemtype').replace('_drag','')+'"]');
+					
+					
+					
 					var pos = $(this).offset();
 					var self = this;
 					
@@ -187,6 +184,10 @@ if (!roomplanner) var roomplanner = {
 				},
 				start: function(ev,ui) {
 					$(this).removeClass("obstacle");
+					
+					var itemtype = $(this).attr('itemtype');
+					$(this).attr('itemtype',itemtype+'_drag');
+					
 					$(this).css('opacity',0.8);
 					
 					var gridSteps = $(this).resizable("option","grid");
@@ -217,6 +218,11 @@ if (!roomplanner) var roomplanner = {
 				stop: function(ev,ui) {
 					if ($(this).attr("obstacle") == "true") {
 						$(this).addClass("obstacle");
+					}
+					
+					if ($(this).attr('itemtype').indexOf('_drag') > -1) {
+						var itemtype = $(this).attr('itemtype').replace('_drag','');
+						$(this).attr('itemtype',itemtype);
 					}
 					
 					var gridSteps = $(this).resizable("option","grid");
@@ -427,9 +433,7 @@ $(document).ready(function(){
 			
 			// the element is already in drawing area
 			var el = (ui.helper == ui.draggable) ? ui.draggable : $(ui.helper.clone());
-			var collidingSelector = ($(el).attr('itemtype') =="pc_drag") ? '[itemtype="pc"]' : '.obstacle';
-			
-			if ($(el).collision(collidingSelector).length) {
+			if ($(el).collision('[itemtype="'+$(el).attr('itemtype').replace('_drag','')+'"]').length) {
 				return;
 			}
 			
@@ -504,9 +508,8 @@ $(document).ready(function(){
 				var type = $(ui.helper).attr('itemtype');
 				$(ui.helper).attr('itemtype',type+"_drag");
 		},
-		drag: function(ev,ui) {
-			var collidingSelector = ($(ui.helper).attr('itemtype') =="pc_drag") ? '[itemtype="pc"]' : '.obstacle'; 
-			if ($(ui.helper).collision(collidingSelector).length) {
+		drag: function(ev,ui) { 
+			if ($(ui.helper).collision('[itemtype="'+$(ui.helper).attr('itemtype').replace('_drag','')+'"]').length) {
 				$(ui.helper).addClass('collides');
 			} else {
 				$(ui.helper).removeClass('collides');
