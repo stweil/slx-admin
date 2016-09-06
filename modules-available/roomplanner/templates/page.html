@@ -44,6 +44,8 @@
 <!--  berryous raumplaner -->
 	<h1>{{lang_roomplanner}}</h1>
 
+<div class="alert alert-danger" style="display:none" id="error-msg"></div>
+
 	<div id="toolpanel" class="panel panel-default" style="z-index:200;">
 		<div class="panel-heading">
 			<h3 class="panel-title">Werkzeuge</h3>
@@ -309,26 +311,16 @@
 
 	</div>
 
-	<div class="panel panel-default" style="display:none">
-		<div class="panel-heading"><h3 class="panel-title">Store / Restore</h3></div>
-		<div class="panel-body">
-			<form id="roomForm" method="POST" action="?do=roomplanner&locationid={{locationid}}">
-				<input type="hidden" name="token" value="{{token}}">
-				<input type="hidden" name="action" value="save">
-				<div class="form-group">
-					<label for="serializedRoom" class="col-sm-2 control-label">In-/Output</label>
-					<textarea class="form-control" rows="5" name="serializedRoom" id="serializedRoom">{{{roomConfiguration}}}</textarea>
-				</div>
-			</form>
-		</div>
-	</div>
-	<button id="saveBtn" class="btn btn-success" onclick="window.close(); return false">Save</button>
+	<button id="saveBtn" class="btn btn-success">Save</button>
 
 
 <script type="application/javascript"><!--
+var locationId = '{{locationid}}';
+var subnetMachines, roomConfiguration;
 document.addEventListener("DOMContentLoaded", function () {
 
 	subnetMachines = {{{subnetMachines}}};
+	roomConfiguration = {{{roomConfiguration}}};
 
 	$.when(
 		$.getScript("modules/roomplanner/js/lib/jquery-collision.js"),
@@ -340,10 +332,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	).done(function() {
 		$.getScript("modules/roomplanner/js/init.js", function() {
 			initRoomplanner();
-			roomplanner.load($('#serializedRoom').val());
-			console.log(subnetMachines);
+			roomplanner.load(roomConfiguration); // TODO: Filter invalid PCs, they're currently invisible and cannot be removed
 		});
 	});
 });
 
-</script>
+// --></script>

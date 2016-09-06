@@ -286,11 +286,15 @@ if (!roomplanner) var roomplanner = {
 			return JSON.stringify(objects);
 		},
 		load: function(object) {
-			try {
-				var objects = JSON.parse(object);
-			} catch(e) { 
-				alert('invalid JSON format'); 
-				return false;
+			if (typeof object === 'string') {
+				try {
+					var objects = JSON.parse(object);
+				} catch (e) {
+					alert('invalid JSON format');
+					return false;
+				}
+			} else {
+				var objects = object;
 			}
 			
 			$('#draw-element-area').html('');

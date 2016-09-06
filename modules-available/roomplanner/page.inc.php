@@ -2,6 +2,17 @@
 
 class Page_Roomplanner extends Page
 {
+
+	/**
+	 * @var int locationid of location we're editing
+	 */
+	private $locationid;
+
+	/**
+	 * @var string action to perform
+	 */
+	private $action;
+
 	protected function doPreprocess()
 	{
 		User::load();
@@ -10,48 +21,44 @@ class Page_Roomplanner extends Page
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
+
+		$this->locationid = Request::get('locationid', null, 'integer');
+		$this->action = Request::any('action', 'show', 'string');
+
+		if ($this->locationid === null) {
+			Message::addError('need-locationid');
+			Util::redirect('?do=locations');
+		}
+
+		if ($this->action === 'save') {
+			$this->handleSaveRequest(false);
+			Util::redirect("?do=roomplanner&locationid={$this->locationid}&action=show");
+		}
 	}
 
 	protected function doRender()
 	{
-
-		$locationid = Request::get('locationid', null, 'integer');
-
-		if ($locationid === null) {
-			die('please specify locationid');
-		}
-
-		$furniture = $this->getFurniture($locationid);
-		$subnetMachines = $this->getPotentialMachines($locationid);
-		$machinesOnPlan = $this->getMachinesOnPlan($locationid);
-
-		$action = Request::any('action', 'show', 'string');
-
-		$roomConfig = array_merge($furniture, $machinesOnPlan);
-
-
-		if ($action === 'show') {
+		if ($this->action === 'show') {
 			/* do nothing */
+			$furniture = $this->getFurniture();
+			$subnetMachines = $this->getPotentialMachines();
+			$machinesOnPlan = $this->getMachinesOnPlan();
+			$roomConfig = array_merge($furniture, $machinesOnPlan);
 			Render::addTemplate('page', [
 				'subnetMachines' => json_encode($subnetMachines),
-				'locationid' => $locationid,
+				'locationid' => $this->locationid,
 				'roomConfiguration' => json_encode($roomConfig)]);
-		} else if ($action === 'save') {
-			/* save */
-			$config = Request::post('serializedRoom', null, 'string');
-			$config = json_decode($config, true);
-			$this->saveRoomConfig($locationid, $config['furniture']);
-			$this->saveComputerConfig($locationid, $config['computers'], $machinesOnPlan);
-			Util::redirect("?do=roomplanner&locationid=$locationid&action=show");
+		} else {
+			Message::addError('main.invalid-action', $this->action);
 		}
 
 	}
 
 	protected function doAjax()
 	{
-		$action = Request::get('action', null, 'string');
+		$this->action = Request::any('action', null, 'string');
 
-		if ($action === 'getmachines') {
+		if ($this->action === 'getmachines') {
 			$query = Request::get('query', null, 'string');
 
 			/* the query could be anything: UUID, IP or macaddr */
@@ -76,10 +83,37 @@ class Page_Roomplanner extends Page
 				$returnObject['machines'][] = $row;
 			}
 			echo json_encode($returnObject);
+		} elseif ($this->action === 'save') {
+			$this->locationid = Request::any('locationid', null, 'integer');
+			if ($this->locationid === null) {
+				die('Missing locationid in save data');
+			}
+			$this->handleSaveRequest(true);
+			die('SUCCESS');
+		} else {
+			echo 'Invalid AJAX action';
 		}
 	}
 
-	protected function saveComputerConfig($locationid, $computers, $oldComputers)
+	private function handleSaveRequest($isAjax)
+	{
+		/* save */
+		$machinesOnPlan = $this->getMachinesOnPlan();
+		$config = Request::post('serializedRoom', null, 'string');
+		$config = json_decode($config, true);
+		if (!is_array($config) || !isset($config['furniture']) || !isset($config['computers'])) {
+			if ($isAjax) {
+				die('JSON data incomplete');
+			} else {
+				Message::addError('json-data-invalid');
+				Util::redirect("?do=roomplanner&locationid={$this->locationid}&action=show");
+			}
+		}
+		$this->saveRoomConfig($config['furniture']);
+		$this->saveComputerConfig($config['computers'], $machinesOnPlan);
+	}
+
+	protected function saveComputerConfig($computers, $oldComputers)
 	{
 
 		$oldUuids = [];
@@ -97,7 +131,7 @@ class Page_Roomplanner extends Page
 				'itemlook' => $computer['itemlook']]);
 
 			Database::exec('UPDATE machine SET position = :position, locationid = :locationid WHERE machineuuid = :muuid',
-				['locationid' => $locationid, 'muuid' => $computer['muuid'], 'position' => $position]);
+				['locationid' => $this->locationid, 'muuid' => $computer['muuid'], 'position' => $position]);
 		}
 
 		$toDelete = array_diff($oldUuids, $newUuids);
@@ -107,17 +141,17 @@ class Page_Roomplanner extends Page
 		}
 	}
 
-	protected function saveRoomConfig($locationid, $furniture)
+	protected function saveRoomConfig($furniture)
 	{
 		$obj = json_encode(['furniture' => $furniture]);
 		Database::exec('INSERT INTO location_roomplan (locationid, roomplan) VALUES (:locationid, :roomplan) ON DUPLICATE KEY UPDATE roomplan=:roomplan',
-			['locationid' => $locationid,
+			['locationid' => $this->locationid,
 				'roomplan' => $obj]);
 	}
 
-	protected function getFurniture($locationid)
+	protected function getFurniture()
 	{
-		$config = Database::queryFirst('SELECT roomplan FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $locationid]);
+		$config = Database::queryFirst('SELECT roomplan FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
 		if ($config === false) {
 			return array();
 		}
@@ -125,10 +159,10 @@ class Page_Roomplanner extends Page
 		return $config;
 	}
 
-	protected function getMachinesOnPlan($locationid)
+	protected function getMachinesOnPlan()
 	{
 		$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname, position FROM machine WHERE locationid = :locationid',
-			['locationid' => $locationid]);
+			['locationid' => $this->locationid]);
 		$machines = [];
 		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
 			$machine = [];
@@ -149,11 +183,11 @@ class Page_Roomplanner extends Page
 		return ['computers' => $machines];
 	}
 
-	protected function getPotentialMachines($locationid)
+	protected function getPotentialMachines()
 	{
 		$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
 			. 'FROM machine INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) '
-			. 'WHERE subnet.locationid = :locationid', ['locationid' => $locationid]);
+			. 'WHERE subnet.locationid = :locationid', ['locationid' => $this->locationid]);
 
 		$machines = [];
 

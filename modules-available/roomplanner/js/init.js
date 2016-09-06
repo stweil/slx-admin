@@ -28,8 +28,17 @@ function initRoomplanner() {
 	});
 
 	$("#saveBtn").click(function() {
-		$('#serializedRoom').val(roomplanner.serialize());
-		$('#roomForm').submit();
+		$.post('?do=roomplanner&locationid=' + locationId,
+			{ token: TOKEN, action: 'save', serializedRoom: roomplanner.serialize() }
+		).done(function ( data ) {
+			if (data.indexOf('SUCCESS') !== -1) {
+				window.close();
+				return;
+			}
+			$('#error-msg').text('Error: ' + data).show();
+		}).fail(function () {
+			$('#error-msg').text('AJAX save call failed').show();
+		});
 	});
 	
 	$('#zoom-out').click(function() {
