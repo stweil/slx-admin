@@ -35,6 +35,9 @@ body.full #drawpanel {
 #scaleslider {
 	position:relative;}
 
+#zoom-out, #zoom-in {
+	cursor:pointer;
+}
 
 
 #scaleContainer .glyphicon {

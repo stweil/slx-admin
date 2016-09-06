@@ -353,6 +353,18 @@ roomplanner.grid = (function() {
 				$('#drawarea').height(h);
 			},
 			scale: function(num) {
+				
+				var area_left = parseInt($('#drawarea').css('left')) - $('#drawpanel .panel-body').width()/2 ;
+				var area_top = parseInt($('#drawarea').css('top')) - $('#drawpanel .panel-body').height()/2;
+				
+				var opts = {
+						left: ((parseInt(area_left) * num / roomplanner.settings.scale ) + $('#drawpanel .panel-body').width()/2)+ "px" ,
+						top: ((parseInt(area_top)  * num / roomplanner.settings.scale ) + $('#drawpanel .panel-body').height()/2)+ "px" 
+					};
+				
+				$('#drawarea').css(opts);
+				
+				
 				$('#drawarea').css('background-size',num);
 				roomplanner.settings.scale = num;
 				$('#draw-element-area .ui-draggable').each(function(idx,item) {
@@ -434,6 +446,10 @@ $(document).ready(function(){
 			// the element is already in drawing area
 			var el = (ui.helper == ui.draggable) ? ui.draggable : $(ui.helper.clone());
 			if ($(el).collision('[itemtype="'+$(el).attr('itemtype').replace('_drag','')+'"]').length) {
+				
+				// pathfinding zu besserer position
+				
+				
 				return;
 			}
 			

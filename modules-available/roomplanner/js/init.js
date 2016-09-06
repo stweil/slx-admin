@@ -31,6 +31,14 @@ function initRoomplanner() {
 		$('#serializedRoom').val(roomplanner.serialize());
 		$('#roomForm').submit();
 	});
+	
+	$('#zoom-out').click(function() {
+		roomplanner.grid.scale(roomplanner.settings.scale - 10);
+	});
+	
+	$('#zoom-in').click(function() {
+		roomplanner.grid.scale(roomplanner.settings.scale + 10);
+	});
 }
 
 var translation = {
