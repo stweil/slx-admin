@@ -196,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (sel.val() === '' || sel.data('inrange')) {
 			$('#lecture-info').text('-');
 		} else {
-			$('#lecture-info').text('{{lang_lectureOutOfRange}} (' + slxMoment(sel.data('from')).format('YYYY-MM-DD H:mm') + ' - ' + slxMoment(sel.data('to')).format('YYYY-MM-DD H:mm') + ')');
+			$('#lecture-info').text('{{lang_lectureOutOfRange}} (' + slxMoment(sel.data('from') * 1000).format('YYYY-MM-DD H:mm') + ' - ' + slxMoment(sel.data('to') * 1000).format('YYYY-MM-DD H:mm') + ')');
 		}
 	}
 
