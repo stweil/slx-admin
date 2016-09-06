@@ -113,7 +113,9 @@ class Page_Roomplanner extends Page
 
     protected function getFurniture($locationid) {
         $config = Database::queryFirst('SELECT roomplan FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $locationid]);
-        if ($config == null) { return null; }
+        if ($config === false) {
+        	  return array();
+        }
         $config = json_decode($config['roomplan'], true);
         return $config;
     }
