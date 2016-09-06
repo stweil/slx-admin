@@ -445,12 +445,54 @@ $(document).ready(function(){
 			
 			// the element is already in drawing area
 			var el = (ui.helper == ui.draggable) ? ui.draggable : $(ui.helper.clone());
-			if ($(el).collision('[itemtype="'+$(el).attr('itemtype').replace('_drag','')+'"]').length) {
+			
+			var collidingElements = $(el).collision('[itemtype="'+$(el).attr('itemtype').replace('_drag','')+'"]');
+			
+			var i = 0;
+			while (collidingElements.length > 0) {
+				// too much tries - abort
+				if (i > 5) { return; }
 				
-				// pathfinding zu besserer position
 				
+				if (ui.helper != ui.draggable) {
+					var leftPos = parseInt($(el).css('left'))-parseInt($('#drawarea').css('left'))-$('#drawpanel').offset().left;
+					var topPos = parseInt($(el).css('top'))-parseInt($('#drawarea').css('top'))-($('#drawpanel').offset().top + $('#drawpanel .panel-heading').height());
+					var cp = roomplanner.getCellPositionFromPixels(leftPos,topPos);
+					leftPos = cp[0];
+					topPos = cp[1];
 				
-				return;
+				} else {
+					var leftPos = parseInt($(el).css('left'));
+					var topPos = parseInt($(el).css('top'));
+				}
+				
+				var collider = $(collidingElements[0]);
+				var colliderTop = parseInt(collider.css('top'));
+				var colliderLeft = parseInt(collider.css('left'));
+				
+				var overlap = {
+						x: Math.min(colliderLeft+collider.outerWidth(),leftPos+$(el).outerWidth()) - Math.max(leftPos,colliderLeft),
+						y: Math.min(colliderTop+collider.outerHeight(),topPos+$(el).outerHeight()) - Math.max(topPos,colliderTop)
+				};
+				
+				if (overlap.x <= overlap.y) {
+					var lpos = parseInt($(el).css('left'));
+					if (colliderLeft + overlap.x == leftPos + $(el).width()) {
+						$(el).css('left',(lpos - (overlap.x+2))+"px");
+					} else {
+						$(el).css('left',(lpos + overlap.x+2)+"px");
+					}
+				} else {
+					var tpos = parseInt($(el).css('top'));
+					if (colliderTop + overlap.y == topPos + $(el).height()) {
+						$(el).css('top',(tpos - (overlap.y+2))+"px");
+					} else {
+						$(el).css('top',(tpos + overlap.y+2)+"px");
+					}
+				}
+				collidingElements = $(el).collision('[itemtype="'+$(el).attr('itemtype').replace('_drag','')+'"]');
+					
+				i++;
 			}
 			
 			var itemtype = $(el).attr('itemtype');
