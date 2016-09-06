@@ -7,6 +7,7 @@ $res[] = tableCreate('exams', '
 	 `lectureid` char(36) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,
 	 `starttime` int(11) NOT NULL,
 	 `endtime` int(11) NOT NULL,
+	 `autologin` char(36) NULL,
 	 `description` varchar(500) DEFAULT NULL,
 	 PRIMARY KEY (`examid`)
  ');
@@ -27,6 +28,9 @@ if (Database::exec("ALTER TABLE exams ADD INDEX `idx_daterange` ( `starttime` , 
 
 if (!tableHasColumn('exams', 'lectureid')) {
 	Database::exec("ALTER TABLE `exams` ADD `lectureid` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL DEFAULT NULL AFTER `examid`");
+}
+if (!tableHasColumn('exams', 'autologin')) {
+	Database::exec("ALTER TABLE `exams` ADD `autologin` CHAR(36) NULL DEFAULT NULL AFTER `endtime`");
 }
 
 Database::exec("ALTER TABLE `exams` CHANGE `description` `description` varchar(500) DEFAULT NULL");
