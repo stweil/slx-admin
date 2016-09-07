@@ -42,7 +42,7 @@ abstract class Page
 	{
 		$pageTitle = self::$module->getPageTitle();
 		if ($pageTitle !== false) {
-			Render::setTitle($pageTitle);
+			Render::setTitle($pageTitle, false);
 		}
 		self::$instance->doRender();
 	}

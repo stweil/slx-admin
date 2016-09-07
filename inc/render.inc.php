@@ -107,8 +107,10 @@ class Render
 	/**
 	 * Set the page title (title-tag)
 	 */
-	public static function setTitle($title)
+	public static function setTitle($title, $override = true)
 	{
+		if (!$override && !empty(self::$title))
+			return;
 		self::$title = $title . ' - ';
 	}
 
