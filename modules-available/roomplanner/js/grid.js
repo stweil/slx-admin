@@ -404,16 +404,19 @@ roomplanner.grid = (function() {
 
 $(document).ready(function(){
 	roomplanner.grid.init();
+
+	var update = function(event,ui) {
+		roomplanner.grid.scale(ui.value);
+	};
 	
-	$('#scaleslider').slider({
+	roomplanner.slider = $('#scaleslider').slider({
 		orientation: "horizontal",
 		range: "min",
-		min: 20,
-		max: 200,
+		min: 50,
+		max: 150,
 		value: 100,
-		slide: function(event,ui) {
-			roomplanner.grid.scale(ui.value);
-		},
+		change: update,
+		slide: update,
 		stop: function(e, ui) {
 			$('#drawarea').trigger('checkposition');
 		}

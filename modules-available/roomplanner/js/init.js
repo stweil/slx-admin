@@ -37,11 +37,11 @@ function initRoomplanner() {
 	});
 	
 	$('#zoom-out').click(function() {
-		roomplanner.grid.scale(roomplanner.settings.scale - 10);
+		roomplanner.slider.slider('value', roomplanner.settings.scale - 10);
 	});
 	
 	$('#zoom-in').click(function() {
-		roomplanner.grid.scale(roomplanner.settings.scale + 10);
+		roomplanner.slider.slider('value', roomplanner.settings.scale + 10);
 	});
 }
 
