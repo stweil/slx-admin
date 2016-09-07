@@ -1,5 +1,6 @@
 {
     "config-activated": "Configuration {{0}} has been activated",
+    "config-deleted": "Deleted configuration {{0}}",
     "config-invalid": "Configuration with id {{0}} does not exist",
     "invalid-action": "Invalid action: {{0}}",
     "missing-file": "There was no file selected!",

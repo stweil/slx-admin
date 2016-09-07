@@ -25,6 +25,7 @@
     "lang_configurationChoose": "Please select which modules will be used for this configuration.",
     "lang_configurationModuleNotFound": "Configuration module not found!",
     "lang_configurationSuccess": "The configuration has been successfully created.",
+    "lang_confirmDeleteQuestion": "Are you sure you want to delete this entry?",
     "lang_connectionWait": "Checking connection, please wait",
     "lang_continueAnyway": "Continue anyway",
     "lang_customCertificate": "Additional (intermediate) certificates required for certificate validation",

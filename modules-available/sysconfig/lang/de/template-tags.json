@@ -25,6 +25,7 @@
     "lang_configurationChoose": "Bitte w\u00e4hlen Sie, welche Module f\u00fcr diese Konfiguration verwendet werden sollen.",
     "lang_configurationModuleNotFound": "Keine Konfigurationsmodule gefunden!",
     "lang_configurationSuccess": "Die Konfiguration wurde erfolgreich erstellt.",
+    "lang_confirmDeleteQuestion": "Wollen Sie dieses Element wirklich l\u00f6schen?",
     "lang_connectionWait": "\u00dcberpr\u00fcfe Verbindung, bitte warten",
     "lang_continueAnyway": "Trotzdem weiter",
     "lang_customCertificate": "Zur Validierung zus\u00e4tzlich erforderliche (Intermediate-)Zertifikate",

@@ -153,6 +153,7 @@ class Page_SysConfig extends Page
 			if ($this->currentLoc === 0) {
 				Render::addTemplate('list-legend', array('showLocationBadge' => $this->haveOverriddenLocations));
 			}
+			Render::addTemplate('js'); // Make this js snippet a template so i18n works
 			return;
 		case 'module':
 			$listid = Request::post('list');
@@ -439,7 +440,9 @@ class Page_SysConfig extends Page
 			Message::addError('config-invalid', $configid);
 			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
-		$config->delete();
+		if ($config->delete() !== false) {
+			Message::addSuccess('config-deleted', $config->title());
+		}
 		Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 	}
 

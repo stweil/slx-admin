@@ -29,7 +29,7 @@
 							{{/needRebuild}}
 							name="rebuild" value="{{id}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
 							<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{moduleType}}_Start&amp;edit={{id}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
-							<button class="btn btn-danger btn-xs" name="del" value="{{id}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
+							<button class="btn btn-danger btn-xs confirm-delete" name="del" value="{{id}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
 						</td>
 					</tr>
 					{{/modules}}

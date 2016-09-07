@@ -1,5 +1,6 @@
 {
     "config-activated": "Konfiguration {{0}} wurde aktiviert",
+    "config-deleted": "Konfiguration {{0}} wurde gel\u00f6scht",
     "config-invalid": "Konfiguration mit ID {{0}} existiert nicht",
     "invalid-action": "Ung\u00fcltige Aktion: {{0}}",
     "missing-file": "Es wurde keine Datei ausgew\u00e4hlt!",
