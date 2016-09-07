@@ -6,12 +6,25 @@ class Page_Roomplanner extends Page
 	/**
 	 * @var int locationid of location we're editing
 	 */
-	private $locationid;
+	private $locationid = false;
+
+	/**
+	 * @var array location data from location table
+	 */
+	private $location = false;
 
 	/**
 	 * @var string action to perform
 	 */
-	private $action;
+	private $action = false;
+
+	private function loadRequestedLocation()
+	{
+		$this->locationid = Request::get('locationid', false, 'integer');
+		if ($this->locationid !== false) {
+			$this->location = Location::get($this->locationid);
+		}
+	}
 
 	protected function doPreprocess()
 	{
@@ -22,11 +35,14 @@ class Page_Roomplanner extends Page
 			Util::redirect('?do=Main');
 		}
 
-		$this->locationid = Request::get('locationid', null, 'integer');
 		$this->action = Request::any('action', 'show', 'string');
-
-		if ($this->locationid === null) {
+		$this->loadRequestedLocation();
+		if ($this->locationid === false) {
 			Message::addError('need-locationid');
+			Util::redirect('?do=locations');
+		}
+		if ($this->location === false) {
+			Message::addError('invalid-locationid');
 			Util::redirect('?do=locations');
 		}
 
@@ -34,6 +50,7 @@ class Page_Roomplanner extends Page
 			$this->handleSaveRequest(false);
 			Util::redirect("?do=roomplanner&locationid={$this->locationid}&action=show");
 		}
+		Render::setTitle($this->location['locationname']);
 	}
 
 	protected function doRender()
@@ -56,10 +73,10 @@ class Page_Roomplanner extends Page
 
 	protected function doAjax()
 	{
-		$this->action = Request::any('action', null, 'string');
+		$this->action = Request::any('action', false, 'string');
 
 		if ($this->action === 'getmachines') {
-			$query = Request::get('query', null, 'string');
+			$query = Request::get('query', false, 'string');
 
 			/* the query could be anything: UUID, IP or macaddr */
 //			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
@@ -84,9 +101,12 @@ class Page_Roomplanner extends Page
 			}
 			echo json_encode($returnObject);
 		} elseif ($this->action === 'save') {
-			$this->locationid = Request::any('locationid', null, 'integer');
-			if ($this->locationid === null) {
+			$this->loadRequestedLocation();
+			if ($this->locationid === false) {
 				die('Missing locationid in save data');
+			}
+			if ($this->location === false) {
+				die('Location with id ' . $this->locationid . ' does not exist.');
 			}
 			$this->handleSaveRequest(true);
 			die('SUCCESS');

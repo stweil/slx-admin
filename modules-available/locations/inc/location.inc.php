@@ -26,6 +26,11 @@ class Location
 		return $rows;
 	}
 
+	public static function get($locationId)
+	{
+		return Database::queryFirst("SELECT * FROM location WHERE locationid = :locationId", compact('locationId'));
+	}
+
 	public static function getName($locationId)
 	{
 		self::getLocationsAssoc();
