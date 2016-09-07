@@ -120,5 +120,11 @@
 		"defaultvalue": "BUMP",
 		"permissions": "2",
 		"validator": "list:IGNORE|BUMP|EXCLUSIVE"
+	},
+	"SLX_PRINT_USER_PREFIX": {
+		"catid": "sysconfig",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": ""
 	}
 }
