@@ -109,6 +109,7 @@ class Page_News extends Page
             if ($row['newsid'] == $this->newsId) {
                 $row['active'] = 'active';
             }
+            $row['content'] = strip_tags(str_replace('>', '> ', $row['content']));
             $lines[] = $row;
         }
         // fetch the list of the older helps
@@ -120,6 +121,7 @@ class Page_News extends Page
             if ($row['newsid'] == $this->newsId) {
                 $row['active'] = 'active';
             }
+			  $row['content'] = strip_tags(str_replace('>', '> ', $row['content']));
             $linesHelp[] = $row;
         }
 

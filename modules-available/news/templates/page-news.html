@@ -18,7 +18,7 @@
 				<textarea name="news-content" id ="news-content-id" class="form-control summernote" rows="5" cols="30"  placeholder="">{{latestContent}}</textarea>
 			</div>
 			<p>{{lang_latestUpdate}}: {{latestDate}}</p>
-			<button class="btn btn-primary btn-sm" name="news-type" value="news" type="submit">{{lang_save}}</button>
+			<button class="btn btn-primary btn-sm sn-btn" name="news-type" value="news" type="submit">{{lang_save}}</button>
 			<input type="hidden" name="token" value="{{token}}">
 		</form>
 		<br/>
@@ -41,10 +41,10 @@
 							<tbody>
 								{{#list}}
 								<tr {{#active}}class="active"{{/active}}>
-									<td class="text-left nowrap">{{date}}</td>
-									<td class="slx-ellipsis">{{title}}</td>
-									<td class="slx-ellipsis">{{content}}</td>
-									<td>
+									<td class="text-left text-nowrap">{{date}}</td>
+									<td><table class="slx-ellipsis"><tr><td>{{title}}</td></tr></table></td>
+									<td><table class="slx-ellipsis"><tr><td>{{content}}</td></tr></table></td>
+									<td class="text-nowrap">
 										<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show"><span class="glyphicon glyphicon-share-alt"></span> {{lang_show}}</a>
 										<button class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-remove"></span> {{lang_delete}}</button>
 									</td>
@@ -62,9 +62,9 @@
 		<form action="?do=News&amp;action=save" method="post">
 			<div class="form-group">
 				<label for="news-content-id">{{lang_content}}</label>
-				<textarea name="help-content" id ="help-content-id" class="form-control summernote" style="min-height:400px"  placeholder="">{{latestHelp}}</textarea>
+				<textarea name="help-content" id="help-content-id" class="form-control summernote" style="min-height:400px"  placeholder="">{{latestHelp}}</textarea>
 			</div>
-			<button class="btn btn-primary btn-sm" name="news-type" value="help" type="submit">{{lang_save}}</button>
+			<button class="btn btn-primary btn-sm sn-btn" name="news-type" value="help" type="submit">{{lang_save}}</button>
 			<input type="hidden" name="token" value="{{token}}">
 		</form>
 		<div class="panel panel-default">
@@ -85,9 +85,9 @@
 							<tbody>
 								{{#listHelp}}
 								<tr {{#active}}class="active"{{/active}}>
-									<td class="text-left nowrap">{{date}}</td>
-									<td class="slx-ellipsis">{{content}}</td>
-									<td>
+									<td class="text-left text-nowrap">{{date}}</td>
+									<td><table class="slx-ellipsis"><tr><td>{{content}}</td></tr></table></td>
+									<td class="text-nowrap">
 										<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show"><span class="glyphicon glyphicon-share-alt"></span> {{lang_show}}</a>
 										<button class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-remove"></span> {{lang_delete}}</button>
 									</td>
@@ -102,3 +102,13 @@
 		</div>
 	</div>
 </div>
+<script type="application/javascript"><!--
+document.addEventListener("DOMContentLoaded", function () {
+	$('.sn-btn').click(function (event) {
+		var $button = $('.note-btn.btn-codeview');
+		if ($button.hasClass('active')) {
+			$button.click();
+		}
+	});
+}, false);
+// --></script>
