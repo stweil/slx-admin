@@ -18,10 +18,13 @@ class PvsGenerator
         /* get all rooms */
         $rooms = array();
         $ret = Database::simpleQuery(
-                'SELECT l.locationid, l.locationname, l.managerip, l.tutoruuid, m.clientip as tutorip '
-                .'FROM location l LEFT JOIN machine m on l.tutoruuid = m.machineuuid', []);
+                'SELECT l.locationid, l.locationname, lr.managerip, lr.tutoruuid, m.clientip as tutorip '
+                .'FROM location l '
+		          .'INNER JOIN location_roomplan lr ON (l.locationid = lr.locationid)'
+		          .'LEFT JOIN machine m ON (lr.tutoruuid = m.machineuuid)');
         while ($row = $ret->fetch(PDO::FETCH_ASSOC)) {
-            if (Location::isLeaf($row['locationid'])) {
+            if (Location::isLeaf($row['locationid'])) { // TODO: This creates extra queries, optimize?
+					$row['locationname'] = str_replace(',', ';', $row['locationname']); // comma probably not the best sep here
                 $rooms[] = $row;
             }
         }
@@ -63,7 +66,7 @@ class PvsGenerator
         }
         /* tutor */
         if ($tutor) {
-            $out .= 'tutorIP' . $tutor . "\n";
+            $out .= 'tutorIP=' . $tutor . "\n";
         }
 
         /* grid */

@@ -21,13 +21,18 @@ function initRoomplanner() {
 	});
 
 	$("#saveBtn").click(function() {
+		var managerip = $('#manager-ip').val().trim();
+		if (managerip.length !== 0 && !(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(managerip))) {
+			alert('Invalid IP address format');
+			return;
+		}
 		$('#saveBtn').prop('disabled', true);
 		$('#error-msg').hide();
 		$('#success-msg').hide();
 		$('#saving-msg').show();
 		var serializedCurrent = roomplanner.serialize();
 		$.post('?do=roomplanner&locationid=' + locationId,
-			{ token: TOKEN, action: 'save', serializedRoom: serializedCurrent }
+			{ token: TOKEN, action: 'save', serializedRoom: serializedCurrent, managerip: managerip }
 		).done(function ( data ) {
 			if (data.indexOf('SUCCESS') !== -1) {
 				window.close();

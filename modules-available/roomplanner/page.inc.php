@@ -60,7 +60,7 @@ class Page_Roomplanner extends Page
 		if (Request::get('pvs', false, 'bool')) {
 			/* return a pvs-file */
 			echo "<pre>";
-			echo PvsGenerator::generate($locationid);
+			echo PvsGenerator::generate();
 			echo "</pre>";
 			die();
 		}
@@ -68,12 +68,19 @@ class Page_Roomplanner extends Page
 		if ($this->action === 'show') {
 			/* do nothing */
 			Dashboard::disable();
-			$furniture = $this->getFurniture();
+			$config = Database::queryFirst('SELECT roomplan, managerip FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
+			if ($config !== false) {
+				$managerIp = $config['managerip'];
+			} else {
+				$managerIp = '';
+			}
+			$furniture = $this->getFurniture($config);
 			$subnetMachines = $this->getPotentialMachines();
 			$machinesOnPlan = $this->getMachinesOnPlan();
 			$roomConfig = array_merge($furniture, $machinesOnPlan);
 			Render::addTemplate('page', [
 				'location' => $this->location,
+				'managerip' => $managerIp,
 				'subnetMachines' => json_encode($subnetMachines),
 				'locationid' => $this->locationid,
 				'roomConfiguration' => json_encode($roomConfig)]);
@@ -201,14 +208,18 @@ class Page_Roomplanner extends Page
 	protected function saveRoomConfig($furniture)
 	{
 		$obj = json_encode(['furniture' => $furniture]);
-		Database::exec('INSERT INTO location_roomplan (locationid, roomplan) VALUES (:locationid, :roomplan) ON DUPLICATE KEY UPDATE roomplan=:roomplan',
-			['locationid' => $this->locationid,
-				'roomplan' => $obj]);
+		Database::exec('INSERT INTO location_roomplan (locationid, roomplan, managerip, tutoruuid)'
+			. ' VALUES (:locationid, :roomplan, :managerip, :tutoruuid)'
+			. ' ON DUPLICATE KEY UPDATE roomplan=VALUES(roomplan), managerip=VALUES(managerip), tutoruuid=VALUES(tutoruuid)', [
+				'locationid' => $this->locationid,
+				'roomplan' => $obj,
+				'managerip' => Request::post('managerip', '', 'string'),
+				'tutoruuid' => '' // TODO
+		]);
 	}
 
-	protected function getFurniture()
+	protected function getFurniture($config)
 	{
-		$config = Database::queryFirst('SELECT roomplan FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
 		if ($config === false) {
 			return array();
 		}
