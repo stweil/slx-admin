@@ -133,20 +133,6 @@ body {
 	background-color: #eee;
 }
 
-.slx-ellipsis {
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-	max-width: 240px;
-}
-
-.slx-dyn-ellipsis {
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-	display: block;
-}
-
 .slx-space {
 	margin-top: 1em;
 	margin-bottom: 1em;
@@ -555,4 +541,18 @@ it only applies if they're in a container that has the checkbox class */
 .checkbox input[type="radio"]:checked + label::after {
 	font-family: "Glyphicons Halflings";
 	content: "\E013";
+}
+
+/* Hack to get ellipsis in containers without absolute width */
+/* Use: <table class="slx-ellipsis"><tr><td>my text bla bla</td></tr></table> */
+
+table.slx-ellipsis {
+	width:100%;
+	table-layout: fixed;
+}
+
+table.slx-ellipsis td {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }

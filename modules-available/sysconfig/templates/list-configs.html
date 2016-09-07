@@ -18,11 +18,11 @@
 				<input type="hidden" name="token" value="{{token}}">
 				<input type="hidden" name="action" value="config">
 				<input type="hidden" name="locationid" value="{{locationid}}">
-				<table id="conftable" class="slx-table" style="max-width:100px !important">
+				<table id="conftable" class="slx-table" style="width:100%">
 					{{#configs}}
 					<tr>
-						<td data-modlist="{{modlist}}" class="slx-pointer slx-width-ignore text-nowrap"onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')" width="100%">
-							<div class="slx-dyn-ellipsis">{{config}}</div>
+						<td data-modlist="{{modlist}}" class="slx-pointer" onclick="showmod(this, 'bold')" onmouseover="showmod(this, 'fade')" onmouseout="showmod(this, 'reset')" width="100%">
+							<table class="slx-ellipsis"><tr><td>{{config}}</td></tr></table>
 						</td>
 						<td>
 							{{^current}}
@@ -46,6 +46,7 @@
 							{{/locationCount}}
 						</td>
 						<td class="text-nowrap">
+							{{^locationid}}
 							<button
 									{{#needrebuild}}
 									class="refconf btn btn-primary btn-xs"
@@ -54,19 +55,22 @@
 							class="refconf btn btn-default btn-xs"
 							{{/needrebuild}}
 							name="rebuild" value="{{configid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
+							{{/locationid}}
 						</td>
 						<td class="text-nowrap">
+							{{^locationid}}
 							<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addconfig&amp;edit={{configid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
 							<button class="btn btn-danger btn-xs" name="del" value="{{configid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
+							{{/locationid}}
 						</td>
 					</tr>
 					{{/configs}}
 					{{#locationid}}
 					<tr>
-						<td><i>Vererben von übergeordnetem Raum</i></td>
+						<td><table class="slx-ellipsis"><tr><td><i>{{lang_inheritFromParentLoc}}</i></td></tr></table></td>
 						<td>
 							{{^inheritConfig}}
-							<button class="btn btn-primary btn-xs" name="activate" value="0">
+							<button class="btn btn-info btn-xs" name="activate" value="0">
 								<span class="glyphicon glyphicon-flag"></span>
 								{{lang_activate}}
 							</button>
@@ -95,9 +99,11 @@
 				{{/configs}}
 			</form>
 		</div>
+		{{^locationid}}
 		<div class="panel-footer">
 			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">{{lang_newConfiguration}}</a>
 		</div>
+		{{/locationid}}
 	</div>
 
 	<div class="modal fade" id="help-config" tabindex="-1" role="dialog">

@@ -8,11 +8,11 @@
 			<form method="post" action="?do=SysConfig">
 				<input type="hidden" name="token" value="{{token}}">
 				<input type="hidden" name="action" value="module">
-				<table id="modtable" class="slx-table" style="max-width:100px !important">
+				<table id="modtable" class="slx-table" style="width:100%">
 					{{#modules}}
 					<tr>
 						<td class="badge text-nowrap">{{moduleType}}</td>
-						<td data-id="{{id}}" class="modrow slx-width-ignore text-nowrap" width="100%"><div class="slx-dyn-ellipsis">{{title}}</div></td>
+						<td data-id="{{id}}" class="modrow" width="100%"><table class="slx-ellipsis"><tr><td>{{title}}</td></tr></table></td>
 						<td class="text-nowrap">
 							{{#allowDownload}}
 							<button class="btn btn-default btn-xs" name="list" value="{{id}}" title="{{lang_show}}"><span class="glyphicon glyphicon-eye-open"></span></button>

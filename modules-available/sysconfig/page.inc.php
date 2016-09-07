@@ -150,7 +150,9 @@ class Page_SysConfig extends Page
 				$this->listModules();
 			}
 			Render::closeTag('div');
-			Render::addTemplate('list-legend', array('showLocationBadge' => $this->haveOverriddenLocations));
+			if ($this->currentLoc === 0) {
+				Render::addTemplate('list-legend', array('showLocationBadge' => $this->haveOverriddenLocations));
+			}
 			return;
 		case 'module':
 			$listid = Request::post('list');
