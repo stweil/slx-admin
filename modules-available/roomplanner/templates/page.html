@@ -42,14 +42,13 @@
 </div> 
 
 <!--  berryous raumplaner -->
-</head>
-<body class="full">
-	<h1>{{lang_roomplanner}}</h1>
+<h1>{{lang_roomplanner}} – {{location.locationname}}</h1>
+
+<div class="alert alert-danger" style="display:none" id="error-msg"></div>
+<div class="alert alert-success" style="display:none" id="success-msg">{{lang_planSuccessfullySaved}}</div>
+<div class="alert alert-info" style="display:none" id="saving-msg">{{lang_planBeingSaved}}</div>
 
 	<div id="toolpanel" class="panel panel-default" style="z-index:200;">
-		<div class="panel-heading">
-			<h3 class="panel-title">Werkzeuge</h3>
-		</div>
 		<div class="panel-body">
 			<ul role="tablist" class="nav nav-tabs">
 				<li role="presentation" class="active"><a href="#computers"
@@ -123,13 +122,13 @@
 							<div itemtype="pc" itemlook="pc-south" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="PC" noresize=1></div>
 						</li>
 						<li>
-							<div itemtype="pc" itemlook="copier" class="draggable" obstacle=true style="width:200px; height:100px;" data-height="100" data-width="200" title="{{lang_photocopier}}" noresize=1></div>
+							<div itemtype="pc" itemlook="copier" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_photocopier}}" noresize=1></div>
 						</li>
 						<li>
 							<div itemtype="pc" itemlook="printer" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_printer}}" noresize=1></div>
 						</li>
 						<li>
-							<div itemtype="pc" itemlook="telephone" class="draggable" obstacle=true style="width:50px; height:50px;" data-height="50" data-width="50" title="{{lang_telephone}}" noresize=1></div>
+							<div itemtype="pc" itemlook="telephone" class="draggable" obstacle=true style="width:100px; height:100px;" data-height="100" data-width="100" title="{{lang_telephone}}" noresize=1></div>
 						</li>
 					</ul>
 				</div>
@@ -303,40 +302,32 @@
 			</div>
 			<div id="scaleContainer">
 				<div id="scaleslider"></div>
-				<span class="glyphicon glyphicon-zoom-out" aria-hidden="true"></span>
-				<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+				<span id="zoom-out" class="glyphicon glyphicon-zoom-out" aria-hidden="true"></span>
+				<span id="zoom-in" class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
 			</div>
 		</div>
 
 
 	</div>
 
-	<div class="panel panel-default" style="display:none">
-		<div class="panel-heading"><h3 class="panel-title">Store / Restore</h3></div>
-		<div class="panel-body">
-			<form id="roomForm" method="POST" action="?do=roomplanner&locationid={{locationid}}">
-				<input type="hidden" name="token" value="{{token}}">
-				<input type="hidden" name="action" value="save">
-				<div class="form-group">
-					<label for="serializedRoom" class="col-sm-2 control-label">In-/Output</label>
-					<textarea class="form-control" rows="5" name="serializedRoom" id="serializedRoom">{{{roomConfiguration}}}</textarea>
-				</div>
-			</form>
-		</div>
-	</div>
-	<button id="saveBtn" class="btn btn-success" onclick="window.close(); return false">Save</button>
+<div class="pull-left">
 
-</body>
-</html>
-
-
-
+</div>
+<div class="pull-right">
+	<button class="btn btn-default" onclick="triggerCancel()">{{lang_cancel}}</button>
+	<button id="saveBtn" class="btn btn-primary">{{lang_save}}</button>
+</div>
+<div class="clearfix"></div>
 
 
 <script type="application/javascript"><!--
+var locationId = '{{locationid}}';
+var subnetMachines, roomConfiguration;
+var plannerLoadState = 'invalid';
 document.addEventListener("DOMContentLoaded", function () {
 
 	subnetMachines = {{{subnetMachines}}};
+	roomConfiguration = {{{roomConfiguration}}};
 
 	$.when(
 		$.getScript("modules/roomplanner/js/lib/jquery-collision.js"),
@@ -348,10 +339,24 @@ document.addEventListener("DOMContentLoaded", function () {
 	).done(function() {
 		$.getScript("modules/roomplanner/js/init.js", function() {
 			initRoomplanner();
-			roomplanner.load($('#serializedRoom').val());
-			console.log(subnetMachines);
+			loadRoom();
 		});
 	});
 });
 
-</script>
+function loadRoom() {
+	roomplanner.load(roomConfiguration); // TODO: Filter invalid PCs, they're currently invisible and cannot be removed
+	plannerLoadState = roomplanner.serialize();
+}
+
+function triggerCancel() {
+	if (roomplanner.serialize() !== plannerLoadState) {
+		if (!confirm('{{lang_confirmDiscardChanges}}'))
+			return;
+	}
+	window.close();
+	// In case this page wasn't opened via JS, it will not close on modern browsers, so let's reset
+	loadRoom();
+}
+
+// --></script>

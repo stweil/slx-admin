@@ -91,6 +91,10 @@
 				</select>
 			</div>
 		</div>
+		<div class="form-group col-xs-12">
+			<div class="checkbox"><input id="autologin" type="checkbox" name="autologin" value="demo" class="form-control" {{#exam.autologin}}checked{{/exam.autologin}}><label for="autologin">{{lang_autoLogin}}</label></div>
+			<p><i>{{lang_autoLoginInfo}}</i></p>
+		</div>
 		<div class="col-xs-12" id="lecture-info">
 			bla
 		</div>
@@ -192,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (sel.val() === '' || sel.data('inrange')) {
 			$('#lecture-info').text('-');
 		} else {
-			$('#lecture-info').text('{{lang_lectureOutOfRange}} (' + slxMoment(sel.data('from')).format('YYYY-MM-DD H:mm') + ' - ' + slxMoment(sel.data('to')).format('YYYY-MM-DD H:mm') + ')');
+			$('#lecture-info').text('{{lang_lectureOutOfRange}} (' + slxMoment(sel.data('from') * 1000).format('YYYY-MM-DD H:mm') + ' - ' + slxMoment(sel.data('to') * 1000).format('YYYY-MM-DD H:mm') + ')');
 		}
 	}
 

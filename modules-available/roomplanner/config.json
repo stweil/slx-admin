@@ -1,4 +1,3 @@
 {
-	"category":"main.content",
-	"dependencies": ["js_jqueryui", "js_selectize", "bootstrap_dialog"]
+	"dependencies": ["js_jqueryui", "js_selectize", "bootstrap_dialog", "statistics", "locations"]
 }

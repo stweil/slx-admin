@@ -1,15 +1,27 @@
 @CHARSET "UTF-8";
 
-body.split #drawpanel {
-	width:60%;
-	float: right;}
+/* override style to make the room planner full screen */
 
+body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+}
 
-body.full #drawpanel {
-	width:90%;
-	float: none;
-	margin: 0 auto 20px;
-	}
+.sidebar-bg, .navbar {
+	display: none;
+}
+
+#mainpage {
+	position: static;
+	width: 100%;
+	max-width: 100%;
+	left: 0px;
+	top: 0px;
+	margin: 0;
+}
+
+/* end full screen changes */
 
 #drawpanel {
 	position:relative;}
@@ -22,7 +34,8 @@ body.full #drawpanel {
 	padding:0;
 	margin: 0;
 	overflow: hidden;
-	height: 350px;}
+	height: 600px;
+}
 
 #scaleContainer {
 	position: absolute;
@@ -35,6 +48,9 @@ body.full #drawpanel {
 #scaleslider {
 	position:relative;}
 
+#zoom-out, #zoom-in {
+	cursor:pointer;
+}
 
 
 #scaleContainer .glyphicon {

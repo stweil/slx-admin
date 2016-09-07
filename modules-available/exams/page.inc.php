@@ -30,7 +30,7 @@ class Page_Exams extends Page
 
 	protected function readExams()
 	{
-		$tmp = Database::simpleQuery("SELECT e.examid, l.displayname AS lecturename, e.starttime, e.endtime, e.description, GROUP_CONCAT(exl.locationid) AS locationids, "
+		$tmp = Database::simpleQuery("SELECT e.examid, e.autologin, l.displayname AS lecturename, e.starttime, e.endtime, e.description, GROUP_CONCAT(exl.locationid) AS locationids, "
 			. "GROUP_CONCAT(loc.locationname SEPARATOR ', ') AS locationnames FROM exams e "
 			. "NATURAL LEFT JOIN exams_x_location exl "
 			. "NATURAL LEFT JOIN location loc "
@@ -75,26 +75,28 @@ class Page_Exams extends Page
 		*/
 		$unique_ids = 1;
 		/* add the red shadows */
-		foreach ($this->exams as $e) {
-			if ($e['starttime'] > $this->rangeMax || $e['endtime'] < $this->rangeMin)
-				continue;
-			$locationids = explode(',', $e['locationids']);
-			if ($locationids[0] == 0) {
-				$locationids = [];
-				foreach($this->locations as $location) {
-					$locationids[] = $location['locationid'];
+		if (is_array($this->exams)) {
+			foreach ($this->exams as $e) {
+				if ($e['starttime'] > $this->rangeMax || $e['endtime'] < $this->rangeMin)
+					continue;
+				$locationids = explode(',', $e['locationids']);
+				if ($locationids[0] == 0) {
+					$locationids = [];
+					foreach ($this->locations as $location) {
+						$locationids[] = $location['locationid'];
+					}
 				}
-			}
-			foreach ($locationids as $locationid) {
-				$out[] = [
-					'id' => 'shadow_' . $unique_ids++,
-					'content' => $e['description'],
-					'title' => $e['description'],
-					'start' => intval($e['starttime']) * 1000,
-					'end' => intval($e['endtime']) * 1000,
-					'type' => 'background',
-					'group' => $locationid,
-				];
+				foreach ($locationids as $locationid) {
+					$out[] = [
+						'id' => 'shadow_' . $unique_ids++,
+						'content' => $e['description'],
+						'title' => $e['description'],
+						'start' => intval($e['starttime']) * 1000,
+						'end' => intval($e['endtime']) * 1000,
+						'type' => 'background',
+						'group' => $locationid,
+					];
+				}
 			}
 		}
 		/* add the lectures */
@@ -142,17 +144,19 @@ class Page_Exams extends Page
 	{
 		$out = [];
 		$now = time();
-		foreach ($this->exams as $exam) {
-			if ($exam['endtime'] < $now) {
-				$exam['rowClass'] = 'text-muted';
-				$exam['btnClass'] = 'btn-success';
-				$exam['liesInPast'] = true;
-			} else {
-				$exam['btnClass'] = 'btn-default';
+		if (is_array($this->exams)) {
+			foreach ($this->exams as $exam) {
+				if ($exam['endtime'] < $now) {
+					$exam['rowClass'] = 'text-muted';
+					$exam['btnClass'] = 'btn-success';
+					$exam['liesInPast'] = true;
+				} else {
+					$exam['btnClass'] = 'btn-default';
+				}
+				$exam['starttime_s'] = date('Y-m-d H:i', $exam['starttime']);
+				$exam['endtime_s'] = date('Y-m-d H:i', $exam['endtime']);
+				$out[] = $exam;
 			}
-			$exam['starttime_s'] = date('Y-m-d H:i', $exam['starttime']);
-			$exam['endtime_s'] = date('Y-m-d H:i', $exam['endtime']);
-			$out[] = $exam;
 		}
 		return $out;
 	}
@@ -216,6 +220,7 @@ class Page_Exams extends Page
 		$endtime = strtotime(Request::post('endtime_date') . " " . Request::post('endtime_time'));
 		$description = Request::post('description', '', 'string');
 		$lectureid = Request::post('lectureid', '', 'string');
+		$autologin = Request::post('autologin', '', 'string');
 		if (!$this->isDateSane($starttime)) {
 			Message::addError('starttime-invalid', Request::post('starttime_date') . " " . Request::post('starttime_time'));
 			Util::redirect('?do=exams');
@@ -231,8 +236,8 @@ class Page_Exams extends Page
 
 		if ($examid === 0) {
 			// No examid given, is add
-			$res = Database::exec("INSERT INTO exams(lectureid, starttime, endtime, description) VALUES(:lectureid, :starttime, :endtime, :description);",
-					compact('lectureid', 'starttime', 'endtime', 'description')) !== false;
+			$res = Database::exec("INSERT INTO exams(lectureid, starttime, endtime, autologin, description) VALUES(:lectureid, :starttime, :endtime, :autologin, :description);",
+					compact('lectureid', 'starttime', 'endtime', 'autologin', 'description')) !== false;
 
 			$exam_id = Database::lastInsertId();
 			foreach ($locationids as $lid) {
@@ -255,8 +260,8 @@ class Page_Exams extends Page
 		}
 
 		/* update fields */
-		$res = Database::exec("UPDATE exams SET lectureid = :lectureid, starttime = :starttime, endtime = :endtime, description = :description WHERE examid = :examid",
-				compact('lectureid', 'starttime', 'endtime', 'description', 'examid')) !== false;
+		$res = Database::exec("UPDATE exams SET lectureid = :lectureid, starttime = :starttime, endtime = :endtime, autologin = :autologin, description = :description WHERE examid = :examid",
+				compact('lectureid', 'starttime', 'endtime', 'description', 'examid', 'autologin')) !== false;
 		/* drop all connections and reconnect to rooms */
 		$res = $res && Database::exec("DELETE FROM exams_x_location WHERE examid = :examid", compact('examid')) !== false;
 		/* reconnect */

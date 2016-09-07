@@ -2,13 +2,6 @@
 
 function initRoomplanner() {
 	
-	console.log('initRoomplanner');
-
-	/* make it fullscreen, otherwise there are too many positioning bugs */
-	$('.sidebar-bg, .navbar').hide();
-	$('#mainpage').css('position', 'static').css('width', '100%').css('max-width', '100%').css('left', '0px');
-
-
 	$('#drawarea').css('top',(-roomplanner.settings.scale*10)+'px');
 	$('#drawarea').css('left',(-roomplanner.settings.scale*10)+'px');
 	
@@ -28,8 +21,36 @@ function initRoomplanner() {
 	});
 
 	$("#saveBtn").click(function() {
-		$('#serializedRoom').val(roomplanner.serialize());
-		$('#roomForm').submit();
+		$('#saveBtn').prop('disabled', true);
+		$('#error-msg').hide();
+		$('#success-msg').hide();
+		$('#saving-msg').show();
+		var serializedCurrent = roomplanner.serialize();
+		$.post('?do=roomplanner&locationid=' + locationId,
+			{ token: TOKEN, action: 'save', serializedRoom: serializedCurrent }
+		).done(function ( data ) {
+			if (data.indexOf('SUCCESS') !== -1) {
+				window.close();
+				// If window.close() failed, we give some feedback and remember the state as saved
+				$('#success-msg').show();
+				plannerLoadState = serializedCurrent;
+				return;
+			}
+			$('#error-msg').text('Error: ' + data).show();
+		}).fail(function () {
+			$('#error-msg').text('AJAX save call failed').show();
+		}).always(function() {
+			$('#saveBtn').prop('disabled', false);
+			$('#saving-msg').hide();
+		});
+	});
+	
+	$('#zoom-out').click(function() {
+		roomplanner.slider.slider('value', roomplanner.settings.scale - 10);
+	});
+	
+	$('#zoom-in').click(function() {
+		roomplanner.slider.slider('value', roomplanner.settings.scale + 10);
 	});
 }
 

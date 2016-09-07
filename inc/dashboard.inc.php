@@ -5,9 +5,17 @@ class Dashboard
 	
 	private static $iconCache = array();
 	private static $subMenu = array();
+	private static $disabled = false;
+
+	public static function disable()
+	{
+		self::$disabled = true;
+	}
 	
 	public static function createMenu()
 	{
+		if (self::$disabled)
+			return;
 		global $MENU_CAT_OVERRIDE;
 		$modByCategory = array();
 		$modById = array();
