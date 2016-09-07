@@ -412,7 +412,7 @@ class Page_Locations extends Page
 			'locationid' => $loc['locationid'],
 			'locationname' => $loc['locationname'],
 			'list' => $rows,
-			'isLeaf' => Location::isLeaf($locationId),
+			'roomplanner' => Module::get('roomplanner') !== false && Location::isLeaf($locationId),
 			'parents' => Location::getLocations($loc['parentlocationid'], $locationId, true)
 		);
 		if (Module::get('dozmod') !== false) {
