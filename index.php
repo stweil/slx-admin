@@ -136,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // AJAX Stuff? Just do so. Otherwise, run preprocessing
 if (AJAX) {
+	ob_start('ob_gzhandler');
 	Page::ajax();
 	exit(0);
 }
