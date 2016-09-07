@@ -42,7 +42,7 @@ class Page_Roomplanner extends Page
 			Util::redirect('?do=locations');
 		}
 		if ($this->location === false) {
-			Message::addError('invalid-locationid');
+			Message::addError('locations.invalid-location-id', $this->locationid);
 			Util::redirect('?do=locations');
 		}
 
@@ -135,6 +135,15 @@ class Page_Roomplanner extends Page
 		$this->saveComputerConfig($config['computers'], $machinesOnPlan);
 	}
 
+	private function sanitizeNumber(&$number, $lower, $upper)
+	{
+		if (!is_numeric($number) || $number < $lower) {
+			$number = $lower;
+		} elseif ($number > $upper) {
+			$number = $upper;
+		}
+	}
+
 	protected function saveComputerConfig($computers, $oldComputers)
 	{
 
@@ -147,6 +156,22 @@ class Page_Roomplanner extends Page
 		$newUuids = [];
 		foreach ($computers as $computer) {
 			$newUuids[] = $computer['muuid'];
+
+			// Fix/sanitize properties
+			// TODO: The list of items, computers, etc. in general is copied and pasted in multiple places. We need a central definition with generators for the various formats we need it in
+			if (!isset($computer['itemlook']) || !in_array($computer['itemlook'], ['pc-north', 'pc-south', 'pc-west', 'pc-east', 'copier', 'telephone'])) {
+				$computer['itemlook'] = 'pc-north';
+			}
+			if (!isset($computer['gridRow'])) {
+				$computer['gridRow'] = 0;
+			} else {
+				$this->sanitizeNumber($computer['gridRow'], 0, 32 * 4);
+			}
+			if (!isset($computer['gridCol'])) {
+				$computer['gridCol'] = 0;
+			} else {
+				$this->sanitizeNumber($computer['gridCol'], 0, 32 * 4);
+			}
 
 			$position = json_encode(['gridRow' => $computer['gridRow'],
 				'gridCol' => $computer['gridCol'],

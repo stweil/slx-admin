@@ -19,8 +19,8 @@ if (!roomplanner) var roomplanner = {
 			cellsep: 4,
 			scale: 100,
 			room: {
-				width: 1000,
-				height: 1000
+				width: 33,
+				height: 33
 			}
 		},
 		selectFromServer: selectMachine,
@@ -412,7 +412,7 @@ $(document).ready(function(){
 	roomplanner.slider = $('#scaleslider').slider({
 		orientation: "horizontal",
 		range: "min",
-		min: 50,
+		min: 40,
 		max: 150,
 		value: 100,
 		change: update,
