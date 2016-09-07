@@ -57,6 +57,7 @@ class Page_Roomplanner extends Page
 	{
 		if ($this->action === 'show') {
 			/* do nothing */
+			Dashboard::disable();
 			$furniture = $this->getFurniture();
 			$subnetMachines = $this->getPotentialMachines();
 			$machinesOnPlan = $this->getMachinesOnPlan();
