@@ -63,6 +63,7 @@ class Page_Roomplanner extends Page
 			$machinesOnPlan = $this->getMachinesOnPlan();
 			$roomConfig = array_merge($furniture, $machinesOnPlan);
 			Render::addTemplate('page', [
+				'location' => $this->location,
 				'subnetMachines' => json_encode($subnetMachines),
 				'locationid' => $this->locationid,
 				'roomConfiguration' => json_encode($roomConfig)]);
