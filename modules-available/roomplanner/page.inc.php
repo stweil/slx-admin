@@ -55,6 +55,16 @@ class Page_Roomplanner extends Page
 
 	protected function doRender()
 	{
+		/* deliver the pvs.ini file temporarily here */
+		/* TODO: Move this to api.inc.php */
+		if (Request::get('pvs', false, 'bool')) {
+			/* return a pvs-file */
+			echo "<pre>";
+			echo PvsGenerator::generate($locationid);
+			echo "</pre>";
+			die();
+		}
+
 		if ($this->action === 'show') {
 			/* do nothing */
 			Dashboard::disable();
