@@ -12,7 +12,7 @@ class Util
 	 */
 	public static function traceError($message)
 	{
-		if (defined('API') && API) {
+		if ((defined('API') && API) || (defined('AJAX') && AJAX)) {
 			error_log('API ERROR: ' . $message);
 			error_log(self::formatBacktracePlain(debug_backtrace()));
 		}
