@@ -42,8 +42,8 @@ function initRoomplanner() {
 				return;
 			}
 			$('#error-msg').text('Error: ' + data).show();
-		}).fail(function () {
-			$('#error-msg').text('AJAX save call failed').show();
+		}).fail(function (jq, textStatus, errorThrown) {
+			$('#error-msg').text('AJAX save call failed: ' + textStatus + ' (' + errorThrown + ')').show();
 		}).always(function() {
 			$('#saveBtn').prop('disabled', false);
 			$('#saving-msg').hide();
