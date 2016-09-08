@@ -4,7 +4,7 @@ class Page_Locations extends Page
 {
 
 	private $action;
-	
+
 	/*
 	 * Action handling
 	 */
@@ -58,7 +58,7 @@ class Page_Locations extends Page
 		Message::addSuccess('subnets-updated', $count);
 		Util::redirect('?do=Locations');
 	}
-	
+
 	private function addLocations()
 	{
 		$names = Request::post('newlocation', false);
@@ -71,7 +71,8 @@ class Page_Locations extends Page
 		$count = 0;
 		foreach ($names as $idx => $name) {
 			$name = trim($name);
-			if (empty($name)) continue;
+			if (empty($name))
+				continue;
 			$parent = isset($parents[$idx]) ? (int)$parents[$idx] : 0;
 			if ($parent !== 0) {
 				$ok = false;
@@ -87,15 +88,15 @@ class Page_Locations extends Page
 			}
 			Database::exec("INSERT INTO location (parentlocationid, locationname)"
 				. " VALUES (:parent, :name)", array(
-					'parent' => $parent,
-					'name' => $name
+				'parent' => $parent,
+				'name' => $name
 			));
 			$count++;
 		}
 		Message::addSuccess('added-x-entries', $count);
 		Util::redirect('?do=Locations');
 	}
-	
+
 	private function updateLocation()
 	{
 		$locationId = Request::post('locationid', false, 'integer');
@@ -122,7 +123,7 @@ class Page_Locations extends Page
 		$this->updateLocationData($location);
 		Util::redirect('?do=Locations');
 	}
-	
+
 	private function deleteLocation($location)
 	{
 		$locationId = (int)$location['locationid'];
@@ -144,7 +145,7 @@ class Page_Locations extends Page
 		Message::addSuccess('location-deleted', $locs, $subs);
 		Util::redirect('?do=Locations');
 	}
-	
+
 	private function updateLocationData($location)
 	{
 		$locationId = (int)$location['locationid'];
@@ -174,9 +175,9 @@ class Page_Locations extends Page
 		}
 		$ret = Database::exec('UPDATE location SET parentlocationid = :parent, locationname = :name'
 			. ' WHERE locationid = :lid', array(
-				'lid' => $locationId,
-				'parent' => $newParent,
-				'name' => $newName
+			'lid' => $locationId,
+			'parent' => $newParent,
+			'name' => $newName
 		));
 		if ($ret > 0) {
 			Message::addSuccess('location-updated', $newName);
@@ -191,7 +192,8 @@ class Page_Locations extends Page
 			$count = 0;
 			$stmt = Database::prepare('DELETE FROM subnet WHERE subnetid = :id');
 			foreach ($dels as $key => $value) {
-				if (!is_numeric($key) || $value !== 'on') continue;
+				if (!is_numeric($key) || $value !== 'on')
+					continue;
 				if ($stmt->execute(array('id' => $key))) {
 					$count += $stmt->rowCount();
 				}
@@ -210,7 +212,8 @@ class Page_Locations extends Page
 		$stmt = Database::prepare('UPDATE subnet SET startaddr = :start, endaddr = :end'
 			. ' WHERE subnetid = :id');
 		foreach ($starts as $key => $start) {
-			if (!isset($ends[$key]) || !is_numeric($key)) continue;
+			if (!isset($ends[$key]) || !is_numeric($key))
+				continue;
 			$end = $ends[$key];
 			$range = $this->rangeToLongVerbose($start, $end);
 			if ($range === false)
@@ -224,7 +227,7 @@ class Page_Locations extends Page
 			Message::addInfo('subnets-updated', $count);
 		}
 	}
-	
+
 	private function addNewLocationSubnets($location)
 	{
 		$locationId = (int)$location['locationid'];
@@ -236,7 +239,8 @@ class Page_Locations extends Page
 		$count = 0;
 		$stmt = Database::prepare('INSERT INTO subnet SET startaddr = :start, endaddr = :end, locationid = :location');
 		foreach ($starts as $key => $start) {
-			if (!isset($ends[$key]) || !is_numeric($key)) continue;
+			if (!isset($ends[$key]) || !is_numeric($key))
+				continue;
 			$end = $ends[$key];
 			list($startLong, $endLong) = $this->rangeToLong($start, $end);
 			if ($startLong === false) {
@@ -245,7 +249,8 @@ class Page_Locations extends Page
 			if ($endLong === false) {
 				Message::addWarning('main.value-invalid', 'new end addr', $start);
 			}
-			if ($startLong === false || $endLong === false) continue;
+			if ($startLong === false || $endLong === false)
+				continue;
 			if ($startLong > $endLong) {
 				Message::addWarning('main.value-invalid', 'range', $start . ' - ' . $end);
 				continue;
@@ -258,7 +263,7 @@ class Page_Locations extends Page
 			Message::addInfo('subnets-created', $count);
 		}
 	}
-		
+
 	/*
 	 * Rendering normal pages
 	 */
@@ -391,7 +396,7 @@ class Page_Locations extends Page
 			$this->ajaxShowLocation();
 		}
 	}
-	
+
 	private function ajaxShowLocation()
 	{
 		$locationId = Request::any('locationid', 0, 'integer');
@@ -454,11 +459,11 @@ class Page_Locations extends Page
 		// echo '</pre>';
 		echo Render::parse('location-subnets', $data);
 	}
-	
+
 	/*
 	 * Helpers
 	 */
-	
+
 	private function rangeToLong($start, $end)
 	{
 		$startLong = ip2long($start);
