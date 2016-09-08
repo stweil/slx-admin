@@ -55,16 +55,6 @@ class Page_Roomplanner extends Page
 
 	protected function doRender()
 	{
-		/* deliver the pvs.ini file temporarily here */
-		/* TODO: Move this to api.inc.php */
-		if (Request::get('pvs', false, 'bool')) {
-			/* return a pvs-file */
-			echo "<pre>";
-			echo PvsGenerator::generate();
-			echo "</pre>";
-			die();
-		}
-
 		if ($this->action === 'show') {
 			/* do nothing */
 			Dashboard::disable();
@@ -211,10 +201,10 @@ class Page_Roomplanner extends Page
 		Database::exec('INSERT INTO location_roomplan (locationid, roomplan, managerip, tutoruuid)'
 			. ' VALUES (:locationid, :roomplan, :managerip, :tutoruuid)'
 			. ' ON DUPLICATE KEY UPDATE roomplan=VALUES(roomplan), managerip=VALUES(managerip), tutoruuid=VALUES(tutoruuid)', [
-				'locationid' => $this->locationid,
-				'roomplan' => $obj,
-				'managerip' => Request::post('managerip', '', 'string'),
-				'tutoruuid' => '' // TODO
+			'locationid' => $this->locationid,
+			'roomplan' => $obj,
+			'managerip' => Request::post('managerip', '', 'string'),
+			'tutoruuid' => '' // TODO
 		]);
 	}
 
