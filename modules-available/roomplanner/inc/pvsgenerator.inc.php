@@ -17,21 +17,29 @@ class PvsGenerator
 		/* get all rooms */
 		$rooms = array();
 		$ret = Database::simpleQuery(
-			'SELECT l.locationid, l.locationname, lr.managerip, lr.tutoruuid, m.clientip as tutorip '
+			'SELECT l.locationid, l.parentlocationid, l.locationname, lr.locationid AS notnull, lr.managerip, lr.tutoruuid, m.clientip as tutorip '
 			. 'FROM location l '
-			. 'INNER JOIN location_roomplan lr ON (l.locationid = lr.locationid)'
+			. 'LEFT JOIN location_roomplan lr ON (l.locationid = lr.locationid)'
 			. 'LEFT JOIN machine m ON (lr.tutoruuid = m.machineuuid)');
 		while ($row = $ret->fetch(PDO::FETCH_ASSOC)) {
-			if (Location::isLeaf($row['locationid'])) { // TODO: This creates extra queries, optimize?
-				$row['locationname'] = str_replace(',', ';', $row['locationname']); // comma probably not the best sep here
-				$rooms[] = $row;
+			$row['locationname'] = str_replace(',', ';', $row['locationname']); // comma probably not the best sep here
+			settype($row['locationid'], 'int');
+			settype($row['parentlocationid'], 'int');
+			$rooms[$row['locationid']] = $row;
+		}
+		foreach ($rooms as &$room) {
+			if ($room['parentlocationid'] > 0 && isset($rooms[$room['parentlocationid']])) {
+				$rooms[$room['parentlocationid']]['skip'] = true; // Don't just unset, might be wrong order
 			}
 		}
+		unset($room); // refd!
 
 		/* collect names and build room blocks - filter empty rooms while at it */
 		$roomNames = array();
 		$roomBlocks = '';
 		foreach ($rooms as $room) {
+			if (is_null($room['notnull']) || isset($room['skip'])) // Not leaf
+				continue;
 			$roomBlock = PvsGenerator::generateRoomBlock($room);
 			if ($roomBlock === false)
 				continue; // Room nonexistent or empty
