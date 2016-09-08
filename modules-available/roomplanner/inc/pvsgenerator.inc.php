@@ -27,29 +27,33 @@ class PvsGenerator
 				$rooms[] = $row;
 			}
 		}
-		/* collect names */
+
+		/* collect names and build room blocks - filter empty rooms while at it */
 		$roomNames = array();
-
+		$roomBlocks = '';
 		foreach ($rooms as $room) {
+			$roomBlock = PvsGenerator::generateRoomBlock($room);
+			if ($roomBlock === false)
+				continue; // Room nonexistent or empty
 			$roomNames[] = $room['locationname'];
+			$roomBlocks .= $roomBlock;
 		}
 
-		/* add [General]-block */
-		$config = "[General]\n";
-		$config .= 'rooms=' . implode(', ', $roomNames) . "\n";
-		$config .= "allowClientQuit=True\n"; // TODO: remove this
-		$config .= "showLockDesktopButton=True\n"; // TODO: Make this configurable (or not)
-		$config .= "\n\n";
-
-		/* foreach room generate room-block */
-		foreach ($rooms as $room) {
-			$config .= PvsGenerator::generateRoomBlock($room);
-			$config .= "\n";
-		}
-
-		return $config;
+		/* output room plus [General]-block */
+		return "[General]\n"
+		. 'rooms=' . implode(', ', $roomNames) . "\n"
+		. "allowClientQuit=False\n" // TODO: configurable
+		. "showLockDesktopButton=True\n" // TODO: Make this configurable (or not)
+		. "\n\n"
+		. $roomBlocks;
 	}
 
+	/**
+	 * Generate .ini section for specific room.
+	 *
+	 * @param $room array room/location data as fetched from db
+	 * @return string|bool .ini section for room, or false if room is empty
+	 */
 	private static function generateRoomBlock($room)
 	{
 		$out = '[' . $room['locationname'] . "]\n";
@@ -57,6 +61,9 @@ class PvsGenerator
 
 		/* find all clients in that room */
 		$machines = PvsGenerator::getMachines($room['locationid']);
+		if (empty($machines))
+			return false;
+
 		/* manager */
 		$mgr = $room['managerip'];
 		$tutor = $room['tutorip'];
@@ -71,9 +78,15 @@ class PvsGenerator
 		/* grid */
 		$out .= PvsGenerator::generateGrid($machines);
 
-		return $out;
+		return $out . "\n";
 	}
 
+	/**
+	 * Generate grid size information and client position data for given clients.
+	 *
+	 * @param $machines array list of clients
+	 * @return string grid and position data as required for a room's .ini section
+	 */
 	private static function generateGrid($machines)
 	{
 		$out = "";
@@ -112,7 +125,12 @@ class PvsGenerator
 
 	}
 
-
+	/**
+	 * Get all clients for given room with IP and position.
+	 *
+	 * @param $roomid int locationid of room
+	 * @return array
+	 */
 	private static function getMachines($roomid)
 	{
 		$ret = Database::simpleQuery(
@@ -154,4 +172,3 @@ class PvsGenerator
 	}
 
 }
-
