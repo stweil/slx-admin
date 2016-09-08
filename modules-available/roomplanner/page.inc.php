@@ -87,15 +87,6 @@ class Page_Roomplanner extends Page
 		if ($this->action === 'getmachines') {
 			$query = Request::get('query', false, 'string');
 
-			/* the query could be anything: UUID, IP or macaddr */
-//			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
-//				. ', MATCH (machineuuid, macaddr, clientip, hostname) AGAINST (:query) AS relevance '
-//				. 'FROM machine '
-//				. 'WHERE MATCH (machineuuid, macaddr, clientip, hostname) AGAINST (:query) '
-//				. 'ORDER BY relevance DESC '
-//				. 'LIMIT 5'
-//				, ['query' => $query]);
-//
 			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
 				. 'FROM machine '
 				. 'WHERE machineuuid LIKE :query '
@@ -204,7 +195,7 @@ class Page_Roomplanner extends Page
 			'locationid' => $this->locationid,
 			'roomplan' => $obj,
 			'managerip' => Request::post('managerip', '', 'string'),
-			'tutoruuid' => '' // TODO
+			'tutoruuid' => null // TODO
 		]);
 	}
 
