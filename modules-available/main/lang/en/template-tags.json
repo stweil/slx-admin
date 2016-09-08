@@ -1,4 +1,5 @@
 {
+    "lang_changePassword": "Change password",
     "lang_goTo": "Gehe zu",
     "lang_intro": "This is the bwLehrpool configuration interface.",
     "lang_introGuest": "This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",

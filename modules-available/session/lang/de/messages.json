@@ -1,3 +1,7 @@
 {
-    "loginfail": "Benutzername oder Kennwort falsch"
+    "loginfail": "Benutzername oder Kennwort falsch",
+    "pass-too-short": "Passwort zu kurz",
+    "password-changed": "Passwort erfolgreich ge\u00e4ndert",
+    "password-unchanged": "Passwort wurde nicht ge\u00e4ndert",
+    "wrong-password": "Falsches Passwort"
 }

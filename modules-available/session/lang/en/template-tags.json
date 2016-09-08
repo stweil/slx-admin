@@ -1,8 +1,12 @@
 {
+    "lang_changePassword": "Change password",
+    "lang_currentPassword": "Current password",
     "lang_enter": "Enter",
     "lang_login": "Login",
+    "lang_newPassword": "New password",
     "lang_password": "Password",
     "lang_register": "Register",
     "lang_rememberID": "Remember ID",
+    "lang_repeatPassword": "Repeat password",
     "lang_username": "Username"
 }
