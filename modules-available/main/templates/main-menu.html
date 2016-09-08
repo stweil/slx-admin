@@ -60,6 +60,7 @@
 					<form id="logoutForm" method="post" action="?do=Session">
 						<input type="hidden" name="token" value="{{token}}">
 						<input type="hidden" name="action" value="logout">
+						<a href="?do=session" class="btn btn-default btn-xs">{{lang_changePassword}}</a>
 						<button class="btn btn-default btn-xs" type="submit">{{lang_logout}}</button>
 					</form>
 				</li>
@@ -79,6 +80,7 @@
 						<ul class="dropdown-menu">
 							<!--<li><a href="#">Settings</a></li> -->
 							<!--<li role="separator" class="divider"></li> -->
+							<li><a href="?do=session">{{lang_changePassword}}</a></li>
 							<li><a href="#" onclick="$('#logoutForm').submit();">{{lang_logout}}</a></li>
 						</ul>
 					{{/user}}

@@ -49,6 +49,23 @@ class User
 		return false;
 	}
 
+	public static function testPassword($userid, $password)
+	{
+		$ret = Database::queryFirst('SELECT passwd FROM user WHERE userid = :userid LIMIT 1', compact('userid'));
+		if ($ret === false)
+			return false;
+		return Crypto::verify($password, $ret['passwd']);
+	}
+
+	public static function updatePassword($password)
+	{
+		if (!self::isLoggedIn())
+			return;
+		$passwd = Crypto::hash6($password);
+		$userid = self::getId();
+		return Database::exec('UPDATE user SET passwd = :passwd WHERE userid = :userid LIMIT 1', compact('userid', 'passwd')) > 0;
+	}
+
 	public static function login($user, $pass)
 	{
 		$ret = Database::queryFirst('SELECT userid, passwd FROM user WHERE login = :user LIMIT 1', array(':user' => $user));
