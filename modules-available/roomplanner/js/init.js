@@ -26,13 +26,14 @@ function initRoomplanner() {
 			alert('Invalid IP address format');
 			return;
 		}
+		var dediMgr = $('#dedi-mgr').prop('checked') ? 'on' : '';
 		$('#saveBtn').prop('disabled', true);
 		$('#error-msg').hide();
 		$('#success-msg').hide();
 		$('#saving-msg').show();
 		var serializedCurrent = roomplanner.serialize();
 		$.post('?do=roomplanner&locationid=' + locationId,
-			{ token: TOKEN, action: 'save', serializedRoom: serializedCurrent, managerip: managerip }
+			{ token: TOKEN, action: 'save', serializedRoom: serializedCurrent, managerip: managerip, dedimgr: dediMgr }
 		).done(function ( data ) {
 			if (data.indexOf('SUCCESS') !== -1) {
 				window.close();

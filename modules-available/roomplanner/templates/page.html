@@ -311,9 +311,10 @@
 	</div>
 
 <div class="pull-left">
-	<div class="input-group" style="width:300px">
+	<div class="input-group" style="width:400px">
 		<div class="input-group-addon">{{lang_managerIp}}</div>
-		<input class="form-control" type="text" id="manager-ip" value="{{managerip}}" placeholder="1.2.3.4">
+		<input class="form-control" type="text" id="manager-ip" value="{{managerip}}" placeholder="1.2.3.4" style="width:120px">
+		<div class="input-group-addon checkbox"><input id="dedi-mgr" type="checkbox" {{dediMgrChecked}}> <label for="dedi-mgr">{{lang_dedicatedManager}}</label></div>
 	</div>
 </div>
 <div class="pull-right">

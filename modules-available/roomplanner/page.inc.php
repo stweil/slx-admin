@@ -58,11 +58,12 @@ class Page_Roomplanner extends Page
 		if ($this->action === 'show') {
 			/* do nothing */
 			Dashboard::disable();
-			$config = Database::queryFirst('SELECT roomplan, managerip FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
+			$config = Database::queryFirst('SELECT roomplan, managerip, dedicatedmgr FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
 			if ($config !== false) {
 				$managerIp = $config['managerip'];
+				$dediMgr = $config['dedicatedmgr'] ? 'checked' : '';
 			} else {
-				$managerIp = '';
+				$dediMgr = $managerIp = '';
 			}
 			$furniture = $this->getFurniture($config);
 			$subnetMachines = $this->getPotentialMachines();
@@ -71,6 +72,7 @@ class Page_Roomplanner extends Page
 			Render::addTemplate('page', [
 				'location' => $this->location,
 				'managerip' => $managerIp,
+				'dediMgrChecked' => $dediMgr,
 				'subnetMachines' => json_encode($subnetMachines),
 				'locationid' => $this->locationid,
 				'roomConfiguration' => json_encode($roomConfig)]);
@@ -189,12 +191,14 @@ class Page_Roomplanner extends Page
 	protected function saveRoomConfig($furniture)
 	{
 		$obj = json_encode(['furniture' => $furniture]);
-		Database::exec('INSERT INTO location_roomplan (locationid, roomplan, managerip, tutoruuid)'
-			. ' VALUES (:locationid, :roomplan, :managerip, :tutoruuid)'
-			. ' ON DUPLICATE KEY UPDATE roomplan=VALUES(roomplan), managerip=VALUES(managerip), tutoruuid=VALUES(tutoruuid)', [
+		Database::exec('INSERT INTO location_roomplan (locationid, roomplan, managerip, tutoruuid, dedicatedmgr)'
+			. ' VALUES (:locationid, :roomplan, :managerip, :tutoruuid, :dedicatedmgr)'
+			. ' ON DUPLICATE KEY UPDATE '
+			. ' roomplan=VALUES(roomplan), managerip=VALUES(managerip), tutoruuid=VALUES(tutoruuid), dedicatedmgr=VALUES(dedicatedmgr)', [
 			'locationid' => $this->locationid,
 			'roomplan' => $obj,
 			'managerip' => Request::post('managerip', '', 'string'),
+			'dedicatedmgr' => (Request::post('dedimgr') === 'on' ? 1 : 0),
 			'tutoruuid' => null // TODO
 		]);
 	}

@@ -6,24 +6,33 @@ $res = array();
 $res[] = tableCreate('location_roomplan', "
 	`locationid` INT(11) NOT NULL,
 	`managerip` varchar(45) CHARACTER SET ascii DEFAULT '',
+	`dedicatedmgr` tinyint(1) NOT NULL DEFAULT 0,
 	`tutoruuid` char(36) CHARACTER SET ascii DEFAULT NULL,
 	`roomplan`   BLOB	 DEFAULT NULL,
 	PRIMARY KEY (`locationid`),
- 	KEY `tutoruuid` (`tutoruuid`)");
+ 	KEY `tutoruuid` (`tutoruuid`),
+ 	KEY `managerip` (`managerip`)");
 
 if (!tableHasColumn('location_roomplan', 'managerip')) {
-	$ret = Database::exec("ALTER TABLE `location_roomplan` ADD COLUMN `managerip` varchar(45) CHARACTER SET ascii DEFAULT '' AFTER locationid") !== false;
+	$ret = Database::exec("ALTER TABLE `location_roomplan` ADD COLUMN `managerip` varchar(45) CHARACTER SET ascii DEFAULT '' AFTER locationid,"
+		. " ADD KEY `managerip` (`managerip`)") !== false;
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Adding managerip to location_roomplan failed: ' . Database::lastError());
 	}
 	$res[] = UPDATE_DONE;
 }
-
 if (!tableHasColumn('location_roomplan', 'tutoruuid')) {
 	$ret = Database::exec("ALTER TABLE `location_roomplan` ADD COLUMN `tutoruuid` char(36) CHARACTER SET ascii DEFAULT NULL AFTER managerip,"
 		. " ADD KEY `tutoruuid` (`tutoruuid`)") !== false;
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Adding tutoruuid to location_roomplan failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+if (!tableHasColumn('location_roomplan', 'dedicatedmgr')) {
+	$ret = Database::exec("ALTER TABLE `location_roomplan` ADD `dedicatedmgr` tinyint(1) NOT NULL DEFAULT 0 AFTER `managerip`") !== false;
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding dedicatedmgr to location_roomplan failed: ' . Database::lastError());
 	}
 	$res[] = UPDATE_DONE;
 }
