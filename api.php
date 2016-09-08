@@ -29,8 +29,7 @@ if (!empty($_REQUEST['do'])) {
 } elseif (!empty($argv[1])) {
 	$module = preg_replace('/[^a-z]/', '', $argv[1]);
 } else {
-	// No specific module - set default
-	$module = 'main';
+	exit(1);
 }
 
 Module::init();
@@ -45,7 +44,7 @@ if (!file_exists($module)) {
 }
 
 Header('Content-Type: text/plain; charset=utf-8');
-
+ob_start('ob_gzhandler');
 // Load module - it will execute pre-processing, or act upon request parameters
 require_once($module);
 
