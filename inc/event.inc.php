@@ -96,7 +96,6 @@ class Event
 	 */
 	public static function activeConfigChanged()
 	{
-		error_log('Active config changed');
 		$task = Trigger::ldadp();
 		TaskmanagerCallback::addCallback($task, 'ldadpStartup');
 	}

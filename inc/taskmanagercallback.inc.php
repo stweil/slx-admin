@@ -101,8 +101,12 @@ class TaskmanagerCallback
 	 */
 	public static function ldadpStartup($task)
 	{
-		if (Taskmanager::isFailed($task))
+		if (Taskmanager::isFailed($task)) {
+			if (!isset($task['data']['messages'])) {
+				$task['data']['messages'] = '';
+			}
 			EventLog::warning("Could not start/stop LDAP-AD-Proxy instances", $task['data']['messages']);
+		}
 	}
 
 	/**
