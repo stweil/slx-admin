@@ -6,7 +6,7 @@
 					class="sr-only">Close</span></button>
 			{{lang_add_filter}}
 		</div>
-		<form class="modal-body form-inline center">
+		<form class="modal-body form-inline center" onsubmit="$('#add-btn').click(); return false">
 			<div class="form-group">
 				<select id="columnSelect" name="column" class="form-control col-4-xs"> </select>
 			</div>
@@ -17,7 +17,7 @@
 				<input name="argument" id="argumentInput" class="form-control col-4-xs"> </input>
 				<select name="argument" id="argumentSelect" class="form-control col-4-xs"> </select>
 			</div>
-			<button type="button" class="btn btn-primary" onclick="addFilterFromForm()">
+			<button id="add-btn" type="button" class="btn btn-primary" onclick="addFilterFromForm()">
 				<span class="glyphicon glyphicon-plus"></span>
 				{{lang_add}}
 			</button>
