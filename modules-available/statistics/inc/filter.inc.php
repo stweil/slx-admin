@@ -220,7 +220,7 @@ class LocationFilter extends Filter
 			$joins[] = ' INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) ';
 			$args['lid'] = $this->argument;
 			$neg = $this->operator == '=' ? '' : 'NOT';
-			return "$neg (subnet.locationid = :lid OR machine.locationid = :lid)";
+			return "$neg ((subnet.locationid = :lid AND machine.locationid IS NULL) OR machine.locationid = :lid)";
 		}
 	}
 }

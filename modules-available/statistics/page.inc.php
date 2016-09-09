@@ -532,6 +532,7 @@ class Page_Statistics extends Page
 			$rows[] = $row;
 		}
 		Render::addTemplate('clientlist', array(
+			'rowCount' => count($rows),
 			'rows' => $rows,
 			'query' => $this->query,
 			'delimiter' => Filter::DELIMITER,

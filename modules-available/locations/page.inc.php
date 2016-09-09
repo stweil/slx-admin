@@ -290,30 +290,37 @@ class Page_Locations extends Page
 		}
 	}
 
+	private function queryMachineCount($lid, $subnets)
+	{
+		if (!isset($subnets[$lid]))
+			return 0;
+		$loc =& $subnets[$lid];
+		if (empty($loc['subnets'])) {
+			$query = "SELECT Count(*) AS cnt FROM machine WHERE locationid = :locationid";
+		} else {
+			$query = "SELECT Count(*) AS cnt FROM machine WHERE locationid = :locationid OR (locationid IS NULL AND (0";
+			foreach ($loc['subnets'] as $sub) {
+				$query .= ' OR INET_ATON(clientip) BETWEEN ' . $sub['startaddr'] . ' AND ' . $sub['endaddr'];
+			}
+			$query .= '))';
+		}
+		$ret = Database::queryFirst($query, array('locationid' => $lid));
+		return $ret['cnt'];
+	}
+
 	private function showLocationList()
 	{
 		$overlapSelf = $overlapOther = true;
-		$subnets = Location::getSubnetsByLocation($overlapSelf, $overlapOther);
+		$subnetsFlat = Location::getSubnetsByLocation($overlapSelf, $overlapOther, false);
+		$subnetsRecursive = Location::getSubnetsByLocation($overlapSelf, $overlapOther, true);
 		$locs = Location::getLocations(0, 0, false, true);
 		// Statistics: Count machines for each subnet
 		$unassigned = false;
 		if (Module::get('statistics') !== false) {
 			foreach ($locs as &$location) {
 				$lid = (int)$location['locationid'];
-				if (!isset($subnets[$lid]))
-					continue;
-				$loc =& $subnets[$lid];
-				if (empty($loc['subnets'])) {
-					$query = "SELECT Count(*) AS cnt FROM machine WHERE locationid = :locationid";
-				} else {
-					$query = "SELECT Count(*) AS cnt FROM machine WHERE locationid = :locationid OR (locationid IS NULL AND (0";
-					foreach ($loc['subnets'] as $sub) {
-						$query .= ' OR INET_ATON(clientip) BETWEEN ' . $sub['startaddr'] . ' AND ' . $sub['endaddr'];
-					}
-					$query .= '))';
-				}
-				$ret = Database::queryFirst($query, array('locationid' => $lid));
-				$location['clientCount'] = $ret['cnt'];
+				$location['clientCount'] = $this->queryMachineCount($lid, $subnetsFlat);
+				$location['clientCountSum'] = $this->queryMachineCount($lid, $subnetsRecursive);
 			}
 			$res = Database::queryFirst("SELECT Count(*) AS cnt FROM machine m"
 				. " LEFT JOIN subnet s ON (INET_ATON(m.clientip) BETWEEN s.startaddr AND s.endaddr)"
@@ -432,7 +439,7 @@ class Page_Locations extends Page
 		if (Module::get('statistics') !== false) {
 			$mres = Database::simpleQuery("SELECT lastseen, logintime FROM machine"
 				. " INNER JOIN subnet ON (INET_ATON(machine.clientip) BETWEEN startaddr AND endaddr)"
-				. " WHERE subnet.locationid = :lid OR machine.locationid = :lid", array('lid' => $locationId));
+				. " WHERE (subnet.locationid = :lid AND machine.locationid IS NULL) OR machine.locationid = :lid", array('lid' => $locationId));
 			$DL = time() - 605;
 			while ($row = $mres->fetch(PDO::FETCH_ASSOC)) {
 				$count++;

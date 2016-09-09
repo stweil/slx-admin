@@ -25,6 +25,10 @@
 				<td class="text-nowrap" align="right">
 					{{#havestatistics}}
 					{{clientCount}}
+					<span class="text-muted">
+						/
+						<span style="display:inline-block;width:3ex">{{clientCountSum}}</span>
+					</span>
 					<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}"><span class="glyphicon glyphicon-eye-open"></span></a>
 					{{/havestatistics}}
 				</td>

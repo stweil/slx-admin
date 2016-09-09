@@ -140,6 +140,7 @@ class Location
 		foreach ($tree as $node) {
 			$output[(int)$node['locationid']] = array(
 				'locationid' => $node['locationid'],
+				'parentlocationid' => $node['parentlocationid'],
 				'locationname' => $node['locationname'],
 				'locationpad' => str_repeat('--', $depth),
 				'isleaf'	=> empty($node['children']),
@@ -287,7 +288,7 @@ class Location
 	/**
 	 * @return array|bool assoc array mapping from locationid to subnets
 	 */
-	public static function getSubnetsByLocation(&$overlapSelf, &$overlapOther)
+	public static function getSubnetsByLocation(&$overlapSelf, &$overlapOther, $recursive = true)
 	{
 		$locs = self::getLocationsAssoc();
 		$subnets = self::getSubnets();
@@ -307,6 +308,8 @@ class Location
 					'startaddr' => $subnet['startaddr'],
 					'endaddr' => $subnet['endaddr']
 				);
+				if (!$recursive)
+					break;
 				$lid = $locs[$lid]['parentlocationid'];
 			}
 		}
