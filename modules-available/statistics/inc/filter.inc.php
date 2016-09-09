@@ -26,12 +26,17 @@ class Filter
 	{
 		global $unique_key;
 		$key = $this->column . '_arg' . ($unique_key++);
+		$addendum = '';
 
 		/* check if we have to do some parsing*/
 		if (Page_Statistics::$columns[$this->column]['type'] == 'date') {
 			$args[$key] = strtotime($this->argument);
 		} else {
 			$args[$key] = $this->argument;
+			if ($this->operator === '~' || $this->operator === '!~') {
+				$args[$key] = str_replace(array('=', '_', '%', '*', '?'), array('==', '=_', '=%', '%', '_'), $args[$key]);
+				$addendum = " ESCAPE '='";
+			}
 		}
 
 		$op = $this->operator;
@@ -41,7 +46,7 @@ class Filter
 			$op = 'NOT LIKE';
 		}
 
-		return $this->column . ' ' . $op . ' :' . $key;
+		return $this->column . ' ' . $op . ' :' . $key . $addendum;
 	}
 
 	/* parse a query into an array of filters */
