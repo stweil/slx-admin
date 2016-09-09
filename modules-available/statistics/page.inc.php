@@ -105,7 +105,7 @@ class Page_Statistics extends Page
 			'currentuser' => [
 				'op' => Page_Statistics::$op_nominal,
 				'type' => 'string',
-				'column' => false
+				'column' => true
 			]
 		];
 		if (Module::isAvailable('locations')) {
