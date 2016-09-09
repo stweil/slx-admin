@@ -701,11 +701,13 @@ ul.toollist li {
 	display:none;
 	float: right;}
 
-.rotationHandle {
+.rotationHandle,
+.tutorHandle {
 	display:none;
 	float: left;}
 
-div.draggable:hover .rotationHandle {
+div.draggable:hover .rotationHandle,
+div.draggable:hover .tutorHandle{
 	display:inline;
 	cursor: pointer;}
 
@@ -721,6 +723,9 @@ div.draggable:hover .deleteHandle {
 [itemtype="pc"], [itemtype="pc_drag"] {
 	z-index: 100;
 	background-size: 100% 100%;
+}
+[istutor="true"] {
+	background-color: rgba(0, 240, 100, .5);
 }
 
 [itemlook="wall-horizontal"] {

@@ -27,13 +27,14 @@ function initRoomplanner() {
 			return;
 		}
 		var dediMgr = $('#dedi-mgr').prop('checked') ? 'on' : '';
+		var tutorUuid = $('[istutor="true"]').attr('muuid');
 		$('#saveBtn').prop('disabled', true);
 		$('#error-msg').hide();
 		$('#success-msg').hide();
 		$('#saving-msg').show();
 		var serializedCurrent = roomplanner.serialize();
 		$.post('?do=roomplanner&locationid=' + locationId,
-			{ token: TOKEN, action: 'save', serializedRoom: serializedCurrent, managerip: managerip, dedimgr: dediMgr }
+			{ token: TOKEN, action: 'save', serializedRoom: serializedCurrent, managerip: managerip, dedimgr: dediMgr, tutoruuid: tutorUuid }
 		).done(function ( data ) {
 			if (data.indexOf('SUCCESS') !== -1) {
 				window.close();

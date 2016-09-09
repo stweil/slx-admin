@@ -58,7 +58,7 @@ class Page_Roomplanner extends Page
 		if ($this->action === 'show') {
 			/* do nothing */
 			Dashboard::disable();
-			$config = Database::queryFirst('SELECT roomplan, managerip, dedicatedmgr FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
+			$config = Database::queryFirst('SELECT roomplan, managerip, dedicatedmgr, tutoruuid FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
 			if ($config !== false) {
 				$managerIp = $config['managerip'];
 				$dediMgr = $config['dedicatedmgr'] ? 'checked' : '';
@@ -67,7 +67,7 @@ class Page_Roomplanner extends Page
 			}
 			$furniture = $this->getFurniture($config);
 			$subnetMachines = $this->getPotentialMachines();
-			$machinesOnPlan = $this->getMachinesOnPlan();
+			$machinesOnPlan = $this->getMachinesOnPlan($config['tutoruuid']);
 			$roomConfig = array_merge($furniture, $machinesOnPlan);
 			Render::addTemplate('page', [
 				'location' => $this->location,
@@ -120,7 +120,7 @@ class Page_Roomplanner extends Page
 	private function handleSaveRequest($isAjax)
 	{
 		/* save */
-		$machinesOnPlan = $this->getMachinesOnPlan();
+		$machinesOnPlan = $this->getMachinesOnPlan('invalid');
 		$config = Request::post('serializedRoom', null, 'string');
 		$config = json_decode($config, true);
 		if (!is_array($config) || !isset($config['furniture']) || !isset($config['computers'])) {
@@ -131,7 +131,21 @@ class Page_Roomplanner extends Page
 				Util::redirect("?do=roomplanner&locationid={$this->locationid}&action=show");
 			}
 		}
-		$this->saveRoomConfig($config['furniture']);
+		$tutorUuid = Request::post('tutoruuid', '', 'string');
+		if (empty($tutorUuid)) {
+			$tutorUuid = null;
+		} else {
+			$ret = Database::queryFirst('SELECT machineuuid FROM machine WHERE machineuuid = :uuid', ['uuid' => $tutorUuid]);
+			if ($ret === false) {
+				if ($isAjax) {
+					die('Invalid tutor UUID');
+				} else {
+					Message::addError('invalid-tutor-uuid');
+					Util::redirect("?do=roomplanner&locationid={$this->locationid}&action=show");
+				}
+			}
+		}
+		$this->saveRoomConfig($config['furniture'], $tutorUuid);
 		$this->saveComputerConfig($config['computers'], $machinesOnPlan);
 	}
 
@@ -188,7 +202,7 @@ class Page_Roomplanner extends Page
 		}
 	}
 
-	protected function saveRoomConfig($furniture)
+	protected function saveRoomConfig($furniture, $tutorUuid)
 	{
 		$obj = json_encode(['furniture' => $furniture]);
 		Database::exec('INSERT INTO location_roomplan (locationid, roomplan, managerip, tutoruuid, dedicatedmgr)'
@@ -199,7 +213,7 @@ class Page_Roomplanner extends Page
 			'roomplan' => $obj,
 			'managerip' => Request::post('managerip', '', 'string'),
 			'dedicatedmgr' => (Request::post('dedimgr') === 'on' ? 1 : 0),
-			'tutoruuid' => null // TODO
+			'tutoruuid' => $tutorUuid
 		]);
 	}
 
@@ -212,7 +226,7 @@ class Page_Roomplanner extends Page
 		return $config;
 	}
 
-	protected function getMachinesOnPlan()
+	protected function getMachinesOnPlan($tutorUuid)
 	{
 		$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname, position FROM machine WHERE locationid = :locationid',
 			['locationid' => $this->locationid]);
@@ -231,6 +245,9 @@ class Page_Roomplanner extends Page
 			$machine['itemlook'] = $pos['itemlook'];
 			$machine['data-width'] = 100;
 			$machine['data-height'] = 100;
+			if ($row['machineuuid'] === $tutorUuid) {
+				$machine['istutor'] = 'true';
+			}
 			$machines[] = $machine;
 		}
 		return ['computers' => $machines];

@@ -78,6 +78,17 @@ if (!roomplanner) var roomplanner = {
 				}
 			});
 		},
+		initTutor: function(el) {
+			if ($(el).attr('itemtype') !== 'pc') return;
+			$(el).append('<div class="tutorHandle glyphicon glyphicon-blackboard"></div>');
+			$(el).find('.tutorHandle').click(function() {
+				var wasTutor = ($(this).parent().attr('istutor') === 'true');
+				$('[itemtype="pc"]').removeAttr('istutor');
+				if (!wasTutor) {
+					$(this).parent().attr('istutor', 'true');
+				}
+			});
+		},
 		initTooltip: function(el) {
 			if ($(el).attr('itemtype') == 'pc') {
 				var tip = "<b>Rechnerdaten</b><br>";
@@ -339,6 +350,7 @@ if (!roomplanner) var roomplanner = {
 				roomplanner.initTooltip(el);
 				roomplanner.initRotation(el);
 				roomplanner.initDelete(el);
+				roomplanner.initTutor(el);
 			});
 			
 			roomplanner.grid.scale(roomplanner.settings.scale);
