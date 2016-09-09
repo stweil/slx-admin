@@ -616,7 +616,7 @@ class Page_Statistics extends Page
 			$row['session'] = $row['currentsession'];
 			return;
 		}
-		$res = Database::queryFirst('SELECT dateline, username, data FROM statistic'
+		$res = Database::simpleQuery('SELECT dateline, username, data FROM statistic'
 			. " WHERE clientip = :ip AND typeid = '.vmchooser-session-name'"
 			. ' AND dateline BETWEEN :start AND :end', array(
 			'ip' => $row['clientip'],
