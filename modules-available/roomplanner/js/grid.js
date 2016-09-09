@@ -565,7 +565,7 @@ $(document).ready(function(){
 				}			
 				roomplanner.initDelete(el);				
 				roomplanner.initRotation(el);
-				
+				roomplanner.initTutor(el);
 			}
 			
 		}
