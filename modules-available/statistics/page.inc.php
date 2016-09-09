@@ -605,7 +605,7 @@ class Page_Statistics extends Page
 		if (!empty($row['currentuser'])) {
 			$row['username'] = $row['currentuser'];
 			if (strlen($row['currentsession']) === 36 && Module::isAvailable('dozmod')) {
-				$lecture = Database::simpleQuery("SELECT lectureid, displayname FROM sat.lecture WHERE lectureid = :lectureid",
+				$lecture = Database::queryFirst("SELECT lectureid, displayname FROM sat.lecture WHERE lectureid = :lectureid",
 					array('lectureid' => $row['currentsession']));
 				if ($lecture !== false) {
 					$row['currentsession'] = $lecture['displayname'];
