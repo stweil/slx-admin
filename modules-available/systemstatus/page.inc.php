@@ -271,6 +271,7 @@ class Page_SystemStatus extends Page
 
 	protected function ajaxLdadpLog()
 	{
+		$haveSysconfig = Module::isAvailable('sysconfig');
 		$files = glob('/var/log/ldadp/*.log', GLOB_NOSORT);
 		if ($files === false || empty($files)) echo('No logs found');
 		$now = time();
@@ -279,7 +280,7 @@ class Page_SystemStatus extends Page
 			if ($now - $mod > 86400) continue;
 			// New enough - handle
 			preg_match(',/(\d+)\.log,', $file, $out);
-			$module = ConfigModule::get($out[1]);
+			$module = $haveSysconfig ? ConfigModule::get($out[1]) : false;
 			if ($module === false) {
 				echo '<h4>Module ', $out[1], '</h4>';
 			} else {
