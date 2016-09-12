@@ -38,7 +38,8 @@ class PvsGenerator
 		$roomNames = array();
 		$roomBlocks = '';
 		foreach ($rooms as $room) {
-			if (is_null($room['notnull']) || isset($room['skip'])) // Not leaf
+			if (is_null($room['notnull']) || isset($room['skip']) // Not leaf
+				|| empty($room['managerip'])) // rooms without managerips don't make sense
 				continue;
 			$roomBlock = PvsGenerator::generateRoomBlock($room);
 			if ($roomBlock === false)
