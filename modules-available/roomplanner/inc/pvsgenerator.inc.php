@@ -43,7 +43,7 @@ class PvsGenerator
 			$roomBlock = PvsGenerator::generateRoomBlock($room);
 			if ($roomBlock === false)
 				continue; // Room nonexistent or empty
-			$roomNames[] = $room['locationname'];
+			$roomNames[] = md5($room['locationname']);
 			$roomBlocks .= $roomBlock;
 		}
 
@@ -64,13 +64,15 @@ class PvsGenerator
 	 */
 	private static function generateRoomBlock($room)
 	{
-		$out = '[' . $room['locationname'] . "]\n";
+		$out = '[' . md5($room['locationname']) . "]\n";
 
 
 		/* find all clients in that room */
 		$machines = PvsGenerator::getMachines($room['locationid']);
 		if (empty($machines))
 			return false;
+
+		$out .= "name=" . $room['locationname'] . "\n";
 
 		/* manager */
 		$mgr = $room['managerip'];
