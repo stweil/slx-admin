@@ -217,10 +217,10 @@ class LocationFilter extends Filter
 			$joins[] = 'LEFT JOIN subnet s ON (INET_ATON(machine.clientip) BETWEEN s.startaddr AND s.endaddr)';
 			return 'machine.locationid IS NULL AND s.locationid IS NULL';
 		} else {
-			$joins[] = ' INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) ';
+			$joins[] = ' LEFT JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr AND machine.locationid IS NULL) ';
 			$args['lid'] = $this->argument;
 			$neg = $this->operator == '=' ? '' : 'NOT';
-			return "$neg ((subnet.locationid = :lid AND machine.locationid IS NULL) OR machine.locationid = :lid)";
+			return "$neg ((subnet.locationid = :lid) OR (machine.locationid = :lid))";
 		}
 	}
 }

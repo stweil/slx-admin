@@ -438,8 +438,8 @@ class Page_Locations extends Page
 		$count = $online = $used = 0;
 		if (Module::get('statistics') !== false) {
 			$mres = Database::simpleQuery("SELECT lastseen, logintime FROM machine"
-				. " INNER JOIN subnet ON (INET_ATON(machine.clientip) BETWEEN startaddr AND endaddr)"
-				. " WHERE (subnet.locationid = :lid AND machine.locationid IS NULL) OR machine.locationid = :lid", array('lid' => $locationId));
+				. " LEFT JOIN subnet ON (INET_ATON(machine.clientip) BETWEEN startaddr AND endaddr AND machine.locationid IS NULL)"
+				. " WHERE (subnet.locationid = :lid) OR (machine.locationid = :lid)", array('lid' => $locationId));
 			$DL = time() - 605;
 			while ($row = $mres->fetch(PDO::FETCH_ASSOC)) {
 				$count++;
