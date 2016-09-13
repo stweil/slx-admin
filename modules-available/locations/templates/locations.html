@@ -3,11 +3,14 @@
 		<a href="?do=Locations&amp;action=showsubnets">{{lang_thisListBySubnet}}</a>
 	</div>
 	<h1>{{lang_locationsMainHeading}}</h1>
-	<table class="table table-condensed" style="margin-bottom:0px">
+	<table class="table table-condensed locations" style="margin-bottom:0px">
 		<tr>
 			<th width="100%">{{lang_locationName}}</th>
 			<th>
 				{{#havestatistics}}{{lang_machineCount}}{{/havestatistics}}
+			</th>
+			<th>
+				{{#havestatistics}}{{lang_machineLoad}}{{/havestatistics}}
 			</th>
 			<th class="text-nowrap">
 				{{#havebaseconfig}}{{lang_editConfigVariables}}{{/havebaseconfig}}
@@ -30,6 +33,11 @@
 						<span style="display:inline-block;width:3ex">{{clientCountSum}}</span>
 					</span>
 					<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}"><span class="glyphicon glyphicon-eye-open"></span></a>
+					{{/havestatistics}}
+				</td>
+				<td class="text-nowrap" align="right">
+					{{#havestatistics}}
+					{{clientLoad}}
 					{{/havestatistics}}
 				</td>
 				<td class="text-nowrap">
@@ -62,6 +70,9 @@
 				<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location=0">
 					<span class="glyphicon glyphicon-eye-open"></span>
 				</a>
+			</td>
+			<td class="text-nowrap" align="right">
+				{{clientLoad}}
 			</td>
 			<td></td>
 			<td>{{defaultConfig}}</td>
@@ -129,7 +140,7 @@ function slxOpenLocation(e, lid) {
 		}
 		return;
 	}
-	var td = $('<td>').attr('colspan', '4').css('padding', '0px 0px 12px');
+	var td = $('<td>').attr('colspan', '5').css('padding', '0px 0px 12px');
 	var tr = $('<tr>').attr('id', 'location-details-' + lid);
 	tr.append(td);
 	$(e).closest('tr').addClass('active slx-bold').after(tr);

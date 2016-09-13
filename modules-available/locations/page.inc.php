@@ -290,19 +290,22 @@ class Page_Locations extends Page
 		}
 	}
 
-	private function queryMachineCount($lid, $subnets)
+	private function queryMachineCount($lid, $subnets, $xtra = '')
 	{
 		if (!isset($subnets[$lid]))
 			return 0;
 		$loc =& $subnets[$lid];
 		if (empty($loc['subnets'])) {
-			$query = "SELECT Count(*) AS cnt FROM machine WHERE locationid = :locationid";
+			$query = "SELECT Count(*) AS cnt FROM machine WHERE (locationid = :locationid)";
 		} else {
-			$query = "SELECT Count(*) AS cnt FROM machine WHERE locationid = :locationid OR (locationid IS NULL AND (0";
+			$query = "SELECT Count(*) AS cnt FROM machine WHERE (locationid = :locationid OR (locationid IS NULL AND (0";
 			foreach ($loc['subnets'] as $sub) {
 				$query .= ' OR INET_ATON(clientip) BETWEEN ' . $sub['startaddr'] . ' AND ' . $sub['endaddr'];
 			}
-			$query .= '))';
+			$query .= ')))';
+		}
+		if (!empty($xtra)) {
+			$query .= ' ' . $xtra;
 		}
 		$ret = Database::queryFirst($query, array('locationid' => $lid));
 		return $ret['cnt'];
@@ -317,10 +320,14 @@ class Page_Locations extends Page
 		// Statistics: Count machines for each subnet
 		$unassigned = false;
 		if (Module::get('statistics') !== false) {
+			$DL = time() - 605;
 			foreach ($locs as &$location) {
 				$lid = (int)$location['locationid'];
 				$location['clientCount'] = $this->queryMachineCount($lid, $subnetsFlat);
 				$location['clientCountSum'] = $this->queryMachineCount($lid, $subnetsRecursive);
+				if ($location['clientCountSum'] > 0) {
+					$location['clientLoad'] = round(($this->queryMachineCount($lid, $subnetsRecursive, "AND logintime <> 0 AND lastseen > $DL") / $location['clientCountSum']) * 100) . '%';
+				}
 			}
 			$res = Database::queryFirst("SELECT Count(*) AS cnt FROM machine m"
 				. " LEFT JOIN subnet s ON (INET_ATON(m.clientip) BETWEEN s.startaddr AND s.endaddr)"
@@ -455,7 +462,7 @@ class Page_Locations extends Page
 		$data['machines'] = $count;
 		$data['machines_online'] = $online;
 		$data['machines_used'] = $used;
-		$data['used_percent'] = $online === 0 ? 0 : round(100 * $used / $online);
+		$data['used_percent'] = $count === 0 ? 0 : round(($used / $count) * 100);
 
 
 		$data['havebaseconfig'] = Module::get('baseconfig') !== false;
