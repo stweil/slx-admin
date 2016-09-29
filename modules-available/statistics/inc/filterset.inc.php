@@ -43,7 +43,13 @@ class FilterSet
 
 		$col = $this->sortColumn;
 		$isMapped = array_key_exists('map_sort', Page_Statistics::$columns[$col]);
-		$sort = " ORDER BY " . ($isMapped ? Page_Statistics::$columns[$col]['map_sort'] : $col) . " " . $this->sortDirection
+		$concreteCol = ($isMapped ? Page_Statistics::$columns[$col]['map_sort'] : $col) ;
+
+		if ($concreteCol === 'clientip') {
+			$concreteCol = "INET_ATON(clientip)";
+		}
+
+		$sort = " ORDER BY " . $concreteCol . " " . $this->sortDirection
 			. ", machineuuid ASC";
 	}
 
