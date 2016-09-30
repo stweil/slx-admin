@@ -1,7 +1,7 @@
 /**
  * Pop-Up to select a machine
  *
- * Copyright 2016 Christian Klinger
+ * AUTHOR: Christian Klinger
  * */
 
 /* Map: uuid -> obj */
