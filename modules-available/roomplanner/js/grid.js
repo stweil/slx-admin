@@ -27,6 +27,10 @@ if (!roomplanner) var roomplanner = {
 		isElementResizable: function(el) {
 			return (!$(el).attr('noresize') && $(el).attr('itemtype') != 'pc'); 
 		},
+		/**
+		 * elements with attribute itemlook ending with east, south, west or north are rotatable.
+		 * if the attribute does not match to one of these directions, the rotation handle will not be added
+		 */
 		initRotation: function(el) {
 			if (!(new RegExp(".*(east|south|west|north)$").test($(el).attr('itemlook')))) {
 				return;
@@ -63,6 +67,9 @@ if (!roomplanner) var roomplanner = {
 				} 
 			});
 		},
+		/**
+		 * adds delete handle to the element. if the item is a pc, the user has to confirm his intention
+		 */
 		initDelete: function(el) {
 			$(el).append('<div class="deleteHandle glyphicon glyphicon-remove-sign"></div>');
 			$(el).find('.deleteHandle').click(function() {
@@ -100,7 +107,9 @@ if (!roomplanner) var roomplanner = {
 				$(el).tooltip({html: true});
 			}
 		},
-				
+		/**
+		 * initializes draggable functionality. elements collide with elements of the same itemtype
+		 */		
 		initDraggable: function(el) {
 			$(el).draggable();
 			var options = {
@@ -137,6 +146,9 @@ if (!roomplanner) var roomplanner = {
 				$(el).draggable("option",o,options[o]);
 			}
 		},
+		/**
+		 * initializes resizable functionality. elements collide with elements of the same itemtype
+		 */	
 		initResizable: function(el) {
 			if (!roomplanner.isElementResizable(el)) { return; }
 						
@@ -260,6 +272,11 @@ if (!roomplanner) var roomplanner = {
 				}
 			});
 		},
+		/**
+		 * serializes the elements on the drawboard.
+		 * furniture and computers are considered.
+		 * @NOTICE: if more itemtypes are added, they need to be implemented here, too!
+		 */
 		serialize: function() {
 			
 			var objects = {
@@ -296,6 +313,11 @@ if (!roomplanner) var roomplanner = {
 			
 			return JSON.stringify(objects);
 		},
+		/**
+		 * tries to reconstruct a serialized room.
+		 * furniture and computers are considered
+		 * @NOTICE: if new itemtypes are added to the application, they need to be implemented here, too!
+		 */
 		load: function(object) {
 			if (typeof object === 'string') {
 				try {
@@ -458,6 +480,10 @@ $(document).ready(function(){
 		}
 	});
 	
+	/**
+	 * adds droppable functionality to the draw area for the elements.
+	 * drop event is only fired for elements added to the board from the toolbar.
+	 */
 	$('#draw-element-area').droppable({
 		accept: ".draggable",
 		drop: function(event, ui) {
@@ -570,7 +596,9 @@ $(document).ready(function(){
 			
 		}
 	});
-	
+	/**
+	 * adds draggable functionality to all elements from the toolbar
+	 */
 	$('.draggable').draggable({
 		helper: "clone",
 		//grid : [(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)],
