@@ -117,9 +117,6 @@ if (!roomplanner) var roomplanner = {
 					"helper" : false,
 					"grid" : [(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)],
 					"stop": function(ev,ui) {
-						if ($(this).attr("obstacle") == "true") {
-							$(this).addClass("obstacle");
-						}
 						
 						if ($(this).attr('itemtype').indexOf('_drag') > -1) {
 							var itemtype = $(this).attr('itemtype').replace('_drag','');
@@ -138,7 +135,6 @@ if (!roomplanner) var roomplanner = {
 						var itemtype = $(this).attr('itemtype');
 						$(this).attr('itemtype',itemtype+'_drag');
 						
-						$(this).removeClass("obstacle");
 					}
 			};
 			
@@ -206,7 +202,6 @@ if (!roomplanner) var roomplanner = {
 					}
 				},
 				start: function(ev,ui) {
-					$(this).removeClass("obstacle");
 					
 					var itemtype = $(this).attr('itemtype');
 					$(this).attr('itemtype',itemtype+'_drag');
@@ -239,10 +234,7 @@ if (!roomplanner) var roomplanner = {
 					
 				},
 				stop: function(ev,ui) {
-					if ($(this).attr("obstacle") == "true") {
-						$(this).addClass("obstacle");
-					}
-					
+										
 					if ($(this).attr('itemtype').indexOf('_drag') > -1) {
 						var itemtype = $(this).attr('itemtype').replace('_drag','');
 						$(this).attr('itemtype',itemtype);
@@ -339,11 +331,6 @@ if (!roomplanner) var roomplanner = {
 					html += prop+'="'+item[prop]+'" ';
 				}
 				html += 'class="draggable ui-draggable';
-				
-				if (obstacle) {
-					html += " obstacle";
-				}
-					
 				html+= '"></div>';
 				return html; 
 			}
@@ -557,10 +544,7 @@ $(document).ready(function(){
 			var gridPositions = roomplanner.getGridFromPixels(parseInt($(el).css('left')),parseInt($(el).css('top')));
 			$(el).attr('gridRow',gridPositions[0]);
 			$(el).attr('gridCol',gridPositions[1]);
-			
-			if ($(el).attr("obstacle") == "true") {
-				$(el).addClass("obstacle");
-			}
+						
 			
 			roomplanner.initResizable(el);
 			roomplanner.initDraggable(el);
@@ -604,7 +588,6 @@ $(document).ready(function(){
 		//grid : [(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)],
 		preventCollision: true,
 		restraint: "#draw-element-area",
-		obstacle: ".obstacle",
 		cursorAt: {left:5,top:5},
 		start: function(ev,ui) {
 				$(ui.helper).css('opacity',0.8);
