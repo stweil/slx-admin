@@ -1,0 +1,26 @@
+roomplanner module readme
+
+HOW TO
+
+add new furniture:
+==================
+add the following html to a tab of your choice to templates/page.html
+
+<div itemtype="furniture" itemlook="plant3" class="draggable"  style="width:75px; height:75px;" data-height="75" data-width="75" title="{{lang_plant}}"></div>
+
+attribute description:
+	itemtype - defines the type. The attribute is used for collision detection. The items only collide with items of the same type.
+	itemlook - is used for the look of the item in style.css. If the itemlook ends with "-north", "-east", "-west" or "-north", the item is rotatable. Please ensure to define the look of all directions in your applied css file.
+	class="draggable" - is mandatory if the element should be added to the plan
+	style="width:XYpx; height:XYpx;" - defines the dimension in the toolbar.
+	data-height, data-width - defines the relation of item's dimension to the plan. 100 = 1 big square
+	title - the element's title. {{translation_key}} can be used for translation if the application is used in different languages
+	noresize - "1": the element must not be resized by the user (see: computers)
+	scalable: "h": the element is only allowed to be resized in horizontal direction, "v": the element is only allowed to be resized in vertical direction (see walls) 
+	
+
+add a translation:
+==================
+
+init.js file declares an object "translation" and a function __(key) which returns a translation of the key, if it exists. otherwise the key will be returned.
+To add a translation, the translation object has to be extended.
