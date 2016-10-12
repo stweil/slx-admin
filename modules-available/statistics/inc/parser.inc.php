@@ -192,11 +192,11 @@ class Parser {
 			} else {
 				$new['ven'] = $res['value'];
 			}
-			$res = Page_Statistics::getPciId('DEVICE', $new['ven'] . ':' . $new['dev']);
+			$res = Page_Statistics::getPciId('DEVICE', $new['dev']);
 			if ($res === false || $res['dateline'] < $NOW) {
 				$new['lookupDev'] = 'do-lookup';
 			} else {
-				$new['dev'] = $res['value'];
+				$new['dev'] = $res['value'] . ' (' . $new['dev'] . ')';
 			}
 			$pci[$entry['class']]['entries'][] = $new;
 		}
