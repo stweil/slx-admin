@@ -348,8 +348,13 @@ class Page_SysConfig extends Page
 			}
 		}
 		$locationid = $this->currentLoc;
-		Database::exec("INSERT INTO configtgz_location (locationid, configid) VALUES (:locationid, :configid)"
-			. " ON DUPLICATE KEY UPDATE configid = :configid", compact('locationid', 'configid'));
+		if ($configid === 0) {
+			Database::exec("DELETE FROM configtgz_location WHERE locationid = :locationid",
+				compact('locationid'));
+		} else {
+			Database::exec("INSERT INTO configtgz_location (locationid, configid) VALUES (:locationid, :configid)"
+				. " ON DUPLICATE KEY UPDATE configid = :configid", compact('locationid', 'configid'));
+		}
 		Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 	}
 
