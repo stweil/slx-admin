@@ -91,6 +91,12 @@
 		"permissions": "2",
 		"validator": "regex:\/^(\\s*\\d{1,2}:\\d{1,2})*\\s*$\/"
 	},
+	"SLX_REBOOT_SCHEDULE": {
+		"catid": "power",
+		"defaultvalue": "5:30",
+		"permissions": "2",
+		"validator": "regex:\/^(\\s*\\d{1,2}:\\d{1,2})*\\s*$\/"
+	},
 	"SLX_SHUTDOWN_TIMEOUT": {
 		"catid": "power",
 		"defaultvalue": "1800",
