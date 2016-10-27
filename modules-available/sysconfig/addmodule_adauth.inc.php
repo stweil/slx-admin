@@ -67,12 +67,14 @@ class AdAuth_CheckConnection extends AddModule_Base
 
 	protected function renderInternal()
 	{
+		$searchBase = Ldap::normalizeDn(Request::post('searchbase', '', 'string'));
+		$bindDn = Ldap::normalizeDn(Request::post('binddn', '', 'string'));
 		$data = array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => $this->server,
-			'searchbase' => Util::normalizeDn(Request::post('searchbase')),
-			'binddn' => Util::normalizeDn(Request::post('binddn')),
+			'searchbase' => $searchBase,
+			'binddn' => $bindDn,
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
 			'homeattr' => Request::post('homeattr'),
@@ -81,7 +83,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'taskid' => $this->scanTask['id']
 		);
 		$data['prev'] = 'AdAuth_Start';
-		if (preg_match('#^\w+[/\\\\]\w+$#', Request::post('binddn')) || strlen(Request::post('searchbase')) < 2) {
+		if ((preg_match('#^\w+[/\\\\]\w+$#', $bindDn) > 0) || (strlen($searchBase) < 2)) {
 			$data['next'] = 'AdAuth_SelfSearch';
 		} elseif (empty($data['homeattr'])) {
 			$data['next'] = 'AdAuth_HomeAttrCheck';
@@ -125,16 +127,29 @@ class AdAuth_SelfSearch extends AddModule_Base
 		} else {
 			$uri = "ldap://$server:3268/";
 		}
-		preg_match('#^\w+[/\\\\](\w+)$#', $binddn, $out);
-		$user = $out[1];
-		$this->originalBindDn = str_replace('/', '\\', $binddn);
-		$selfSearch = Taskmanager::submit('LdapSearch', array(
+		// Set up selfSearch task
+		$taskData = array(
 			'server' => $uri,
 			'searchbase' => $searchbase,
-			'binddn' => $this->originalBindDn,
 			'bindpw' => $bindpw,
-			'filter' => "sAMAccountName=$user"
-		));
+		);
+		if (preg_match('#^\w+[/\\\\](\w+)$#', $binddn, $out) && !empty($out[1])) {
+			$this->originalBindDn = str_replace('/', '\\', $binddn);
+			$taskData['filter'] = 'sAMAccountName=' . $out[1];
+		} elseif (preg_match('/^cn=([^=]+),.*?,dc=([^=]+),/i', Ldap::normalizeDn($binddn), $out)) {
+			if (empty($searchbase)) {
+				$this->originalBindDn = $out[2] . '\\' . $out[1];
+				$taskData['filter'] = 'sAMAccountName=' . $out[1];
+			} else {
+				$this->originalBindDn = $binddn;
+				$taskData['filter'] = "distinguishedName=$binddn";
+			}
+		} else {
+			Message::addError('could-not-determine-binddn', $binddn);
+			$this->originalBindDn = $binddn;
+		}
+		$taskData['binddn'] = $this->originalBindDn;
+		$selfSearch = Taskmanager::submit('LdapSearch', $taskData);
 		if (!isset($selfSearch['id'])) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;

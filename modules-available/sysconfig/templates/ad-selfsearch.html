@@ -42,7 +42,7 @@
 		<input name="port" value="{{port}}" type="hidden">
 		<input id="searchbase" name="searchbase" value="{{searchbase}}" type="hidden">
 		<input id="fulldn" name="binddn" value="" type="hidden">
-		<input id="givendn" name="originalbinddn" value="{{binddn}}" type="hidden">
+		<input id="givendn" name="originalbinddn" value="{{originalbinddn}}" type="hidden">
 		<input name="bindpw" value="{{bindpw}}" type="hidden">
 		<input id="home" name="home" value="{{home}}" type="hidden">
 		<input id="homeattr" name="homeattr" value="{{homeattr}}" type="hidden">
@@ -64,11 +64,18 @@
 			var domain = "-";
 			var search = $('#searchbase').val();
 			if ($('#searchbase').val().length < 2) {
-				domain = $('#givendn').val().replace(/[\/\\]\S+$/i, '');
-				var idx = fulldn.search(new RegExp('\\w+=' + domain + ',', "i"));
-				console.log(idx);
-				if (idx !== -1) {
-					search = fulldn.substring(idx);
+				var givenDn = $('#givendn').val();
+				if (new RegExp('^\\w+[\\/\\\\]\\w+$').test(givenDn)) {
+					domain = givenDn.replace(/[\/\\]\S+$/i, '');
+					var idx = fulldn.search(new RegExp('\\w+=' + domain + ',', "i"));
+					if (idx !== -1) {
+						search = fulldn.substring(idx);
+					}
+				} else {
+					var idx = givenDn.toLowerCase().indexOf(',dc=');
+					if (idx !== -1) {
+						search = givenDn.substring(idx + 1);
+					}
 				}
 				$('#searchbase').val(search);
 			}

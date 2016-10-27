@@ -364,9 +364,5 @@ SADFACE;
 			@unlink($file);
 		exit(0);
 	}
-	
-	public static function normalizeDn($dn) {
-		return preg_replace('/[,;]\s*/', ',', $dn);
-	}
 
 }
