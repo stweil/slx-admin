@@ -500,8 +500,13 @@ class Page_Statistics extends Page
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
 
+		$xtra = '';
+		if ($filterSet->isNoId44Filter()) {
+			$xtra = ', data';
+		}
 		$res = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, firstseen, lastseen,'
-			. ' logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes, badsectors FROM machine'
+			. ' logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes,'
+			. ' badsectors ' . $xtra . ' FROM machine'
 			. " $join WHERE $where $sort", $args);
 		$rows = array();
 		$NOW = time();
@@ -528,6 +533,11 @@ class Page_Statistics extends Page
 			$row['hddclass'] = $this->hddColorClass($row['gbtmp']);
 			if (empty($row['hostname'])) {
 				$row['hostname'] = $row['clientip'];
+			}
+			if (isset($row['data'])) {
+				if (!preg_match('/^Disk.*bytes$/m', $row['data'])) {
+					$row['nohdd'] = true;
+				}
 			}
 			$rows[] = $row;
 		}

@@ -52,6 +52,16 @@ class FilterSet
 		$sort = " ORDER BY " . $concreteCol . " " . $this->sortDirection
 			. ", machineuuid ASC";
 	}
+	
+	public function isNoId44Filter()
+	{
+		foreach ($this->filters as $filter) {
+			if (get_class($filter) === 'Id44Filter' && $filter->argument == 0) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public function getSortDirection()
 	{
