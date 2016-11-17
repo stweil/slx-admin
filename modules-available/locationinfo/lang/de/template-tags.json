@@ -1,3 +1,27 @@
 {
-    "lang_hello": "Hallo"
+    "lang_mainHeader": "Infoscreen",
+
+    "lang_locationName": "Name",
+    "lang_locationID": "ID",
+    "lang_locationIsHidden": "Versteckt",
+    "lang_locationInUse": "In Benutzung / Gesamt",
+    "lang_locationSettings": "Einstellungen",
+
+
+    "lang_pcID": "ID",
+    "lang_pcX": "X",
+    "lang_pcY": "Y",
+    "lang_pcInUse": "In Benutzung",
+
+    "lang_day": "Tag",
+    "lang_openingTime": "Öffnungszeit",
+    "lang_closingTime": "Schließungszeit",
+
+    "lang_shortMonday": "Mo",
+    "lang_shortTuesday": "Di",
+    "lang_shortWednesday": "Mi",
+    "lang_shortThursday": "Do",
+    "lang_shortFriday": "Fr",
+    "lang_shortSaturday": "Sa",
+    "lang_shortSunday": "So"
 }
