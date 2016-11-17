@@ -210,7 +210,7 @@ class Parser {
 		}
 	}
 
-	public function parseSmartctl(&$hdds, $data)
+	public static function parseSmartctl(&$hdds, $data)
 	{
 		$lines = preg_split("/[\r\n]+/", $data);
 		$i = 0;
