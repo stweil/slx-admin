@@ -65,7 +65,7 @@
 			var search = $('#searchbase').val();
 			if ($('#searchbase').val().length < 2) {
 				var givenDn = $('#givendn').val();
-				if (new RegExp('^\\w+[\\/\\\\]\\w+$').test(givenDn)) {
+				if (new RegExp('^([^\\[\\]\\:;\\|\\=\\+\\?\\<\\>\\*"/\\\\,]+)[/\\\\]([^\\[\\]\\:;\\|\\=\\+\\?\\<\\>\\*"/\\\\,]+)$').test(givenDn)) {
 					domain = givenDn.replace(/[\/\\]\S+$/i, '');
 					var idx = fulldn.search(new RegExp('\\w+=' + domain + ',', "i"));
 					if (idx !== -1) {
