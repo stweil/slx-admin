@@ -1,0 +1,801 @@
+<!--
+
+parameter
+
+required:
+
+optional:
+
+    lang:[en,de] set the language
+    mode:[1,2,3,4] sets the displaying
+        1: Calendar & Room
+        2: only Calendar
+        3: only Room
+        4: Calnedar & Room alternately
+    daystoshow:[1,2,3,4,5,6,7] sets how many days the calendar shows
+    scale:[10-90] scales the calendar width in mode 1
+    switchtime:[1-120] sets the time between switchen in mode 4  (in seconds)
+
+-->
+<!DOCTYPE html>
+<html lang="de">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+<head>
+    <title>DoorSign</title>
+    <script type='text/javascript' src='jquery-week-calendar/libs/jquery-1.4.4.min.js'></script>
+    <script type='text/javascript' src='jquery-week-calendar/libs/jquery-ui-1.8.11.custom.min.js'></script>
+    <link rel='stylesheet' type='text/css' href='jquery-week-calendar/libs/css/smoothness/jquery-ui-1.8.11.custom.css'/>
+    <link rel='stylesheet' type='text/css' href='jquery-week-calendar/jquery.weekcalendar.css'/>
+    <script type="text/javascript" src="jquery-week-calendar/libs/date.js"></script>
+    <script type='text/javascript' src="jquery-week-calendar/jquery.weekcalendar.js"></script>
+    <style type='text/css'>
+
+        body {
+            font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+            margin: 0;
+        }
+        .row{
+            background-color: #404040;
+            box-shadow: 0px 2px 5px 1px black;
+            margin-bottom: 4px;
+
+        }
+        .header {
+            font-size: 20px;
+            height: 100px;
+            color: white;
+        }
+
+        .courseText {
+            text-align: center;
+        }
+
+        .row::after {
+            content: "";
+            clear: both;
+            display: block;
+        }
+
+        [class*="col-"] {
+            float: left;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .col-1 {
+            width: 50%;
+        }
+
+        .col-2 {
+            width: 25%;
+        }
+
+        .roomLayoutDesign {
+            position: relative;
+            position: relative;
+            float: left;
+            padding: 0;
+            boxSizing: border-box;
+            background: linear-gradient(#cccccc,white );
+        }
+        .calendar{
+            float: left;
+            padding: 0;
+            dboxSizing: border-box;
+            background: linear-gradient(#cccccc,white );
+        }
+
+
+
+        .ui-widget-content{
+            color: white;
+        }
+        .wc-header{
+            background-color: #404040 ;
+            font-weight: bold;
+        }
+
+        .suqare {
+            background-color: #00dd10;
+            right: 0;
+            position: absolute;
+            margin: 0px 0px;
+            width: 100px;
+            height: 100px;
+        }
+
+        .FreeSeatsFont {
+            font-size: 85px;
+            color: white;
+            top: 0;
+            margin: 0 auto;
+            position: relative;
+            text-align: center;
+            font-weight: bold;
+            overflow: visible;
+
+        }
+
+        .pcImg {
+            position: absolute;
+            left: 0px;
+            bottom: 0px;
+        }
+        .wc-scrollable-grid {
+
+        }
+        .wc-container{
+            font-weight: bold;
+        }
+        .wc-today{
+            font-weight: bold;
+        }
+
+
+
+
+
+    </style>
+    <script type='text/javascript'>
+        var year = new Date().getFullYear();
+        var month = new Date().getMonth();
+        var day = new Date().getDate();
+        var room;
+        var freeSeats;
+        var queryTimeCalendar = 5000;
+        var queryTimeRoom = 5000;
+        var openingTimes;
+        var state;
+        var openTimes;
+        var openingTimesCalendar = [];
+        var mode;
+
+        var translation = {
+            "en": {
+                "room": "Room",
+                "closed": "Closed",
+                "free": "Free",
+                "shortDays": ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                "longDays": ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                "to": "to"
+
+            },
+            "de": {
+                "room": "Raum",
+                "closed": "Geschlossen",
+                "free": "Frei",
+                "shortDays": ["Son", "Mon", "Die", "Mit", "Don", "Frei", "Sam"],
+                "longDays": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitrag", "Samstag"],
+                "to": "bis"
+            }
+        };
+
+        $(document).ready(function () {
+            if (getUrlParameter("lang") != null && getUrlParameter("lang") in translation) {
+                $('html').attr('lang', (getUrlParameter("lang")));
+            }
+            room = getUrlParameter("room");
+            if (room != null) {
+                $("#roomHeader").text(t("room") + ": " + room);
+            }
+
+            startMode();
+
+        });
+        function startMode(){
+            mode = parseInt(getUrlParameter("mode"));
+            if (mode==null||isNaN(mode) ||mode > 4 || mode < 1){
+                    mode = 1;
+            }
+            console.log(mode);
+            var daysToShow = parseInt(getUrlParameter("daystoshow"));
+            if (daysToShow==null||isNaN(daysToShow) ||daysToShow > 7 || daysToShow < 1) {
+                daysToShow = 7;
+            }
+
+            if(mode == 1 ) {
+                var scaleLayout = parseInt(getUrlParameter("scale"));
+                if (scaleLayout==null||isNaN(scaleLayout) ||scaleLayout > 90 || scaleLayout < 10){
+                    scaleLayout = 50;
+                }
+                setUpCalendar(scaleLayout+"%",daysToShow);
+                $.getJSON("tmp/room.json", function (result) {
+                    initRoom(result,(100-scaleLayout)+"%")
+                });
+                setInterval(function () {
+                    Update();
+                }, 1000);
+            }
+            if(mode == 2) {
+                setUpCalendar("100%",daysToShow);
+                setInterval(function () {
+                    Update();
+                }, 1000);
+            }
+            if(mode == 3) {
+                $.getJSON("tmp/room.json", function (result) {
+                    initRoom(result,"100%")
+                });
+            }
+            if(mode == 4) {
+                var switchTime = parseInt(getUrlParameter("switchtime"));
+                if (switchTime==null||isNaN(switchTime) ||switchTime > 120 || switchTime < 1){
+                    switchTime = 5;
+                }
+                setUpCalendar("100%",daysToShow);
+                $.getJSON("tmp/room.json", function (result) {
+                    initRoom(result,"100%");
+                    document.getElementById("roomLayout").style.display="none";
+                });
+                generateProgressBar();
+                setInterval(function () {
+                    Update();
+                }, 1000);
+                setInterval(function () {
+                    switchLayout();
+                    MoveProgressBar(switchTime);
+                }, switchTime*1000);
+            }
+
+        }
+
+
+        function setUpCalendar(percent,daysToShow) {
+            generateCalendarDiv(percent);
+            var $calendar = $("#calendar").weekCalendar({
+                timeslotsPerHour: 4,
+                timeslotHeight: 20,
+                daysToShow:daysToShow,
+                height: function ($calendar) {
+                    return $(window).height() - $("h1").outerHeight() - 60;
+                },
+                eventRender: function (calEvent, $event) {
+                    if (calEvent.end.getTime() < new Date().getTime()) {
+                        $event.css("backgroundColor", "#aaa");
+                        $event.find(".time").css({"backgroundColor": "#999", "border": "1px solid #888"});
+                    } else if (calEvent.end.getTime() > new Date().getTime() && calEvent.start.getTime() < new Date().getTime()) {
+                        $event.css("backgroundColor", "#25B002");
+                        $event.find(".time").css({"backgroundColor": "#25B002", "border": "1px solid #888"});
+                    }
+                },
+                dateFormat: "d M y",
+                timeFormat: "G:i",
+                use24Hour: true,
+                readonly: true,
+                showHeader: false,
+                hourLine: true,
+                shortDays: t("shortDays"),
+                longDays: t("longDays"),
+                buttons: false,
+                timeSeparator: " " + t("to") + " ",
+                startOnFirstDayOfWeek: false,
+                displayFreeBusys: true,
+                defaultFreeBusy: {free: false}
+            });
+            $.getJSON("tmp/test.json", function (result) {
+                SetOpeningTimes(result)
+            });
+        }
+
+        function generateCalendarDiv(width){
+            var div = document.createElement("div");
+            div.style.width = width;
+            div.id="calendar";
+            div.className="calendar";
+            document.body.appendChild(div);
+        }
+
+        function SetOpeningTimes(parsedOpenings) {
+            var opening = 24;
+            var close = 0;
+            openingTimesCalendar = [];
+            openingTimes = [parsedOpenings[0]['Sunday'], parsedOpenings[0]['Monday'], parsedOpenings[0]['Tuesday'],
+                parsedOpenings[0]['Wednesday'], parsedOpenings[0]['Thursday'],
+                parsedOpenings[0]['Friday'], parsedOpenings[0]['Saturday']];
+
+            for (var i = 0; i < 7; i++) {
+                var tmp = openingTimes[i];
+                if (tmp != null) {
+                    for (var d = 0; d < tmp.length; d++) {
+                        var day = getNextDayOfWeek(new Date(), i);
+                        openingTimesCalendar.push({
+                            "start": new Date(day.getFullYear(), day.getMonth(), day.getDate(),
+                                    tmp[d]['HourOpen'], tmp[d]['MinutesOpen']),
+                            "end": new Date(day.getFullYear(), day.getMonth(),
+                                    day.getDate(), tmp[d]['HourClose'], tmp[d]['MinutesClose']),
+                            "free": true
+                        });
+                        if (parseInt(tmp[d]['HourOpen']) < opening) {
+                            opening = tmp[d]['HourOpen'];
+                        }
+                        if (parseInt(tmp[d]['HourClose']) > close) {
+                            close = tmp[d]['HourClose'];
+                            if (parseInt(tmp[d]['MinutesClose']) != 0) {
+                                close++;
+                            }
+                        }
+                    }
+                }
+            }
+            if (parsedOpenings.length == 0) {
+                opening = 0;
+                close = 24;
+            }
+            openTimes = close - opening;
+            $('#calendar').weekCalendar("option", "businessHours", {start: parseInt(opening), end: parseInt(close), limitDisplay: true});
+            scaleCalendar(openTimes);
+            setInterval(function () {
+                $.getJSON("tmp/data.json", function (result) {
+                    updateCalendar(result);
+                })
+            }, queryTimeCalendar);
+        }
+        function  updateCalendar(json) {
+            $('#calendar').weekCalendar("option", "data",json);
+            $('#calendar').weekCalendar("refresh");
+            $('#calendar').weekCalendar("option", "defaultFreeBusy",{free: false})
+            $('#calendar').weekCalendar("updateFreeBusy", openingTimesCalendar);
+            ComputeCurrentState();
+        }
+        function scaleCalendar() {
+            if(openTimes==null){
+                return;
+            }
+            var clientHeight = document.getElementById('calendar').clientHeight - document.getElementsByClassName("wc-time-column-header")[0].clientHeight - 5;
+            var height = clientHeight / (openTimes * $('#calendar').weekCalendar("option", "timeslotsPerHour"));
+            $('#calendar').weekCalendar("option", "timeslotHeight", height);
+            $('#calendar').weekCalendar("updateFreeBusy", openingTimesCalendar);
+        }
+        /**
+         * @return {string}
+         * @return {string}
+         */
+        function GetTimeDiferenceAsString(a, b) {
+            if (a == null || b == null) {
+                return "";
+            }
+            var milliseconds = a.getTime() - b.getTime();
+            var seconds = Math.floor((milliseconds / 1000) % 60);
+            milliseconds -= seconds * 1000;
+            var minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
+            milliseconds -= minutes * 1000 * 60;
+            var hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
+
+            var days = Math.floor((milliseconds / (1000 * 60 * 60*24)) % 31);
+            if (seconds < 10) {
+                seconds = "0" + seconds;
+            }
+            if (minutes < 10) {
+                minutes = "0" + minutes;
+            }
+            if(days != 0) {
+               // dont show?
+                return "";
+            }
+
+            return hours + ":" + minutes + ":" + seconds;
+        }
+        /**
+         * @return {null}
+         */
+        function GetNextClosing() {
+            var now = new Date();
+            var day = now.getDay();
+            var offset = 0;
+            for (var a = 0; a < 7; a++) {
+                var tmp = openingTimes[day];
+                if (tmp != null) {
+                    for (i = 0; i < tmp.length; i++) {
+                        var closeDate = new Date();
+                        closeDate.setDate(now.getDate()+offset)
+                        closeDate.setHours(tmp[i].HourClose);
+                        closeDate.setMinutes(tmp[i].MinutesClose);
+                        closeDate.setSeconds(0);
+                        if (closeDate > now) {
+                            if (closeDate.getHours() == 24 && closeDate.getMinutes() == 0) {
+                                var tmp2 = openingTimes[day + 1];
+                                for (b = 0; b < tmp2.length; b++) {
+                                    if (!(tmp2[b].HourOpen == 0 && tmp2[b].MinutesOpen == 0)) {
+                                        return closeDate;
+                                    }
+                                }
+                            } else {
+                                return closeDate;
+                            }
+                        }
+                    }
+                }
+                offset++;
+                day++;
+                if (day > 6) {
+                    day = 0;
+                }
+            }
+            return null;
+        }
+        /**
+         * @return {boolean}
+         */
+        function IsOpenNow() {
+            var now = new Date();
+            var tmp = openingTimes[now.getDay()];
+            if(tmp == null){
+                return false;
+            }
+            for (i = 0; i < tmp.length; i++) {
+                var openDate = new Date();
+                openDate.setHours(tmp[i].HourOpen);
+                openDate.setMinutes(tmp[i].MinutesOpen);
+                var closeDate = new Date();
+                closeDate.setHours(tmp[i].HourClose);
+                closeDate.setMinutes(tmp[i].MinutesClose);
+                if (openDate < now && closeDate > now) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function GetNextOpening() {
+            var now = new Date();
+            var day = now.getDay();
+            var offset = 0;
+            for (a = 0; a < 7; a++) {
+                var tmp = openingTimes[day];
+                if (tmp != null) {
+                    for (i = 0; i < tmp.length; i++) {
+                        var openDate = new Date();
+                        openDate.setDate(now.getDate()+offset)
+                        openDate.setHours(tmp[i].HourOpen);
+                        openDate.setMinutes(tmp[i].MinutesOpen);
+                        openDate.setSeconds(0);
+                        if (openDate > now) {
+                            if (openDate.getHours() == 0 && openDate.getMinutes() == 0) {
+                                var tmp2 = openingTimes[day - 1];
+                                for (b = 0; b < tmp2.length; b++) {
+                                    if (!(tmp2[b].HourClose == 24 && tmp2[b].MinutesClose == 0)) {
+                                        return openDate;
+                                    }
+                                }
+                            } else {
+                                return openDate;
+                            }
+                        }
+                    }
+                }
+                offset++;
+                day++;
+                if (day > 6) {
+                    day = 0;
+                }
+            }
+            return null;
+        }
+
+        function SetFreeSeats(_freeSeats) {
+            if (_freeSeats > 0) {
+                $("#freeSeatsHeader").text(_freeSeats);
+                $(".suqare").css('background-color', '#00dd10');
+            } else if (_freeSeats == -1) {
+                $("#freeSeatsHeader").text("");
+                $(".suqare").css('background-color', 'red');
+            } else {
+                $("#freeSeatsHeader").text("0");
+                $(".suqare").css('background-color', 'red');
+            }
+            freeSeats = _freeSeats;
+        }
+
+        function Update() {
+            var tmp = GetState();
+            if (tmp == null) {
+                ComputeCurrentState();
+                return;
+            }
+            if (tmp.state == "closed") {
+                $("#courseHeading").text(t("closed") + " " + GetTimeDiferenceAsString(tmp.end, new Date()));
+                SetFreeSeats(-1);
+            } else if (tmp.state == "ClaendarEvent") {
+                $("#courseHeading").text(state.titel);
+                SetFreeSeats(-1);
+            } else if (tmp.state == "Free") {
+                $("#courseHeading").text(t("free") + " " + GetTimeDiferenceAsString(tmp.end, new Date()));
+            } else if (tmp.state == "FreeNoEnd") {
+                $("#courseHeading").text(t("free"));
+            }
+        }
+
+        function GetState() {
+            if (state == null) {
+                ComputeCurrentState();
+                return state;
+            }
+            if (state.end != "") {
+                if (state.end < new Date()) {
+                    ComputeCurrentState();
+                }
+            }
+            return state;
+        }
+
+        // mehtode buggy
+        // complete rewite
+        function ComputeCurrentState() {
+            var tmp = $("#calendar").weekCalendar("serializeEvents", new Date());
+            var now = new Date();
+            if (!IsOpenNow()) {
+                state = {state: "closed", end: GetNextOpening(), titel: "", next: ""};
+                return;
+            }
+
+            for (var i = 0, len = tmp.length; i < len; i++) {
+
+                //we are in an calendar event right now
+                if (tmp[i].start.getTime() < now.getTime() && tmp[i].end.getTime() > now.getTime()) {
+                    state = {state: "ClaendarEvent", end: tmp[i].end, titel: tmp[i].title, next: ""};
+                    console.log("test1");
+                    return;
+                } else if (tmp[i].start.getTime() > now.getTime()) {
+
+                    if (GetNextClosing().getTime() > tmp[i].start.getTime()) {
+                        //event is next
+                        console.log(tmp[i].title);
+                        state = {state: "Free", end: tmp[i].start, titel: "", next: tmp[i].titel};
+                        console.log("test2");
+                        return;
+                    } else {
+                        //closing is next
+                        state = {state: "Free", end: GetNextClosing(), titel: "", next: "closing"};
+                        console.log("test3");
+                        return;
+                    }
+
+                }
+
+
+            }
+            if (GetNextClosing() != null){
+                state = {state: "Free", end: GetNextClosing(), titel: "", next: "closing"};
+                return;
+            }
+            state = {state: "FreeNoEnd", end: "", titel: "", next: ""};
+        }
+
+        function getNextDayOfWeek(date, dayOfWeek) {
+            // Code to check that date and dayOfWeek are valid left as an exercise ;)
+
+            var resultDate = new Date(date.getTime());
+
+            resultDate.setDate(date.getDate() + (7 + dayOfWeek - date.getDay()) % 7);
+
+            return resultDate;
+        }
+        /*
+         /========================================== Room Layout =============================================
+         */
+        var scale;
+        var xOffset;
+        var yOffset;
+        var picSizeX = 4;
+        var picSizeY = 3;
+        var LayoutJson;
+        var maxX;
+        var maxY;
+        var minY;
+        var minX;
+        var xDifference;
+        var yDifference;
+
+        function generateRoomLayoutDiv(width){
+            var div = document.createElement("div");
+            div.style.width = width;
+            div.id="roomLayout";
+            div.className="roomLayoutDesign";
+            document.body.appendChild(div);
+        }
+
+        function initRoom(Json,scale) {
+            generateRoomLayoutDiv(scale);
+            LayoutJson = Json;
+            var rotation = getUrlParameter("rotation");
+            if (rotation != null) {
+                if (rotation > 0 && rotation < 4)
+                    rotateRoom(rotation);
+            }
+
+            minX = LayoutJson[0].x;
+            minY = LayoutJson[0].y;
+            maxX = LayoutJson[0].x;
+            maxY = LayoutJson[0].y;
+
+            for (var i = 1; i < LayoutJson.length; i++) {
+                if (parseInt(LayoutJson[i].x) < parseInt(minX)) {
+                    minX = parseInt(LayoutJson[i].x);
+                }
+                if (parseInt(LayoutJson[i].y) < parseInt(minY)) {
+                    minY = parseInt(LayoutJson[i].y);
+                }
+                if (parseInt(LayoutJson[i].x) > parseInt(maxX)) {
+                    maxX = parseInt(LayoutJson[i].x);
+                }
+                if (parseInt(LayoutJson[i].y) > parseInt(maxY)) {
+                    maxY = parseInt(LayoutJson[i].y);
+                }
+            }
+            xDifference = maxX - minX;
+            yDifference = maxY - minY;
+            generateOffsetAndScale();
+            setUpRoom();
+        }
+
+        function generateOffsetAndScale() {
+            ($("#roomLayout")).height($(window).height() - document.getElementById('header').clientHeight -5);
+            var clientHeight = $(window).height() - document.getElementById('header').clientHeight -5;
+            var clientWidth = document.getElementById('roomLayout').clientWidth;
+            var scaleX;
+            if (xDifference != 0) {
+                scaleX = clientWidth / xDifference;
+            } else {
+                scaleX = clientWidth;
+            }
+            var scaleY;
+            if (yDifference != 0) {
+                scaleY = clientHeight / yDifference;
+            } else {
+                scaleY = clientHeight;
+            }
+            var scaleYs = (clientHeight - (picSizeY * scaleY)) / yDifference;
+            var scaleXs = (clientWidth - (picSizeX * scaleX)) / xDifference;
+            var tmp = [scaleYs, scaleY, scaleXs, scaleX];
+            scale = Math.min.apply(Math, tmp);
+            xOffset = 0 - minX;
+            yOffset = 0 - minY;
+            xOffset += ((1 / 2 * (clientWidth - (((maxX + xOffset) * scale) + picSizeX * scale))) / scale);
+            yOffset += ((1 / 2 * (clientHeight - (((maxY + yOffset) * scale) + picSizeY * scale))) / scale);
+        }
+
+        function setUpRoom() {
+            for (var i = 0; i < LayoutJson.length; i++) {
+                var img = $('<img />',
+                        {
+                            id: LayoutJson[i].id,
+                            class: "pcImg",
+                        })
+                        .appendTo($('#roomLayout'));
+            }
+            scaleRoom();
+            UpdatePc(LayoutJson);
+            setInterval(function () {
+                $.getJSON("tmp/room.json", function (result) {
+                    UpdatePc(result);
+                })
+            }, queryTimeRoom);
+        }
+
+        function rotateRoom(r) {
+            for (var z = 0; z < r; z++) {
+                for (var i = 0; i < LayoutJson.length; i++) {
+                    var x = LayoutJson[i].x;
+                    var y = LayoutJson[i].y;
+                    LayoutJson[i].x = y;
+                    LayoutJson[i].y = -x;
+                }
+            }
+        }
+
+        function scaleRoom() {
+            for (var i = 0; i < LayoutJson.length; i++) {
+                document.getElementById(LayoutJson[i].id).width = (picSizeX * scale);
+                document.getElementById(LayoutJson[i].id).height = (picSizeY * scale);
+                document.getElementById(LayoutJson[i].id).style.left = ((parseInt(LayoutJson[i].x) + xOffset) * scale) + "px";
+                document.getElementById(LayoutJson[i].id).style.top = ((parseInt(LayoutJson[i].y) + yOffset) * scale ) + "px";
+            }
+        }
+
+        function UpdatePc(update) {
+            var freePcs = 0;
+            for (var i = 0; i < update.length; i++) {
+                var img;
+                if (update[i].inUse == "0") {
+                    img = "img/pc_free.svg";
+                    freePcs++;
+                } else if (update[i].inUse == "1") {
+                    img = "img/pc_used.svg";
+                } else {
+                    img = "img/pc_defect.svg";
+                }
+                document.getElementById(update[i].id).src = img;
+            }
+            if (state != null) {
+                if (state.state == "FreeNoEnd" || state.state == "Free") {
+                    SetFreeSeats(freePcs);
+                }
+            }
+        }
+
+        /*
+         /========================================== Misc =============================================
+         */
+        $(window).resize(function () {
+            setTimeout(function () {
+                scaleCalendar();
+                generateOffsetAndScale();
+                scaleRoom();
+            }, 50);
+        });
+
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        };
+
+        function t(toTranslate) {
+            var r = translation[$('html')[0].lang][toTranslate];
+            if (r === undefined) {
+                r = translation['en'][toTranslate]
+            }
+            return r;
+        }
+
+        function  switchLayout() {
+            var car = document.getElementById("calendar");
+            var room = document.getElementById("roomLayout");
+            if(car.style.display == "none") {
+                room.style.display = "none";
+                car.style.display = "block";
+            }else {
+                car.style.display = "none";
+                room.style.display = "block";
+            }
+        }
+        function generateProgressBar(){
+            var div = document.createElement("div");
+            div.style.width = "1px";
+            div.style.height = "2px";
+            div.style.position= "absolute";
+            div.id="progressBar";
+            div.style.backgroundColor ="red";
+            div.style.bottom= "0px";
+            document.body.appendChild(div);
+        }
+        function MoveProgressBar(time) {
+            var elem = document.getElementById("progressBar");
+            var width = 1;
+            var id = setInterval(frame, time*10);
+            function frame() {
+                if (width >= 100) {
+                    clearInterval(id);
+                } else {
+                    width++;
+                    elem.style.width = width + '%';
+                }
+            }
+        }
+
+    </script>
+</head>
+<body>
+<div id="header" class="row">
+    <div class="col-2 header">
+        <h1 id="roomHeader">Room</h1>
+    </div>
+    <div class="col-1 courseText header">
+        <h1 id="courseHeading"></h1>
+    </div>
+    <div class="suqare .col-2">
+        <p class="FreeSeatsFont" id="freeSeatsHeader"></p>
+    </div>
+</div>
+
+</body>
+</html>

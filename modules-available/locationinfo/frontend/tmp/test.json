@@ -1,0 +1,8 @@
+[{"Monday":[{"HourOpen":"8","MinutesOpen":"00","HourClose":"12","MinutesClose":"00"},{"HourOpen":"14","MinutesOpen":"00","HourClose":"18","MinutesClose":"00"}],
+  "Tuesday":[{"HourOpen":"8","MinutesOpen":"00","HourClose":"12","MinutesClose":"00"},{"HourOpen":"14","MinutesOpen":"00","HourClose":"18","MinutesClose":"00"}],
+  "Wednesday":[{"HourOpen":"8","MinutesOpen":"00","HourClose":"12","MinutesClose":"00"},{"HourOpen":"14","MinutesOpen":"00","HourClose":"18","MinutesClose":"00"}],
+  "Thursday":[{"HourOpen":"8","MinutesOpen":"00","HourClose":"12","MinutesClose":"00"},{"HourOpen":"14","MinutesOpen":"00","HourClose":"18","MinutesClose":"00"}],
+  "Friday":[{"HourOpen":"8","MinutesOpen":"00","HourClose":"12","MinutesClose":"00"},{"HourOpen":"14","MinutesOpen":"00","HourClose":"18","MinutesClose":"00"}],
+  "Saturday":[{"HourOpen":"8","MinutesOpen":"00","HourClose":"12","MinutesClose":"00"}]
+}]
+
