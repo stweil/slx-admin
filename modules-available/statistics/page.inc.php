@@ -683,6 +683,9 @@ class Page_Statistics extends Page
 		$client['kvmclass'] = $this->kvmColorClass($client['kvmstate']);
 		$client['hddclass'] = $this->hddColorClass($client['gbtmp']);
 		// Parse the giant blob of data
+		if (strpos($client['data'], "\r") !== false) {
+			$client['data'] = str_replace("\r", "\n", $client['data']);
+		}
 		$hdds = array();
 		if (preg_match_all('/##### ([^#]+) #+$(.*?)^#####/ims', $client['data'] . '########', $out, PREG_SET_ORDER)) {
 			foreach ($out as $section) {
