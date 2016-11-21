@@ -3,32 +3,77 @@
 HandleParameters();
 
 function HandleParameters() {
-	$getAction = $_GET['action'];
 
+	$getAction = Request::get('action', 0, 'string');
 	if ($getAction == "roominfo") {
-		$getRoomID = $_GET['id'];
-		$getCoords = $_GET['coords'];
-
+		$getRoomID = Request::get('id', 0, 'int');
+		$getCoords = Request::get('coords', 0, 'string');
 		if (empty($getCoords)) {
 			$getCoords = '0';
 		}
 		getRoomInfoJson($getRoomID, $getCoords);
+	} elseif ($getAction == "openingtime") {
+		$getRoomID = Request::get('id', 0, 'int');
+		getOpeningTimes($getRoomID);
 	}
 }
 
-function getRoomInfoJson($locationID, $coords) {
-	$error = false;
-
-	$dbquery = Database::simpleQuery("SELECT hidden FROM `locationinfo` WHERE locationid = $locationID");
+function checkIfHidden($locationID) {
+	$dbquery = Database::simpleQuery("SELECT hidden FROM `location_info` WHERE locationid = :locationID", array('locationID' => $locationID));
 
 	while($roominfo=$dbquery->fetch(PDO::FETCH_ASSOC)) {
 		$hidden = $roominfo['hidden'];
 		if ($hidden === '0') {
-			$error = false;
+			return false;
 		} else {
-			$error = true;
+			return true;
 		}
 	}
+}
+
+function getOpeningTimes($locationID) {
+	$error = checkIfHidden($locationID);
+	if ($error == true) {
+		echo "ERROR";
+		return;
+	}
+	$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :locationID", array('locationID' => $locationID));
+
+	$result = array();
+	while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+	  $dbresult = json_decode($dbdata['openingtime'], true);
+	}
+
+	$weekarray = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+
+		foreach ($weekarray as $d) {
+			$array = array();
+			foreach ($dbresult as $day) {
+				foreach($day['days'] as $val) {
+					if ($val == $d) {
+						$arr = array();
+
+						$arr['HourOpen'] = $day['openingtime'][0] . $day['openingtime'][1];
+						$arr['MinutesOpen'] = $day['openingtime'][3] . $day['openingtime'][4];
+
+						$arr['HourClose'] = $day['closingtime'][0] . $day['closingtime'][1];
+						$arr['MinutesClose'] = $day['closingtime'][3] . $day['closingtime'][4];
+
+						$array[] = $arr;
+					}
+				}
+				if(!empty($array)) {
+					$result[$d] = $array;
+				}
+		}
+	}
+
+	echo json_encode($result, true);
+}
+
+function getRoomInfoJson($locationID, $coords) {
+	$error = checkIfHidden($locationID);
+
 	$pcs = getPcInfos($locationID, $coords);
 
 	if (empty($pcs)) {
@@ -43,13 +88,12 @@ function getRoomInfoJson($locationID, $coords) {
 }
 
 function getPcInfos($locationID, $coords) {
-
 	$dbquery;
 
 	if ($coords === '1') {
-		$dbquery = Database::simpleQuery("SELECT machineuuid, position, logintime FROM `machine` WHERE locationid = $locationID");
+		$dbquery = Database::simpleQuery("SELECT machineuuid, position, logintime FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
 	} else {
-		$dbquery = Database::simpleQuery("SELECT machineuuid, logintime FROM `machine` WHERE locationid = $locationID");
+		$dbquery = Database::simpleQuery("SELECT machineuuid, logintime FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
 	}
 
 	$pcs = array();
@@ -79,5 +123,3 @@ function getPcInfos($locationID, $coords) {
 
 	return $str;
 }
-
-?>

@@ -9,6 +9,7 @@
 
 
     "lang_pcID": "ID",
+    "lang_pcIP": "IP",
     "lang_pcX": "X",
     "lang_pcY": "Y",
     "lang_pcInUse": "In Use",
@@ -16,6 +17,7 @@
     "lang_day": "Day",
     "lang_openingTime": "Opening time",
     "lang_closingTime": "Closing time",
+    "lang_deleteAll": "Delete all",
 
     "lang_shortMonday": "Mon",
     "lang_shortTuesday": "Tue",
