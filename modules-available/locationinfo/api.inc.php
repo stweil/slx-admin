@@ -53,11 +53,18 @@ function getOpeningTimes($locationID) {
 					if ($val == $d) {
 						$arr = array();
 
-						$arr['HourOpen'] = $day['openingtime'][0] . $day['openingtime'][1];
-						$arr['MinutesOpen'] = $day['openingtime'][3] . $day['openingtime'][4];
+						$openTime = explode(':', $day['openingtime']);
+						$arr['HourOpen'] = $openTime[0];
+						$arr['MinutesOpen'] = $openTime[1];
 
-						$arr['HourClose'] = $day['closingtime'][0] . $day['closingtime'][1];
-						$arr['MinutesClose'] = $day['closingtime'][3] . $day['closingtime'][4];
+						//$arr['HourOpen'] = $day['openingtime'][0] . $day['openingtime'][1];
+						//$arr['MinutesOpen'] = $day['openingtime'][3] . $day['openingtime'][4];
+						$closeTime = explode(':', $day['closingtime']);
+						$arr['HourClose'] = $closeTime[0];
+						$arr['MinutesClose'] = $closeTime[1];
+
+						//$arr['HourClose'] = $day['closingtime'][0] . $day['closingtime'][1];
+						//$arr['MinutesClose'] = $day['closingtime'][3] . $day['closingtime'][4];
 
 						$array[] = $arr;
 					}
