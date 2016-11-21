@@ -147,15 +147,36 @@ optional:
         .wc-time-header-cell{
             background-color:#eeeeee;
         }
+        .ui-corner-all {
+          moz-border-radius-bottomright: 0;
+          webkit-border-bottom-right-radius: 0;
+          -khtml-border-bottom-right-radius: 0;
+          border-bottom-right-radius: 0;
+
+          moz-border-radius-topright: 0;
+          webkit-border-top-right-radius: 0;
+          -khtml-border-top-right-radius: 0;
+          border-top-right-radius: 0;
+
+
+          moz-border-radius-bottomleft: 0;
+          webkit-border-bottom-left-radius: 0;
+          -khtml-border-bottom-left-radius: 0;
+          border-bottom-left-radius: 0;
+
+          moz-border-radius-topleft: 0;
+          webkit-border-left-right-radius: 0;
+          -khtml-border-left-right-radius: 0;
+          border-top-left-radius: 0;
+        }
 
 
 
 
     </style>
     <script type='text/javascript'>
-        var year = new Date().getFullYear();
-        var month = new Date().getMonth();
-        var day = new Date().getDate();
+        var date;
+
         var room;
         var freeSeats;
         var queryTimeCalendar;
@@ -645,6 +666,14 @@ optional:
             } else if (tmp.state == "FreeNoEnd") {
                 $("#courseHeading").text(t("free"));
             }
+            var now = new Date();
+            // reload if date Changes
+            if(date!=null){
+              if(date.getDate() != now.getDate()){
+                location.reload(true);
+              }
+            }
+            date = now;
         }
 
         function GetState() {
@@ -667,7 +696,6 @@ optional:
             }
             var closing =  GetNextClosing();
             var event = getNextEvent(data);
-
             // no event and no closing
             if(closing == null && event == null){
                 state = {state: "FreeNoEnd", end: "", titel: "", next: ""};
@@ -681,10 +709,11 @@ optional:
             }
 
             // event is at the moment
-            if(event.start.getTime() > closing.getTime() && event.end.getTime() < closing.getTime()){
+            if(event.start.getTime() < closing.getTime() && event.start.getTime()< new Date()){
                 state = {state: "ClaendarEvent", end: event.end, titel: event.title, next: ""};
                 return;
             }
+
             // no closing so event is next
             if(closing == null){
                 state = {state: "Free", end: event.start, titel: "", next: "event"};
