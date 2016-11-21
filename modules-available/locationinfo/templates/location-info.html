@@ -1,136 +1,34 @@
 <div>
 <h1>{{lang_mainHeader}}</h1>
 
-<!-- The Modal -->
-<div id="popup" class="modal">
-  <!-- Modal content -->
-  <div class="modal-content">
-    <span class="close" onclick="closePopup()">x</span>
-    <label id=1></label>
-    <br>
-
-    <!--  vvvv TEST STUFF vvvv-->
-    <table class="table table-condensed locations" style="margin-bottom:0px">
-      <tr>
-        <th>{{lang_day}}</th>
-        <th>{{lang_openingTime}}</th>
-        <th>{{lang_closingTime}}</th>
-      </tr>
-
-      <tr>
-        <td>Monday</td>
-        <td>08:00</td>
-        <td>16:00</td>
-      </tr>
-
-      <tr>
-        <td>MO, DI, MI, DO, FR, SA</td>
-        <td>08:00</td>
-        <td>21:00</td>
-      </tr>
-
-      <tr>
-        <td>SO</td>
-        <td>10:00</td>
-        <td>12:00</td>
-      </tr>
-
-      <tr>
-        <td>MON, TUE, WED, THU, FRI, SAT, SUN</td>
-        <td>10:00</td>
-        <td>12:00</td>
-      </tr>
-
-      <tr>
-        <td>
-          <label><input type="checkbox" value="Monday">{{lang_shortMonday}}</label>
-          <label><input type="checkbox" value="Tuesday">{{lang_shortTuesday}}</label>
-          <label><input type="checkbox" value="Wednesday">{{lang_shortWednesday}}</label>
-          <label><input type="checkbox" value="Thursday">{{lang_shortThursday}}</label>
-          <label><input type="checkbox" value="Friday">{{lang_shortFriday}}</label>
-          <label><input type="checkbox" value="Saturday">{{lang_shortSaturday}}</label>
-          <label><input type="checkbox" value="Sunday">{{lang_shortSunday}}</label>
-        </td>
-        <td>
-          <label><input type="text" onkeypress="return isNumber(event)" style="width:35px;"> :</label>
-          <input type="text" onkeypress="return isNumber(event)" style="width:35px;">
-        </td>
-        <td>
-          <label><input type="text" onkeypress="return isNumber(event)" style="width:35px;"> :</label>
-          <input type="text" onkeypress="return isNumber(event)" style="width:35px;">
-        </td>
-      </tr>
-    </table>
-
-    <!--  ^^^^ TEST STUFF ^^^^-->
-
-    <button class="btn btn-success btn-sm">Add</button>
-    <button class="btn btn-sm btn-danger">Delete</button>
-
-
-    <br><br>
-		<button class="btn btn-primary">Save</button>
-    <div class="divider"></div>
-		<button class="btn btn-sm btn-danger" onclick="closePopup()">Cancel</button>
-  </div>
-
-</div>
-<script>
-
-// Get the modal
-var modal = document.getElementById('popup');
-
-// Get the button that opens the modal
-var btn = document.getElementById("myBtn");
-
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
-
-// When the user clicks on the button, open the modal
-function openPopup(locID) {
-    modal.style.display = "block";
-
-    $('#1').text('Location ID: ' + locID);
-}
-
-// When the user clicks on <span> (x), close the modal
-function closePopup() {
-    modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
-</script>
-
 <table class="table table-condensed locations" style="margin-bottom:0px">
 
 	<tr>
-		<th>{{lang_locationID}}</th>
-		<th>{{lang_locationInUse}}</th>
+		<th>{{lang_locationName}}</th>
+		<th width=10>{{lang_locationID}}</th>
+		<th width=50>{{lang_locationInUse}}</th>
     <th width=50>{{lang_locationIsHidden}}</th>
     <th width=50>{{lang_locationSettings}}</th>
+    <th width=1/>
 	</tr>
 
 {{#list}}
-	<tr class="tablerow" onclick="slxOpenLocationInfo(this, {{locationid}})">
-		<td>
-			<div style="display:inline-block;width:{{depth}}em"></div>
-			<a href="#" >{{locationid}}<b class="caret"></b></a>
-		</td>
-		<td>{{inUse}} / {{totalPcs}}</td>
-  	<!-- <td>{{hidden}}</td> -->
-		<!-- <td><form><input type="checkbox" id={{locationid}} value={{hidden}}></form></td> -->
+	<tr class="tablerow" onclick="{{#hasPcs}}slxOpenLocationInfo(this, {{locationid}}){{/hasPcs}}">
+		<td><div style="display:inline-block;width:{{depth}}em"></div>{{#hasPcs}}<a>{{/hasPcs}}{{locationname}}</td>
+		<td align="center">{{locationid}}</td>
+
+
+		<td align="center">{{#hasPcs}}{{inUse}} / {{total}}{{/hasPcs}}</td>
+
+
 		<td id={{locationid}} onclick="event.cancelBubble = true;" align="center"></td>
 		<script>
-			var cbh = document.getElementById('{{locationid}}');
+      var cbh = document.getElementById('{{locationid}}');
     	var cb = document.createElement('input');
-    	cb.type = 'checkbox';
 
+    	cb.type = 'checkbox';
     	cbh.appendChild(cb);
+
     	cb.id = 'cb' + {{locationid}};
     	cb.value = {{hidden}};
 			if ({{hidden}} == 1) {
@@ -139,31 +37,31 @@ window.onclick = function(event) {
 			cb.addEventListener("click", function() { cbClick(this, {{locationid}}); });
     </script>
 
-		<td><button onclick="event.cancelBubble = true; openPopup({{locationid}})">{{lang_locationSettings}}</button></td>
-
+    <td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" onclick="loadModal({{locationid}});">{{lang_locationSettings}}</a><td>
 	</tr>
-{{/list}}
 
+{{/list}}
 </table>
 
-<script type="text/javascript"><!--
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
 
-function isNumber(evt) {
-    evt = (evt) ? evt : window.event;
-    var charCode = (evt.which) ? evt.which : evt.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-        return false;
-    }
-    return true;
-}
+    <div class="modal-content">
+      <div class="modal-header"></div>
+      <div class="modal-body" id="myModalBody"></div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a>
+      </div>
+    </div>
 
-var x = false;
+  </div>
+</div>
+
+<script type="text/javascript">
 
 var lastPcSubTable = false;
 
 function cbClick(cb, locID) {
-	// TODO TOGGLE CB and set db Value
-	//alert("TODO set db value and toggle cb: " + locID);
 	var value;
 
 	if (cb.checked == true) {
@@ -199,5 +97,9 @@ function slxOpenLocationInfo(e, locationId) {
 	td.load("?do=locationinfo&action=pcsubtable&id=" + locationId);
 	lastPcSubTable = tr;
 }
-	// -->
+
+function loadModal(locationId) {
+  $('#myModal').modal('show')
+  $('#myModalBody').load("?do=locationinfo&action=timetable&id=" + locationId);
+}
 </script>

@@ -2,10 +2,10 @@
 
 $res = array();
 
-$res[] = tableCreate('locationinfo', '
+$res[] = tableCreate('location_info', '
 	`locationid` INT(11) NOT NULL,
 	`hidden` BOOLEAN NOT NULL DEFAULT 0,
-	`computers` BLOB DEFAULT NULL,
+	`openingtime` VARCHAR(2000) NOT NULL,
 	PRIMARY KEY (`locationid`)
 ');
 

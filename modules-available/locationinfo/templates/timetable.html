@@ -1,0 +1,64 @@
+<div>
+  <form method="post" action="?do=locationinfo">
+    <input type="hidden" name="token" value="{{token}}">
+    <input type="hidden" name="action" value="updateOpeningTime">
+    <input type="hidden" name="id" value="{{id}}">
+
+    <table class="table table-condensed locations" style="margin-bottom:0px">
+      <tr>
+        <th>{{lang_day}}</th>
+        <th>{{lang_openingTime}}</th>
+        <th>{{lang_closingTime}}</th>
+        <th>{{lang_delete}}</th>
+      </tr>
+
+      {{#openingtimes}}
+      <tr class=tablerow>
+        <td>{{days}}</td>
+        <td>{{openingtime}}</td>
+        <td>{{closingtime}}</td>
+        <td align="center"><input type="checkbox" name="delete[]" value="{{index}}"</td>
+        <!--<td><button class="btn btn-sm btn-danger">X</button></td>-->
+      </tr>
+      {{/openingtimes}}
+
+      <tr id="lastOpenTimesTableElement"></tr>
+    </table>
+
+    <br>
+    <a class="btn btn-success btn-sm" onclick=newOpeningTime()><span class="glyphicon glyphicon-plus-sign"></span> {{lang_openingTime}}</a>
+    <!--<a class="btn btn-danger btn-sm" onclick=>{{lang_deleteAll}}</a>-->
+    <br>
+    <br>
+    <button type="submit" class="btn btn-primary">{{lang_save}}</button>
+
+  </form>
+</div>
+
+<script>
+function newOpeningTime() {
+  $('#lastOpenTimesTableElement').before('<tr>\
+    <td>\
+      <label><input type="checkbox" name="days[]" value="Monday">{{lang_shortMonday}}</label>\
+      <label><input type="checkbox" name="days[]" value="Tuesday">{{lang_shortTuesday}}</label>\
+      <label><input type="checkbox" name="days[]" value="Wednesday">{{lang_shortWednesday}}</label>\
+      <label><input type="checkbox" name="days[]" value="Thursday">{{lang_shortThursday}}</label>\
+      <label><input type="checkbox" name="days[]" value="Friday">{{lang_shortFriday}}</label>\
+      <label><input type="checkbox" name="days[]" value="Saturday">{{lang_shortSaturday}}</label>\
+      <label><input type="checkbox" name="days[]" value="Sunday">{{lang_shortSunday}}</label>\
+      <input type="hidden" name="days[]" value="-">\
+    </td>\
+    <td>\
+      <input type="time" name="openingtime[]">\
+    </td>\
+    <td>\
+      <input type="time" name="closingtime[]">\
+    </td>\
+    <td align="center">\
+        <input type="checkbox" name="dontadd[]" value="dontadd"\
+    </td>\
+  </tr>');
+}
+// <!--<button type="submit" class="btn btn-success btn-sm" onclick=>✓</button>-->\
+
+</script>
