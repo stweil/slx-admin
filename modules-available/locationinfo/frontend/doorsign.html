@@ -428,9 +428,38 @@ optional:
 
             return hours + ":" + minutes + ":" + seconds;
         }
-        /**
-         * @return {null}
-         */
+        function GetNextClosing() {
+          var now = new Date();
+          var day = now.getDay();
+          var offset = 0;
+          var bestdate;
+          for (var a = 0; a < 7; a++) {
+              var tmp = openingTimes[day];
+              if (tmp != null) {
+                  for (var i = 0; i < tmp.length; i++) {
+                      var openDate = new Date();
+                      closeDate.setDate(now.getDate()+offset)
+                      closeDate.setHours(tmp[i].HourClose);
+                      closeDate.setMinutes(tmp[i].MinutesClose);
+                      if (openDate > now) {
+                         if(!IsOpen(new Date(closeDate.getTime()+60000))){
+                           if(bestdate == null || bestdate > openDate) {
+                             bestdate = openDate;
+                          }
+                        }
+                      }
+                  }
+              }
+              offset++;
+              day++;
+              if (day > 6) {
+                  day = 0;
+              }
+          }
+          return bestdate;
+        }
+
+        /*
         function GetNextClosing() {
             var now = new Date();
             var day = now.getDay();
@@ -470,6 +499,7 @@ optional:
             }
             return null;
         }
+        */
         /**
          * @return {boolean}
          */
@@ -492,7 +522,59 @@ optional:
             }
             return false;
         }
+        function IsOpen(date) {
 
+            var tmp = openingTimes[date.getDay()];
+            if(tmp == null){
+                return false;
+            }
+            for (i = 0; i < tmp.length; i++) {
+                var openDate = new Date();
+                openDate.setHours(tmp[i].HourOpen);
+                openDate.setMinutes(tmp[i].MinutesOpen);
+                var closeDate = new Date();
+                closeDate.setHours(tmp[i].HourClose);
+                closeDate.setMinutes(tmp[i].MinutesClose);
+                if (openDate < date && closeDate > date) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+          function GetNextOpening() {
+            var now = new Date();
+            var day = now.getDay();
+            var offset = 0;
+            var bestdate;
+            for (var a = 0; a < 7; a++) {
+                var tmp = openingTimes[day];
+                if (tmp != null) {
+                    for (var i = 0; i < tmp.length; i++) {
+                        var openDate = new Date();
+                        openDate.setDate(now.getDate()+offset)
+                        openDate.setHours(tmp[i].HourOpen);
+                        openDate.setMinutes(tmp[i].MinutesOpen);
+                        if (openDate > now) {
+                           if(!IsOpen(new Date(openDate.getTime()-60000))){
+                             if(bestdate == null || bestdate > openDate) {
+                               bestdate = openDate;
+                            }
+                          }
+                        }
+                    }
+                }
+                offset++;
+                day++;
+                if (day > 6) {
+                    day = 0;
+                }
+            }
+            return bestdate;
+          }
+
+        /*
         function GetNextOpening() {
             var now = new Date();
             var day = now.getDay();
@@ -530,6 +612,7 @@ optional:
             }
             return null;
         }
+        */
 
         function SetFreeSeats(_freeSeats) {
             if (_freeSeats > 0) {
