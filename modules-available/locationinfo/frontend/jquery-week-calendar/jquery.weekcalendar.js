@@ -2018,19 +2018,19 @@
        * Disable text selection of the elements in different browsers
        */
       _disableTextSelect: function($elements) {
-          $elements.each(function() {
-            if ($.browser.mozilla) {//Firefox
-                $(this).css('MozUserSelect', 'none');
-            } else if ($.browser.msie) {//IE
-                $(this).bind('selectstart', function() {
-                  return false;
-                });
-            } else {//Opera, etc.
-                $(this).mousedown(function() {
-                  return false;
-                });
-            }
-          });
+        $elements.each(function() {
+          $(this).attr('unselectable', 'on')
+              .css({
+                '-moz-user-select': '-moz-none',
+                '-moz-user-select': 'none',
+                '-o-user-select': 'none',
+                '-khtml-user-select': 'none', /* you could also put this in a class */
+                '-webkit-user-select': 'none',/* and add the CSS class here instead */
+                '-ms-user-select': 'none',
+                'user-select': 'none'
+              }).bind('selectstart', function () { return false; });
+
+        });
       },
 
       /*
