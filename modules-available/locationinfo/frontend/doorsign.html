@@ -284,7 +284,7 @@ optional:
                 timeslotHeight: 20,
                 daysToShow:daysToShow,
                 height: function ($calendar) {
-                    return $(window).height() - $("h1").outerHeight() - 60;
+                    return $(window).height()- document.getElementById('header').clientHeight-5;
                 },
                 eventRender: function (calEvent, $event) {
                     if (calEvent.end.getTime() < new Date().getTime()) {
@@ -393,9 +393,8 @@ optional:
             if(openTimes==null){
                 return;
             }
-            var clientHeight = document.getElementById('calendar').clientHeight - document.getElementsByClassName("wc-time-column-header")[0].clientHeight - 5;
+            var clientHeight = $(window).height()- document.getElementById('header').clientHeight- document.getElementsByClassName("wc-time-column-header")[0].clientHeight-10;
             var height = clientHeight / (openTimes * $('#calendar').weekCalendar("option", "timeslotsPerHour"));
-
 
             $('#calendar').weekCalendar("option", "timeslotHeight", height);
             $('#calendar').weekCalendar("updateFreeBusy", openingTimesCalendar);
