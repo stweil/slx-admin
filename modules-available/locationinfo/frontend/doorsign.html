@@ -30,7 +30,7 @@ optional:
     <script type='text/javascript' src='jquery-week-calendar/libs/jquery.js'></script>
     <script type='text/javascript' src='jquery-week-calendar/libs/jqerryui/clientscript.js'></script>
     -->
-    <link rel='stylesheet' type='text/css' href='jquery-week-calendar/libs/jqerryui/style.css'/>
+    <link rel='stylesheet' type='text/css' href='../../js_jqueryui/style.css'/>
     <link rel='stylesheet' type='text/css' href='jquery-week-calendar/jquery.weekcalendar.css'/>
     <script type="text/javascript" src="jquery-week-calendar/libs/date.js"></script>
     <script type='text/javascript' src="jquery-week-calendar/jquery.weekcalendar.js"></script>
@@ -309,7 +309,7 @@ optional:
                 displayFreeBusys: true,
                 defaultFreeBusy: {free: false}
             });
-            $.getJSON("../api.php?do=locationinfo&action=openingtime&id="+roomId, function (result) {
+            $.getJSON("../../../api.php?do=locationinfo&action=openingtime&id="+roomId, function (result) {
                 SetOpeningTimes(result)
             });
         }
@@ -395,6 +395,8 @@ optional:
             }
             var clientHeight = document.getElementById('calendar').clientHeight - document.getElementsByClassName("wc-time-column-header")[0].clientHeight - 5;
             var height = clientHeight / (openTimes * $('#calendar').weekCalendar("option", "timeslotsPerHour"));
+
+
             $('#calendar').weekCalendar("option", "timeslotHeight", height);
             $('#calendar').weekCalendar("updateFreeBusy", openingTimesCalendar);
         }
