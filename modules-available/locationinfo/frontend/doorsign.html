@@ -17,6 +17,8 @@ optional:
     switchtime:[1-120] sets the time between switchen in mode 4  (in seconds)
     calupdate: Time the calender querys for updates,in minutes.
     roomupdate: Time the PCs in the room gets updated,in seconds.
+    rotation:[0-4] rotation of the roomplan
+    vertical:[true] only mode 1, sets the calendar above the roomplan
 -->
 <!DOCTYPE html>
 <html lang="de">
@@ -64,7 +66,7 @@ optional:
         }
 
         [class*="col-"] {
-            float: left;
+            float: left;;
             padding: 0;
             box-sizing: border-box;
         }
@@ -188,6 +190,7 @@ optional:
         var mode;
         var data;
         var roomId;
+        var verticalmode = false;
 
         var translation = {
             "en": {
@@ -248,12 +251,17 @@ optional:
                 daysToShow = 7;
             }
 
+            if(getUrlParameter("vertical") == "true") {
+               verticalmode = true;
+            }
+
             // mixed mode
             if(mode == 1 ) {
                 var scaleLayout = parseInt(getUrlParameter("scale"));
                 if (scaleLayout==null||isNaN(scaleLayout) ||scaleLayout > 90 || scaleLayout < 10){
                     scaleLayout = 50;
                 }
+
                 setUpCalendar(scaleLayout+"%",daysToShow);
                 $.getJSON("tmp/room.json", function (result) {
                     initRoom(result,(100-scaleLayout)+"%")
@@ -305,7 +313,11 @@ optional:
                 timeslotHeight: 20,
                 daysToShow:daysToShow,
                 height: function ($calendar) {
-                    return $(window).height()- document.getElementById('header').clientHeight-5;
+                    var height = $(window).height()- document.getElementById('header').clientHeight-5;
+                    if(mode==1 && verticalmode) {
+                      height = height/2
+                    }
+                    return height;
                 },
                 eventRender: function (calEvent, $event) {
                     if (calEvent.end.getTime() < new Date().getTime()) {
@@ -337,9 +349,13 @@ optional:
 
         function generateCalendarDiv(width){
             var div = document.createElement("div");
-            div.style.width = width;
             div.id="calendar";
             div.className="calendar";
+            if(verticalmode && mode == 1) {
+              width = 100+"%";
+              div.float = "Top";
+            }
+            div.style.width = width;
             document.body.appendChild(div);
         }
 
@@ -415,6 +431,10 @@ optional:
                 return;
             }
             var clientHeight = $(window).height()- document.getElementById('header').clientHeight- document.getElementsByClassName("wc-time-column-header")[0].clientHeight-10;
+            if(mode==1 && verticalmode) {
+              clientHeight = clientHeight/2;
+              clientHeight -=22;
+            }
             var height = clientHeight / (openTimes * $('#calendar').weekCalendar("option", "timeslotsPerHour"));
 
             $('#calendar').weekCalendar("option", "timeslotHeight", height);
@@ -822,9 +842,13 @@ optional:
 
         function generateRoomLayoutDiv(width){
             var div = document.createElement("div");
-            div.style.width = width;
             div.id="roomLayout";
             div.className="roomLayoutDesign";
+            if(verticalmode && mode == 1) {
+              width = 100+"%";
+              div.float = "Top";
+            }
+            div.style.width = width;
             document.body.appendChild(div);
         }
 
@@ -863,8 +887,11 @@ optional:
         }
 
         function generateOffsetAndScale() {
-            ($("#roomLayout")).height($(window).height() - document.getElementById('header').clientHeight -5);
-            var clientHeight = $(window).height() - document.getElementById('header').clientHeight -5;
+            var clientHeight = ($(window).height() - document.getElementById('header').clientHeight -5);
+            if(verticalmode && mode == 1) {
+              clientHeight = clientHeight/2;
+            }
+            ($("#roomLayout")).height(clientHeight);
             var clientWidth = document.getElementById('roomLayout').clientWidth;
             var scaleX;
             if (xDifference != 0) {
