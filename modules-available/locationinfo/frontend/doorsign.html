@@ -3,7 +3,7 @@
 parameter
 
 required:
-
+    id: [integer] room id, see in admin panel
 optional:
 
     lang:[en,de] set the language
@@ -437,14 +437,14 @@ optional:
               var tmp = openingTimes[day];
               if (tmp != null) {
                   for (var i = 0; i < tmp.length; i++) {
-                      var openDate = new Date();
+                      var closeDate = new Date();
                       closeDate.setDate(now.getDate()+offset)
                       closeDate.setHours(tmp[i].HourClose);
                       closeDate.setMinutes(tmp[i].MinutesClose);
-                      if (openDate > now) {
+                      if (closeDate > now) {
                          if(!IsOpen(new Date(closeDate.getTime()+60000))){
-                           if(bestdate == null || bestdate > openDate) {
-                             bestdate = openDate;
+                           if(bestdate == null || bestdate > closeDate) {
+                             bestdate = closeDate;
                           }
                         }
                       }
@@ -509,7 +509,7 @@ optional:
             if(tmp == null){
                 return false;
             }
-            for (i = 0; i < tmp.length; i++) {
+            for (var i = 0; i < tmp.length; i++) {
                 var openDate = new Date();
                 openDate.setHours(tmp[i].HourOpen);
                 openDate.setMinutes(tmp[i].MinutesOpen);
@@ -528,7 +528,7 @@ optional:
             if(tmp == null){
                 return false;
             }
-            for (i = 0; i < tmp.length; i++) {
+            for (var i = 0; i < tmp.length; i++) {
                 var openDate = new Date();
                 openDate.setHours(tmp[i].HourOpen);
                 openDate.setMinutes(tmp[i].MinutesOpen);
@@ -667,38 +667,55 @@ optional:
             }
             var closing =  GetNextClosing();
             var event = getNextEvent(data);
+
+            // no event and no closing
             if(closing == null && event == null){
                 state = {state: "FreeNoEnd", end: "", titel: "", next: ""};
+                return;
             }
-            if(closing == null){
-                state = {state: "ClaendarEvent", end: event.start.end, titel: event.start.title, next: ""};
-            }
+
+            // no event so closing is next
             if(event == null){
                 state = {state: "Free", end: closing, titel: "", next: "closing"};
+                return;
             }
-            if(event.start.getTime()< closing.getTime()){
-                state = {state: "ClaendarEvent", end: event.start.end, titel: event.start.title, next: ""};
-            } else {
+
+            // event is at the moment
+            if(event.start.getTime() > closing.getTime() && event.end.getTime() < closing.getTime()){
+                state = {state: "ClaendarEvent", end: event.end, titel: event.title, next: ""};
+                return;
+            }
+            // no closing so event is next
+            if(closing == null){
+                state = {state: "Free", end: event.start, titel: "", next: "event"};
+                return;
+            }
+
+            // event sooner then closing
+            if(event.start.getTime() < closing) {
+                state = {state: "Free", end: event.start, titel: "", next: "event"};
+                return;
+            } else if (event.start.getTime() > closing) {
                 state = {state: "Free", end: closing, titel: "", next: "closing"};
+                return;
             }
         }
 
         function  getNextEvent(json) {
             var event;
             var now = new Date()
-
-            for (var i = 1; i < json.length;i++){
+            for (var i = 0; i < json.length;i++){
                 //event is now active
-                if(event.start.getTime() < now.getTime() && event.end.getTime() > now.getTime()){
-                    return event;
+                if(json[i].start.getTime() < now.getTime() && json[i].end.getTime() > now.getTime()){
+                    return json[i];
                 }
                 //first element to consider
                 if(event == null){
-                    if(json[i].start.getTime()> now.getTime() ){
+                    if(json[i].start.getTime() > now.getTime() ){
                         event = json[i];
                     }
                 }
-                if(json[i].start.getTime() > now.getTime() && event.start.getTime() < json[i].start.getTime()) {
+                if(json[i].start.getTime() > now.getTime() && event.start.getTime() >  json[i].start.getTime()) {
                     event = json[i];
                 }
             }
@@ -937,7 +954,7 @@ optional:
                     sParameterName,
                     i;
 
-            for (i = 0; i < sURLVariables.length; i++) {
+            for (var i = 0; i < sURLVariables.length; i++) {
                 sParameterName = sURLVariables[i].split('=');
 
                 if (sParameterName[0] === sParam) {
