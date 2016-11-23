@@ -11,7 +11,7 @@ optional:
         1: Calendar & Room
         2: only Calendar
         3: only Room
-        4: Calnedar & Room alternately
+        4: Calendar & Room alternately
     daystoshow:[1,2,3,4,5,6,7] sets how many days the calendar shows
     scale:[10-90] scales the calendar and Roomplan in mode 1
     switchtime:[1-120] sets the time between switchen in mode 4  (in seconds)
@@ -41,7 +41,7 @@ optional:
         }
         .row{
             background-color: #404040;
-            box-shadow: 0px 2px 4px 0px black;
+            box-shadow: 0 2px 4px 0 black;
             margin-bottom: 4px;
 
         }
@@ -78,8 +78,6 @@ optional:
         .roomLayoutDesign {
             position: relative;
             background: linear-gradient(#cccccc,white );
-
-            position: relative;
             float: left;
             boxSizing: border-box;
          }
@@ -106,7 +104,7 @@ optional:
         .square {
             right: 0;
             position: absolute;
-            margin: 0px 0px;
+            margin: 0 0;
             width: 100px;
             height: 100px;
         }
@@ -125,8 +123,8 @@ optional:
 
         .pcImg {
             position: absolute;
-            left: 0px;
-            bottom: 0px;
+            left: 0;
+            bottom: 0;
         }
         .wc-scrollable-grid {
 
@@ -254,17 +252,21 @@ optional:
             return true;
         }
         function getParamerter(json){
-            mode = parseInt(json.mode);
-            var lang = json.lang;
-            daystoshow = parseInt(json.daystoshow);
-            scaleLayout = parseInt(json.scale);
-            switchTime = parseInt(json.switchtime);
-            queryTimeCalendar = parseInt(json.calupdate);
-            queryTimeRoom = parseInt(json.roomupdate);
-            rotation = parseInt(json.rotation);
-            verticalmode = JSON.parse(json.vertical);
-            configupdate = parseInt(json.configupdate);
-            room = parseInt(json.room);
+            json = json[0];
+            var lang;
+            if(json!=null){
+              mode = parseInt(json.mode);
+              lang = json.lang;
+              daystoshow = parseInt(json.daystoshow);
+              scaleLayout = parseInt(json.scale);
+              switchTime = parseInt(json.switchtime);
+              queryTimeCalendar = parseInt(json.calupdate);
+              queryTimeRoom = parseInt(json.roomupdate);
+              rotation = parseInt(json.rotation);
+              verticalmode = JSON.parse(json.vertical);
+              configupdate = parseInt(json.configupdate);
+              room = parseInt(json.room);
+            }
             if(room!=null){
               $("#roomHeader").text(t("room")+":" + room);
             }
@@ -296,7 +298,7 @@ optional:
                configupdate = (parseInt(getUrlParameter("configupdate"))*60*1000);
             }
 
-            // parameter validiation
+            // parameter validation
             if (switchTime==null||isNaN(switchTime) ||switchTime > 120 || switchTime < 1){
                 switchTime = 5;
             }
@@ -310,14 +312,14 @@ optional:
                 daysToShow = 7;
             }
 
-            if (queryTimeRoom== null||isNaN(queryTimeRoom) || queryTimeRoom < 1*1000){
+            if (queryTimeRoom== null||isNaN(queryTimeRoom) || queryTimeRoom < 1000){
                 queryTimeRoom = 20*1000;
             }
             if (configupdate== null||isNaN(configupdate)||(configupdate <1)){
                 configupdate = 30*60*1000;
             }
 
-            if (queryTimeCalendar== null||isNaN(queryTimeCalendar) || queryTimeCalendar < 1*60*1000){
+            if (queryTimeCalendar== null||isNaN(queryTimeCalendar) || queryTimeCalendar < 60*1000){
                 queryTimeCalendar = 30*60*1000;
             }
             if (mode==null||isNaN(mode) ||mode > 4 || mode < 1){
@@ -731,7 +733,7 @@ clientHeight -=20;
 
         function  getNextEvent(json) {
             var event;
-            var now = new Date()
+            var now = new Date();
             for (var i = 0; i < json.length;i++){
                 //event is now active
                 if(json[i].start.getTime() < now.getTime() && json[i].end.getTime() > now.getTime()){
@@ -767,6 +769,7 @@ clientHeight -=20;
         var yOffset;
         var picSizeX = 4;
         var picSizeY = 3;
+        var Layout;
         var LayoutJson;
         var maxX;
         var maxY;
@@ -793,30 +796,29 @@ clientHeight -=20;
         }
 
         function initRoom(Json,scale) {
-            generateRoomLayoutDiv(scale);
-            LayoutJson = Json;
+            Layout = Json;
+			   generateRoomLayoutDiv(scale);
             if (rotation != null) {
                 if (rotation > 0 && rotation < 4)
                     rotateRoom(rotation);
             }
+            minX = parseInt(Layout[0].x);
+            minY = parseInt(Layout[0].y);
+            maxX = parseInt(Layout[0].x);
+            maxY = parseInt(Layout[0].y);
 
-            minX = parseInt(LayoutJson[0].x);
-            minY = parseInt(LayoutJson[0].y);
-            maxX = parseInt(LayoutJson[0].x);
-            maxY = parseInt(LayoutJson[0].y);
-
-            for (var i = 1; i < LayoutJson.length; i++) {
-                if (parseInt(LayoutJson[i].x) < parseInt(minX)) {
-                    minX = parseInt(LayoutJson[i].x);
+            for (var i = 1; i < Layout.length; i++) {
+                if (parseInt(Layout[i].x) < parseInt(minX)) {
+                    minX = parseInt(Layout[i].x);
                 }
-                if (parseInt(LayoutJson[i].y) < parseInt(minY)) {
-                    minY = parseInt(LayoutJson[i].y);
+                if (parseInt(Layout[i].y) < parseInt(minY)) {
+                    minY = parseInt(Layout[i].y);
                 }
-                if (parseInt(LayoutJson[i].x) > parseInt(maxX)) {
-                    maxX = parseInt(LayoutJson[i].x);
+                if (parseInt(Layout[i].x) > parseInt(maxX)) {
+                    maxX = parseInt(Layout[i].x);
                 }
-                if (parseInt(LayoutJson[i].y) > parseInt(maxY)) {
-                    maxY = parseInt(LayoutJson[i].y);
+                if (parseInt(Layout[i].y) > parseInt(maxY)) {
+                    maxY = parseInt(Layout[i].y);
                 }
             }
             xDifference = maxX - minX;
@@ -861,16 +863,16 @@ clientHeight -=20;
         }
 
         function setUpRoom() {
-            for (var i = 0; i < LayoutJson.length; i++) {
+            for (var i = 0; i < Layout.length; i++) {
                 var img = $('<img />',
                         {
-                            id: LayoutJson[i].id,
+                            id: Layout[i].id,
                             class: "pcImg",
                         })
                         .appendTo($('#roomLayout'));
             }
             scaleRoom();
-            UpdatePc(LayoutJson);
+            UpdatePc(Layout);
             queryRoom();
         }
 
@@ -882,8 +884,8 @@ clientHeight -=20;
                 cache: false,
                 timeout: 30000,
                 success: function (result) {
-                    if (JSON.stringify(LayoutJson) != JSON.stringify(result)) {
-                        LayoutJson = result;
+                    if (LayoutJson != JSON.stringify(result)) {
+                        LayoutJson = JSON.stringify(result);
                         UpdatePc(result);
 
                     }
@@ -896,21 +898,21 @@ clientHeight -=20;
 
         function rotateRoom(r) {
             for (var z = 0; z < r; z++) {
-                for (var i = 0; i < LayoutJson.length; i++) {
-                    var x = parseInt(LayoutJson[i].x);
-                    var y = parseInt(LayoutJson[i].y);
-                    LayoutJson[i].x = y;
-                    LayoutJson[i].y = -x;
+                for (var i = 0; i < Layout.length; i++) {
+                    var x = parseInt(Layout[i].x);
+                    var y = parseInt(Layout[i].y);
+                    Layout[i].x = y;
+                    Layout[i].y = -x;
                 }
             }
         }
 
         function scaleRoom() {
-            for (var i = 0; i < LayoutJson.length; i++) {
-                document.getElementById(LayoutJson[i].id).width = (picSizeX * scale);
-                document.getElementById(LayoutJson[i].id).height = (picSizeY * scale);
-                document.getElementById(LayoutJson[i].id).style.left = ((parseInt(LayoutJson[i].x) + xOffset) * scale) + "px";
-                document.getElementById(LayoutJson[i].id).style.top = ((parseInt(LayoutJson[i].y) + yOffset) * scale ) + "px";
+            for (var i = 0; i < Layout.length; i++) {
+                document.getElementById(Layout[i].id).width = (picSizeX * scale);
+                document.getElementById(Layout[i].id).height = (picSizeY * scale);
+                document.getElementById(Layout[i].id).style.left = ((parseInt(Layout[i].x) + xOffset) * scale) + "px";
+                document.getElementById(Layout[i].id).style.bottom = ((parseInt(Layout[i].y) + yOffset) * scale ) + "px";
             }
         }
 
