@@ -271,7 +271,7 @@ optional:
 			return true;
 		}
 		function getParamerter(json) {
-			json = json[0];
+			console.log(json);
 			var lang;
 			if (json != null) {
 				mode = parseInt(json.mode);
@@ -282,12 +282,14 @@ optional:
 				queryTimeCalendar = parseInt(json.calupdate);
 				queryTimeRoom = parseInt(json.roomupdate);
 				rotation = parseInt(json.rotation);
-				verticalmode = JSON.parse(json.vertical);
+				 if(json.vertical!=null) {
+					 verticalmode = JSON.parse(json.vertical);
+				 }
 				configupdate = parseInt(json.configupdate);
-				room = parseInt(json.room);
+				room = json.room;
 			}
 			if (room != null) {
-				$("#roomHeader").text(t("room") + ":" + room);
+				$("#roomHeader").text(room);
 			}
 			if (getUrlParameter("mode") != null) {
 				mode = parseInt(getUrlParameter("mode"));
