@@ -7,6 +7,7 @@ $res[] = tableCreate('location_info', '
 	`hidden` BOOLEAN NOT NULL DEFAULT 0,
 	`openingtime` VARCHAR(2000) NOT NULL,
 	`config` VARCHAR(2000) NOT NULL,
+	`calendar` VARCHAR(2000) NOT NULL,
 	PRIMARY KEY (`locationid`)
 ');
 

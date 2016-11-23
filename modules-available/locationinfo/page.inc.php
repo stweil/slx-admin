@@ -116,7 +116,7 @@ class Page_LocationInfo extends Page
 			}
 		}
 
-		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, :openingtime) ON DUPLICATE KEY UPDATE openingtime=:openingtime",
+		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, :openingtime, '', '') ON DUPLICATE KEY UPDATE openingtime=:openingtime",
 		 array('id' => $locationid, 'hidden' => false, 'openingtime' => json_encode($result, true)));
 
 		Message::addSuccess('added-x-entries', $count);
@@ -128,7 +128,7 @@ class Page_LocationInfo extends Page
 	}
 
 	protected function toggleHidden($id, $val) {
-		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '') ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $id, 'hidden' => $val));
+		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '', '', '') ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $id, 'hidden' => $val));
 	}
 
 	protected function getInfoScreenTable() {
