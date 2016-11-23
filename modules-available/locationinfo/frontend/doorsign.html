@@ -263,7 +263,11 @@ optional:
             queryTimeRoom = parseInt(json.roomupdate);
             rotation = parseInt(json.rotation);
             verticalmode = JSON.parse(json.vertical);
-            configupdate = parseInt(json.configupdate)
+            configupdate = parseInt(json.configupdate);
+            room = parseInt(json.room);
+            if(room!=null){
+              $("#roomHeader").text(t("room")+":" + room);
+            }
             if(getUrlParameter("mode")!=null) {
                 mode = parseInt(getUrlParameter("mode"));
             }
