@@ -13,25 +13,21 @@ optional:
         3: only Room
         4: Calnedar & Room alternately
     daystoshow:[1,2,3,4,5,6,7] sets how many days the calendar shows
-    scale:[10-90] scales the calendar width in mode 1
+    scale:[10-90] scales the calendar and Roomplan in mode 1
     switchtime:[1-120] sets the time between switchen in mode 4  (in seconds)
     calupdate: Time the calender querys for updates,in minutes.
     roomupdate: Time the PCs in the room gets updated,in seconds.
     rotation:[0-4] rotation of the roomplan
     vertical:[true] only mode 1, sets the calendar above the roomplan
+    configupdate: Timeinterval the config gets updated (in minutes)
 -->
 <!DOCTYPE html>
 <html lang="de">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
 <head>
     <title>DoorSign</title>
-
     <script type='text/javascript' src='../../../script/jquery.js'></script>
     <script type='text/javascript' src='../../js_jqueryui/clientscript.js'></script>
-    <!--
-    <script type='text/javascript' src='jquery-week-calendar/libs/jquery.js'></script>
-    <script type='text/javascript' src='jquery-week-calendar/libs/jqerryui/clientscript.js'></script>
-    -->
     <link rel='stylesheet' type='text/css' href='../../js_jqueryui/style.css'/>
     <link rel='stylesheet' type='text/css' href='jquery-week-calendar/jquery.weekcalendar.css'/>
     <script type="text/javascript" src="jquery-week-calendar/libs/date.js"></script>
@@ -191,6 +187,12 @@ optional:
         var data;
         var roomId;
         var verticalmode = false;
+        var scaleLayout;
+        var switchTime;
+        var rotation;
+        var daysToShow;
+        var configJson;
+        var configupdate;
 
         var translation = {
             "en": {
@@ -213,15 +215,35 @@ optional:
         };
 
         $(document).ready(function () {
-            if (getUrlParameter("lang") != null && getUrlParameter("lang") in translation) {
-                $('html').attr('lang', (getUrlParameter("lang")));
-            }
-
             if(!getId()) {
                 return;
             }
-            startMode();
+            getConfig();
         });
+
+        function getConfig() {
+          $.ajax({
+              url: "../../../api.php?do=locationinfo&action=config&id="+roomId,
+              dataType: 'json',
+              cache: false,
+              timeout: 30000,
+              success: function (result) {
+                  if(configJson == null) {
+                      getParamerter(result);
+                      startMode();
+                  } else if (JSON.stringify(configJson) != JSON.stringify(result)){
+                      location.reload(true);
+                  }
+                  configJson = result;
+                  setTimeout(function () {
+                      getConfig();
+                  }, configupdate);
+              }, error: function () {
+                   $("#courseHeading").text("Error: couldn't get the config");
+                   $("#courseHeading").css({ 'font-size': "30px" });
+              }
+          })
+        }
 
         function getId(){
             roomId = getUrlParameter("id");
@@ -231,41 +253,84 @@ optional:
             }
             return true;
         }
+        function getParamerter(json){
+            mode = parseInt(json.mode);
+            var lang = json.lang;
+            daystoshow = parseInt(json.daystoshow);
+            scaleLayout = parseInt(json.scale);
+            switchTime = parseInt(json.switchtime);
+            queryTimeCalendar = parseInt(json.calupdate);
+            queryTimeRoom = parseInt(json.roomupdate);
+            rotation = parseInt(json.rotation);
+            verticalmode = JSON.parse(json.vertical);
+            configupdate = parseInt(json.configupdate)
+            if(getUrlParameter("mode")!=null) {
+                mode = parseInt(getUrlParameter("mode"));
+            }
+            if(getUrlParameter("calupdate")!= null) {
+                queryTimeCalendar = (parseInt(getUrlParameter("calupdate"))*60*1000);
+            }
+            if(getUrlParameter("roomupdate")!= null) {
+                queryTimeRoom = (parseInt(getUrlParameter("roomupdate"))*1000);
+            }
+            if(getUrlParameter("daystoshow") != null) {
+                daysToShow = parseInt(getUrlParameter("daystoshow"));
+            }
+            if(getUrlParameter("vertical") == "true") {
+               verticalmode = true;
+            }
+            if(getUrlParameter("scale") != null) {
+               scaleLayout = parseInt(getUrlParameter("scale"));
+            }
+            if(getUrlParameter("rotation") != null) {
+               rotation = parseInt(getUrlParameter("rotation"));
+            }
+            if(getUrlParameter("switchtime") != null) {
+               switchTime = (parseInt(getUrlParameter("switchtime"))*1000);
+            }
+            if(getUrlParameter("configupdate") != null) {
+               configupdate = (parseInt(getUrlParameter("configupdate"))*60*1000);
+            }
 
-        function startMode(){
-            mode = parseInt(getUrlParameter("mode"));
-            if (mode==null||isNaN(mode) ||mode > 4 || mode < 1){
-                    mode = 1;
+            // parameter validiation
+            if (switchTime==null||isNaN(switchTime) ||switchTime > 120 || switchTime < 1){
+                switchTime = 5;
             }
-            queryTimeCalendar = (parseInt(getUrlParameter("calupdate"))*60*1000);
-            if (queryTimeCalendar== null||isNaN(queryTimeCalendar) || queryTimeCalendar < 1*60*1000){
-                queryTimeCalendar = 30*60*1000;
+            if (scaleLayout==null||isNaN(scaleLayout) ||scaleLayout > 90 || scaleLayout < 10){
+                scaleLayout = 50;
             }
-            queryTimeRoom = (parseInt(getUrlParameter("roomupdate"))*1000);
-            if (queryTimeRoom== null||isNaN(queryTimeRoom) || queryTimeRoom < 1*1000){
-                queryTimeRoom = 20*1000;
+            if(verticalmode == null) {
+                verticalmode= false;
             }
-
-            var daysToShow = parseInt(getUrlParameter("daystoshow"));
             if (daysToShow==null||isNaN(daysToShow) ||daysToShow > 7 || daysToShow < 1) {
                 daysToShow = 7;
             }
 
-            if(getUrlParameter("vertical") == "true") {
-               verticalmode = true;
+            if (queryTimeRoom== null||isNaN(queryTimeRoom) || queryTimeRoom < 1*1000){
+                queryTimeRoom = 20*1000;
+            }
+            if (configupdate== null||isNaN(configupdate)||(configupdate <1)){
+                configupdate = 30*60*1000;
             }
 
+            if (queryTimeCalendar== null||isNaN(queryTimeCalendar) || queryTimeCalendar < 1*60*1000){
+                queryTimeCalendar = 30*60*1000;
+            }
+            if (mode==null||isNaN(mode) ||mode > 4 || mode < 1){
+                    mode = 1;
+            }
+
+            if (getUrlParameter("lang") != null && getUrlParameter("lang") in translation) {
+                lang = getUrlParameter("lang");
+            }
+            $('html').attr('lang', lang);
+        }
+
+        function startMode(){
             // mixed mode
             if(mode == 1 ) {
-                var scaleLayout = parseInt(getUrlParameter("scale"));
-                if (scaleLayout==null||isNaN(scaleLayout) ||scaleLayout > 90 || scaleLayout < 10){
-                    scaleLayout = 50;
-                }
-
                 setUpCalendar(scaleLayout+"%",daysToShow);
-                $.getJSON("tmp/room.json", function (result) {
-                    initRoom(result,(100-scaleLayout)+"%")
-                });
+                preInitRoom();
                 setInterval(function () {
                     Update();
                 }, 1000);
@@ -279,21 +344,12 @@ optional:
             }
             // room only
             if(mode == 3) {
-                $.getJSON("tmp/room.json", function (result) {
-                    initRoom(result,"100%")
-                });
+                preInitRoom();
             }
             //swichting mode
             if(mode == 4) {
-                var switchTime = parseInt(getUrlParameter("switchtime"));
-                if (switchTime==null||isNaN(switchTime) ||switchTime > 120 || switchTime < 1){
-                    switchTime = 5;
-                }
                 setUpCalendar("100%",daysToShow);
-                $.getJSON("tmp/room.json", function (result) {
-                    initRoom(result,"100%");
-                    document.getElementById("roomLayout").style.display="none";
-                });
+                preInitRoom();
                 generateProgressBar();
                 setInterval(function () {
                     Update();
@@ -315,7 +371,7 @@ optional:
                 height: function ($calendar) {
                     var height = $(window).height()- document.getElementById('header').clientHeight-5;
                     if(mode==1 && verticalmode) {
-                      height = height/2
+                      height = height*(scaleLayout/100)
                     }
                     return height;
                 },
@@ -432,8 +488,9 @@ optional:
             }
             var clientHeight = $(window).height()- document.getElementById('header').clientHeight- document.getElementsByClassName("wc-time-column-header")[0].clientHeight-10;
             if(mode==1 && verticalmode) {
-              clientHeight = clientHeight/2;
-              clientHeight -=22;
+clientHeight -=20;
+              clientHeight = clientHeight*(scaleLayout/100);
+
             }
             var height = clientHeight / (openTimes * $('#calendar').weekCalendar("option", "timeslotsPerHour"));
 
@@ -499,48 +556,6 @@ optional:
           }
           return bestdate;
         }
-
-        /*
-        function GetNextClosing() {
-            var now = new Date();
-            var day = now.getDay();
-            var offset = 0;
-            for (var a = 0; a < 7; a++) {
-                var tmp = openingTimes[day];
-                if (tmp != null) {
-                    for (i = 0; i < tmp.length; i++) {
-                        var closeDate = new Date();
-                        closeDate.setDate(now.getDate()+offset)
-                        closeDate.setHours(tmp[i].HourClose);
-                        closeDate.setMinutes(tmp[i].MinutesClose);
-                        closeDate.setSeconds(0);
-                        if (closeDate > now) {
-                            if (closeDate.getHours() == 24 && closeDate.getMinutes() == 0) {
-                                day++;
-                                if (day > 6) {
-                                    day = 0;
-                                }
-                                var tmp2 = openingTimes[day];
-                                for (b = 0; b < tmp2.length; b++) {
-                                    if (!(tmp2[b].HourOpen == 0 && tmp2[b].MinutesOpen == 0)) {
-                                        return closeDate;
-                                    }
-                                }
-                            } else {
-                                return closeDate;
-                            }
-                        }
-                    }
-                }
-                offset++;
-                day++;
-                if (day > 6) {
-                    day = 0;
-                }
-            }
-            return null;
-        }
-        */
         /**
          * @return {boolean}
          */
@@ -615,47 +630,7 @@ optional:
             return bestdate;
           }
 
-        /*
-        function GetNextOpening() {
-            var now = new Date();
-            var day = now.getDay();
-            var offset = 0;
-            for (a = 0; a < 7; a++) {
-                var tmp = openingTimes[day];
-                if (tmp != null) {
-                    for (i = 0; i < tmp.length; i++) {
-                        var openDate = new Date();
-                        openDate.setDate(now.getDate()+offset)
-                        openDate.setHours(tmp[i].HourOpen);
-                        openDate.setMinutes(tmp[i].MinutesOpen);
-                        openDate.setSeconds(0);
-                        if (openDate > now) {
-                            if (openDate.getHours() == 0 && openDate.getMinutes() == 0) {
-                                //todo check if >0
-
-                                var tmp2 = openingTimes[day - 1];
-                                for (b = 0; b < tmp2.length; b++) {
-                                    if (!(tmp2[b].HourClose == 24 && tmp2[b].MinutesClose == 0)) {
-                                        return openDate;
-                                    }
-                                }
-                            } else {
-                                return openDate;
-                            }
-                        }
-                    }
-                }
-                offset++;
-                day++;
-                if (day > 6) {
-                    day = 0;
-                }
-            }
-            return null;
-        }
-        */
-
-        function SetFreeSeats(_freeSeats) {
+                function SetFreeSeats(_freeSeats) {
             if (_freeSeats > 0) {
                 $("#freeSeatsHeader").text(_freeSeats);
                 $(".square").css('background-color', '#00dd10');
@@ -771,50 +746,6 @@ optional:
             return event;
         }
 
-
-        /*
-        function ComputeCurrentState() {
-            var tmp = $("#calendar").weekCalendar("serializeEvents", new Date());
-            var now = new Date();
-            if (!IsOpenNow()) {
-                state = {state: "closed", end: GetNextOpening(), titel: "", next: ""};
-                return;
-            }
-
-            for (var i = 0, len = tmp.length; i < len; i++) {
-
-                //we are in an calendar event right now
-                if (tmp[i].start.getTime() < now.getTime() && tmp[i].end.getTime() > now.getTime()) {
-                    state = {state: "ClaendarEvent", end: tmp[i].end, titel: tmp[i].title, next: ""};
-                    console.log("test1");
-                    return;
-                } else if (tmp[i].start.getTime() > now.getTime()) {
-
-                    if (GetNextClosing().getTime() > tmp[i].start.getTime()) {
-                        //event is next
-                        console.log(tmp[i].title);
-                        state = {state: "Free", end: tmp[i].start, titel: "", next: tmp[i].titel};
-                        console.log("test2");
-                        return;
-                    } else {
-                        //closing is next
-                        state = {state: "Free", end: GetNextClosing(), titel: "", next: "closing"};
-                        console.log("test3");
-                        return;
-                    }
-
-                }
-
-
-            }
-            if (GetNextClosing() != null){
-                state = {state: "Free", end: GetNextClosing(), titel: "", next: "closing"};
-                return;
-            }
-            state = {state: "FreeNoEnd", end: "", titel: "", next: ""};
-        }
-        */
-
         function getNextDayOfWeek(date, dayOfWeek) {
             // Code to check that date and dayOfWeek are valid left as an exercise ;)
 
@@ -844,27 +775,31 @@ optional:
             var div = document.createElement("div");
             div.id="roomLayout";
             div.className="roomLayoutDesign";
-            if(verticalmode && mode == 1) {
+            if((verticalmode && mode == 1)|| (mode == 3)) {
               width = 100+"%";
               div.float = "Top";
             }
             div.style.width = width;
             document.body.appendChild(div);
         }
+        function preInitRoom() {
+          $.getJSON("../../../api.php?do=locationinfo&action=roominfo&id="+roomId+"&coords=1", function (result) {
+              initRoom(result,(100-scaleLayout)+"%")
+          });
+        }
 
         function initRoom(Json,scale) {
             generateRoomLayoutDiv(scale);
             LayoutJson = Json;
-            var rotation = getUrlParameter("rotation");
             if (rotation != null) {
                 if (rotation > 0 && rotation < 4)
                     rotateRoom(rotation);
             }
 
-            minX = LayoutJson[0].x;
-            minY = LayoutJson[0].y;
-            maxX = LayoutJson[0].x;
-            maxY = LayoutJson[0].y;
+            minX = parseInt(LayoutJson[0].x);
+            minY = parseInt(LayoutJson[0].y);
+            maxX = parseInt(LayoutJson[0].x);
+            maxY = parseInt(LayoutJson[0].y);
 
             for (var i = 1; i < LayoutJson.length; i++) {
                 if (parseInt(LayoutJson[i].x) < parseInt(minX)) {
@@ -889,7 +824,7 @@ optional:
         function generateOffsetAndScale() {
             var clientHeight = ($(window).height() - document.getElementById('header').clientHeight -5);
             if(verticalmode && mode == 1) {
-              clientHeight = clientHeight/2;
+              clientHeight = clientHeight*(1-(scaleLayout/100));
             }
             ($("#roomLayout")).height(clientHeight);
             var clientWidth = document.getElementById('roomLayout').clientWidth;
@@ -907,6 +842,12 @@ optional:
             }
             var scaleYs = (clientHeight - (picSizeY * scaleY)) / yDifference;
             var scaleXs = (clientWidth - (picSizeX * scaleX)) / xDifference;
+            if(scaleYs <= 0) {
+              scaleYs= 9999;
+            }
+            if(scaleXs <= 0) {
+              scaleXs= 9999;
+            }
             var tmp = [scaleYs, scaleY, scaleXs, scaleX];
             scale = Math.min.apply(Math, tmp);
             xOffset = 0 - minX;
@@ -932,7 +873,7 @@ optional:
         // possible fix for long delay of updates after long runtime
         function  queryRoom() {
             $.ajax({
-                url: "tmp/room.json",
+                url: "../../../api.php?do=locationinfo&action=roominfo&id="+roomId+"&coords=1",
                 dataType: 'json',
                 cache: false,
                 timeout: 30000,
@@ -952,8 +893,8 @@ optional:
         function rotateRoom(r) {
             for (var z = 0; z < r; z++) {
                 for (var i = 0; i < LayoutJson.length; i++) {
-                    var x = LayoutJson[i].x;
-                    var y = LayoutJson[i].y;
+                    var x = parseInt(LayoutJson[i].x);
+                    var y = parseInt(LayoutJson[i].y);
                     LayoutJson[i].x = y;
                     LayoutJson[i].y = -x;
                 }
@@ -998,9 +939,15 @@ optional:
          */
         $(window).resize(function () {
             setTimeout(function () {
-                scaleCalendar();
-                generateOffsetAndScale();
-                scaleRoom();
+              if(mode != null){
+                if(mode!= 3){
+                  scaleCalendar();
+                }
+                if(mode!= 2){
+                  generateOffsetAndScale();
+                  scaleRoom();
+                }
+              }
             }, 50);
         });
 
