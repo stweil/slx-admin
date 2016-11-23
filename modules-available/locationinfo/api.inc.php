@@ -59,10 +59,13 @@ function getCalendar($getRoomID) {
 }
 
 function getConfig($locationID) {
-	$dbquery = Database::simpleQuery("SELECT config FROM `location_info` WHERE locationid = :locationID", array('locationID' => $locationID));
+	$dbquery = Database::simpleQuery("SELECT l.locationname, li.config FROM `location_info` AS li
+		RIGHT JOIN `location` AS l ON l.locationid=li.locationid WHERE l.locationid=:locationID", array('locationID' => $locationID));
+
 	$config = array();
 	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
 		$config = json_decode($dbresult['config'], true);
+		$config['room'] = $dbresult['locationname'];
 	}
 	if (empty($config)) {
 		echo json_encode(array());
