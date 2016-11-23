@@ -231,7 +231,6 @@ class Page_LocationInfo extends Page
 			$pc['x'] = $position['gridRow'];
 			$pc['y'] = $position['gridCol'];
 
-
 			$data[] = $pc;
 		}
 

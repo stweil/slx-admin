@@ -18,7 +18,44 @@ function HandleParameters() {
 	} elseif ($getAction == "config") {
 		$getRoomID = Request::get('id', 0, 'int');
 		getConfig($getRoomID);
+	} elseif ($getAction == "calendar") {
+		$getRoomID = Request::get('id', 0, 'int');
+		getCalendar($getRoomID);
 	}
+}
+
+function randomCalendarGenerator() {
+	$randNum = rand(3, 7);
+
+	$result = array();
+
+	for ($i = 0; $i < $randNum; $i++) {
+		$c = array();
+		$c['title'] = getRandomWord();
+
+		$randH = rand(8, 16);
+		$rand2 = $randH + 2;
+		$date = getdate();
+		$mday = $date['mday'] + $i;
+		$todays = $date['year'] . "-" . $date['month'] . "-" . $mday . " " . $randH . ":00:00";
+		$c['start'] = $todays;
+		$todaye = $date['year'] . "-" . $date['month'] . "-" . $mday . " " . $rand2 . ":00:00";
+		$c['end'] = $todaye;
+		$result[] = $c;
+	}
+
+	echo json_encode($result);
+}
+
+function getRandomWord($len = 10) {
+    $word = array_merge(range('a', 'z'), range('A', 'Z'));
+    shuffle($word);
+    return substr(implode($word), 0, $len);
+}
+
+function getCalendar($getRoomID) {
+	// TODO GET AND RETURN THE ACTUAL calendar
+	randomCalendarGenerator();
 }
 
 function getConfig($locationID) {
