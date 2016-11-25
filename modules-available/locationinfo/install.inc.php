@@ -13,6 +13,22 @@ $res[] = tableCreate('location_info', '
 
 // Create response for browser
 
+if (!tableHasColumn('location_info', 'config')) {
+	$ret = Database::exec("ALTER TABLE `location_info` ADD `config` VARCHAR(2000) NOT NULL DEFAULT '' AFTER `openingtime`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding config to location_info failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+
+if (!tableHasColumn('location_info', 'calendar')) {
+	$ret = Database::exec("ALTER TABLE `location_info` ADD `calendar` VARCHAR(2000) NOT NULL DEFAULT '' AFTER `config`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding calendar to location_info failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+
 if (in_array(UPDATE_DONE, $res)) {
 	finalResponse(UPDATE_DONE, 'Tables created successfully');
 }
