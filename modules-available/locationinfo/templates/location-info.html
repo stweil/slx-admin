@@ -8,18 +8,16 @@
 		<th width=10>{{lang_locationID}}</th>
 		<th width=80>{{lang_locationInUse}}</th>
     <th width=50>{{lang_locationIsHidden}}</th>
+		<th width=50>{{lang_openingTime}}</th>
     <th width=50>{{lang_locationSettings}}</th>
-    <th width=1/>
 	</tr>
 
 {{#list}}
 	<tr class="tablerow" onclick="{{#hasPcs}}slxOpenLocationInfo(this, {{locationid}}){{/hasPcs}}">
+
 		<td><div style="display:inline-block;width:{{depth}}em"></div>{{#hasPcs}}<a>{{/hasPcs}}{{locationname}}</td>
-		<td align="center">{{locationid}}</td>
-
-
+		<td align="center">[{{locationid}}]</td>
 		<td align="center">{{#hasPcs}}{{inUse}} / {{total}}{{/hasPcs}}</td>
-
 
 		<td id={{locationid}} onclick="event.cancelBubble = true;" align="center"></td>
 		<script>
@@ -36,8 +34,8 @@
 			}
 			cb.addEventListener("click", function() { cbClick(this, {{locationid}}); });
     </script>
-
-    <td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" onclick="loadModal({{locationid}});">{{lang_locationSettings}}</a><td>
+		<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" onclick="loadTimeModal({{locationid}}, '{{locationname}}');">{{lang_openingTime}}</a></td>
+		<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" onclick="loadConfigModal({{locationid}}, '{{locationname}}');">{{lang_locationSettings}}</a></td>
 	</tr>
 
 {{/list}}
@@ -47,7 +45,7 @@
   <div class="modal-dialog">
 
     <div class="modal-content">
-      <div class="modal-header"></div>
+      <div class="modal-header" id="myModalHeader"></div>
       <div class="modal-body" id="myModalBody"></div>
       <div class="modal-footer">
         <a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a>
@@ -90,7 +88,7 @@ function slxOpenLocationInfo(e, locationId) {
 		return;
 	}
 
-	var td = $('<td>').attr('colspan', '2').css('padding', '0px 0px 12px');
+	var td = $('<td>').attr('colspan', '3').css('padding', '0px 0px 12px');
 	var tr = $('<tr>').attr('id', 'subtable' + locationId);
 	tr.append(td);
 	$(e).closest('tr').addClass('active slx-bold').after(tr);
@@ -98,8 +96,20 @@ function slxOpenLocationInfo(e, locationId) {
 	lastPcSubTable = tr;
 }
 
-function loadModal(locationId) {
-  $('#myModal').modal('show')
+function loadTimeModal(locationId, locationName) {
+	$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight","Bold");
+
+	$('#myModal').modal('show');
   $('#myModalBody').load("?do=locationinfo&action=timetable&id=" + locationId);
+
 }
+
+function loadConfigModal(locationId, locationName) {
+	$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight","Bold");
+
+  $('#myModal').modal('show');
+	$('#myModalBody').load("?do=locationinfo&action=config&id=" + locationId);
+
+}
+
 </script>

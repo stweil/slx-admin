@@ -1,4 +1,6 @@
 {
     "no-days-selected": "Es wurden keine Tage ausgewählt.",
-    "added-x-entries": "Eintr\u00e4ge hinzugef\u00fcgt: {{0}}"
+    "added-x-entries": "Eintr\u00e4ge hinzugef\u00fcgt: {{0}}",
+    "deleted-x-entries": "Eintr\u00e4ge gelöscht: {{0}}",
+    "config-saved": "Einstellungen erfolgreich gespeichert."
 }

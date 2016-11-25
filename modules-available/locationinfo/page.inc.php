@@ -19,6 +19,8 @@ class Page_LocationInfo extends Page
 		$this->action = Request::post('action');
 	 	if ($this->action === 'updateOpeningTime') {
 			$this->updateOpeningTime();
+		} elseif ($this->action === 'updateConfig') {
+			$this->updateConfig();
 		}
 	}
 
@@ -49,6 +51,30 @@ class Page_LocationInfo extends Page
 		}
 	}
 
+	private function updateConfig()
+	{
+		$result = array();
+
+		$locationid = Request::post('id', 0, 'int');
+		$result['language'] = Request::post('language');
+		$result['mode'] = Request::post('mode', 1, 'int');
+		$result['vertical'] = Request::post('vertical', false, 'bool');
+		$result['eco'] = Request::post('eco', false, 'bool');
+		$result['daystoshow'] = Request::post('daystoshow', 7, 'int');
+		$result['rotation'] = Request::post('rotation', 0, 'int');
+		$result['scale'] = Request::post('scale', 50, 'int');
+		$result['switchtime'] = Request::post('switchtime', 20, 'int');
+		$result['calupdate'] = Request::post('calupdate', 0, 'int'); //TODO SET DEFAULT TIME INSTEAD OF 0
+		$result['roomupdate'] = Request::post('roomupdate', 0, 'int'); //TODO SET DEFAULT TIME INSTEAD OF 0
+		$result['configupdate'] = Request::post('configupdate', 0, 'int'); //TODO SET DEFAULT TIME INSTEAD OF 0
+
+		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '', :config, '') ON DUPLICATE KEY UPDATE config=:config",
+		 array('id' => $locationid, 'hidden' => false, 'config' => json_encode($result, true)));
+
+		 Message::addSuccess('config-saved');
+		 Util::redirect('?do=locationinfo');
+	}
+
 	private function updateOpeningTime()
 	{
 		$existingDays = Request::post('existingdays');
@@ -61,6 +87,7 @@ class Page_LocationInfo extends Page
 		$count = 0;
 		$result = array();
 		$resulttmp = array();
+		$deleteCounter = 0;
 
 		$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $locationid));
 		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
@@ -79,6 +106,7 @@ class Page_LocationInfo extends Page
 			}
 			if ($skip == true) {
 				$index++;
+				$deleteCounter++;
 				continue;
 			}
 
@@ -119,7 +147,13 @@ class Page_LocationInfo extends Page
 		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, :openingtime, '', '') ON DUPLICATE KEY UPDATE openingtime=:openingtime",
 		 array('id' => $locationid, 'hidden' => false, 'openingtime' => json_encode($result, true)));
 
-		Message::addSuccess('added-x-entries', $count);
+		if ($deleteCounter > 0) {
+			Message::addSuccess('deleted-x-entries', $deleteCounter);
+		}
+		if ($count > 0) {
+			Message::addSuccess('added-x-entries', $count);
+		}
+
 		Util::redirect('?do=locationinfo');
 	}
 
@@ -206,11 +240,12 @@ class Page_LocationInfo extends Page
 		if ($action === 'pcsubtable') {
 			$id = Request::any('id');
 			$this->ajaxShowLocation($id);
-		}
-
-		if ($action === 'timetable') {
+		} elseif ($action === 'timetable') {
 			$id = Request::any('id');
 			$this->ajaxTimeTable($id);
+		} elseif ($action === 'config') {
+			$id = Request::any('id');
+			$this->ajaxConfig($id);
 		}
 	}
 
@@ -262,5 +297,17 @@ class Page_LocationInfo extends Page
 			}
 		}
 		echo Render::parse('timetable', array('id' => $id, 'openingtimes' => array_values($array)));
+	}
+
+	private function ajaxConfig($id) {
+		$array = array();
+		$dbquery = Database::simpleQuery("SELECT config FROM `location_info` WHERE locationid = :id", array('id' => $id));
+		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+			$array = json_decode($dbdata['config'], true);
+		}
+		echo Render::parse('config', array('id' => $id, 'language' => $array['language'], 'mode' => 'mode'.$array['mode'], 'vertical' => $array['vertical'],
+													'eco' => $array['eco'], 'daystoshow' => 'day'.$array['daystoshow'], 'rotation' => 'rotation'.$array['rotation'],
+													'scale' => $array['scale'], 'switchtime' => $array['switchtime'], 'calupdate' => $array['calupdate'],
+													 'roomupdate' => $array['roomupdate'], 'configupdate' => $array['configupdate']));
 	}
 }

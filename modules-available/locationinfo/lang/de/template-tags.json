@@ -6,7 +6,7 @@
     "lang_locationIsHidden": "Versteckt",
     "lang_locationInUse": "In Benutzung / Gesamt",
     "lang_locationSettings": "Einstellungen",
-
+    "lang_locationConfig": "Config",
 
     "lang_pcID": "ID",
     "lang_pcIP": "IP",
@@ -19,12 +19,42 @@
     "lang_closingTime": "Schließungszeit",
     "lang_deleteAll": "Alles Löschen",
 
-
     "lang_shortMonday": "Mo",
     "lang_shortTuesday": "Di",
     "lang_shortWednesday": "Mi",
     "lang_shortThursday": "Do",
     "lang_shortFriday": "Fr",
     "lang_shortSaturday": "Sa",
-    "lang_shortSunday": "So"
+    "lang_shortSunday": "So",
+
+    "lang_language": "Sprache",
+    "lang_languageEn": "en",
+    "lang_languageDe": "de",
+    "lang_languagePt": "pt",
+    "lang_mode": "Modus",
+    "lang_mode1": "Kalender & Raum",
+    "lang_mode2": "Kalender",
+    "lang_mode3": "Raum",
+    "lang_mode4": "Wechselnd",
+    "lang_ecoMode": "Eco modus (e-ink)",
+    "lang_daysToShow": "Tage im Kalender",
+    "lang_daysToShowTooltip": "[1-7] Zeigt die gewünschte Anzahl an Tagen im Kalender an.",
+    "lang_scale": "Skalierung",
+    "lang_scaleTooltip": "[10-90] Skaliert die Kalender breite in modus 1",
+    "lang_switchTime": "Wechsel Zeit",
+    "lang_switchTimeTooltip": "[1-120] Die Zeit die vergeht bis ein wechsel erfolgt in modus 4 (in sekunden)",
+    "lang_rotation": "Rotation",
+    "lang_rotation1": "0°",
+    "lang_rotation2": "+90°",
+    "lang_rotation3": "+180°",
+    "lang_rotation4": "-90°",
+    "lang_vertical": "Vertikal",
+    "lang_calupdate": "Kalender update rate",
+    "lang_calupdateTooltip": "Zeit nachdem der Kalender geupdated wird (in minutes)",
+    "lang_roomupdate": "Raum update rate",
+    "lang_roomupdateTooltip": "Zeit nachder die Pcs geupdated werden (in sekunden)",
+    "lang_configupdate": "Einstellungs update rate",
+    "lang_configupdateTooltip": "Zeit nachder die Einstellungen geupdated werden (in minuten)",
+    "lang_min": "min",
+    "lang_sec": "sec"
 }
