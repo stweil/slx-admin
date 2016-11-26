@@ -19,8 +19,18 @@
  * If you're after a monthly calendar plugin, check out this one :
  * http://arshaw.com/fullcalendar/
  */
+var startdate;
+
+function SetUpDate(d) {
+	startdate = d.getTime()-new Date().getTime();
+}
+
+function myDate() {
+	return new Date(startdate +new Date().getTime());
+}
 
 (function($) {
+
   // check the jquery version
   var _v = $.fn.jquery.split('.'),
       _jQuery14OrLower = (10 * _v[0] + _v[1]) < 15;
@@ -29,7 +39,7 @@
 
     return {
       options: {
-        date: new Date(),
+        date: new myDate(),
         timeFormat: null,
         dateFormat: 'M d, Y',
         alwaysDisplayTimeMinutes: true,
@@ -325,7 +335,7 @@
        */
       today: function() {
         this._clearCalendar();
-        this._loadCalEvents(new Date());
+        this._loadCalEvents(new myDate());
       },
 
       /*
@@ -509,7 +519,7 @@
         this._loadCalEvents(newDate);
       },
       getCurrentFirstDay: function() {
-        return this._dateFirstDayOfWeek(this.options.date || new Date());
+        return this._dateFirstDayOfWeek(this.options.date || new myDate());
       },
       getCurrentLastDay: function() {
         return this._addDays(this.getCurrentFirstDay(), this.options.daysToShow - 1);
@@ -1256,7 +1266,7 @@
        * Draws a thin line which indicates the current time.
        */
       _drawCurrentHourLine: function() {
-        var d = new Date(),
+        var d = new myDate(),
             options = this.options,
             businessHours = options.businessHours;
 
@@ -1273,7 +1283,6 @@
         var nbHours = d.getHours() - paddingStart + d.getMinutes() / 60;
         var positionTop = nbHours * options.timeslotHeight * options.timeslotsPerHour;
         var lineWidth = $('.wc-scrollable-grid .wc-today', this.element).width() + 3;
-
         $('.wc-scrollable-grid .wc-today', this.element).append(
           $('<div>', {
             'class': 'wc-hourline',
@@ -1984,7 +1993,7 @@
       _isToday: function(date) {
           var clonedDate = this._cloneDate(date);
           this._clearTime(clonedDate);
-          var today = new Date();
+          var today = new myDate();
           this._clearTime(today);
           return today.getTime() === clonedDate.getTime();
       },
@@ -2940,5 +2949,5 @@
           return this;
         }
     });
-
 })(jQuery);
+
