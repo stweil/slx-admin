@@ -66,6 +66,8 @@ function getConfig($locationID) {
 	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
 		$config = json_decode($dbresult['config'], true);
 		$config['room'] = $dbresult['locationname'];
+		$date = getdate();
+		$config['time'] = $date['year'] . "-" . $date['mon'] . "-" . $date['mday'] . " " . $date['hours'] . ":" . $date['minutes'] . ":" . $date['seconds'];
 	}
 	if (empty($config)) {
 		echo json_encode(array());
@@ -181,8 +183,8 @@ function getPcInfos($locationID, $coords) {
 
 			if ($coords == '1') {
 				$position = json_decode($pc['position'], true);
-				$computer['x'] = $position['gridRow'];
-				$computer['y'] = $position['gridCol'];
+				$computer['x'] = $position['gridCol'];
+				$computer['y'] = $position['gridRow'];
 			}
 
 			$computer['inUse'] = 0;

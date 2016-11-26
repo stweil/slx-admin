@@ -11,7 +11,24 @@ $res[] = tableCreate('location_info', '
 	PRIMARY KEY (`locationid`)
 ');
 
+$res[] = tableCreate('setting_location_info', '
+	`serverid` int(10) NOT NULL AUTO_INCREMENT,
+	`serverurl` VARCHAR(2000) NOT NULL,
+	`servertype` VARCHAR(100) NOT NULL,
+	`login` VARCHAR(100) NOT NULL,
+	`passwd` VARCHAR(150) NOT NULL,
+	PRIMARY KEY (`serverid`)
+');
+
 // Create response for browser
+
+if(tableExists('locationinfo')) {
+	$ret = Database::exec("DROP TABLE `locationinfo`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Droping table locationinfo failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
 
 if (!tableHasColumn('location_info', 'config')) {
 	$ret = Database::exec("ALTER TABLE `location_info` ADD `config` VARCHAR(2000) NOT NULL DEFAULT '' AFTER `openingtime`");
