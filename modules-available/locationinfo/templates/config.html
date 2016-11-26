@@ -43,9 +43,9 @@
       <Label>{{lang_rotation}}</Label><br>
       <select name="rotation">
         <option value="0" id="rotation0">{{lang_rotation0}}</option>
-        <option value="1" id="rotation1">{{lang_rotation1}}</option>
-        <option value="2" id="rotation2">{{lang_rotation2}}</option>
         <option value="3" id="rotation3">{{lang_rotation3}}</option>
+        <option value="2" id="rotation2">{{lang_rotation2}}</option>
+        <option value="1" id="rotation1">{{lang_rotation1}}</option>
       </select>
     </div>
 
@@ -110,7 +110,7 @@ function loadValues() {
 
   var rotation = $("#{{rotation}}");
   if (!rotation.length) {
-    rotation = $("#rotation1");
+    rotation = $("#rotation0");
   }
   rotation.attr("selected","selected");
 
