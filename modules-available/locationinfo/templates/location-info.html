@@ -13,7 +13,7 @@
 	</tr>
 
 {{#list}}
-	<tr class="tablerow" onclick="{{#hasPcs}}slxOpenLocationInfo(this, {{locationid}}){{/hasPcs}}">
+	<tr id="row{{locationid}}" class="tablerow" onclick="{{#hasPcs}}slxOpenLocationInfo(this, {{locationid}}){{/hasPcs}}">
 
 		<td><div style="display:inline-block;width:{{depth}}em"></div>{{#hasPcs}}<a>{{/hasPcs}}{{locationname}}</td>
 		<td align="center">[{{locationid}}]</td>
@@ -21,8 +21,8 @@
 
 		<td id={{locationid}} onclick="event.cancelBubble = true;" align="center"></td>
 		<script>
-      var cbh = document.getElementById('{{locationid}}');
-    	var cb = document.createElement('input');
+		  var cbh = document.getElementById('{{locationid}}');
+			var cb = document.createElement('input');
 
     	cb.type = 'checkbox';
     	cbh.appendChild(cb);
@@ -56,7 +56,6 @@
 </div>
 
 <script type="text/javascript">
-
 var lastPcSubTable = false;
 
 function cbClick(cb, locID) {
@@ -101,7 +100,6 @@ function loadTimeModal(locationId, locationName) {
 
 	$('#myModal').modal('show');
   $('#myModalBody').load("?do=locationinfo&action=timetable&id=" + locationId);
-
 }
 
 function loadConfigModal(locationId, locationName) {
@@ -109,7 +107,6 @@ function loadConfigModal(locationId, locationName) {
 
   $('#myModal').modal('show');
 	$('#myModalBody').load("?do=locationinfo&action=config&id=" + locationId);
-
 }
 
 </script>

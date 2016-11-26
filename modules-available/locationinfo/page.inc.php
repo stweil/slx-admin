@@ -44,10 +44,10 @@ class Page_LocationInfo extends Page
 		}
 
 		if ($getAction === 'hide') {
-			$roomId = Request::get('id');
-			$hiddenValue = Request::get('value');
+			$roomId = Request::get('id', 0, 'int');
+			$hiddenValue = Request::get('value', 0, 'int');
 			$this->toggleHidden($roomId, $hiddenValue);
-			Util::redirect('?do=locationinfo&action=infoscreen');
+			Util::redirect('?do=locationinfo&action=infoscreen#row' . $roomId);
 		}
 	}
 
@@ -79,7 +79,7 @@ class Page_LocationInfo extends Page
 	{
 		$existingDays = Request::post('existingdays');
 		$days = Request::post('days');
-		$locationid = Request::post('id');
+		$locationid = Request::post('id', 0, 'int');
 		$openingtime = Request::post('openingtime');
 		$closingtime = Request::post('closingtime');
 		$delete = Request::post('delete');
@@ -157,12 +157,60 @@ class Page_LocationInfo extends Page
 		Util::redirect('?do=locationinfo');
 	}
 
-	private function removeOpeningTime() {
-		Message::addError('wasd');
-	}
-
 	protected function toggleHidden($id, $val) {
 		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '', '', '') ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $id, 'hidden' => $val));
+
+		$this->checkChildRecursive($id, $val);
+		$this->checkParentRecursive($id);
+
+	}
+
+	protected function checkChildRecursive($id, $val) {
+		$dbquery = Database::simpleQuery("SELECT locationid FROM `location` WHERE parentlocationid = :locationid", array('locationid' => $id));
+		$childs = array();
+		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+			$childs[] = $dbdata['locationid'];
+		}
+
+		foreach ($childs as $key) {
+			Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '', '', '') ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $key, 'hidden' => $val));
+
+			$this->checkChildRecursive($key, $val);
+		}
+	}
+
+	protected function checkParentRecursive($id) {
+		$dbquery = Database::simpleQuery("SELECT parentlocationid FROM `location` WHERE locationid = :locationid", array('locationid' => $id));
+		$parent = 0;
+		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+			$parent = (int)$dbdata['parentlocationid'];
+		}
+		if ($parent === 0) {
+			return;
+		} else {
+			$dbq = Database::simpleQuery("SELECT COUNT(case li.hidden when '0' then 1 else null end) AS '0',
+			 															COUNT(case li.hidden when '1' then 1 else null end) AS '1',
+																		 COUNT(*) - COUNT(case li.hidden when '0' then 1 else null end) - COUNT(case li.hidden when '1' then 1 else null end) AS 'NULL'
+																		 FROM `location` AS l LEFT JOIN `location_info` AS li ON l.locationid=li.locationid
+																		 WHERE parentlocationid = :parentId;", array('parentId' => $parent));
+			$amountofzero = 0;
+			$amountofone = 0;
+			$amountofnull = 0;
+
+			while($dbd=$dbq->fetch(PDO::FETCH_ASSOC)) {
+				$amountofzero = (int)$dbd['0'];
+				$amountofone = (int)$dbd['1'];
+				$amountofnull = (int)$dbd['NULL'];
+			}
+
+			if ($amountofzero == 0 AND $amountofnull == 0) {
+				Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '', '', '') ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $parent, 'hidden' => 1));
+			} else {
+				Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '', '', '') ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $parent, 'hidden' => 0));
+			}
+
+			$this->checkParentRecursive($parent);
+		}
 	}
 
 	protected function getInfoScreenTable() {
@@ -238,13 +286,13 @@ class Page_LocationInfo extends Page
 		}
 		$action = Request::any('action');
 		if ($action === 'pcsubtable') {
-			$id = Request::any('id');
+			$id = Request::any('id', 0, 'int');
 			$this->ajaxShowLocation($id);
 		} elseif ($action === 'timetable') {
-			$id = Request::any('id');
+			$id = Request::any('id', 0, 'int');
 			$this->ajaxTimeTable($id);
 		} elseif ($action === 'config') {
-			$id = Request::any('id');
+			$id = Request::any('id', 0, 'int');
 			$this->ajaxConfig($id);
 		}
 	}
