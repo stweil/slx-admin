@@ -1,3 +1,13 @@
 {
-    "lang_hello": "Hello"
+    "lang_user": "User",
+    "lang_countLogins": "Number of Logins",
+    "lang_client": "Client",
+    "lang_vm": "VM",
+    "lang_totalLogins": "Total Logins",
+    "lang_overallOfftime": "Overall time offline",
+    "lang_totalOffTime": "Time offline",
+    "lang_clientLogout": "Last Logout",
+    "lang_clientStart": "Last Client Start",
+    "lang_room": "Room",
+    "lang_offTime": "Time since offline"
 }

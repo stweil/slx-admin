@@ -1,4 +1,138 @@
-<div style="border:5px solid red">
-	<h1>{{lang_hello}}, {{foo}}</h1>
-	** {{now}} **
+<div>
+	<table class="table table-condensed table-striped">
+		<tr>
+			<th>{{lang_totalLogins}}</th>
+		</tr>
+		<tr>
+			<td>{{totalLogins}}</td>
+		</tr>
+	</table>
 </div>
+
+<div>
+	<table class="table table-condensed table-striped">
+		<tr>
+			<th>{{lang_overallOfftime}}</th>
+		</tr>
+		<tr>
+			<td>{{totalOfftime}}</td>
+		</tr>
+	</table>
+</div>
+
+
+
+<div class="row">
+	<div class="col-md-3">
+		<table class="table table-condensed">
+			<tr>
+				<th>{{lang_client}}</th>
+				<th>{{lang_totalOffTime}}</th>
+			</tr>
+			{{#totalOfflineTimeClient}}
+			<tr>
+				<td>{{client}}</td>
+				<td>{{offTime}}</td>
+			</tr>
+			{{/totalOfflineTimeClient	}}
+		</table>
+	</div>
+
+	<div class="col-md-3">
+		<table class="table table-condensed">
+			<tr>
+				<th>{{lang_client}}</th>
+				<th>{{lang_clientLogout}}</th>
+				<th>{{lang_offTime}}</th>
+			</tr>
+			{{#lastLogout}}
+			<tr>
+				<td>{{client}}</td>
+				<td>{{lastlogout}}</td>
+				<td>{{howLongOff}}</td>
+			</tr>
+			{{/lastLogout}}
+		</table>
+	</div>
+
+	<div class="col-md-3">
+		<table class="table table-condensed">
+			<tr>
+				<th>{{lang_client}}</th>
+				<th>{{lang_clientStart}}</th>
+			</tr>
+			{{#lastLogin}}
+			<tr>
+				<td>{{client}}</td>
+				<td>{{lastlogin}}</td>
+			</tr>
+			{{/lastLogin}}
+		</table>
+	</div>
+
+	<div class="col-md-3">
+		<table class="table table-condensed">
+			<tr>
+				<th>{{lang_room}}</th>
+				<th>{{lang_totalOffTime}}</th>
+			</tr>
+			{{#offTimeRoom}}
+			<tr>
+				<td>{{room}}</td>
+				<td>{{offTime}}</td>
+			</tr>
+			{{/offTimeRoom}}
+		</table>
+	</div>
+</div>
+
+
+
+
+<div class="row">
+	<div class="col-md-4">
+		<table class="table table-condensed">
+			<tr>
+				<th>{{lang_vm}}</th>
+				<th>{{lang_countLogins}}</th>
+			</tr>
+			{{#vmLogins}}
+			<tr>
+				<td>{{vmname}}</td>
+				<td>{{numLogins}}</td>
+			</tr>
+			{{/vmLogins}}
+		</table>
+	</div>
+
+	<div class="col-md-4">
+		<table class="table table-condensed table-striped">
+			<tr>
+				<th>{{lang_client}}</th>
+				<th>{{lang_countLogins}}</th>
+			</tr>
+			{{#machineLogins}}
+			<tr>
+				<td>{{client}}</td>
+				<td>{{numLogins}}</td>
+			</tr>
+			{{/machineLogins}}
+		</table>
+	</div>
+
+	<div class="col-md-4">
+		<table class="table table-condensed table-striped">
+			<tr>
+				<th>{{lang_user}}</th>
+				<th>{{lang_countLogins}}</th>
+			</tr>
+			{{#userLogins}}
+			<tr>
+				<td>{{username}}</td>
+				<td>{{numLogins}}</td>
+			</tr>
+			{{/userLogins}}
+		</table>
+	</div>
+</div>
+
