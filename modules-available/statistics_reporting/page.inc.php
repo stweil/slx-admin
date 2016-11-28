@@ -21,103 +21,82 @@ class Page_Statistics_Reporting extends Page
 	 */
 	protected function doRender()
 	{
-		//counting the total  number of logins
-		$res = Database::simpleQuery("SELECT COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name'");
-		$row = $res->fetch(PDO::FETCH_ASSOC);
-		$datax = array('totalLogins' => $row['count']);
-
-		//counting logins per vm/event
-		$res = Database::simpleQuery("SELECT data, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' GROUP BY data ORDER BY 2 DESC");
-		$datax[] = array('vmLogins' => array());
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$datax['vmLogins'][] = array('vmname' => $row['data'], 'numLogins' => $row['count']);
-		}
-
-		//counting the logins per user
-		$res = Database::simpleQuery("SELECT username, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' GROUP BY username ORDER BY 2 DESC");
-		$datax[] = array('userLogins' => array());
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$datax['userLogins'][] = array('username' => $row['username'], 'numLogins' => $row['count']);
-		}
-
 		// TODO: got empty machine with alot of logins. isn't shown in the inner-join hostname query below.
 		// $res = Database::simpleQuery("SELECT machineuuid as 'hostname', COUNT(*) AS 'count' FROM statistic WHERE typeid='~session-length' GROUP BY machineuuid ORDER BY 2 DESC");
 
 		// TODO: session-length liefert 3000 Einträge mehr als vmchooser-session?
-		//counting the logins per client
-		$res = Database::simpleQuery("SELECT machine.hostname AS 'hostname', COUNT(*) AS 'count' FROM statistic 
-											 	INNER JOIN machine ON statistic.machineuuid=machine.machineuuid
-												WHERE typeid='~session-length' GROUP BY machine.hostname ORDER BY 2 DESC");
-		$datax[] = array('machineLogins' => array());
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$datax['machineLogins'][] = array('client' => $row['hostname'], 'numLogins' => $row['count']);
+
+		// TODO change AVG to median
+
+
+		// total time online, average time online, total  number of logins
+		$res = Database::simpleQuery("SELECT SUM(CAST(data AS UNSIGNED)), AVG(CAST(data AS UNSIGNED)), COUNT(*) FROM statistic WHERE typeid = '~session-length'");
+		$row = $res->fetch(PDO::FETCH_NUM);
+		$data = array('time' =>  $this->formatSeconds($row[0]), 'avgTime' =>  $this->formatSeconds($row[1]), 'totalLogins' => $row[2]);
+		//total time offline
+		$res = Database::simpleQUery("SELECT SUM(CAST(data AS UNSIGNED)) FROM statistic WHERE typeid='~offline-length'");
+		$row = $res->fetch(PDO::FETCH_NUM);
+		$data = array_merge($data, array('totalOfftime' => $this->formatSeconds($row[0])));
+
+		// per location
+		$res = Database::simpleQuery("SELECT t1.ln, timeSum, avgTime, offlineSum, loginCount FROM (
+													SELECT location.locationname AS 'ln', SUM(CAST(statistic.data AS UNSIGNED)) AS 'timeSum', AVG(CAST(statistic.data AS UNSIGNED)) AS 'avgTime', COUNT(*) AS 'loginCount'
+													FROM statistic INNER JOIN machine ON statistic.machineuuid = machine.machineuuid 
+																		INNER JOIN location ON machine.locationid = location.locationid 
+													WHERE statistic.typeid = '~session-length' GROUP By location.locationname
+												) t1 INNER JOIN (
+											 		SELECT location.locationname AS 'ln', SUM(CAST(statistic.data AS UNSIGNED)) AS 'offlineSum'
+													FROM statistic INNER JOIN machine ON statistic.machineuuid = machine.machineuuid 
+																		INNER JOIN location ON machine.locationid = location.locationid 
+													WHERE statistic.typeid = '~offline-length' GROUP By location.locationname
+												) t2 ON t1.ln = t2.ln");
+		$data[] = array('perLocation' => array());
+		while ($row = $res->fetch(PDO::FETCH_NUM)) {
+			$data['perLocation'][] = array('location' => $row[0], 'time' => $this->formatSeconds($row[1]), 'timeInSeconds' => $row[1],
+				'avgTime' => $this->formatSeconds($row[2]), 'avgTimeInSeconds' => $row[2], 'offTime' => $this->formatSeconds($row[3]), 'offlineTimeInSeconds' => $row[3], 'loginCount' => $row[4]);
+		}
+
+		// per client
+		$res = Database::simpleQuery("SELECT t1.name, timeSum, avgTime, offlineSum, loginCount, lastLogout, lastStart FROM (
+													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(statistic.data AS UNSIGNED)) AS 'timeSum', AVG(CAST(statistic.data AS UNSIGNED)) AS 'avgTime', COUNT(*) AS 'loginCount', MAX(statistic.dateline) AS 'lastLogout'
+													FROM statistic INNER JOIN machine ON statistic.machineuuid = machine.machineuuid
+													WHERE typeid = '~session-length' GROUP BY machine.machineuuid
+												) t1 INNER JOIN (
+													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(statistic.data AS UNSIGNED)) AS 'offlineSum', MAX(statistic.dateline) AS 'lastStart'
+													FROM statistic INNER JOIN machine ON statistic.machineuuid = machine.machineuuid
+													WHERE typeid = '~offline-length' GROUP BY machine.machineuuid
+												) t2 ON t1.uuid = t2.uuid");
+		$data[] = array('perClient' => array());
+		while ($row = $res->fetch(PDO::FETCH_NUM)) {
+			$data['perClient'][] = array('hostname' => $row[0], 'time' => $this->formatSeconds($row[1]), 'timeInSeconds' => $row[1],
+				'avgTime' => $this->formatSeconds($row[2]), 'avgTimeInSeconds' => $row[2], 'offTime' => $this->formatSeconds($row[3]), 'offlineTimeInSeconds' => $row[3], 'loginCount' => $row[4],
+				'lastLogout' => date(DATE_RSS,$row[5]), 'lastLogoutUnixtime' => $row[5], 'lastStart' => date(DATE_RSS,$row[6]), 'lastStartUnixtime' => $row[6]);
+		}
+
+		// per user
+		$res = Database::simpleQuery("SELECT username, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' GROUP BY username ORDER BY 2 DESC");
+		$data[] = array('perUser' => array());
+		while ($row = $res->fetch(PDO::FETCH_NUM)) {
+			$data['perUser'][] = array('user' => $row[0], 'loginCount' => $row[1]);
+		}
+
+		// per vm
+		$res = Database::simpleQuery("SELECT data, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' GROUP BY data ORDER BY 2 DESC");
+		$data[] = array('perVM' => array());
+		while ($row = $res->fetch(PDO::FETCH_NUM)) {
+			$data['perVM'][] = array('vm' => $row[0], 'loginCount' => $row[1]);
 		}
 
 
 
-		//total time offline overall
-		$res = Database::simpleQUery("SELECT sum(cast(data AS UNSIGNED)) AS totalOfftime FROM statistic WHERE typeid='~offline-length'");
-		$row = $res->fetch(PDO::FETCH_ASSOC);
-		$datay= array('totalOfftime' => $row['totalOfftime']);
 
-		//total offline time per client
-		$res = Database::simpleQuery("SELECT machine.hostname AS 'hostname', statistic.data as time FROM statistic 
-											 	INNER JOIN machine ON statistic.machineuuid=machine.machineuuid
-												WHERE typeid='~offline-length' GROUP BY machine.hostname ORDER BY cast(time AS UNSIGNED) DESC");
-		$datay[] = array('totalOfflineTimeClient' => array());
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$datay['totalOfflineTimeClient'][] = array('client' => $row['hostname'], 'offTime' => $row['time']);
-		}
-
-		// last logout of client
-		$res = Database::simpleQuery("SELECT machine.hostname AS 'hostname', max(statistic.dateline) as datetime, statistic.data as loginTime
-												FROM statistic INNER JOIN machine ON statistic.machineuuid=machine.machineuuid
-												WHERE typeid='~session-length' GROUP BY machine.hostname ORDER BY datetime DESC");
-		$datay[] = array('lastLogout' => array());
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$datay['lastLogout'][] = array('client' => $row['hostname'], 'lastlogout' => date(DATE_RSS,$row['datetime']+$row['loginTime']), 'howLongOff' => (time() - ($row['datetime']+$row['loginTime'])));
-		}
-
-		// last start of client
-		$res = Database::simpleQuery("SELECT machine.hostname AS 'hostname', max(statistic.dateline) as datetime FROM statistic 
-											 	INNER JOIN machine ON statistic.machineuuid=machine.machineuuid
-												WHERE typeid='~offline-length' GROUP BY machine.hostname ORDER BY datetime DESC");
-		$datay[] = array('lastLogin' => array());
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$datay['lastLogin'][] = array('client' => $row['hostname'], 'lastlogin' => date(DATE_RSS,$row['datetime']));
-		}
-
-		//total time offline per room
-		$res = Database::simpleQuery("SELECT location.locationname AS 'room', statistic.data as time FROM statistic 
-											 	INNER JOIN machine ON statistic.machineuuid=machine.machineuuid
-											 	INNER JOIN location ON machine.locationid=location.locationid
-												WHERE typeid='~offline-length' GROUP BY room ORDER BY cast(time AS UNSIGNED) DESC");
-		$datay[] = array('offTimeRoom' => array());
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$datay['offTimeRoom'][] = array('room' => $row['room'], 'offTime' => $this->formatSeconds($row['time']));
-		}
-
-		$data = array_merge($datax, $datay);
+		Render::addTemplate('columnChooser');
 		Render::addTemplate('_page', $data);
 	}
 
 
-
-	function formatSeconds($seconds) {
-		$seconds = $seconds * 1;
-
-		$minutes = floor($seconds / 60);
-		$hours = floor($minutes / 60);
-		$days = floor($hours / 24);
-
-		$seconds = $seconds % 60;
-		$minutes = $minutes % 60;
-		$hours = $hours % 24;
-
-		$format = '%u:%u:%02u:%02u';
-		$time = sprintf($format, $days, $hours, $minutes, $seconds);
-		return rtrim($time, '0');
+	protected function formatSeconds($seconds)
+	{
+		return intdiv($seconds, 3600*24).'d '.intdiv($seconds%(3600*24), 3600).'h '.intdiv($seconds%3600, 60).'m '.($seconds%60).'s';
 	}
-
-
 }

@@ -1,0 +1,47 @@
+<div class="container-fluid">
+	<div class="row top-row form-inline">
+		<div class="col-md-12 ">
+			<select id="select-table" onchange="chooseTable(this.value)" class="form-control" style="width:160px">
+				<option value="total" selected="selected">{{lang_total}}</option>
+				<option value="perlocation">{{lang_perlocation}}</option>
+				<option value="perclient">{{lang_perclient}}</option>
+				<option value="peruser">{{lang_peruser}}</option>
+				<option value="pervm">{{lang_pervm}}</option>
+			</select>
+			<div class="btn-group">
+				<button id="button-totaltime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('totaltime')">{{lang_totalTime}}</button>
+				<button id="button-avgtime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('avgtime')">{{lang_avgSessionLength}}</button>
+				<button id="button-logincount" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('logincount')">{{lang_totalLogins}}</button>
+				<button id="button-timeoffline" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('timeoffline')">{{lang_totalOffTime}}</button>
+				<button id="button-lastlogout" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('lastlogout')">{{lang_clientLogout}}</button>
+				<button id="button-laststart" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('laststart')">{{lang_clientStart}}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script type="application/javascript">
+	document.addEventListener("DOMContentLoaded", function () {
+		chooseTable($('#select-table').val());
+		$("table").stupidtable();
+	});
+
+	function chooseTable(v) {
+		$("[id^=table-]").hide();
+		$('#table-'+v).show();
+	}
+
+	function toggleButton(v) {
+		$button = $('#button-'+v);
+		if($button.hasClass('btn-default')) {
+			$button.removeClass('btn-default');
+			$button.addClass('btn-primary');
+			$('.column-'+v).show()
+		} else {
+			$button.removeClass('btn-primary');
+			$button.addClass('btn-default');
+			$('.column-'+v).hide()
+		}
+	}
+</script>

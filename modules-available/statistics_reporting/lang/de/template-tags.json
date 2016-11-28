@@ -9,5 +9,14 @@
     "lang_clientLogout": "Letzter Logout",
     "lang_clientStart": "Letzter Client Start",
     "lang_room": "Raum",
-    "lang_offTime": "Zeit seit Logout"
+    "lang_offTime": "Zeit seit Logout",
+    "lang_total": "Gesamt",
+    "lang_perlocation": "Pro Raum",
+    "lang_perclient": "Pro Client",
+    "lang_peruser": "Pro Benutzer",
+    "lang_pervm": "Pro VM",
+    "lang_hostname": "Client Name",
+    "lang_location": "Raum",
+    "lang_avgSessionLength": "Durchschnittliche Sitzungsdauer",
+    "lang_totalTime": "Gesamte Zeit"
 }

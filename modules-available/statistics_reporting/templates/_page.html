@@ -1,138 +1,125 @@
-<div>
-	<table class="table table-condensed table-striped">
-		<tr>
-			<th>{{lang_totalLogins}}</th>
-		</tr>
-		<tr>
-			<td>{{totalLogins}}</td>
-		</tr>
-	</table>
-</div>
-
-<div>
-	<table class="table table-condensed table-striped">
-		<tr>
-			<th>{{lang_overallOfftime}}</th>
-		</tr>
-		<tr>
-			<td>{{totalOfftime}}</td>
-		</tr>
-	</table>
-</div>
-
-
-
-<div class="row">
-	<div class="col-md-3">
-		<table class="table table-condensed">
-			<tr>
-				<th>{{lang_client}}</th>
-				<th>{{lang_totalOffTime}}</th>
-			</tr>
-			{{#totalOfflineTimeClient}}
-			<tr>
-				<td>{{client}}</td>
-				<td>{{offTime}}</td>
-			</tr>
-			{{/totalOfflineTimeClient	}}
-		</table>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<table id="table-total" class="table table-condensed table-striped">
+				<thead>
+					<tr>
+						<th class="text-left col-md-2"></th>
+						<th class="text-left column-totaltime">{{lang_totalTime}}</th>
+						<th class="text-left column-avgtime">{{lang_avgSessionLength}}</th>
+						<th class="text-left column-logincount">{{lang_totalLogins}}</th>
+						<th class="text-left column-timeoffline">{{lang_overallOfftime}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th class="text-left">{{lang_total}}</th>
+						<td class="text-left column-totaltime">{{time}}</td>
+						<td class="text-left column-avgtime">{{avgTime}}</td>
+						<td class="text-left column-logincount">{{totalLogins}}</td>
+						<td class="text-left column-timeoffline">{{totalOfftime}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
-
-	<div class="col-md-3">
-		<table class="table table-condensed">
-			<tr>
-				<th>{{lang_client}}</th>
-				<th>{{lang_clientLogout}}</th>
-				<th>{{lang_offTime}}</th>
-			</tr>
-			{{#lastLogout}}
-			<tr>
-				<td>{{client}}</td>
-				<td>{{lastlogout}}</td>
-				<td>{{howLongOff}}</td>
-			</tr>
-			{{/lastLogout}}
-		</table>
+	<div class="row">
+		<div class="col-md-12">
+			<table id="table-perlocation" class="table table-condensed table-striped">
+				<thead>
+					<tr>
+						<th data-sort="string" class="text-left col-md-2">{{lang_location}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-totaltime">{{lang_totalTime}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-avgtime">{{lang_avgSessionLength}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-logincount">{{lang_totalLogins}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-timeoffline">{{lang_totalOffTime}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#perLocation}}
+					<tr>
+						<td class="text-left">{{location}}</td>
+						<td data-sort-value="{{timeInSeconds}}" class="text-left column-totaltime">{{time}}</td>
+						<td data-sort-value="{{avgTimeInSeconds}}" class="text-left column-avgtime">{{avgTime}}</td>
+						<td class="text-left column-logincount">{{loginCount}}</td>
+						<td data-sort-value="{{offlineTimeInSeconds}}" class="text-left column-timeoffline">{{offTime}}</td>
+					</tr>
+					{{/perLocation}}
+				</tbody>
+			</table>
+		</div>
 	</div>
-
-	<div class="col-md-3">
-		<table class="table table-condensed">
-			<tr>
-				<th>{{lang_client}}</th>
-				<th>{{lang_clientStart}}</th>
-			</tr>
-			{{#lastLogin}}
-			<tr>
-				<td>{{client}}</td>
-				<td>{{lastlogin}}</td>
-			</tr>
-			{{/lastLogin}}
-		</table>
+	<div class="row">
+		<div class="col-md-12">
+			<table id="table-perclient" class="table table-condensed table-striped">
+				<thead>
+					<tr>
+						<th data-sort="string" class="text-left col-md-4">{{lang_hostname}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-totaltime">{{lang_totalTime}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-avgtime">{{lang_avgSessionLength}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-logincount">{{lang_totalLogins}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-timeoffline">{{lang_totalOffTime}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-lastlogout">{{lang_clientLogout}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-laststart">{{lang_clientStart}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#perClient}}
+					<tr>
+						<td class="text-left">{{hostname}}</td>
+						<td data-sort-value="{{timeInSeconds}}" class="text-left column-totaltime">{{time}}</td>
+						<td data-sort-value="{{avgTimeInSeconds}}" class="text-left column-avgtime">{{avgTime}}</td>
+						<td class="text-left column-logincount">{{loginCount}}</td>
+						<td data-sort-value="{{offlineTimeInSeconds}}" class="text-left column-timeoffline">{{offTime}}</td>
+						<td data-sort-value="{{lastLogoutUnixtime}}" class="text-left column-lastlogout">{{lastLogout}}</td>
+						<td data-sort-value="{{lastStartUnixtime}}" class="text-left column-laststart">{{lastStart}}</td>
+					</tr>
+					{{/perClient}}
+				</tbody>
+			</table>
+		</div>
 	</div>
-
-	<div class="col-md-3">
-		<table class="table table-condensed">
-			<tr>
-				<th>{{lang_room}}</th>
-				<th>{{lang_totalOffTime}}</th>
-			</tr>
-			{{#offTimeRoom}}
-			<tr>
-				<td>{{room}}</td>
-				<td>{{offTime}}</td>
-			</tr>
-			{{/offTimeRoom}}
-		</table>
+	<div class="row">
+		<div class="col-md-12">
+			<table id="table-peruser" class="table table-condensed table-striped">
+				<thead>
+				<tr>
+					<th data-sort="string" class="text-left col-md-4">{{lang_user}}</th>
+					<th data-sort="int" data-sort-default="desc" class="text-left column-logincount">{{lang_totalLogins}}</th>
+				</tr>
+				</thead>
+				<tbody>
+				{{#perUser}}
+				<tr>
+					<td class="text-left">{{user}}</td>
+					<td class="text-left column-logincount">{{loginCount}}</td>
+				</tr>
+				{{/perUser}}
+				</tbody>
+			</table>
+		</div>
 	</div>
-</div>
-
-
-
-
-<div class="row">
-	<div class="col-md-4">
-		<table class="table table-condensed">
-			<tr>
-				<th>{{lang_vm}}</th>
-				<th>{{lang_countLogins}}</th>
-			</tr>
-			{{#vmLogins}}
-			<tr>
-				<td>{{vmname}}</td>
-				<td>{{numLogins}}</td>
-			</tr>
-			{{/vmLogins}}
-		</table>
-	</div>
-
-	<div class="col-md-4">
-		<table class="table table-condensed table-striped">
-			<tr>
-				<th>{{lang_client}}</th>
-				<th>{{lang_countLogins}}</th>
-			</tr>
-			{{#machineLogins}}
-			<tr>
-				<td>{{client}}</td>
-				<td>{{numLogins}}</td>
-			</tr>
-			{{/machineLogins}}
-		</table>
-	</div>
-
-	<div class="col-md-4">
-		<table class="table table-condensed table-striped">
-			<tr>
-				<th>{{lang_user}}</th>
-				<th>{{lang_countLogins}}</th>
-			</tr>
-			{{#userLogins}}
-			<tr>
-				<td>{{username}}</td>
-				<td>{{numLogins}}</td>
-			</tr>
-			{{/userLogins}}
-		</table>
+	<div class="row">
+		<div class="col-md-12">
+			<table id="table-pervm" class="table table-condensed table-striped">
+				<thead>
+				<tr>
+					<th data-sort="string" class="text-left col-md-4">{{lang_vm}}</th>
+					<th data-sort="int" data-sort-default="desc" class="text-left column-logincount">{{lang_totalLogins}}</th>
+				</tr>
+				</thead>
+				<tbody>
+				{{#perVM}}
+				<tr>
+					<td class="text-left">{{vm}}</td>
+					<td class="text-left column-logincount">{{loginCount}}</td>
+				</tr>
+				{{/perVM}}
+				</tbody>
+			</table>
+		</div>
 	</div>
 </div>
+
+
 

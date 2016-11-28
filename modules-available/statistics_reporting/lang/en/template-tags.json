@@ -9,5 +9,14 @@
     "lang_clientLogout": "Last Logout",
     "lang_clientStart": "Last Client Start",
     "lang_room": "Room",
-    "lang_offTime": "Time since offline"
+    "lang_offTime": "Time since offline",
+    "lang_total": "Total",
+    "lang_perlocation": "Per Location",
+    "lang_perclient": "Per Client",
+    "lang_peruser": "Per User",
+    "lang_pervm": "Per VM",
+    "lang_hostname": "Client Name",
+    "lang_location": "Location",
+    "lang_avgSessionLength": "Average Session Length",
+    "lang_totalTime": "Total Time"
 }
