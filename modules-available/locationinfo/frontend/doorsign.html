@@ -37,7 +37,7 @@ optional:
 		body {
 			font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
 			margin: 0;
-			background-color: grey;
+
 		}
 
 		.row {
@@ -153,6 +153,7 @@ optional:
 
 		.wc-time-header-cell {
 			background-color: #eeeeee;
+			border: none;
 		}
 
 		.ui-corner-all {
@@ -176,6 +177,14 @@ optional:
 			-khtml-border-left-right-radius: 0;
 			border-top-left-radius: 0;
 		}
+		.wc-scrollable-grid .wc-day-column-first {
+			border-style:solid;
+
+		}
+		[class*="wc-day-"] {
+			border-color: grey;
+		}
+
 
 
 	</style>
@@ -285,12 +294,11 @@ optional:
 			return true;
 		}
 		function getParamerter(json) {
-
 			var lang;
 			if (json != null) {
 				mode = parseInt(json.mode);
 				lang = json.lang;
-				daystoshow = parseInt(json.daystoshow);
+				daysToShow = parseInt(json.daystoshow);
 				scaleLayout = parseInt(json.scale);
 				switchTime = parseInt(json.switchtime);
 				queryTimeCalendar = parseInt(json.calupdate);
@@ -426,7 +434,7 @@ optional:
 		function setUpCalendar(percent, daysToShow) {
 			generateCalendarDiv(percent);
 			var $calendar = $("#calendar").weekCalendar({
-				timeslotsPerHour: 4,
+				timeslotsPerHour: 1,
 				timeslotHeight: 20,
 				daysToShow: daysToShow,
 				height: function ($calendar) {
@@ -446,7 +454,7 @@ optional:
 					}
 				},
 				date:myDate(),
-				dateFormat: "d M y",
+				dateFormat: "j.n",
 				timeFormat: "G:i",
 				use24Hour: true,
 				readonly: true,
