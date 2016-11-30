@@ -27,10 +27,18 @@ if (Database::exec("ALTER TABLE exams ADD INDEX `idx_daterange` ( `starttime` , 
 }
 
 if (!tableHasColumn('exams', 'lectureid')) {
-	Database::exec("ALTER TABLE `exams` ADD `lectureid` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL DEFAULT NULL AFTER `examid`");
+	$ret = Database::exec("ALTER TABLE `exams` ADD `lectureid` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL DEFAULT NULL AFTER `examid`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding lectureid to exams failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 if (!tableHasColumn('exams', 'autologin')) {
-	Database::exec("ALTER TABLE `exams` ADD `autologin` CHAR(36) NULL DEFAULT NULL AFTER `endtime`");
+	$ret = Database::exec("ALTER TABLE `exams` ADD `autologin` CHAR(36) NULL DEFAULT NULL AFTER `endtime`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding autologin to exams failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 Database::exec("ALTER TABLE `exams` CHANGE `description` `description` varchar(500) DEFAULT NULL");
