@@ -68,6 +68,7 @@
 				if ($.isNumeric($('#port').val()) && $('#port').val() < ports[i].port) continue; // Prefer the global LDAP ports over the specific AD ports
 				if (ssl) {
 					if (verRes === -1) verRes = ports[i].verifyResult;
+					if (typeof ports[i].certFingerprint !== 'string' || typeof ports[i].certificateChain !== 'string') continue;
 					if (ports[i].certFingerprint.length < 10 || ports[i].certificateChain.length < 10) continue;
 					if (ports[i].verifyResult != 0 && (cert || !isSelfSigned(ports[i].verifyResult))) continue;
 					verRes = ports[i].verifyResult;

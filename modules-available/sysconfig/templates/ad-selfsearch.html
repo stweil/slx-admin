@@ -1,5 +1,10 @@
 <p>
+	{{#tryHomeAttr}}
+	{{lang_determiningHomeDirectory}}
+	{{/tryHomeAttr}}
+	{{^tryHomeAttr}}
 	{{lang_dnLookup}}
+	{{/tryHomeAttr}}
 </p>
 <p>
 	{{binddn}} @ {{server}}<br>
@@ -14,7 +19,11 @@
 	</div>
 </div>
 <i>{{lang_onProblemSearchBase}}</i>
-<br><br>
+<br>
+<div class="alert alert-warning" id="nohome" style="display:none">
+	{{lang_noHomeAttrFound}}
+</div>
+<br>
 <div class="pull-left">
 	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{prev}}">
 		<input type="hidden" name="token" value="{{token}}">
@@ -87,9 +96,11 @@
 			tryHomeAttr = true;
 			if (task.data.home && task.data.home.length) attrlist = task.data.home;
 			{{/tryHomeAttr}}
-			if (typeof search !== 'string' || search.length === 0 || search.length + 2 >= fulldn.length
-					  || (tryHomeAttr && $('#home').val().length === 0 && $('#homeattr').val().length === 0 && attrlist.length === 0)) {
+			if (typeof search !== 'string' || search.length === 0 || search.length + 2 >= fulldn.length) {
 				$('#nextbutton').html('{{lang_continueAnyway}}');
+			} else if (tryHomeAttr && $('#home').val().length === 0 && $('#homeattr').val().length === 0 && attrlist.length === 0) {
+				$('#nextbutton').html('{{lang_continueAnyway}}');
+				$('#nohome').show();
 			} else if (attrlist.length > 1 && $('#homeattr').val().length === 0) {
 				var sel = $('<select>').attr('onchange', 'slxSetHomeAttr(this)').addClass('form-control');
 				var best = 0;
