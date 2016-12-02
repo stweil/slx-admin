@@ -20,6 +20,7 @@ optional:
     rotation:[0-3] rotation of the roomplan
     vertical:[true] only mode 1, sets the calendar above the roomplan
     configupdate: Time interval the config gets updated (in minutes)
+    scaledaysauto: [true] if true it finds automaticly the daystoshow parameter depending on display size
 -->
 <!DOCTYPE html>
 <html lang="de">
@@ -301,9 +302,9 @@ optional:
 				lang = json.lang;
 				daysToShow = parseInt(json.daystoshow);
 				scaleLayout = parseInt(json.scale);
-				switchTime = parseInt(json.switchtime);
-				queryTimeCalendar = parseInt(json.calupdate);
-				queryTimeRoom = parseInt(json.roomupdate);
+				switchTime = parseInt(json.switchtime) * 1000;
+				queryTimeCalendar = parseInt(json.calupdate) * 60 * 1000;
+				queryTimeRoom = parseInt(json.roomupdate) * 1000;
 				rotation = parseInt(json.rotation);
 
 				if(json.scaleDaysAuto!=null) {
