@@ -23,7 +23,8 @@
     </div>
     <div style="float: left; margin-left: 15px;">
       <input name="vertical" id="cb_vertical" type="checkbox"/> {{lang_vertical}}<br>
-      <input name="eco" id="cb_eco" type="checkbox"/> {{lang_ecoMode}}
+      <input name="eco" id="cb_eco" type="checkbox"/> {{lang_ecoMode}}<br>
+      <input name="autoscale" id="cb_autoScale" type="checkbox"/> {{lang_autoScale}}
     </div>
 
     <div style="float: left; margin-left: 15px;">
@@ -102,6 +103,10 @@ function loadValues() {
     $("#cb_eco").prop("checked", true);
   }
 
+  if('{{scaledaysauto}}' == true){
+    $("#cb_autoScale").prop("checked", true);
+  }
+
   var day = $("#{{daystoshow}}");
   if (!day.length) {
     day = $("#day7");
@@ -128,9 +133,23 @@ function loadValues() {
   $("#sl_switch").attr('value', switchVal);
   showSwitchValue(switchVal);
 
-  $("#updateCalendar").attr("value", '{{calupdate}}');
-  $("#updateRoom").attr("value", '{{roomupdate}}');
-  $("#updateConfig").attr("value", '{{configupdate}}');
+  var calupdate = '{{calupdate}}';
+  if (!calupdate.length) {
+    calupdate = 30;
+  }
+  $("#updateCalendar").attr("value", calupdate);
+
+  var roomupdate = '{{roomupdate}}';
+  if (!roomupdate.length) {
+    roomupdate = 30;
+  }
+  $("#updateRoom").attr("value", roomupdate);
+
+  var configupdate = '{{configupdate}}';
+  if (!configupdate.length) {
+    configupdate = 180;
+  }
+  $("#updateConfig").attr("value", configupdate);
 }
 
 function showScaleValue(newValue) {

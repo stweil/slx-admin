@@ -63,13 +63,14 @@ class Page_LocationInfo extends Page
 		$result['mode'] = Request::post('mode', 1, 'int');
 		$result['vertical'] = Request::post('vertical', false, 'bool');
 		$result['eco'] = Request::post('eco', false, 'bool');
+		$result['scaledaysauto'] = Request::post('autoscale', false, 'bool');
 		$result['daystoshow'] = Request::post('daystoshow', 7, 'int');
 		$result['rotation'] = Request::post('rotation', 0, 'int');
 		$result['scale'] = Request::post('scale', 50, 'int');
 		$result['switchtime'] = Request::post('switchtime', 20, 'int');
-		$result['calupdate'] = Request::post('calupdate', 0, 'int'); //TODO SET DEFAULT TIME INSTEAD OF 0
-		$result['roomupdate'] = Request::post('roomupdate', 0, 'int'); //TODO SET DEFAULT TIME INSTEAD OF 0
-		$result['configupdate'] = Request::post('configupdate', 0, 'int'); //TODO SET DEFAULT TIME INSTEAD OF 0
+		$result['calupdate'] = Request::post('calupdate', 30, 'int');
+		$result['roomupdate'] = Request::post('roomupdate', 30, 'int');
+		$result['configupdate'] = Request::post('configupdate', 180, 'int');
 
 		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '', :config, '') ON DUPLICATE KEY UPDATE config=:config",
 		 array('id' => $locationid, 'hidden' => false, 'config' => json_encode($result, true)));
@@ -80,7 +81,6 @@ class Page_LocationInfo extends Page
 
 	private function updateOpeningTimeExpert()
 	{
-		//$existingDays = Request::post('existingdays'); TODO maybe use openingdays from the html so we don't need the db query
 		$days = Request::post('days');
 		$locationid = Request::post('id', 0, 'int');
 		$openingtime = Request::post('openingtime');
@@ -404,7 +404,7 @@ class Page_LocationInfo extends Page
 			$array = json_decode($dbdata['config'], true);
 		}
 		echo Render::parse('config', array('id' => $id, 'language' => $array['language'], 'mode' => 'mode'.$array['mode'], 'vertical' => $array['vertical'],
-													'eco' => $array['eco'], 'daystoshow' => 'day'.$array['daystoshow'], 'rotation' => 'rotation'.$array['rotation'],
+													'eco' => $array['eco'], 'daystoshow' => 'day'.$array['daystoshow'], 'scaledaysauto' => $array['scaledaysauto'], 'rotation' => 'rotation'.$array['rotation'],
 													'scale' => $array['scale'], 'switchtime' => $array['switchtime'], 'calupdate' => $array['calupdate'],
 													 'roomupdate' => $array['roomupdate'], 'configupdate' => $array['configupdate']));
 	}

@@ -61,5 +61,6 @@
     "lang_configupdate": "Config update",
     "lang_configupdateTooltip": "Time interval the config gets updated (in minutes)",
     "lang_min": "min",
-    "lang_sec": "sec"
+    "lang_sec": "sec",
+    "lang_autoScale": "Auto scale"
 }

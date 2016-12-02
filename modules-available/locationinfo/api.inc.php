@@ -87,7 +87,7 @@ function checkIfHidden($locationID) {
 			return true;
 		}
 	}
-	return -1;
+	return false;
 }
 
 function getOpeningTimesFromParent($locationID) {
@@ -161,10 +161,10 @@ function getRoomInfoJson($locationID, $coords) {
 		$error = true;
 	}
 
-	if ($error == false) {
-		echo $pcs;
-	} else {
+	if ($error == true) {
 		echo "ERROR";
+	} else {
+		echo $pcs;
 	}
 }
 
