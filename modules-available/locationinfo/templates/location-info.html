@@ -1,7 +1,7 @@
 <div>
 <h1>{{lang_mainHeader}}</h1>
 
-<table class="table table-condensed locations" style="margin-bottom:0px">
+<table class="table table-condensed locations" style="margin-bottom:0">
 
 	<tr>
 		<th>{{lang_locationName}}</th>
@@ -15,7 +15,7 @@
 {{#list}}
 	<tr id="row{{locationid}}" class="tablerow" onclick="{{#hasPcs}}slxOpenLocationInfo(this, {{locationid}}){{/hasPcs}}">
 
-		<td><div style="display:inline-block;width:{{depth}}em"></div>{{#hasPcs}}<a>{{/hasPcs}}{{locationname}}</td>
+		<td><div style="display:inline-block;width:{{depth}}em"></div>{{#hasPcs}}<a>{{/hasPcs}}{{locationname}}{{#hasPcs}}</a>{{/hasPcs}}</td>
 		<td align="center">[{{locationid}}]</td>
 		<td align="center">{{#hasPcs}}{{inUse}} / {{total}}{{/hasPcs}}</td>
 
@@ -110,3 +110,4 @@ function loadConfigModal(locationId, locationName) {
 }
 
 </script>
+</div>

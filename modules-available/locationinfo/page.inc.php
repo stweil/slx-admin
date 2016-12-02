@@ -17,8 +17,10 @@ class Page_LocationInfo extends Page
 		}
 
 		$this->action = Request::post('action');
-	 	if ($this->action === 'updateOpeningTime') {
-			$this->updateOpeningTime();
+	 	if ($this->action === 'updateOpeningTimeExpert') {
+			$this->updateOpeningTimeExpert();
+		} elseif($this->action === 'updateOpeningTimeEasy') {
+			$this->updateOpeningTimeEasy();
 		} elseif ($this->action === 'updateConfig') {
 			$this->updateConfig();
 		}
@@ -49,6 +51,7 @@ class Page_LocationInfo extends Page
 			$this->toggleHidden($roomId, $hiddenValue);
 			Util::redirect('?do=locationinfo&action=infoscreen#row' . $roomId);
 		}
+
 	}
 
 	private function updateConfig()
@@ -75,13 +78,14 @@ class Page_LocationInfo extends Page
 		 Util::redirect('?do=locationinfo');
 	}
 
-	private function updateOpeningTime()
+	private function updateOpeningTimeExpert()
 	{
-		$existingDays = Request::post('existingdays');
+		//$existingDays = Request::post('existingdays'); TODO maybe use openingdays from the html so we don't need the db query
 		$days = Request::post('days');
 		$locationid = Request::post('id', 0, 'int');
 		$openingtime = Request::post('openingtime');
 		$closingtime = Request::post('closingtime');
+		$easyMode = Request::post('easyMode');
 		$delete = Request::post('delete');
 		$dontadd = Request::post('dontadd');
 		$count = 0;
@@ -89,29 +93,31 @@ class Page_LocationInfo extends Page
 		$resulttmp = array();
 		$deleteCounter = 0;
 
-		$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $locationid));
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$resulttmp = json_decode($dbdata['openingtime'], true);
-		}
+		if (!$easyMode) {
+			$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $locationid));
+			while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+				$resulttmp = json_decode($dbdata['openingtime'], true);
+			}
 
-		$index = 0;
+			$index = 0;
 
-		foreach ($resulttmp as $day) {
-			$skip = false;
-			foreach ($delete as $del) {
-				if ($del == $index) {
-					$skip = true;
-					break;
+			foreach ($resulttmp as $day) {
+				$skip = false;
+				foreach ($delete as $del) {
+					if ($del == $index) {
+						$skip = true;
+						break;
+					}
 				}
-			}
-			if ($skip == true) {
-				$index++;
-				$deleteCounter++;
-				continue;
-			}
+				if ($skip == true) {
+					$index++;
+					$deleteCounter++;
+					continue;
+				}
 
-			$result[] = $day;
-			$index++;
+				$result[] = $day;
+				$index++;
+			}
 		}
 
 		if (!empty($days) && !is_array($days)) {
@@ -157,6 +163,34 @@ class Page_LocationInfo extends Page
 		Util::redirect('?do=locationinfo');
 	}
 
+	private function updateOpeningTimeEasy() {
+		$locationid = Request::post('id', 0, 'int');
+		$openingtime = Request::post('openingtime');
+		$closingtime = Request::post('closingtime');
+		$result = array();
+
+		$opt0['days'] = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
+		$opt0['openingtime'] = $openingtime[0];
+		$opt0['closingtime'] = $closingtime[0];
+		$result[] = $opt0;
+
+		$opt1['days'] = array ("Saturday");
+		$opt1['openingtime'] = $openingtime[1];
+		$opt1['closingtime'] = $closingtime[1];
+		$result[] = $opt1;
+
+		$opt2['days'] = array ("Sunday");
+		$opt2['openingtime'] = $openingtime[2];
+		$opt2['closingtime'] = $closingtime[2];
+		$result[] = $opt2;
+
+		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, :openingtime, '', '') ON DUPLICATE KEY UPDATE openingtime=:openingtime",
+		 array('id' => $locationid, 'hidden' => false, 'openingtime' => json_encode($result, true)));
+
+		Message::addSuccess('openingtime-updated');
+		Util::redirect('?do=locationinfo');
+	}
+
 	protected function toggleHidden($id, $val) {
 		Database::exec("INSERT INTO `location_info` VALUES (:id, :hidden, '', '', '') ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $id, 'hidden' => $val));
 
@@ -194,12 +228,10 @@ class Page_LocationInfo extends Page
 																		 FROM `location` AS l LEFT JOIN `location_info` AS li ON l.locationid=li.locationid
 																		 WHERE parentlocationid = :parentId;", array('parentId' => $parent));
 			$amountofzero = 0;
-			$amountofone = 0;
 			$amountofnull = 0;
 
 			while($dbd=$dbq->fetch(PDO::FETCH_ASSOC)) {
 				$amountofzero = (int)$dbd['0'];
-				$amountofone = (int)$dbd['1'];
 				$amountofnull = (int)$dbd['NULL'];
 			}
 
@@ -257,13 +289,6 @@ class Page_LocationInfo extends Page
 		));
 	}
 
-	protected function updateInfoscreenDb() {
-		$dbquery = Database::simpleQuery("SELECT DISTINCT locationid FROM `machine` WHERE locationid IS NOT NULL");
-		while($roominfo=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$this->updatePcInfos($roominfo['locationid']);
-		}
-	}
-
 	private function getInUseStatus($logintime, $lastseen) {
 		if ($logintime == 0) {
 			return 0;
@@ -273,6 +298,7 @@ class Page_LocationInfo extends Page
 		} elseif ($lastseen > 610) {
 			return 2;
 		}
+		return -1;
 	}
 
 	/**
@@ -309,7 +335,6 @@ class Page_LocationInfo extends Page
 			$pc['ip'] = $dbdata['clientip'];
 			$pc['inUse'] = $this->getInUseStatus($dbdata['logintime'], $dbdata['lastseen']);
 
-			$position = array();
 			$position = json_decode($dbdata['position'], true);
 			$pc['x'] = $position['gridRow'];
 			$pc['y'] = $position['gridCol'];
@@ -325,26 +350,51 @@ class Page_LocationInfo extends Page
 	private function ajaxTimeTable($id) {
 		$array = array();
 		$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $id));
+		$dbresult = array();
 		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$db = array();
-			$db = json_decode($dbdata['openingtime'], true);
-			$index = 0;
-			foreach ($db as $key) {
-				$str = "| ";
-				foreach ($key['days'] as $val) {
-					$str .= $val;
-					$str .= " | ";
-				}
-				$ar = array();
-				$ar['days'] = $str;
-				$ar['openingtime'] = $key['openingtime'];
-				$ar['closingtime'] = $key['closingtime'];
-				$ar['index'] = $index;
-				$array[] = $ar;
-				$index++;
-			}
+			$dbresult[] = json_decode($dbdata['openingtime'], true);
 		}
-		echo Render::parse('timetable', array('id' => $id, 'openingtimes' => array_values($array)));
+		if($this->isEasyMode($dbresult)) {
+			echo Render::parse('timetable', array('id' => $id, 'openingtime0' => $dbresult[0][0]['openingtime'],
+			 'closingtime0' => $dbresult[0][0]['closingtime'], 'openingtime1' => $dbresult[0][1]['openingtime'],
+			  'closingtime1' => $dbresult[0][1]['closingtime'], 'openingtime2' => $dbresult[0][2]['openingtime'],
+				 'closingtime2' => $dbresult[0][2]['closingtime'], 'easyMode' => true, 'expertMode' => false));
+
+		} else{
+			foreach($dbresult as $db) {
+				$index = 0;
+				foreach ($db as $key) {
+					$str = "| ";
+					foreach ($key['days'] as $val) {
+						$str .= $val;
+						$str .= " | ";
+					}
+					$ar = array();
+					$ar['days'] = $str;
+					$ar['openingtime'] = $key['openingtime'];
+					$ar['closingtime'] = $key['closingtime'];
+					$ar['index'] = $index;
+					$array[] = $ar;
+					$index++;
+				}
+			}
+			echo Render::parse('timetable', array('id' => $id, 'openingtimes' => array_values($array), 'easyMode' => false, 'expertMode' => true));
+		}
+	}
+
+	private function isEasyMode($array) {
+		if(count($array[0]) == 3) {
+			if ($array[0][0]['days'] == array ("Monday","Tuesday","Wednesday","Thursday","Friday")
+			&& $array[0][1]['days'] == array ("Saturday") && $array[0][2]['days'] == array ("Sunday")) {
+				return true;
+			} else {
+				return false;
+			}
+		} elseif ($array[0] == 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private function ajaxConfig($id) {

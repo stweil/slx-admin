@@ -87,17 +87,19 @@ function checkIfHidden($locationID) {
 			return true;
 		}
 	}
+	return -1;
 }
 
 function getOpeningTimesFromParent($locationID) {
 	$dbquery = Database::simpleQuery("SELECT parentlocationid FROM `location` WHERE locationid = :locationID", array('locationID' => $locationID));
+	$parentlocationid = 0;
 	while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-		$parentlocationid = $dbdata['parentlocationid'];
+		$parentlocationid = (int)$dbdata['parentlocationid'];
 	}
 	if ($parentlocationid == 0) {
 		echo json_encode(array());
 	}else {
-		echo getOpeningTimes($parentlocationid);
+		getOpeningTimes($parentlocationid);
 	}
 }
 
@@ -110,6 +112,8 @@ function getOpeningTimes($locationID) {
 	$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :locationID", array('locationID' => $locationID));
 
 	$result = array();
+	$dbresult = array();
+
 	while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
 	  $dbresult = json_decode($dbdata['openingtime'], true);
 	}
@@ -165,8 +169,6 @@ function getRoomInfoJson($locationID, $coords) {
 }
 
 function getPcInfos($locationID, $coords) {
-	$dbquery;
-
 	if ($coords == '1') {
 		$dbquery = Database::simpleQuery("SELECT machineuuid, position, logintime FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
 	} else {

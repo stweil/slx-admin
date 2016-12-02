@@ -2,5 +2,6 @@
     "no-days-selected": "No days selected.",
     "added-x-entries": "Entries added: {{0}}",
     "deleted-x-entries": "Entries deleted: {{0}}",
+    "openingtime-updated": "Openingtime updated.",
     "config-saved": "Config successfully saved."
 }

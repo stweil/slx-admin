@@ -1,4 +1,4 @@
 {
 	"category":"main.content",
-	"dependencies": ["js_jqueryui"]
+	"dependencies": ["js_jqueryui", "bootstrap_timepicker", "locations", "bootstrap_switch"]
 }

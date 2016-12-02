@@ -26,6 +26,11 @@
     "lang_shortFriday": "Fri",
     "lang_shortSaturday": "Sat",
     "lang_shortSunday": "Sun",
+    "lang_shortMonTilFr": "Mon - Fri",
+    "lang_monTilFr": "Monday - Friday",
+    "lang_saturday": "Saturday",
+    "lang_sunday": "Sunday",
+    "lang_expertMode": "Expert mode",
 
     "lang_language": "Language",
     "lang_languageEn": "en",

@@ -29,7 +29,7 @@
     <div style="float: left; margin-left: 15px;">
       <Label data-toggle="tooltip" title="{{lang_daysToShowTooltip}}">{{lang_daysToShow}}</Label><br>
       <select name="daystoshow">
-        <option value="1" id="day1">1</opton>
+        <option value="1" id="day1">1</option>
         <option value="2" id="day2">2</option>
         <option value="3" id="day3">3</option>
         <option value="4" id="day4">4</option>
@@ -134,19 +134,20 @@ function loadValues() {
 }
 
 function showScaleValue(newValue) {
-	$("#scale").text(newValue + " %");
+  $("#scale").text(newValue + " %");
 }
 
 function showSwitchValue(newValue) {
-	$("#switch").text(newValue + " " + '{{lang_sec}}');
+  $("#switch").text(newValue + " " + '{{lang_sec}}');
 }
 
 function vertical_cb(value) {
+  var cb = $("#cb_vertical");
   if (value == 1) {
-    $("#cb_vertical").prop("disabled", false);
+    cb.prop("disabled", false);
   } else {
-    $("#cb_vertical").prop("disabled", true);
-    $("#cb_vertical").prop("checked", false);
+    cb.prop("disabled", true);
+    cb.prop("checked", false);
   }
 }
 </script>
