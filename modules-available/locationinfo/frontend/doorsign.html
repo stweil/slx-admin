@@ -307,8 +307,8 @@ optional:
 				queryTimeRoom = parseInt(json.roomupdate) * 1000;
 				rotation = parseInt(json.rotation);
 
-				if(json.scaleDaysAuto!=null) {
-					scaleDaysAuto = JSON.parse(json.scaleDaysAuto)
+				if(json.scaledaysauto!=null) {
+					scaleDaysAuto = JSON.parse(json.scaledaysauto)
 				}
 
 				 if(json.vertical!=null) {
@@ -401,7 +401,7 @@ optional:
 			if (mode == 1) {
 				setUpCalendar(scaleLayout + "%", daysToShow);
 				preInitRoom();
-				setInterval(function () {
+					setInterval(function () {
 					Update();
 				}, 1000);
 			}
@@ -480,8 +480,15 @@ optional:
 			});
 			$.getJSON("../../../api.php?do=locationinfo&action=openingtime&id=" + roomId, function (result) {
 				SetOpeningTimes(result)
-			});
-		}
+			})
+			.success(function() {
+				scaleCalendar();
+				queryCalendar();
+			})
+			.error(function() {
+				scaleCalendar();
+				queryCalendar();})
+			}
 
 		function generateCalendarDiv(width) {
 			var div = document.createElement("div");
@@ -539,8 +546,6 @@ optional:
 				end: parseInt(close),
 				limitDisplay: true
 			});
-			scaleCalendar(openTimes);
-			queryCalendar();
 		}
 		function queryCalendar() {
 			$.ajax({
@@ -572,7 +577,7 @@ optional:
 		function scaleCalendar() {
 
 			if (openTimes == null) {
-				return;
+				openTimes = 24;
 			}
 			var cal = $('#calendar');
 			var columnWidth = document.getElementsByClassName("wc-day-1")[0].clientWidth;
@@ -666,6 +671,9 @@ optional:
 		 */
 		function IsOpenNow() {
 			var now = new myDate();
+			if(openingTimes == null) {
+				return false;
+			}
 			var tmp = openingTimes[now.getDay()];
 			if (tmp == null) {
 				return false;
@@ -687,7 +695,9 @@ optional:
 		 * @return {boolean}
 		 */
 		function IsOpen(date) {
-
+			if(openingTimes == null) {
+				return false;
+			}
 			var tmp = openingTimes[date.getDay()];
 			if (tmp == null) {
 				return false;
@@ -713,6 +723,9 @@ optional:
 			var offset = 0;
 			var bestdate;
 			for (var a = 0; a < 7; a++) {
+				if(openingTimes == null) {
+					return null;
+				}
 				var tmp = openingTimes[day];
 				if (tmp != null) {
 					for (var i = 0; i < tmp.length; i++) {
@@ -894,7 +907,9 @@ optional:
 		function preInitRoom() {
 			$.getJSON("../../../api.php?do=locationinfo&action=roominfo&id=" + roomId + "&coords=1", function (result) {
 				initRoom(result, (100 - scaleLayout) + "%")
-			});
+			}).error(function() {
+				generateRoomLayoutDiv((100 - scaleLayout) + "%");
+			})
 		}
 
 		function initRoom(Json, scale) {
@@ -1013,6 +1028,9 @@ optional:
 		}
 
 		function scaleRoom() {
+			if(Layout== null) {
+				return;
+			}
 			for (var i = 0; i < Layout.length; i++) {
 				if(Layout[i].y!= null & Layout[i].x!=null) {
 					document.getElementById(Layout[i].id).width = (picSizeX * scale);
