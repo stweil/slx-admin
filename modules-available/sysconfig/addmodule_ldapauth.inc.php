@@ -46,9 +46,9 @@ class LdapAuth_CheckConnection extends AddModule_Base
 			$ports = array($out[2]);
 			$this->server = $out[1];
 		} elseif ($ssl) {
-			$ports = array(636, 3269);
+			$ports = array(636);
 		} else {
-			$ports = array(389, 3268);
+			$ports = array(389);
 		}
 		$this->scanTask = Taskmanager::submit('PortScan', array(
 			'host' => $this->server,
@@ -196,7 +196,8 @@ class LdapAuth_HomeDir extends AddModule_Base
 			$data['shareRemapMode_' . $this->edit->getData('shareRemapMode')] = 'selected="selected"';
 			$letter = $this->edit->getData('shareHomeDrive');
 		} else {
-			$data['shareDownloads'] = $data['shareMedia'] = $data['shareDocuments'] = 'selected="selected"';
+			$data['shareDownloads_c'] = $data['shareMedia_c'] = $data['shareDocuments_c'] = $data['shareRemapCreate_c'] = 'checked="checked"';
+			$data['shareRemapMode_1'] = 'selected="selected"';
 			$letter = 'H:';
 		}
 		$data['drives'] = array();

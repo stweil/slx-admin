@@ -8,6 +8,8 @@
 <div id="self-signed" style="display:none" class="alert alert-info">{{lang_selfSignedNote}}</div>
 <div id="no-valid-cert" style="display:none" class="alert alert-danger">{{lang_noValidCert}}</div>
 <div id="no-open-port" style="display:none" class="alert alert-danger">{{lang_noOpenPort}}</div>
+<div id="supplied-cert-invalid" style="display:none" class="alert alert-danger">{{lang_userCertInvalid}}</div>
+<div id="trying-fingerprint" style="display:none" class="alert alert-warning">{{lang_tryingFingerprint}}</div>
 <br>
 <div class="pull-left">
 	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{prev}}">
@@ -52,7 +54,15 @@
 <script type="text/javascript">
 	function isSelfSigned(code)
 	{
-		return code == 18 || code == 19 || code == 20 || code == 21;
+		return code == 19;
+	}
+	function isIncomplete(code)
+	{
+		return code == 18 || code == 20 || code == 21;
+	}
+	function isValid(code)
+	{
+		return code == 0;
 	}
 	function portScan(task)
 	{
@@ -62,28 +72,44 @@
 			var ssl = $('#ssl').length > 0;
 			var ports = task.data.ports;
 			var verRes = -1;
-			var cert = ssl && $('#certificate').val().length > 10;
+			var userCert = ssl && $('#certificate').val().length > 10;
+			var openPort = false;
 			for (var i = 0; i < ports.length; ++i) {
 				if (!ports[i].open || !ports[i].port) continue;
 				if ($.isNumeric($('#port').val()) && $('#port').val() < ports[i].port) continue; // Prefer the global LDAP ports over the specific AD ports
+				openPort = true;
 				if (ssl) {
 					if (verRes === -1) verRes = ports[i].verifyResult;
 					if (typeof ports[i].certFingerprint !== 'string' || typeof ports[i].certificateChain !== 'string') continue;
 					if (ports[i].certFingerprint.length < 10 || ports[i].certificateChain.length < 10) continue;
-					if (ports[i].verifyResult != 0 && (cert || !isSelfSigned(ports[i].verifyResult))) continue;
+					if (!isValid(ports[i].verifyResult) && userCert) continue;
+					if (!isValid(ports[i].verifyResult) && !isSelfSigned(ports[i].verifyResult) && !isIncomplete(ports[i].verifyResult)) continue;
 					verRes = ports[i].verifyResult;
 					$('#fingerprint').val(ports[i].certFingerprint);
-					if (!cert && verRes != 0) $('#certificate').val(ports[i].certificateChain);
-					else if (!cert && verRes == 0) $('#certificate').val('default');
+					if (!userCert && isSelfSigned(verRes)) {
+						$('#certificate').val(ports[i].certificateChain);
+					} else if (!userCert && isValid(verRes)) {
+						$('#certificate').val('default');
+					} else if (!userCert) {
+						$('#certificate').val('');
+					}
 				}
 				$('#port').val(ports[i].port);
 			}
-			if (ssl && verRes != 0 && (cert || !isSelfSigned(verRes))) {
-				$('#no-valid-cert').css('display', '');
-			} else if ($('#port').val() > 0) {
+			if (openPort && ssl && !isValid(verRes)) {
+				if (userCert) {
+					$('#supplied-cert-invalid').show();
+				} else if (isSelfSigned(verRes)) {
+					$('#self-signed').show();
+				} else if (isIncomplete(verRes)) {
+					$('#trying-fingerprint').show();
+				} else {
+					$('#no-valid-cert').show();
+				}
+			}
+			if (openPort) {
 				$('#nextbutton').show();
-				if (ssl && isSelfSigned(verRes)) $('#self-signed').css('display', '');
-				else $('#nextform').submit();
+				if (!ssl || isValid(verRes)) $('#nextform').submit();
 			} else {
 				$('#no-open-port').css('display', '');
 			}
