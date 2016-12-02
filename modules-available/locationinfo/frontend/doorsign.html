@@ -579,7 +579,7 @@ optional:
 
 			if(scaleDaysAuto) {
 				var result = (44 + cal.weekCalendar("option","daysToShow")*columnWidth)/100;
-				result = parseInt(Math.max(Math.abs(result),1));
+				result = parseInt(Math.min(Math.max(Math.abs(result),1),7));
 				if(result != parseInt(cal.weekCalendar("option","daysToShow"))){
 					cal.weekCalendar("option", "daysToShow", Math.abs(result));
 				}
