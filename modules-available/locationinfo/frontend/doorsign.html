@@ -209,6 +209,7 @@ optional:
 		var daysToShow;
 		var configJson;
 		var configupdate;
+		var scaleDaysAuto = false;
 
 		var translation = {
 			"en": {
@@ -304,6 +305,11 @@ optional:
 				queryTimeCalendar = parseInt(json.calupdate);
 				queryTimeRoom = parseInt(json.roomupdate);
 				rotation = parseInt(json.rotation);
+
+				if(json.scaleDaysAuto!=null) {
+					scaleDaysAuto = JSON.parse(json.scaleDaysAuto)
+				}
+
 				 if(json.vertical!=null) {
 					 verticalmode = JSON.parse(json.vertical);
 				 }
@@ -331,6 +337,9 @@ optional:
 			}
 			if (getUrlParameter("daystoshow") != null) {
 				daysToShow = parseInt(getUrlParameter("daystoshow"));
+			}
+			if (getUrlParameter("scaledaysauto") == "true") {
+				scaleDaysAuto = true;
 			}
 			if (getUrlParameter("vertical") == "true") {
 				verticalmode = true;
@@ -560,11 +569,21 @@ optional:
 		}
 
 		function scaleCalendar() {
+
 			if (openTimes == null) {
 				return;
 			}
 			var cal = $('#calendar');
-			if(document.getElementsByClassName("wc-day-1")[0].clientWidth < 85){
+			var columnWidth = document.getElementsByClassName("wc-day-1")[0].clientWidth;
+
+			if(scaleDaysAuto) {
+				var result = (44 + cal.weekCalendar("option","daysToShow")*columnWidth)/100;
+				result = parseInt(Math.max(Math.abs(result),1));
+				if(result != parseInt(cal.weekCalendar("option","daysToShow"))){
+					cal.weekCalendar("option", "daysToShow", Math.abs(result));
+				}
+			}
+			if(((!scaleDaysAuto)||cal.weekCalendar("option","daysToShow")==1)	&& columnWidth < 85){
 				cal.weekCalendar("option", "useShortDayNames", true);
 			} else {
 				cal.weekCalendar("option", "useShortDayNames", false);
