@@ -224,7 +224,7 @@ class Page_Statistics extends Page
 
 
 	}
-	private function capChart(&$json, $cutoff, $minSlice = 0.015)
+	private function capChart(&$json, &$rows, $cutoff, $minSlice = 0.015)
 	{
 		$total = 0;
 		foreach ($json as $entry) {
@@ -242,6 +242,9 @@ class Page_Statistics extends Page
 			}
 			++$id;
 			$accounted += $entry['value'];
+		}
+		for ($i = $id; $i < count($rows); ++$i) {
+			$rows[$i]['collapse'] = 'collapse';
 		}
 		$json = array_slice($json, 0, $id);
 		if ($accounted / $total < 0.99) {
@@ -333,7 +336,7 @@ class Page_Statistics extends Page
 			);
 			++$id;
 		}
-		$this->capChart($json, 0.92);
+		$this->capChart($json, $lines, 0.92);
 		Render::addTemplate('cpumodels', array('rows' => $lines, 'query' => $this->query, 'json' => json_encode($json)));
 	}
 
@@ -379,7 +382,7 @@ class Page_Statistics extends Page
 			);
 			++$id;
 		}
-		$this->capChart($json, 0.92);
+		$this->capChart($json, $data['rows'], 0.92);
 		$data['json'] = json_encode($json);
 		$data['query'] = $this->query;
 		Render::addTemplate('memory', $data);
@@ -455,7 +458,7 @@ class Page_Statistics extends Page
 				'value' => $v,
 			);
 		}
-		$this->capChart($json, 0.95);
+		$this->capChart($json, $data['rows'], 0.95);
 		$data['json'] = json_encode($json);
 		$data['query'] = $this->query;
 		Render::addTemplate('id44', $data);
@@ -468,7 +471,7 @@ class Page_Statistics extends Page
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
 
-		$args['cutoff'] = ceil(time() / 3600) * 3600 - 86400 * 7;
+		$args['cutoff'] = ceil(time() / 3600) * 3600 - 86400 * 10;
 
 		$res = Database::simpleQuery("SELECT machineuuid, clientip, hostname, firstseen, mbram, kvmstate, id44mb FROM machine $join"
 			. " WHERE firstseen > :cutoff AND $where ORDER BY firstseen DESC LIMIT 32", $args);
@@ -486,7 +489,7 @@ class Page_Statistics extends Page
 			$row['hddclass'] = $this->hddColorClass($row['gbtmp']);
 			$row['kvmicon'] = $row['kvmstate'] === 'ENABLED' ? '✓' : '✗';
 			if (++$count > 5) {
-				$row['style'] = 'display:none';
+				$row['collapse'] = 'collapse';
 			}
 			$rows[] = $row;
 		}
@@ -535,7 +538,7 @@ class Page_Statistics extends Page
 				$row['hostname'] = $row['clientip'];
 			}
 			if (isset($row['data'])) {
-				if (!preg_match('/^Disk.*bytes$/m', $row['data'])) {
+				if (!preg_match('/^(Disk.* bytes|Disk.*\d{5,} sectors)/m', $row['data'])) {
 					$row['nohdd'] = true;
 				}
 			}
