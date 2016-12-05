@@ -46,12 +46,22 @@ optional:
 			box-shadow: 0 2px 4px 0 black;
 			margin-bottom: 4px;
 
+			width: 100%;
+
+		}
+		.header {
+			display: table;
+			color: white;
+			padding: 0;
+			height: 80px;
+
 		}
 
-		.header {
-			font-size: 20px;
-			height: 100px;
-			color: white;
+		.font {
+			display: table-cell;
+			vertical-align: middle;
+			font-size: 40px;
+			font-weight: bold
 		}
 
 		.courseText {
@@ -77,6 +87,7 @@ optional:
 		.col-2 {
 			width: 33%;
 		}
+
 
 		.roomLayoutDesign {
 			position: relative;
@@ -110,15 +121,17 @@ optional:
 		}
 
 		.square {
-			right: 0;
-			position: absolute;
-			margin: 0 0;
-			width: 100px;
-			height: 100px;
+			display: table;
+			float: right;
+			padding: 0;
+			width: 80px;
+			height: 80px;
 		}
 
 		.FreeSeatsFont {
-			font-size: 85px;
+			display: table-cell;
+			vertical-align: middle;
+			font-size: 65px;
 			color: white;
 			top: 0;
 			margin: 0 auto;
@@ -126,8 +139,8 @@ optional:
 			text-align: center;
 			font-weight: bold;
 			overflow: visible;
-
 		}
+
 
 		.pcImg {
 			position: absolute;
@@ -186,7 +199,54 @@ optional:
 			border-color: grey;
 		}
 
+		@media (max-width: 1200px){
+			.square {
+				height: 60px;
+				width: 60px;
+			}
+			.FreeSeatsFont {
+				font-size: 45px;
+			}
+			.font {
+				font-size: 30px;
+			}
+			.header {
+				height: 60px;
 
+			}
+		}
+		@media (max-width: 800px){
+			.square {
+				height: 50px;
+				width: 50px;
+			}
+			.FreeSeatsFont {
+				font-size: 35px;
+			}
+			.font {
+				font-size: 20px;
+			}
+			.header {
+				height: 50px;
+
+			}
+		}
+		@media (max-width: 600px){
+			.square {
+				height: 40px;
+				width: 40px;
+			}
+			.FreeSeatsFont {
+				font-size: 30px;
+			}
+			.font {
+				font-size: 18px;
+			}
+			.header {
+				height: 40px;
+
+			}
+		}
 
 	</style>
 	<script type='text/javascript'>
@@ -311,18 +371,18 @@ optional:
 					scaleDaysAuto = JSON.parse(json.scaledaysauto)
 				}
 
-				 if(json.vertical!=null) {
-					 verticalmode = JSON.parse(json.vertical);
-				 }
+				if(json.vertical!=null) {
+					verticalmode = JSON.parse(json.vertical);
+				}
 				configupdate = parseInt(json.configupdate);
 				room = json.room;
 			}
 
-				var time = new Date(time);
-				if (isNaN(time.getTime())) {
-					time = new Date();
-				}
-				SetUpDate(time);
+			var time = new Date(time);
+			if (isNaN(time.getTime())) {
+				time = new Date();
+			}
+			SetUpDate(time);
 
 			if (room != null) {
 				$("#roomHeader").text(room);
@@ -401,7 +461,7 @@ optional:
 			if (mode == 1) {
 				setUpCalendar(scaleLayout + "%", daysToShow);
 				preInitRoom();
-					setInterval(function () {
+				setInterval(function () {
 					Update();
 				}, 1000);
 			}
@@ -481,14 +541,14 @@ optional:
 			$.getJSON("../../../api.php?do=locationinfo&action=openingtime&id=" + roomId, function (result) {
 				SetOpeningTimes(result)
 			})
-			.success(function() {
-				scaleCalendar();
-				queryCalendar();
-			})
-			.error(function() {
-				scaleCalendar();
-				queryCalendar();})
-			}
+				.success(function() {
+					scaleCalendar();
+					queryCalendar();
+				})
+				.error(function() {
+					scaleCalendar();
+					queryCalendar();})
+		}
 
 		function generateCalendarDiv(width) {
 			var div = document.createElement("div");
@@ -920,7 +980,7 @@ optional:
 			}
 			generateRoomLayoutDiv(scale);
 			if (rotation != 0) {
-					rotateRoom(rotation);
+				rotateRoom(rotation);
 			}
 			minX = parseInt(Layout[0].x);
 			minY = parseInt(Layout[0].y);
@@ -1047,16 +1107,16 @@ optional:
 			for (var i = 0; i < update.length; i++) {
 				var imgobj =document.getElementById(update[i].id);
 
-					var img;
-					if (update[i].inUse == "0") {
-						//add time to prevent caching
-						img = "img/pc_free.svg";
-						freePcs++;
-					} else if (update[i].inUse == "1") {
-						img = "img/pc_used.svg";
-					} else {
-						img = "img/pc_defect.svg?";
-					}
+				var img;
+				if (update[i].pcState == "0") {
+					//add time to prevent caching
+					img = "img/pc_free.svg";
+					freePcs++;
+				} else if (update[i].pcState == "1") {
+					img = "img/pc_used.svg";
+				} else {
+					img = "img/pc_defect.svg?";
+				}
 				if(imgobj !=null) {
 					imgobj.src = img;
 				}
@@ -1152,14 +1212,14 @@ optional:
 </head>
 <body>
 <div id="header" class="row">
-	<div class="col-2 header">
-		<h1 id="roomHeader"></h1>
+	<div class="header col-2">
+		<div class ="font" id="roomHeader"></div>
 	</div>
 	<div class="col-1 courseText header">
-		<h1 id="courseHeading"></h1>
+		<div class ="font"  id="courseHeading"></div>
 	</div>
 	<div class="square .col-2">
-		<p class="FreeSeatsFont" id="freeSeatsHeader"></p>
+		<div class="FreeSeatsFont" id="freeSeatsHeader"></div>
 	</div>
 </div>
 
