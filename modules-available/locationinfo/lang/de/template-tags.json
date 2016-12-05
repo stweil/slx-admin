@@ -12,7 +12,7 @@
     "lang_pcIP": "IP",
     "lang_pcX": "X",
     "lang_pcY": "Y",
-    "lang_pcInUse": "In Benutzung",
+    "lang_pcState": "PC Status",
 
     "lang_day": "Tag",
     "lang_openingTime": "Öffnungszeit",
@@ -62,5 +62,17 @@
     "lang_configupdateTooltip": "Zeit nachder die Einstellungen geupdated werden (in minuten)",
     "lang_min": "min",
     "lang_sec": "sec",
-    "lang_autoScale": "Auto skalierung"
+    "lang_autoScale": "Auto skalierung",
+    "lang_deleteConfirmation": "Bist du sicher?",
+    "lang_addServer": "Server",
+    "lang_serverTable": "Server Liste",
+    "lang_buildingTable": "Gebäude / Raum Liste",
+    "lang_serverUrl": "Url",
+    "lang_serverType": "Type",
+    "lang_serverUser": "Benutzer",
+    "lang_serverPassword": "Passwort",
+    "lang_serverID": "Server ID",
+    "lang_sID": "sID",
+    "lang_server": "Server",
+    "lang_serverRoomId": "Server: Raum ID"
 }

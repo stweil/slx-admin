@@ -1,6 +1,70 @@
 <div>
 <h1>{{lang_mainHeader}}</h1>
 
+<br>
+<h4>{{lang_serverTable}}</h4>
+<div id="serverTable">
+
+	<table class="table table-condensed locations" style="margin-bottom:0;">
+		<tr>
+			<th width="30" style="text-align: center;" title="{{lang_serverID}}">{{lang_sID}}</th>
+			<th width="90">{{lang_serverType}}</th>
+			<th>{{lang_locationName}}</th>
+			<th>{{lang_serverUrl}}</th>
+			<th>{{lang_serverUser}}</th>
+			<th>{{lang_serverPassword}}</th>
+			<th width="80" style="text-align: center;"></th>
+		</tr>
+{{#serverlist}}
+		<form method="post" action="?do=locationinfo" id="serverForm-{{id}}">
+			<input type="hidden" name="token" value="{{token}}">
+			<input id="serverFormAction-{{id}}" type="hidden" name="action" value="updateServer">
+			<input type="submit" id="submit-serverForm-{{id}}" style="display:none;">
+
+				<tr class=tablerow>
+					<td align="center"><input id="input-id-{{id}}" name="id" type="hidden" value="{{id}}">{{id}}</td>
+					<td id="type-{{id}}">
+						<select disabled id="input-type-{{id}}" name="type" value="{{type}}">
+							<option id="HISinOne" value="HISinOne" {{#HISinOne}}selected{{/HISinOne}}>HISinOne
+							<option id="DAVINCI" value="DAVINCI" {{#DAVINCI}}selected{{/DAVINCI}}>DAVINCI
+						</select>
+					</td>
+					<td id="name-{{id}}" style="padding:8px;">
+							<input readonly required id="input-name-{{id}}" name="name" type="text" value="{{name}}" style="padding:0;height:100%;width:100%;"></input>
+					</td>
+					<td id="url-{{id}}" style="padding:8px;">
+							<input readonly required id="input-url-{{id}}" name="url" type="text" value="{{url}}" style="padding:0;height:100%;width:100%;"></input>
+					</td>
+					<td id="user-{{id}}" style="padding:8px;">
+							<input readonly required id="input-user-{{id}}" name="user" type="text" value="{{user}}" style="padding:0;height:100%;width:100%;"></input>
+					</td>
+					<td id="password-{{id}}" style="padding:8px;">
+							<input readonly required id="input-password-{{id}}" name="password" type="text" value="{{password}}" style="padding:0;height:100%;width:100%;"></input>
+					</td>
+					<td align="center" id="btncell-{{id}}">
+						<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}" onclick="editButtonClick({{id}});" id="edit">&#x270E</button>
+						<button class="btn btn-sm btn-danger table-delete" type="button" title="{{lang_delete}}" onclick="deleteButtonClick({{id}});">&#10008</button>
+					</td>
+				</tr>
+			</form>
+{{/serverlist}}
+			<form method="post" action="?do=locationinfo" id="serverForm-0">
+				<input type="hidden" name="token" value="{{token}}">
+				<input id="serverFormAction-0" type="hidden" name="action" value="updateServer">
+				<input type="submit" id="submit-serverForm-0" style="display:none;">
+				<tr id="lastServerTableElement"></tr>
+			</form>
+
+		</table>
+		<br>
+		<button class="btn btn-success btn-sm" id="addServerButton" onclick="addNewServerRow()"><span class="glyphicon glyphicon-plus-sign"> {{lang_addServer}}</span></button>
+		<!--<a class="btn btn-danger btn-sm" onclick=>{{lang_deleteAll}}</a>-->
+		<br><br><br>
+
+</div>
+<br>
+
+<h4>{{lang_buildingTable}}</h4>
 <table class="table table-condensed locations" style="margin-bottom:0">
 
 	<tr>
@@ -17,7 +81,7 @@
 
 		<td><div style="display:inline-block;width:{{depth}}em"></div>{{#hasPcs}}<a>{{/hasPcs}}{{locationname}}{{#hasPcs}}</a>{{/hasPcs}}</td>
 		<td align="center">[{{locationid}}]</td>
-		<td align="center">{{#hasPcs}}{{inUse}} / {{total}}{{/hasPcs}}</td>
+		<td align="center">{{#hasPcs}}{{pcState}} / {{total}}{{/hasPcs}}</td>
 
 		<td id={{locationid}} onclick="event.cancelBubble = true;" align="center"></td>
 		<script>
@@ -109,5 +173,126 @@ function loadConfigModal(locationId, locationName) {
 	$('#myModalBody').load("?do=locationinfo&action=config&id=" + locationId);
 }
 
+// ########### Server Table ###########
+var preEditName;
+var preEditUrl;
+var preEditUser;
+var preEditPassword;
+var preEditType;
+
+function deleteButtonClick(id) {
+	var del = confirm("{{lang_deleteConfirmation}}");
+	if (del == true) {
+		$('#serverFormAction-' + id).val("deleteServer");
+		$('#serverForm-' + id).submit();
+	}
+};
+
+function editButtonClick(id) {
+	var name = $('#input-name-' + id);
+	var url = $('#input-url-' + id);
+	var user = $('#input-user-' + id);
+	var password = $('#input-password-' + id);
+	var type = $('#input-type-' + id);
+
+	name.attr('readonly', false);
+	url.attr('readonly', false);
+	user.attr('readonly', false);
+	password.attr('readonly', false);
+	type.attr('disabled', false);
+
+	name.css("color", "#000");
+	url.css("color", "#000");
+	user.css("color", "#000");
+	password.css("color", "#000");
+	type.css("color", "#000");
+
+	preEditName = name.val();
+	preEditUrl = url.val();
+	preEditUser = user.val();
+	preEditPassword = password.val();
+	preEditType = type.val();
+
+	$('#btncell-' + id).html('\
+	<button class="btn btn-sm btn-success" title="{{lang_save}}" onclick="saveButtonClick(' + id + ');">&#10004</button>	\
+	<button class="btn btn-sm btn-danger" title="{{lang_cancel}}" onclick="cancelButtonClick(' + id + ');">&#10008</button>');
+	$('.table-edit').attr('disabled', true);
+	$('.table-delete').attr('disabled', true);
+	$('#addServerButton').attr('disabled', true);
+};
+
+function saveButtonClick(id) {
+	//$('#input-name-' + id).val($('#lname-' + id).text());
+	//$('#input-url-' + id).val($('#lurl-' + id).text());
+	//$('#input-user-' + id).val($('#luser-' + id).text());
+	//$('#input-password-' + id).val($('#lpassword-' + id).text());
+	$('#serverFormAction-' + id).val("updateServer");
+
+	$('#submit-serverForm-' + id).trigger("click");
+};
+
+function addNewServer() {
+	$('#serverFormAction-0').val("updateServer");
+
+	$('#submit-serverForm-0').trigger("click");
+};
+
+function cancelButtonClick(id) {
+	var name = $('#input-name-' + id);
+	var url = $('#input-url-' + id);
+	var user = $('#input-user-' + id);
+	var password = $('#input-password-' + id);
+	var type = $('#input-type-' + id);
+
+	name.attr('readonly', true);
+	url.attr('readonly', true);
+	user.attr('readonly', true);
+	password.attr('readonly', true);
+	type.attr('disabled', true);
+
+	name.css("color", "");
+	url.css("color", "");
+	user.css("color", "");
+	password.css("color", "");
+	type.css("color", "");
+
+	name.val(preEditName);
+	url.val(preEditUrl);
+	user.val(preEditUser);
+	password.val(preEditPassword);
+	type.val(preEditType);
+
+	$('#btncell-' + id).html('\
+	<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}" onclick="editButtonClick(' + id + ');" id="edit">&#x270E</button> \
+	<button class="btn btn-sm btn-danger table-delete" type="button" title="{{lang_delete}}" onclick="deleteButtonClick(' + id + ');">&#10008</button>');
+	$('.table-edit').attr('disabled', false);
+	$('.table-delete').attr('disabled', false);
+	$('#addServerButton').attr('disabled', false);
+}
+
+function deleteNewServer() {
+	$('#new').remove();
+	$('.table-edit').attr('disabled', false);
+	$('.table-delete').attr('disabled', false);
+	$('#addServerButton').attr('disabled', false);
+};
+
+function addNewServerRow() {
+  $('#lastServerTableElement').before('<tr class=tablerow id="new">\
+		<td align="center"><input id="input-id-0" name="id" type="hidden" form="serverForm-0" value="0"></td>\
+		<td id="type-0"><select id="input-type-0" name="type" form="serverForm-0"><option value="HISinOne">HISinOne<option value="DAVINCI">DAVINCI</select></td>\
+		<td id="name-0" style="padding:0;"><input required id="input-name-0" name="name" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></td>\
+		<td id="url-0" style="padding:0;"><a><input required id="input-url-0" name="url" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></a></td>\
+		<td id="user-0" style="padding:0;"><input required id="input-user-0" name="user" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></td>\
+		<td id="password-0" style="padding:0;"><input required id="input-password-0" name="password" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></td>\
+		<td align="center" id="btncell-new">\
+		<button class="btn btn-sm btn-success" title="{{lang_save}}" onclick="addNewServer();">&#10004</button>	\
+		<button class="btn btn-sm btn-danger" title="{{lang_cancel}}" onclick="deleteNewServer();">&#10008</button>\
+		</td>\
+	</tr>');
+		$('.table-edit').attr('disabled', true);
+		$('.table-delete').attr('disabled', true);
+		$('#addServerButton').attr('disabled', true);
+};
 </script>
 </div>

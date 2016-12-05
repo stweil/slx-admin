@@ -1,8 +1,28 @@
 <div>
+
+
   <form method="post" action="?do=locationinfo" id="configForm">
     <input type="hidden" name="token" value="{{token}}">
     <input type="hidden" name="action" value="updateConfig">
     <input type="hidden" name="id" value="{{id}}">
+
+
+    <div style="float: left;">
+      <Label>{{lang_server}}</Label><br>
+      <select name="serverid">
+        {{#serverlist}}
+          <option id="serverOption-{{sid}}" value="{{sid}}">{{sname}}</option>
+        {{/serverlist}}
+      </select>
+    </div>
+
+    <div style="float: left; margin-left: 15px;">
+      <Label>{{lang_serverRoomId}}</Label><br>
+      <input name="serverroomid" id="serverroomid" value="{{serverroomid}}" style="width: 50px; text-align: center;"></input>
+    </div>
+
+
+    <br><br><br><br>
 
     <div style="float: left;">
       <Label>{{lang_language}}</Label><br>
@@ -89,6 +109,8 @@ loadValues();
 
 function loadValues() {
   $("#{{language}}").attr("selected","selected");
+
+  $('#serverOption-{{serverid}}').attr("selected", "selected");
 
   var mode = $("#{{mode}}");
   if (!mode.length) {
