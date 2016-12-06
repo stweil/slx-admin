@@ -228,7 +228,7 @@ class Page_Roomplanner extends Page
 
 	protected function getMachinesOnPlan($tutorUuid)
 	{
-		$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname, position FROM machine WHERE locationid = :locationid',
+		$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname, position FROM machine WHERE fixedlocationid = :locationid',
 			['locationid' => $this->locationid]);
 		$machines = [];
 		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {

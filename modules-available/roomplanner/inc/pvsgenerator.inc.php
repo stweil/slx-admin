@@ -145,7 +145,7 @@ class PvsGenerator
 	private static function getMachines($roomid)
 	{
 		$ret = Database::simpleQuery(
-			'SELECT clientip, position FROM machine WHERE locationid = :locationid',
+			'SELECT clientip, position FROM machine WHERE fixedlocationid = :locationid',
 			['locationid' => $roomid]);
 
 		$machines = array();
