@@ -807,33 +807,35 @@ class Page_Statistics extends Page
 			Render::addTemplate('machine-hdds', $hdds);
 		}
 		// Client log
-		$lres = Database::simpleQuery('SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog'
-			. ' WHERE clientip = :clientip ORDER BY logid DESC LIMIT 25', array('clientip' => $client['clientip']));
-		$today = date('d.m.Y');
-		$yesterday = date('d.m.Y', time() - 86400);
-		$count = 0;
-		$log = array();
-		while ($row = $lres->fetch(PDO::FETCH_ASSOC)) {
-			if (substr($row['description'], -5) === 'on :0' && strpos($row['description'], 'root logged') === false) {
-				continue;
+		if (Module::get('syslog') !== false) {
+			$lres = Database::simpleQuery('SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog'
+				. ' WHERE clientip = :clientip ORDER BY logid DESC LIMIT 25', array('clientip' => $client['clientip']));
+			$today = date('d.m.Y');
+			$yesterday = date('d.m.Y', time() - 86400);
+			$count = 0;
+			$log = array();
+			while ($row = $lres->fetch(PDO::FETCH_ASSOC)) {
+				if (substr($row['description'], -5) === 'on :0' && strpos($row['description'], 'root logged') === false) {
+					continue;
+				}
+				$day = date('d.m.Y', $row['dateline']);
+				if ($day === $today) {
+					$day = Dictionary::translate('lang_today');
+				} elseif ($day === $yesterday) {
+					$day = Dictionary::translate('lang_yesterday');
+				}
+				$row['date'] = $day . date(' H:i', $row['dateline']);
+				$row['icon'] = $this->eventToIconName($row['logtypeid']);
+				$log[] = $row;
+				if (++$count === 10) {
+					break;
+				}
 			}
-			$day = date('d.m.Y', $row['dateline']);
-			if ($day === $today) {
-				$day = Dictionary::translate('lang_today');
-			} elseif ($day === $yesterday) {
-				$day = Dictionary::translate('lang_yesterday');
-			}
-			$row['date'] = $day . date(' H:i', $row['dateline']);
-			$row['icon'] = $this->eventToIconName($row['logtypeid']);
-			$log[] = $row;
-			if (++$count === 10) {
-				break;
-			}
+			Render::addTemplate('syslog', array(
+				'clientip' => $client['clientip'],
+				'list' => $log,
+			));
 		}
-		Render::addTemplate('syslog', array(
-			'clientip' => $client['clientip'],
-			'list' => $log,
-		));
 		// Notes
 		Render::addTemplate('machine-notes', $client);
 	}
