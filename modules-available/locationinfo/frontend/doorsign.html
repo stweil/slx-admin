@@ -208,7 +208,7 @@ optional:
 				font-size: 45px;
 			}
 			.font {
-				font-size: 30px;
+				font-size: 26px;
 			}
 			.header {
 				height: 60px;
@@ -271,7 +271,8 @@ optional:
 		var configJson;
 		var configupdate;
 		var scaleDaysAuto = false;
-
+		var eInkMode = false;
+		var supportSvg = !!(document.createElementNS && document.createElementNS('http://www.w3.org/2000/svg','svg').createSVGRect);
 		var translation = {
 			"en": {
 				"room": "Room",
@@ -374,6 +375,9 @@ optional:
 				if(json.vertical!=null) {
 					verticalmode = JSON.parse(json.vertical);
 				}
+				if(json.einkmode!=null) {
+					eInkMode = JSON.parse(json.einkmode);
+				}
 				configupdate = parseInt(json.configupdate);
 				room = json.room;
 			}
@@ -405,6 +409,10 @@ optional:
 			if (getUrlParameter("vertical") == "true") {
 				verticalmode = true;
 			}
+			if (getUrlParameter("einkmode") == "true") {
+				eInkMode = true;
+			}
+
 			if (getUrlParameter("scale") != null) {
 				scaleLayout = parseInt(getUrlParameter("scale"));
 			}
@@ -457,20 +465,26 @@ optional:
 		}
 
 		function startMode() {
+			var updateRate = 1000;
+			if(eInkMode){
+				updateRate =updateRate* 60;
+			}
 			// mixed mode
 			if (mode == 1) {
 				setUpCalendar(scaleLayout + "%", daysToShow);
 				preInitRoom();
+				Update();
 				setInterval(function () {
 					Update();
-				}, 1000);
+				}, updateRate);
 			}
 			// clendar only
 			if (mode == 2) {
 				setUpCalendar("100%", daysToShow);
+				Update();
 				setInterval(function () {
 					Update();
-				}, 1000);
+				}, updateRate);
 				queryRoom();
 			}
 			// room only
@@ -479,9 +493,10 @@ optional:
 				$.getJSON("../../../api.php?do=locationinfo&action=openingtime&id=" + roomId, function (result) {
 					SetOpeningTimes(result);
 					queryCalendar();
+					Update();
 					setInterval(function () {
 						Update();
-					}, 1000);
+					}, updateRate);
 				});
 
 			}
@@ -490,6 +505,7 @@ optional:
 				setUpCalendar("100%", daysToShow);
 				preInitRoom();
 				generateProgressBar();
+				Update();
 				setInterval(function () {
 					Update();
 				}, 1000);
@@ -693,7 +709,9 @@ optional:
 				// dont show?
 				return "";
 			}
-
+			if(eInkMode){
+				return hours + ":" + minutes ;
+			}
 			return hours + ":" + minutes + ":" + seconds;
 		}
 		function GetNextClosing() {
@@ -972,40 +990,52 @@ optional:
 			})
 		}
 
-		function initRoom(Json, scale) {
 
-			Layout = Json;
-			if(Layout == null||Layout.length == 0 ||Layout[0].x == null || Layout[0].y == null) {
-				return;
-			}
-			generateRoomLayoutDiv(scale);
-			if (rotation != 0) {
-				rotateRoom(rotation);
-			}
-			minX = parseInt(Layout[0].x);
-			minY = parseInt(Layout[0].y);
-			maxX = parseInt(Layout[0].x);
-			maxY = parseInt(Layout[0].y);
+			function initRoom(Json, scale) {
 
-			for (var i = 1; i < Layout.length; i++) {
-				if (parseInt(Layout[i].x) < parseInt(minX)) {
-					minX = parseInt(Layout[i].x);
+				Layout = Json;
+				if(Layout == null||Layout.length == 0) {
+					return;
 				}
-				if (parseInt(Layout[i].y) < parseInt(minY)) {
-					minY = parseInt(Layout[i].y);
+				generateRoomLayoutDiv(scale);
+				if (rotation != 0) {
+					rotateRoom(rotation);
 				}
-				if (parseInt(Layout[i].x) > parseInt(maxX)) {
-					maxX = parseInt(Layout[i].x);
+
+				for (var i = 0; i < Layout.length; i++) {
+					if(!isNaN(parseInt(Layout[i].x)) && ! isNaN(parseInt(Layout[i].y))) {
+						if(minX === undefined){
+							minX = parseInt(Layout[i].x);
+						}
+						if(minY === undefined){
+							minY = parseInt(Layout[i].y);
+						}
+						if(maxX === undefined){
+							maxX = parseInt(Layout[i].x);
+						}
+						if(maxY === undefined){
+							maxY = parseInt(Layout[i].y);
+						}
+						if (parseInt(Layout[i].x) < parseInt(minX)) {
+							minX = parseInt(Layout[i].x);
+						}
+						if (parseInt(Layout[i].y) < parseInt(minY)) {
+							minY = parseInt(Layout[i].y);
+						}
+						if (parseInt(Layout[i].x) > parseInt(maxX)) {
+							maxX = parseInt(Layout[i].x);
+						}
+						if (parseInt(Layout[i].y) > parseInt(maxY)) {
+							maxY = parseInt(Layout[i].y);
+						}
+					}
 				}
-				if (parseInt(Layout[i].y) > parseInt(maxY)) {
-					maxY = parseInt(Layout[i].y);
-				}
+
+				xDifference = maxX - minX;
+				yDifference = maxY - minY;
+				generateOffsetAndScale();
+				setUpRoom();
 			}
-			xDifference = maxX - minX;
-			yDifference = maxY - minY;
-			generateOffsetAndScale();
-			setUpRoom();
-		}
 
 		function generateOffsetAndScale() {
 			var clientHeight = ($(window).height() - document.getElementById('header').clientHeight - 5);
@@ -1044,6 +1074,8 @@ optional:
 
 		function setUpRoom() {
 			for (var i = 0; i < Layout.length; i++) {
+
+
 				var img = $('<img />',
 					{
 						id: Layout[i].id,
@@ -1110,14 +1142,26 @@ optional:
 				var img;
 				if (update[i].pcState == "0") {
 					//add time to prevent caching
-					img = "img/pc_free.svg";
+					if(supportSvg) {
+						img = "img/pc_free.svg";
+					} else {
+						imgobj.style.backgroundColor="green";
+					}
 					freePcs++;
 				} else if (update[i].pcState == "1") {
-					img = "img/pc_used.svg";
+					if(supportSvg) {
+						img = "img/pc_used.svg";
+					}else {
+						imgobj.style.backgroundColor="red";
+					}
 				} else {
-					img = "img/pc_defect.svg?";
+					if(supportSvg) {
+						img = "img/pc_defect.svg?";
+					}else {
+						imgobj.style.backgroundColor="black";
+					}
 				}
-				if(imgobj !=null) {
+				if(imgobj !=null && supportSvg) {
 					imgobj.src = img;
 				}
 			}
