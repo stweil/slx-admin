@@ -26,6 +26,36 @@ class Page_Locations extends Page
 		}
 	}
 
+	private function updateAutoLocationId()
+	{
+		if (Module::get('statistics') === false)
+			return; // Nothing to do
+		$res = Database::simpleQuery("SELECT machineuuid, clientip FROM machine");
+		$updates = array();
+		$nulls = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$loc = Location::mapIpToLocation($row['clientip']);
+			if ($loc === false) {
+				$nulls[] = $row['machineuuid'];
+			} else {
+				if (!isset($updates[$loc])) {
+					$updates[$loc] = array();
+				}
+				$updates[$loc][] = $row['machineuuid'];
+			}
+		}
+		error_log(print_r($updates, true));
+		if (!empty($nulls)) {
+			$qs = '?' . str_repeat(',?', count($nulls) - 1);
+			Database::exec("UPDATE machine SET subnetlocationid = NULL WHERE machineuuid IN ($qs)", $nulls);
+		}
+		foreach ($updates as $lid => $machines) {
+			$qs = '?' . str_repeat(',?', count($machines) - 1);
+			$lid = (int)$lid;
+			Database::exec("UPDATE machine SET subnetlocationid = $lid WHERE machineuuid IN ($qs)", $machines);
+		}
+	}
+
 	private function updateSubnets()
 	{
 		$count = 0;
@@ -55,6 +85,7 @@ class Page_Locations extends Page
 				$count += $stmt->rowCount();
 			}
 		}
+		$this->updateAutoLocationId();
 		Message::addSuccess('subnets-updated', $count);
 		Util::redirect('?do=Locations');
 	}
@@ -111,16 +142,22 @@ class Page_Locations extends Page
 			Message::addError('main.value-invalid', 'locationid', $locationId);
 			Util::redirect('?do=Locations');
 		}
+		$change = false;
 		// Delete location?
 		if ($locationId === $del) {
 			$this->deleteLocation($location);
+			$change = true;
 		}
 		// Update subnets
-		$this->updateLocationSubnets();
+		$change |= $this->updateLocationSubnets();
 		// Insert subnets
-		$this->addNewLocationSubnets($location);
+		$change |= $this->addNewLocationSubnets($location);
 		// Update location!
-		$this->updateLocationData($location);
+		$change |= $this->updateLocationData($location);
+		if ($change) {
+			// In case subnets or tree layout changed, recalc this
+			$this->updateAutoLocationId();
+		}
 		Util::redirect('?do=Locations');
 	}
 
@@ -182,10 +219,12 @@ class Page_Locations extends Page
 		if ($ret > 0) {
 			Message::addSuccess('location-updated', $newName);
 		}
+		return $newParent != $location['parentlocationid'];
 	}
 
 	private function updateLocationSubnets()
 	{
+		$change = false;
 		// Deletion first
 		$dels = Request::post('deletesubnet', false);
 		if (is_array($dels)) {
@@ -200,13 +239,14 @@ class Page_Locations extends Page
 			}
 			if ($count > 0) {
 				Message::addInfo('subnets-deleted', $count);
+				$change = true;
 			}
 		}
 		// Now actual updates
 		$starts = Request::post('startaddr', false);
 		$ends = Request::post('endaddr', false);
 		if (!is_array($starts) || !is_array($ends)) {
-			return;
+			return $change;
 		}
 		$count = 0;
 		$stmt = Database::prepare('UPDATE subnet SET startaddr = :start, endaddr = :end'
@@ -225,16 +265,19 @@ class Page_Locations extends Page
 		}
 		if ($count > 0) {
 			Message::addInfo('subnets-updated', $count);
+			$change = true;
 		}
+		return $change;
 	}
 
 	private function addNewLocationSubnets($location)
 	{
+		$change = false;
 		$locationId = (int)$location['locationid'];
 		$starts = Request::post('newstartaddr', false);
 		$ends = Request::post('newendaddr', false);
 		if (!is_array($starts) || !is_array($ends)) {
-			return;
+			return $change;
 		}
 		$count = 0;
 		$stmt = Database::prepare('INSERT INTO subnet SET startaddr = :start, endaddr = :end, locationid = :location');
@@ -261,7 +304,9 @@ class Page_Locations extends Page
 		}
 		if ($count > 0) {
 			Message::addInfo('subnets-created', $count);
+			$change = true;
 		}
+		return $change;
 	}
 
 	/*
@@ -290,51 +335,44 @@ class Page_Locations extends Page
 		}
 	}
 
-	private function queryMachineCount($lid, $subnets, $xtra = '')
-	{
-		if (!isset($subnets[$lid]))
-			return 0;
-		$loc =& $subnets[$lid];
-		if (empty($loc['subnets'])) {
-			$query = "SELECT Count(*) AS cnt FROM machine WHERE (locationid = :locationid)";
-		} else {
-			$query = "SELECT Count(*) AS cnt FROM machine WHERE (locationid = :locationid OR (locationid IS NULL AND (0";
-			foreach ($loc['subnets'] as $sub) {
-				$query .= ' OR INET_ATON(clientip) BETWEEN ' . $sub['startaddr'] . ' AND ' . $sub['endaddr'];
-			}
-			$query .= ')))';
-		}
-		if (!empty($xtra)) {
-			$query .= ' ' . $xtra;
-		}
-		$ret = Database::queryFirst($query, array('locationid' => $lid));
-		return $ret['cnt'];
-	}
-
 	private function showLocationList()
 	{
+		// Warn admin about overlapping subnet definitions
 		$overlapSelf = $overlapOther = true;
-		$subnetsFlat = Location::getSubnetsByLocation($overlapSelf, $overlapOther, false);
-		$subnetsRecursive = Location::getSubnetsByLocation($overlapSelf, $overlapOther, true);
-		$locs = Location::getLocations(0, 0, false, true);
+		Location::getOverlappingSubnets($overlapSelf, $overlapOther);
+		//$locs = Location::getLocations(0, 0, false, true);
+		$locs = Location::getLocationsAssoc();
 		// Statistics: Count machines for each subnet
 		$unassigned = false;
 		if (Module::get('statistics') !== false) {
 			$DL = time() - 605;
-			foreach ($locs as &$location) {
-				$lid = (int)$location['locationid'];
-				$location['clientCount'] = $this->queryMachineCount($lid, $subnetsFlat);
-				$location['clientCountSum'] = $this->queryMachineCount($lid, $subnetsRecursive);
-				if ($location['clientCountSum'] > 0) {
-					$location['clientLoad'] = round(($this->queryMachineCount($lid, $subnetsRecursive, "AND logintime <> 0 AND lastseen > $DL") / $location['clientCountSum']) * 100) . '%';
+			$unassigned = 0;
+			$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt, Sum(If(lastseen > $DL AND logintime <> 0, 1, 0)) AS used
+ 				 FROM machine GROUP BY locationid");
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$loc = (int)$row['locationid'];
+				if (isset($locs[$loc])) {
+					$locs[$loc]['clientCount'] = $row['cnt'];
+					$locs[$loc]['clientLoad'] = round(100 * $row['used'] / $row['cnt']) . '%';
+				} else {
+					$unassigned += $row['cnt'];
 				}
 			}
-			$res = Database::queryFirst("SELECT Count(*) AS cnt FROM machine m"
-				. " LEFT JOIN subnet s ON (INET_ATON(m.clientip) BETWEEN s.startaddr AND s.endaddr)"
-				. " WHERE m.locationid IS NULL AND s.locationid IS NULL");
-			$unassigned = $res['cnt'];
+			unset($loc);
+			foreach ($locs as &$loc) {
+				if (!isset($loc['clientCount'])) {
+					$loc['clientCount'] = 0;
+					$loc['clientLoad'] = '0%';
+				}
+				$loc['clientCountSum'] = $loc['clientCount'];
+			}
+			unset($loc);
+			foreach ($locs as $loc) {
+				foreach ($loc['parents'] as $pid) {
+					$locs[(int)$pid]['clientCountSum'] += $loc['clientCount'];
+				}
+			}
 		}
-		unset($loc, $location);
 		// Show currently active sysconfig for each location
 		$defaultConfig = false;
 		if (Module::isAvailable('sysconfig')) {
@@ -445,8 +483,7 @@ class Page_Locations extends Page
 		$count = $online = $used = 0;
 		if (Module::get('statistics') !== false) {
 			$mres = Database::simpleQuery("SELECT lastseen, logintime FROM machine"
-				. " LEFT JOIN subnet ON (INET_ATON(machine.clientip) BETWEEN startaddr AND endaddr AND machine.locationid IS NULL)"
-				. " WHERE (subnet.locationid = :lid) OR (machine.locationid = :lid)", array('lid' => $locationId));
+				. " WHERE machine.locationid = :lid", array('lid' => $locationId));
 			$DL = time() - 605;
 			while ($row = $mres->fetch(PDO::FETCH_ASSOC)) {
 				$count++;

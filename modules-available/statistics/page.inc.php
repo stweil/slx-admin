@@ -714,9 +714,6 @@ class Page_Statistics extends Page
 		unset($client['data']);
 		// Get locations
 		if (Module::isAvailable('locations')) {
-			if (is_null($client['locationid'])) {
-				$client['locationid'] = Location::getFromIp($client['clientip']);
-			}
 			$locs = Location::getLocationsAssoc();
 			$next = (int)$client['locationid'];
 			$output = array();
