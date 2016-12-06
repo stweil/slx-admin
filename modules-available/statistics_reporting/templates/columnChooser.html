@@ -1,15 +1,23 @@
 <div class="container-fluid">
-	<div class="row top-row form-inline">
-		<div class="col-md-2">
+	<div class="row form-inline">
+		<div class="col-md-12  top-row">
 			<select id="select-table" onchange="chooseTable(this.value)" class="form-control">
-				<option value="total" selected="selected">{{lang_total}}</option>
+				<option value="total">{{lang_total}}</option>
 				<option value="perlocation">{{lang_perlocation}}</option>
 				<option value="perclient">{{lang_perclient}}</option>
 				<option value="peruser">{{lang_peruser}}</option>
 				<option value="pervm">{{lang_pervm}}</option>
 			</select>
+			<select id="select-cutoff" onchange="chooseCutoff(this.value)" class="form-control">
+				<option value="1">{{lang_last1}}</option>
+				<option value="2">{{lang_last2}}</option>
+				<option value="7">{{lang_last7}}</option>
+				<option value="14">{{lang_last14}}</option>
+				<option value="30">{{lang_last30}}</option>
+				<option value="90">{{lang_last90}}</option>
+			</select>
 		</div>
-		<div class="col-md-10 buttonbar">
+		<div class="col-md-12 buttonbar">
 			<button id="button-totaltime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('totaltime')">{{lang_totalTime}}</button>
 			<button id="button-avgtime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('avgtime')">{{lang_avgSessionLength}}</button>
 			<button id="button-logincount" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('logincount')">{{lang_totalLogins}}</button>
@@ -20,12 +28,9 @@
 	</div>
 </div>
 
-
 <script type="application/javascript">
 	document.addEventListener("DOMContentLoaded", function () {
-		chooseTable($('#select-table').val());
-		toggleButton('lastlogout');
-		toggleButton('laststart');
+		loadForm();
 		var table = $("table").stupidtable();
 		table.on("aftertablesort", function (event, data) {
 			var th = $(this).find("th");
@@ -47,6 +52,11 @@
 		}
 	}
 
+	function chooseCutoff(v) {
+		saveForm();
+		window.location.replace("?do=statistics_reporting&cutoff="+v);
+	}
+
 	function toggleButton(v) {
 		var button = $('#button-'+v);
 		if(button.hasClass('btn-default')) {
@@ -58,5 +68,27 @@
 			button.addClass('btn-default');
 			$('.column-'+v).hide()
 		}
+	}
+
+	function saveForm() {
+		sessionStorage.setItem("select-table", $("#select-table").val());
+		sessionStorage.setItem("buttons", $('.buttonbar').find(".btn-default").map(function() { return this.id; }).get().join(" "));
+	}
+
+	function loadForm() {
+		var selectTable = sessionStorage.getItem("select-table");
+		if (selectTable) {
+			$("#select-table").val(selectTable);
+			chooseTable(selectTable);
+		} else {
+			$("#select-table").val("total");
+			chooseTable("total");
+		}
+
+		$('#select-cutoff').val("{{cutoff}}");
+
+		sessionStorage.getItem("buttons").split(" ").forEach(function(button) {
+			toggleButton(button.substr(7));
+		});
 	}
 </script>

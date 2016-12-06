@@ -1,7 +1,16 @@
 .top-row {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+.top-row select, .top-row .btn-group {
+    margin-right: 10px;
+    margin-bottom: 10px;
 }
 
 .buttonbar button {
     margin-bottom: 4px;
+}
+
+.buttonbar {
+    margin-bottom: 20px;
 }

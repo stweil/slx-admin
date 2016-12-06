@@ -18,5 +18,11 @@
     "lang_hostname": "Client Name",
     "lang_location": "Location",
     "lang_avgSessionLength": "Average Session Length",
-    "lang_totalTime": "Total Time"
+    "lang_totalTime": "Gesamte Zeit",
+    "lang_last1": "Last 24 hours",
+    "lang_last2": "Last 48 hours",
+    "lang_last7": "Last 7 days",
+    "lang_last14": "Last 14 days",
+    "lang_last30": "Last 30 days",
+    "lang_last90": "Last 90 days"
 }

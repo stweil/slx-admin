@@ -18,5 +18,11 @@
     "lang_hostname": "Client Name",
     "lang_location": "Raum",
     "lang_avgSessionLength": "Durchschnittliche Sitzungsdauer",
-    "lang_totalTime": "Gesamte Zeit"
+    "lang_totalTime": "Gesamte Zeit",
+    "lang_last1": "Letzten 24 Stunden",
+    "lang_last2": "Letzten 48 Stunden",
+    "lang_last7": "Letzten 7 Tage",
+    "lang_last14": "Letzten 14 Tage",
+    "lang_last30": "Letzten 30 Tage",
+    "lang_last90": "Letzten 90 Tage"
 }
