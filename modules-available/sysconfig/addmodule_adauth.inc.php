@@ -4,6 +4,10 @@
  * Wizard for setting up active directory integration for authentication.
  */
 
+define('AD_SHORT_REGEX', '#^([^\[\]\:;\|\=\+\?\<\>\*"/\\\\,]+)[/\\\\]([^\[\]\:;\|\=\+\?\<\>\*"/\\\\,]+)$#');
+define('AD_BOTH_REGEX', '#^[^\[\]\:;\|\=\+\?\<\>\*"/\\\\,]+[/\\\\@][^\[\]\:;\|\=\+\?\<\>\*"/\\\\,]+$#');
+define('AD_AT_REGEX', '#^([^\[\]\:;\|\=\+\?\<\>\*"/\\\\,]+)@([^\[\]\:;\|\=\+\?\<\>\*"/\\\\,]+)$#');
+
 class AdAuth_Start extends AddModule_Base
 {
 
@@ -21,7 +25,7 @@ class AdAuth_Start extends AddModule_Base
 		if (!empty($obdn)) {
 			$data['binddn'] = $obdn;
 		}
-		if (preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
+		if (isset($data['server']) && preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
 		$data['step'] = 'AdAuth_CheckConnection';
@@ -36,13 +40,24 @@ class AdAuth_CheckConnection extends AddModule_Base
 	private $scanTask;
 	private $server;
 
+	private $searchBase;
+
+	private $bindDn;
+
 	protected function preprocessInternal()
 	{
+		$this->bindDn = Ldap::normalizeDn(Request::post('binddn', '', 'string'));
+		$this->searchBase = Ldap::normalizeDn(Request::post('searchbase', '', 'string'));
 		$this->server = Request::post('server');
 		$binddn = Request::post('binddn');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if (empty($this->server) || empty($binddn)) {
 			Message::addError('main.empty-field');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		if ((preg_match(AD_AT_REGEX, $this->bindDn) > 0) && (strlen($this->searchBase) < 2)) {
+			Message::addError('main.empty-field', 'searchBase');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -67,14 +82,12 @@ class AdAuth_CheckConnection extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		$searchBase = Ldap::normalizeDn(Request::post('searchbase', '', 'string'));
-		$bindDn = Ldap::normalizeDn(Request::post('binddn', '', 'string'));
 		$data = array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
 			'server' => $this->server,
-			'searchbase' => $searchBase,
-			'binddn' => $bindDn,
+			'searchbase' => $this->searchBase,
+			'binddn' => $this->bindDn,
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
 			'homeattr' => Request::post('homeattr'),
@@ -83,7 +96,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'taskid' => $this->scanTask['id']
 		);
 		$data['prev'] = 'AdAuth_Start';
-		if ((preg_match('#^\w+[/\\\\]\w+$#', $bindDn) > 0) || (strlen($searchBase) < 2)) {
+		if ((preg_match(AD_BOTH_REGEX, $this->bindDn) > 0) || (strlen($this->searchBase) < 2)) {
 			$data['next'] = 'AdAuth_SelfSearch';
 		} elseif (empty($data['homeattr'])) {
 			$data['next'] = 'AdAuth_HomeAttrCheck';
@@ -133,10 +146,13 @@ class AdAuth_SelfSearch extends AddModule_Base
 			'searchbase' => $searchbase,
 			'bindpw' => $bindpw,
 		);
-		if (preg_match('#^\w+[/\\\\](\w+)$#', $binddn, $out) && !empty($out[1])) {
+		if (preg_match(AD_SHORT_REGEX, $binddn, $out) && !empty($out[2])) {
 			$this->originalBindDn = str_replace('/', '\\', $binddn);
+			$taskData['filter'] = 'sAMAccountName=' . $out[2];
+		} elseif (preg_match(AD_AT_REGEX, $binddn, $out) && !empty($out[1])) {
+			$this->originalBindDn = $binddn;
 			$taskData['filter'] = 'sAMAccountName=' . $out[1];
-		} elseif (preg_match('/^cn=([^=]+),.*?,dc=([^=]+),/i', Ldap::normalizeDn($binddn), $out)) {
+		} elseif (preg_match('/^cn\=([^\=]+),.*?,dc\=([^\=]+),/i', Ldap::normalizeDn($binddn), $out)) {
 			if (empty($searchbase)) {
 				$this->originalBindDn = $out[2] . '\\' . $out[1];
 				$taskData['filter'] = 'sAMAccountName=' . $out[1];
@@ -147,6 +163,8 @@ class AdAuth_SelfSearch extends AddModule_Base
 		} else {
 			Message::addError('could-not-determine-binddn', $binddn);
 			$this->originalBindDn = $binddn;
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
 		}
 		$taskData['binddn'] = $this->originalBindDn;
 		$selfSearch = Taskmanager::submit('LdapSearch', $taskData);
@@ -200,7 +218,7 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -214,7 +232,7 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 		} else {
 			$uri = "ldap://$server:$port/";
 		}
-		preg_match('#^(\w+=[^,]+),#', $binddn, $out);
+		preg_match('#^(\w+\=[^\=]+),#', $binddn, $out);
 		$filter = $out[1];
 		$data = array(
 			'server' => $uri,
@@ -270,7 +288,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -338,7 +356,7 @@ class AdAuth_HomeDir extends AddModule_Base
 		if (empty($this->searchbase)) {
 			// If no search base was given, determine it from the dn
 			$originalBindDn = str_replace('\\', '/', trim(Request::post('originalbinddn')));
-			if (!preg_match('#^([^/]+)/[^/]+$#', $originalBindDn, $out)) {
+			if (!preg_match(AD_SHORT_REGEX, $originalBindDn, $out)) {
 				Message::addError('main.value-invalid', 'binddn', $originalBindDn);
 				Util::redirect('?do=SysConfig&action=addmodule&step=AdAuth_Start');
 			} // $out[1] is the domain
@@ -391,7 +409,8 @@ class AdAuth_HomeDir extends AddModule_Base
 			$data['shareRemapMode_' . $this->edit->getData('shareRemapMode')] = 'selected="selected"';
 			$letter = $this->edit->getData('shareHomeDrive');
 		} else {
-			$data['shareDownloads'] = $data['shareMedia'] = $data['shareDocuments'] = 'selected="selected"';
+			$data['shareDownloads_c'] = $data['shareMedia_c'] = $data['shareDocuments_c'] = $data['shareRemapCreate_c'] = 'checked="checked"';
+			$data['shareRemapMode_1'] = 'selected="selected"';
 			$letter = 'H:';
 		}
 		$data['drives'] = array();

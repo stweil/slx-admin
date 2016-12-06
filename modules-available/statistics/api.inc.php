@@ -32,7 +32,7 @@ if ($type{0} === '~') {
 		}
 	}
 	$NOW = time();
-	$old = Database::queryFirst('SELECT logintime, lastseen FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
+	$old = Database::queryFirst('SELECT clientip, logintime, lastseen FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 	if ($old !== false) {
 		settype($old['logintime'], 'integer');
 		settype($old['lastseen'], 'integer');
@@ -127,6 +127,12 @@ if ($type{0} === '~') {
 			'data'       => $data,
 			'hostname'   => $hostname,
 		));
+
+		if (($old === false || $old['clientip'] !== $ip) && Module::isAvailable('locations')) {
+			// New, or ip changed (dynamic pool?), update subnetlicationid
+			Location::updateMapIpToLocation($uuid, $ip);
+		}
+
 		// Write statistics data
 
 	} else if ($type === '~runstate') {
@@ -134,6 +140,10 @@ if ($type{0} === '~') {
 		$sessionLength = 0;
 		$used = Request::post('used', 0, 'integer');
 		if ($old === false) die("Unknown machine.\n");
+		if ($old['clientip'] !== $ip) {
+			EventLog::warning("[runstate] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
+			die("Address changed.\n");
+		}
 		// Figure out what's happening
 		if ($used === 0) {
 			// Is not in use
@@ -173,12 +183,18 @@ if ($type{0} === '~') {
 			));
 		}
 	} elseif ($type === '~poweroff') {
-		if ($old !== false && $old['logintime'] !== 0) {
+		if ($old === false) die("Unknown machine.\n");
+		if ($old['clientip'] !== $ip) {
+			EventLog::warning("[poweroff] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
+			die("Address changed.\n");
+		}
+		if ($old['logintime'] !== 0) {
 			$sessionLength = $old['lastseen'] - $old['logintime'];
 			if ($sessionLength > 0 && $sessionLength < 86400*2) {
-				Database::exec('INSERT INTO statistic (dateline, typeid, clientip, username, data)'
-					. " VALUES (:start, '~session-length', :clientip, '', :length)", array(
+				Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
+					. " VALUES (:start, '~session-length', :uuid, :clientip, '', :length)", array(
 					'start'     => $old['logintime'],
+					'uuid'     => $uuid,
 					'clientip'  => $ip,
 					'length'    => $sessionLength
 				));

@@ -103,30 +103,56 @@ class Parser {
 		$i = 0;
 		foreach ($lines as $line) {
 			if (preg_match('/^Disk (\S+):.* (\d+) bytes/i', $line, $out)) {
+				// --- Beginning of MBR disk ---
 				if ($out[2] < 10000) // sometimes vmware reports lots of 512byte disks
 					continue;
 				// disk total size and name
 				unset($hdd);
-				$unit = 0;
+				$mbrToMbFactor = 0; // This is != 0 for mbr
+				$sectorToMbFactor = 0; // This is != for gpt
 				$hdd = array(
 					'devid' => 'devid-' . ++$i,
 					'dev' => $out[1],
+					'sectors' => 0,
 					'size' => round($out[2] / (1024 * 1024 * 1024)),
 					'used' => 0,
 					'partitions' => array(),
 					'json' => array(),
 				);
 				$hdds[] = &$hdd;
+			} elseif (preg_match('/^Disk (\S+):\s+(\d+)\s+sectors,/i', $line, $out)) {
+				// --- Beginning of GPT disk ---
+				if ($out[2] < 1000) // sometimes vmware reports lots of 512byte disks
+					continue;
+				// disk total size and name
+				unset($hdd);
+				$mbrToMbFactor = 0; // This is != 0 for mbr
+				$sectorToMbFactor = 0; // This is != for gpt
+				$hdd = array(
+					'devid' => 'devid-' . ++$i,
+					'dev' => $out[1],
+					'sectors' => $out[2],
+					'size' => 0,
+					'used' => 0,
+					'partitions' => array(),
+					'json' => array(),
+				);
+				$hdds[] = &$hdd;
 			} elseif (preg_match('/^Units =.*= (\d+) bytes/i', $line, $out)) {
+				// --- MBR: Line that tells us how to interpret units for the partition lines ---
 				// Unit for start and end
-				$unit = $out[1] / (1024 * 1024); // Convert so that multiplying by unit yields MiB
-			} elseif (isset($hdd) && $unit !== 0 && preg_match(',^/dev/(\S+)\s+.*\s(\d+)[\+\-]?\s+(\d+)[\+\-]?\s+\d+[\+\-]?\s+([0-9a-f]+)\s+(.*)$,i', $line, $out)) {
+				$mbrToMbFactor = $out[1] / (1024 * 1024); // Convert so that multiplying by unit yields MiB
+			} elseif (preg_match('/^Logical sector size:\s*(\d+)/i', $line, $out)) {
+				// --- GPT: Line that tells us the logical sector size used everywhere ---
+				$sectorToMbFactor = $out[1] / (1024 * 1024);
+			} elseif (isset($hdd) && $mbrToMbFactor !== 0 && preg_match(',^/dev/(\S+)\s+.*\s(\d+)[\+\-]?\s+(\d+)[\+\-]?\s+\d+[\+\-]?\s+([0-9a-f]+)\s+(.*)$,i', $line, $out)) {
+				// --- MBR: Partition entry ---
 				// Some partition
 				$type = strtolower($out[4]);
 				if ($type === '5' || $type === 'f' || $type === '85') {
 					continue;
 				}
-				$partsize = round(($out[3] - $out[2]) * $unit);
+				$partsize = round(($out[3] - $out[2]) * $mbrToMbFactor);
 				$hdd['partitions'][] = array(
 					'id' => $out[1],
 					'name' => $out[1],
@@ -139,12 +165,33 @@ class Parser {
 					'color' => ($type === '44' ? '#4d4' : ($type === '82' ? '#48f' : '#e55')),
 				);
 				$hdd['used'] += $partsize;
+			} elseif (isset($hdd) && $sectorToMbFactor !== 0 && preg_match(',^\s*(\d+)\s+(\d+)[\+\-]?\s+(\d+)[\+\-]?\s+\S+\s+([0-9a-f]+)\s+(.*)$,i', $line, $out)) {
+				// --- GPT: Partition entry ---
+				// Some partition
+				$type = $out[5];
+				$id = $hdd['devid'] . '-' . $out[1];
+				$partsize = round(($out[3] - $out[2]) * $sectorToMbFactor);
+				$hdd['partitions'][] = array(
+					'id' => $id,
+					'name' => $out[1],
+					'size' => round($partsize / 1024, $partsize < 1024 ? 1 : 0),
+					'type' => $type,
+				);
+				$hdd['json'][] = array(
+					'label' => $id,
+					'value' => $partsize,
+					'color' => ($type === 'OpenSLX-ID44' ? '#4d4' : ($type === 'Linux swap' ? '#48f' : '#e55')),
+				);
+				$hdd['used'] += $partsize;
 			}
 		}
 		unset($hdd);
 		$i = 0;
 		foreach ($hdds as &$hdd) {
 			$hdd['used'] = round($hdd['used'] / 1024);
+			if ($hdd['size'] === 0 && $hdd['sectors'] !== 0) {
+				$hdd['size'] = round(($hdd['sectors'] * $sectorToMbFactor) / 1024);
+			}
 			$free = $hdd['size'] - $hdd['used'];
 			if ($free > 5 || ($free / $hdd['size']) > 0.1) {
 				$hdd['partitions'][] = array(
@@ -210,7 +257,7 @@ class Parser {
 		}
 	}
 
-	public function parseSmartctl(&$hdds, $data)
+	public static function parseSmartctl(&$hdds, $data)
 	{
 		$lines = preg_split("/[\r\n]+/", $data);
 		$i = 0;

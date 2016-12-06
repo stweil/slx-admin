@@ -1,4 +1,5 @@
 {
+    "invalid-tutor-uuid": "Invalid ID for tutor",
     "json-data-invalid": "Submitted data is no valid JSON",
     "need-locationid": "No locationid given"
 }

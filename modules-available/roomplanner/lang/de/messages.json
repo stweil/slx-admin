@@ -1,4 +1,5 @@
 {
+    "invalid-tutor-uuid": "Ung\u00fcltige ID f\u00fcr den Tutor festgelegt",
     "json-data-invalid": "\u00dcbermittelte Daten sind kein g\u00fcltiges JSON",
     "need-locationid": "Keine locationid angegeben"
 }

@@ -191,14 +191,14 @@ class Page_Roomplanner extends Page
 				'gridCol' => $computer['gridCol'],
 				'itemlook' => $computer['itemlook']]);
 
-			Database::exec('UPDATE machine SET position = :position, locationid = :locationid WHERE machineuuid = :muuid',
+			Database::exec('UPDATE machine SET position = :position, fixedlocationid = :locationid WHERE machineuuid = :muuid',
 				['locationid' => $this->locationid, 'muuid' => $computer['muuid'], 'position' => $position]);
 		}
 
 		$toDelete = array_diff($oldUuids, $newUuids);
 
 		foreach ($toDelete as $d) {
-			Database::exec("UPDATE machine SET position = '', locationid = NULL WHERE machineuuid = :uuid", ['uuid' => $d]);
+			Database::exec("UPDATE machine SET position = '', fixedlocationid = NULL WHERE machineuuid = :uuid", ['uuid' => $d]);
 		}
 	}
 
@@ -256,8 +256,7 @@ class Page_Roomplanner extends Page
 	protected function getPotentialMachines()
 	{
 		$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
-			. 'FROM machine INNER JOIN subnet ON (INET_ATON(clientip) BETWEEN startaddr AND endaddr) '
-			. 'WHERE subnet.locationid = :locationid', ['locationid' => $this->locationid]);
+			. 'FROM machine WHERE locationid = :locationid', ['locationid' => $this->locationid]);
 
 		$machines = [];
 

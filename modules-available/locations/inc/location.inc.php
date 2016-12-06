@@ -6,6 +6,7 @@ class Location
 	private static $flatLocationCache = false;
 	private static $assocLocationCache = false;
 	private static $treeCache = false;
+	private static $subnetMapCache = false;
 
 	private static function getTree()
 	{
@@ -57,14 +58,21 @@ class Location
 		$output = array();
 		foreach ($tree as $node) {
 			$output[(int)$node['locationid']] = array(
+				'locationid' => (int)$node['locationid'],
 				'parentlocationid' => (int)$node['parentlocationid'],
 				'parents' => $parents,
 				'locationname' => $node['locationname'],
-				'depth' => $depth
+				'depth' => $depth,
+				'isleaf' => true,
 			);
 			if (!empty($node['children'])) {
 				$output += self::flattenTreeAssoc($node['children'], array_merge($parents, array((int)$node['locationid'])), $depth + 1);
 			}
+		}
+		foreach ($output as &$entry) {
+			if (!isset($output[$entry['parentlocationid']]))
+				continue;
+			$output[$entry['parentlocationid']]['isleaf'] = false;
 		}
 		return $output;
 	}
@@ -185,33 +193,31 @@ class Location
 		if (Module::get('statistics') === false)
 			return false;
 		$ret = Database::queryFirst("SELECT locationid FROM machine WHERE machineuuid = :uuid", compact('uuid'));
-		if ($ret === false)
+		if ($ret === false || !$ret['locationid'])
 			return false;
 		return (int)$ret['locationid'];
 	}
 
 	/**
 	 * Get closest location by matching subnets. Deepest match in tree wins.
+	 * Ignores any manually assigned locationid (fixedlocationid).
 	 *
 	 * @param string $ip IP address of client
 	 * @return bool|int locationid, or false if no match
 	 */
 	public static function getFromIp($ip)
 	{
-		$locationId = false;
-		$long = sprintf('%u', ip2long($ip));
-		$net = Database::simpleQuery('SELECT locationid FROM subnet'
-			. ' WHERE :ip BETWEEN startaddr AND endaddr', array('ip' => $long));
-		while ($row = $net->fetch(PDO::FETCH_ASSOC)) {
-			$locations = self::getLocationsAssoc();
-			$id = (int)$row['locationid'];
-			if (!isset($locations[$id]))
-				continue;
-			if ($locationId !== false && $locations[$id]['depth'] <= $locations[$locationId]['depth'])
-				continue;
-			$locationId = $id;
+		if (Module::get('statistics') !== false) {
+			// Shortcut - try to use subnetlocationid in machine table
+			$ret = Database::queryFirst("SELECT subnetlocationid FROM machine WHERE clientip = :ip", compact('ip'));
+			if ($ret !== false) {
+				if ($ret['subnetlocationid'] > 0) {
+					return (int)$ret['subnetlocationid'];
+				}
+				return false;
+			}
 		}
-		return $locationId;
+		return self::mapIpToLocation($ip);
 	}
 
 	/**
@@ -230,7 +236,9 @@ class Location
 		if ($ipLoc !== false && $uuid !== false) {
 			// Machine ip maps to a location, and we have a client supplied uuid
 			$uuidLoc = self::getFromMachineUuid($uuid);
-			if ($uuidLoc !== false) {
+			if ($uuidLoc === $ipLoc) {
+				$locationId = $uuidLoc;
+			} else if ($uuidLoc !== false) {
 				// Validate that the location the IP maps to is in the chain we get using the
 				// location determined by the uuid
 				$uuidLocations = self::getLocationRootChain($uuidLoc);
@@ -285,40 +293,13 @@ class Location
 		return $subnets;
 	}
 
-	/**
-	 * @return array|bool assoc array mapping from locationid to subnets
-	 */
-	public static function getSubnetsByLocation(&$overlapSelf, &$overlapOther, $recursive = true)
+	public static function getOverlappingSubnets(&$overlapSelf = false, &$overlapOther = false)
 	{
+		if ($overlapSelf === false && $overlapOther === false) {
+			return;
+		}
 		$locs = self::getLocationsAssoc();
 		$subnets = self::getSubnets();
-		// Find locations having nets overlapping with themselves if array was passed
-		if ($overlapSelf === true || $overlapOther === true) {
-			self::findOverlap($locs, $subnets, $overlapSelf, $overlapOther);
-		}
-		// Accumulate - copy up subnet definitions
-		foreach ($locs as &$loc) {
-			$loc['subnets'] = array();
-		}
-		unset($loc);
-		foreach ($subnets as $subnet) {
-			$lid = $subnet['locationid'];
-			while (isset($locs[$lid])) {
-				$locs[$lid]['subnets'][] = array(
-					'startaddr' => $subnet['startaddr'],
-					'endaddr' => $subnet['endaddr']
-				);
-				if (!$recursive)
-					break;
-				$lid = $locs[$lid]['parentlocationid'];
-			}
-		}
-		return $locs;
-	}
-
-
-	private static function findOverlap($locs, $subnets, &$overlapSelf, &$overlapOther)
-	{
 		if ($overlapSelf) {
 			$self = array();
 		}
@@ -365,6 +346,84 @@ class Location
 				}
 				$overlapOther[] = $entry;
 			}
+		}
+	}
+
+	/**
+	 * @return array|bool assoc array mapping from locationid to subnets
+	 */
+	public static function getSubnetsByLocation($recursive = false)
+	{
+		$locs = self::getLocationsAssoc();
+		$subnets = self::getSubnets();
+		// Accumulate - copy up subnet definitions
+		foreach ($locs as &$loc) {
+			$loc['subnets'] = array();
+		}
+		unset($loc);
+		foreach ($subnets as $subnet) {
+			$lid = $subnet['locationid'];
+			while (isset($locs[$lid])) {
+				$locs[$lid]['subnets'][] = array(
+					'startaddr' => $subnet['startaddr'],
+					'endaddr' => $subnet['endaddr']
+				);
+				if (!$recursive)
+					break;
+				$lid = $locs[$lid]['parentlocationid'];
+			}
+		}
+		return $locs;
+	}
+
+	/**
+	 * Lookup $ip in subnets, try to find one that matches
+	 * and return its locationid.
+	 * If two+ subnets match, the one which is nested deeper wins.
+	 * If two+ subnets match and have the same depth, the one which
+	 * is smaller wins.
+	 * If two+ subnets match and have the same depth and size, a
+	 * random one will be returned.
+	 *
+	 * @param $ip IP to look up
+	 * @return bool|int locationid ip matches, false = no match
+	 */
+	public static function mapIpToLocation($ip)
+	{
+		if (self::$subnetMapCache === false) {
+			self::$subnetMapCache = self::getSubnetsByLocation();
+		}
+		$long = sprintf('%u', ip2long($ip));
+		$best = false;
+		$bestSize = 0;
+		foreach (self::$subnetMapCache as $lid => $data) {
+			if ($best !== false && self::$subnetMapCache[$lid]['depth'] < self::$subnetMapCache[$best]['depth'])
+				continue; // Don't even need to take a look
+			foreach ($data['subnets'] as $subnet) {
+				if ($long < $subnet['startaddr'] || $long > $subnet['endaddr'])
+					continue; // Nope
+				if ($best !== false // Already have a best candidate
+						&& self::$subnetMapCache[$lid]['depth'] === self::$subnetMapCache[$best]['depth'] // Same depth
+						&& $bestSize < $subnet['endaddr'] - $subnet['startaddr']) { // Old candidate has smaller subnet
+					// So we ignore this one as the old one is more specific
+					continue;
+				}
+				$bestSize = $subnet['endaddr'] - $subnet['startaddr'];
+				$best = $lid;
+			}
+		}
+		if ($best === false)
+			return false;
+		return (int)$best;
+	}
+
+	public static function updateMapIpToLocation($uuid, $ip)
+	{
+		$loc = self::mapIpToLocation($ip);
+		if ($loc === false) {
+			Database::exec("UPDATE machine SET subnetlocationid = NULL WHERE machineuuid = :uuid", compact('uuid'));
+		} else {
+			Database::exec("UPDATE machine SET subnetlocationid = :loc WHERE machineuuid = :uuid", compact('loc', 'uuid'));
 		}
 	}
 

@@ -1,5 +1,8 @@
 <?php
 
+// locationid trigger
+$addTrigger = false;
+
 $res = array();
 
 // The main statistic table used for log entries
@@ -23,7 +26,9 @@ $res[] = tableCreate('statistic', "
 
 $res[] = tableCreate('machine', "
   `machineuuid` char(36) CHARACTER SET ascii NOT NULL,
-  `locationid` int(11) DEFAULT NULL,
+  `fixedlocationid` int(11) DEFAULT NULL           COMMENT 'Manually set location (e.g. roomplanner)',
+  `subnetlocationid` int(11) DEFAULT NULL          COMMENT 'Automatically determined location (e.g. from subnet match),
+  `locationid` int(11) DEFAULT NULL                COMMENT 'Will be automatically set to fixedlocationid if not null, subnetlocationid otherwise',
   `macaddr` char(17) CHARACTER SET ascii NOT NULL,
   `clientip` varchar(45) CHARACTER SET ascii NOT NULL,
   `firstseen` int(10) unsigned NOT NULL,
@@ -65,6 +70,10 @@ $res[] = tableCreate('pciid', "
 	`dateline` int(10) unsigned NOT NULL,
 	PRIMARY KEY (`category`,`id`)
 ");
+
+if (in_array(UPDATE_DONE, $res)) {
+	$addTrigger = true;
+}
 
 //
 // This was added/changed later -- keep update path
@@ -110,6 +119,42 @@ if (!tableHasColumn('machine', 'currentuser')) {
 $ret = Database::exec("ALTER TABLE `machine` CHANGE `position` `position` VARCHAR( 200 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL");
 if ($ret === false) {
 	finalResponse(UPDATE_FAILED, 'Expanding position column failed: ' . Database::lastError());
+}
+
+// 2016-12-06:
+// Add subnetlocationid - contains automatically determined location (by subnet)
+if (!tableHasColumn('machine', 'subnetlocationid')) {
+	$ret = Database::exec('ALTER TABLE machine'
+		. ' ADD COLUMN `subnetlocationid` int(11) DEFAULT NULL AFTER `machineuuid`');
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding subnetlocationid to machine failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+	$addTrigger = true;
+}
+// And fixedlocationid - manually set location, currently used by roomplanner
+if (!tableHasColumn('machine', 'fixedlocationid')) {
+	$ret = Database::exec('ALTER TABLE machine'
+		. ' ADD COLUMN `fixedlocationid` int(11) DEFAULT NULL AFTER `machineuuid`');
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding fixedlocationid to machine failed: ' . Database::lastError());
+	}
+	// Now copy over the values from locationid, since this was used before
+	Database::exec("UPDATE machine SET fixedlocationid = locationid");
+	$res[] = UPDATE_DONE;
+	$addTrigger = true;
+}
+// If any of these was added, create the trigger
+if ($addTrigger) {
+	$ret = Database::exec(" 
+	CREATE TRIGGER set_automatic_locationid
+		BEFORE UPDATE ON machine FOR EACH ROW
+	BEGIN
+		SET NEW.locationid = If(NEW.fixedlocationid IS NULL, NEW.subnetlocationid, NEW.fixedlocationid);
+	END");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding locationid trigger to machine failed: ' . Database::lastError());
+	}
 }
 
 // Create response
