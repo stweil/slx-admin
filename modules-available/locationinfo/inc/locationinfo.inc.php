@@ -14,9 +14,9 @@ class LocationInfo
      $NOW = time();
 
 
-    if ($NOW - $lastseen > 864000) {
+    if ($NOW - $lastseen > 864000 && false) { // TODO: REMOVE FALSE. TEST in testenvironment is not possible
       return 3;
-    } elseif ($NOW - $lastseen > 610) {
+    } elseif ($NOW - $lastseen > 610 && false) { // TODO: REMOVE FALSE. TEST in testenvironment is not possible
       return 2;
     } elseif ($logintime == 0) {
       return 0;

@@ -189,7 +189,7 @@ function getPcInfos($locationID, $coords) {
 				$computer['y'] = $position['gridRow'];
 			}
 
-			$computer['pcState'] = LocationInfo::getPcState((int)$computer['logintime'], (int)$computer['lastseen']);
+			$computer['pcState'] = LocationInfo::getPcState((int)$pc['logintime'], (int)$pc['lastseen']);
 
 			$pcs[] = $computer;
 	}
