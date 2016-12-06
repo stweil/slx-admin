@@ -153,6 +153,9 @@ class PvsGenerator
 		while ($row = $ret->fetch(PDO::FETCH_ASSOC)) {
 			$position = json_decode($row['position'], true);
 
+			if ($position === false || !isset($position['gridRow']) || !isset($position['gridCol']))
+				continue; // TODO: Remove entry/set to NULL?
+
 			$machine = array();
 			$machine['clientip'] = $row['clientip'];
 			$machine['gridRow'] = $position['gridRow'];

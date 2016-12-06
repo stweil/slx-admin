@@ -20,14 +20,19 @@ function renderMachineEntry(item, escape) {
     // console.log(placedMachines);
 
     var isUsed = $.inArray(item.machineuuid, placedMachines) > -1;
-    var extra = isUsed ? ' used ' : '';
+    var extraClass = '';
+    var extraText = '';
     if (isUsed) {
-        console.log('rendering used');
+        extraText = ' (already placed)';
+        extraClass = 'used';
+    } else if (item.otherroom) {
+        extraText = ' (in ' + item.otherroom + ')';
+        extraClass = 'used';
     }
-    return '<div class="machine-entry ' + extra +'">'
+    return '<div class="machine-entry ' + extraClass +'">'
             //+ ' <div class="machine-logo"><i class="glyphicon glyphicon-hdd"></i></div>'
             + ' <div class="machine-body">'
-            + '    <div class="machine-entry-header"> ' + escape(item.hostname) + (isUsed ? ' (already placed)' : '') + '</div>'
+            + '    <div class="machine-entry-header"> ' + escape(item.hostname) + extraText + '</div>'
             + '          <table class="table table-sm">'
             +               '<tr><td>UUID:</td> <td>' +  escape(item.machineuuid) + '</td></tr>'
             +               '<tr><td>MAC:</td> <td>' +  escape(item.macaddr) + '</td></tr>'

@@ -234,7 +234,12 @@ class Page_Roomplanner extends Page
 		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
 			$machine = [];
 			$pos = json_decode($row['position'], true);
-			// TODO: Check if pos is valid (has required keys)
+			if ($pos === false || !isset($pos['gridRow']) || !isset($pos['gridCol'])) {
+				// Missing/incomplete position information - reset
+				Database::exec("UPDATE machine SET fixedlocationid = NULL, position = '' WHERE machineuuid = :uuid",
+					array('uuid' => $row['machineuuid']));
+				continue;
+			}
 
 			$machine['muuid'] = $row['machineuuid'];
 			$machine['ip'] = $row['clientip'];
@@ -255,13 +260,16 @@ class Page_Roomplanner extends Page
 
 	protected function getPotentialMachines()
 	{
-		$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
-			. 'FROM machine WHERE locationid = :locationid', ['locationid' => $this->locationid]);
+		$result = Database::simpleQuery('SELECT m.machineuuid, m.macaddr, m.clientip, m.hostname, l.locationname AS otherroom 
+			FROM machine m
+			LEFT JOIN location l ON (m.fixedlocationid = l.locationid AND m.subnetlocationid <> m.fixedlocationid)
+			WHERE subnetlocationid = :locationid', ['locationid' => $this->locationid]);
 
 		$machines = [];
 
 		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-			$row['combined'] = implode(' ', array_values($row));
+			// For searching
+			$row['combined'] = $row['machineuuid'] . ' ' . $row['macaddr'] . ' ' . $row['clientip'] . ' ' . $row['hostname'];
 			$machines[] = $row;
 		}
 
