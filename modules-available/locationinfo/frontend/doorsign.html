@@ -509,6 +509,7 @@ optional:
 				setInterval(function () {
 					Update();
 				}, 1000);
+				MoveProgressBar(switchTime);
 				setInterval(function () {
 					switchLayout();
 					MoveProgressBar(switchTime);
@@ -981,6 +982,7 @@ optional:
 
 			div.style.width = width;
 			document.body.appendChild(div);
+
 		}
 		function preInitRoom() {
 			$.getJSON("../../../api.php?do=locationinfo&action=roominfo&id=" + roomId + "&coords=1", function (result) {
@@ -1174,7 +1176,9 @@ optional:
 		/*
 		 /========================================== Misc =============================================
 		 */
+		var resized = false;
 		$(window).resize(function () {
+			resized = true;
 			setTimeout(function () {
 				if (mode != null) {
 					if (mode != 3) {
@@ -1219,9 +1223,18 @@ optional:
 			if (car.style.display == "none") {
 				room.style.display = "none";
 				car.style.display = "block";
+				if(resized){
+					scaleCalendar();
+					resized = false;
+				}
 			} else {
 				car.style.display = "none";
 				room.style.display = "block";
+				if(resized){
+					generateOffsetAndScale();
+					scaleRoom();
+					resized = false;
+				}
 			}
 		}
 		function generateProgressBar() {
