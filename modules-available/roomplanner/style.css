@@ -745,10 +745,11 @@ div.draggable:hover .deleteHandle {
 /* select popup */
 .machine-entry {
 	width: 100%;
+	width: calc(100% - 5px);
 	border: 1px solid #999;
 	border-radius: 5px;
-	margin: 5px 20px 5px 2px;
-	padding: 5px 10px 5px 10px;
+	margin: 2px;
+	padding: 2px 4px;
 }
 
 /* in case it is already in the sketchboard */
@@ -756,32 +757,18 @@ div.draggable:hover .deleteHandle {
 	color: #666;
 }
 
-.machine-entry .table {
-	font-size:12px;
+.machine-entry table {
+	font-size: 12px;
 	margin-bottom: -5px;
+	width: 100%;
 }
-.machine-entry .table tr {
-	line-height: 5px;
+.machine-entry table tr {
+	border-top: 1px solid #bbb;
 }
 
-
-.machine-logo {
-	float: left;
-	width:36px;
-}
-.machine-logo i {
-	font-size: 20px;
-	line-height: 50px;
-}
 .machine-entry-header {
 	font-weight: bolder;
 	font-size: 18px;
-}
-
-.machine-uuid {
-}
-
-.machine-ip {
 }
 
 .selectize-dropdown-content {

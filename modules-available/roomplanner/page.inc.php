@@ -94,7 +94,8 @@ class Page_Roomplanner extends Page
 				. 'WHERE machineuuid LIKE :query '
 				. ' OR macaddr  	 LIKE :query '
 				. ' OR clientip    LIKE :query '
-				. ' OR hostname	 LIKE :query ', ['query' => "%$query%"]);
+				. ' OR hostname	 LIKE :query '
+				. ' LIMIT 100', ['query' => "%$query%"]);
 
 			$returnObject = ['machines' => []];
 
@@ -268,8 +269,6 @@ class Page_Roomplanner extends Page
 		$machines = [];
 
 		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-			// For searching
-			$row['combined'] = $row['machineuuid'] . ' ' . $row['macaddr'] . ' ' . $row['clientip'] . ' ' . $row['hostname'];
 			$machines[] = $row;
 		}
 

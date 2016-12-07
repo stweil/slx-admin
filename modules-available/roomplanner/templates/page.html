@@ -330,7 +330,7 @@ var subnetMachines, roomConfiguration;
 var plannerLoadState = 'invalid';
 document.addEventListener("DOMContentLoaded", function () {
 
-	subnetMachines = {{{subnetMachines}}};
+	subnetMachines = makeCombinedField({{{subnetMachines}}});
 	roomConfiguration = {{{roomConfiguration}}};
 
 	$.when(
