@@ -378,7 +378,7 @@ optional:
 				if(json.einkmode!=null) {
 					eInkMode = JSON.parse(json.einkmode);
 				}
-				configupdate = parseInt(json.configupdate);
+				configupdate = parseInt(json.configupdate)* 60 * 1000;;
 				room = json.room;
 			}
 
@@ -461,7 +461,6 @@ optional:
 				lang = getUrlParameter("lang");
 			}
 			$('html').attr('lang', lang);
-
 		}
 
 		function startMode() {
@@ -1145,26 +1144,29 @@ optional:
 				if (update[i].pcState == "0") {
 					//add time to prevent caching
 					if(supportSvg) {
-						img = "img/pc_free.svg";
+						img = "img/pc_free";
 					} else {
 						imgobj.style.backgroundColor="green";
 					}
 					freePcs++;
 				} else if (update[i].pcState == "1") {
 					if(supportSvg) {
-						img = "img/pc_used.svg";
+						img = "img/pc_used";
 					}else {
 						imgobj.style.backgroundColor="red";
 					}
 				} else {
 					if(supportSvg) {
-						img = "img/pc_defect.svg?";
+						img = "img/pc_defect?";
 					}else {
 						imgobj.style.backgroundColor="black";
 					}
 				}
 				if(imgobj !=null && supportSvg) {
-					imgobj.src = img;
+					if(eInkMode){
+						img = img + "_eink";
+					}
+					imgobj.src = img+ ".svg";
 				}
 			}
 			if (state == null || state.state == "FreeNoEnd" || state.state == "Free") {
