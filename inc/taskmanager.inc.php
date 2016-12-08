@@ -71,7 +71,7 @@ class Taskmanager
 			return false;
 		self::init();
 		$seq = (string) mt_rand();
-		$message = "$seq, status, $task";
+		$message = "$seq,     status, $task";
 		$sent = socket_send(self::$sock, $message, strlen($message), 0);
 		$reply = self::readReply($seq);
 		if (!is_array($reply))
@@ -210,7 +210,22 @@ class Taskmanager
 		$tries = 0;
 		while (($bytes = socket_recvfrom(self::$sock, $buf, 90000, 0, $bla1, $bla2)) !== false || socket_last_error() === 11) {
 			$parts = explode(',', $buf, 2);
-			if (count($parts) == 2 && $parts[0] == $seq) {
+			// Do we have compressed data?
+			if (substr($parts[0], 0, 3) === '+z:') {
+				$parts[0] = substr($parts[0], 3);
+				$gz = true;
+			} else {
+				$gz = false;
+			}
+			// See if it's our message
+			if (count($parts) === 2 && $parts[0] === $seq) {
+				if ($gz) {
+					$parts[1] = gzinflate($parts[1]);
+					if ($parts[1] === false) {
+						error_log('Taskmanager: Invalid deflate data received');
+						continue;
+					}
+				}
 				return json_decode($parts[1], true);
 			}
 			if (++$tries > 10)

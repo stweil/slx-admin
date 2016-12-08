@@ -232,6 +232,14 @@ input[readonly] {
 	max-height: 200px;
 }
 
+.slx-decollapse {
+	display: none;
+}
+
+.collapse + .slx-decollapse {
+	display: table-row;
+}
+
 /*
  * Sidebar
  */

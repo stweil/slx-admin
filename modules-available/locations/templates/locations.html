@@ -23,7 +23,7 @@
 			<tr>
 				<td>
 					<div style="display:inline-block;width:{{depth}}em"></div>
-					<a href="#" onclick="slxOpenLocation(this, {{locationid}})">{{locationname}} <b class="caret"></b></a>
+					<a href="#" onclick="slxOpenLocation(this, {{locationid}}); return false">{{locationname}} <b class="caret"></b></a>
 				</td>
 				<td class="text-nowrap" align="right">
 					{{#havestatistics}}
@@ -134,7 +134,7 @@ function slxOpenLocation(e, lid) {
 		if (existing.is(slxLastLocation)) {
 			slxLastLocation = false;
 		} else {
-			existing.show();
+			existing.show()[0].scrollIntoView();
 			$(e).closest('tr').addClass('active slx-bold');
 			slxLastLocation = existing;
 		}
@@ -146,6 +146,7 @@ function slxOpenLocation(e, lid) {
 	$(e).closest('tr').addClass('active slx-bold').after(tr);
 	td.load('?do=Locations&action=showlocation&locationid=' + lid, function() {
 		slxAttachCidr();
+		$('#location-details-' + lid)[0].scrollIntoView();
 	});
 	slxLastLocation = tr;
 }

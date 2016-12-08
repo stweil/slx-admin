@@ -4,7 +4,7 @@
 			{{lang_newMachines}}
 		</div>
 		<div class="panel-body">
-			<table class="table table-condensed table-striped" id="newclienttable">
+			<table class="table table-condensed table-striped">
 				<tr>
 					<th>{{lang_machine}}</th>
 					<th class="text-right"></th>
@@ -13,7 +13,7 @@
 					<th class="text-right">HDD</th>
 				</tr>
 				{{#rows}}
-				<tr style="{{style}}">
+				<tr class="{{collapse}}">
 					<td class="text-nowrap"><a href="?do=Statistics&amp;uuid={{machineuuid}}">{{hostname}}</a></td>
 					<td class="text-right">{{firstseen}}</td>
 					<td class="{{kvmclass}}">{{kvmicon}}</td>
@@ -21,23 +21,15 @@
 					<td class="text-right {{hddclass}}">{{gbtmp}}&thinsp;GiB</td>
 				</tr>
 				{{/rows}}
-			{{#openbutton}}
-				<tr>
-					<td colspan="5" onclick="slxExpandNew(this)">
+				<tr class="slx-decollapse">
+					<td colspan="5">
 						<span class="btn-group btn-group-justified">
-							<span class="btn btn-default">
+							<span class="btn btn-default btn-sm">
 								<span class="glyphicon glyphicon-menu-down"></span>
 							</span>
 						</span>
-						<script type="text/javascript">
-							function slxExpandNew(b) {
-								$('#newclienttable').find('tr').show();
-								$(b).hide();
-							}
-						</script>
 					</td>
 				</tr>
-			{{/openbutton}}
 			</table>
 		</div>
 	</div>

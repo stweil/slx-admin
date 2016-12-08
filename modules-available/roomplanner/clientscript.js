@@ -5,13 +5,19 @@
  * */
 
 /* Map: uuid -> obj */
-machineCache = {};
+var machineCache = {};
 
-selectMachinInitialized = false;
+var selectMachinInitialized = false;
 
-placedMachines = [];
+var placedMachines = [];
 
-
+function makeCombinedField(machineArray)
+{
+   machineArray.forEach(function (v,i,a){
+      machineArray[i].combined = (v.machineuuid + " " + v.hostname + " " + v.clientip + " " + v.macaddr).toLocaleLowerCase();
+   });
+   return machineArray;
+}
 
 function renderMachineEntry(item, escape) {
     machineCache[item.machineuuid] = item;
@@ -20,45 +26,70 @@ function renderMachineEntry(item, escape) {
     // console.log(placedMachines);
 
     var isUsed = $.inArray(item.machineuuid, placedMachines) > -1;
-    var extra = isUsed ? ' used ' : '';
+    var extraClass = '';
+    var extraText = '';
     if (isUsed) {
-        console.log('rendering used');
+        extraText = ' (already placed)';
+        extraClass = 'used';
+    } else if (item.otherroom) {
+        extraText = ' (in ' + item.otherroom + ')';
+        extraClass = 'used';
     }
-    return '<div class="machine-entry ' + extra +'">'
+    return '<div class="machine-entry ' + extraClass +'">'
             //+ ' <div class="machine-logo"><i class="glyphicon glyphicon-hdd"></i></div>'
             + ' <div class="machine-body">'
-            + '    <div class="machine-entry-header"> ' + escape(item.hostname) + (isUsed ? ' (already placed)' : '') + '</div>'
-            + '          <table class="table table-sm">'
+            + '    <div class="machine-entry-header"> ' + escape(item.hostname) + extraText + '</div>'
+            + '          <table>'
             +               '<tr><td>UUID:</td> <td>' +  escape(item.machineuuid) + '</td></tr>'
-            +               '<tr><td>MAC:</td> <td>' +  escape(item.macaddr) + '</td></tr>'
+            +               '<tr><td>MAC: </td> <td>' +  escape(item.macaddr) + '</td></tr>'
             +               '<tr><td>IP:  </td> <td>' +  escape(item.clientip)    + '</td></tr>'
             + '          </table>'
             + '    </div>'
             + '</div>';
 }
 
+var queryCache = {};
+
+function filterCache(key, query) {
+    return queryCache[key].filter(function (el) {
+       return -1 !== el.combined.indexOf(query);
+    });
+}
+
 function loadMachines(query, callback) {
     console.log('queryMachines(' + query + ')');
-    if (query.length < 2) return callback();
+    if (query.length < 2) {
+       callback();
+       return;
+    }
+    query = query.toLocaleLowerCase();
+    // See if we have a previous query in our cache that is a superset for this one
+    for (var k in queryCache) {
+        if (query.indexOf(k) !== -1) {
+            callback(filterCache(k, query));
+            return;
+        }
+    }
     $.ajax({
         url: '?do=roomplanner&action=getmachines&query=' + encodeURIComponent(query),
         type: 'GET',
+        dataType: 'json',
         error: function() {
             console.log('error while doing ajax call');
             callback();
         },
-        success: function(res) {
+        success: function(json) {
             console.log('success ajax call');
-            var json = JSON.parse(res);
-            json.machines.forEach(function (v,i,a){
-                a[i].combined = v.machineuuid + " " + v.hostname + " " + v.clientip + " " + v.macaddr;
-            });
-            return callback(json.machines);
+            var machines = makeCombinedField(json.machines);
+            // Server cuts off at 100, so only cache if it contains less entries, as
+            // the new, more specific query could return previously removed results.
+            if (machines.length < 100) {
+                queryCache[query] = machines;
+            }
+            callback(machines);
         }
     });
 }
-
-
 
 function clearSearchBox() {
     $selectizeSearch[0].selectize.setValue([], true);
@@ -85,7 +116,7 @@ function initSelectize() {
             render : { option : renderMachineEntry, item: renderMachineEntry},
             load: loadMachines,
             maxItems: 1,
-            sortField: 'clientip',
+            sortField: 'hostname',
             sortDirection: 'asc',
             onChange: clearSubnetBox
         });
@@ -101,7 +132,7 @@ function initSelectize() {
             create: false,
             render : { option : renderMachineEntry, item: renderMachineEntry},
             maxItems: 1,
-            sortField: 'clientip',
+            sortField: 'hostname',
             sortDirection: 'asc',
             onChange: clearSearchBox
         });

@@ -13,7 +13,7 @@
 							<th class="text-right text-nowrap">{{lang_modelCount}}</th>
 						</tr>
 						{{#rows}}
-						<tr id="{{id}}">
+						<tr id="{{id}}" class="{{collapse}}">
 							<td class="text-left text-nowrap filter-col" data-filter-col="systemmodel">
 								<table style="width:100%; table-layout: fixed;"><tr><td style="overflow:hidden;text-overflow: ellipsis;">
 								<a class="filter-val" data-filter-val="{{systemmodel}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~systemmodel={{urlsystemmodel}}">{{systemmodel}}</a>
@@ -25,6 +25,15 @@
 							<td class="text-right">{{count}}</td>
 						</tr>
 						{{/rows}}
+						<tr class="slx-decollapse">
+							<td colspan="3">
+								<span class="btn-group btn-group-justified">
+									<span class="btn btn-default btn-sm">
+										<span class="glyphicon glyphicon-menu-down"></span>
+									</span>
+								</span>
+							</td>
+						</tr>
 					</table>
 				</div>
 				<div class="col-md-4">

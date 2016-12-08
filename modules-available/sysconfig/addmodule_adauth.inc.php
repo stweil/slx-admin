@@ -25,7 +25,7 @@ class AdAuth_Start extends AddModule_Base
 		if (!empty($obdn)) {
 			$data['binddn'] = $obdn;
 		}
-		if (preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
+		if (isset($data['server']) && preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
 		$data['step'] = 'AdAuth_CheckConnection';
@@ -146,13 +146,11 @@ class AdAuth_SelfSearch extends AddModule_Base
 			'searchbase' => $searchbase,
 			'bindpw' => $bindpw,
 		);
-		error_log("'$binddn'");
-		error_log(preg_match(AD_SHORT_REGEX, $binddn, $out));
-		error_log(print_r($out, true));
 		if (preg_match(AD_SHORT_REGEX, $binddn, $out) && !empty($out[2])) {
 			$this->originalBindDn = str_replace('/', '\\', $binddn);
 			$taskData['filter'] = 'sAMAccountName=' . $out[2];
 		} elseif (preg_match(AD_AT_REGEX, $binddn, $out) && !empty($out[1])) {
+			$this->originalBindDn = $binddn;
 			$taskData['filter'] = 'sAMAccountName=' . $out[1];
 		} elseif (preg_match('/^cn\=([^\=]+),.*?,dc\=([^\=]+),/i', Ldap::normalizeDn($binddn), $out)) {
 			if (empty($searchbase)) {
@@ -220,7 +218,7 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -290,7 +288,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
-			Message::addError('error-read', 'fingerprint');
+			Message::addError('main.error-read', 'fingerprint');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
