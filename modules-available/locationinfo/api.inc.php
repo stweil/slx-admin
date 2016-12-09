@@ -44,7 +44,7 @@ function randomCalendarGenerator() {
 		$result[] = $c;
 	}
 
-	echo json_encode($result);
+	return json_encode($result);
 }
 
 function getRandomWord($len = 10) {
@@ -55,7 +55,39 @@ function getRandomWord($len = 10) {
 
 function getCalendar($getRoomID) {
 	// TODO GET AND RETURN THE ACTUAL calendar
-	randomCalendarGenerator();
+	//echo randomCalendarGenerator();
+
+	$dbquery = Database::simpleQuery("SELECT calendar, lastcalendarupdate, serverid, serverroomid FROM `location_info` WHERE locationid=:locationID", array('locationID' => $getRoomID));
+
+	$calendar;
+	$lastupdate;
+	$serverid;
+	$serverroomid;
+	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		$lastupdate = (int) $dbresult['lastcalendarupdate'];
+		$calendar = $dbresult['calendar'];
+		$serverid = $dbresult['serverid'];
+		$serverroomid = $dbresult['serverroomid'];
+	}
+
+	$NOW = time();
+	if ($lastupdate == 0 || $NOW - $lastupdate > 900) {
+		echo updateCalendar($getRoomID, $serverid, $serverroomid);
+	} else {
+		echo $calendar;
+	}
+}
+
+function updateCalendar($locationid, $serverid, $serverroomid) {
+	// TODO CALL UpdateCalendar($serverid, $serverroomid);
+	$result = randomCalendarGenerator();
+	// ^ replace with the actual call
+
+	// Save in db and update timestamp
+	$NOW = time();
+	Database::exec("UPDATE `location_info` Set calendar=:calendar, lastcalendarupdate=:now WHERE locationid=:id", array('id' => $locationid, 'calendar' => $result, 'now' => $NOW));
+
+	return $result;
 }
 
 function getConfig($locationID) {

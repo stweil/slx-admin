@@ -9,7 +9,8 @@ $res[] = tableCreate('location_info', '
 	`hidden` BOOLEAN NOT NULL DEFAULT 0,
 	`openingtime` VARCHAR(2000) NOT NULL,
 	`config` VARCHAR(2000) NOT NULL,
-	`calendar` VARCHAR(2000) NOT NULL,
+  `calendar` VARCHAR(2000) NOT NULL,
+	`lastcalendarupdate` INT(11) NOT NULL,
 	PRIMARY KEY (`locationid`)
 ');
 
@@ -61,6 +62,22 @@ if (!tableHasColumn('location_info', 'serverroomid')) {
 	$ret = Database::exec("ALTER TABLE `location_info` ADD `serverroomid` INT(11) NOT NULL AFTER `serverid`");
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Adding serverroomid to location_info failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+
+if (!tableHasColumn('location_info', 'lastcalendarupdate')) {
+	$ret = Database::exec("ALTER TABLE `location_info` ADD `lastcalendarupdate` INT(11) NOT NULL AFTER `calendar`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding lastcalendarupdate to location_info failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+
+if (!tableHasColumn('setting_location_info', 'servername')) {
+	$ret = Database::exec("ALTER TABLE `setting_location_info` ADD `servername` INT(11) NOT NULL AFTER `serverid`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding servername to setting_location_info failed: ' . Database::lastError());
 	}
 	$res[] = UPDATE_DONE;
 }
