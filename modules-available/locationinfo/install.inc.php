@@ -75,7 +75,7 @@ if (!tableHasColumn('location_info', 'lastcalendarupdate')) {
 }
 
 if (!tableHasColumn('setting_location_info', 'servername')) {
-	$ret = Database::exec("ALTER TABLE `setting_location_info` ADD `servername` INT(11) NOT NULL AFTER `serverid`");
+	$ret = Database::exec("ALTER TABLE `setting_location_info` ADD `servername` VARCHAR(2000) NOT NULL AFTER `serverid`");
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Adding servername to setting_location_info failed: ' . Database::lastError());
 	}
