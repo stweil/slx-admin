@@ -378,11 +378,10 @@ optional:
 				if(json.einkmode!=null) {
 					eInkMode = JSON.parse(json.einkmode);
 				}
-				configupdate = parseInt(json.configupdate)* 60 * 1000;;
+				configupdate = parseInt(json.configupdate)* 60 * 1000;
 				room = json.room;
 			}
-
-			var time = new Date(time);
+			var time = new Date(json.time);
 			if (isNaN(time.getTime())) {
 				time = new Date();
 			}
@@ -636,7 +635,7 @@ optional:
 				}, error: function () {
 					setTimeout(queryCalendar, queryTimeCalendar);
 				}
-			})
+			});
 		}
 
 		function updateCalendar(json) {
