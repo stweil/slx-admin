@@ -44,7 +44,6 @@ class Page_Locations extends Page
 				$updates[$loc][] = $row['machineuuid'];
 			}
 		}
-		error_log(print_r($updates, true));
 		if (!empty($nulls)) {
 			$qs = '?' . str_repeat(',?', count($nulls) - 1);
 			Database::exec("UPDATE machine SET subnetlocationid = NULL WHERE machineuuid IN ($qs)", $nulls);
