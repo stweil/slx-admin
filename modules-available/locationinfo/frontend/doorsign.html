@@ -49,6 +49,7 @@ optional:
 			width: 100%;
 
 		}
+
 		.header {
 			display: table;
 			color: white;
@@ -87,7 +88,6 @@ optional:
 		.col-2 {
 			width: 33%;
 		}
-
 
 		.roomLayoutDesign {
 			position: relative;
@@ -141,7 +141,6 @@ optional:
 			overflow: visible;
 		}
 
-
 		.pcImg {
 			position: absolute;
 			left: 0;
@@ -191,57 +190,70 @@ optional:
 			-khtml-border-left-right-radius: 0;
 			border-top-left-radius: 0;
 		}
+
 		.wc-scrollable-grid .wc-day-column-first {
-			border-style:solid;
+			border-style: solid;
 
 		}
+
 		[class*="wc-day-"] {
 			border-color: grey;
 		}
 
-		@media (max-width: 1200px){
+		@media (max-width: 1200px) {
 			.square {
 				height: 60px;
 				width: 60px;
 			}
+
 			.FreeSeatsFont {
 				font-size: 45px;
 			}
+
 			.font {
 				font-size: 26px;
 			}
+
 			.header {
 				height: 60px;
 
 			}
 		}
-		@media (max-width: 800px){
+
+		@media (max-width: 800px) {
 			.square {
 				height: 50px;
 				width: 50px;
 			}
+
 			.FreeSeatsFont {
 				font-size: 35px;
 			}
+
 			.font {
 				font-size: 20px;
 			}
+
 			.header {
 				height: 50px;
 
 			}
 		}
-		@media (max-width: 600px){
+
+		@media (max-width: 600px) {
 			.square {
 				height: 40px;
 				width: 40px;
 			}
+
 			.FreeSeatsFont {
 				font-size: 30px;
 			}
+
 			.font {
 				font-size: 18px;
 			}
+
 			.header {
 				height: 40px;
 
@@ -251,7 +263,6 @@ optional:
 	</style>
 	<script type='text/javascript'>
 		var date;
-
 		var room;
 		var freeSeats;
 		var queryTimeCalendar;
@@ -272,7 +283,8 @@ optional:
 		var configupdate;
 		var scaleDaysAuto = false;
 		var eInkMode = false;
-		var supportSvg = !!(document.createElementNS && document.createElementNS('http://www.w3.org/2000/svg','svg').createSVGRect);
+		var supportSvg = typeof SVGRect != "undefined";
+		var calendarQueryUrl;
 		var translation = {
 			"en": {
 				"room": "Room",
@@ -319,7 +331,7 @@ optional:
 				timeout: 30000,
 				success: function (result) {
 					if (configJson == null) {
-						if(result.room == null) {
+						if (result.room == null) {
 							var heading = $("#courseHeading");
 							heading.text("Error: wrong id");
 							heading.css({'font-size': "30px"});
@@ -328,7 +340,7 @@ optional:
 						getParamerter(result);
 						startMode();
 						delete result.time;
-					} else{
+					} else {
 						// Todo resync time?
 						delete result.time;
 						if (JSON.stringify(configJson) != JSON.stringify(result)) {
@@ -367,18 +379,18 @@ optional:
 				queryTimeCalendar = parseInt(json.calupdate) * 60 * 1000;
 				queryTimeRoom = parseInt(json.roomupdate) * 1000;
 				rotation = parseInt(json.rotation);
-
-				if(json.scaledaysauto!=null) {
+				calendarQueryUrl = json.calendarqueryurl;
+				if (json.scaledaysauto != null) {
 					scaleDaysAuto = JSON.parse(json.scaledaysauto)
 				}
 
-				if(json.vertical!=null) {
+				if (json.vertical != null) {
 					verticalmode = JSON.parse(json.vertical);
 				}
-				if(json.einkmode!=null) {
+				if (json.einkmode != null) {
 					eInkMode = JSON.parse(json.einkmode);
 				}
-				configupdate = parseInt(json.configupdate)* 60 * 1000;
+				configupdate = parseInt(json.configupdate) * 60 * 1000;
 				room = json.room;
 			}
 			var time = new Date(json.time);
@@ -452,7 +464,7 @@ optional:
 			if (mode == null || isNaN(mode) || mode > 4 || mode < 1) {
 				mode = 1;
 			}
-			if(rotation ==null||isNaN(rotation)||rotation < 0 || rotation > 4){
+			if (rotation == null || isNaN(rotation) || rotation < 0 || rotation > 4) {
 				rotation = 0;
 			}
 
@@ -464,8 +476,8 @@ optional:
 
 		function startMode() {
 			var updateRate = 1000;
-			if(eInkMode){
-				updateRate =updateRate* 60;
+			if (eInkMode) {
+				updateRate = updateRate * 60;
 			}
 			// mixed mode
 			if (mode == 1) {
@@ -530,15 +542,15 @@ optional:
 					return height;
 				},
 				eventRender: function (calEvent, $event) {
-					if (calEvent.end.getTime() < new myDate().getTime()) {
+					if (calEvent.end.getTime() < new MyDate().getTime()) {
 						$event.css("backgroundColor", "#aaa");
 						$event.find(".time").css({"backgroundColor": "#999", "border": "1px solid #888"});
-					} else if (calEvent.end.getTime() > new myDate().getTime() && calEvent.start.getTime() < new myDate().getTime()) {
+					} else if (calEvent.end.getTime() > new MyDate().getTime() && calEvent.start.getTime() < new MyDate().getTime()) {
 						$event.css("backgroundColor", "#25B002");
 						$event.find(".time").css({"backgroundColor": "#25B002", "border": "1px solid #888"});
 					}
 				},
-				date:myDate(),
+				date: MyDate(),
 				dateFormat: "j.n",
 				timeFormat: "G:i",
 				use24Hour: true,
@@ -556,13 +568,14 @@ optional:
 			$.getJSON("../../../api.php?do=locationinfo&action=openingtime&id=" + roomId, function (result) {
 				SetOpeningTimes(result)
 			})
-				.success(function() {
+				.success(function () {
 					scaleCalendar();
 					queryCalendar();
 				})
-				.error(function() {
+				.error(function () {
 					scaleCalendar();
-					queryCalendar();})
+					queryCalendar();
+				})
 		}
 
 		function generateCalendarDiv(width) {
@@ -584,14 +597,14 @@ optional:
 			openingTimes = [parsedOpenings['Sunday'], parsedOpenings['Monday'], parsedOpenings['Tuesday'],
 				parsedOpenings['Wednesday'], parsedOpenings['Thursday'],
 				parsedOpenings['Friday'], parsedOpenings['Saturday']];
-			if(mode == 3) {
+			if (mode == 3) {
 				return;
 			}
 			for (var i = 0; i < 7; i++) {
 				var tmp = openingTimes[i];
 				if (tmp != null) {
 					for (var d = 0; d < tmp.length; d++) {
-						var day = getNextDayOfWeek(new myDate(), i);
+						var day = getNextDayOfWeek(new MyDate(), i);
 						openingTimesCalendar.push({
 							"start": new Date(day.getFullYear(), day.getMonth(), day.getDate(),
 								tmp[d]['HourOpen'], tmp[d]['MinutesOpen']),
@@ -623,8 +636,12 @@ optional:
 			});
 		}
 		function queryCalendar() {
+			var url =  "../../../api.php?do=locationinfo&action=calendar&id=" + roomId;
+			if(!(calendarQueryUrl === undefined)) {
+				url = calendarQueryUrl;
+			}
 			$.ajax({
-				url: "../../../api.php?do=locationinfo&action=calendar&id="+roomId,
+				url: url,
 				dataType: 'json',
 				cache: false,
 				timeout: 30000,
@@ -657,19 +674,19 @@ optional:
 			var cal = $('#calendar');
 			var columnWidth = document.getElementsByClassName("wc-day-1")[0].clientWidth;
 
-			if(scaleDaysAuto) {
-				var result = (44 + cal.weekCalendar("option","daysToShow")*columnWidth)/100;
-				result = parseInt(Math.min(Math.max(Math.abs(result),1),7));
-				if(result != parseInt(cal.weekCalendar("option","daysToShow"))){
+			if (scaleDaysAuto) {
+				var result = (44 + cal.weekCalendar("option", "daysToShow") * columnWidth) / 100;
+				result = parseInt(Math.min(Math.max(Math.abs(result), 1), 7));
+				if (result != parseInt(cal.weekCalendar("option", "daysToShow"))) {
 					cal.weekCalendar("option", "daysToShow", Math.abs(result));
 				}
 			}
-			if(((!scaleDaysAuto)||cal.weekCalendar("option","daysToShow")==1)	&& columnWidth < 85){
+			if (((!scaleDaysAuto) || cal.weekCalendar("option", "daysToShow") == 1) && columnWidth < 85) {
 				cal.weekCalendar("option", "useShortDayNames", true);
 			} else {
 				cal.weekCalendar("option", "useShortDayNames", false);
 			}
-			var clientHeight = $(window).height() - document.getElementById('header').clientHeight - document.getElementsByClassName("wc-time-column-header")[0].clientHeight-10 ;
+			var clientHeight = $(window).height() - document.getElementById('header').clientHeight - document.getElementsByClassName("wc-time-column-header")[0].clientHeight - 10;
 			if (mode == 1 && verticalmode) {
 
 				clientHeight = clientHeight * (scaleLayout / 100);
@@ -708,13 +725,13 @@ optional:
 				// dont show?
 				return "";
 			}
-			if(eInkMode){
-				return hours + ":" + minutes ;
+			if (eInkMode) {
+				return hours + ":" + minutes;
 			}
 			return hours + ":" + minutes + ":" + seconds;
 		}
 		function GetNextClosing() {
-			var now = new myDate();
+			var now = new MyDate();
 			var day = now.getDay();
 			var offset = 0;
 			var bestdate;
@@ -722,7 +739,7 @@ optional:
 				var tmp = openingTimes[day];
 				if (tmp != null) {
 					for (var i = 0; i < tmp.length; i++) {
-						var closeDate = new myDate();
+						var closeDate = new MyDate();
 						closeDate.setDate(now.getDate() + offset);
 						closeDate.setHours(tmp[i].HourClose);
 						closeDate.setMinutes(tmp[i].MinutesClose);
@@ -747,8 +764,8 @@ optional:
 		 * @return {boolean}
 		 */
 		function IsOpenNow() {
-			var now = new myDate();
-			if(openingTimes == null) {
+			var now = new MyDate();
+			if (openingTimes == null) {
 				return false;
 			}
 			var tmp = openingTimes[now.getDay()];
@@ -756,10 +773,10 @@ optional:
 				return false;
 			}
 			for (var i = 0; i < tmp.length; i++) {
-				var openDate = new myDate();
+				var openDate = new MyDate();
 				openDate.setHours(tmp[i].HourOpen);
 				openDate.setMinutes(tmp[i].MinutesOpen);
-				var closeDate = new myDate();
+				var closeDate = new MyDate();
 				closeDate.setHours(tmp[i].HourClose);
 				closeDate.setMinutes(tmp[i].MinutesClose);
 				if (openDate < now && closeDate > now) {
@@ -772,7 +789,7 @@ optional:
 		 * @return {boolean}
 		 */
 		function IsOpen(date) {
-			if(openingTimes == null) {
+			if (openingTimes == null) {
 				return false;
 			}
 			var tmp = openingTimes[date.getDay()];
@@ -780,10 +797,10 @@ optional:
 				return false;
 			}
 			for (var i = 0; i < tmp.length; i++) {
-				var openDate = new myDate();
+				var openDate = new MyDate();
 				openDate.setHours(tmp[i].HourOpen);
 				openDate.setMinutes(tmp[i].MinutesOpen);
-				var closeDate = new myDate();
+				var closeDate = new MyDate();
 				closeDate.setHours(tmp[i].HourClose);
 				closeDate.setMinutes(tmp[i].MinutesClose);
 				if (openDate < date && closeDate > date) {
@@ -795,18 +812,18 @@ optional:
 
 
 		function GetNextOpening() {
-			var now = new myDate();
+			var now = new MyDate();
 			var day = now.getDay();
 			var offset = 0;
 			var bestdate;
 			for (var a = 0; a < 7; a++) {
-				if(openingTimes == null) {
+				if (openingTimes == null) {
 					return null;
 				}
 				var tmp = openingTimes[day];
 				if (tmp != null) {
 					for (var i = 0; i < tmp.length; i++) {
-						var openDate = new myDate();
+						var openDate = new MyDate();
 						openDate.setDate(now.getDate() + offset);
 						openDate.setHours(tmp[i].HourOpen);
 						openDate.setMinutes(tmp[i].MinutesOpen);
@@ -849,17 +866,17 @@ optional:
 				return;
 			}
 			if (tmp.state == "closed") {
-				$("#courseHeading").text(t("closed") + " " + GetTimeDiferenceAsString(tmp.end, new myDate()));
+				$("#courseHeading").text(t("closed") + " " + GetTimeDiferenceAsString(tmp.end, new MyDate()));
 				SetFreeSeats(-1);
 			} else if (tmp.state == "ClaendarEvent") {
 				$("#courseHeading").text(state.titel);
 				SetFreeSeats(-1);
 			} else if (tmp.state == "Free") {
-				$("#courseHeading").text(t("free") + " " + GetTimeDiferenceAsString(tmp.end, new myDate()));
+				$("#courseHeading").text(t("free") + " " + GetTimeDiferenceAsString(tmp.end, new MyDate()));
 			} else if (tmp.state == "FreeNoEnd") {
 				$("#courseHeading").text(t("free"));
 			}
-			var now = new myDate();
+			var now = new MyDate();
 			//console.log(now.getHours()+":"+now.getMinutes()+":"+now.getSeconds());
 			// reload if date Changes
 			if (date != null) {
@@ -876,7 +893,7 @@ optional:
 				return state;
 			}
 			if (state.end != "") {
-				if (state.end < new myDate()) {
+				if (state.end < new MyDate()) {
 					ComputeCurrentState();
 				}
 			}
@@ -903,7 +920,7 @@ optional:
 			}
 
 			// event is at the moment
-			if (event.start.getTime() < closing.getTime() && event.start.getTime() < new myDate()) {
+			if (event.start.getTime() < closing.getTime() && event.start.getTime() < new MyDate()) {
 				state = {state: "ClaendarEvent", end: event.end, titel: event.title, next: ""};
 				return;
 			}
@@ -924,7 +941,7 @@ optional:
 
 		function getNextEvent(json) {
 			var event;
-			var now = new myDate();
+			var now = new MyDate();
 			for (var i = 0; i < json.length; i++) {
 				//event is now active
 				if (json[i].start.getTime() < now.getTime() && json[i].end.getTime() > now.getTime()) {
@@ -973,7 +990,7 @@ optional:
 			var div = document.createElement("div");
 			div.id = "roomLayout";
 			div.className = "roomLayoutDesign";
-			if ((verticalmode && mode == 1) || (mode == 3)|| (mode == 4)) {
+			if ((verticalmode && mode == 1) || (mode == 3) || (mode == 4)) {
 				width = 100 + "%";
 				div.float = "Top";
 			}
@@ -985,57 +1002,57 @@ optional:
 		function preInitRoom() {
 			$.getJSON("../../../api.php?do=locationinfo&action=roominfo&id=" + roomId + "&coords=1", function (result) {
 				initRoom(result, (100 - scaleLayout) + "%")
-			}).error(function() {
+			}).error(function () {
 				generateRoomLayoutDiv((100 - scaleLayout) + "%");
 			})
 		}
 
 
-			function initRoom(Json, scale) {
+		function initRoom(Json, scale) {
 
-				Layout = Json;
-				if(Layout == null||Layout.length == 0) {
-					return;
-				}
-				generateRoomLayoutDiv(scale);
-				if (rotation != 0) {
-					rotateRoom(rotation);
-				}
+			Layout = Json;
+			if (Layout == null || Layout.length == 0) {
+				return;
+			}
+			generateRoomLayoutDiv(scale);
+			if (rotation != 0) {
+				rotateRoom(rotation);
+			}
 
-				for (var i = 0; i < Layout.length; i++) {
-					if(!isNaN(parseInt(Layout[i].x)) && ! isNaN(parseInt(Layout[i].y))) {
-						if(minX === undefined){
-							minX = parseInt(Layout[i].x);
-						}
-						if(minY === undefined){
-							minY = parseInt(Layout[i].y);
-						}
-						if(maxX === undefined){
-							maxX = parseInt(Layout[i].x);
-						}
-						if(maxY === undefined){
-							maxY = parseInt(Layout[i].y);
-						}
-						if (parseInt(Layout[i].x) < parseInt(minX)) {
-							minX = parseInt(Layout[i].x);
-						}
-						if (parseInt(Layout[i].y) < parseInt(minY)) {
-							minY = parseInt(Layout[i].y);
-						}
-						if (parseInt(Layout[i].x) > parseInt(maxX)) {
-							maxX = parseInt(Layout[i].x);
-						}
-						if (parseInt(Layout[i].y) > parseInt(maxY)) {
-							maxY = parseInt(Layout[i].y);
-						}
+			for (var i = 0; i < Layout.length; i++) {
+				if (!isNaN(parseInt(Layout[i].x)) && !isNaN(parseInt(Layout[i].y))) {
+					if (minX === undefined) {
+						minX = parseInt(Layout[i].x);
+					}
+					if (minY === undefined) {
+						minY = parseInt(Layout[i].y);
+					}
+					if (maxX === undefined) {
+						maxX = parseInt(Layout[i].x);
+					}
+					if (maxY === undefined) {
+						maxY = parseInt(Layout[i].y);
+					}
+					if (parseInt(Layout[i].x) < parseInt(minX)) {
+						minX = parseInt(Layout[i].x);
+					}
+					if (parseInt(Layout[i].y) < parseInt(minY)) {
+						minY = parseInt(Layout[i].y);
+					}
+					if (parseInt(Layout[i].x) > parseInt(maxX)) {
+						maxX = parseInt(Layout[i].x);
+					}
+					if (parseInt(Layout[i].y) > parseInt(maxY)) {
+						maxY = parseInt(Layout[i].y);
 					}
 				}
-
-				xDifference = maxX - minX;
-				yDifference = maxY - minY;
-				generateOffsetAndScale();
-				setUpRoom();
 			}
+
+			xDifference = maxX - minX;
+			yDifference = maxY - minY;
+			generateOffsetAndScale();
+			setUpRoom();
+		}
 
 		function generateOffsetAndScale() {
 			var clientHeight = ($(window).height() - document.getElementById('header').clientHeight - 5);
@@ -1079,7 +1096,7 @@ optional:
 				var img = $('<img />',
 					{
 						id: Layout[i].id,
-						class: "pcImg",
+						class: "pcImg"
 					})
 					.appendTo($('#roomLayout'));
 			}
@@ -1120,11 +1137,11 @@ optional:
 		}
 
 		function scaleRoom() {
-			if(Layout== null) {
+			if (Layout == null) {
 				return;
 			}
 			for (var i = 0; i < Layout.length; i++) {
-				if(Layout[i].y!= null & Layout[i].x!=null) {
+				if (Layout[i].y != null && Layout[i].x != null) {
 					document.getElementById(Layout[i].id).width = (picSizeX * scale);
 					document.getElementById(Layout[i].id).height = (picSizeY * scale);
 					document.getElementById(Layout[i].id).style.left = ((parseInt(Layout[i].x) + xOffset) * scale) + "px";
@@ -1137,35 +1154,35 @@ optional:
 		function UpdatePc(update) {
 			var freePcs = 0;
 			for (var i = 0; i < update.length; i++) {
-				var imgobj =document.getElementById(update[i].id);
+				var imgobj = document.getElementById(update[i].id);
 
 				var img;
 				if (update[i].pcState == "0") {
 					//add time to prevent caching
-					if(supportSvg) {
+					if (supportSvg) {
 						img = "img/pc_free";
 					} else {
-						imgobj.style.backgroundColor="green";
+						imgobj.style.backgroundColor = "green";
 					}
 					freePcs++;
 				} else if (update[i].pcState == "1") {
-					if(supportSvg) {
+					if (supportSvg) {
 						img = "img/pc_used";
-					}else {
-						imgobj.style.backgroundColor="red";
+					} else {
+						imgobj.style.backgroundColor = "red";
 					}
 				} else {
-					if(supportSvg) {
+					if (supportSvg) {
 						img = "img/pc_defect?";
-					}else {
-						imgobj.style.backgroundColor="black";
+					} else {
+						imgobj.style.backgroundColor = "black";
 					}
 				}
-				if(imgobj !=null && supportSvg) {
-					if(eInkMode){
+				if (imgobj != null && supportSvg) {
+					if (eInkMode) {
 						img = img + "_eink";
 					}
-					imgobj.src = img+ ".svg";
+					imgobj.src = img + ".svg";
 				}
 			}
 			if (state == null || state.state == "FreeNoEnd" || state.state == "Free") {
@@ -1200,7 +1217,7 @@ optional:
 				sParameterName,
 				i;
 
-			for (var i = 0; i < sURLVariables.length; i++) {
+			for (i = 0; i < sURLVariables.length; i++) {
 				sParameterName = sURLVariables[i].split('=');
 
 				if (sParameterName[0] === sParam) {
@@ -1224,14 +1241,14 @@ optional:
 			if (car.style.display == "none") {
 				room.style.display = "none";
 				car.style.display = "block";
-				if(resized){
+				if (resized) {
 					scaleCalendar();
 					resized = false;
 				}
 			} else {
 				car.style.display = "none";
 				room.style.display = "block";
-				if(resized){
+				if (resized) {
 					generateOffsetAndScale();
 					scaleRoom();
 					resized = false;
@@ -1265,16 +1282,15 @@ optional:
 		}
 
 
-
 	</script>
 </head>
 <body>
 <div id="header" class="row">
 	<div class="header col-2">
-		<div class ="font" id="roomHeader"></div>
+		<div class="font" id="roomHeader"></div>
 	</div>
 	<div class="col-1 courseText header">
-		<div class ="font"  id="courseHeading"></div>
+		<div class="font" id="courseHeading"></div>
 	</div>
 	<div class="square .col-2">
 		<div class="FreeSeatsFont" id="freeSeatsHeader"></div>

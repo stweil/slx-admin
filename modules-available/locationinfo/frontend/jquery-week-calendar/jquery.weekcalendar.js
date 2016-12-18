@@ -25,7 +25,7 @@ function SetUpDate(d) {
 	startdate = d.getTime()-new Date().getTime();
 }
 
-function myDate() {
+function MyDate() {
 	return new Date(startdate +new Date().getTime());
 }
 
@@ -39,7 +39,7 @@ function myDate() {
 
     return {
       options: {
-        date: new myDate(),
+        date: new MyDate(),
         timeFormat: null,
         dateFormat: 'M d, Y',
         alwaysDisplayTimeMinutes: true,
@@ -335,7 +335,7 @@ function myDate() {
        */
       today: function() {
         this._clearCalendar();
-        this._loadCalEvents(new myDate());
+        this._loadCalEvents(new MyDate());
       },
 
       /*
@@ -519,7 +519,7 @@ function myDate() {
         this._loadCalEvents(newDate);
       },
       getCurrentFirstDay: function() {
-        return this._dateFirstDayOfWeek(this.options.date || new myDate());
+        return this._dateFirstDayOfWeek(this.options.date || new MyDate());
       },
       getCurrentLastDay: function() {
         return this._addDays(this.getCurrentFirstDay(), this.options.daysToShow - 1);
@@ -1266,7 +1266,7 @@ function myDate() {
        * Draws a thin line which indicates the current time.
        */
       _drawCurrentHourLine: function() {
-        var d = new myDate(),
+        var d = new MyDate(),
             options = this.options,
             businessHours = options.businessHours;
 
@@ -1993,7 +1993,7 @@ function myDate() {
       _isToday: function(date) {
           var clonedDate = this._cloneDate(date);
           this._clearTime(clonedDate);
-          var today = new myDate();
+          var today = new MyDate();
           this._clearTime(today);
           return today.getTime() === clonedDate.getTime();
       },
