@@ -230,3 +230,31 @@ function getPcInfos($locationID, $coords) {
 
 	return $str;
 }
+function fetchNewTimeTable($locationID){
+            //Get room information
+            $dbquery1 = Database::simpleQuery("SELECT serverid, serverroomid FROM location_info WHERE locationid = :id", array('id' => $locationID));
+            $dbd1=$dbquery1->fetch(PDO::FETCH_ASSOC);
+            $serverID = $dbd1['serverid'];
+            $roomID = $dbd1['serverroomid'];
+            //Get login data for the server
+            $dbquery2 = Database::simpleQuery("SELECT serverurl, servertype, login, passwd FROM `setting_location_info` WHERE serverid = :id", array('id' => $serverID));
+            $dbd2=$dbquery2->fetch(PDO::FETCH_ASSOC);
+            $url = $dbd2['serverurl'];
+            $type = $dbd2['servetype'];
+            $lname = $dbd2['login'];
+            $passwd = $dbd2['passwd'];
+            //Return json with dates
+            if($type == 'HISinOne'){
+                $array = file_get_contents($url . $roomID . '.json');
+                $ttable = json_decode($array);
+                $results = count($ttable);
+                for ($r = 0; $r < $results; $r++){
+                    unset($ttable[$r]->allDay);
+                }
+               
+            }
+            else{
+                $ttable = "{}";
+            }
+             return json_encode($ttable);         
+        }
