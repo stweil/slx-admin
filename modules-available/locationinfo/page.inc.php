@@ -312,11 +312,34 @@ class Page_LocationInfo extends Page
 			}
 		}
 
+		$servertypes = array();
+		$type['type'] = "HISinOne";
+		$servertypes[] = $type;
+		$type['type'] = "DAVINCI";
+		$servertypes[] = $type;
+		$type['type'] = "Frontend";
+		$servertypes[] = $type;
+
 		$serverlist = array();
 		$dbquery2 = Database::simpleQuery("SELECT * FROM `setting_location_info`");
 		while($db=$dbquery2->fetch(PDO::FETCH_ASSOC)) {
 			$server['id'] = $db['serverid'];
 			$server['name'] = $db['servername'];
+
+			$serverty = array();
+			foreach ($servertypes as $type) {
+				$st = array();
+				if ($type['type'] == $db['servertype']) {
+					$st['type'] = $type['type'];
+					$st['active'] = true;
+				} else {
+					$st['type'] = $type['type'];
+					$st['active'] = false;
+				}
+				$serverty[] = $st;
+			}
+			$server['types'] = $serverty;
+/*
 			if ($db['servertype'] == 'HISinOne') {
 				$server['HISinOne'] = true;
 				$server['DAVINCI'] = false;
@@ -324,6 +347,7 @@ class Page_LocationInfo extends Page
 				$server['HISinOne'] = false;
 				$server['DAVINCI'] = true;
 			}
+*/
 			$server['url'] = $db['serverurl'];
 			$server['user'] = $db['login'];
 			$server['password'] = $db['passwd'];
@@ -331,7 +355,7 @@ class Page_LocationInfo extends Page
 		}
 
 		Render::addTemplate('location-info', array(
-			'list' => array_values($pcs), 'serverlist' => array_values($serverlist),
+			'list' => array_values($pcs), 'serverlist' => array_values($serverlist), 'servertypelist' => array_values($servertypes),
 		));
 	}
 
@@ -460,5 +484,5 @@ class Page_LocationInfo extends Page
 													 'roomupdate' => $array['roomupdate'], 'configupdate' => $array['configupdate'],
 													 'serverlist' => array_values($serverList), 'serverid' => $serverid, 'serverroomid' => $serverroomid));
 	}
-        
+
 }

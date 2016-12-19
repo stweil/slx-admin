@@ -91,20 +91,27 @@ function updateCalendar($locationid, $serverid, $serverroomid) {
 }
 
 function getConfig($locationID) {
-	$dbquery = Database::simpleQuery("SELECT l.locationname, li.config FROM `location_info` AS li
-		RIGHT JOIN `location` AS l ON l.locationid=li.locationid WHERE l.locationid=:locationID", array('locationID' => $locationID));
+		$dbquery = Database::simpleQuery("SELECT l.locationname, li.config, li.serverroomid, s.servertype, s.serverurl FROM `location_info` AS li
+		RIGHT JOIN `location` AS l ON l.locationid=li.locationid
+		LEFT JOIN `setting_location_info` AS s ON s.serverid=li.serverid
+		WHERE l.locationid=:locationID", array('locationID' => $locationID));
 
 	$config = array();
-	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-		$config = json_decode($dbresult['config'], true);
-		$config['room'] = $dbresult['locationname'];
-		$date = getdate();
-		$config['time'] = $date['year'] . "-" . $date['mon'] . "-" . $date['mday'] . " " . $date['hours'] . ":" . $date['minutes'] . ":" . $date['seconds'];
+	$dbresult=$dbquery->fetch(PDO::FETCH_ASSOC);
+
+	$config = json_decode($dbresult['config'], true);
+	$config['room'] = $dbresult['locationname'];
+	$date = getdate();
+	$config['time'] = $date['year'] . "-" . $date['mon'] . "-" . $date['mday'] . " " . $date['hours'] . ":" . $date['minutes'] . ":" . $date['seconds'];
+
+	if($dbresult['servertype'] === "Frontend") {
+		$config['calendarqueryurl'] = $dbresult['serverurl'] . "/" . $dbresult['serverroomid'] . ".json";
 	}
+
 	if (empty($config)) {
 		echo json_encode(array());
 	} else {
-		echo json_encode($config);
+		echo json_encode($config,  JSON_UNESCAPED_SLASHES);
 	}
 }
 
@@ -230,31 +237,3 @@ function getPcInfos($locationID, $coords) {
 
 	return $str;
 }
-function fetchNewTimeTable($locationID){
-            //Get room information
-            $dbquery1 = Database::simpleQuery("SELECT serverid, serverroomid FROM location_info WHERE locationid = :id", array('id' => $locationID));
-            $dbd1=$dbquery1->fetch(PDO::FETCH_ASSOC);
-            $serverID = $dbd1['serverid'];
-            $roomID = $dbd1['serverroomid'];
-            //Get login data for the server
-            $dbquery2 = Database::simpleQuery("SELECT serverurl, servertype, login, passwd FROM `setting_location_info` WHERE serverid = :id", array('id' => $serverID));
-            $dbd2=$dbquery2->fetch(PDO::FETCH_ASSOC);
-            $url = $dbd2['serverurl'];
-            $type = $dbd2['servetype'];
-            $lname = $dbd2['login'];
-            $passwd = $dbd2['passwd'];
-            //Return json with dates
-            if($type == 'HISinOne'){
-                $array = file_get_contents($url . $roomID . '.json');
-                $ttable = json_decode($array);
-                $results = count($ttable);
-                for ($r = 0; $r < $results; $r++){
-                    unset($ttable[$r]->allDay);
-                }
-               
-            }
-            else{
-                $ttable = "{}";
-            }
-             return json_encode($ttable);         
-        }

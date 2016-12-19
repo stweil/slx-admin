@@ -24,9 +24,10 @@
 				<tr class=tablerow>
 					<td align="center"><input id="input-id-{{id}}" name="id" type="hidden" value="{{id}}">{{id}}</td>
 					<td id="type-{{id}}">
-						<select disabled id="input-type-{{id}}" name="type" value="{{type}}">
-							<option id="HISinOne" value="HISinOne" {{#HISinOne}}selected{{/HISinOne}}>HISinOne
-							<option id="DAVINCI" value="DAVINCI" {{#DAVINCI}}selected{{/DAVINCI}}>DAVINCI
+						<select disabled id="input-type-{{id}}" name="type" value="{{type}}" onchange="servertype_changed(this.value, {{id}});">
+							{{#types}}
+								<option id="{{type}}" value="{{type}}" {{#active}}selected{{/active}} >{{type}}
+							{{/types}}
 						</select>
 					</td>
 					<td id="name-{{id}}" style="padding:8px;">
@@ -188,6 +189,16 @@ function deleteButtonClick(id) {
 	}
 };
 
+function servertype_changed(value, id) {
+	if (value == "Frontend") {
+		$('#input-user-' + id).removeAttr('required');
+		$('#input-password-' + id).removeAttr('required');
+	} else {
+		$('#input-user-' + id).attr('required');
+		$('#input-password-' + id).attr('required');
+	}
+};
+
 function editButtonClick(id) {
 	var name = $('#input-name-' + id);
 	var url = $('#input-url-' + id);
@@ -212,6 +223,8 @@ function editButtonClick(id) {
 	preEditUser = user.val();
 	preEditPassword = password.val();
 	preEditType = type.val();
+
+	servertype_changed(preEditType, id);
 
 	$('#btncell-' + id).html('\
 	<button class="btn btn-sm btn-success" title="{{lang_save}}" onclick="saveButtonClick(' + id + ');">&#10004</button>	\
@@ -280,7 +293,9 @@ function deleteNewServer() {
 function addNewServerRow() {
   $('#lastServerTableElement').before('<tr class=tablerow id="new">\
 		<td align="center"><input id="input-id-0" name="id" type="hidden" form="serverForm-0" value="0"></td>\
-		<td id="type-0"><select id="input-type-0" name="type" form="serverForm-0"><option value="HISinOne">HISinOne<option value="DAVINCI">DAVINCI</select></td>\
+		<td id="type-0"><select id="input-type-0" name="type" form="serverForm-0" onchange="servertype_changed(this.value, 0)">\
+		{{#servertypelist}}<option value="{{type}}"> {{type}}{{/servertypelist}}\
+		</select></td>\
 		<td id="name-0" style="padding:0;"><input required id="input-name-0" name="name" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></td>\
 		<td id="url-0" style="padding:0;"><a><input required id="input-url-0" name="url" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></a></td>\
 		<td id="user-0" style="padding:0;"><input required id="input-user-0" name="user" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></td>\
