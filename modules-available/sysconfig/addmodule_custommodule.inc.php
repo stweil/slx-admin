@@ -123,7 +123,7 @@ class CustomModule_CompressModule extends AddModule_Base
 			'inputFiles' => array($tempfile),
 			'outputFile' => $destFile
 		), true);
-		$status = Taskmanager::waitComplete($this->taskId);
+		$status = Taskmanager::waitComplete($this->taskId, 5000);
 		unlink($tempfile);
 		if (!isset($status['statusCode'])) {
 			$this->tmError();

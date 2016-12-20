@@ -100,7 +100,7 @@ class Taskmanager
 	 * @param int $timeout maximum time in ms to wait for completion of task
 	 * @return array result/status of task, or false if it couldn't be queried
 	 */
-	public static function waitComplete($task, $timeout = 1500)
+	public static function waitComplete($task, $timeout = 2500)
 	{
 		if (is_array($task) && isset($task['id'])) {
 			if ($task['statusCode'] !== TASK_PROCESSING && $task['statusCode'] !== TASK_WAITING) {
