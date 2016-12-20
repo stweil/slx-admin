@@ -46,11 +46,11 @@ class StatisticReporting
 	// logins between bounds
 	public static function getUserStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$queryTime = time() - $cutOffTimeInSeconds;
-		$res = Database::simpleQuery("SELECT username, data, COUNT(*) AS 'count' 
+		$res = Database::simpleQuery("SELECT username, COUNT(*) AS 'count' 
 												FROM statistic 
 												WHERE typeid='.vmchooser-session-name' AND dateline>=$queryTime 
 														AND ((FROM_UNIXTIME(dateline+data, '%H')*1 >= $lowerTimeBound) AND (FROM_UNIXTIME(dateline, '%H')*1 < $upperTimeBound))
-												GROUP BY username, data ORDER BY 3 DESC");
+												GROUP BY username ORDER BY 2 DESC");
 		return $res;
 	}
 

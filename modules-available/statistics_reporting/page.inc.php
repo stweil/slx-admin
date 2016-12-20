@@ -63,7 +63,7 @@ class Page_Statistics_Reporting extends Page
 		$res = StatisticReporting::getUserStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
 		$data[] = array('perUser' => array());
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
-			$data['perUser'][] = array('user' => $row[0], 'vm' => $row[1], 'loginCount' => $row[2]);
+			$data['perUser'][] = array('user' => $row[0], 'loginCount' => $row[1]);
 		}
 
 		// per vm
