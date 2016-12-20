@@ -8,7 +8,7 @@
 				<option value="peruser">{{lang_peruser}}</option>
 				<option value="pervm">{{lang_pervm}}</option>
 			</select>
-			<select id="select-cutoff" onchange="chooseCutoff(this.value)" class="form-control">
+			<select id="select-cutoff" onchange="reloadPage()" class="form-control">
 				<option value="1">{{lang_last1}}</option>
 				<option value="2">{{lang_last2}}</option>
 				<option value="7">{{lang_last7}}</option>
@@ -16,6 +16,12 @@
 				<option value="30">{{lang_last30}}</option>
 				<option value="90">{{lang_last90}}</option>
 			</select>
+
+			<div id="slider">
+				<div id="lower-handle" class="ui-slider-handle"></div>
+				<div id="upper-handle" class="ui-slider-handle"></div>
+			</div>
+			<button id="applybound" type="button" class="btn btn-sm btn-primary" onclick="reloadPage()">{{lang_apply}}</button>
 		</div>
 		<div class="col-md-12 buttonbar">
 			<button id="button-totaltime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('totaltime')">{{lang_totalTime}}</button>
@@ -30,7 +36,30 @@
 
 <script type="application/javascript">
 	document.addEventListener("DOMContentLoaded", function () {
+		var lowerHandle = $("#lower-handle");
+		var upperHandle = $("#upper-handle");
+		var lower = getQueryVariable("lower");
+		var upper = getQueryVariable("upper");
+		$( "#slider" ).slider({
+			range: true,
+			min: 0,
+			max: 24,
+			values: [ lower ? lower : 8, upper ? upper : 22 ],
+			create: function() {
+				lowerHandle.text( $(this).slider("values")[0]+":00" );
+				upperHandle.text( $(this).slider("values")[1]+":00" );
+			},
+			slide: function(event, ui) {
+				lowerHandle.text(ui.values[0]+":00");
+				upperHandle.text(ui.values[1]+":00");
+			},
+			change: function(event, ui) {
+				$("#applybound").show()
+			}
+		});
+
 		loadForm();
+
 		var table = $("table").stupidtable();
 		table.on("aftertablesort", function (event, data) {
 			var th = $(this).find("th");
@@ -52,9 +81,12 @@
 		}
 	}
 
-	function chooseCutoff(v) {
+	function reloadPage() {
 		saveForm();
-		window.location.replace("?do=statistics_reporting&cutoff="+v);
+		var cutoff = $("#select-cutoff").val();
+		var lower = $("#lower-handle").text().split(":")[0];
+		var upper = $("#upper-handle").text().split(":")[0];
+		window.location.replace("?do=statistics_reporting&cutoff="+cutoff+"&lower="+lower+"&upper="+upper);
 	}
 
 	function toggleButton(v) {
@@ -85,10 +117,22 @@
 			chooseTable("total");
 		}
 
-		$('#select-cutoff').val("{{cutoff}}");
+		var cutoff = getQueryVariable("cutoff");
+		$('#select-cutoff').val(cutoff ? cutoff : 7);
 
 		sessionStorage.getItem("buttons").split(" ").forEach(function(button) {
 			toggleButton(button.substr(7));
 		});
+	}
+
+	function getQueryVariable(variable)
+	{
+		var query = window.location.search.substring(1);
+		var vars = query.split("&");
+		for (var i=0;i<vars.length;i++) {
+			var pair = vars[i].split("=");
+			if(pair[0] == variable){return pair[1];}
+		}
+		return(false);
 	}
 </script>

@@ -5,7 +5,7 @@
     "lang_vm": "VM",
     "lang_totalLogins": "Total Logins",
     "lang_overallOfftime": "Overall time offline",
-    "lang_totalOffTime": "Total time offline",
+    "lang_totalOffTime": "Total Time Offline",
     "lang_clientLogout": "Last VM Logout",
     "lang_clientStart": "Last Client Boot",
     "lang_room": "Room",
@@ -18,11 +18,12 @@
     "lang_hostname": "Client Name",
     "lang_location": "Location",
     "lang_avgSessionLength": "Average Session Length",
-    "lang_totalTime": "Gesamte Zeit",
+    "lang_totalTime": "Total Time",
     "lang_last1": "Last 24 hours",
     "lang_last2": "Last 48 hours",
     "lang_last7": "Last 7 days",
     "lang_last14": "Last 14 days",
     "lang_last30": "Last 30 days",
-    "lang_last90": "Last 90 days"
+    "lang_last90": "Last 90 days",
+    "lang_apply": "Apply"
 }
