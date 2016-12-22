@@ -35,7 +35,7 @@ class Page_Statistics_Reporting extends Page
 		// total time online, average time online, total  number of logins
 		$res = StatisticReporting::getOverallStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
 		$row = $res->fetch(PDO::FETCH_NUM);
-		$data = array('time' =>  StatisticReporting::formatSeconds($row[0]), 'medianTime' =>  StatisticReporting::formatSeconds(StatisticReporting::calcMedian($row[1])), 'totalLogins' => $row[2], 'shortSessions' => $row[3]);
+		$data = array('time' =>  StatisticReporting::formatSeconds($row[0]), 'medianTime' =>  StatisticReporting::formatSeconds(StatisticReporting::calcMedian($row[1])), 'sessions' => $row[2], 'shortSessions' => $row[3]);
 
 		//total time offline
 		$res = StatisticReporting::getTotalOfflineStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
@@ -48,7 +48,7 @@ class Page_Statistics_Reporting extends Page
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
 			$median = StatisticReporting::calcMedian(StatisticReporting::calcMedian($row[2]));
 			$data['perLocation'][] = array('location' => $row[0], 'time' => StatisticReporting::formatSeconds($row[1]), 'timeInSeconds' => $row[1],
-				'medianTime' => StatisticReporting::formatSeconds($median), 'medianTimeInSeconds' => $median, 'offTime' => StatisticReporting::formatSeconds($row[3]), 'offlineTimeInSeconds' => $row[3], 'loginCount' => $row[4], 'shortSessions' => $row[5]);
+				'medianTime' => StatisticReporting::formatSeconds($median), 'medianTimeInSeconds' => $median, 'offTime' => StatisticReporting::formatSeconds($row[3]), 'offlineTimeInSeconds' => $row[3], 'sessions' => $row[4], 'shortSessions' => $row[5]);
 		}
 
 		// per client
@@ -57,7 +57,7 @@ class Page_Statistics_Reporting extends Page
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
 			$median = StatisticReporting::calcMedian(StatisticReporting::calcMedian($row[2]));
 			$data['perClient'][] = array('hostname' => $row[0], 'time' => StatisticReporting::formatSeconds($row[1]), 'timeInSeconds' => $row[1],
-				'medianTime' => StatisticReporting::formatSeconds($median), 'medianTimeInSeconds' => $median, 'offTime' => StatisticReporting::formatSeconds($row[3]), 'offlineTimeInSeconds' => $row[3], 'loginCount' => $row[4],
+				'medianTime' => StatisticReporting::formatSeconds($median), 'medianTimeInSeconds' => $median, 'offTime' => StatisticReporting::formatSeconds($row[3]), 'offlineTimeInSeconds' => $row[3], 'sessions' => $row[4],
 				'lastLogout' => date(DATE_RSS,$row[5]), 'lastLogoutUnixtime' => $row[5], 'lastStart' => date(DATE_RSS,$row[6]), 'lastStartUnixtime' => $row[6], 'shortSessions' => $row[7]);
 		}
 
@@ -65,14 +65,14 @@ class Page_Statistics_Reporting extends Page
 		$res = StatisticReporting::getUserStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
 		$data[] = array('perUser' => array());
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
-			$data['perUser'][] = array('user' => $row[0], 'loginCount' => $row[1]);
+			$data['perUser'][] = array('user' => $row[0], 'sessions' => $row[1]);
 		}
 
 		// per vm
 		$res = StatisticReporting::getVMStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
 		$data[] = array('perVM' => array());
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
-			$data['perVM'][] = array('vm' => $row[0], 'loginCount' => $row[1]);
+			$data['perVM'][] = array('vm' => $row[0], 'sessions' => $row[1]);
 		}
 
 		Render::addTemplate('columnChooser');
