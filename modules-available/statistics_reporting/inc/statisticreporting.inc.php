@@ -87,13 +87,13 @@ class StatisticReporting
 
 	public static function getOverallStatistics ($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$queryTime = time() - $cutOffTimeInSeconds;
-		$res = Database::simpleQuery("SELECT sum, median, countLong, countShort FROM
-												(	SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, GROUP_CONCAT(sessionTable.length) AS median, COUNT(*) AS countLong
+		$res = Database::simpleQuery("SELECT sum, median, longSessions, shortSessions FROM
+												(	SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, GROUP_CONCAT(sessionTable.length) AS median, COUNT(*) AS longSessions
 											 		FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
 											 		WHERE sessionTable.dateline>=$queryTime AND sessionTable.data >= 60
 											 	) 	t1 
 											 	INNER JOIN
-											 	(	SELECT COUNT(sessionTable.length) as countShort
+											 	(	SELECT COUNT(sessionTable.length) as shortSessions
 											 		FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
 											 		WHERE sessionTable.dateline>=$queryTime AND sessionTable.data < 60
 											 	) 	t2");
