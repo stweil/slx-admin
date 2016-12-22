@@ -6,11 +6,11 @@ class StatisticReporting
 
 	public static function getClientStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$queryTime = time() - $cutOffTimeInSeconds;
-		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, loginCount, lastLogout, lastStart, shortSessions FROM (
-													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', COUNT(*) AS 'loginCount', MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout'
+		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, longSessions, lastLogout, lastStart, shortSessions FROM (
+													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', COUNT(sessionTable.length >= 60) AS 'longSessions', COUNT(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
-													WHERE sessionTable.dateline>=$queryTime AND sessionTable.data >= 60
+													WHERE sessionTable.dateline>=$queryTime
 													GROUP BY machine.machineuuid
 												) 	t1 
 												INNER JOIN (
@@ -20,16 +20,7 @@ class StatisticReporting
 													WHERE offlineTable.dateline>=$queryTime
 													GROUP BY machine.machineuuid
 												) 	t2 
-												ON t1.uuid = t2.uuid
-												INNER JOIN (
-													SELECT machine.machineuuid AS 'uuid', COUNT(*) AS shortSessions
-													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
-														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
-													WHERE sessionTable.dateline>=$queryTime AND sessionTable.data < 60
-													GROUP BY machine.machineuuid
-												) 	t3
-												ON t2.uuid = t3.uuid
-												");
+												ON t1.uuid = t2.uuid");
 		return $res;
 	}
 
@@ -37,12 +28,12 @@ class StatisticReporting
 	public static function getLocationStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$queryTime = time() - $cutOffTimeInSeconds;
 
-		$res = Database::simpleQuery("SELECT t1.locName, timeSum, medianTime, offlineSum, loginCount, shortSessions FROM (
-													SELECT IFNULL(location.locationname, '') AS 'locName', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', COUNT(sessionTable.length) AS 'loginCount'
+		$res = Database::simpleQuery("SELECT t1.locName, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
+													SELECT IFNULL(location.locationname, '') AS 'locName', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', COUNT(sessionTable.length >= 60) AS 'longSessions', COUNT(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
-													WHERE sessionTable.dateline >= $queryTime AND sessionTable.data >= 60
+													WHERE sessionTable.dateline >= $queryTime
 													GROUP BY location.locationname
 												) 	t1 
 												INNER JOIN (
@@ -53,16 +44,7 @@ class StatisticReporting
 													WHERE offlineTable.dateline >= $queryTime
 													GROUP BY location.locationname
 												) 	t2 
-												ON t1.locName = t2.locName
-												INNER JOIN (
-													SELECT IFNULL(location.locationname, '') AS 'locName', COUNT(sessionTable.length) AS shortSessions
-													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
-														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
-														LEFT JOIN location ON machine.locationid = location.locationid
-													WHERE sessionTable.dateline >= $queryTime AND sessionTable.data < 60
-													GROUP BY location.locationname
-												) 	t3
-												ON t2.locName = t3.locName");
+												ON t1.locName = t2.locName");
 		return $res;
 	}
 
@@ -87,16 +69,9 @@ class StatisticReporting
 
 	public static function getOverallStatistics ($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$queryTime = time() - $cutOffTimeInSeconds;
-		$res = Database::simpleQuery("SELECT sum, median, longSessions, shortSessions FROM
-												(	SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, GROUP_CONCAT(sessionTable.length) AS median, COUNT(*) AS longSessions
+		$res = Database::simpleQuery("SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, GROUP_CONCAT(sessionTable.length) AS median, COUNT(sessionTable.length >= 60) AS longSessions, COUNT(sessionTable.length < 60) AS shortSessions
 											 		FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
-											 		WHERE sessionTable.dateline>=$queryTime AND sessionTable.data >= 60
-											 	) 	t1 
-											 	INNER JOIN
-											 	(	SELECT COUNT(sessionTable.length) as shortSessions
-											 		FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
-											 		WHERE sessionTable.dateline>=$queryTime AND sessionTable.data < 60
-											 	) 	t2");
+											 		WHERE sessionTable.dateline>=$queryTime");
 		return $res;
 	}
 
