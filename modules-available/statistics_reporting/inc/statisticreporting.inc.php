@@ -4,17 +4,16 @@
 class StatisticReporting
 {
 
-	public static function getClientStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$queryTime = time() - $cutOffTimeInSeconds;
+	public static function getClientStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, longSessions, lastLogout, lastStart, shortSessions FROM (
 													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout'
-													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $queryTime)." sessionTable
+													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
 													GROUP BY machine.machineuuid
 												) 	t1 
 												INNER JOIN (
 													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.dateline) AS 'lastStart'
-													FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $queryTime)." offlineTable
+													FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $cutOff)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid
 													GROUP BY machine.machineuuid
 												) 	t2 
@@ -23,19 +22,17 @@ class StatisticReporting
 	}
 
 	// IFNULL(location.locationname, '') - emptry string can be replaced with anything (name of the null-ids in the table)
-	public static function getLocationStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$queryTime = time() - $cutOffTimeInSeconds;
-
+	public static function getLocationStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT t1.locName, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
 													SELECT IFNULL(location.locationname, '') AS 'locName', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
-													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $queryTime)." sessionTable
+													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
 													GROUP BY location.locationname
 												) 	t1 
 												INNER JOIN (
 											 		SELECT IFNULL(location.locationname, '') AS 'locName', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
-													FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $queryTime)." offlineTable
+													FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $cutOff)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
 													GROUP BY location.locationname
@@ -45,35 +42,31 @@ class StatisticReporting
 	}
 
 	// logins between bounds
-	public static function getUserStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$queryTime = time() - $cutOffTimeInSeconds;
+	public static function getUserStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT username, COUNT(*) AS 'count' 
 												FROM statistic 
-												WHERE typeid='.vmchooser-session-name' AND dateline>=$queryTime 
+												WHERE typeid='.vmchooser-session-name' AND dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) 
 														AND ((FROM_UNIXTIME(dateline+data, '%H')*1 >= $lowerTimeBound) AND (FROM_UNIXTIME(dateline, '%H')*1 < $upperTimeBound))
 												GROUP BY username ORDER BY 2 DESC");
 		return $res;
 	}
 
 	// vm logins between bounds
-	public static function getVMStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$queryTime = time() - $cutOffTimeInSeconds;
-		$res = Database::simpleQuery("SELECT data, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' AND dateline>=$queryTime 
+	public static function getVMStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
+		$res = Database::simpleQuery("SELECT data, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' AND dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) 
 												AND ((FROM_UNIXTIME(dateline+data, '%H')*1 >= $lowerTimeBound) AND (FROM_UNIXTIME(dateline, '%H')*1 < $upperTimeBound)) GROUP BY data ORDER BY 2 DESC");
 		return $res;
 	}
 
-	public static function getOverallStatistics ($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$queryTime = time() - $cutOffTimeInSeconds;
+	public static function getOverallStatistics ($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, GROUP_CONCAT(sessionTable.length) AS median, SUM(sessionTable.length >= 60) AS longSessions, SUM(sessionTable.length < 60) AS shortSessions
-											 		FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $queryTime)." sessionTable");
+											 		FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable");
 		return $res;
 	}
 
-	public static function getTotalOfflineStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$queryTime = time() - $cutOffTimeInSeconds;
+	public static function getTotalOfflineStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT SUM(CAST(offlineTable.length AS UNSIGNED))
-												FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $queryTime)." offlineTable");
+												FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $cutOff)." offlineTable");
 		return $res;
 	}
 
@@ -97,13 +90,13 @@ class StatisticReporting
 		return round($median);
 	}
 
-	private static function getBoundedTableQueryString($typeid, $lowerTimeBound, $upperTimeBound, $cutoffTime)
+	private static function getBoundedTableQueryString($typeid, $lowerTimeBound, $upperTimeBound, $cutOff)
 	{
 		$lowerFormat = "'%y-%m-%d $lowerTimeBound:00:00'";
 		$upperFormat = "'%y-%m-%d ".($upperTimeBound-1).":59:59'";
 		$queryString = "
 			select
-			
+
 			@startLower := UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $lowerFormat)),
 			@startUpper := UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $upperFormat)),
 			@endLower := UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $lowerFormat)),
@@ -157,7 +150,7 @@ class StatisticReporting
 			machineuuid
 			
 			from statistic
-			where dateline >= $cutoffTime and typeid = '$typeid' and (
+			where dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) and typeid = '$typeid' and (
 			(UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $lowerFormat)) <= dateline and dateline <= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $upperFormat))) or
 			(UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $lowerFormat)) <= dateline+data and dateline+data <= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $upperFormat)))
 	 		)

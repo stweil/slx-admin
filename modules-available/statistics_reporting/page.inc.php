@@ -24,8 +24,7 @@ class Page_Statistics_Reporting extends Page
 	{
 		// timespan you want to see = Days selected * seconds per Day (86400)
 		// default = 14 days
-		$cutOff = Request::get('cutoff', 14, 'int');
-		$cutOffTimer = $cutOff * 86400;
+		$cutOff = Request::get('cutoff', 14, 'int') - 1;
 
 		$lowerTimeBound = Request::get('lower', 0, 'int');
 
@@ -33,17 +32,17 @@ class Page_Statistics_Reporting extends Page
 
 
 		// total time online, average time online, total  number of logins
-		$res = StatisticReporting::getOverallStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
+		$res = StatisticReporting::getOverallStatistics($cutOff, $lowerTimeBound, $upperTimeBound);
 		$row = $res->fetch(PDO::FETCH_NUM);
 		$data = array('time' =>  StatisticReporting::formatSeconds($row[0]), 'medianTime' =>  StatisticReporting::formatSeconds(StatisticReporting::calcMedian($row[1])), 'sessions' => $row[2], 'shortSessions' => $row[3]);
 
 		//total time offline
-		$res = StatisticReporting::getTotalOfflineStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
+		$res = StatisticReporting::getTotalOfflineStatistics($cutOff, $lowerTimeBound, $upperTimeBound);
 		$row = $res->fetch(PDO::FETCH_NUM);
 		$data = array_merge($data, array('totalOfftime' => StatisticReporting::formatSeconds($row[0])));
 
 		// per location
-		$res = StatisticReporting::getLocationStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
+		$res = StatisticReporting::getLocationStatistics($cutOff, $lowerTimeBound, $upperTimeBound);
 		$data[] = array('perLocation' => array());
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
 			$median = StatisticReporting::calcMedian(StatisticReporting::calcMedian($row[2]));
@@ -52,7 +51,7 @@ class Page_Statistics_Reporting extends Page
 		}
 
 		// per client
-		$res = StatisticReporting::getClientStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
+		$res = StatisticReporting::getClientStatistics($cutOff, $lowerTimeBound, $upperTimeBound);
 		$data[] = array('perClient' => array());
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
 			$median = StatisticReporting::calcMedian(StatisticReporting::calcMedian($row[2]));
@@ -62,14 +61,14 @@ class Page_Statistics_Reporting extends Page
 		}
 
 		// per user
-		$res = StatisticReporting::getUserStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
+		$res = StatisticReporting::getUserStatistics($cutOff, $lowerTimeBound, $upperTimeBound);
 		$data[] = array('perUser' => array());
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
 			$data['perUser'][] = array('user' => $row[0], 'sessions' => $row[1]);
 		}
 
 		// per vm
-		$res = StatisticReporting::getVMStatistics($cutOffTimer, $lowerTimeBound, $upperTimeBound);
+		$res = StatisticReporting::getVMStatistics($cutOff, $lowerTimeBound, $upperTimeBound);
 		$data[] = array('perVM' => array());
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
 			$data['perVM'][] = array('vm' => $row[0], 'sessions' => $row[1]);
