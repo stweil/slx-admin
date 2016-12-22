@@ -17,7 +17,7 @@
     "lang_pervm": "Per VM",
     "lang_hostname": "Client Name",
     "lang_location": "Location",
-    "lang_avgSessionLength": "Average Session Length",
+    "lang_medianSessionLength": "Median Session Length",
     "lang_totalTime": "Total Time",
     "lang_last1": "Last 24 hours",
     "lang_last2": "Last 48 hours",

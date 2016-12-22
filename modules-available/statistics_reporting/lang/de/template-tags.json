@@ -17,7 +17,7 @@
     "lang_pervm": "Pro VM",
     "lang_hostname": "Client Name",
     "lang_location": "Raum",
-    "lang_avgSessionLength": "Durchschnittliche Sitzungsdauer",
+    "lang_medianSessionLength": "Mittlere Sitzungsdauer",
     "lang_totalTime": "Gesamte Zeit",
     "lang_last1": "Letzten 24 Stunden",
     "lang_last2": "Letzten 48 Stunden",

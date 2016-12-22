@@ -6,8 +6,8 @@ class StatisticReporting
 
 	public static function getClientStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$queryTime = time() - $cutOffTimeInSeconds;
-		$res = Database::simpleQuery("SELECT t1.name, timeSum, avgTime, offlineSum, loginCount, lastLogout, lastStart, shortSessions FROM (
-													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', AVG(CAST(sessionTable.length AS UNSIGNED)) AS 'avgTime', COUNT(*) AS 'loginCount', MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout'
+		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, loginCount, lastLogout, lastStart, shortSessions FROM (
+													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', COUNT(*) AS 'loginCount', MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
 													WHERE sessionTable.dateline>=$queryTime AND sessionTable.data >= 60
@@ -37,8 +37,8 @@ class StatisticReporting
 	public static function getLocationStatistics($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$queryTime = time() - $cutOffTimeInSeconds;
 
-		$res = Database::simpleQuery("SELECT t1.locName, timeSum, avgTime, offlineSum, loginCount, shortSessions FROM (
-													SELECT IFNULL(location.locationname, '') AS 'locName', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', AVG(CAST(sessionTable.length AS UNSIGNED)) AS 'avgTime', COUNT(sessionTable.length) AS 'loginCount'
+		$res = Database::simpleQuery("SELECT t1.locName, timeSum, medianTime, offlineSum, loginCount, shortSessions FROM (
+													SELECT IFNULL(location.locationname, '') AS 'locName', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', COUNT(sessionTable.length) AS 'loginCount'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
@@ -87,8 +87,8 @@ class StatisticReporting
 
 	public static function getOverallStatistics ($cutOffTimeInSeconds, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$queryTime = time() - $cutOffTimeInSeconds;
-		$res = Database::simpleQuery("SELECT sum, avg, countLong, countShort FROM
-												(	SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, AVG(CAST(sessionTable.length AS UNSIGNED)) AS avg, COUNT(*) AS countLong
+		$res = Database::simpleQuery("SELECT sum, median, countLong, countShort FROM
+												(	SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, GROUP_CONCAT(sessionTable.length) AS median, COUNT(*) AS countLong
 											 		FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound)." sessionTable
 											 		WHERE sessionTable.dateline>=$queryTime AND sessionTable.data >= 60
 											 	) 	t1 
@@ -113,6 +113,20 @@ class StatisticReporting
 		return intdiv($seconds, 3600*24).'d '.intdiv($seconds%(3600*24), 3600).'h '.intdiv($seconds%3600, 60).'m '.($seconds%60).'s';
 	}
 
+	public static function calcMedian($string) {
+		$arr = explode(",", $string);
+		sort($arr, SORT_NUMERIC);
+		$count = count($arr); //total numbers in array
+		$middleval = floor(($count-1)/2); // find the middle value, or the lowest middle value
+		if($count % 2) { // odd number, middle is the median
+			$median = $arr[(int) $middleval];
+		} else { // even number, calculate avg of 2 medians
+			$low = $arr[(int) $middleval];
+			$high = $arr[(int) $middleval+1];
+			$median = (($low+$high)/2);
+		}
+		return round($median);
+	}
 
 	private static function getBoundedTableQueryString($typeid, $lowerTimeBound, $upperTimeBound)
 	{

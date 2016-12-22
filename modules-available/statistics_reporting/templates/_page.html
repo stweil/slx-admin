@@ -6,7 +6,7 @@
 					<tr>
 						<th class="text-left col-md-2"></th>
 						<th class="text-left column-totaltime">{{lang_totalTime}}</th>
-						<th class="text-left column-avgtime">{{lang_avgSessionLength}}</th>
+						<th class="text-left column-mediantime">{{lang_medianSessionLength}}</th>
 						<th class="text-left column-logincount">{{lang_totalLogins}}</th>
 						<th class="text-left column-timeoffline">{{lang_overallOfftime}}</th>
 					</tr>
@@ -15,7 +15,7 @@
 					<tr>
 						<th class="text-left">{{lang_total}}</th>
 						<td class="text-left column-totaltime">{{time}}</td>
-						<td class="text-left column-avgtime">{{avgTime}}</td>
+						<td class="text-left column-mediantime">{{medianTime}}</td>
 						<td class="text-left column-logincount">{{totalLogins}}</td>
 						<td class="text-left column-timeoffline">{{totalOfftime}}</td>
 					</tr>
@@ -30,7 +30,7 @@
 					<tr>
 						<th data-sort="string" class="text-left col-md-2">{{lang_location}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-totaltime">{{lang_totalTime}}</th>
-						<th data-sort="int" data-sort-default="desc" class="text-left column-avgtime">{{lang_avgSessionLength}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-mediantime">{{lang_medianSessionLength}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-logincount">{{lang_totalLogins}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-timeoffline">{{lang_totalOffTime}}</th>
 					</tr>
@@ -40,7 +40,7 @@
 					<tr>
 						<td class="text-left">{{location}}</td>
 						<td data-sort-value="{{timeInSeconds}}" class="text-left column-totaltime">{{time}}</td>
-						<td data-sort-value="{{avgTimeInSeconds}}" class="text-left column-avgtime">{{avgTime}}</td>
+						<td data-sort-value="{{medianTimeInSeconds}}" class="text-left column-mediantime">{{medianTime}}</td>
 						<td class="text-left column-logincount">{{loginCount}}</td>
 						<td data-sort-value="{{offlineTimeInSeconds}}" class="text-left column-timeoffline">{{offTime}}</td>
 					</tr>
@@ -56,7 +56,7 @@
 					<tr>
 						<th data-sort="string" class="text-left col-md-4">{{lang_hostname}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-totaltime">{{lang_totalTime}}</th>
-						<th data-sort="int" data-sort-default="desc" class="text-left column-avgtime">{{lang_avgSessionLength}}</th>
+						<th data-sort="int" data-sort-default="desc" class="text-left column-mediantime">{{lang_medianSessionLength}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-logincount">{{lang_totalLogins}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-timeoffline">{{lang_totalOffTime}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-lastlogout">{{lang_clientLogout}}</th>
@@ -68,7 +68,7 @@
 					<tr>
 						<td class="text-left">{{hostname}}</td>
 						<td data-sort-value="{{timeInSeconds}}" class="text-left column-totaltime">{{time}}</td>
-						<td data-sort-value="{{avgTimeInSeconds}}" class="text-left column-avgtime">{{avgTime}}</td>
+						<td data-sort-value="{{medianTimeInSeconds}}" class="text-left column-mediantime">{{medianTime}}</td>
 						<td class="text-left column-logincount">{{loginCount}}</td>
 						<td data-sort-value="{{offlineTimeInSeconds}}" class="text-left column-timeoffline">{{offTime}}</td>
 						<td data-sort-value="{{lastLogoutUnixtime}}" class="text-left column-lastlogout">{{lastLogout}}</td>
