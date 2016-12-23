@@ -6,7 +6,7 @@ class StatisticReporting
 
 	public static function getClientStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, longSessions, lastLogout, lastStart, shortSessions, locName FROM (
-													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, '') AS 'locName'
+													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, 'NOT ASSIGNED') AS 'locName'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
 														LEFT JOIN location ON machine.locationid = location.locationid
@@ -22,17 +22,17 @@ class StatisticReporting
 		return $res;
 	}
 
-	// IFNULL(location.locationname, '') - emptry string can be replaced with anything (name of the null-ids in the table)
+	// IFNULL(location.locationname, 'NOT ASSIGNED') - NOT ASSIGNED string can be replaced with anything (name of the null-ids in the table)
 	public static function getLocationStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT t1.locName, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
-													SELECT IFNULL(location.locationname, '') AS 'locName', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
+													SELECT IFNULL(location.locationname, 'NOT ASSIGNED') AS 'locName', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
 													GROUP BY location.locationname
 												) 	t1 
 												INNER JOIN (
-											 		SELECT IFNULL(location.locationname, '') AS 'locName', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
+											 		SELECT IFNULL(location.locationname, 'NOT ASSIGNED') AS 'locName', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $cutOff)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
