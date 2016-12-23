@@ -41,7 +41,7 @@
 				<tbody>
 					{{#perLocation}}
 					<tr>
-						<td class="text-left">{{location}}</td>
+						<td class="locationName text-left">{{location}}</td>
 						<td data-sort-value="{{timeInSeconds}}" class="text-left column-totaltime">{{time}}</td>
 						<td data-sort-value="{{medianTimeInSeconds}}" class="text-left column-mediantime">{{medianTime}}</td>
 						<td class="text-left column-sessions">{{sessions}}</td>
@@ -59,6 +59,7 @@
 				<thead>
 					<tr>
 						<th data-sort="string" class="text-left col-md-4">{{lang_hostname}}</th>
+						<th data-sort="string" class="text-left column-location">{{lang_location}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-totaltime">{{lang_totalTime}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-mediantime">{{lang_medianSessionLength}}</th>
 						<th data-sort="int" data-sort-default="desc" class="text-left column-sessions">{{lang_sessions}}</th>
@@ -72,6 +73,7 @@
 					{{#perClient}}
 					<tr>
 						<td class="text-left">{{hostname}}</td>
+						<td class="text-left column-location"><a class="locationLink" href="#">{{locationName}}</a></td>
 						<td data-sort-value="{{timeInSeconds}}" class="text-left column-totaltime">{{time}}</td>
 						<td data-sort-value="{{medianTimeInSeconds}}" class="text-left column-mediantime">{{medianTime}}</td>
 						<td class="text-left column-sessions">{{sessions}}</td>

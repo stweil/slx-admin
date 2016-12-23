@@ -24,6 +24,7 @@
 			<button id="applybound" type="button" class="btn btn-sm btn-primary" onclick="reloadPage()">{{lang_apply}}</button>
 		</div>
 		<div class="col-md-12 buttonbar">
+			<button id="button-location" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('location')">{{lang_location}}</button>
 			<button id="button-totaltime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('totaltime')">{{lang_totalTime}}</button>
 			<button id="button-mediantime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('mediantime')">{{lang_medianSessionLength}}</button>
 			<button id="button-sessions" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('sessions')">{{lang_sessions}}</button>
@@ -69,9 +70,20 @@
 			var arrow = data.direction === dir.ASC ? "down" : "up";
 			th.eq(data.column).append(' <span class="arrow glyphicon glyphicon-chevron-'+arrow+'"></span>');
 		});
+
+		$(".locationLink").click(function(e) {
+			e.preventDefault();
+			$('#select-table').val('perlocation');
+			chooseTable('perlocation');
+			var target = $(".locationName:contains('"+$(this).text()+"'):first");
+			$(window).scrollTop(target.offset().top - $(window).height()/2);
+			target.parent().css( "background-color", "#f8ff99" );
+			return false;
+		});
 	});
 
 	function chooseTable(v) {
+		$("tr").removeAttr('style');
 		$("[id^=table-]").hide();
 		$('#table-'+v).show();
 		$("[id^=button-]").hide();
