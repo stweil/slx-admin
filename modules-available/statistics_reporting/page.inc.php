@@ -56,8 +56,8 @@ class Page_Statistics_Reporting extends Page
 		while ($row = $res->fetch(PDO::FETCH_NUM)) {
 			$median = StatisticReporting::calcMedian(StatisticReporting::calcMedian($row[2]));
 			$data['perClient'][] = array('hostname' => $row[0], 'time' => StatisticReporting::formatSeconds($row[1]), 'timeInSeconds' => $row[1],
-				'medianTime' => StatisticReporting::formatSeconds($median), 'medianTimeInSeconds' => $median, 'offTime' => StatisticReporting::formatSeconds($row[3]), 'offlineTimeInSeconds' => $row[3], 'sessions' => $row[4],
-				'lastLogout' => date(DATE_RSS,$row[5]), 'lastLogoutUnixtime' => $row[5], 'lastStart' => date(DATE_RSS,$row[6]), 'lastStartUnixtime' => $row[6], 'shortSessions' => $row[7], 'locationName' => $row[8]);
+				'medianTime' => StatisticReporting::formatSeconds($median), 'medianTimeInSeconds' => $median, 'offTime' => StatisticReporting::formatSeconds($row[3]), 'offlineTimeInSeconds' => $row[3], 'lastStartUnixtime' => $row[4],
+				'lastLogout' => date(DATE_RSS,$row[5]), 'lastLogoutUnixtime' => $row[5], 'lastStart' => date(DATE_RSS,$row[6]), 'sessions' => $row[6], 'shortSessions' => $row[7], 'locationName' => $row[8]);
 		}
 
 		// per user

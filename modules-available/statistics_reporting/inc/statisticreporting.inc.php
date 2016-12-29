@@ -4,9 +4,10 @@
 class StatisticReporting
 {
 
+	// Client Data: Name, Time Online, Median Time Online, Time Offline, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location
 	public static function getClientStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
-		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, longSessions, lastLogout, lastStart, shortSessions, locName FROM (
+		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locName FROM (
 													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, '$notassigned') AS 'locName'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
@@ -23,7 +24,7 @@ class StatisticReporting
 		return $res;
 	}
 
-	// IFNULL(location.locationname, 'NOT ASSIGNED') - NOT ASSIGNED string can be replaced with anything (name of the null-ids in the table)
+	// Location Data: Name, Time Online, Median Time Online, Time Offline, Number of Sessions > 60Sec, Number of Sessions < 60Sec
 	public static function getLocationStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
 		$res = Database::simpleQuery("SELECT t1.locName, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
@@ -44,40 +45,47 @@ class StatisticReporting
 		return $res;
 	}
 
-	// logins between bounds
+	// User Data: Name, Number of Logins
 	public static function getUserStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT username, COUNT(*) AS 'count' 
 												FROM statistic 
 												WHERE typeid='.vmchooser-session-name' AND dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) 
 														AND ((FROM_UNIXTIME(dateline+data, '%H')*1 >= $lowerTimeBound) AND (FROM_UNIXTIME(dateline, '%H')*1 < $upperTimeBound))
-												GROUP BY username ORDER BY 2 DESC");
+												GROUP BY username 
+												ORDER BY 2 DESC");
 		return $res;
 	}
 
-	// vm logins between bounds
+	// Virtual Machine Data: Name, Number of Usages
 	public static function getVMStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT data, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' AND dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) 
-												AND ((FROM_UNIXTIME(dateline+data, '%H')*1 >= $lowerTimeBound) AND (FROM_UNIXTIME(dateline, '%H')*1 < $upperTimeBound)) GROUP BY data ORDER BY 2 DESC");
+												AND ((FROM_UNIXTIME(dateline+data, '%H')*1 >= $lowerTimeBound) AND (FROM_UNIXTIME(dateline, '%H')*1 < $upperTimeBound)) 
+												GROUP BY data 
+												ORDER BY 2 DESC");
 		return $res;
 	}
 
+	//Total Data: Time Online, Median Time Online, Number of Sessions > 60Sec, Number of Sessions < 60Sec
 	public static function getOverallStatistics ($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, GROUP_CONCAT(sessionTable.length) AS median, SUM(sessionTable.length >= 60) AS longSessions, SUM(sessionTable.length < 60) AS shortSessions
-											 		FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable");
+											 	FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable");
 		return $res;
 	}
 
+	// Total Data(2): Time Offline
 	public static function getTotalOfflineStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT SUM(CAST(offlineTable.length AS UNSIGNED))
 												FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $cutOff)." offlineTable");
 		return $res;
 	}
 
+	// Format $seconds into ".d .h .m .s" format (day, hour, minute, second)
 	public static function formatSeconds($seconds)
 	{
 		return intdiv($seconds, 3600*24).'d '.intdiv($seconds%(3600*24), 3600).'h '.intdiv($seconds%3600, 60).'m '.($seconds%60).'s';
 	}
 
+	// Calculate Median
 	public static function calcMedian($string) {
 		$arr = explode(",", $string);
 		sort($arr, SORT_NUMERIC);
@@ -93,6 +101,7 @@ class StatisticReporting
 		return round($median);
 	}
 
+	// query string which provides table with time-cutoff and time-bounds
 	private static function getBoundedTableQueryString($typeid, $lowerTimeBound, $upperTimeBound, $cutOff)
 	{
 		$lowerFormat = "'%y-%m-%d $lowerTimeBound:00:00'";
@@ -153,9 +162,11 @@ class StatisticReporting
 			machineuuid
 			
 			from statistic
-			where dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) and typeid = '$typeid' and (
-			(UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $lowerFormat)) <= dateline and dateline <= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $upperFormat))) or
-			(UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $lowerFormat)) <= dateline+data and dateline+data <= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $upperFormat)))
+			where dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) and typeid = '$typeid' 
+			and (
+				(UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $lowerFormat)) <= dateline and dateline <= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $upperFormat))) 
+				or
+				(UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $lowerFormat)) <= dateline+data and dateline+data <= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $upperFormat)))
 	 		)
 		";
 		return "(".$queryString.")";
