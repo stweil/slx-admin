@@ -4,11 +4,11 @@
 class StatisticReporting
 {
 
-	// Client Data: Name, Time Online, Median Time Online, Time Offline, last start, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location
+	// Client Data: Name, Time Online, Median Time Online, Time Offline, last start, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location, id of location (anonymized), machine uuid (anonymized)
 	public static function getClientStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
-		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locName FROM (
-													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, '$notassigned') AS 'locName'
+		$res = Database::simpleQuery("SELECT t1.name AS clientName, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locName, MD5(locId) AS locHash, MD5(t1.uuid) AS clientHash FROM (
+													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
 														LEFT JOIN location ON machine.locationid = location.locationid
@@ -24,11 +24,11 @@ class StatisticReporting
 		return $res;
 	}
 
-	// Location Data: Name, Time Online, Median Time Online, Time Offline, Number of Sessions > 60Sec, Number of Sessions < 60Sec
+	// Location Data: Name, ID (anonymized), Time Online, Median Time Online, Time Offline, Number of Sessions > 60Sec, Number of Sessions < 60Sec
 	public static function getLocationStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
-		$res = Database::simpleQuery("SELECT t1.locName, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
-													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
+		$res = Database::simpleQuery("SELECT t1.locName AS locName, MD5(locId) AS locHash, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
+													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $lowerTimeBound, $upperTimeBound, $cutOff)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
@@ -45,9 +45,9 @@ class StatisticReporting
 		return $res;
 	}
 
-	// User Data: Name, Number of Logins
+	// User Data: Name, Name(anonymized), Number of Logins
 	public static function getUserStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT username, COUNT(*) AS 'count' 
+		$res = Database::simpleQuery("SELECT username AS name, IF(username = 'anonymous', 'anonymous', md5(username)) AS  userHash, COUNT(*) AS 'count' 
 												FROM statistic 
 												WHERE typeid='.vmchooser-session-name' AND dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) 
 														AND ((FROM_UNIXTIME(dateline+data, '%H')*1 >= $lowerTimeBound) AND (FROM_UNIXTIME(dateline, '%H')*1 < $upperTimeBound))
@@ -58,7 +58,7 @@ class StatisticReporting
 
 	// Virtual Machine Data: Name, Number of Usages
 	public static function getVMStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT data, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' AND dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) 
+		$res = Database::simpleQuery("SELECT data AS name, COUNT(*) AS 'count' FROM statistic WHERE typeid='.vmchooser-session-name' AND dateline+data >= UNIX_TIMESTAMP(CURDATE() - INTERVAL $cutOff DAY) 
 												AND ((FROM_UNIXTIME(dateline+data, '%H')*1 >= $lowerTimeBound) AND (FROM_UNIXTIME(dateline, '%H')*1 < $upperTimeBound)) 
 												GROUP BY data 
 												ORDER BY 2 DESC");
@@ -74,7 +74,7 @@ class StatisticReporting
 
 	// Total Data(2): Time Offline
 	public static function getTotalOfflineStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT SUM(CAST(offlineTable.length AS UNSIGNED))
+		$res = Database::simpleQuery("SELECT SUM(CAST(offlineTable.length AS UNSIGNED)) AS timeOff
 												FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $cutOff)." offlineTable");
 		return $res;
 	}
