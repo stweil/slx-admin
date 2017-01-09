@@ -4,7 +4,7 @@
 class StatisticReporting
 {
 
-	// Client Data: Name, Time Online, Median Time Online, Time Offline, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location
+	// Client Data: Name, Time Online, Median Time Online, Time Offline, last start, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location
 	public static function getClientStatistics($cutOff, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
 		$res = Database::simpleQuery("SELECT t1.name, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locName FROM (
