@@ -155,6 +155,14 @@ if ($addTrigger) {
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Adding locationid trigger to machine failed: ' . Database::lastError());
 	}
+	// This might be an update - calculate all subnetlocationid values (if location module is installed yet)
+	if (Module::isAvailable('locations')) {
+		if (tableExists('subnet')) {
+			AutoLocation::rebuildAll();
+		} else {
+			finalResponse(UPDATE_RETRY, 'Locations module not installed yet, retry later');
+		}
+	}
 }
 
 // Create response
