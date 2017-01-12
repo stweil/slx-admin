@@ -1,7 +1,7 @@
 <?php
 
 
-class StatisticReporting
+class Queries
 {
 
 	// Client Data: Name, Time Online, Median Time Online, Time Offline, last start, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location, id of location (anonymized), machine uuid (anonymized)
@@ -77,28 +77,6 @@ class StatisticReporting
 		$res = Database::simpleQuery("SELECT SUM(CAST(offlineTable.length AS UNSIGNED)) AS timeOff
 												FROM ".self::getBoundedTableQueryString('~offline-length', $lowerTimeBound, $upperTimeBound, $cutOff)." offlineTable");
 		return $res;
-	}
-
-	// Format $seconds into ".d .h .m .s" format (day, hour, minute, second)
-	public static function formatSeconds($seconds)
-	{
-		return intdiv($seconds, 3600*24).'d '.intdiv($seconds%(3600*24), 3600).'h '.intdiv($seconds%3600, 60).'m '.($seconds%60).'s';
-	}
-
-	// Calculate Median
-	public static function calcMedian($string) {
-		$arr = explode(",", $string);
-		sort($arr, SORT_NUMERIC);
-		$count = count($arr); //total numbers in array
-		$middleval = floor(($count-1)/2); // find the middle value, or the lowest middle value
-		if($count % 2) { // odd number, middle is the median
-			$median = $arr[(int) $middleval];
-		} else { // even number, calculate avg of 2 medians
-			$low = $arr[(int) $middleval];
-			$high = $arr[(int) $middleval+1];
-			$median = (($low+$high)/2);
-		}
-		return round($median);
 	}
 
 	// query string which provides table with time-cutoff and time-bounds
