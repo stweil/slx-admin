@@ -2,7 +2,8 @@
 
 class GetData
 {
-	public static $cutOff = 7;
+	public static $from;
+	public static $to;
 	public static $lowerTimeBound = 0;
 	public static $upperTimeBound = 24;
 
@@ -10,12 +11,12 @@ class GetData
 	// total
 	public static function total($anonymize = false) {
 		// total time online, average time online, total  number of logins
-		$res = Queries::getOverallStatistics(self::$cutOff, self::$lowerTimeBound, self::$upperTimeBound);
+		$res = Queries::getOverallStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		$data = array('time' =>  self::formatSeconds($row['sum']), 'medianTime' =>  self::formatSeconds(self::calcMedian($row['median'])), 'sessions' => $row['longSessions'], 'shortSessions' => $row['shortSessions']);
 
 		//total time offline
-		$res = Queries::getTotalOfflineStatistics(self::$cutOff, self::$lowerTimeBound, self::$upperTimeBound);
+		$res = Queries::getTotalOfflineStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		$data = array_merge($data, array('totalOfftime' => self::formatSeconds($row['timeOff'])));
 
@@ -24,7 +25,7 @@ class GetData
 
 	// per location
 	public static function perLocation($anonymize = false) {
-		$res = Queries::getLocationStatistics(self::$cutOff, self::$lowerTimeBound, self::$upperTimeBound);
+		$res = Queries::getLocationStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		$loc = $anonymize ? 'locHash' : 'locName';
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -37,9 +38,9 @@ class GetData
 
 	// per client
 	public static function perClient($anonymize = false) {
-		$res = Queries::getClientStatistics(self::$cutOff, self::$lowerTimeBound, self::$upperTimeBound);
+		$res = Queries::getClientStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
-		$name = $anonymize ? 'clientHash' : 'hostname';
+		$name = $anonymize ? 'clientHash' : 'clientName';
 		$loc = $anonymize ? 'locHash' : 'locName';
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$median = self::calcMedian(self::calcMedian($row['medianTime']));
@@ -52,7 +53,7 @@ class GetData
 
 	// per user
 	public static function perUser($anonymize = false) {
-		$res = Queries::getUserStatistics(self::$cutOff, self::$lowerTimeBound, self::$upperTimeBound);
+		$res = Queries::getUserStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		$user = $anonymize ? 'userHash' : 'name';
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -64,7 +65,7 @@ class GetData
 
 	// per vm
 	public static function perVM() {
-		$res = Queries::getVMStatistics(self::$cutOff, self::$lowerTimeBound, self::$upperTimeBound);
+		$res = Queries::getVMStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$data[] = array('vm' => $row['name'], 'sessions' => $row['count']);
