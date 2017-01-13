@@ -24,9 +24,7 @@ class Page_Statistics_Reporting extends Page
 	{
 		// timespan you want to see = Days selected * seconds per Day (86400)
 		// default = 14 days
-		$date = new DateTime(date('Y-m-d 00:00:00'));
-		$date->sub(new DateInterval('P'.(Request::get('cutoff', 14, 'int') - 1).'D'));
-		GetData::$from = $date->getTimestamp();
+		GetData::$from = strtotime("- ".(Request::get('cutoff', 14, 'int') - 1)." days 00:00:00");
 		GetData::$to = time();
 		GetData::$lowerTimeBound = Request::get('lower', 0, 'int');
 		GetData::$upperTimeBound = Request::get('upper', 24, 'int');
@@ -36,7 +34,6 @@ class Page_Statistics_Reporting extends Page
 		$data['perClient'] = GetData::perClient();
 		$data['perUser'] = GetData::perUser();
 		$data['perVM'] = GetData::perVM();
-
 
 		Render::addTemplate('columnChooser');
 		Render::addTemplate('_page', $data);
