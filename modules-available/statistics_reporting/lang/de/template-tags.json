@@ -28,5 +28,7 @@
     "lang_last30": "Letzten 30 Tage",
     "lang_last90": "Letzten 90 Tage",
     "lang_apply": "Anwenden",
-    "lang_notassigned": "NICHT ZUGEWIESEN"
+    "lang_save": "Speichern",
+    "lang_notassigned": "NICHT ZUGEWIESEN",
+    "lang_reportingDescription": "Helfen Sie uns bwLehrpool, durch das wöchentliche, automatische Verschicken eines anonymisierten Statistikberichts, zu verbessern."
 }

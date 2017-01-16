@@ -28,5 +28,7 @@
     "lang_last30": "Last 30 days",
     "lang_last90": "Last 90 days",
     "lang_apply": "Apply",
-    "lang_notassigned": "NOT ASSIGNED"
+    "lang_save": "Save",
+    "lang_notassigned": "NOT ASSIGNED",
+    "lang_reportingDescription": "Help us improve bwLehrpool by automatically sending an anonymized statistics report once per week."
 }

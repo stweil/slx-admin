@@ -22,6 +22,7 @@
 				<div id="upper-handle" class="ui-slider-handle"></div>
 			</div>
 			<button id="applybound" type="button" class="btn btn-sm btn-primary" onclick="reloadPage()">{{lang_apply}}</button>
+			<button id="button-settings" type="button" class="pull-right btn btn-default" data-toggle="modal" data-target="#modal-settings" onclick="loadSettings()"><span class="glyphicon glyphicon-cog"></span></button>
 		</div>
 		<div class="col-md-12 buttonbar">
 			<button id="button-location" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('location')">{{lang_location}}</button>
@@ -34,6 +35,30 @@
 			<button id="button-lastlogout" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('lastlogout')">{{lang_clientLogout}}</button>
 			<button id="button-laststart" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('laststart')">{{lang_clientStart}}</button>
 		</div>
+	</div>
+</div>
+
+
+<div id="modal-settings" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><b>Settings</b></h4>
+			</div>
+			<div class="modal-body">
+				<label class="checkbox-inline" style="padding-left: 40px">
+					<input id="checkbox-reporting" type="checkbox" value="" style="margin-top: 0; margin-left: -30px">
+					{{lang_reportingDescription}}
+				</label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="saveSettings()">{{lang_save}}</button>
+			</div>
+		</div>
+
 	</div>
 </div>
 
@@ -87,7 +112,7 @@
 		$("tr").removeAttr('style');
 		$("[id^=table-]").hide();
 		$('#table-'+v).show();
-		$("[id^=button-]").hide();
+		$('.buttonbar').find("[id^=button-]").hide();
 		var re = /column-(\w+)/g;
 		var match;
 		while (match = re.exec($('thead', '#table-'+v).html())) {
@@ -148,5 +173,24 @@
 			if(pair[0] == variable){return pair[1];}
 		}
 		return(false);
+	}
+
+	function loadSettings() {
+		$.ajax({
+			url: '?do=statistics_reporting',
+			type: 'GET',
+			data: { action: "getReporting"},
+			success: function(value) {
+				$("#checkbox-reporting").prop("checked", value == "on");
+			}
+		});
+	}
+
+	function saveSettings() {
+		$.ajax({
+			url: '?do=statistics_reporting',
+			type: 'GET',
+			data: { action: "setReporting", reporting: $("#checkbox-reporting").is(":checked") ? "on" : "off" }
+		});
 	}
 </script>
