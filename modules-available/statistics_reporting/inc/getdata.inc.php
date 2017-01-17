@@ -6,7 +6,7 @@ class GetData
 	public static $to;
 	public static $lowerTimeBound = 0;
 	public static $upperTimeBound = 24;
-
+	public static $salt;
 
 	// total
 	public static function total($anonymize = false) {

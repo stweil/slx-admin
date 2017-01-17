@@ -7,7 +7,7 @@ class Queries
 	// Client Data: Name, Time Online, Median Time Online, Time Offline, last start, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location, id of location (anonymized), machine uuid (anonymized)
 	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
 		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
-		$res = Database::simpleQuery("SELECT t1.name AS clientName, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locName, MD5(locId) AS locHash, MD5(t1.uuid) AS clientHash FROM (
+		$res = Database::simpleQuery("SELECT t1.name AS clientName, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locName, MD5(CONCAT(locId, :salt)) AS locHash, MD5(CONCAT(t1.uuid, :salt)) AS clientHash FROM (
 													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
@@ -20,14 +20,15 @@ class Queries
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid
 													GROUP BY machine.machineuuid
 												) 	t2 
-												ON t1.uuid = t2.uuid");
+												ON t1.uuid = t2.uuid", array("salt" => GetData::$salt));
+
 		return $res;
 	}
 
 	// Location Data: Name, ID (anonymized), Time Online, Median Time Online, Time Offline, Number of Sessions > 60Sec, Number of Sessions < 60Sec
 	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
 		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
-		$res = Database::simpleQuery("SELECT t1.locName AS locName, MD5(locId) AS locHash, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
+		$res = Database::simpleQuery("SELECT t1.locName AS locName, MD5(CONCAT(locId, :salt)) AS locHash, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
 													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
@@ -41,13 +42,13 @@ class Queries
 														LEFT JOIN location ON machine.locationid = location.locationid 
 													GROUP BY location.locationname
 												) 	t2 
-												ON t1.locName = t2.locName");
+												ON t1.locName = t2.locName", array("salt" => GetData::$salt));
 		return $res;
 	}
 
 	// User Data: Name, Name(anonymized), Number of Logins
 	public static function getUserStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT username AS name, IF(username = 'anonymous', 'anonymous', md5(username)) AS  userHash, COUNT(*) AS 'count'
+		$res = Database::simpleQuery("SELECT username AS name, IF(username = 'anonymous', 'anonymous', md5(CONCAT(username, :salt))) AS  userHash, COUNT(*) AS 'count'
 												FROM statistic 
 												WHERE typeid='.vmchooser-session-name' AND dateline+data >= $from and dateline <= $to AND (
 														(@daysDiff := (TO_DAYS(FROM_UNIXTIME(@end := IF(dateline+data > $to, $to, dateline+data), '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(@start := IF(dateline < $from, $from, dateline), '%y-%m-%d'))) = 0
@@ -58,13 +59,13 @@ class Queries
 														@daysDiff >= 2
 												)
 												GROUP BY username 
-												ORDER BY 2 DESC");
+												ORDER BY 2 DESC", array("salt" => GetData::$salt));
 		return $res;
 	}
 
 	// Virtual Machine Data: Name, Number of Usages
 	public static function getVMStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT data AS name, MD5(data) AS vmHash, COUNT(*) AS 'count'
+		$res = Database::simpleQuery("SELECT data AS name, MD5(CONCAT(data, :salt)) AS vmHash, COUNT(*) AS 'count'
 											 	FROM statistic
 												WHERE typeid='.vmchooser-session-name' AND dateline+data >= $from and dateline <= $to AND (
 														(@daysDiff := (TO_DAYS(FROM_UNIXTIME(@end := IF(dateline+data > $to, $to, dateline+data), '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(@start := IF(dateline < $from, $from, dateline), '%y-%m-%d'))) = 0
@@ -75,7 +76,7 @@ class Queries
 														@daysDiff >= 2
 												)
 												GROUP BY data 
-												ORDER BY 2 DESC");
+												ORDER BY 2 DESC", array("salt" => GetData::$salt));
 		return $res;
 	}
 

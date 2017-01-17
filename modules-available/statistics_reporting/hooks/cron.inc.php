@@ -9,8 +9,9 @@ if ($nextReporting < $time && $allowReport) {
 
 	Property::set("nextReporting", strtotime("Sunday 23:59:59"));
 
-	GetData::$from = strtotime("Monday last week");
-	GetData::$to = strtotime("Sunday last week 23:59:59");
+	GetData::$from = strtotime("last sunday - 6 days");
+	GetData::$to = strtotime("last sunday 23:59:59");
+	GetData::$salt = bin2hex(random_bytes(20));
 
 	$data = array_merge(GetData::total(true), array('perLocation' => array(), 'perClient' => array(), 'perUser' => array(), 'perVM' => array()));
 	$data['perLocation'] = GetData::perLocation(true);
@@ -21,15 +22,11 @@ if ($nextReporting < $time && $allowReport) {
 
 	$statisticsReport = json_encode($data);
 
-	$url = CONFIG_REPORTING_URL;
+	$params = array("action" => "statistics", "data" => $statisticsReport);
 
-	$curl = curl_init($url);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($curl, CURLOPT_HTTPHEADER,	array("Content-type: application/json"));
-	curl_setopt($curl, CURLOPT_POST, true);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, $statisticsReport);
+	Download::asStringPost(CONFIG_REPORTING_URL, $params, 300, $code);
 
-	$json_response = curl_exec($curl);
-
-	curl_close($curl);
+	if ($code != 200) {
+		EventLog::warning("Statistics Reporting: ".$code);
+	}
 }
