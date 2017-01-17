@@ -16,7 +16,7 @@ if ($nextReporting < $time && $allowReport) {
 	$data['perLocation'] = GetData::perLocation(true);
 	$data['perClient'] = GetData::perClient(true);
 	$data['perUser'] = GetData::perUser(true);
-	$data['perVM'] = GetData::perVM();
+	$data['perVM'] = GetData::perVM(true);
 
 
 	$statisticsReport = json_encode($data);

@@ -84,11 +84,12 @@ class GetData
 
 
 	// per vm
-	public static function perVM() {
+	public static function perVM($anonymize = false) {
 		$res = Queries::getVMStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
+		$vm = $anonymize ? 'vmHash' : 'name';
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$data[] = array('vm' => $row['name'], 'sessions' => $row['count']);
+			$data[] = array('vm' => $row[$vm], 'sessions' => $row['count']);
 		}
 		return $data;
 	}

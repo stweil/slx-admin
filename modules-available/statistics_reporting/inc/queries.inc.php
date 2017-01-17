@@ -64,7 +64,7 @@ class Queries
 
 	// Virtual Machine Data: Name, Number of Usages
 	public static function getVMStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT data AS name, COUNT(*) AS 'count'
+		$res = Database::simpleQuery("SELECT data AS name, MD5(data) AS vmHash, COUNT(*) AS 'count'
 											 	FROM statistic
 												WHERE typeid='.vmchooser-session-name' AND dateline+data >= $from and dateline <= $to AND (
 														(@daysDiff := (TO_DAYS(FROM_UNIXTIME(@end := IF(dateline+data > $to, $to, dateline+data), '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(@start := IF(dateline < $from, $from, dateline), '%y-%m-%d'))) = 0
