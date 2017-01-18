@@ -77,7 +77,7 @@ var slxTrigger = function (elem, moduleName) {
 	//alert('always: ' + moduleName + ', status: ' + slxModules[moduleName] + ', current: ' + slxCurrent);
 	if (slxModules[moduleName] === 'WORKING') {
 		slxModules[moduleName] = 'UPDATE_FAILED';
-		$('#mod-' + moduleName).text('UPDATE_FAILED (No response from server)');
+		$('#mod-' + moduleName).text('UPDATE_FAILED (No response from server)').css('color', '#c00');
 	}
 	if (slxCurrent === moduleName) {
 		slxCurrent = false;
@@ -112,7 +112,9 @@ function slxRunNext(lastModule) {
 		slxRun(next);
 	} else {
 		slxCancelTimer();
-		alert('Done.');
+		setTimeout(function() {
+			alert('Done.');
+		}, 10);
 	}
 }
 

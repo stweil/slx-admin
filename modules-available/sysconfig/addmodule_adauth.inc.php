@@ -140,10 +140,12 @@ class AdAuth_SelfSearch extends AddModule_Base
 		} else {
 			$uri = "ldap://$server:3268/";
 		}
+
+		$selfSearchBase = Ldap::getSelfSearchBase($binddn, $searchbase);
 		// Set up selfSearch task
 		$taskData = array(
 			'server' => $uri,
-			'searchbase' => $searchbase,
+			'searchbase' => $selfSearchBase,
 			'bindpw' => $bindpw,
 		);
 		if (preg_match(AD_SHORT_REGEX, $binddn, $out) && !empty($out[2])) {
@@ -153,12 +155,12 @@ class AdAuth_SelfSearch extends AddModule_Base
 			$this->originalBindDn = $binddn;
 			$taskData['filter'] = 'sAMAccountName=' . $out[1];
 		} elseif (preg_match('/^cn\=([^\=]+),.*?,dc\=([^\=]+),/i', Ldap::normalizeDn($binddn), $out)) {
-			if (empty($searchbase)) {
+			if (empty($selfSearchBase)) {
 				$this->originalBindDn = $out[2] . '\\' . $out[1];
 				$taskData['filter'] = 'sAMAccountName=' . $out[1];
 			} else {
 				$this->originalBindDn = $binddn;
-				$taskData['filter'] = "distinguishedName=$binddn";
+				$taskData['filter'] = 'distinguishedName=' . Ldap::normalizeDn($binddn);
 			}
 		} else {
 			Message::addError('could-not-determine-binddn', $binddn);
@@ -232,11 +234,12 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 		} else {
 			$uri = "ldap://$server:$port/";
 		}
+		$selfSearchBase = Ldap::getSelfSearchBase($binddn, $searchbase);
 		preg_match('#^(\w+\=[^\=]+),#', $binddn, $out);
 		$filter = $out[1];
 		$data = array(
 			'server' => $uri,
-			'searchbase' => $searchbase,
+			'searchbase' => $selfSearchBase,
 			'binddn' => $binddn,
 			'bindpw' => $bindpw,
 			'filter' => $filter

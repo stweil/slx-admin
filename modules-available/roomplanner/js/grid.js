@@ -97,14 +97,14 @@ if (!roomplanner) var roomplanner = {
 			});
 		},
 		initTooltip: function(el) {
-			if ($(el).attr('itemtype') == 'pc') {
+			if ($(el).attr('itemtype') === 'pc') {
 				var tip = "<b>Rechnerdaten</b><br>";
 				$(roomplanner.computerAttributes).each(function(i,key){
 					tip += __(key)+": "+$(el).attr(key)+"<br>";
 				});
 
-				$(el).attr('title', tip);
-				$(el).tooltip({html: true});
+				$(el).attr('title', tip).attr('data-toggle', 'tooltip');
+				$(el).tooltip({html: true, container: 'body'});
 			}
 		},
 		/**

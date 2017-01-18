@@ -266,7 +266,7 @@ class Page_SystemStatus extends Page
 		} else {
 			$start = strpos($data, "\n") + 1;
 		}
-		echo '<pre>', htmlspecialchars(substr($data, $start)), '</pre>';
+		echo '<pre>', htmlspecialchars(substr($data, $start), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '</pre>';
 	}
 
 	protected function ajaxLdadpLog()
@@ -303,7 +303,7 @@ class Page_SystemStatus extends Page
 			} else {
 				$start = strpos($data, "\n") + 1;
 			}
-			echo '<pre>', htmlspecialchars(substr($data, $start)), '</pre>';
+			echo '<pre>', htmlspecialchars(substr($data, $start), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '</pre>';
 		}
 	}
 
@@ -319,7 +319,7 @@ class Page_SystemStatus extends Page
 		else
 			$data = 'Taskmanager error';
 
-		echo '<pre>', htmlspecialchars($data), '</pre>';
+		echo '<pre>', htmlspecialchars($data, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '</pre>';
 	}
 
 	protected function ajaxPsList()
@@ -334,7 +334,7 @@ class Page_SystemStatus extends Page
 		else
 			$data = 'Taskmanager error';
 
-		echo '<pre>', htmlspecialchars($data), '</pre>';
+		echo '<pre>', htmlspecialchars($data, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '</pre>';
 	}
 
 	private function usageColor($percent)

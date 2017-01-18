@@ -26,36 +26,6 @@ class Page_Locations extends Page
 		}
 	}
 
-	private function updateAutoLocationId()
-	{
-		if (Module::get('statistics') === false)
-			return; // Nothing to do
-		$res = Database::simpleQuery("SELECT machineuuid, clientip FROM machine");
-		$updates = array();
-		$nulls = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$loc = Location::mapIpToLocation($row['clientip']);
-			if ($loc === false) {
-				$nulls[] = $row['machineuuid'];
-			} else {
-				if (!isset($updates[$loc])) {
-					$updates[$loc] = array();
-				}
-				$updates[$loc][] = $row['machineuuid'];
-			}
-		}
-		error_log(print_r($updates, true));
-		if (!empty($nulls)) {
-			$qs = '?' . str_repeat(',?', count($nulls) - 1);
-			Database::exec("UPDATE machine SET subnetlocationid = NULL WHERE machineuuid IN ($qs)", $nulls);
-		}
-		foreach ($updates as $lid => $machines) {
-			$qs = '?' . str_repeat(',?', count($machines) - 1);
-			$lid = (int)$lid;
-			Database::exec("UPDATE machine SET subnetlocationid = $lid WHERE machineuuid IN ($qs)", $machines);
-		}
-	}
-
 	private function updateSubnets()
 	{
 		$count = 0;
@@ -85,7 +55,7 @@ class Page_Locations extends Page
 				$count += $stmt->rowCount();
 			}
 		}
-		$this->updateAutoLocationId();
+		AutoLocation::rebuildAll();
 		Message::addSuccess('subnets-updated', $count);
 		Util::redirect('?do=Locations');
 	}
@@ -156,7 +126,7 @@ class Page_Locations extends Page
 		$change |= $this->updateLocationData($location);
 		if ($change) {
 			// In case subnets or tree layout changed, recalc this
-			$this->updateAutoLocationId();
+			AutoLocation::rebuildAll();
 		}
 		Util::redirect('?do=Locations');
 	}
