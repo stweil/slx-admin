@@ -88,6 +88,7 @@ class Render
 		<script src="script/bootstrap.min.js"></script>
 		<script src="script/taskmanager.js"></script>
 		<script src="script/fileselect.js"></script>
+		<script src="script/collapse.js"></script>
 	';
 		foreach ($modules as $module) {
 			$file = $module->getDir() . '/clientscript.js';
