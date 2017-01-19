@@ -99,7 +99,7 @@ class GetData
 	// Format $seconds into ".d .h .m .s" format (day, hour, minute, second)
 	private static function formatSeconds($seconds)
 	{
-		return intdiv($seconds, 3600*24).'d '.intdiv($seconds%(3600*24), 3600).'h '.intdiv($seconds%3600, 60).'m '.($seconds%60).'s';
+		return sprintf('%dd, %02d:%02d:%02d', $seconds / (3600*24), ($seconds % (3600*24)) / 3600, ($seconds%3600) / 60, $seconds%60);
 	}
 
 	// Calculate Median
