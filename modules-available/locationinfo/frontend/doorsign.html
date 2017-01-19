@@ -1092,13 +1092,14 @@ optional:
 		function setUpRoom() {
 			for (var i = 0; i < Layout.length; i++) {
 
-
-				var img = $('<img />',
-					{
-						id: Layout[i].id,
-						class: "pcImg"
-					})
-					.appendTo($('#roomLayout'));
+				if (Layout[i].y != null && Layout[i].x != null) {
+					var img = $('<img />',
+						{
+							id: "layout_PC" + Layout[i].id,
+							class: "pcImg"
+						})
+						.appendTo($('#roomLayout'));
+				}
 			}
 			scaleRoom();
 			UpdatePc(Layout);
@@ -1142,10 +1143,10 @@ optional:
 			}
 			for (var i = 0; i < Layout.length; i++) {
 				if (Layout[i].y != null && Layout[i].x != null) {
-					document.getElementById(Layout[i].id).width = (picSizeX * scale);
-					document.getElementById(Layout[i].id).height = (picSizeY * scale);
-					document.getElementById(Layout[i].id).style.left = ((parseInt(Layout[i].x) + xOffset) * scale) + "px";
-					document.getElementById(Layout[i].id).style.top = ((parseInt(Layout[i].y) + yOffset) * scale ) + "px";
+					document.getElementById("layout_PC" + Layout[i].id).width = (picSizeX * scale);
+					document.getElementById("layout_PC" + Layout[i].id).height = (picSizeY * scale);
+					document.getElementById("layout_PC" + Layout[i].id).style.left = ((parseInt(Layout[i].x) + xOffset) * scale) + "px";
+					document.getElementById("layout_PC" + Layout[i].id).style.top = ((parseInt(Layout[i].y) + yOffset) * scale ) + "px";
 				}
 			}
 		}
@@ -1154,7 +1155,7 @@ optional:
 		function UpdatePc(update) {
 			var freePcs = 0;
 			for (var i = 0; i < update.length; i++) {
-				var imgobj = document.getElementById(update[i].id);
+				var imgobj = document.getElementById("layout_PC" + update[i].id);
 
 				var img;
 				if (update[i].pcState == "0") {
@@ -1173,7 +1174,7 @@ optional:
 					}
 				} else {
 					if (supportSvg) {
-						img = "img/pc_defect?";
+						img = "img/pc_defect";
 					} else {
 						imgobj.style.backgroundColor = "black";
 					}
