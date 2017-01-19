@@ -46,15 +46,21 @@ class Page_Statistics_Reporting extends Page
 
 	protected function doAjax()
 	{
-		if (!User::isLoggedIn()) {
-			echo "No.";
-		} else {
-			$this->action = Request::any('action', false, 'string');
-			if ($this->action === 'setReporting') {
-				Property::set("reportingStatus", Request::get('reporting', "on", 'string'));
-			} elseif ($this->action === 'getReporting') {
-				echo Property::get("reportingStatus", "on");
+		$this->action = Request::any('action', false, 'string');
+		if ($this->action === 'setReporting') {
+			if (!User::isLoggedIn()) {
+				die("No.");
 			}
+			$state = Request::post('reporting', false, 'string');
+			if ($state === false) {
+				die('Missing setting value.');
+			}
+			RemoteReport::setReportingEnabled($state);
+		} elseif ($this->action === 'getReporting') {
+			echo RemoteReport::isReportingEnabled() ? 'on' : '';
+		} else {
+			echo 'Invalid action.';
 		}
 	}
+
 }

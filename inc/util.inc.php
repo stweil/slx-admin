@@ -365,4 +365,56 @@ SADFACE;
 		exit(0);
 	}
 
+	/**
+	 * Return a binary string of given length, containing
+	 * random bytes. If $secure is given, only methods of
+	 * obtaining cryptographically strong random bytes will
+	 * be used, otherwise, weaker methods might be used.
+	 *
+	 * @param int $length number of bytes to return
+	 * @param bool $secure true = only use strong random sources
+	 * @return string|bool string of requested length, false on error
+	 */
+	public static function randomBytes($length, $secure)
+	{
+		if (function_exists('random_bytes')) {
+			return random_bytes($length);
+		}
+		if ($secure) {
+			if (function_exists('openssl_random_pseudo_bytes')) {
+				$bytes = openssl_random_pseudo_bytes($length, $ok);
+				if ($bytes !== false && $ok) {
+					return $bytes;
+				}
+			}
+			$file = '/dev/random';
+		} else {
+			$file = '/dev/urandom';
+		}
+		$fh = @fopen($file, 'r');
+		if ($fh !== false) {
+			$bytes = fread($fh, $length);
+			while ($bytes !== false && strlen($bytes) < $length) {
+				$new = fread($fh, $length - strlen($bytes));
+				if ($new === false) {
+					$bytes = false;
+					break;
+				}
+				$bytes .= $new;
+			}
+			fclose($fh);
+			if ($bytes !== false) {
+				return $bytes;
+			}
+		}
+		if ($secure) {
+			return false;
+		}
+		$bytes = '';
+		while ($length > 0) {
+			$bytes .= chr(mt_rand(0, 255));
+		}
+		return $bytes;
+	}
+
 }

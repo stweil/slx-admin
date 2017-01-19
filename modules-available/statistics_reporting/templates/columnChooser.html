@@ -189,8 +189,8 @@
 	function saveSettings() {
 		$.ajax({
 			url: '?do=statistics_reporting',
-			type: 'GET',
-			data: { action: "setReporting", reporting: $("#checkbox-reporting").is(":checked") ? "on" : "off" }
+			type: 'POST',
+			data: { action: "setReporting", reporting: $("#checkbox-reporting").is(":checked") ? "on" : "off", token: TOKEN }
 		});
 	}
 </script>
