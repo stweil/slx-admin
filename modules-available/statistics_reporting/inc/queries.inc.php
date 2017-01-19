@@ -6,7 +6,7 @@ class Queries
 
 	// Client Data: Name, Time Online, Median Time Online, Time Offline, last start, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location, id of location (anonymized), machine uuid (anonymized)
 	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
-		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
+		$notassigned = Dictionary::translate('notAssigned', true);
 		$res = Database::simpleQuery("SELECT t1.name AS clientName, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locName, MD5(CONCAT(locId, :salt)) AS locHash, MD5(CONCAT(t1.uuid, :salt)) AS clientHash FROM (
 													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
@@ -27,7 +27,7 @@ class Queries
 
 	// Location Data: Name, ID (anonymized), Time Online, Median Time Online, Time Offline, Number of Sessions > 60Sec, Number of Sessions < 60Sec
 	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
-		$notassigned = Dictionary::translateFile('template-tags', 'lang_notassigned');
+		$notassigned = Dictionary::translate('notAssigned', true);
 		$res = Database::simpleQuery("SELECT t1.locName AS locName, MD5(CONCAT(locId, :salt)) AS locHash, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
 													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
