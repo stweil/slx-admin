@@ -136,10 +136,26 @@ function getOpeningTimesFromParent($locationID) {
 		$parentlocationid = (int)$dbdata['parentlocationid'];
 	}
 	if ($parentlocationid == 0) {
-		echo json_encode(array());
+		echo json_encode(createBasicClosingTime(), true);
 	}else {
 		getOpeningTimes($parentlocationid);
 	}
+}
+
+function createBasicClosingTime() {
+	$weekarray = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+	$array = array();
+	foreach ($weekarray as $d) {
+		$a = array();
+		$arr['HourOpen'] = '00';
+		$arr['MinutesOpen'] = '00';
+
+		$arr['HourClose'] = '23';
+		$arr['MinutesClose'] = '59';
+		$a[] = $arr;
+		$array[$d] = $a;
+	}
+	return $array;
 }
 
 function getOpeningTimes($locationID) {
