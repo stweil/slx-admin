@@ -1024,7 +1024,7 @@ optional:
 			}
 
 			for (var i = 0; i < Layout.length; i++) {
-				if (!isNaN(parseInt(Layout[i].x)) && !isNaN(parseInt(Layout[i].y))) {
+				if (!isNaN(parseInt(Layout[i].x)) && !isNaN(parseInt(Layout[i].y)) && Layout[i].y != null && Layout[i].y != null) {
 					if (minX === undefined) {
 						minX = parseInt(Layout[i].x);
 					}
@@ -1096,7 +1096,7 @@ optional:
 		function setUpRoom() {
 			for (var i = 0; i < Layout.length; i++) {
 
-				if (Layout[i].y != null && Layout[i].x != null) {
+				if (Layout[i].y != null && Layout[i].x != null && !isNaN(Layout[i].y)&& !isNaN(Layout[i].x)) {
 					var img = $('<img />',
 						{
 							id: "layout_PC" + Layout[i].id,
@@ -1146,11 +1146,14 @@ optional:
 				return;
 			}
 			for (var i = 0; i < Layout.length; i++) {
-				if (Layout[i].y != null && Layout[i].x != null) {
-					document.getElementById("layout_PC" + Layout[i].id).width = (picSizeX * scale);
-					document.getElementById("layout_PC" + Layout[i].id).height = (picSizeY * scale);
-					document.getElementById("layout_PC" + Layout[i].id).style.left = ((parseInt(Layout[i].x) + xOffset) * scale) + "px";
-					document.getElementById("layout_PC" + Layout[i].id).style.top = ((parseInt(Layout[i].y) + yOffset) * scale ) + "px";
+				if (Layout[i].y != null && Layout[i].x != null && !isNaN(Layout[i].y)&& !isNaN(Layout[i].x)) {
+					var tmp = document.getElementById("layout_PC" + Layout[i].id);
+					if(tmp != null) {
+						tmp.width = (picSizeX * scale);
+						tmp.height = (picSizeY * scale);
+						tmp.style.left = ((parseInt(Layout[i].x) + xOffset) * scale) + "px";
+						tmp.style.top = ((parseInt(Layout[i].y) + yOffset) * scale ) + "px";
+					}
 				}
 			}
 		}
@@ -1160,34 +1163,36 @@ optional:
 			var freePcs = 0;
 			for (var i = 0; i < update.length; i++) {
 				var imgobj = document.getElementById("layout_PC" + update[i].id);
+				if (imgobj != null) {
 
-				var img;
-				if (update[i].pcState == "0") {
-					//add time to prevent caching
-					if (supportSvg) {
-						img = "img/pc_free";
+					var img;
+					if (update[i].pcState == "0") {
+						//add time to prevent caching
+						if (supportSvg) {
+							img = "img/pc_free";
+						} else {
+							imgobj.style.backgroundColor = "green";
+						}
+						freePcs++;
+					} else if (update[i].pcState == "1") {
+						if (supportSvg) {
+							img = "img/pc_used";
+						} else {
+							imgobj.style.backgroundColor = "red";
+						}
 					} else {
-						imgobj.style.backgroundColor = "green";
+						if (supportSvg) {
+							img = "img/pc_defect";
+						} else {
+							imgobj.style.backgroundColor = "black";
+						}
 					}
-					freePcs++;
-				} else if (update[i].pcState == "1") {
-					if (supportSvg) {
-						img = "img/pc_used";
-					} else {
-						imgobj.style.backgroundColor = "red";
+					if (imgobj != null && supportSvg) {
+						if (eInkMode) {
+							img = img + "_eink";
+						}
+						imgobj.src = img + ".svg";
 					}
-				} else {
-					if (supportSvg) {
-						img = "img/pc_defect";
-					} else {
-						imgobj.style.backgroundColor = "black";
-					}
-				}
-				if (imgobj != null && supportSvg) {
-					if (eInkMode) {
-						img = img + "_eink";
-					}
-					imgobj.src = img + ".svg";
 				}
 			}
 			if (state == null || state.state == "FreeNoEnd" || state.state == "Free") {
