@@ -1166,27 +1166,37 @@ optional:
 				if (imgobj != null) {
 
 					var img;
+					// Pc free
 					if (update[i].pcState == "0") {
-						//add time to prevent caching
 						if (supportSvg) {
 							img = "img/pc_free";
 						} else {
 							imgobj.style.backgroundColor = "green";
 						}
 						freePcs++;
+						// Pc in use
 					} else if (update[i].pcState == "1") {
 						if (supportSvg) {
 							img = "img/pc_used";
 						} else {
 							imgobj.style.backgroundColor = "red";
 						}
-					} else {
+						// PC off
+					} else if(update[i].pcState == "2"){
+						if (supportSvg) {
+							img = "img/pc_off";
+						} else {
+							imgobj.style.backgroundColor = "black";
+						}
+						freePcs++;
+					}else {
 						if (supportSvg) {
 							img = "img/pc_defect";
 						} else {
 							imgobj.style.backgroundColor = "black";
 						}
 					}
+
 					if (imgobj != null && supportSvg) {
 						if (eInkMode) {
 							img = img + "_eink";
