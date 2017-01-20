@@ -225,9 +225,9 @@ function getRoomInfoJson($locationID, $coords) {
 
 function getPcInfos($locationID, $coords) {
 	if ($coords == '1') {
-		$dbquery = Database::simpleQuery("SELECT machineuuid, position, logintime, lastseen FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
+		$dbquery = Database::simpleQuery("SELECT machineuuid, position, logintime, lastseen, lastboot FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
 	} else {
-		$dbquery = Database::simpleQuery("SELECT machineuuid, logintime, lastseen FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
+		$dbquery = Database::simpleQuery("SELECT machineuuid, logintime, lastseen, lastboot FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
 	}
 
 	$pcs = array();
@@ -244,13 +244,12 @@ function getPcInfos($locationID, $coords) {
 				$computer['y'] = $position['gridRow'];
 			}
 
-			$computer['pcState'] = LocationInfo::getPcState((int)$pc['logintime'], (int)$pc['lastseen']);
+			$computer['pcState'] = LocationInfo::getPcState($pc);
 
 			$pcs[] = $computer;
 	}
 
 	$str = json_encode($pcs, true);
-	error_log($str);
 
 	return $str;
 }
