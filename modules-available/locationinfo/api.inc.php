@@ -136,10 +136,26 @@ function getOpeningTimesFromParent($locationID) {
 		$parentlocationid = (int)$dbdata['parentlocationid'];
 	}
 	if ($parentlocationid == 0) {
-		echo json_encode(array());
+		echo json_encode(createBasicClosingTime(), true);
 	}else {
 		getOpeningTimes($parentlocationid);
 	}
+}
+
+function createBasicClosingTime() {
+	$weekarray = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+	$array = array();
+	foreach ($weekarray as $d) {
+		$a = array();
+		$arr['HourOpen'] = '00';
+		$arr['MinutesOpen'] = '00';
+
+		$arr['HourClose'] = '23';
+		$arr['MinutesClose'] = '59';
+		$a[] = $arr;
+		$array[$d] = $a;
+	}
+	return $array;
 }
 
 function getOpeningTimes($locationID) {
@@ -209,9 +225,9 @@ function getRoomInfoJson($locationID, $coords) {
 
 function getPcInfos($locationID, $coords) {
 	if ($coords == '1') {
-		$dbquery = Database::simpleQuery("SELECT machineuuid, position, logintime, lastseen FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
+		$dbquery = Database::simpleQuery("SELECT machineuuid, position, logintime, lastseen, lastboot FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
 	} else {
-		$dbquery = Database::simpleQuery("SELECT machineuuid, logintime, lastseen FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
+		$dbquery = Database::simpleQuery("SELECT machineuuid, logintime, lastseen, lastboot FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
 	}
 
 	$pcs = array();
@@ -228,13 +244,12 @@ function getPcInfos($locationID, $coords) {
 				$computer['y'] = $position['gridRow'];
 			}
 
-			$computer['pcState'] = LocationInfo::getPcState((int)$pc['logintime'], (int)$pc['lastseen']);
+			$computer['pcState'] = LocationInfo::getPcState($pc);
 
 			$pcs[] = $computer;
 	}
 
 	$str = json_encode($pcs, true);
-	error_log($str);
 
 	return $str;
 }

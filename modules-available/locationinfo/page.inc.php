@@ -384,7 +384,7 @@ class Page_LocationInfo extends Page
 //TODO REMOVE FUNCTION. NOT NECCESSARY BUT AFTER TESTING pcSTATE
 	private function ajaxShowLocation($id)
 	{
-		$dbquery = Database::simpleQuery("SELECT machineuuid, clientip, position, logintime, lastseen  FROM `machine` WHERE locationid = :id", array('id' => $id));
+		$dbquery = Database::simpleQuery("SELECT machineuuid, clientip, position, logintime, lastseen, lastboot  FROM `machine` WHERE locationid = :id", array('id' => $id));
 
 		$data = array();
 
@@ -392,7 +392,7 @@ class Page_LocationInfo extends Page
 			$pc = array();
 			$pc['id'] = $dbdata['machineuuid'];
 			$pc['ip'] = $dbdata['clientip'];
-			$pc['pcState'] = LocationInfo::getPcState($dbdata['logintime'], $dbdata['lastseen']);
+			$pc['pcState'] = LocationInfo::getPcState($dbdata);
 
 			$position = json_decode($dbdata['position'], true);
 			$pc['x'] = $position['gridRow'];

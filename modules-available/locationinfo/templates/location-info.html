@@ -78,9 +78,9 @@
 	</tr>
 
 {{#list}}
-	<tr id="row{{locationid}}" class="tablerow" onclick="{{#hasPcs}}slxOpenLocationInfo(this, {{locationid}}){{/hasPcs}}">
+	<tr id="row{{locationid}}" class="tablerow">
 
-		<td><div style="display:inline-block;width:{{depth}}em"></div>{{#hasPcs}}<a>{{/hasPcs}}{{locationname}}{{#hasPcs}}</a>{{/hasPcs}}</td>
+		<td><div style="display:inline-block;width:{{depth}}em"></div>{{locationname}}</td>
 		<td align="center">[{{locationid}}]</td>
 		<td align="center">{{#hasPcs}}{{pcState}} / {{total}}{{/hasPcs}}</td>
 
@@ -132,32 +132,6 @@ function cbClick(cb, locID) {
 		value = 0;
 	}
 	window.location.href = "?do=locationinfo&action=hide&id=" + locID + "&value=" + value;
-}
-
-function slxOpenLocationInfo(e, locationId) {
-	if (lastPcSubTable !== false) {
-		lastPcSubTable.hide();
-		$(lastPcSubTable).prev().removeClass('active slx-bold');
-	}
-
-	var existing = $('#subtable' + locationId);
-	if (existing.length > 0) {
-		if (existing.is(lastPcSubTable)) {
-			lastPcSubTable = false;
-		} else {
-			existing.show();
-			$(e).closest('tr').addClass('active slx-bold');
-			lastPcSubTable = existing;
-		}
-		return;
-	}
-
-	var td = $('<td>').attr('colspan', '3').css('padding', '0px 0px 12px');
-	var tr = $('<tr>').attr('id', 'subtable' + locationId);
-	tr.append(td);
-	$(e).closest('tr').addClass('active slx-bold').after(tr);
-	td.load("?do=locationinfo&action=pcsubtable&id=" + locationId);
-	lastPcSubTable = tr;
 }
 
 function loadTimeModal(locationId, locationName) {
