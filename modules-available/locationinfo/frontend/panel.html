@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+<head>
+	<script type='text/javascript' src='../../../script/jquery.js'></script>
+	<style type='text/css'>
+		.main{
+			background-color: lightgrey;
+
+		}
+
+		.child{
+			background-color: white;
+			display: inline-block;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			padding: 1vw;
+
+
+		}
+		.border{
+			display: inline-block;
+			padding: 0.4vw;
+		}
+		.courseFont{
+			padding: 0.5vw;
+			font-size: 2vw;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: bold;
+		}
+		.headerFont{
+			font-size: 4vw;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: bold;
+			border: 0px;
+			border-bottom: 0.2vw;
+			margin-bottom: 1vw;
+			border-color: grey;
+			border-style:solid;
+
+		}
+		.divPcOn, .divPcPcUsed, .divPcPcOff, .divPcPcDefect{
+			width: 4vw;
+			height: 4vw;
+			text-align: center;
+			font-size: 3vw;
+			font-weight: 800;
+
+		}
+
+		.divPcOn {
+			background-color: green;
+			text-align: center;
+		}
+		.divPcPcUsed{
+
+			background-color: red;
+		}
+		.divPcPcOff{
+			background-color: darkgrey;
+		}
+		.divPcPcDefect{
+			background-color: black;
+			color: white;
+		}
+
+		.divAroundPcStates{
+			display: flex;
+			justify-content: flex-end;
+
+		}
+		.paperEffect
+		{
+			margin: 0 auto;
+			background-color: #fff;
+			-webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
+			-moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
+			box-shadow: 0 0 5px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
+			border-radius: 1px;
+		}
+
+
+
+	</style>
+	<script type='text/javascript'>
+		$(document).ready(function () {
+			for(var i= 0;i<10;i++) {
+				generateChild(i, "test " + i);
+			}
+			updateRoomUsage(7,7,7,7,7);
+			updateCourseText(7,"asd");
+			updateCoursTimer(7,"15:00")
+		});
+
+		function updateRoomUsage(id,on,used,off,defect){
+			$("#div_pc_On_"+id).text(on);
+			$("#div_pc_Used_"+id).text(used);
+			$("#div_pc_Off_"+id).text(off);
+			$("#div_pc_Defect_"+id).text(defect);
+		}
+
+		function updateCourseText(id,text) {
+			$("#div_course"+id).text(text);
+		}
+		function updateCoursTimer(id,time) {
+			$("#div_Time_"+id).text(time);
+		}
+
+		function generateChild(id,name) {
+			var text="<div class='border'>"  +
+				"<div class='child paperEffect'>" +
+				"<div class='headerFont'>"+name+"</div>" +
+				"<div class='divAroundPcStates'>" +
+				"<div id = 'div_pc_On_"+id+"'  class='divPcOn'>1</div>" +
+				"<div id = 'div_pc_Used_"+id+"' class='divPcPcUsed'>5</div>" +
+				"<div id = 'div_pc_Off_"+id+"' class='divPcPcOff'>99</div>" +
+				"<div id = 'div_pc_Defect_"+id+"' class='divPcPcDefect'>5</div>" +
+				"</div>" +
+				"<div id = 'div_course"+id+"'class='courseFont'>Course Name</div>" +
+				"<div id = 'div_Time_"+id+"'class='courseFont'>14:23</div></div></div>";
+			$("body").append(text);
+
+		}
+
+	</script>
+</head>
+<body class="main">
+<h1>Only Testing</h1>
+<!--
+<div class="child paperEffect" >
+	<div class="headerFont">Room Name</div>
+	<div class="divAroundPcStates">
+		<div class="divPcOn">
+		1
+		</div>
+		<div class="divPcPcUsed">
+			5
+		</div>
+		<div class="divPcPcOff">
+			99
+		</div>
+		<div class="divPcPcDefect">
+			5
+		</div>
+	</div>
+	<div class="courseFont">Course Name</div>
+	<div class="courseFont">14:23</div>
+</div>
+-->
+</body>
+</html>
