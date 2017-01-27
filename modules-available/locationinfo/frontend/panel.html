@@ -83,8 +83,9 @@
 	</style>
 	<script type='text/javascript'>
 		$(document).ready(function () {
+			generateParent("body",1,"Parent");
 			for(var i= 0;i<10;i++) {
-				generateChild(i, "test " + i);
+				generateChild("parent_1",i, "test " + i);
 			}
 			updateRoomUsage(7,7,7,7,7);
 			updateCourseText(7,"asd");
@@ -105,7 +106,7 @@
 			$("#div_Time_"+id).text(time);
 		}
 
-		function generateChild(id,name) {
+		function generateChild(target,id,name) {
 			var text="<div class='border'>"  +
 				"<div class='child paperEffect'>" +
 				"<div class='headerFont'>"+name+"</div>" +
@@ -117,8 +118,17 @@
 				"</div>" +
 				"<div id = 'div_course"+id+"'class='courseFont'>Course Name</div>" +
 				"<div id = 'div_Time_"+id+"'class='courseFont'>14:23</div></div></div>";
-			$("body").append(text);
+			$("#"+target).append(text);
 
+		}
+
+		function generateParent(target,id,name) {
+			var text="<div class='border'>"  +
+			"<div class='child paperEffect'>" +
+			"<div class='headerFont'>"+name+"</div>" +
+				"<div id='parent_"+ id +"'</div>"+
+				"</div></div>";
+			$(target).append(text);
 		}
 
 	</script>
