@@ -11,6 +11,7 @@ class LocationInfo
 		 *  [2] = OFF
 		 *  [3] = 10 days offline (BROKEN?)
 		 */
+		 // TODO USE STATE NAME instead of numbers
 
 		$logintime = (int)$pc['logintime'];
 		$lastseen = (int)$pc['lastseen'];

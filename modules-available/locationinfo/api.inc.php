@@ -21,7 +21,52 @@ function HandleParameters() {
 	} elseif ($getAction == "calendar") {
 		$getRoomID = Request::get('id', 0, 'int');
 		getCalendar($getRoomID);
+	} elseif ($getAction == "roomtree") {
+		$roomIDS = Request::get('ids', 0, 'string');
+		getRoomTree($roomIDS);
 	}
+}
+
+function getMultipleInformations($roomids) {
+	$idList = explode(',', $roomids);
+	$filteredIdList = array_filter($idList, 'is_numeric');
+	return $filteredIdList;
+}
+
+function getRoomTree($ids) {
+	$idList = getMultipleInformations($ids);
+	$roomTree = array();
+	foreach ($idList as $id) {
+		$dbquery = Database::simpleQuery("SELECT locationname FROM `location` WHERE locationid=:locationID", array('locationID' => $id));
+		$dbresult=$dbquery->fetch(PDO::FETCH_ASSOC);
+
+		$a['id'] = $id;
+		$a['name'] = $dbresult['locationname'];
+		$a['childs'] = getChildsRecursive($id);
+		$roomTree[] = $a;
+	}
+
+	echo json_encode($roomTree);
+}
+
+function getChildsRecursive($id) {
+	$dbquery = Database::simpleQuery("SELECT locationid, locationname FROM `location` WHERE parentlocationid=:locationID", array('locationID' => $id));
+	$array = array();
+	$dbarray = array();
+
+	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		$dbarray[] = $dbresult;
+	}
+
+	foreach ($dbarray as $db) {
+		$i = $db['locationid'];
+		$a['id'] = $i;
+		$a['name'] = $db['locationname'];
+		$a['childs'] = getChildsRecursive($i);
+		$array[] = $a;
+	}
+
+	return $array;
 }
 
 function randomCalendarGenerator() {
