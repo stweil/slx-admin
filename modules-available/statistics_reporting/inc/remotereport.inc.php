@@ -71,11 +71,11 @@ class RemoteReport
 		GetData::$from = $from;
 		GetData::$to = $to;
 		GetData::$salt = bin2hex(Util::randomBytes(20));
-		$data = GetData::total(true);
-		$data['perLocation'] = GetData::perLocation(true);
-		$data['perClient'] = GetData::perClient(true);
-		$data['perUser'] = GetData::perUser(true);
-		$data['perVM'] = GetData::perVM(true);
+		$data = GetData::total(GETDATA_ANONYMOUS);
+		$data['perLocation'] = GetData::perLocation(GETDATA_ANONYMOUS);
+		$data['perClient'] = GetData::perClient(GETDATA_ANONYMOUS);
+		$data['perUser'] = GetData::perUser(GETDATA_ANONYMOUS);
+		$data['perVM'] = GetData::perVM(GETDATA_ANONYMOUS);
 		$data['tsFrom'] = $from;
 		$data['tsTo'] = $to;
 		return $data;

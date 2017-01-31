@@ -15,11 +15,11 @@
 				<tbody>
 					<tr>
 						<th class="text-left">{{lang_total}}</th>
-						<td class="text-left column-totaltime">{{time}}</td>
-						<td class="text-left column-mediantime">{{medianTime}}</td>
+						<td class="text-left column-totaltime">{{time_s}}</td>
+						<td class="text-left column-mediantime">{{medianTime_s}}</td>
 						<td class="text-left column-longsessions">{{sessions}}</td>
 						<td class="text-left column-shortsessions">{{shortSessions}}</td>
-						<td class="text-left column-timeoffline">{{totalOfftime}}</td>
+						<td class="text-left column-timeoffline">{{totalOfftime_s}}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -42,11 +42,11 @@
 					{{#perLocation}}
 					<tr>
 						<td class="locationName text-left">{{location}}</td>
-						<td data-sort-value="{{timeInSeconds}}" class="text-left column-totaltime">{{time}}</td>
-						<td data-sort-value="{{medianTimeInSeconds}}" class="text-left column-mediantime">{{medianTime}}</td>
+						<td data-sort-value="{{time}}" class="text-left column-totaltime">{{time_s}}</td>
+						<td data-sort-value="{{medianTime}}" class="text-left column-mediantime">{{medianTime_s}}</td>
 						<td class="text-left column-longsessions">{{sessions}}</td>
 						<td class="text-left column-shortsessions">{{shortSessions}}</td>
-						<td data-sort-value="{{offlineTimeInSeconds}}" class="text-left column-timeoffline">{{offTime}}</td>
+						<td data-sort-value="{{offTime}}" class="text-left column-timeoffline">{{offTime_s}}</td>
 					</tr>
 					{{/perLocation}}
 				</tbody>
@@ -73,14 +73,14 @@
 					{{#perClient}}
 					<tr>
 						<td class="text-left">{{hostname}}</td>
-						<td class="text-left column-location"><a class="locationLink" href="#">{{locationName}}</a></td>
-						<td data-sort-value="{{timeInSeconds}}" class="text-left column-totaltime">{{time}}</td>
-						<td data-sort-value="{{medianTimeInSeconds}}" class="text-left column-mediantime">{{medianTime}}</td>
+						<td class="text-left column-location"><a class="locationLink" href="#">{{location}}</a></td>
+						<td data-sort-value="{{time}}" class="text-left column-totaltime">{{time_s}}</td>
+						<td data-sort-value="{{medianTime}}" class="text-left column-mediantime">{{medianTime_s}}</td>
 						<td class="text-left column-longsessions">{{sessions}}</td>
 						<td class="text-left column-shortsessions">{{shortSessions}}</td>
-						<td data-sort-value="{{offlineTimeInSeconds}}" class="text-left column-timeoffline">{{offTime}}</td>
-						<td data-sort-value="{{lastLogoutUnixtime}}" class="text-left column-lastlogout">{{lastLogout}}</td>
-						<td data-sort-value="{{lastStartUnixtime}}" class="text-left column-laststart">{{lastStart}}</td>
+						<td data-sort-value="{{offTime}}" class="text-left column-timeoffline">{{offTime_s}}</td>
+						<td data-sort-value="{{lastLogout}}" class="text-left column-lastlogout">{{lastLogout_s}}</td>
+						<td data-sort-value="{{lastStart}}" class="text-left column-laststart">{{lastStart_s}}</td>
 					</tr>
 					{{/perClient}}
 				</tbody>

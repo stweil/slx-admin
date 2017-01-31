@@ -1,5 +1,8 @@
 <?php
 
+define('GETDATA_ANONYMOUS', 1);
+define('GETDATA_PRINTABLE', 2);
+
 class GetData
 {
 	public static $from;
@@ -9,7 +12,8 @@ class GetData
 	public static $salt;
 
 	// total
-	public static function total($anonymize = false) {
+	public static function total($flags = 0) {
+		$printable = 0 !== ($flags & GETDATA_PRINTABLE);
 		// total time online, average time online, total  number of logins
 		$res = Queries::getOverallStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$row = $res->fetch(PDO::FETCH_ASSOC);
@@ -20,59 +24,75 @@ class GetData
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		$data = array_merge($data, array('totalOfftime' => $row['timeOff']));
 
-		if (!$anonymize) {
-			$data["time"] = self::formatSeconds($data["time"]);
-			$data["medianTime"] = self::formatSeconds($data["medianTime"]);
-			$data["totalOfftime"] = self::formatSeconds($data["totalOfftime"]);
+		if ($printable) {
+			$data["time_s"] = self::formatSeconds($data["time"]);
+			$data["medianTime_s"] = self::formatSeconds($data["medianTime"]);
+			$data["totalOfftime_s"] = self::formatSeconds($data["totalOfftime"]);
 		}
 
 		return $data;
 	}
 
 	// per location
-	public static function perLocation($anonymize = false) {
+	public static function perLocation($flags = 0) {
+		$anonymize = 0 !== ($flags & GETDATA_ANONYMOUS);
+		$printable = 0 !== ($flags & GETDATA_PRINTABLE);
 		$res = Queries::getLocationStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
-		if (!$anonymize) {
-			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-				$median = self::calcMedian(self::calcMedian($row['medianTime']));
-				$data[] = array('location' => $row['locName'], 'time' => self::formatSeconds($row['timeSum']), 'timeInSeconds' => $row['timeSum'],
-					'medianTime' => self::formatSeconds($median), 'medianTimeInSeconds' => $median, 'offTime' => self::formatSeconds($row['offlineSum']),
-					'offlineTimeInSeconds' => $row['offlineSum'], 'sessions' => $row['longSessions'], 'shortSessions' => $row['shortSessions']);
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$median = self::calcMedian(self::calcMedian($row['medianTime']));
+			$entry = array(
+				'location' => ($anonymize ? $row['locHash'] : $row['locName']),
+				'time' => $row['timeSum'],
+				'medianTime' => $median,
+				'offTime' => $row['offlineSum'],
+				'sessions' => $row['longSessions'],
+				'shortSessions' => $row['shortSessions']
+			);
+			if ($printable) {
+				$entry['time_s'] = self::formatSeconds($row['timeSum']);
+				$entry['medianTime_s'] = self::formatSeconds($median);
+				$entry['offTime_s'] = self::formatSeconds($row['offlineSum']);
 			}
-		} else {
-			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-				$median = self::calcMedian(self::calcMedian($row['medianTime']));
-				$data[] = array('location' => $row['locHash'], 'time' => $row['timeSum'], 'medianTime' => $median, 'offTime' => $row['offlineSum'],
-									'sessions' => $row['longSessions'], 'shortSessions' => $row['shortSessions']);
-			}
+			$data[] = $entry;
 		}
 		return $data;
 	}
 
 	// per client
-	public static function perClient($anonymize = false) {
+	public static function perClient($flags = 0) {
+		$anonymize = 0 !== ($flags & GETDATA_ANONYMOUS);
+		$printable = 0 !== ($flags & GETDATA_PRINTABLE);
 		$res = Queries::getClientStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
-		if (!$anonymize) {
-			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-				$median = self::calcMedian(self::calcMedian($row['medianTime']));
-				$data[] = array('hostname' => $row['clientName'], 'time' => self::formatSeconds($row['timeSum']), 'timeInSeconds' => $row['timeSum'],
-					'medianTime' => self::formatSeconds($median), 'medianTimeInSeconds' => $median, 'offTime' => self::formatSeconds($row['offlineSum']), 'offlineTimeInSeconds' => $row['offlineSum'], 'lastStart' => date(DATE_RSS, $row['lastStart']), 'lastStartUnixtime' => $row['lastStart'],
-					'lastLogout' => date(DATE_RSS, $row['lastLogout']), 'lastLogoutUnixtime' => $row['lastLogout'], 'sessions' => $row['longSessions'], 'shortSessions' => $row['shortSessions'], 'locationName' => $row['locName']);
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$median = self::calcMedian(self::calcMedian($row['medianTime']));
+			$entry = array(
+				'hostname' => ($anonymize ? $row['clientHash'] : $row['clientName']),
+				'time' => $row['timeSum'],
+				'medianTime' => $median,
+				'offTime' => $row['offlineSum'],
+				'lastStart' => $row['lastStart'],
+				'lastLogout' => $row['lastLogout'],
+				'sessions' => $row['longSessions'],
+				'shortSessions' => $row['shortSessions'],
+				'location' => ($anonymize ? $row['locHash'] : $row['locName']),
+			);
+			if ($printable) {
+				$entry['time_s'] = self::formatSeconds($row['timeSum']);
+				$entry['medianTime_s'] = self::formatSeconds($median);
+				$entry['offTime_s'] = self::formatSeconds($row['offlineSum']);
+				$entry['lastStart_s'] = date(DATE_RSS, $row['lastStart']);
+				$entry['lastLogout_s'] = date(DATE_RSS, $row['lastLogout']);
 			}
-		} else {
-			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-				$median = self::calcMedian(self::calcMedian($row['medianTime']));
-				$data[] = array('hostname' => $row['clientHash'], 'time' => $row['timeSum'], 'medianTime' => $median, 'offTime' => $row['offlineSum'], 'lastStart' => $row['lastStart'],
-					'lastLogout' => $row['lastLogout'], 'sessions' => $row['longSessions'], 'shortSessions' => $row['shortSessions'], 'locationName' => $row['locHash']);
-			}
+			$data[] = $entry;
 		}
 		return $data;
 	}
 
 	// per user
-	public static function perUser($anonymize = false) {
+	public static function perUser($flags = 0) {
+		$anonymize = 0 !== ($flags & GETDATA_ANONYMOUS);
 		$res = Queries::getUserStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		$user = $anonymize ? 'userHash' : 'name';
@@ -84,7 +104,8 @@ class GetData
 
 
 	// per vm
-	public static function perVM($anonymize = false) {
+	public static function perVM($flags = 0) {
+		$anonymize = 0 !== ($flags & GETDATA_ANONYMOUS);
 		$res = Queries::getVMStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		$vm = $anonymize ? 'vmHash' : 'name';

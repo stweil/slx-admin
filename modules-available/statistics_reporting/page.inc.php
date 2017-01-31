@@ -33,11 +33,11 @@ class Page_Statistics_Reporting extends Page
 			GetData::$lowerTimeBound = Request::get('lower', 0, 'int');
 			GetData::$upperTimeBound = Request::get('upper', 24, 'int');
 
-			$data = array_merge(GetData::total(), array('perLocation' => array(), 'perClient' => array(), 'perUser' => array(), 'perVM' => array()));
-			$data['perLocation'] = GetData::perLocation();
-			$data['perClient'] = GetData::perClient();
-			$data['perUser'] = GetData::perUser();
-			$data['perVM'] = GetData::perVM();
+			$data = GetData::total(GETDATA_PRINTABLE);
+			$data['perLocation'] = GetData::perLocation(GETDATA_PRINTABLE);
+			$data['perClient'] = GetData::perClient(GETDATA_PRINTABLE);
+			$data['perUser'] = GetData::perUser(GETDATA_PRINTABLE);
+			$data['perVM'] = GetData::perVM(GETDATA_PRINTABLE);
 
 			Render::addTemplate('columnChooser');
 			Render::addTemplate('_page', $data);
