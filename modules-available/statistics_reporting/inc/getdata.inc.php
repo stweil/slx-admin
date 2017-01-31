@@ -22,8 +22,8 @@ class GetData
 
 		if (!$anonymize) {
 			$data["time"] = self::formatSeconds($data["time"]);
-			$data["medianTime"] = self::formatSeconds($data["time"]);
-			$data["totalOfftime"] = self::formatSeconds($data["time"]);
+			$data["medianTime"] = self::formatSeconds($data["medianTime"]);
+			$data["totalOfftime"] = self::formatSeconds($data["totalOfftime"]);
 		}
 
 		return $data;
