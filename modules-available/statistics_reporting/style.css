@@ -37,6 +37,6 @@
     line-height: 1.6em;
 }
 
-#applybound {
-    display: none;
+th[data-sort] {
+    cursor: pointer;
 }
