@@ -159,9 +159,12 @@
 		var cutoff = getQueryVariable("cutoff");
 		$('#select-cutoff').val(cutoff ? cutoff : 7);
 
-		sessionStorage.getItem("buttons").split(" ").forEach(function(button) {
-			toggleButton(button.substr(7));
-		});
+		var buttons = sessionStorage.getItem("buttons");
+		if (buttons) {
+			buttons.split(" ").forEach(function (button) {
+				toggleButton(button.substr(7));
+			});
+		}
 	}
 
 	function getQueryVariable(variable)
