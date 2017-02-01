@@ -28,7 +28,7 @@ class Page_Statistics_Reporting extends Page
 	{
 		if ($this->action === 'show') {
 			// timespan you want to see. default = last 7 days
-			GetData::$from = strtotime("- " . (Request::get('cutoff', 14, 'int') - 1) . " days 00:00:00");
+			GetData::$from = strtotime("- " . (Request::get('cutoff', 7, 'int') - 1) . " days 00:00:00");
 			GetData::$to = time();
 			GetData::$lowerTimeBound = Request::get('lower', 0, 'int');
 			GetData::$upperTimeBound = Request::get('upper', 24, 'int');
