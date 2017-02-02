@@ -1,41 +1,39 @@
 <div class="container-fluid">
-	<div class="row form-inline">
-		<div class="col-md-12  top-row">
-			<select id="select-table" onchange="chooseTable(this.value)" class="form-control">
-				<option value="total">{{lang_total}}</option>
-				<option value="perlocation">{{lang_perlocation}}</option>
-				<option value="perclient">{{lang_perclient}}</option>
-				<option value="peruser">{{lang_peruser}}</option>
-				<option value="pervm">{{lang_pervm}}</option>
-			</select>
-			<select id="select-cutoff" onchange="reloadPage()" class="form-control">
-				<option value="1">{{lang_last1}}</option>
-				<option value="2">{{lang_last2}}</option>
-				<option value="7">{{lang_last7}}</option>
-				<option value="14">{{lang_last14}}</option>
-				<option value="30">{{lang_last30}}</option>
-				<option value="90">{{lang_last90}}</option>
-			</select>
+	<form method="get">
+		<input type="hidden" name="do" value="statistics_reporting">
+		<div class="row form-inline">
+			<div class="col-md-12  top-row">
+				<select name="type" id="select-table" class="form-control">
+					{{#tables}}
+					<option value="{{value}}" {{selected}}>{{name}}</option>
+					{{/tables}}
+				</select>
+				<select name="cutoff" id="select-cutoff" class="form-control">
+					{{#days}}
+					<option value="{{days}}" {{selected}}>{{lang_days}}: {{days}}</option>
+					{{/days}}
+				</select>
 
-			<div id="slider">
-				<div id="lower-handle" class="ui-slider-handle"></div>
-				<div id="upper-handle" class="ui-slider-handle"></div>
+				<div id="slider">
+					<div id="lower-handle" class="ui-slider-handle"></div>
+					<div id="upper-handle" class="ui-slider-handle"></div>
+					<input type="hidden" id="lower-field" name="lower" value="{{lower}}">
+					<input type="hidden" id="upper-field" name="upper" value="{{upper}}">
+				</div>
+				<button type="submit" class="btn btn-sm btn-primary">{{lang_apply}}</button>
+				<button id="button-settings" type="button" class="pull-right btn btn-default" data-toggle="modal" data-target="#modal-settings" onclick="loadSettings()"><span class="glyphicon glyphicon-cog"></span></button>
 			</div>
-			<button id="applybound" type="button" class="btn btn-sm btn-primary collapse" onclick="reloadPage()">{{lang_apply}}</button>
-			<button id="button-settings" type="button" class="pull-right btn btn-default" data-toggle="modal" data-target="#modal-settings" onclick="loadSettings()"><span class="glyphicon glyphicon-cog"></span></button>
+			<div class="col-md-12">
+				{{#columns}}
+				<input type="hidden" name="{{id}}" value="off">
+				<div class="checkbox">
+					<input id="{{id}}" name="{{id}}" type="checkbox" class="column-toggle form-control" {{checked}}>
+					<label for="{{id}}">{{name}}</label>
+				</div>
+				{{/columns}}
+			</div>
 		</div>
-		<div class="col-md-12 buttonbar">
-			<button id="button-location" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('location')">{{lang_location}}</button>
-			<button id="button-totaltime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('totaltime')">{{lang_totalTime}}</button>
-			<button id="button-mediantime" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('mediantime')">{{lang_medianSessionLength}}</button>
-			<button id="button-sessions" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('sessions')">{{lang_sessions}}</button>
-			<button id="button-longsessions" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('longsessions')">{{lang_longSessions}}</button>
-			<button id="button-shortsessions" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('shortsessions')">{{lang_shortSessions}}</button>
-			<button id="button-timeoffline" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('timeoffline')">{{lang_totalOffTime}}</button>
-			<button id="button-lastlogout" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('lastlogout')">{{lang_clientLogout}}</button>
-			<button id="button-laststart" type="button" class="column-toggle btn btn-primary" onclick="toggleButton('laststart')">{{lang_clientStart}}</button>
-		</div>
-	</div>
+	</form>
 </div>
 
 <div id="modal-settings" class="modal fade" role="dialog">
@@ -62,30 +60,28 @@
 </div>
 
 <script type="application/javascript">
+
 	document.addEventListener("DOMContentLoaded", function () {
 		var lowerHandle = $("#lower-handle");
 		var upperHandle = $("#upper-handle");
-		var lower = getQueryVariable("lower");
-		var upper = getQueryVariable("upper");
+		var lower = $('#lower-field').val();
+		var upper = $('#upper-field').val();
 		$( "#slider" ).slider({
 			range: true,
 			min: 0,
 			max: 24,
-			values: [ lower ? lower : 8, upper ? upper : 22 ],
+			values: [ lower, upper ],
 			create: function() {
-				lowerHandle.text( $(this).slider("values")[0]+":00" );
-				upperHandle.text( $(this).slider("values")[1]+":00" );
+				lowerHandle.text( lower+":00" );
+				upperHandle.text( upper+":00" );
 			},
 			slide: function(event, ui) {
 				lowerHandle.text(ui.values[0]+":00");
 				upperHandle.text(ui.values[1]+":00");
+				$('#lower-field').val(ui.values[0]);
+				$('#upper-field').val(ui.values[1]);
 			},
-			change: function(event, ui) {
-				$("#applybound").show()
-			}
 		});
-
-		loadForm();
 
 		var table = $("table").stupidtable();
 		table.on("aftertablesort", function (event, data) {
@@ -105,76 +101,27 @@
 			target.parent().css( "background-color", "#f8ff99" );
 			return false;
 		});
+
+		$('.column-toggle').change(function () {
+			updateColumn($(this));
+		});
+		$('.column-toggle').each(function () {
+			var box = $(this);
+			if ($('.' + box.attr('name')).length === 0) {
+				box.parent().hide();
+			} else {
+				updateColumn(box);
+			}
+		});
 	});
 
-	function chooseTable(v) {
-		$("tr").removeAttr('style');
-		$("[id^=table-]").hide();
-		$('#table-'+v).show();
-		$('.buttonbar').find("[id^=button-]").hide();
-		var re = /column-(\w+)/g;
-		var match;
-		while (match = re.exec($('thead', '#table-'+v).html())) {
-			$('#button-'+match[1]).show();
-		}
-	}
-
-	function reloadPage() {
-		saveForm();
-		var cutoff = $("#select-cutoff").val();
-		var lower = $("#lower-handle").text().split(":")[0];
-		var upper = $("#upper-handle").text().split(":")[0];
-		window.location.replace("?do=statistics_reporting&cutoff="+cutoff+"&lower="+lower+"&upper="+upper);
-	}
-
-	function toggleButton(v) {
-		var button = $('#button-'+v);
-		if(button.hasClass('btn-default')) {
-			button.removeClass('btn-default');
-			button.addClass('btn-primary');
-			$('.column-'+v).show()
+	function updateColumn(checkbox) {
+		var cols = $('.' + checkbox.attr('name'));
+		if (checkbox.is(':checked')) {
+			cols.show();
 		} else {
-			button.removeClass('btn-primary');
-			button.addClass('btn-default');
-			$('.column-'+v).hide()
+			cols.hide();
 		}
-	}
-
-	function saveForm() {
-		sessionStorage.setItem("select-table", $("#select-table").val());
-		sessionStorage.setItem("buttons", $('.buttonbar').find(".btn-default").map(function() { return this.id; }).get().join(" "));
-	}
-
-	function loadForm() {
-		var selectTable = sessionStorage.getItem("select-table");
-		if (selectTable) {
-			$("#select-table").val(selectTable);
-			chooseTable(selectTable);
-		} else {
-			$("#select-table").val("total");
-			chooseTable("total");
-		}
-
-		var cutoff = getQueryVariable("cutoff");
-		$('#select-cutoff').val(cutoff ? cutoff : 7);
-
-		var buttons = sessionStorage.getItem("buttons");
-		if (buttons) {
-			buttons.split(" ").forEach(function (button) {
-				toggleButton(button.substr(7));
-			});
-		}
-	}
-
-	function getQueryVariable(variable)
-	{
-		var query = window.location.search.substring(1);
-		var vars = query.split("&");
-		for (var i=0;i<vars.length;i++) {
-			var pair = vars[i].split("=");
-			if(pair[0] == variable){return pair[1];}
-		}
-		return(false);
 	}
 
 	function loadSettings() {

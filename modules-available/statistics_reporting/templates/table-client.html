@@ -1,0 +1,30 @@
+<table id="table-perclient" class="table table-condensed table-striped">
+	<thead>
+	<tr>
+		<th data-sort="string" class="text-left col-md-4">{{lang_hostname}}</th>
+		<th data-sort="string" class="text-left col_location">{{lang_location}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_totaltime">{{lang_totalTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_mediantime">{{lang_medianSessionLength}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_longsessions">{{lang_longSessions}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_shortsessions">{{lang_shortSessions}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_timeoffline">{{lang_totalOffTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_lastlogout">{{lang_clientLogout}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_laststart">{{lang_clientStart}}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{{#data}}
+	<tr>
+		<td class="text-left">{{hostname}}</td>
+		<td class="text-left col_location"><a class="locationLink" href="#">{{location}}</a></td>
+		<td data-sort-value="{{time}}" class="text-left col_totaltime">{{time_s}}</td>
+		<td data-sort-value="{{medianTime}}" class="text-left col_mediantime">{{medianTime_s}}</td>
+		<td class="text-left col_longsessions">{{sessions}}</td>
+		<td class="text-left col_shortsessions">{{shortSessions}}</td>
+		<td data-sort-value="{{offTime}}" class="text-left col_timeoffline">{{offTime_s}}</td>
+		<td data-sort-value="{{lastLogout}}" class="text-left col_lastlogout">{{lastLogout_s}}</td>
+		<td data-sort-value="{{lastStart}}" class="text-left col_laststart">{{lastStart_s}}</td>
+	</tr>
+	{{/data}}
+	</tbody>
+</table>
