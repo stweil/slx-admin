@@ -24,6 +24,9 @@ function HandleParameters() {
 	} elseif ($getAction == "roomtree") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getRoomTree($roomIDS);
+	} elseif ($getAction == "pcstates") {
+		$roomIDS = Request::get('ids', 0, 'string');
+		getPcStates($roomIDS);
 	}
 }
 
@@ -31,6 +34,42 @@ function getMultipleInformations($roomids) {
 	$idList = explode(',', $roomids);
 	$filteredIdList = array_filter($idList, 'is_numeric');
 	return $filteredIdList;
+}
+
+function getPcStates($ids) {
+	$idList = getMultipleInformations($ids);
+
+	$pcStates = array();
+	foreach ($idList as $id) {
+
+		$a['id'] = $id;
+		$b = array();
+		$b = json_decode(getPcInfos($id), true);
+		$idle = 0;
+		$occupied = 0;
+		$off = 0;
+		$broken = 0;
+
+		foreach ($b as $c) {
+			if ($c['pcState'] == 0) {
+				$idle++;
+			} elseif($c['pcState'] == 1) {
+				$occupied++;
+			} elseif($c['pcState'] == 2) {
+				$off++;
+			} elseif($c['pcState'] == 3) {
+				$broken++;
+			}
+		}
+
+		$a['idle'] = $idle;
+		$a['occupied'] = $occupied;
+		$a['off'] = $off;
+		$a['broken'] = $broken;
+		$pcStates[] = $a;
+	}
+
+	echo json_encode($pcStates);
 }
 
 function getRoomTree($ids) {
