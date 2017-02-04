@@ -44,6 +44,7 @@
 			text-align: center;
 			font-size: 3vw;
 			font-weight: 800;
+			border-radius: 0.4vw;
 
 		}
 
@@ -72,9 +73,9 @@
 		{
 			margin: 0 auto;
 			background-color: #fff;
-			-webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
-			-moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
-			box-shadow: 0 0 5px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
+			-webkit-box-shadow: 0 0 0.2vw rgba(0, 0, 0, 0.4), inset 0 0 1vw rgba(0, 0, 0, 0.1);
+			-moz-box-shadow: 0 0 0.2vw rgba(0, 0, 0, 0.4), inset 0 0 1vw rgba(0, 0, 0, 0.1);
+			box-shadow: 0 0 0.2vw rgba(0, 0, 0, 0.4), inset 0 0 1vw rgba(0, 0, 0, 0.1);
 			border-radius: 1px;
 		}
 
@@ -82,15 +83,275 @@
 
 	</style>
 	<script type='text/javascript'>
+
+		var rooms = {};
+		var startdate;
+		var roomidsString = "";
+		var lastPcUpdate;
+
+
+
 		$(document).ready(function () {
-			generateParent("body",1,"Parent");
-			for(var i= 0;i<10;i++) {
-				generateChild("parent_1",i, "test " + i);
-			}
-			updateRoomUsage(7,7,7,7,7);
-			updateCourseText(7,"asd");
-			updateCoursTimer(7,"15:00")
+
+			init();
+			console.log(roomidsString);
+
+
 		});
+
+		function init() {
+			var ids = getUrlParameter("id");
+			$.getJSON("../../../api.php?do=locationinfo&action=roomtree&ids=" + ids, function (result) {
+				generateLayout(result);
+			});
+		}
+
+		function SetUpDate(d) {
+			startdate = d.getTime()-new Date().getTime();
+		}
+
+		function MyDate() {
+			return new Date(startdate +new Date().getTime());
+		}
+
+		function generateLayout(json) {
+			for (var i = 0; i< json.length;i++){
+				generateObject(json[i],($("body")));
+
+			}
+		}
+
+
+		function generateObject(json,myParent){
+			if(json.childs.length == 0) {
+				generateChild(myParent,json.id,json.name)
+			} else {
+				generateParent(myParent,json.id,json.name);
+				for (var i = 0; i < json.childs.length;i++){
+
+					generateObject(json.childs[i],$("#parent_"+json.id));
+				}
+			}
+
+		}
+
+		function getNextEvent(json) {
+			var event;
+			var now = new MyDate();
+			for (var i = 0; i < json.length; i++) {
+				//event is now active
+				if (json[i].start.getTime() < now.getTime() && json[i].end.getTime() > now.getTime()) {
+					return json[i];
+				}
+				//first element to consider
+				if (event == null) {
+					if (json[i].start.getTime() > now.getTime()) {
+						event = json[i];
+					}
+				}
+				if (json[i].start.getTime() > now.getTime() && event.start.getTime() > json[i].start.getTime()) {
+					event = json[i];
+				}
+			}
+			return event;
+		}
+		function update() {
+			//Temp
+			if(lastPcUpdate ==null || (lastPcUpdate - MyDate).getTime() > 60*1000){
+				$.getJSON("../../../api.php?do=locationinfo&action=roomtree&ids=" + roomidsString, function (result) {
+					updatePcStates(result);
+				});
+			}
+			upDateRoomState();
+
+		}
+
+		function upDateRoomState(room) {
+			var state = room.getState();
+
+			if(state == "ClaendarEvent") {
+				updateCourseText(state.titel);
+			} else if(state == "Free") {
+				updateCourseText("Frei");
+				updateCoursTimer(GetTimeDiferenceAsString(MyDate,state.end));
+			} else if(state == "FreeNoEnd") {
+				updateCourseText("Frei");
+				updateCoursTimer("");
+			}
+			else if(state == "closed") {
+				updateCourseText("Geschlossen");
+			}
+		}
+		
+
+		function updatePcStates(json){
+			var l = json.length;
+			for (var i = 0; i < l;i++){
+				updateRoomUsage(json[i].id,json[i].on,json[i].used,json[i].off,json[i].defect)
+			}
+
+		}
+
+		function addRoom(id,name) {
+			var room = {
+				id:id,
+				name:name,
+				timetable:null,
+				currentEvent:null,
+				nextEventEnd:null,
+				timeTilFree:null,
+				state:null,
+				openingTimes:null,
+				getState: function GetState() {
+					if (this.state == null) {
+						ComputeCurrentState();
+						return state;
+					}
+					if (this.state.end != "") {
+						if (this.state.end < new MyDate()) {
+							ComputeCurrentState();
+						}
+					}
+					return state;
+				}
+
+			}
+			rooms.id=room;
+
+			if(roomidsString == "") {
+				roomidsString = id;
+			} else {
+				roomidsString = roomidsString +","+id;
+			}
+		}
+
+
+		//need testing
+		function ComputeCurrentState(room) {
+			if (!IsOpenNow()) {
+				room.state = {state: "closed", end: GetNextOpening(room), titel: "", next: ""};
+				return;
+			}
+			var closing = GetNextClosing(room);
+			var event = getNextEvent(room.timetable);
+			// no event and no closing
+			if (closing == null && event == null) {
+				room.state = {state: "FreeNoEnd", end: "", titel: "", next: ""};
+				return;
+			}
+
+			// no event so closing is next
+			if (event == null) {
+				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
+				return;
+			}
+
+			// event is at the moment
+			if (event.start.getTime() < closing.getTime() && event.start.getTime() < new MyDate()) {
+				room.state = {state: "ClaendarEvent", end: event.end, titel: event.title, next: ""};
+				return;
+			}
+
+			// no closing so event is next
+			if (closing == null) {
+				room.state = {state: "Free", end: event.start, titel: "", next: "event"};
+				return;
+			}
+
+			// event sooner then closing
+			if (event.start.getTime() < closing) {
+				room.state = {state: "Free", end: event.start, titel: "", next: "event"};
+			} else if (event.start.getTime() > closing) {
+				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
+			}
+		}
+
+		//need testing
+		function getNextEvent(json) {
+			var event;
+			var now = new MyDate();
+			for (var i = 0; i < json.length; i++) {
+				//event is now active
+				if (json[i].start.getTime() < now.getTime() && json[i].end.getTime() > now.getTime()) {
+					return json[i];
+				}
+				//first element to consider
+				if (event == null) {
+					if (json[i].start.getTime() > now.getTime()) {
+						event = json[i];
+					}
+				}
+				if (json[i].start.getTime() > now.getTime() && event.start.getTime() > json[i].start.getTime()) {
+					event = json[i];
+				}
+			}
+			return event;
+		}
+		function GetNextOpening(room) {
+			var now = new MyDate();
+			var day = now.getDay();
+			var offset = 0;
+			var bestdate;
+			for (var a = 0; a < 7; a++) {
+				if (room.openingTimes == null) {
+					return null;
+				}
+				var tmp = openingTimes[day];
+				if (tmp != null) {
+					for (var i = 0; i < tmp.length; i++) {
+						var openDate = new MyDate();
+						openDate.setDate(now.getDate() + offset);
+						openDate.setHours(tmp[i].HourOpen);
+						openDate.setMinutes(tmp[i].MinutesOpen);
+						if (openDate > now) {
+							if (!IsOpen(new Date(openDate.getTime() - 60000))) {
+								if (bestdate == null || bestdate > openDate) {
+									bestdate = openDate;
+								}
+							}
+						}
+					}
+				}
+				offset++;
+				day++;
+				if (day > 6) {
+					day = 0;
+				}
+			}
+			return bestdate;
+		}
+
+		function GetNextClosing(room) {
+			var now = new MyDate();
+			var day = now.getDay();
+			var offset = 0;
+			var bestdate;
+			for (var a = 0; a < 7; a++) {
+				var tmp = room.openingTimes[day];
+				if (tmp != null) {
+					for (var i = 0; i < tmp.length; i++) {
+						var closeDate = new MyDate();
+						closeDate.setDate(now.getDate() + offset);
+						closeDate.setHours(tmp[i].HourClose);
+						closeDate.setMinutes(tmp[i].MinutesClose);
+						if (closeDate > now) {
+							if (!IsOpen(new Date(closeDate.getTime() + 60000))) {
+								if (bestdate == null || bestdate > closeDate) {
+									bestdate = closeDate;
+								}
+							}
+						}
+					}
+				}
+				offset++;
+				day++;
+				if (day > 6) {
+					day = 0;
+				}
+			}
+			return bestdate;
+		}
+
 
 		function updateRoomUsage(id,on,used,off,defect){
 			$("#div_pc_On_"+id).text(on);
@@ -107,18 +368,20 @@
 		}
 
 		function generateChild(target,id,name) {
+
 			var text="<div class='border'>"  +
 				"<div class='child paperEffect'>" +
 				"<div class='headerFont'>"+name+"</div>" +
 				"<div class='divAroundPcStates'>" +
-				"<div id = 'div_pc_On_"+id+"'  class='divPcOn'>1</div>" +
-				"<div id = 'div_pc_Used_"+id+"' class='divPcPcUsed'>5</div>" +
-				"<div id = 'div_pc_Off_"+id+"' class='divPcPcOff'>99</div>" +
-				"<div id = 'div_pc_Defect_"+id+"' class='divPcPcDefect'>5</div>" +
+				"<div id = 'div_pc_On_"+id+"'  class='divPcOn '></div>" +
+				"<div id = 'div_pc_Used_"+id+"' class='divPcPcUsed'></div>" +
+				"<div id = 'div_pc_Off_"+id+"' class='divPcPcOff'></div>" +
+				"<div id = 'div_pc_Defect_"+id+"' class='divPcPcDefect'></div>" +
 				"</div>" +
 				"<div id = 'div_course"+id+"'class='courseFont'>Course Name</div>" +
 				"<div id = 'div_Time_"+id+"'class='courseFont'>14:23</div></div></div>";
-			$("#"+target).append(text);
+			$(target).append(text);
+			addRoom(id,name);
 
 		}
 
@@ -130,31 +393,50 @@
 				"</div></div>";
 			$(target).append(text);
 		}
+		var getUrlParameter = function getUrlParameter(sParam) {
+			var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+				sURLVariables = sPageURL.split('&'),
+				sParameterName,
+				i;
 
+			for (i = 0; i < sURLVariables.length; i++) {
+				sParameterName = sURLVariables[i].split('=');
+
+				if (sParameterName[0] === sParam) {
+					return sParameterName[1] === undefined ? true : sParameterName[1];
+				}
+			}
+		};
+		function GetTimeDiferenceAsString(a, b) {
+			if (a == null || b == null) {
+				return "";
+			}
+			var milliseconds = a.getTime() - b.getTime();
+			var seconds = Math.floor((milliseconds / 1000) % 60);
+			milliseconds -= seconds * 1000;
+			var minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
+			milliseconds -= minutes * 1000 * 60;
+			var hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
+
+			var days = Math.floor((milliseconds / (1000 * 60 * 60 * 24)) % 31);
+			if (seconds < 10) {
+				seconds = "0" + seconds;
+			}
+			if (minutes < 10) {
+				minutes = "0" + minutes;
+			}
+			if (days != 0) {
+				// dont show?
+				return "";
+			}
+			if (eInkMode) {
+				return hours + ":" + minutes;
+			}
+			return hours + ":" + minutes + ":" + seconds;
+		}
 	</script>
 </head>
 <body class="main">
-<h1>Only Testing</h1>
-<!--
-<div class="child paperEffect" >
-	<div class="headerFont">Room Name</div>
-	<div class="divAroundPcStates">
-		<div class="divPcOn">
-		1
-		</div>
-		<div class="divPcPcUsed">
-			5
-		</div>
-		<div class="divPcPcOff">
-			99
-		</div>
-		<div class="divPcPcDefect">
-			5
-		</div>
-	</div>
-	<div class="courseFont">Course Name</div>
-	<div class="courseFont">14:23</div>
-</div>
--->
+	<h1>Only Testing</h1>
 </body>
 </html>
