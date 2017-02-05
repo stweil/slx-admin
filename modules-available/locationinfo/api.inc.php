@@ -20,13 +20,16 @@ function HandleParameters() {
 		getConfig($getRoomID);
 	} elseif ($getAction == "calendar") {
 		$getRoomID = Request::get('id', 0, 'int');
-		getCalendar($getRoomID);
+		echo getCalendar($getRoomID);
 	} elseif ($getAction == "roomtree") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getRoomTree($roomIDS);
 	} elseif ($getAction == "pcstates") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getPcStates($roomIDS);
+	} elseif ($getAction == "calendars") {
+		$roomIDS = Request::get('ids', 0, 'string');
+		getCalendars($roomIDS);
 	}
 }
 
@@ -34,6 +37,19 @@ function getMultipleInformations($roomids) {
 	$idList = explode(',', $roomids);
 	$filteredIdList = array_filter($idList, 'is_numeric');
 	return $filteredIdList;
+}
+
+// TODO FILTER 2 weeks or some days only
+function getCalendars($ids) {
+	$idList = getMultipleInformations($ids);
+	$calendars = array();
+
+	foreach ($idList as $id) {
+		$a['id'] = $id;
+		$a['calendar'] = json_decode(getCalendar($id), true);
+		$calendars[] = $a;
+	}
+	echo json_encode($calendars);
 }
 
 function getPcStates($ids) {
@@ -156,9 +172,9 @@ function getCalendar($getRoomID) {
 
 	$NOW = time();
 	if ($lastupdate == 0 || $NOW - $lastupdate > 900) {
-		echo updateCalendar($getRoomID, $serverid, $serverroomid);
+		return updateCalendar($getRoomID, $serverid, $serverroomid);
 	} else {
-		echo $calendar;
+		return $calendar;
 	}
 }
 
