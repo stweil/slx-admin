@@ -88,16 +88,15 @@
 		var startdate;
 		var roomidsString = "";
 		var lastPcUpdate;
+		var lastTimeTableUpdate;
 		var pcStateUpdateTime = 60; // in seconds
+		var TimeTableUpdateTime = 60*30; //in seconds
 
 
 		$(document).ready(function () {
 			//temp
 			SetUpDate(new Date());
 			init();
-			console.log(roomidsString);
-
-
 		});
 
 		function init() {
@@ -169,11 +168,31 @@
 					lastPcUpdate = new MyDate();
 				});
 			}
-		// todo get opeing time and roomplan
-			for (var property in rooms) {
-				upDateRoomState(rooms[property]);
+			if(lastTimeTableUpdate ==null || (new MyDate().getTime()-lastTimeTableUpdate.getTime()) > TimeTableUpdateTime*1000){
+				$.getJSON("../../../api.php?do=locationinfo&action=calendars&ids=" + roomidsString, function (result) {
+					UpdateTimeTables(result);
+					lastTimeTableUpdate = new MyDate();
+				});
 			}
 
+		// todo get opeing time
+			if(lastTimeTableUpdate != null && lastPcUpdate !=null ) {
+				for (var property in rooms) {
+					upDateRoomState(rooms[property]);
+				}
+			}
+
+		}
+		function UpdateTimeTables(json) {
+			var l = json.length;
+			for (var i = 0; i < l;i++){
+				rooms[json[i].id].timetable = json[i].calendar;
+				for (var property in rooms[json[i].id].timetable ) {
+					rooms[json[i].id].timetable[property].start = new Date(rooms[json[i].id].timetable[property].start);
+					rooms[json[i].id].timetable[property].end = new Date(rooms[json[i].id].timetable[property].end);
+				}
+				ComputeCurrentState(rooms[json[i].id]);
+			}
 		}
 
 		function upDateRoomState(room) {
@@ -181,13 +200,15 @@
 				console.log("error");
 				return;
 			}
+
 			var state = room.getState();
 
 			if(state.state == "ClaendarEvent") {
 				updateCourseText(room.id,state.titel);
+				updateCoursTimer(room.id,GetTimeDiferenceAsString(state.end,MyDate()));
 			} else if(state.state == "Free") {
 				updateCourseText(room.id,"Frei");
-				updateCoursTimer(room.id,GetTimeDiferenceAsString(MyDate,state.end));
+				updateCoursTimer(room.id,GetTimeDiferenceAsString(state.end,MyDate()));
 			} else if(state.state == "FreeNoEnd") {
 				updateCourseText(room.id,"Frei");
 				updateCoursTimer(room.id,"");
@@ -203,7 +224,7 @@
 		function updatePcStates(json){
 			var l = json.length;
 			for (var i = 0; i < l;i++){
-				console.log(json[i]);
+
 				updateRoomUsage(json[i].id,json[i].idle,json[i].occupied,json[i].off,json[i].broken)
 			}
 
@@ -252,6 +273,7 @@
 				return;
 			}
 			var closing = GetNextClosing(room);
+
 			var event = getNextEvent(room.timetable);
 			// no event and no closing
 			if (closing == null && event == null) {
@@ -266,7 +288,7 @@
 			}
 
 			// event is at the moment
-			if (event.start.getTime() < closing.getTime() && event.start.getTime() < new MyDate()) {
+			if ((closing==null||event.start.getTime() < closing.getTime()) && event.start.getTime() < new MyDate()) {
 				room.state = {state: "ClaendarEvent", end: event.end, titel: event.title, next: ""};
 				return;
 			}
@@ -288,7 +310,9 @@
 		function IsOpenNow(room) {
 			var now = new MyDate();
 			if (room.openingTimes == null) {
-				return false;
+
+				// changes from falls needs testing
+				return true;
 			}
 			var tmp = room.openingTimes[now.getDay()];
 			if (tmp == null) {
@@ -319,7 +343,7 @@
 				}
 				//first element to consider
 				if (event == null) {
-					if (json[i].start.getTime() > now.getTime()) {
+					if(json[i].start.getTime() > now.getTime()) {
 						event = json[i];
 					}
 				}
@@ -369,6 +393,10 @@
 			var offset = 0;
 			var bestdate;
 			for (var a = 0; a < 7; a++) {
+				//Test
+				if(room.openingTimes=== null) {
+					return null;
+				}
 				var tmp = room.openingTimes[day];
 				if (tmp != null) {
 					for (var i = 0; i < tmp.length; i++) {
@@ -476,6 +504,6 @@
 	</script>
 </head>
 <body class="main">
-	<h1>Raum Übersicht</h1>
+	<h1>Raum Übersicht (more testing needed)</h1>
 </body>
 </html>
