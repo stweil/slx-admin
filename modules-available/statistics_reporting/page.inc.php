@@ -43,6 +43,18 @@ class Page_Statistics_Reporting extends Page
 			Message::addError('invalid-table-type', $this->type);
 			$this->type = 'total';
 		}
+
+		// timespan you want to see. default = last 7 days
+		GetData::$from = strtotime("- " . ($this->days - 1) . " days 00:00:00");
+		GetData::$to = time();
+		GetData::$lowerTimeBound = $this->lower;
+		GetData::$upperTimeBound = $this->upper;
+
+		// Export - handle in doPreprocess so we don't render the menu etc.
+		if ($this->action === 'export') {
+			$this->doExport();
+			// Does not return
+		}
 	}
 
 	/**
@@ -104,12 +116,6 @@ class Page_Statistics_Reporting extends Page
 
 			Render::addTemplate('columnChooser', $data);
 
-			// timespan you want to see. default = last 7 days
-			GetData::$from = strtotime("- " . ($this->days - 1) . " days 00:00:00");
-			GetData::$to = time();
-			GetData::$lowerTimeBound = $this->lower;
-			GetData::$upperTimeBound = $this->upper;
-
 			$data['data'] = $this->fetchData(GETDATA_PRINTABLE);
 			Render::addTemplate('table-' . $this->type, $data);
 		}
@@ -131,6 +137,77 @@ class Page_Statistics_Reporting extends Page
 			echo RemoteReport::isReportingEnabled() ? 'on' : '';
 		} else {
 			echo 'Invalid action.';
+		}
+	}
+
+	private function doExport()
+	{
+		$format = Request::get('format', 'json', 'string');
+		$printable = (bool)Request::get('printable', 0, 'int');
+		$flags = 0;
+		if ($printable) {
+			$flags |= GETDATA_PRINTABLE;
+		}
+		$res = $this->fetchData($flags);
+		// TODO: Filter unwanted columns
+		switch ($format) {
+		case 'json':
+			Header('Content-Type: application/json; charset=utf-8');
+			$output = json_encode(array('data' => $res));
+			break;
+		case 'csv':
+			if (!is_array($res)) {
+				die('Error fetching data.');
+			}
+			Header('Content-Type: text/csv; charset=utf-8');
+			$fh = fopen('php://output', 'w');
+			// Output UTF-8 BOM - Excel needs this to automatically decode as UTF-8
+			// (and since Excel is the only sane reason to export as csv, just always do it)
+			fputs($fh, chr(239) . chr(187) . chr(191));
+			// Output
+			if (isset($res[0]) && is_array($res[0])) {
+				// List of rows
+				fputcsv($fh, array_keys($res[0]));
+				foreach ($res as $row) {
+					fputcsv($fh, $row);
+				}
+			} else {
+				// Single assoc array
+				fputcsv($fh, array_keys($res));
+				fputcsv($fh, $res);
+			}
+			fclose($fh);
+			exit();
+			break;
+		case 'xml':
+			$xml_data = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?><data></data>');
+			$this->array_to_xml($res, $xml_data, 'row');
+			$output = $xml_data->asXML();
+			Header('Content-Type: text/xml; charset=utf-8');
+			break;
+		default:
+			Header('Content-Type: text/plain');
+			$output = 'Invalid format: ' . $format;
+		}
+		die($output);
+	}
+
+	/**
+	 * @param $data array Data to encode
+	 * @param $xml_data \SimpleXMLElement XML Object to append to
+	 */
+	private function array_to_xml($data, $xml_data, $parentName = 'row')
+	{
+		foreach ($data as $key => $value) {
+			if (is_numeric($key)) {
+				$key = $parentName;
+			}
+			if (is_array($value)) {
+				$subnode = $xml_data->addChild($key);
+				$this->array_to_xml($value, $subnode, $key);
+			} else {
+				$xml_data->addChild($key, htmlspecialchars($value));
+			}
 		}
 	}
 
