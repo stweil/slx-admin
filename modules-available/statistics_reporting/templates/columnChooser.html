@@ -1,5 +1,5 @@
 <div class="container-fluid">
-	<form method="get">
+	<form method="get" id="controlsForm">
 		<input type="hidden" name="do" value="statistics_reporting">
 		<div class="row form-inline">
 			<div class="col-md-12  top-row">
@@ -92,14 +92,21 @@
 			th.eq(data.column).append(' <span class="arrow glyphicon glyphicon-chevron-'+arrow+'"></span>');
 		});
 
-		$(".locationLink").click(function(e) {
-			e.preventDefault();
-			$('#select-table').val('perlocation');
-			chooseTable('perlocation');
-			var target = $(".locationName:contains('"+$(this).text()+"'):first");
+		if (getParameter("type") == "location" && getParameter("location")) {
+			var target = $(".locationName:contains('"+decodeURIComponent(getParameter("location")).replace(/\+/g, " ")+"'):first");
 			$(window).scrollTop(target.offset().top - $(window).height()/2);
 			target.parent().css( "background-color", "#f8ff99" );
-			return false;
+		}
+
+		$(".locationLink").click(function(e) {
+			e.preventDefault();
+			var form = $('#controlsForm');
+			$('<input />').attr('type', 'hidden')
+				.attr('name', "location")
+				.attr('value', $(this).text())
+				.appendTo(form);
+			form.find('#select-table').val("location");
+			form.submit();
 		});
 
 		$('.column-toggle').change(function () {
@@ -141,5 +148,15 @@
 			type: 'POST',
 			data: { action: "setReporting", reporting: $("#checkbox-reporting").is(":checked") ? "on" : "off", token: TOKEN }
 		});
+	}
+
+	function getParameter(name) {
+			var query = window.location.search.substring(1);
+			var vars = query.split("&");
+			for (var i=0;i<vars.length;i++) {
+				var pair = vars[i].split("=");
+				if(pair[0] == name){return pair[1];}
+			}
+			return(false);
 	}
 </script>
