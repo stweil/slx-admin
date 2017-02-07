@@ -49,6 +49,9 @@ class GetData
 				'sessions' => $row['longSessions'],
 				'shortSessions' => $row['shortSessions']
 			);
+			if (!$anonymize) {
+				$entry['locationId'] = $row['locId'];
+			}
 			if ($printable) {
 				$entry['time_s'] = self::formatSeconds($row['timeSum']);
 				$entry['medianTime_s'] = self::formatSeconds($median);
@@ -78,6 +81,9 @@ class GetData
 				'shortSessions' => $row['shortSessions'],
 				'location' => ($anonymize ? $row['locHash'] : $row['locName']),
 			);
+			if (!$anonymize) {
+				$entry['locationId'] = $row['locId'];
+			}
 			if ($printable) {
 				$entry['time_s'] = self::formatSeconds($row['timeSum']);
 				$entry['medianTime_s'] = self::formatSeconds($median);

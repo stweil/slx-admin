@@ -8,7 +8,7 @@ class Queries
 	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
 		$notassigned = Dictionary::translate('notAssigned', true);
 		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT t1.name AS clientName, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locName, MD5(CONCAT(locId, :salt)) AS locHash, MD5(CONCAT(t1.uuid, :salt)) AS clientHash FROM (
+		$res = Database::simpleQuery("SELECT t1.name AS clientName, timeSum, medianTime, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locId, locName, MD5(CONCAT(locId, :salt)) AS locHash, MD5(CONCAT(t1.uuid, :salt)) AS clientHash FROM (
 													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
@@ -30,21 +30,21 @@ class Queries
 	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
 		$notassigned = Dictionary::translate('notAssigned', true);
 		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT t1.locName AS locName, MD5(CONCAT(locId, :salt)) AS locHash, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
+		$res = Database::simpleQuery("SELECT t1.locId, t1.locName AS locName, MD5(CONCAT(t1.locId, :salt)) AS locHash, timeSum, medianTime, offlineSum, longSessions, shortSessions FROM (
 													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianTime', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
-													GROUP BY location.locationname
+													GROUP BY location.locationid
 												) 	t1 
 												INNER JOIN (
-											 		SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
+											 		SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
-													GROUP BY location.locationname
+													GROUP BY location.locationid
 												) 	t2 
-												ON t1.locName = t2.locName", array("salt" => GetData::$salt));
+												ON t1.locId = t2.locId", array("salt" => GetData::$salt));
 		return $res;
 	}
 
