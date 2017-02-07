@@ -1,5 +1,10 @@
 {
-    "module_name": "Statistik Auswertung",
+    "module_name": "Statistikauswertung",
     "notAssigned": "Nicht zugewiesen",
-    "page_title": "Statistik Auswertung"
+    "page_title": "Statistikauswertung",
+    "table_client": "Nach Clients",
+    "table_location": "Nach Orten",
+    "table_total": "Gesamt",
+    "table_user": "Nach Benutzern",
+    "table_vm": "Nach Veranstaltungen"
 }

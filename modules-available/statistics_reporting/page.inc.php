@@ -13,8 +13,8 @@ class Page_Statistics_Reporting extends Page
 	/**
 	 * @var array Names of columns that are being used by the various tables
 	 */
-	private $COLUMNS = array('col_lastlogout', 'col_laststart', 'col_location', 'col_longsessions', 'col_mediantime',
-		'col_sessions', 'col_shortsessions', 'col_timeoffline', 'col_totaltime');
+	private $COLUMNS = array('lastLogout', 'lastStart', 'location', 'longSessions', 'medianSessionLength',
+		'sessions', 'shortSessions', 'totalOffTime', 'totalTime');
 
 	/**
 	 * @var array Names of the tables we can display
@@ -66,15 +66,6 @@ class Page_Statistics_Reporting extends Page
 
 			/*
 			 * Leave these here for the translate module
-			 * Dictionary::translate('col_lastlogout');
-			 * Dictionary::translate('col_laststart');
-			 * Dictionary::translate('col_location');
-			 * Dictionary::translate('col_longsessions');
-			 * Dictionary::translate('col_mediantime');
-			 * Dictionary::translate('col_sessions');
-			 * Dictionary::translate('col_shortsessions');
-			 * Dictionary::translate('col_timeoffline');
-			 * Dictionary::translate('col_totaltime');
 			 * Dictionary::translate('table_total');
 			 * Dictionary::translate('table_location');
 			 * Dictionary::translate('table_client');
@@ -91,7 +82,7 @@ class Page_Statistics_Reporting extends Page
 			foreach ($this->COLUMNS as $column) {
 				$data['columns'][] = array(
 					'id' => $column,
-					'name' => Dictionary::translate($column, true),
+					'name' => Dictionary::translateFile('template-tags', 'lang_' . $column, true),
 					'checked' => Request::get($column, 'on', 'string') === 'on' ? 'checked' : '',
 				);
 			}

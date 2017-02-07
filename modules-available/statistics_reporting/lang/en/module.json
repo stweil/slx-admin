@@ -1,5 +1,10 @@
 {
     "module_name": "Statistics Reporting",
     "notAssigned": "Not assigned",
-    "page_title": "Statistics Reporting"
+    "page_title": "Statistics Reporting",
+    "table_client": "By client",
+    "table_location": "By location",
+    "table_total": "Total",
+    "table_user": "By user",
+    "table_vm": "By lecture"
 }
