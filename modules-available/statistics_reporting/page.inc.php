@@ -159,14 +159,14 @@ class Page_Statistics_Reporting extends Page
 			// Output
 			if (isset($res[0]) && is_array($res[0])) {
 				// List of rows
-				fputcsv($fh, array_keys($res[0]));
+				fputcsv($fh, array_keys($res[0]), ';');
 				foreach ($res as $row) {
-					fputcsv($fh, $row);
+					fputcsv($fh, $row, ';');
 				}
 			} else {
 				// Single assoc array
-				fputcsv($fh, array_keys($res));
-				fputcsv($fh, $res);
+				fputcsv($fh, array_keys($res), ';');
+				fputcsv($fh, $res, ';');
 			}
 			fclose($fh);
 			exit();
