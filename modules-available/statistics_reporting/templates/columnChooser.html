@@ -1,40 +1,65 @@
-<div class="container-fluid">
-	<form method="get" id="controlsForm">
-		<input type="hidden" name="do" value="statistics_reporting">
-		<div class="row form-inline">
-			<div class="col-md-12  top-row">
-				<select name="type" id="select-table" class="form-control">
-					{{#tables}}
-					<option value="{{value}}" {{selected}}>{{name}}</option>
-					{{/tables}}
-				</select>
-				<select name="cutoff" id="select-cutoff" class="form-control">
-					{{#days}}
-					<option value="{{days}}" {{selected}}>{{lang_days}}: {{days}}</option>
-					{{/days}}
-				</select>
-
-				<div id="slider">
-					<div id="lower-handle" class="ui-slider-handle"></div>
-					<div id="upper-handle" class="ui-slider-handle"></div>
-					<input type="hidden" id="lower-field" name="lower" value="{{lower}}">
-					<input type="hidden" id="upper-field" name="upper" value="{{upper}}">
-				</div>
-				<button type="submit" class="btn btn-sm btn-primary">{{lang_apply}}</button>
-				<button id="button-settings" type="button" class="pull-right btn btn-default" data-toggle="modal" data-target="#modal-settings" onclick="loadSettings()"><span class="glyphicon glyphicon-cog"></span></button>
-			</div>
-			<div class="col-md-12">
-				{{#columns}}
-				<input type="hidden" name="{{id}}" value="off">
-				<div class="checkbox">
-					<input id="{{id}}" name="{{id}}" type="checkbox" class="column-toggle form-control" {{checked}}>
-					<label for="{{id}}">{{name}}</label>
-				</div>
-				{{/columns}}
+<form method="get" id="controlsForm">
+	<input type="hidden" name="do" value="statistics_reporting">
+	<div class="row">
+		<div class="col-md-12">
+			<button id="button-settings" type="button" class="pull-right btn btn-default" data-toggle="modal" data-target="#modal-settings" onclick="loadSettings()"><span class="glyphicon glyphicon-cog"></span></button>
+			<strong class="text-capitalize">{{lang_displaySelection}}</strong>
+		</div>
+	</div>
+	<div class="row top-row">
+		<div class="col-md-4">
+			<select name="type" id="select-table" class="form-control">
+				{{#tables}}
+				<option value="{{value}}" {{selected}}>{{name}}</option>
+				{{/tables}}
+			</select>
+		</div>
+		<div class="col-md-4">
+			<select name="cutoff" id="select-cutoff" class="form-control">
+				{{#days}}
+				<option value="{{days}}" {{selected}}>{{lang_days}}: {{days}}</option>
+				{{/days}}
+			</select>
+		</div>
+		<div class="col-md-3">
+			<div id="slider">
+				<div id="lower-handle" class="ui-slider-handle"></div>
+				<div id="upper-handle" class="ui-slider-handle"></div>
+				<input type="hidden" id="lower-field" name="lower" value="{{lower}}">
+				<input type="hidden" id="upper-field" name="upper" value="{{upper}}">
 			</div>
 		</div>
-	</form>
-</div>
+	</div>
+	<div class="row top-row">
+		<div class="col-md-12 form-inline">
+			<div><strong class="text-capitalize">{{lang_displayColumns}}</strong></div>
+			{{#columns}}
+					<input type="hidden" name="{{id}}" value="off">
+					<div class="checkbox">
+						<input id="{{id}}" name="{{id}}" type="checkbox" class="column-toggle form-control" {{checked}}>
+						<label for="{{id}}">{{name}}</label>
+					</div>
+			{{/columns}}
+		</div>
+	</div>
+	<div class="row top-row">
+		<div class="col-md-12 form-inline">
+			<div class="pull-right input-group">
+				<select class="form-control" name="format">
+					<option value="json">JSON</option>
+					<option value="csv">CSV (Excel)</option>
+					<option value="xml">XML</option>
+				</select>
+				<div class="input-group-btn">
+				<button type="submit" class="btn btn-default" name="action" value="export">{{lang_export}}</button>
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary">{{lang_apply}}</button>
+		</div>
+	</div>
+</form>
+
+<hr>
 
 <div id="modal-settings" class="modal fade" role="dialog">
 	<div class="modal-dialog">
@@ -46,10 +71,10 @@
 				<h4 class="modal-title"><b>Settings</b></h4>
 			</div>
 			<div class="modal-body">
-				<label class="checkbox-inline" style="padding-left: 40px">
-					<input id="checkbox-reporting" type="checkbox" value="" style="margin-top: 0; margin-left: -30px">
-					{{lang_reportingDescription}}
-				</label>
+				<div class="checkbox">
+					<input id="checkbox-reporting" type="checkbox" value="on" style="margin-top: 0; margin-left: -30px">
+					<label for="checkbox-reporting" style="padding-left: 40px">{{lang_reportingDescription}}</label>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="saveSettings()">{{lang_save}}</button>
