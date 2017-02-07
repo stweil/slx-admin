@@ -81,7 +81,7 @@ class Page_Statistics_Reporting extends Page
 
 			foreach ($this->COLUMNS as $column) {
 				$data['columns'][] = array(
-					'id' => $column,
+					'id' => 'col_' . $column,
 					'name' => Dictionary::translateFile('template-tags', 'lang_' . $column, true),
 					'checked' => Request::get($column, 'on', 'string') === 'on' ? 'checked' : '',
 				);

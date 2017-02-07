@@ -34,11 +34,11 @@
 		<div class="col-md-12 form-inline">
 			<div><strong class="text-capitalize">{{lang_displayColumns}}</strong></div>
 			{{#columns}}
-					<input type="hidden" name="{{id}}" value="off">
-					<div class="checkbox">
-						<input id="{{id}}" name="{{id}}" type="checkbox" class="column-toggle form-control" {{checked}}>
-						<label for="{{id}}">{{name}}</label>
-					</div>
+				<input type="hidden" name="{{id}}" value="off">
+				<div class="checkbox">
+					<input id="id_{{id}}" name="{{id}}" type="checkbox" class="column-toggle form-control" {{checked}}>
+					<label for="id_{{id}}">{{name}}</label>
+				</div>
 			{{/columns}}
 		</div>
 	</div>
@@ -117,18 +117,12 @@
 			th.eq(data.column).append(' <span class="arrow glyphicon glyphicon-chevron-'+arrow+'"></span>');
 		});
 
-		if (getParameter("type") == "location" && getParameter("location")) {
-			var target = $(".locationName:contains('"+decodeURIComponent(getParameter("location")).replace(/\+/g, " ")+"'):first");
-			$(window).scrollTop(target.offset().top - $(window).height()/2);
-			target.parent().css( "background-color", "#f8ff99" );
-		}
-
 		$(".locationLink").click(function(e) {
 			e.preventDefault();
 			var form = $('#controlsForm');
 			$('<input />').attr('type', 'hidden')
 				.attr('name', "location")
-				.attr('value', $(this).text())
+				.attr('value', $(this).data('lid'))
 				.appendTo(form);
 			form.find('#select-table').val("location");
 			form.submit();
@@ -173,15 +167,5 @@
 			type: 'POST',
 			data: { action: "setReporting", reporting: $("#checkbox-reporting").is(":checked") ? "on" : "off", token: TOKEN }
 		});
-	}
-
-	function getParameter(name) {
-			var query = window.location.search.substring(1);
-			var vars = query.split("&");
-			for (var i=0;i<vars.length;i++) {
-				var pair = vars[i].split("=");
-				if(pair[0] == name){return pair[1];}
-			}
-			return(false);
 	}
 </script>

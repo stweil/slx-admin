@@ -2,22 +2,22 @@
 	<thead>
 	<tr>
 		<th data-sort="string" class="text-left col-md-2">{{lang_location}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_totaltime">{{lang_totalTime}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_mediantime">{{lang_medianSessionLength}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_longsessions">{{lang_longSessions}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_shortsessions">{{lang_shortSessions}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_timeoffline">{{lang_totalOffTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_totalTime">{{lang_totalTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_medianSessionLength">{{lang_medianSessionLength}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_longSessions">{{lang_longSessions}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_shortSessions">{{lang_shortSessions}}</th>
+		<th data-sort="int" data-sort-default="desc" class="text-left col_totalOffTime">{{lang_totalOffTime}}</th>
 	</tr>
 	</thead>
 	<tbody>
 	{{#data}}
 	<tr>
 		<td class="locationName text-left">{{location}}</td>
-		<td data-sort-value="{{time}}" class="text-left col_totaltime">{{time_s}}</td>
-		<td data-sort-value="{{medianTime}}" class="text-left col_mediantime">{{medianTime_s}}</td>
-		<td class="text-left col_longsessions">{{sessions}}</td>
-		<td class="text-left col_shortsessions">{{shortSessions}}</td>
-		<td data-sort-value="{{offTime}}" class="text-left col_timeoffline">{{offTime_s}}</td>
+		<td data-sort-value="{{time}}" class="text-left col_totalTime">{{time_s}}</td>
+		<td data-sort-value="{{medianTime}}" class="text-left col_medianSessionLength">{{medianTime_s}}</td>
+		<td class="text-left col_longSessions">{{sessions}}</td>
+		<td class="text-left col_shortSessions">{{shortSessions}}</td>
+		<td data-sort-value="{{offTime}}" class="text-left col_totalOffTime">{{offTime_s}}</td>
 	</tr>
 	{{/data}}
 	</tbody>
