@@ -209,7 +209,16 @@ class Page_Statistics_Reporting extends Page
 		case 'total':
 			return GetData::total($flags);
 		case 'location':
-			return GetData::perLocation($flags);
+			$data = GetData::perLocation($flags);
+			$highlight = Request::get('location', false, 'int');
+			if ($highlight !== false) {
+				foreach ($data as &$row) {
+					if ($row['locationId'] == $highlight) {
+						$row['highlight'] = true;
+					}
+				}
+			}
+			return $data;
 		case 'client':
 			return GetData::perClient($flags);
 		case 'user':

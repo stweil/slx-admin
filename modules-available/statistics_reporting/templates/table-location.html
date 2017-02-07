@@ -11,7 +11,7 @@
 	</thead>
 	<tbody>
 	{{#data}}
-	<tr>
+	<tr{{#highlight}} class="info"{{/highlight}}>
 		<td class="locationName text-left">{{location}}</td>
 		<td data-sort-value="{{time}}" class="text-left col_totalTime">{{time_s}}</td>
 		<td data-sort-value="{{medianTime}}" class="text-left col_medianSessionLength">{{medianTime_s}}</td>
