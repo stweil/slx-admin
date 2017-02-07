@@ -150,6 +150,7 @@ class Page_Statistics_Reporting extends Page
 		}
 		$res = $this->fetchData($flags);
 		// TODO: Filter unwanted columns
+		Header('Content-Disposition: attachment; filename=' . 'statistics-' . date('Y.m.d-H.i.s') . '.' . $format);
 		switch ($format) {
 		case 'json':
 			Header('Content-Type: application/json; charset=utf-8');
