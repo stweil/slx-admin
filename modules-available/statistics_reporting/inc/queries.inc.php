@@ -16,7 +16,7 @@ class Queries
 													GROUP BY machine.machineuuid
 												) 	t1 
 												INNER JOIN (
-													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.dateline) AS 'lastStart'
+													SELECT machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.dateline) AS 'lastStart'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid
 													GROUP BY machine.machineuuid
@@ -35,14 +35,14 @@ class Queries
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
-													GROUP BY location.locationid
+													GROUP BY machine.locationid
 												) 	t1 
-												INNER JOIN (
-											 		SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
+												LEFT JOIN (
+													SELECT location.locationid AS 'locId', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
-													GROUP BY location.locationid
+													GROUP BY machine.locationid
 												) 	t2 
 												ON t1.locId = t2.locId", array("salt" => GetData::$salt));
 		return $res;
