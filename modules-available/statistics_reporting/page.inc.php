@@ -87,11 +87,12 @@ class Page_Statistics_Reporting extends Page
 				'days' => array()
 			);
 
+			$forceOn = (Request::get('type') === false);
 			foreach ($this->COLUMNS as $column) {
 				$data['columns'][] = array(
 					'id' => 'col_' . $column,
 					'name' => Dictionary::translateFile('template-tags', 'lang_' . $column, true),
-					'checked' => Request::get($column, 'on', 'string') === 'on' ? 'checked' : '',
+					'checked' => ($forceOn || Request::get('col_' . $column, 'off', 'string') !== 'off') ? 'checked' : '',
 				);
 			}
 
@@ -162,7 +163,32 @@ class Page_Statistics_Reporting extends Page
 			$flags |= GETDATA_PRINTABLE;
 		}
 		$res = $this->fetchData($flags);
-		// TODO: Filter unwanted columns
+		// Filter unwanted columns
+		if (isset($res[0])) {
+			foreach ($this->COLUMNS as $column) {
+				if (Request::get('col_' . $column, 'delete', 'string') === 'delete') {
+					foreach ($res as &$row) {
+						unset($row[$column], $row[$column . '_s']);
+						if ($column === 'location') {
+							unset($row['locationId']);
+						}
+					}
+				} elseif ($printable && isset($row[0][$column . '_s'])) {
+					foreach ($res as &$row) {
+						unset($row[$column]);
+					}
+				} elseif ($column === 'location' && (isset($res[0]['location']) || isset($res[0]['locationId']))) {
+					foreach ($res as &$row) {
+						if ($printable) {
+							unset($row['locationId']);
+						} else {
+							unset($row['location']);
+						}
+					}
+				}
+			}
+			unset($row);
+		}
 		Header('Content-Disposition: attachment; filename=' . 'statistics-' . date('Y.m.d-H.i.s') . '.' . $format);
 		switch ($format) {
 		case 'json':

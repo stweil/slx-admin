@@ -34,9 +34,8 @@
 		<div class="col-md-12 form-inline">
 			<div><strong class="text-capitalize">{{lang_displayColumns}}</strong></div>
 			{{#columns}}
-				<input type="hidden" name="{{id}}" value="off">
 				<div class="checkbox">
-					<input id="id_{{id}}" name="{{id}}" type="checkbox" class="column-toggle form-control" {{checked}}>
+					<input id="id_{{id}}" name="{{id}}" value="on" type="checkbox" class="column-toggle form-control" {{checked}}>
 					<label for="id_{{id}}">{{name}}</label>
 				</div>
 			{{/columns}}
@@ -142,6 +141,10 @@
 		$('.column-toggle').each(function () {
 			var box = $(this);
 			if ($('.' + box.attr('name')).length === 0) {
+				if (!box.is(':checked')) {
+					box.attr('value', 'off');
+					box.prop('checked', true);
+				}
 				box.parent().hide();
 			} else {
 				updateColumn(box);
