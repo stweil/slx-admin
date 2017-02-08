@@ -1,5 +1,7 @@
 {
     "lang_actionTarget": "Action target",
+    "lang_allowLoginByDefault": "Allow all staff members to login and use the bwLehrpool-Suite",
+    "lang_allowLoginDescription": "If this option is enabled, all members of the organization marked as staff or employee are allowed to login to this server and manage VMs\/courses. Otherwise, new users need to be individually allowed access after their first login attempt by visiting the sub page \"users and permissions\" in this web interface.",
     "lang_asteriskRequired": "Fields marked with (*) are required",
     "lang_blockCount": "Block count",
     "lang_canLogin": "Members of this organization can login",
@@ -42,6 +44,7 @@
     "lang_maxImageValidity": "New VM validity (days)",
     "lang_maxLectureVisibility": "Max time lecture end date may lie in the future (days)",
     "lang_maxTransfers": "Max concurrent transfers per user",
+    "lang_miscOptions": "Misc options",
     "lang_name": "Name",
     "lang_organization": "Organization",
     "lang_organizationList": "List of organizations",

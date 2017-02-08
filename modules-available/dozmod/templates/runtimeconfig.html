@@ -91,6 +91,17 @@
 				</table>
 			</fieldset>
 
+			<fieldset>
+				<h3>{{lang_miscOptions}}</h3>
+				<div class="checkbox">
+					<input type="hidden" 	name="allowLoginByDefault" value="0">
+					<input type="checkbox"  name="allowLoginByDefault" value="1" {{allowLoginByDefault}} id ="allowLoginByDefault" class="form-control">
+					<label>
+						{{lang_allowLoginByDefault}}
+					</label>
+					<p><i>{{lang_allowLoginDescription}}</i></p>
+				</div>
+			</fieldset>
 
 			<br>
 			<input type="hidden" name="token" value="{{token}}">
@@ -99,27 +110,3 @@
 		</form>
 	</div>
 </div>
-
-<script type="text/javascript"><!--
-function slxTestConfig() {
-		$('#test-button').prop('disabled', true);
-		$('#test-spin').css('display', '');
-		var str = $('#mailconf').serialize();
-		str += '&button=test';
-		console.log(str);
-		$.post('?do=DozMod', str).done(function(data) {
-			console.log('Success');
-			console.log(data);
-			checkRes(data);
-		}).fail(function() {
-			checkRes('DozMod refused the connection');
-		}).always(function() {
-			$('#test-button').prop('disabled', false);
-			$('#test-spin').css('display', 'none');
-		});
-	}
-
-	function checkRes(text) {
-		$('#test-output').css('display', '').text(text);
-	}
-// --> </script>

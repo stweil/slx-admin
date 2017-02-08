@@ -1,5 +1,7 @@
 {
     "lang_actionTarget": "Aktionsziel",
+    "lang_allowLoginByDefault": "Login standardm\u00e4\u00dfig erlauben",
+    "lang_allowLoginDescription": "Wenn diese Option aktiviert ist, k\u00f6nnen sich alle Mitarbeiter der Einrichtung \u00fcber die bwLehrpool-Suite anmelden und VMs\/Veranstaltungen verwalten. Wenn Sie diese Option deaktivieren, m\u00fcssen Sie in der Untersektion \"Benutzer und Berechtigungen\" jeden Benutzer nach dem ersten Loginversuch manuell freischalten.",
     "lang_asteriskRequired": "Felder mit (*) sind erforderlich",
     "lang_blockCount": "Anzahl Bl\u00f6cke",
     "lang_canLogin": "Nutzer dieser Einrichtung k\u00f6nnen sich am Satelliten anmelden",
@@ -42,6 +44,7 @@
     "lang_maxImageValidity": "G\u00fcltigkeitsdauer neuer VM-Versionen (Tage)",
     "lang_maxLectureVisibility": "Sp\u00e4testes Enddatum einer Veranstaltung (Tage in der Zukunft)",
     "lang_maxTransfers": "Maximale Zahl gleichzeitiger Up-\/Downloads pro Benutzer",
+    "lang_miscOptions": "Verschiedene Einstellungen",
     "lang_name": "Name",
     "lang_organization": "Einrichtung",
     "lang_organizationList": "Liste der Einrichtungen",

@@ -89,29 +89,32 @@ class Page_DozMod extends Page
 		if ($section === 'runtimeconfig') {
 			// Runtime config
 			$runtimeConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'runtimelimits'));
-			if ($runtimeConf != null) {
+			if ($runtimeConf !== false) {
 				$runtimeConf = json_decode($runtimeConf['value'], true);
 
 				/* convert some value to corresponding "selected" texts */
 				if ($runtimeConf['defaultLecturePermissions']['edit']) {
-					$runtimeConf['defaultLecturePermissions']['edit'] = 'checked="checked"';
+					$runtimeConf['defaultLecturePermissions']['edit'] = 'checked';
 				}
 				if ($runtimeConf['defaultLecturePermissions']['admin']) {
-					$runtimeConf['defaultLecturePermissions']['admin'] = 'checked="checked"';
+					$runtimeConf['defaultLecturePermissions']['admin'] = 'checked';
 				}
 				if ($runtimeConf['defaultImagePermissions']['edit']) {
-					$runtimeConf['defaultImagePermissions']['edit'] = 'checked="checked"';
+					$runtimeConf['defaultImagePermissions']['edit'] = 'checked';
 				}
 				if ($runtimeConf['defaultImagePermissions']['admin']) {
-					$runtimeConf['defaultImagePermissions']['admin'] = 'checked="checked"';
+					$runtimeConf['defaultImagePermissions']['admin'] = 'checked';
 				}
 				if ($runtimeConf['defaultImagePermissions']['link']) {
-					$runtimeConf['defaultImagePermissions']['link'] = 'checked="checked"';
+					$runtimeConf['defaultImagePermissions']['link'] = 'checked';
 				}
 				if ($runtimeConf['defaultImagePermissions']['download']) {
-					$runtimeConf['defaultImagePermissions']['download'] = 'checked="checked"';
+					$runtimeConf['defaultImagePermissions']['download'] = 'checked';
 				}
 
+				if ($runtimeConf['allowLoginByDefault']) {
+					$runtimeConf['allowLoginByDefault'] = 'checked';
+				}
 			}
 			Render::addTemplate('runtimeconfig', $runtimeConf);
 		}
@@ -310,14 +313,29 @@ class Page_DozMod extends Page
 			$data['defaultLecturePermissions'] = Request::post('defaultLecturePermissions', NULL, "array");
 			$data['defaultImagePermissions'] = Request::post('defaultImagePermissions', NULL, "array");
 
-			$intParams = [
-				'maxImageValidityDays' => array('min' => 7, 'max' => 999),
-				'maxLectureValidityDays' => array('min' => 7, 'max' => 999),
-				'maxTransfers' => array('min' => 1, 'max' => 10),
+			$params = [
+				'int' => [
+					'maxImageValidityDays' => array('min' => 7, 'max' => 999),
+					'maxLectureValidityDays' => array('min' => 7, 'max' => 999),
+					'maxTransfers' => array('min' => 1, 'max' => 10),
+				],
+				'bool' => [
+					'allowLoginByDefault' => array('default' => true)
+				],
 			];
-			foreach($intParams as $field => $limits) {
-				$value = Request::post($field, 0, 'int');
-				$data[$field] = max(min($value, $limits['max']), $limits['min']);
+			foreach ($params as $type => $list) {
+				foreach ($list as $field => $limits) {
+					$default = isset($limits['default']) ? $limits['default'] : false;
+					$value = Request::post($field, $default);
+					settype($value, $type);
+					if (isset($limits['min']) && $value < $limits['min']) {
+						$value = $limits['min'];
+					}
+					if (isset($limits['max']) && $value > $limits['max']) {
+						$value = $limits['max'];
+					}
+					$data[$field] = $value;
+				}
 			}
 
 			/* ensure types */
@@ -327,9 +345,6 @@ class Page_DozMod extends Page
 			settype($data['defaultImagePermissions']['admin'], 'boolean');
 			settype($data['defaultImagePermissions']['link'], 'boolean');
 			settype($data['defaultImagePermissions']['download'], 'boolean');
-			settype($data['maxImageValidityDays'], 'int');
-			settype($data['maxLectureValidityDays'], 'int');
-			settype($data['maxTransfers'], 'int');
 
 			$data = json_encode($data);
 			Database::exec('INSERT INTO sat.configuration (parameter, value)'
