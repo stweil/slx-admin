@@ -2,7 +2,7 @@
 	<input type="hidden" name="do" value="statistics_reporting">
 	<div class="row">
 		<div class="col-md-12">
-			<button id="button-settings" type="button" class="pull-right btn btn-default" data-toggle="modal" data-target="#modal-settings" onclick="loadSettings()"><span class="glyphicon glyphicon-cog"></span></button>
+			<button id="button-settings" type="button" class="pull-right btn btn-{{settingsButtonClass}}" data-toggle="modal" data-target="#modal-settings"><span class="glyphicon glyphicon-cog"></span></button>
 			<strong class="text-capitalize">{{lang_displaySelection}}</strong>
 		</div>
 	</div>
@@ -72,8 +72,12 @@
 			</div>
 			<div class="modal-body">
 				<div class="checkbox">
-					<input id="checkbox-reporting" type="checkbox" value="on" style="margin-top: 0; margin-left: -30px">
-					<label for="checkbox-reporting" style="padding-left: 40px">{{lang_reportingDescription}}</label>
+					<input id="checkbox-reporting" type="checkbox" value="on" {{reportChecked}}>
+					<label for="checkbox-reporting" style="padding-left: 40px">{{lang_reportingLabel}}</label>
+				</div>
+				<div>
+					<p>{{lang_reportingDescription}}</p>
+					<a class="btn btn-success" href="?do=statistics_reporting&amp;action=getreport">{{lang_downloadReport}}</a>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -120,10 +124,14 @@
 		$(".locationLink").click(function(e) {
 			e.preventDefault();
 			var form = $('#controlsForm');
-			$('<input />').attr('type', 'hidden')
-				.attr('name', "location")
-				.attr('value', $(this).data('lid'))
-				.appendTo(form);
+			var inp = $('#location-id');
+			if (inp.length === 0) {
+				inp = $('<input />').attr('type', 'hidden')
+					.attr('name', "location")
+					.attr('id', 'location-id')
+					.appendTo(form);
+			}
+			inp.attr('value', $(this).data('lid'));
 			form.find('#select-table').val("location");
 			form.submit();
 		});
@@ -150,22 +158,19 @@
 		}
 	}
 
-	function loadSettings() {
-		$.ajax({
-			url: '?do=statistics_reporting',
-			type: 'GET',
-			data: { action: "getReporting"},
-			success: function(value) {
-				$("#checkbox-reporting").prop("checked", value == "on");
-			}
-		});
-	}
-
 	function saveSettings() {
 		$.ajax({
 			url: '?do=statistics_reporting',
 			type: 'POST',
-			data: { action: "setReporting", reporting: $("#checkbox-reporting").is(":checked") ? "on" : "off", token: TOKEN }
+			data: { action: "setReporting", reporting: $("#checkbox-reporting").is(":checked") ? "on" : "off", token: TOKEN },
+			success: function(value) {
+				if (typeof(value) === 'object') {
+					$("#checkbox-reporting").prop('checked', !!value['checked']);
+					$("#button-settings").removeClass('btn-default btn-danger').addClass('btn-' + value['class']);
+				} else {
+					alert('Invalid reply when setting value: ' + value + ' (' + typeof(value) + ')');
+				}
+			}
 		});
 	}
 </script>

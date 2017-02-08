@@ -55,6 +55,14 @@ class Page_Statistics_Reporting extends Page
 			$this->doExport();
 			// Does not return
 		}
+		// Get report - fetch data exactly the way it would automatically be reported
+		// so the user can know what is going on
+		if ($this->action === 'getreport') {
+			$report = RemoteReport::generateReport(strtotime('-7 days'), time('now'));
+			Header('Content-Disposition: attachment; filename=remote-report.json');
+			Header('Content-Type: application/json; charset=utf-8');
+			die(json_encode($report));
+		}
 	}
 
 	/**
@@ -105,6 +113,13 @@ class Page_Statistics_Reporting extends Page
 			$data['lower'] = $this->lower;
 			$data['upper'] = $this->upper;
 
+			if (RemoteReport::isReportingEnabled()) {
+				$data['settingsButtonClass'] = 'default';
+				$data['reportChecked'] = 'checked';
+			} else {
+				$data['settingsButtonClass'] = 'danger';
+			}
+
 			Render::addTemplate('columnChooser', $data);
 
 			$data['data'] = $this->fetchData(GETDATA_PRINTABLE);
@@ -124,8 +139,15 @@ class Page_Statistics_Reporting extends Page
 				die('Missing setting value.');
 			}
 			RemoteReport::setReportingEnabled($state);
-		} elseif ($this->action === 'getReporting') {
-			echo RemoteReport::isReportingEnabled() ? 'on' : '';
+			$data = array();
+			if (RemoteReport::isReportingEnabled()) {
+				$data['class'] = 'default';
+				$data['checked'] = true;
+			} else {
+				$data['class'] = 'danger';
+			}
+			Header('Content-Type: application/json; charset=utf-8');
+			die(json_encode($data));
 		} else {
 			echo 'Invalid action.';
 		}

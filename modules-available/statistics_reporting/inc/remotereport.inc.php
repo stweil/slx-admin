@@ -24,7 +24,7 @@ class RemoteReport
 	 */
 	public static function isReportingEnabled()
 	{
-		return Property::get(self::ENABLED_ID, false);
+		return Property::get(self::ENABLED_ID, false) === 'on';
 	}
 
 	/**
