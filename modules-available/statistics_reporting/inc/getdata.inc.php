@@ -17,17 +17,17 @@ class GetData
 		// total time online, average time online, total  number of logins
 		$res = Queries::getOverallStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$row = $res->fetch(PDO::FETCH_ASSOC);
-		$data = array('time' =>  $row['sum'], 'medianTime' =>  self::calcMedian($row['median']), 'sessions' => $row['longSessions'], 'shortSessions' => $row['shortSessions']);
+		$data = array('totalTime' =>  $row['sum'], 'medianSessionLength' =>  self::calcMedian($row['median']), 'longSessions' => $row['longSessions'], 'shortSessions' => $row['shortSessions']);
 
 		//total time offline
 		$res = Queries::getTotalOfflineStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$row = $res->fetch(PDO::FETCH_ASSOC);
-		$data = array_merge($data, array('totalOfftime' => $row['timeOff']));
+		$data['totalOffTime'] = $row['timeOff'];
 
 		if ($printable) {
-			$data["time_s"] = self::formatSeconds($data["time"]);
-			$data["medianTime_s"] = self::formatSeconds($data["medianTime"]);
-			$data["totalOfftime_s"] = self::formatSeconds($data["totalOfftime"]);
+			$data["totalTime_s"] = self::formatSeconds($data["totalTime"]);
+			$data["medianSessionLength_s"] = self::formatSeconds($data["medianSessionLength"]);
+			$data["totalOffTime_s"] = self::formatSeconds($data["totalOffTime"]);
 		}
 
 		return $data;
@@ -40,22 +40,22 @@ class GetData
 		$res = Queries::getLocationStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$median = self::calcMedian(self::calcMedian($row['medianTime']));
+			$median = self::calcMedian(self::calcMedian($row['medianSessionLength']));
 			$entry = array(
 				'location' => ($anonymize ? $row['locHash'] : $row['locName']),
-				'time' => $row['timeSum'],
-				'medianTime' => $median,
-				'offTime' => $row['offlineSum'],
-				'sessions' => $row['longSessions'],
+				'totalTime' => $row['timeSum'],
+				'medianSessionLength' => $median,
+				'totalOffTime' => $row['offlineSum'],
+				'longSessions' => $row['longSessions'],
 				'shortSessions' => $row['shortSessions']
 			);
 			if (!$anonymize) {
 				$entry['locationId'] = $row['locId'];
 			}
 			if ($printable) {
-				$entry['time_s'] = self::formatSeconds($row['timeSum']);
-				$entry['medianTime_s'] = self::formatSeconds($median);
-				$entry['offTime_s'] = self::formatSeconds($row['offlineSum']);
+				$entry['totalTime_s'] = self::formatSeconds($row['timeSum']);
+				$entry['medianSessionLength_s'] = self::formatSeconds($median);
+				$entry['totalOffTime_s'] = self::formatSeconds($row['offlineSum']);
 			}
 			$data[] = $entry;
 		}
@@ -69,15 +69,15 @@ class GetData
 		$res = Queries::getClientStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$median = self::calcMedian(self::calcMedian($row['medianTime']));
+			$median = self::calcMedian(self::calcMedian($row['medianSessionLength']));
 			$entry = array(
 				'hostname' => ($anonymize ? $row['clientHash'] : $row['clientName']),
-				'time' => $row['timeSum'],
-				'medianTime' => $median,
-				'offTime' => $row['offlineSum'],
+				'totalTime' => $row['timeSum'],
+				'medianSessionLength' => $median,
+				'totalOffTime' => $row['offlineSum'],
 				'lastStart' => $row['lastStart'],
 				'lastLogout' => $row['lastLogout'],
-				'sessions' => $row['longSessions'],
+				'longSessions' => $row['longSessions'],
 				'shortSessions' => $row['shortSessions'],
 				'location' => ($anonymize ? $row['locHash'] : $row['locName']),
 			);
@@ -85,11 +85,11 @@ class GetData
 				$entry['locationId'] = $row['locId'];
 			}
 			if ($printable) {
-				$entry['time_s'] = self::formatSeconds($row['timeSum']);
-				$entry['medianTime_s'] = self::formatSeconds($median);
-				$entry['offTime_s'] = self::formatSeconds($row['offlineSum']);
-				$entry['lastStart_s'] = date(DATE_RSS, $row['lastStart']);
-				$entry['lastLogout_s'] = date(DATE_RSS, $row['lastLogout']);
+				$entry['totalTime_s'] = self::formatSeconds($row['timeSum']);
+				$entry['medianSessionLength_s'] = self::formatSeconds($median);
+				$entry['totalOffTime_s'] = self::formatSeconds($row['offlineSum']);
+				$entry['lastStart_s'] = date(DATE_ISO8601, $row['lastStart']);
+				$entry['lastLogout_s'] = date(DATE_ISO8601, $row['lastLogout']);
 			}
 			$data[] = $entry;
 		}
