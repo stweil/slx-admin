@@ -159,8 +159,6 @@
 			return event;
 		}
 		function update() {
-			console.log("update");
-
 
 			if(lastPcUpdate ==null || (new MyDate().getTime()-lastPcUpdate.getTime()) > pcStateUpdateTime*1000){
 				$.getJSON("../../../api.php?do=locationinfo&action=pcstates&ids=" + roomidsString, function (result) {
