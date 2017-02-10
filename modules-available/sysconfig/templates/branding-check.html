@@ -21,6 +21,11 @@
 			<label for="title-id">{{lang_title}}</label>
 			<input type="text" name="title" value="{{title}}" id ="title-id" class="form-control" placeholder="Name des Moduls">
 		</div>
-		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+		<div class="btn-group">
+			<a class="btn btn-default" href="?do=SysConfig&action=addmodule&step=Branding_Start">{{lang_cancel}}</a>
+		</div>
+		<div class="btn-group pull-right">
+			<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+		</div>
 	</form>
 </div>
