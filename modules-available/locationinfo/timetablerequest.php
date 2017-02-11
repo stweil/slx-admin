@@ -1,5 +1,5 @@
 <?php
-
+require 'HisInOneAPI.php';
 function fetchNewTimeTable($locationID){
             //Get room information
             $dbquery1 = Database::simpleQuery("SELECT serverid, serverroomid, lastcalenderupdate FROM location_info WHERE locationid = :id", array('id' => $locationID));
@@ -35,7 +35,7 @@ function fetchNewTimeTable($locationID){
 function HisInOneRequest($url,$roomID,$lname,$passwd){
     $url = $url."/qisserver/services2/CourseService";
     $client = new HisInOneSoapClient($url, $lname, $passwd);
-    return $client->giveBackJson($roomID);
+    return $client->getJson($roomID);
     
 
 }

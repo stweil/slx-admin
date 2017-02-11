@@ -2,7 +2,7 @@
 interface iTimetableRequest
 {
     public function getJson($param);
-    public function getJsonsl($param);
+    public function getJsons($param);
 }
 
 class HisInOneSoapClient implements iTimetableRequest
@@ -146,6 +146,14 @@ class HisInOneSoapClient implements iTimetableRequest
        }
         return json_encode($timetable);
     }
+    
+    public function toArray($response){
+        $response = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
+        $xml = new SimpleXMLElement($response);
+        $array = json_decode(json_encode((array)$xml), TRUE);
+        return $array;
+    }
+
     //Request for a timetable with roomids as array
     public function getJsons($param){
         //get all eventIDs in a given room
@@ -193,19 +201,23 @@ class HisInOneSoapClient implements iTimetableRequest
     }
     function getCurrentWeekDates()
     {
-        $startdate = date('Y-m-d');
-        $enddate = date('+1 week');
-        
-
         $DateArray = array();
-        $timestamp = strtotime($startdate);
-        while ($startdate <= $enddate) {
-            $startdate = date('Y-m-d', $timestamp);
-            $DateArray[] = $startdate;
-            $timestamp = strtotime('+1 days', strtotime($startdate));
+        $startdate = strtotime('Now');
+        for($i=0 ;$i<=7; $i++) {
+            $DateArray[] = date('Y-m-d', strtotime("+ {$i} day", $startdate));
+        
         }
         return $DateArray;
     }
 
 }
+
+        
+$params = array("planelementId"=>42);
+    try {
+        
+        } 
+    catch (Exception $ex) {
+            var_dump($ex);
+        }
 ?>
