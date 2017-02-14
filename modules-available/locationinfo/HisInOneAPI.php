@@ -10,28 +10,37 @@ class HisInOneSoapClient implements iTimetableRequest
     private $username;
     private $password;
     private $location;
-    private $header;
 
 
+    //Constructs the HisInOneClient all parameters are strings
     function __construct($location, $username, $password) {
         $this->location = $location;
         $this->password = $password;
         $this->username = $username;
-        $this->header = '<SOAP-ENV:Envelope xmlns:ns1="http://www.his.de/ws/courseService" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">'
-                . '<SOAP-ENV:Header><ns2:Security SOAP-ENV:mustUnderstand="1" xmlns:ns2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">'
-                . '<ns2:UsernameToken><ns2:Username>'.$this->username .'</ns2:Username>'
-                . '<ns2:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">'.$this->password.'</ns2:Password>'
-                . '</ns2:UsernameToken></ns2:Security></SOAP-ENV:Header>';
     }
-    //returns a xml with information of one lecture given as int parameter
-    public function getPlanelementForExportById($param)
-    {
-        $soap_request = $this->header.'<SOAP-ENV:Body>'
-                . '<ns1:getPlanelementForExportById><ns1:planelementId>'.$param.'</ns1:planelementId>'
-                . '</ns1:getPlanelementForExportById></SOAP-ENV:Body></SOAP-ENV:Envelope>';
-        return $this->__doRequest($soap_request,"getPlanelementForExportByID");
-        
+
+    
+    //Contstructs the Soap Header $doc is a DOMDocument this returns a DOMElement
+    private function getHeader($doc){
+        $header = $doc->createElement( 'SOAP-ENV:Header');
+        $security = $doc->createElementNS('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd','ns2:Security');
+        $mustunderstand = $doc->createAttribute('SOAP-ENV:mustUnderstand');
+        $mustunderstand->value = 1;
+        $security->appendChild($mustunderstand);
+        $header->appendChild($security);
+        $token = $doc->createElement('ns2:UsernameToken');
+        $security->appendChild($token);
+        $user = $doc->createElement('ns2:Username',  $this->username);
+        $token->appendChild($user);
+        $pass = $doc->createElement('ns2:Password', $this->password);
+        $type = $doc->createAttribute('Type');
+        $type ->value = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText';
+        $pass ->appendChild($type);
+        $token->appendChild($pass);
+        return $header;
     }
+    
+    //returns the IDs in an array for a given roomID
     public function findUnit($roomID){
         $termyear = date('Y');
         $termtype = date('n');
@@ -45,29 +54,79 @@ class HisInOneSoapClient implements iTimetableRequest
         else{
             $termtype = 1;
         }
+        $doc  = new DOMDocument('1.0', 'utf-8');
+        $doc->formatOutput = true;
+        $envelope = $doc->createElementNS('http://schemas.xmlsoap.org/soap/envelope/', 'SOAP-ENV:Envelope');
+        $doc->appendChild($envelope);
+        $envelope->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:ns1', 'http://www.his.de/ws/courseService');
         
-        $soap_request = $this->header.'<SOAP-ENV:Body><ns1:findUnit><ns1:unitDefaulttext/><ns1:unitElementnr/>'
-                . '<ns1:editingStatusId/><ns1:courseEventtypeId/><ns1:courseTeachingLanguageId/>'
-                . '<ns1:planelementDefaulttext/><ns1:parallelgroupId/>'
-                . '<ns1:termYear>'.$termyear.'</ns1:termYear><ns1:termTypeValueId>'.$termtype.'</ns1:termTypeValueId>'
-                . '<ns1:individualDatesExecutionDate/><ns1:individualDatesStarttime/><ns1:individualDatesEndtime/>'
-                . '<ns1:roomId>'.$roomID.'</ns1:roomId></ns1:findUnit></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+        $header = $this->getHeader($doc);
+        $envelope->appendChild($header);
+        //Body of the request
+        $body = $doc->createElement('SOAP-ENV:Body');
+        $envelope->appendChild($body);
+        $findUnit= $doc->createElement('ns1:findUnit');
+        $body->appendChild($findUnit);
+        $unitDefaulttext = $doc->createElement('ns1:unitDefaulttext');
+        $findUnit->appendChild($unitDefaulttext);
+        $unitElementnr = $doc->createElement('ns1:unitElementnr');
+        $findUnit->appendChild($unitElementnr);
+        $editingStatusId = $doc->createElement('ns1:editingStatusId');
+        $findUnit->appendChild($editingStatusId);
+        $courseEventtypeId = $doc->createElement('ns1:courseEventtypeId');
+        $findUnit->appendChild($courseEventtypeId);
+        $courseTeachingLanguageId = $doc->createElement('ns1:courseTeachingLanguageId');
+        $findUnit->appendChild($courseTeachingLanguageId);
+        $planelementDefaulttext = $doc->createElement('ns1:planelementDefaulttext');
+        $findUnit->appendChild($planelementDefaulttext);
+        $parallelgroupId= $doc->createElement('ns1:parallelgroupId');
+        $findUnit->appendChild($parallelgroupId);
+        $termYearN = $doc->createElement('termYear',$termyear);
+        $findUnit->appendChild($termYearN);
+        $termTypeValueId = $doc->createElement('termTypeValueId',$termtype);
+        $findUnit->appendChild($termTypeValueId);
+        $individualDatesExecutionDate = $doc->createElement('ns1:individualDatesExecutionDate');
+        $findUnit->appendChild($individualDatesExecutionDate);
+        $individualDatesStarttime = $doc->createElement('ns1:individualDatesStarttime');
+        $findUnit->appendChild($individualDatesStarttime);
+        $individualDatesEndtime = $doc->createElement('ns1:individualDatesEndtime');
+        $findUnit->appendChild($individualDatesEndtime);
+        $roomIdN = $doc->createElement('ns1:roomId',$roomID);
+        $findUnit->appendChild($roomIdN);
+        
+        $soap_request = $doc->saveXML();
         $respons1 = $this->__doRequest($soap_request, "findUnit");
         $respons2 = $this->toArray($respons1);
         $id = $respons2['soapenvBody']['hisfindUnitResponse']['hisunitIds']['hisid'];
         return $id;
     }
     
+    //This function sends a Soaprequest with the eventID and returns an array which contains much
+    // informations, like start and enddates for events and their name.
     public function readUnit($unit) {
-        $soap_request = $this->header.'<SOAP-ENV:Body><ns1:readUnit>'
-                . '<ns1:unitId>'.$unit.'</ns1:unitId></ns1:readUnit>'
-                . '</SOAP-ENV:Body></SOAP-ENV:Envelope>';
-         $respons1 = $this->__doRequest($soap_request, "readUnit");
-         $respons2 = $this->toArray($respons1);
-         $id = $respons2['soapenvBody']['hisreadUnitResponse'];
-         return $id;
+        $doc  = new DOMDocument('1.0', 'utf-8');
+        $doc->formatOutput = true;
+        $envelope = $doc->createElementNS('http://schemas.xmlsoap.org/soap/envelope/', 'SOAP-ENV:Envelope');
+        $doc->appendChild($envelope);
+        $envelope->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:ns1', 'http://www.his.de/ws/courseService');
+        
+        $header = $this->getHeader($doc);
+        $envelope->appendChild($header);
+        //body of the request
+        $body = $doc->createElement('SOAP-ENV:Body');
+        $envelope->appendChild($body);
+        $readUnit =$doc->createElement('ns1:readUnit');
+        $body->appendChild($readUnit);
+        $unitId = $doc->createElement('ns1:unitId',$unit);
+        $readUnit->appendChild($unitId);
+
+        $soap_request = $doc->saveXML();
+        $respons1 = $this->__doRequest($soap_request, "readUnit");
+        $respons2 = $this->toArray($respons1);
+        $respons3 = $respons2['soapenvBody']['hisreadUnitResponse'];
+        return $respons3;
     }
-    //Makes a SOAP-Request
+    //Makes a SOAP-Request as a normal POST
     function __doRequest($request, $action){
         $header = array(
             "Content-type: text/xml;charset=\"utf-8\"",
@@ -147,9 +206,10 @@ class HisInOneSoapClient implements iTimetableRequest
         return json_encode($timetable);
     }
     
-    public function toArray($response){
-        $response = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
-        $xml = new SimpleXMLElement($response);
+    //this function transforms a xml string into an array
+    private function toArray($response){
+        $cleanresponse = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
+        $xml = new SimpleXMLElement($cleanresponse);
         $array = json_decode(json_encode((array)$xml), TRUE);
         return $array;
     }
@@ -199,6 +259,8 @@ class HisInOneSoapClient implements iTimetableRequest
         }
         return $ttables;
     }
+    
+    
     function getCurrentWeekDates()
     {
         $DateArray = array();
@@ -211,13 +273,4 @@ class HisInOneSoapClient implements iTimetableRequest
     }
 
 }
-
-        
-$params = array("planelementId"=>42);
-    try {
-        
-        } 
-    catch (Exception $ex) {
-            var_dump($ex);
-        }
 ?>
