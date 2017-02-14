@@ -14,7 +14,7 @@ function HandleParameters() {
 		getRoomInfoJson($getRoomID, $getCoords);
 	} elseif ($getAction == "openingtime") {
 		$getRoomID = Request::get('id', 0, 'int');
-		getOpeningTimes($getRoomID);
+		echo getOpeningTime($getRoomID);
 	} elseif ($getAction == "config") {
 		$getRoomID = Request::get('id', 0, 'int');
 		getConfig($getRoomID);
@@ -30,6 +30,9 @@ function HandleParameters() {
 	} elseif ($getAction == "calendars") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getCalendars($roomIDS);
+	} elseif ($getAction == "openingtimes") {
+		$roomIDS = Request::get('ids', 0, 'string');
+		getOpeningTimes($roomIDS);
 	}
 }
 
@@ -100,7 +103,7 @@ function getRoomTree($ids) {
 		$a['childs'] = getChildsRecursive($id);
 		$roomTree[] = $a;
 	}
-
+  // TODO FIlter recursive childs (delete doubles) (Filteere froeach when recursive child exists)
 	echo json_encode($roomTree);
 }
 
@@ -236,7 +239,7 @@ function getOpeningTimesFromParent($locationID) {
 		$parentlocationid = (int)$dbdata['parentlocationid'];
 	}
 	if ($parentlocationid == 0) {
-		echo json_encode(createBasicClosingTime(), true);
+		return json_encode(createBasicClosingTime(), true);
 	}else {
 		getOpeningTimes($parentlocationid);
 	}
@@ -258,7 +261,19 @@ function createBasicClosingTime() {
 	return $array;
 }
 
-function getOpeningTimes($locationID) {
+function getOpeningTimes($ids) {
+	$idList = getMultipleInformations($ids);
+	$timelist = array();
+
+	foreach ($idList as $id) {
+		$a['id'] = $id;
+		$a['openingtime'] = json_decode(getOpeningTime($id), true);
+		$timelist[] = $a;
+	}
+	echo json_encode($timelist);
+}
+
+function getOpeningTime($locationID) {
 	$error = checkIfHidden($locationID);
 	if ($error == true) {
 		echo "ERROR";
@@ -274,8 +289,8 @@ function getOpeningTimes($locationID) {
 	}
 
 	if (count($dbresult) == 0) {
-		getOpeningTimesFromParent($locationID);
-		return;
+
+		return getOpeningTimesFromParent($locationID);;
 	}
 
 	$weekarray = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
@@ -304,7 +319,7 @@ function getOpeningTimes($locationID) {
 		}
 	}
 
-	echo json_encode($result, true);
+	return json_encode($result, true);
 }
 
 function getRoomInfoJson($locationID, $coords) {
