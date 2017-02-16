@@ -99,9 +99,9 @@ class Page_LocationInfo extends Page
 		$serverid = Request::post('serverid', 0, 'int');
 		$serverroomid = Request::post('serverroomid', 0, 'int');
 
-		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, hidden, config) VALUES (:id, :serverid, :serverroomid, :hidden, :config)
+		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config) VALUES (:id, :serverid, :serverroomid, :config)
 		 ON DUPLICATE KEY UPDATE config=:config, serverid=:serverid, serverroomid=:serverroomid",
-		 array('id' => $locationid, 'hidden' => false, 'config' => json_encode($result, true), 'serverid' => $serverid, 'serverroomid' => $serverroomid));
+		 array('id' => $locationid, 'config' => json_encode($result, true), 'serverid' => $serverid, 'serverroomid' => $serverroomid));
 
 		 Message::addSuccess('config-saved');
 		 Util::redirect('?do=locationinfo');
@@ -178,8 +178,8 @@ class Page_LocationInfo extends Page
 			}
 		}
 
-		Database::exec("INSERT INTO `location_info` (locationid, hidden, openingtime) VALUES (:id, :hidden, :openingtime) ON DUPLICATE KEY UPDATE openingtime=:openingtime",
-		 array('id' => $locationid, 'hidden' => false, 'openingtime' => json_encode($result, true)));
+		Database::exec("INSERT INTO `location_info` (locationid, openingtime) VALUES (:id, :openingtime) ON DUPLICATE KEY UPDATE openingtime=:openingtime",
+		 array('id' => $locationid, 'openingtime' => json_encode($result, true)));
 
 		if ($deleteCounter > 0) {
 			Message::addSuccess('deleted-x-entries', $deleteCounter);
@@ -212,8 +212,8 @@ class Page_LocationInfo extends Page
 		$opt2['closingtime'] = $closingtime[2];
 		$result[] = $opt2;
 
-		Database::exec("INSERT INTO `location_info` (locationid, hidden, openingtime) VALUES (:id, :hidden, :openingtime) ON DUPLICATE KEY UPDATE openingtime=:openingtime",
-		 array('id' => $locationid, 'hidden' => false, 'openingtime' => json_encode($result, true)));
+		Database::exec("INSERT INTO `location_info` (locationid, openingtime) VALUES (:id, :openingtime) ON DUPLICATE KEY UPDATE openingtime=:openingtime",
+		 array('id' => $locationid, 'openingtime' => json_encode($result, true)));
 
 		Message::addSuccess('openingtime-updated');
 		Util::redirect('?do=locationinfo');
