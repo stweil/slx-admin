@@ -371,7 +371,7 @@ function getOpeningTimesFromParent($locationID) {
 		if (count($dbresult) == 0) {
 			return getOpeningTimesFromParent($parentlocationid);
 		} else {
-			return $dbresult;
+			return formatOpeningtime($dbresult);
 		}
 	}
 }
