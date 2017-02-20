@@ -627,6 +627,7 @@ optional:
 
 		}
 
+		// Generates a room Object and adds it to the rooms array
 		function addRoom(id, name, config) {
 			var room = {
 				id: id,
@@ -663,7 +664,7 @@ optional:
 
 		}
 
-
+		// inilizes the Calendar for an room
 		function setUpCalendar(percent, daysToShow, room) {
 			generateCalendarDiv(percent, room);
 			var $calendar = $("#calendar_" + room.id).weekCalendar({
@@ -706,6 +707,7 @@ optional:
 
 		}
 
+		// downloads openingTimes for an room
 		function getOpeningTimes(room) {
 			$.getJSON("../../../api.php?do=locationinfo&action=openingtime&id=" + room.id, function (result) {
 				SetOpeningTimes(result[0].openingtime, room);
@@ -732,6 +734,7 @@ optional:
 
 		}
 
+		// sets the opening Time in the calendar plugin and saves it in the room object
 		function SetOpeningTimes(parsedOpenings, room) {
 			var opening = 24;
 			var close = 0;
@@ -777,6 +780,8 @@ optional:
 				limitDisplay: true
 			});
 		}
+
+		// querys the Calendar data
 		function queryCalendars(ids) {
 			var url = "../../../api.php?do=locationinfo&action=calendar&id=" + ids;
 
@@ -792,14 +797,8 @@ optional:
 				cache: false,
 				timeout: 30000,
 				success: function (result) {
-					//todo Update every calendar
 					var l = result.length;
-					// Todo reimplement when backend working
-
 					for (var i = 0; i < l; i++) {
-
-						//todo test this
-
 						updateCalendar(result[i].calendar, rooms[result[i].id]);
 					}
 
@@ -810,7 +809,7 @@ optional:
 			});
 		}
 
-
+		// applays new calendar data to the calendar plugin and also saves it to the room object
 		function updateCalendar(json, room) {
 
 			if (json == "") {
@@ -818,7 +817,7 @@ optional:
 				return;
 			}
 			try {
-				room.timetable = result[i].calendar;
+				room.timetable = json;
 				if (room.config.mode != 3) {
 					var cal = $('#calendar_' + room.id);
 					cal.weekCalendar("option", "data", json);
@@ -828,12 +827,16 @@ optional:
 				}
 				ComputeCurrentState(room);
 			} catch (e) {
-				consol.log("Error: Couldnt add celndar data");
+				console.log("Error: Couldnt add calendar data");
+				console.log(e);
 			}
 		}
 
+		// scales calendar, called once on create and on window resize
 		function scaleCalendar(room) {
-
+			if (room.config.mode == 3){
+				return;
+			}
 			if (room.openTimes == null) {
 				room.openTimes = 24;
 			}
@@ -906,6 +909,7 @@ optional:
 			return hours + ":" + minutes + ":" + seconds;
 		}
 
+		// returns next cloesing time of a given room
 		function GetNextClosing(room) {
 			var now = new MyDate();
 			var day = now.getDay();
@@ -937,9 +941,6 @@ optional:
 			}
 			return bestdate;
 		}
-		/**
-		 * @return {boolean}
-		 */
 
 		// Checks if given room is open now
 		function IsOpenNow(room) {
@@ -965,9 +966,8 @@ optional:
 			}
 			return false;
 		}
-		/**
-		 * @return {boolean}
-		 */
+
+		// checks if a room is on a given date/time open
 		function IsOpen(date, room) {
 			if (room.openingTimes == null) {
 				return false;
@@ -1044,9 +1044,9 @@ optional:
 			var tmp = room.getState();
 			if (tmp.state == "closed") {
 				$("#courseHeading_" + room.id).text(t("closed") + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
-				SetFreeSeats(room.id, -1);
+				SetFreeSeats(room.id, room.freePcs);
 			} else if (tmp.state == "ClaendarEvent") {
-				$("#courseHeading_" + room.id).text(state.titel);
+				$("#courseHeading_" + room.id).text(tmp.title);
 				SetFreeSeats(room.id, -1);
 			} else if (tmp.state == "Free") {
 				$("#courseHeading_" + room.id).text(t("free") + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
@@ -1057,49 +1057,52 @@ optional:
 			}
 		}
 
-
+		// computes state of a room, states are:
+		// closed, FreeNoEnd, Free, ClaendarEvent.
 		function ComputeCurrentState(room) {
 			if (!IsOpenNow(room)) {
-				room.state = {state: "closed", end: GetNextOpening(room), titel: "", next: ""};
+				room.state = {state: "closed", end: GetNextOpening(room), title: "", next: ""};
 
 				return;
 			}
 			var closing = GetNextClosing(room);
 
 			var event = getNextEvent(room.timetable);
+
 			// no event and no closing
 			if (closing == null && event == null) {
-				room.state = {state: "FreeNoEnd", end: "", titel: "", next: ""};
+				room.state = {state: "FreeNoEnd", end: "", title: "", next: ""};
 				return;
 			}
 
 			// no event so closing is next
 			if (event == null) {
-				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
+				room.state = {state: "Free", end: closing, title: "", next: "closing"};
 				return;
 			}
 
 			// event is at the moment
 			if ((closing == null || event.start.getTime() < closing.getTime()) && event.start.getTime() < new MyDate()) {
-				room.state = {state: "ClaendarEvent", end: event.end, titel: event.title, next: ""};
+				room.state = {state: "ClaendarEvent", end: event.end, title: event.title, next: ""};
 				return;
 			}
 
 			// no closing so event is next
 			if (closing == null) {
-				room.state = {state: "Free", end: event.start, titel: "", next: "event"};
+				room.state = {state: "Free", end: event.start, title: "", next: "event"};
 				return;
 			}
 
 			// event sooner then closing
 			if (event.start.getTime() < closing) {
-				room.state = {state: "Free", end: event.start, titel: "", next: "event"};
+				room.state = {state: "Free", end: event.start, title: "", next: "event"};
 			} else if (event.start.getTime() > closing) {
-				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
+				room.state = {state: "Free", end: closing, title: "", next: "closing"};
 			}
 
 		}
 
+		// returns next event from a given json of events
 		function getNextEvent(json) {
 			var event;
 			var now = new MyDate();
@@ -1157,8 +1160,11 @@ optional:
 
 		}
 		function preInitRoom(room) {
+
 			$.getJSON("../../../api.php?do=locationinfo&action=roominfo&id=" + room.id + "&coords=1", function (result) {
+				generateRoomLayoutDiv((100 - room.config.scale) + "%", room);
 				if (result[0] == null) {
+
 					return;
 				}
 				initRoom(result[0].computer, (100 - room.config.scale) + "%", room);
@@ -1169,6 +1175,7 @@ optional:
 			})
 		}
 
+		// Main funciton for generating the Room Layout
 
 		function initRoom(layout, scale, room) {
 			var maxX;
@@ -1178,14 +1185,13 @@ optional:
 			var xDifference;
 			var yDifference;
 			room.layout = layout;
-
 			if (layout == null || layout.length == 0) {
 				return;
 			}
-			generateRoomLayoutDiv(scale, room);
 			if (room.config.rotation != 0) {
 				rotateRoom(room.config.rotation, layout);
 			}
+
 
 			for (var i = 0; i < layout.length; i++) {
 				if (!isNaN(parseInt(layout[i].x)) && !isNaN(parseInt(layout[i].y)) && layout[i].y != null && layout[i].y != null) {
@@ -1227,6 +1233,9 @@ optional:
 
 			generateOffsetAndScale(room);
 			setUpRoom(room, layout);
+			scaleRoom(room);
+			UpdatePc(layout, room);
+
 		}
 
 		function generateOffsetAndScale(room) {
@@ -1237,7 +1246,6 @@ optional:
 			if (room.config.vertical && room.config.mode == 1) {
 				clientHeight = clientHeight * (1 - (room.config.scale / 100));
 			}
-			($("#roomLayout")).height(clientHeight);
 			var roomLayout = document.getElementById('roomLayout_' + room.id);
 			var clientWidth = roomLayout.clientWidth;
 			roomLayout.style.height = clientHeight + "px";
@@ -1270,6 +1278,7 @@ optional:
 			room.yOffset += ((1 / 2 * (clientHeight - (((room.maxY + room.yOffset) * room.scale) + picSizeY * room.scale))) / room.scale);
 		}
 
+		// adds images for each pc to Room Layout
 		function setUpRoom(room, layout) {
 			for (var i = 0; i < layout.length; i++) {
 
@@ -1282,12 +1291,9 @@ optional:
 						.appendTo($('#roomLayout_' + room.id));
 				}
 			}
-			scaleRoom(room);
-			UpdatePc(layout, room);
-
 		}
 
-
+		// querys Pc states
 		function queryRooms(ids) {
 			$.ajax({
 				url: "../../../api.php?do=locationinfo&action=roominfo&id=" + ids + "&coords=0",
@@ -1311,6 +1317,7 @@ optional:
 			})
 		}
 
+		// adjust pc coordinate depending on room rotation
 		function rotateRoom(r, layout) {
 			for (var z = 0; z < r; z++) {
 				for (var i = 0; i < layout.length; i++) {
@@ -1322,6 +1329,7 @@ optional:
 			}
 		}
 
+		// Positions the computer images in the roomLayout div accoring to ther potion and div size
 		function scaleRoom(room) {
 			if (room.layout == null) {
 				return;
@@ -1339,7 +1347,8 @@ optional:
 			}
 		}
 
-
+		// Updates the images of the pcs
+		// also computes how much pcs are free
 		function UpdatePc(update, room) {
 			if (update === undefined || update == null) {
 				return;
@@ -1398,11 +1407,14 @@ optional:
 		/*
 		 /========================================== Misc =============================================
 		 */
+		var resizeTimeout;
 
+		// called when browser window changes size
+		// scales calendar and room layout acordingly
 		$(window).resize(function () {
 
-
-			setTimeout(function () {
+			clearTimeout(resizeTimeout);
+			resizeTimeout =setTimeout(function () {
 
 				for (var property in rooms) {
 
@@ -1421,6 +1433,7 @@ optional:
 			}, 50);
 		});
 
+		// returns parameter value from the url
 		var getUrlParameter = function getUrlParameter(sParam) {
 			var sPageURL = decodeURIComponent(window.location.search.substring(1)),
 				sURLVariables = sPageURL.split('&'),
@@ -1436,6 +1449,7 @@ optional:
 			}
 		};
 
+
 		function t(toTranslate) {
 			var r = translation[$('html')[0].lang][toTranslate];
 			if (r === undefined) {
@@ -1444,6 +1458,7 @@ optional:
 			return r;
 		}
 
+		// switches from calendar to room and vice versa, used in mode 4
 		function switchLayout(room) {
 			var car = document.getElementById("calendar_" + room.id);
 			var roomLayout = document.getElementById("roomLayout_" + room.id);
@@ -1465,6 +1480,8 @@ optional:
 				}
 			}
 		}
+
+		// adds a progressbar to a given room (id) used in mode 4
 		function generateProgressBar(id) {
 
 			var div = document.createElement("div");
