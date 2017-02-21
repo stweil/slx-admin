@@ -78,7 +78,7 @@ abstract class CourseBackend
         /**
          * initializes the class with url it needs to connect to.
          */
-        public abstract function __contruct($url);
+        public abstract function __construct($url);
 
         
         /**
@@ -125,13 +125,13 @@ abstract class CourseBackend
             $sroomID = $dbd1['serverroomid'];
             $lastUpdate = $dbd1['lastcalenderupdate'];
             //Check if in cache
-            if(strtotime($lastUpdate) > strtotime("-".$this->getCachedTime()."seconds") && $this->getCachedTime()>0) {
+            if(strtotime($lastUpdate) > strtotime("-".$this->getCacheTime()."seconds") && $this->getCacheTime()>0) {
                 $dbquery3 = Database::simpleQuery("SELECT calendar FROM location_info WHERE locationid = :id", array('id' => $sroomID));
                 $dbd3=$dbquery3->fetch(PDO::FETCH_ASSOC);
                 return $dbd3['callendar'];
             }
             //Check if we should refresh other rooms recently requested by front ends
-            elseif ($this->getCachedTime()>0) {
+            elseif ($this->getCacheTime()>0) {
                 $dbquery4 = Database::simpleQuery("SELECT serverroomid, lastcalenderupdate FROM location_info WHERE serverid= :id", array('id' => $serverID));
                 $roomIDs[] = $sroomID;
                 foreach($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row){
@@ -144,12 +144,11 @@ abstract class CourseBackend
             else {
                 $roomIDs[] = $sroomID;
             }
-            $dbquery2 = Database::simpleQuery("SELECT serverurl, credentials FROM `setting_location_info` WHERE serverid = :id", array('id' => $serverID));
+            $dbquery2 = Database::simpleQuery("SELECT serverurl FROM `setting_location_info` WHERE serverid = :id", array('id' => $serverID));
             $dbd2=$dbquery2->fetch(PDO::FETCH_ASSOC);
-            $this->setCredentials($dbd2['credentials']);
-            $result = $this->getJsons($roomIDs);
+            $result = $this->fetchSchedulesInternal($roomIDs);
             
-            if($this->getCachedTime()>0){
+            if($this->getCacheTime()>0){
                 foreach ($result as $key => $value) {
                     $now = strtotime('Now');
                     $dbquery1 = Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalenderupdate = :now WHERE locationid = :id ", array('id' => $key,'ttable' => $result[$key],'now'=> $now));
