@@ -5,7 +5,7 @@ $res = array();
 $res[] = tableCreate('location_info', '
  `locationid` INT(11) NOT NULL,
   `serverid` INT(11) NOT NULL,
-	`serverroomid` INT(11) NOT NULL,
+	`serverroomid` VARCHAR(2000),
 	`hidden` BOOLEAN NOT NULL DEFAULT 0,
 	`openingtime` VARCHAR(2000),
 	`config` VARCHAR(2000),
@@ -19,12 +19,42 @@ $res[] = tableCreate('setting_location_info', '
 	`servername` VARCHAR(2000) NOT NULL,
 	`serverurl` VARCHAR(2000) NOT NULL,
 	`servertype` VARCHAR(100) NOT NULL,
-	`login` VARCHAR(100) NOT NULL,
-	`passwd` VARCHAR(150) NOT NULL,
+	`auth` VARCHAR(100) NOT NULL,
 	PRIMARY KEY (`serverid`)
 ');
 
 // Create response for browser
+if (!tableHasColumn('setting_location_info', 'credentials')) {
+  $ret = Database::exec("ALTER TABLE `setting_location_info` ADD `credentials` VARCHAR(2000) AFTER `servertype`");
+  if ($ret === false) {
+    finalResponse(UPDATE_FAILED, 'Adding column credentials failed: ' . Database::lastError());
+  }
+  $res[] = UPDATE_DONE;
+}
+
+if (tableHasColumn('setting_location_info', 'login')) {
+  $ret = Database::exec("ALTER TABLE `setting_location_info` DROP COLUMN login");
+  if ($ret === false) {
+    finalResponse(UPDATE_FAILED, 'Dropping column login failed: ' . Database::lastError());
+  }
+  $res[] = UPDATE_DONE;
+}
+
+if (tableHasColumn('setting_location_info', 'passwd')) {
+  $ret = Database::exec("ALTER TABLE `setting_location_info` DROP COLUMN passwd");
+  if ($ret === false) {
+    finalResponse(UPDATE_FAILED, 'Dropping column passwd failed: ' . Database::lastError());
+  }
+  $res[] = UPDATE_DONE;
+}
+
+if (tableHasColumn('location_info', 'serverroomid')) {
+  $ret = Database::exec("ALTER TABLE `location_info` MODIFY serverroomid VARCHAR(2000)");
+  if ($ret === false) {
+    finalResponse(UPDATE_FAILED, 'Updateing column serverroomid failed: ' . Database::lastError());
+  }
+  $res[] = UPDATE_DONE;
+}
 
 if (tableHasColumn('location_info', 'openingtime')) {
   $ret = Database::exec("ALTER TABLE `location_info` MODIFY openingtime VARCHAR(2000)");

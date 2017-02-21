@@ -61,14 +61,12 @@ class Page_LocationInfo extends Page
 	private function updateServer() {
 		$id = Request::post('id', 0, 'int');
 		if ($id == 0) {
-			Database::exec("INSERT INTO `setting_location_info` (servername, serverurl, servertype, login, passwd) VALUES (:name, :url, :type, :login, :passwd)",
-			 array('name' => Request::post('name', '', 'string'), 'url' => Request::post('url', '', 'string'), 'type' => Request::post('type', '', 'string'),
-		  'login' => Request::post('user', '', 'string'), 'passwd' => Request::post('password', '', 'string')));
+			Database::exec("INSERT INTO `setting_location_info` (servername, serverurl, servertype) VALUES (:name, :url, :type)",
+			 array('name' => Request::post('name', '', 'string'), 'url' => Request::post('url', '', 'string'), 'type' => Request::post('type', '', 'string')));
 		} else {
-			Database::exec("INSERT INTO `setting_location_info` (serverid, servername, servertype, serverurl, login, passwd) VALUES (:id, :name, :type, :url, :login, :passwd)
-			ON DUPLICATE KEY UPDATE servername=:name, serverurl=:url, servertype=:type, login=:login, passwd=:passwd",
-			 array('id' => $id, 'name' => Request::post('name', '', 'string'), 'url' => Request::post('url', '', 'string'), 'type' => Request::post('type', '', 'string'),
-		  'login' => Request::post('user', '', 'string'), 'passwd' => Request::post('password', '', 'string')));
+			Database::exec("INSERT INTO `setting_location_info` (serverid, servername, servertype, serverurl) VALUES (:id, :name, :type, :url)
+			ON DUPLICATE KEY UPDATE servername=:name, serverurl=:url, servertype=:type",
+			 array('id' => $id, 'name' => Request::post('name', '', 'string'), 'url' => Request::post('url', '', 'string'), 'type' => Request::post('type', '', 'string')));
 		}
 		Util::redirect('?do=locationinfo&action=infoscreen');
 	}
@@ -349,8 +347,8 @@ class Page_LocationInfo extends Page
 			}
 */
 			$server['url'] = $db['serverurl'];
-			$server['user'] = $db['login'];
-			$server['password'] = $db['passwd'];
+			$server['user'] = "TODO: Auth";
+			$server['password'] = "Needs a change to Auth";
 			$serverlist[] = $server;
 		}
 

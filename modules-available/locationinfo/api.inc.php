@@ -20,16 +20,16 @@ function HandleParameters() {
 	} elseif ($getAction == "config") {
 		$getRoomID = Request::get('id', 0, 'int');
 		getConfig($getRoomID);
-	} elseif ($getAction == "calendar") {
-		$getRoomID = Request::get('id', 0, 'int');
-		echo getCalendar($getRoomID);
-	} elseif ($getAction == "roomtree") {
-		$roomIDS = Request::get('ids', 0, 'string');
-		getRoomTree($roomIDS);
 	} elseif ($getAction == "pcstates") {
 		$roomIDs = Request::get('id', 0, 'string');
 		$array = getMultipleInformations($roomIDs);
 		echo getPcStates($array);
+	} elseif ($getAction == "roomtree") {
+		$roomIDS = Request::get('ids', 0, 'string');
+		getRoomTree($roomIDS);
+	} elseif ($getAction == "calendar") {
+		$getRoomID = Request::get('id', 0, 'int');
+		echo getCalendar($getRoomID);
 	} elseif ($getAction == "calendars") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getCalendars($roomIDS);
