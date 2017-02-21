@@ -27,8 +27,9 @@ function HandleParameters() {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getRoomTree($roomIDS);
 	} elseif ($getAction == "pcstates") {
-		$roomIDS = Request::get('ids', 0, 'string');
-		getPcStates($roomIDS);
+		$roomIDs = Request::get('id', 0, 'string');
+		$array = getMultipleInformations($roomIDs);
+		echo getPcStates($array);
 	} elseif ($getAction == "calendars") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getCalendars($roomIDS);
@@ -54,40 +55,36 @@ function getCalendars($ids) {
 	echo json_encode($calendars);
 }
 
-function getPcStates($ids) {
-	$idList = getMultipleInformations($ids);
-
+function getPcStates($idList) {
 	$pcStates = array();
-	foreach ($idList as $id) {
 
-		$a['id'] = $id;
-		$b = array();
-		$b = json_decode(getPcInfos($id), true);
+	$roominfoList = json_decode(getRoomInfo($idList), true);
+	foreach ($roominfoList as $roomInfo) {
+		$result['id'] = $id;
 		$idle = 0;
 		$occupied = 0;
 		$off = 0;
 		$broken = 0;
 
-		foreach ($b as $c) {
-			if ($c['pcState'] == 0) {
+		foreach ($roomInfo['computer'] as $computer) {
+			if ($computer['pcState'] == 0) {
 				$idle++;
-			} elseif($c['pcState'] == 1) {
+			} elseif($computer['pcState'] == 1) {
 				$occupied++;
-			} elseif($c['pcState'] == 2) {
+			} elseif($computer['pcState'] == 2) {
 				$off++;
-			} elseif($c['pcState'] == 3) {
+			} elseif($computer['pcState'] == 3) {
 				$broken++;
 			}
 		}
 
-		$a['idle'] = $idle;
-		$a['occupied'] = $occupied;
-		$a['off'] = $off;
-		$a['broken'] = $broken;
-		$pcStates[] = $a;
+		$result['idle'] = $idle;
+		$result['occupied'] = $occupied;
+		$result['off'] = $off;
+		$result['broken'] = $broken;
+		$pcStates[] = $result;
 	}
-
-	echo json_encode($pcStates);
+	return json_encode($pcStates);
 }
 
 function getRoomTree($ids) {
