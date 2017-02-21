@@ -6,12 +6,13 @@ function HandleParameters() {
 
 	$getAction = Request::get('action', 0, 'string');
 	if ($getAction == "roominfo") {
-		$getRoomID = Request::get('id', 0, 'int');
+		$roomIDs = Request::get('id', 0, 'string');
+		$array = getMultipleInformations($roomIDs);
 		$getCoords = Request::get('coords', 0, 'string');
 		if (empty($getCoords)) {
 			$getCoords = '0';
 		}
-		getRoomInfoJson($getRoomID, $getCoords);
+		echo getRoomInfo($array, $getCoords);
 	} elseif ($getAction == "openingtime") {
 		$roomIDs = Request::get('id', 0, 'string');
 		$array = getMultipleInformations($roomIDs);
@@ -230,52 +231,66 @@ function checkIfHidden($locationID) {
 	return false;
 }
 
-function getRoomInfoJson($locationID, $coords) {
-	$error = checkIfHidden($locationID);
+// ########## <Roominfo> ##########
 
-	$pcs = getPcInfos($locationID, $coords);
+function getRoomInfo($idList, $coords) {
 
-	if (empty($pcs)) {
-		$error = true;
+	// Build SQL query for multiple ids.
+	$query = "SELECT locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` WHERE ";
+	$or = false;
+	foreach($idList as $id) {
+		if (checkIfHidden($id)) {
+			continue;
+		}
+		if ($or) {
+			$query .= " OR ";
+		}
+
+		$query .= "locationid = " . $id;
+		$or = true;
 	}
 
-	if ($error == true) {
-		echo "ERROR";
-	} else {
-		echo $pcs;
+	$query .= " ORDER BY locationid ASC";
+	// Execute query.
+	$dbquery = Database::simpleQuery($query);
+	$dbresult = array();
+
+	$currentlocationid = 0;
+
+	$lastentry;
+	$pclist = array();
+	while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+
+		// Add the data in the array if locationid changed
+		if ($dbdata['locationid'] != $currentlocationid && $currentlocationid != 0) {
+			$data['id'] = $currentlocationid;
+			$data['computer'] = $pclist;
+			$dbresult[] = $data;
+			$pclist = array();
+		}
+
+		$pc['id'] = $dbdata['machineuuid'];
+
+		// Add coordinates if bool = true.
+		if ($coords == '1') {
+			$position = json_decode($dbdata['position'], true);
+			$pc['x'] = $position['gridCol'];
+			$pc['y'] = $position['gridRow'];
+		}
+
+		$pc['pcState'] = LocationInfo::getPcState($dbdata);
+		$pclist[] = $pc;
+
+		// Save the last entry to add this at the end.
+		$lastentry['id'] = $dbdata['locationid'];
+		$lastentry['computer'] = $pclist;
+		$currentlocationid = $dbdata['locationid'];
 	}
+	$dbresult[] = $lastentry;
+
+	return json_encode($dbresult, true);
 }
-
-function getPcInfos($locationID, $coords) {
-	if ($coords == '1') {
-		$dbquery = Database::simpleQuery("SELECT machineuuid, position, logintime, lastseen, lastboot FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
-	} else {
-		$dbquery = Database::simpleQuery("SELECT machineuuid, logintime, lastseen, lastboot FROM `machine` WHERE locationid = :locationID" , array('locationID' => $locationID));
-	}
-
-	$pcs = array();
-
-	while($pc=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-
-			$computer = array();
-
-			$computer['id'] = $pc['machineuuid'];
-
-			if ($coords == '1') {
-				$position = json_decode($pc['position'], true);
-				$computer['x'] = $position['gridCol'];
-				$computer['y'] = $position['gridRow'];
-			}
-
-			$computer['pcState'] = LocationInfo::getPcState($pc);
-
-			$pcs[] = $computer;
-	}
-
-	$str = json_encode($pcs, true);
-
-	return $str;
-}
+// ########## </Roominfo> ##########
 
 // ########## <Openingtime> ##########
 
