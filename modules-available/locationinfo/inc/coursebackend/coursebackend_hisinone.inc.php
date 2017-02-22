@@ -8,16 +8,14 @@ class CourseBackend_HisInOne extends CourseBackend
     public $serverID;
 
 
-    //Constructs the HisInOneClient 
-    function __construct($location, $serverID) {
-        $this->location = $location."/qisserver/services2/CourseService";
-        $this->serverID = $serverID;
-    }
+ 
     //
-    public function setCredentials($json) {
+    public function setCredentials($json,$location,$serverID) {
         $data = json_decode($json, TRUE);
         $this->password = $data['password'];
         $this->username = $data['username']."/t".$data['role'];
+        $this->location = $location."/qisserver/services2/CourseService";
+        $this->serverID = $serverID;
     }
 
     //Cache the timetables for 30 minutes ttables older than 60 are not refreshed

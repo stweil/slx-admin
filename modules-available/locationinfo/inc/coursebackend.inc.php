@@ -75,12 +75,6 @@ abstract class CourseBackend
 	 */
 	public abstract function getDisplayName();
 
-        /**
-         * initializes the class.
-         * @param string $url adress of the server
-         * @param int $serverID ID of the server
-         */
-        public abstract function __construct($url,$serverID);
 
         
         /**
@@ -91,9 +85,12 @@ abstract class CourseBackend
         /**
          * uses json to setCredentials, the json must follow the form given in
          * getCredentials
+         * @param json $json jsonarray with the credentials
+         * @param string $url adress of the server
+         * @param int $serverID ID of the server
          * @returns void 
          */
-        public abstract function setCredentials($json);
+        public abstract function setCredentials($json, $url, $serverID);
 
         /**
 	 * @return int desired caching time of results, in seconds. 0 = no caching
