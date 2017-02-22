@@ -20,16 +20,16 @@ function HandleParameters() {
 	} elseif ($getAction == "config") {
 		$getRoomID = Request::get('id', 0, 'int');
 		getConfig($getRoomID);
-	} elseif ($getAction == "calendar") {
-		$getRoomID = Request::get('id', 0, 'int');
-		echo getCalendar($getRoomID);
-	} elseif ($getAction == "roomtree") {
-		$roomIDS = Request::get('ids', 0, 'string');
-		getRoomTree($roomIDS);
 	} elseif ($getAction == "pcstates") {
 		$roomIDs = Request::get('id', 0, 'string');
 		$array = getMultipleInformations($roomIDs);
 		echo getPcStates($array);
+	} elseif ($getAction == "roomtree") {
+		$roomIDS = Request::get('ids', 0, 'string');
+		getRoomTree($roomIDS);
+	} elseif ($getAction == "calendar") {
+		$getRoomID = Request::get('id', 0, 'int');
+		echo getCalendar($getRoomID);
 	} elseif ($getAction == "calendars") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getCalendars($roomIDS);
@@ -309,13 +309,20 @@ function getOpeningTime($idList) {
 	// Execute query.
 	$dbquery = Database::simpleQuery($query);
 	$dbresult = array();
-
+	$handledIds = array();
 	while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
 		$data['id'] = $dbdata['locationid'];
 		$data['openingtime'] = json_decode($dbdata['openingtime'], true);
+		$handledIds[] = $data['id'];
 	  $dbresult[] = $data;
 	}
 	$finalArray = array();
+	$idList = array_diff($idList, $handledIds);
+	foreach ($idList as $id) {
+		$data['id'] = $id;
+		$data['openingtime'] = array();
+		$dbresult[] = $data;
+	}
 
 	// Go through the db entrys [id] = id; [openingtime] = e.g. [{"days":["Saturday","Sunday"],"openingtime":"12:32","closingtime":"14:35"}]
 	foreach($dbresult as $entry) {
