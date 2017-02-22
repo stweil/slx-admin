@@ -5,11 +5,13 @@ class CourseBackend_HisInOne extends CourseBackend
     private $username;
     private $password;
     private $location;
+    public $serverID;
 
 
     //Constructs the HisInOneClient 
-    function __construct($location) {
+    function __construct($location, $serverID) {
         $this->location = $location."/qisserver/services2/CourseService";
+        $this->serverID = $serverID;
     }
     //
     public function setCredentials($json) {

@@ -76,9 +76,11 @@ abstract class CourseBackend
 	public abstract function getDisplayName();
 
         /**
-         * initializes the class with url it needs to connect to.
+         * initializes the class.
+         * @param string $url adress of the server
+         * @param int $serverID ID of the server
          */
-        public abstract function __construct($url);
+        public abstract function __construct($url,$serverID);
 
         
         /**
@@ -113,46 +115,52 @@ abstract class CourseBackend
 	protected abstract function fetchSchedulesInternal($roomId);
 
 	/**
-	 * Method for fetching the schedule of the given room.
+	 * Method for fetching the schedule of the given rooms on a server.
 	 * @param int $roomId int of room ID to fetch
+         * @param int $serverid id of the server
 	 * @return string|bool some jsonstring as result, or false on error
 	 */
-	public final function fetchSchedule($roomID)
+	public final function fetchSchedule($roomIDs)
 	{
-            $dbquery1 = Database::simpleQuery("SELECT servertype, serverid, serverroomid, lastcalenderupdate FROM location_info WHERE locationid = :id", array('id' => $roomID));
-            $dbd1=$dbquery1->fetch(PDO::FETCH_ASSOC);
-            $serverID = $dbd1['serverid'];
-            $sroomID = $dbd1['serverroomid'];
-            $lastUpdate = $dbd1['lastcalenderupdate'];
-            //Check if in cache
-            if(strtotime($lastUpdate) > strtotime("-".$this->getCacheTime()."seconds") && $this->getCacheTime()>0) {
-                $dbquery3 = Database::simpleQuery("SELECT calendar FROM location_info WHERE locationid = :id", array('id' => $sroomID));
-                $dbd3=$dbquery3->fetch(PDO::FETCH_ASSOC);
-                return $dbd3['callendar'];
+            $sqlr=implode(",", $roomIDs);
+            $sqlr = '('.$sqlr.')';
+            $dbquery1 = Database::simpleQuery("SELECT locationid, calendar, serverroomid, lastcalenderupdate FROM location_info WHERE locationid In :ids", array('ids' => $sqlr));
+            foreach ($dbquery1->fetchAll(PDO::FETCH_ASSOC) as $row){
+                $sroomID = $row['serverroomid'];
+                $lastUpdate = $row['lastcalenderupdate'];
+                $calendar = $row['calendar'];
+                //Check if in cache if lastUpdate is null then it is interpreted as 1970
+                if(strtotime($lastUpdate) > strtotime("-".$this->getCacheTime()."seconds") && $this->getCacheTime()>0) {
+                    $result[$row['locationid']]=$calendar;
+                } 
+                else {
+                    $sroomIDs[$row['locationid']] = $sroomID;
+                }
+                
             }
             //Check if we should refresh other rooms recently requested by front ends
-            elseif ($this->getCacheTime()>0) {
-                $dbquery4 = Database::simpleQuery("SELECT serverroomid, lastcalenderupdate FROM location_info WHERE serverid= :id", array('id' => $serverID));
-                $roomIDs[] = $sroomID;
-                foreach($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row){
-                    if($row['lastcalenderupdate']<$this->getRefreshTime()){
-                        $roomIDs[] = $row['serverroomid'];
+            if ($this->getCacheTime()>0) {
+                    $dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalenderupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
+                    foreach($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row){
+                        if($row['lastcalenderupdate']<$this->getRefreshTime()){
+                            $sroomIDs[$row['locationid']] = $row['serverroomid'];
+                            }
                     }
-                }
-                $roomIDs = array_unique($roomIDs);
             }
-            else {
-                $roomIDs[] = $sroomID;
+            $results = $this->fetchSchedulesInternal($sroomIDs);
+            foreach ($sroomIDs as $location => $serverroom){
+                $newresult[$location] = $results[$serverroom];
             }
-            $dbquery2 = Database::simpleQuery("SELECT serverurl FROM `setting_location_info` WHERE serverid = :id", array('id' => $serverID));
-            $dbd2=$dbquery2->fetch(PDO::FETCH_ASSOC);
-            $result = $this->fetchSchedulesInternal($roomIDs);
             
             if($this->getCacheTime()>0){
-                foreach ($result as $key => $value) {
+                foreach ($newresult as $key => $value) {
                     $now = strtotime('Now');
-                    $dbquery1 = Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalenderupdate = :now WHERE locationid = :id ", array('id' => $key,'ttable' => $result[$key],'now'=> $now));
+                    $dbquery1 = Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalenderupdate = :now WHERE locationid = :id ", array('id' => $key,'ttable' => $value,'now'=> $now));
                 }
+            }
+            //get all sheduls that are wanted from roomIDs
+            foreach($roomIDs as $id){
+                $result[$id] = $newresult[$id];
             }
             return $result[$roomID];
 	}
