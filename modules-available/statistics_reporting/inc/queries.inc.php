@@ -104,11 +104,11 @@ class Queries
 			# The whole length of the session/offline time.
 			(end-start
 			
-			# Now the time that is not within the daily time bounds get substracted.
+			# Now the time that is not within the daily time bounds is subtracted.
 			# This includes the time before the first daily bound, the time after the last daily bound
 			# and the time between the daily bounds (if a session/offline time spans multiple days)
 			
-			# Time before the first daily bound gets substracted.
+			# Time before the first daily bound is subtracted.
 			- IF(
 					start > startUpper,
 					UNIX_TIMESTAMP(FROM_UNIXTIME(start, $lowerFormat) + INTERVAL 1 DAY) - start,
@@ -119,7 +119,7 @@ class Queries
 					)
 			  )
 			  
-			# Time after the last daily bound gets substracted.
+			# Time after the last daily bound is subtracted.
 			- IF(
 					end > endUpper,
 					end - (endUpper + 1),
@@ -130,13 +130,13 @@ class Queries
 					)
 			  )
 			  
-			# Time between the daily bounds get substracted.
+			# Time between the daily bounds is subtracted.
 			- (    daysDiff - 2
 					 + IF(start <= startUpper, 1, 0)
 					 + IF(end >= endLower, 1, 0)
 			  ) * ((24 - ($upperTimeBound - $lowerTimeBound)) * 3600)
 		
-			# If the session crossed a clock change (to/from daylight saving time), the last substraction may have substracted
+			# If the session crossed a clock change (to/from daylight saving time), the last subtraction may have subtracted
 			# one hour too much or too little. This IF will correct this.
 			- IF(
 					innerStart < innerEnd,
@@ -161,7 +161,7 @@ class Queries
 				select 
 					*,
 					
-					# timeDiff is the clock change between leftBound and Rightbound. ( 0 = no clock change)
+					# timeDiff is the clock change between innerStart and innerEnd. ( 0 = no clock change)
 					((CAST(date_format(from_unixtime(innerStart), '%H') as SIGNED) -
 					CAST(date_format(convert_tz(from_unixtime(innerStart), @@session.time_zone, '+00:00'), '%H') as SIGNED) + 24) % 24
 					-

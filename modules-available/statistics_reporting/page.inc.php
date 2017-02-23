@@ -13,8 +13,8 @@ class Page_Statistics_Reporting extends Page
 	/**
 	 * @var array Names of columns that are being used by the various tables
 	 */
-	private $COLUMNS = array('lastLogout', 'lastStart', 'location', 'longSessions', 'medianSessionLength',
-		'sessions', 'shortSessions', 'totalOffTime', 'totalTime');
+	private $COLUMNS = array('location', 'totalTime', 'medianSessionLength', 'sessions', 'longSessions', 'shortSessions',
+		'totalOffTime', 'lastLogout', 'lastStart');
 
 	/**
 	 * @var array Names of the tables we can display
