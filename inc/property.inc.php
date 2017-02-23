@@ -36,7 +36,7 @@ class Property
 	 * Set value in property store.
 	 *
 	 * @param string $key key of value to set
-	 * @param type $value the value to store for $key
+	 * @param string $value the value to store for $key
 	 * @param int $maxAgeMinutes how long to keep this entry around at least, in minutes. 0 for infinite
 	 */
 	public static function set($key, $value, $maxAgeMinutes = 0)
@@ -53,6 +53,61 @@ class Property
 			self::$cache[$key] = $value;
 		}
 	}
+
+	/**
+	 * Retrieve property list from the store.
+	 *
+	 * @param string $key Key of list to get all items for
+	 * @return array All the items matching the key
+	 */
+	public static function getList($key)
+	{
+		$res = Database::simpleQuery("SELECT dateline, value FROM property_list WHERE name = :key", compact('key'));
+		$NOW = time();
+		$return = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($row['dateline'] != 0 && $row['dateline'] < $NOW)
+				continue;
+			$return[] = $row['value'];
+		}
+		return $return;
+	}
+
+	/**
+	 * Add item to property list.
+	 *
+	 * @param string $key key of value to set
+	 * @param string $value the value to add for $key
+	 * @param int $maxAgeMinutes how long to keep this entry around at least, in minutes. 0 for infinite
+	 */
+	public static function addToList($key, $value, $maxAgeMinutes = 0)
+	{
+		Database::exec("INSERT INTO property_list (name, value, dateline) VALUES (:key, :value, :dateline)", array(
+			'key' => $key,
+			'value' => $value,
+			'dateline' => ($maxAgeMinutes === 0 ? 0 : time() + ($maxAgeMinutes * 60))
+		));
+	}
+
+	/**
+	 * Remove given item from property list. If the list contains this item
+	 * multiple times, they will all be removed.
+	 *
+	 * @param string $key Key of list
+	 * @param string $value item to remove
+	 * @return int number of items removed
+	 */
+	public static function removeFromList($key, $value)
+	{
+		return Database::exec("DELETE FROM property_list WHERE name = :key AND value = :value", array(
+			'key' => $key,
+			'value' => $value,
+		));
+	}
+
+	/*
+	 * Legacy getters/setters
+	 */
 
 	public static function getServerIp()
 	{
@@ -184,7 +239,6 @@ class Property
 	{
 		return self::get('password-type', 'password');
 	}
-
 
 	public static function getIpxeDefault()
 	{

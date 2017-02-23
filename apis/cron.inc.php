@@ -26,6 +26,9 @@ foreach (glob('modules/*/hooks/cron.inc.php') as $file) {
 }
 
 switch (mt_rand(1, 10)) {
+case 2:
+	Database::exec("DELETE FROM property_list WHERE dateline <> 0 AND dateline < UNIX_TIMESTAMP()");
+	break;
 case 3:
 	Database::exec("DELETE FROM property WHERE dateline <> 0 AND dateline < UNIX_TIMESTAMP()");
 	break;
