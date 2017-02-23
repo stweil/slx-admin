@@ -88,8 +88,8 @@ class GetData
 				$entry['totalTime_s'] = self::formatSeconds($row['timeSum']);
 				$entry['medianSessionLength_s'] = self::formatSeconds($median);
 				$entry['totalOffTime_s'] = self::formatSeconds($row['offlineSum']);
-				$entry['lastStart_s'] = date(DATE_ISO8601, $row['lastStart']);
-				$entry['lastLogout_s'] = date(DATE_ISO8601, $row['lastLogout']);
+				$entry['lastStart_s'] = $row['lastStart'] == 0 ? "" : date(DATE_ISO8601, $row['lastStart']);
+				$entry['lastLogout_s'] = $row['lastLogout'] == 0 ? "" : date(DATE_ISO8601, $row['lastLogout']);
 			}
 			$data[] = $entry;
 		}

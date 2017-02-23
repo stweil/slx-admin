@@ -8,17 +8,17 @@ class Queries
 	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
 		$notassigned = Dictionary::translate('notAssigned', true);
 		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT t1.name AS clientName, timeSum, medianSessionLength, offlineSum, lastStart, lastLogout, longSessions, shortSessions, locId, locName, MD5(CONCAT(locId, :salt)) AS locHash, MD5(CONCAT(t1.uuid, :salt)) AS clientHash FROM (
-													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions',MAX(sessionTable.dateline + sessionTable.data) AS 'lastLogout', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
+		$res = Database::simpleQuery("SELECT name AS clientName, timeSum, medianSessionLength, offlineSum, IFNULL(lastStart, 0) as lastStart, IFNULL(lastLogout, 0) as lastLogout, longSessions, shortSessions, locId, locName, MD5(CONCAT(locId, :salt)) AS locHash, MD5(CONCAT(t1.uuid, :salt)) AS clientHash FROM (
+													SELECT machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions', MAX(sessionTable.endInBound) AS 'lastLogout'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
-														LEFT JOIN location ON machine.locationid = location.locationid
 													GROUP BY machine.machineuuid
 												) 	t1 
-												INNER JOIN (
-													SELECT machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.dateline) AS 'lastStart'
+												RIGHT JOIN (
+													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.endInBound) AS 'lastStart', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid
+														LEFT JOIN location ON machine.locationid = location.locationid
 													GROUP BY machine.machineuuid
 												) 	t2 
 												ON t1.uuid = t2.uuid", array("salt" => GetData::$salt));
@@ -30,15 +30,15 @@ class Queries
 	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
 		$notassigned = Dictionary::translate('notAssigned', true);
 		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT t1.locId, t1.locName AS locName, MD5(CONCAT(t1.locId, :salt)) AS locHash, timeSum, medianSessionLength, offlineSum, longSessions, shortSessions FROM (
-													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
+		$res = Database::simpleQuery("SELECT t1.locId, locName AS locName, MD5(CONCAT(t1.locId, :salt)) AS locHash, timeSum, medianSessionLength, offlineSum, longSessions, shortSessions FROM (
+													SELECT location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
 													GROUP BY machine.locationid
 												) 	t1 
-												LEFT JOIN (
-													SELECT location.locationid AS 'locId', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
+												RIGHT JOIN (
+													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
@@ -52,14 +52,8 @@ class Queries
 	public static function getUserStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT username AS name, IF(username = 'anonymous', 'anonymous', md5(CONCAT(username, :salt))) AS  userHash, COUNT(*) AS 'count'
 												FROM statistic 
-												WHERE typeid='.vmchooser-session-name' AND dateline+data >= $from and dateline <= $to AND (
-														(@daysDiff := (TO_DAYS(FROM_UNIXTIME(@end := IF(dateline+data > $to, $to, dateline+data), '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(@start := IF(dateline < $from, $from, dateline), '%y-%m-%d'))) = 0
-																			and (FROM_UNIXTIME(@end, '%H') >= $lowerTimeBound) AND (FROM_UNIXTIME(@start, '%H') < $upperTimeBound))
-														or
-														(@daysDiff = 1 and (FROM_UNIXTIME(@end, '%H') >= $lowerTimeBound) OR (FROM_UNIXTIME(@start, '%H') < $upperTimeBound))
-														or
-														@daysDiff >= 2
-												)
+												WHERE typeid='.vmchooser-session-name' AND dateline >= $from and dateline <= $to
+													AND FROM_UNIXTIME(dateline, '%H') >= $lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < $upperTimeBound
 												GROUP BY username 
 												ORDER BY 2 DESC", array("salt" => GetData::$salt));
 		return $res;
@@ -69,14 +63,8 @@ class Queries
 	public static function getVMStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT data AS name, MD5(CONCAT(data, :salt)) AS vmHash, COUNT(*) AS 'count'
 											 	FROM statistic
-												WHERE typeid='.vmchooser-session-name' AND dateline+data >= $from and dateline <= $to AND (
-														(@daysDiff := (TO_DAYS(FROM_UNIXTIME(@end := IF(dateline+data > $to, $to, dateline+data), '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(@start := IF(dateline < $from, $from, dateline), '%y-%m-%d'))) = 0
-																			and (FROM_UNIXTIME(@end, '%H') >= $lowerTimeBound) AND (FROM_UNIXTIME(@start, '%H') < $upperTimeBound))
-														or
-														(@daysDiff = 1 and (FROM_UNIXTIME(@end, '%H') >= $lowerTimeBound) OR (FROM_UNIXTIME(@start, '%H') < $upperTimeBound))
-														or
-														@daysDiff >= 2
-												)
+												WHERE typeid='.vmchooser-session-name' AND dateline >= $from and dateline <= $to
+													AND FROM_UNIXTIME(dateline, '%H') >= $lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < $upperTimeBound
 												GROUP BY data 
 												ORDER BY 2 DESC", array("salt" => GetData::$salt));
 		return $res;
@@ -100,72 +88,127 @@ class Queries
 	// query string which provides table with time-cutoff and time-bounds
 	private static function getBoundedTableQueryString($typeid, $from, $to, $lowerTimeBound, $upperTimeBound)
 	{
+		// get Clients that are currently oflfine (the offline time is not yet recorded in the statistic table)
+		$union = $typeid == '~offline-length' ?
+			"union
+			 select 	CAST(IF(lastseen < $from, $from, lastseen) as UNSIGNED) as start, $to as end,
+			 			'~offline-length' as typeid, machineuuid, 'machine' 
+			 from machine where lastseen <= $to and UNIX_TIMESTAMP() - lastseen >= 600" : "";
+
+
 		$lowerFormat = "'%y-%m-%d $lowerTimeBound:00:00'";
 		$upperFormat = "'%y-%m-%d ".($upperTimeBound-1).":59:59'";
 		$queryString = "
 			select
-
-			@start := IF(dateline < $from, $from, dateline),
-			@end := IF(dateline+data > $to, $to, dateline+data),
-			@startLower := UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $lowerFormat)),
-			@startUpper := UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $upperFormat)),
-			@endLower := UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $lowerFormat)),
-			@endUpper := UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $upperFormat)),
 			
-			(CAST(@end-@start AS SIGNED)
+			# The whole length of the session/offline time.
+			(end-start
+			
+			# Now the time that is not within the daily time bounds get substracted.
+			# This includes the time before the first daily bound, the time after the last daily bound
+			# and the time between the daily bounds (if a session/offline time spans multiple days)
+			
+			# Time before the first daily bound gets substracted.
 			- IF(
-					@start > @startUpper,
-					UNIX_TIMESTAMP(FROM_UNIXTIME(@start, $lowerFormat) + INTERVAL 1 DAY) - @start,
+					start > startUpper,
+					UNIX_TIMESTAMP(FROM_UNIXTIME(start, $lowerFormat) + INTERVAL 1 DAY) - start,
 					IF(
-						 @start < @startLower,
-						 @startLower - @start,
+						 start < startLower,
+						 startLower - start,
 						 0
 					)
 			  )
-			- IF(
-					@end > @endUpper,
-					@end - (@endUpper + 1),
-					IF(
-						 @end < @endLower,
-						 @end - (UNIX_TIMESTAMP(FROM_UNIXTIME(@end, $upperFormat) - INTERVAL 1 DAY) + 1),
-						 0
-					)
-			  )
-			- (    TO_DAYS(FROM_UNIXTIME(@end, '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(@start, '%y-%m-%d'))
-			 		 - 2
-					 + IF(@start <= @startUpper, 1, 0)
-					 + IF(@end >= @endLower, 1, 0)
-			  ) * ((24 - ($upperTimeBound - $lowerTimeBound)) * 3600)
 			  
+			# Time after the last daily bound gets substracted.
 			- IF(
-					@leftBound := IF(@start <= @startUpper, @startUpper, UNIX_TIMESTAMP(FROM_UNIXTIME(@start, $upperFormat) + INTERVAL 1 DAY))
-					< @rightBound := IF(@end >= @endLower, @endLower, UNIX_TIMESTAMP(FROM_UNIXTIME(@end, $lowerFormat) - INTERVAL 1 DAY)),
+					end > endUpper,
+					end - (endUpper + 1),
 					IF(
-						@timeDiff := (
-						(date_format(from_unixtime(@leftBound), '%H') -
-						date_format(convert_tz(from_unixtime(@leftBound), @@session.time_zone, '+00:00'), '%H') + 24) % 24
-						-
-						(date_format(from_unixtime(@rightBound), '%H') -
-						date_format(convert_tz(from_unixtime(@rightBound), @@session.time_zone, '+00:00'), '%H') + 24) % 24) = 1
-						AND ($lowerTimeBound >= 2 OR $upperTimeBound <= 2),
+						 end < endLower,
+						 end - (UNIX_TIMESTAMP(FROM_UNIXTIME(end, $upperFormat) - INTERVAL 1 DAY) + 1),
+						 0
+					)
+			  )
+			  
+			# Time between the daily bounds get substracted.
+			- (    daysDiff - 2
+					 + IF(start <= startUpper, 1, 0)
+					 + IF(end >= endLower, 1, 0)
+			  ) * ((24 - ($upperTimeBound - $lowerTimeBound)) * 3600)
+		
+			# If the session crossed a clock change (to/from daylight saving time), the last substraction may have substracted
+			# one hour too much or too little. This IF will correct this.
+			- IF(
+					innerStart < innerEnd,
+					IF(
+						timeDiff = 1 AND ($lowerTimeBound >= 2 OR $upperTimeBound <= 2),
 						3600,
-						IF(@timeDiff = -1 AND ($lowerTimeBound >= 3 OR $upperTimeBound <= 3), -3600, 0)
+						IF(timeDiff = -1 AND ($lowerTimeBound >= 3 OR $upperTimeBound <= 3), -3600, 0)
 					),
 					0
 			  )
+			  
 			) as 'length',
-			dateline,
-			data,
+			
+			IF(end < endUpper AND end > endLower AND end < $to, end, 0) as endInBound,
+			
 			machineuuid
 			
-			from statistic
-			where dateline+data >= $from and dateline <= $to and typeid = '$typeid' 
-			and (
-				(@daysDiff := (TO_DAYS(FROM_UNIXTIME(dateline+data, '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(dateline, '%y-%m-%d'))) = 0 and (dateline <= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $upperFormat)) and dateline+data >= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $lowerFormat))))
+			
+			# These nested selects are necessary because some things need to be calculated before others.
+			# (e.g. start is needed to calculate startLower)
+			from (
+				select 
+					*,
+					
+					# timeDiff is the clock change between leftBound and Rightbound. ( 0 = no clock change)
+					((CAST(date_format(from_unixtime(innerStart), '%H') as SIGNED) -
+					CAST(date_format(convert_tz(from_unixtime(innerStart), @@session.time_zone, '+00:00'), '%H') as SIGNED) + 24) % 24
+					-
+					(CAST(date_format(from_unixtime(innerEnd), '%H') as SIGNED) -
+					CAST(date_format(convert_tz(from_unixtime(innerEnd), @@session.time_zone, '+00:00'), '%H') as SIGNED) + 24) % 24) as timeDiff
+				from (
+					select 
+						*,
+						
+						# innerStart and innerEnd are start and end but excluding the time before the first daily upper bound and after the last daily lower bound.
+						CAST(IF(start <= startUpper, startUpper, UNIX_TIMESTAMP(FROM_UNIXTIME(start, $upperFormat) + INTERVAL 1 DAY)) as UNSIGNED) as innerStart,
+						CAST(IF(end >= endLower, endLower, UNIX_TIMESTAMP(FROM_UNIXTIME(end, $lowerFormat) - INTERVAL 1 DAY)) as UNSIGNED) as innerEnd
+					from (
+						select 
+							*,
+							
+							# daysDiff = how many different days the start and end are apart (0 = start and end on the same day)
+							(TO_DAYS(FROM_UNIXTIME(end, '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(start, '%y-%m-%d'))) as daysDiff,
+							
+							# startLower = lower daily time bound on the starting day
+							CAST(UNIX_TIMESTAMP(FROM_UNIXTIME(start, $lowerFormat)) as UNSIGNED) as startLower,
+							# startUpper = upper daily time bound on the starting day
+							CAST(UNIX_TIMESTAMP(FROM_UNIXTIME(start, $upperFormat)) as UNSIGNED) as startUpper,
+							# endLower = lower daily time bound on the ending day
+							CAST(UNIX_TIMESTAMP(FROM_UNIXTIME(end, $lowerFormat)) as UNSIGNED) as endLower,
+							# endUpper = upper daily time bound on the ending day
+							CAST(UNIX_TIMESTAMP(FROM_UNIXTIME(end, $upperFormat)) as UNSIGNED) as endUpper
+						from (
+							# Statistic logs (combined with currently offline machines if offline times are requested) .
+							select 	CAST(IF(dateline < $from, $from, dateline) as UNSIGNED) as start,
+										CAST(IF(dateline+data > $to, $to, dateline+data) as UNSIGNED) as end,
+										typeid, machineuuid, 'statistic'
+							from statistic where dateline+data >= $from and dateline <= $to and typeid = '$typeid' 
+							$union
+						) t
+					) t
+				) t
+			) t
+			
+			
+			# Filter out the session that are at least overlapping with the time bounds.
+			where (
+				(daysDiff = 0 and (start <= UNIX_TIMESTAMP(FROM_UNIXTIME(start, $upperFormat)) and end >= UNIX_TIMESTAMP(FROM_UNIXTIME(end, $lowerFormat))))
 				or
-				(@daysDiff = 1 and (dateline <= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline, $upperFormat)) or dateline+data >= UNIX_TIMESTAMP(FROM_UNIXTIME(dateline+data, $lowerFormat))))
+				(daysDiff = 1 and (start <= UNIX_TIMESTAMP(FROM_UNIXTIME(start, $upperFormat)) or end >= UNIX_TIMESTAMP(FROM_UNIXTIME(end, $lowerFormat))))
 				or
-				@daysDiff >= 2
+				daysDiff >= 2
 	 		)
 		";
 		return "(".$queryString.")";
