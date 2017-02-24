@@ -290,6 +290,6 @@ class CourseBackend_HisInOne extends CourseBackend
 }
 
 
-$client = CourseBackend_HisInOne();
+/*$client = CourseBackend_HisInOne();
 $login = ['username'=> 'test','password'=>'test!','role'=>'SOAP'];
-$client->setCredentials();
+$client->setCredentials();*/
