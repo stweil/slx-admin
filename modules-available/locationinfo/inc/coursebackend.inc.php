@@ -136,10 +136,10 @@ abstract class CourseBackend
                 
             }
             //Check if we should refresh other rooms recently requested by front ends
-            if ($this->getCacheTime()>0) {
+            if ($this->getCacheTime()>0&&$this->RefreshTime()>0) {
                     $dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalenderupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
                     foreach($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row){
-                        if($row['lastcalenderupdate']<$this->getRefreshTime()){
+                        if(strtotime($row['lastcalenderupdate'])>strtotime("-".$this->getRefreshTime()."seconds")&&strtotime($row['lastcalenderupdate'])> strtotime("-".$this->getCacheTime()."seconds")){
                             $sroomIDs[$row['locationid']] = $row['serverroomid'];
                             }
                     }
