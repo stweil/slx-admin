@@ -7,13 +7,12 @@ class CourseBackend_HisInOne extends CourseBackend
     private $location;
     public $serverID;
 
-
- 
-    //
+    //Sets the location and the login information of this client
     public function setCredentials($json,$location,$serverID) {
+        $this->error = false;
         $data = json_decode($json, TRUE);
         $this->password = $data['password'];
-        $this->username = $data['username']."/t".$data['role'];
+        $this->username = $data['username']."\t".$data['role'];
         $this->location = $location."/qisserver/services2/CourseService";
         $this->serverID = $serverID;
     }
@@ -112,7 +111,15 @@ class CourseBackend_HisInOne extends CourseBackend
         
         $soap_request = $doc->saveXML();
         $respons1 = $this->__doRequest($soap_request, "findUnit");
+        if($this->error == true){
+            return $this->errormsg;
+        }
         $respons2 = $this->toArray($respons1);
+        if(isset($respons2['soapenvBody']['soapenvFault'])){
+            $this->error = true;
+            $this->errormsg =$respons2['soapenvBody']['soapenvFault']['faultcode']." ".$respons2['soapenvBody']['soapenvFault']['faultstring'];
+            return;
+        }
         $id = $respons2['soapenvBody']['hisfindUnitResponse']['hisunitIds']['hisid'];
         return $id;
     }
@@ -138,7 +145,15 @@ class CourseBackend_HisInOne extends CourseBackend
 
         $soap_request = $doc->saveXML();
         $respons1 = $this->__doRequest($soap_request, "readUnit");
+        if($this->error == true){
+            return $this->errormsg;
+        }
         $respons2 = $this->toArray($respons1);
+        if(isset($respons2['soapenvBody']['soapenvFault'])){
+            $this->error = true;
+            $this->errormsg =$respons2['soapenvBody']['soapenvFault']['faultcode']." ".$respons2['soapenvBody']['soapenvFault']['faultstring'];
+            return;
+        }
         $respons3 = $respons2['soapenvBody']['hisreadUnitResponse'];
         return $respons3;
     }
@@ -169,11 +184,14 @@ class CourseBackend_HisInOne extends CourseBackend
 
         if( $output === false) 
         {
-                $err = 'Curl error: ' . curl_error($soap_do);
-                echo $err;
+            $this->error = true;
+            $this->errormsg = 'Curl error: ' . curl_error($soap_do);
+            return 'Curl error: ' . curl_error($soap_do);
             } 
         else 
         {
+            $this->error = false;
+            $this->errormsg ="";
             ///Operation completed successfully
             }
         curl_close($soap_do);
@@ -184,9 +202,15 @@ class CourseBackend_HisInOne extends CourseBackend
     public function getJson($param){
         //get all eventIDs in a given room
         $eventIDs = $this-> findUnit($param);
+        if($this->error == true){
+            return $this->errormsg;
+        }
         //get all information on each event
         foreach ($eventIDs as $each_event) {
             $events[] = $this->readUnit((int) $each_event);
+            if($this->error == true){
+                return $this->errormsg;
+            }
         }
         $timetable = array();
         $currentWeek = $this->getCurrentWeekDates();
@@ -196,29 +220,51 @@ class CourseBackend_HisInOne extends CourseBackend
             foreach($event as $subject){
                 $units = $subject['hisplanelements']['hisplanelement'];
                 foreach($units as $unit){
-                    $dates = $unit['hisplannedDates']['hisplannedDate']['hisindividualDates']['hisindividualDate'];
-                    foreach($dates as $date){
-                        $roomID = $date['hisroomId'];
-                        $datum = $date['hisexecutiondate'];
-                        if(intval($roomID) == $param && in_array($datum,$currentWeek)){
-                            
-                            $startTime = $date['hisstarttime'];
-                            $endTime = $date['hisendtime'];
-                            $json = array(
-                                'title' => $title,
-                                'start' => $datum." ".$startTime,
-                                'end'   => $datum." ".$endTime
-                            );
-                            array_push($timetable,$json);
+                    $pdates = $unit['hisplannedDates']['hisplannedDate'];
+                    //there seems to be a bug that gives more than one individualDates in plannedDate
+                    //this construction catches it
+                    if(array_key_exists('hisindividualDates',$pdates)){
+                        $dates = $pdates['hisindividualDates']['hisindividualDate'];
+                        foreach($dates as $date){
+                            $roomID = $date['hisroomId'];
+                            $datum = $date['hisexecutiondate'];
+                            if(intval($roomID) == $param && in_array($datum,$currentWeek)){
+
+                                $startTime = $date['hisstarttime'];
+                                $endTime = $date['hisendtime'];
+                                $json = array(
+                                    'title' => $title,
+                                    'start' => $datum." ".$startTime,
+                                    'end'   => $datum." ".$endTime
+                                );
+                                array_push($timetable,$json);
+                            }                      
+                       }   
+                    }
+                    else{
+                        foreach($pdates as $dates2){
+                            $dates = $dates2['hisindividualDates']['hisindividualDate'];
+                            foreach($dates as $date){
+                                $roomID = $date['hisroomId'];
+                                $datum = $date['hisexecutiondate'];
+                                if(intval($roomID) == $param && in_array($datum,$currentWeek)){
+
+                                    $startTime = $date['hisstarttime'];
+                                    $endTime = $date['hisendtime'];
+                                    $json = array(
+                                        'title' => $title,
+                                        'start' => $datum." ".$startTime,
+                                        'end'   => $datum." ".$endTime
+                                    );
+                                    array_push($timetable,$json);
+                                }                      
+                            }  
                         }
-                        
-                       
-                      
-                       
-                   }
+                    }
+ 
+                               
                }
-           }
-           
+           }           
        }
         return json_encode($timetable);
     }
@@ -236,12 +282,18 @@ class CourseBackend_HisInOne extends CourseBackend
         //get all eventIDs in a given room
         foreach ($param as $ID) {
             $eventIDs = $this-> findUnit($ID);
+            if($this->error == true){
+                return $this->errormsg;
+            }
         }
         $eventIDs = array_unique($eventIDs);
         
         //get all information on each event
         foreach ($eventIDs as $each_event) {
             $events[] = $this->readUnit((int) $each_event);
+            if($this->error == true){
+                return $this->errormsg;
+            }
         }
         $ttables = [];
         $currentWeek = $this->getCurrentWeekDates();
@@ -253,20 +305,45 @@ class CourseBackend_HisInOne extends CourseBackend
                 foreach($event as $subject){
                     $units = $subject['hisplanelements']['hisplanelement'];
                     foreach($units as $unit){
-                        $dates = $unit['hisplannedDates']['hisplannedDate']['hisindividualDates']['hisindividualDate'];
-                        foreach($dates as $date){
-                            $roomID = $date['hisroomId'];
-                            $datum = $date['hisexecutiondate'];
-                            if(intval($roomID) == $room && in_array($datum,$currentWeek)){
-                            
-                                $startTime = $date['hisstarttime'];
-                                $endTime = $date['hisendtime'];
-                                $json = array(
-                                    'title' => $title,
-                                    'start' => $datum." ".$startTime,
-                                    'end'   => $datum." ".$endTime
-                                );
-                                $timetable[]= $json;
+                        $pdates = $unit['hisplannedDates']['hisplannedDate'];
+                        //there seems to be a bug that gives more than one individualDates in plannedDate
+                        //this construction catches it
+                        if(array_key_exists('hisindividualDates',$pdates)){
+                            $dates = $pdates['hisindividualDates']['hisindividualDate'];
+                            foreach($dates as $date){
+                                $roomID = $date['hisroomId'];
+                                $datum = $date['hisexecutiondate'];
+                                if(intval($roomID) == $param && in_array($datum,$currentWeek)){
+
+                                    $startTime = $date['hisstarttime'];
+                                    $endTime = $date['hisendtime'];
+                                    $json = array(
+                                        'title' => $title,
+                                        'start' => $datum." ".$startTime,
+                                        'end'   => $datum." ".$endTime
+                                    );
+                                    array_push($timetable,$json);
+                                }                      
+                           }   
+                        }
+                        else{
+                            foreach($pdates as $dates2){
+                                $dates = $dates2['hisindividualDates']['hisindividualDate'];
+                                foreach($dates as $date){
+                                    $roomID = $date['hisroomId'];
+                                    $datum = $date['hisexecutiondate'];
+                                    if(intval($roomID) == $param && in_array($datum,$currentWeek)){
+
+                                        $startTime = $date['hisstarttime'];
+                                        $endTime = $date['hisendtime'];
+                                        $json = array(
+                                            'title' => $title,
+                                            'start' => $datum." ".$startTime,
+                                            'end'   => $datum." ".$endTime
+                                        );
+                                        array_push($timetable,$json);
+                                    }                      
+                                }  
                             }
                         }
                     }
@@ -290,6 +367,11 @@ class CourseBackend_HisInOne extends CourseBackend
 }
 
 
-/*$client = CourseBackend_HisInOne();
-$login = ['username'=> 'test','password'=>'test!','role'=>'SOAP'];
-$client->setCredentials();*/
+/*
+ * $client = new CourseBackend_HisInOne();
+ * $login = ['username'=> '','password'=>'','role'=>''];
+$login = json_encode($login);
+$client->setCredentials($login,"https://histestwebserver.vm.uni-freiburg.de",3);
+$test=$client->fetchSchedulesInternal([42=>42]);
+echo htmlentities($test[42]);
+*/

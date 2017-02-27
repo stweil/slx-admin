@@ -12,10 +12,14 @@ abstract class CourseBackend
 
 	/**
 	 * @var array list of known backends
+         * $error boolean true if there was an error
+         * $errormsg string with the error message
 	 */
 	private static $backendTypes = false;
+        public $error;
+        public $errormsg;
 
-	/**
+        /**
 	 * Load all known backend types. This is done
 	 * by including *.inc.php from inc/coursebackend/.
 	 */
@@ -161,5 +165,15 @@ abstract class CourseBackend
             }
             return $result[$roomID];
 	}
+        
+        /**
+         * @return false if there was no error string with error message if there was one
+         */
+        public final function getError(){
+            if($this->error){
+                return $this->errormsg;
+            }
+            return false;
+        }
 
 }
