@@ -11,8 +11,7 @@
 			<th width="90">{{lang_serverType}}</th>
 			<th>{{lang_locationName}}</th>
 			<th>{{lang_serverUrl}}</th>
-			<th>{{lang_serverUser}}</th>
-			<th>{{lang_serverPassword}}</th>
+			<th width="80" style="text-align: center;"></th>
 			<th width="80" style="text-align: center;"></th>
 		</tr>
 {{#serverlist}}
@@ -26,7 +25,7 @@
 					<td id="type-{{id}}">
 						<select disabled id="input-type-{{id}}" name="type" value="{{type}}" onchange="servertype_changed(this.value, {{id}});">
 							{{#types}}
-								<option id="{{type}}" value="{{type}}" {{#active}}selected{{/active}} >{{type}}
+								<option id="{{type}}" value="{{type}}" {{#active}}selected{{/active}} >{{display}}
 							{{/types}}
 						</select>
 					</td>
@@ -36,11 +35,9 @@
 					<td id="url-{{id}}" style="padding:8px;">
 							<input readonly required id="input-url-{{id}}" name="url" type="text" value="{{url}}" style="padding:0;height:100%;width:100%;"></input>
 					</td>
-					<td id="user-{{id}}" style="padding:8px;">
-							<input readonly required id="input-user-{{id}}" name="user" type="text" value="{{user}}" style="padding:0;height:100%;width:100%;"></input>
-					</td>
-					<td id="password-{{id}}" style="padding:8px;">
-							<input readonly required id="input-password-{{id}}" name="password" type="text" value="{{password}}" style="padding:0;height:100%;width:100%;"></input>
+
+					<td align="center" id="credentials-{{id}}" onclick="event.cancelBubble = true;">
+						<button class="btn btn-sm btn-primary" type="button" title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');" id="credentials">{{lang_credentials}}</button>
 					</td>
 					<td align="center" id="btncell-{{id}}">
 						<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}" onclick="editButtonClick({{id}});" id="edit">&#x270E</button>
@@ -132,6 +129,13 @@ function cbClick(cb, locID) {
 		value = 0;
 	}
 	window.location.href = "?do=locationinfo&action=hide&id=" + locID + "&value=" + value;
+}
+
+function loadCredentialModal(serverid, servername) {
+	$('#myModalHeader').text("[" + serverid + "] " + servername).css("font-weight","Bold");
+
+	$('#myModal').modal('show');
+  $('#myModalBody').load("?do=locationinfo&action=credentials&id=" + serverid);
 }
 
 function loadTimeModal(locationId, locationName) {
@@ -268,12 +272,10 @@ function addNewServerRow() {
   $('#lastServerTableElement').before('<tr class=tablerow id="new">\
 		<td align="center"><input id="input-id-0" name="id" type="hidden" form="serverForm-0" value="0"></td>\
 		<td id="type-0"><select id="input-type-0" name="type" form="serverForm-0" onchange="servertype_changed(this.value, 0)">\
-		{{#servertypelist}}<option value="{{type}}"> {{type}}{{/servertypelist}}\
+		{{#servertypelist}}<option value="{{type}}"> {{display}}{{/servertypelist}}\
 		</select></td>\
 		<td id="name-0" style="padding:0;"><input required id="input-name-0" name="name" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></td>\
 		<td id="url-0" style="padding:0;"><a><input required id="input-url-0" name="url" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></a></td>\
-		<td id="user-0" style="padding:0;"><input required id="input-user-0" name="user" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></td>\
-		<td id="password-0" style="padding:0;"><input required id="input-password-0" name="password" type="text" form="serverForm-0" value="" style="padding:0;height:100%;width:100%;"></input></td>\
 		<td align="center" id="btncell-new">\
 		<button class="btn btn-sm btn-success" title="{{lang_save}}" onclick="addNewServer();">&#10004</button>	\
 		<button class="btn btn-sm btn-danger" title="{{lang_cancel}}" onclick="deleteNewServer();">&#10008</button>\

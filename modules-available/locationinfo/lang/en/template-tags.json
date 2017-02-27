@@ -74,5 +74,6 @@
     "lang_serverID": "Server ID",
     "lang_sID": "sID",
     "lang_server": "Server",
-    "lang_serverRoomId": "Server: Room ID"
+    "lang_serverRoomId": "Server: Room ID",
+    "lang_credentials": "Credentials"
 }
