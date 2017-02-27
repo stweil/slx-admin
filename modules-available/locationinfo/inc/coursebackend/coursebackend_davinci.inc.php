@@ -5,12 +5,13 @@ class Coursebackend_Davinci extends CourseBackend {
     public $serverID;
     
     function __construct($location, $serverID) {
-        $this->location = $location."/daVinciIS.dll?";
-        $this->serverID = $serverID;
+        
     }
     public function setCredentials($json,$location,$serverID) {
         $this->error = true;
         $this->errormsg = "This class is just a place holder";
+        $this->location = $location."/daVinciIS.dll?";
+        $this->serverID = $serverID;
         //Davinci doesn't have credentials
     }
     public function getCredentials(){
