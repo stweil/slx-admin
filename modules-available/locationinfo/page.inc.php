@@ -27,6 +27,8 @@ class Page_LocationInfo extends Page
 			$this->updateServer();
 		} elseif ($this->action === 'deleteServer') {
 			$this->deleteServer();
+		} elseif ($this->action === 'updateCredentials') {
+			$this->updateCredentials();
 		}
 	}
 
@@ -103,6 +105,19 @@ class Page_LocationInfo extends Page
 
 		 Message::addSuccess('config-saved');
 		 Util::redirect('?do=locationinfo');
+	}
+
+	private function updateCredentials() {
+		$serverid = Request::post('id', 0, 'int');
+		$dbresult = Database::queryFirst('SELECT servertype FROM `setting_location_info` WHERE serverid = :id', array('id' => $serverid));
+		$backend = CourseBackend::getInstance($dbresult['servertype']);
+		$tmptypeArray = $backend->getCredentials();
+
+		$credentialsJson = array();
+		foreach ($tmptypeArray as $key => $value) {
+			$credentialsJson[$key] = Request::post($key);
+		}
+		Database::exec('UPDATE `setting_location_info` SET credentials = :credentials WHERE serverid = :id', array('id' => $serverid, 'credentials' => json_encode($credentialsJson, true)));
 	}
 
 	private function updateOpeningTimeExpert()
@@ -311,12 +326,13 @@ class Page_LocationInfo extends Page
 		}
 
 		$servertypes = array();
-		$type['type'] = "HISinOne";
-		$servertypes[] = $type;
-		$type['type'] = "DAVINCI";
-		$servertypes[] = $type;
-		$type['type'] = "Frontend";
-		$servertypes[] = $type;
+		$s_list = CourseBackend::getList();
+		foreach ($s_list as $s) {
+			$type['type'] = $s;
+			$typeInstance = CourseBackend::getInstance($s);
+			$type['display'] = $typeInstance->getDisplayName();
+			$servertypes[] = $type;
+		}
 
 		$serverlist = array();
 		$dbquery2 = Database::simpleQuery("SELECT * FROM `setting_location_info`");
@@ -329,6 +345,7 @@ class Page_LocationInfo extends Page
 				$st = array();
 				if ($type['type'] == $db['servertype']) {
 					$st['type'] = $type['type'];
+					$st['display'] = $type['display'];
 					$st['active'] = true;
 				} else {
 					$st['type'] = $type['type'];
@@ -337,18 +354,8 @@ class Page_LocationInfo extends Page
 				$serverty[] = $st;
 			}
 			$server['types'] = $serverty;
-/*
-			if ($db['servertype'] == 'HISinOne') {
-				$server['HISinOne'] = true;
-				$server['DAVINCI'] = false;
-			} elseif ($db['servertype'] == 'DAVINCI') {
-				$server['HISinOne'] = false;
-				$server['DAVINCI'] = true;
-			}
-*/
+
 			$server['url'] = $db['serverurl'];
-			$server['user'] = "TODO: Auth";
-			$server['password'] = "Needs a change to Auth";
 			$serverlist[] = $server;
 		}
 
@@ -376,6 +383,9 @@ class Page_LocationInfo extends Page
 		} elseif ($action === 'config') {
 			$id = Request::any('id', 0, 'int');
 			$this->ajaxConfig($id);
+		} elseif ($action === 'credentials') {
+			$id = Request::any('id', 0, 'int');
+			$this->ajaxCredentials($id);
 		}
 	}
 
@@ -402,6 +412,43 @@ class Page_LocationInfo extends Page
 		echo Render::parse('pcsubtable', array(
 			'list' => array_values($data)
 		));
+	}
+
+	private function ajaxCredentials($id) {
+		$dbresult = Database::queryFirst('SELECT servertype, credentials FROM `setting_location_info` WHERE serverid = :id', array('id' => $id));
+		$tmpcredentialArray = json_decode($dbresult['credentials'], true);
+		$backend = CourseBackend::getInstance($dbresult['servertype']);
+		$tmptypeArray = $backend->getCredentials();
+		$credentialsArray = array();
+		foreach ($tmptypeArray as $key => $value) {
+			$x['name'] = $key;
+
+			foreach ($tmpcredentialArray as $ke => $val) {
+				if($ke == $key) {
+					$x['value'] = $val;
+					break;
+				}
+			}
+			$x['type'] = $value;
+
+			if (is_array($value)) {
+				$selection = array();
+				foreach ($value as $opt) {
+					$option['option'] = $opt;
+					if ($opt == $x['value']) {
+						$option['active'] = true;
+					} else {
+						$option['active'] = false;
+					}
+					$selection[] = $option;
+				}
+				$x['type'] = "array";
+				$x['array'] = $selection;
+			}
+			$credentialsArray[] = $x;
+		}
+
+		echo Render::parse('credentials', array('id' => $id, 'credentials' => array_values($credentialsArray)));
 	}
 
 	private function ajaxTimeTable($id) {

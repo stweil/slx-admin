@@ -27,12 +27,16 @@ function HandleParameters() {
 	} elseif ($getAction == "roomtree") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getRoomTree($roomIDS);
-	} elseif ($getAction == "calendar") {
-		$getRoomID = Request::get('id', 0, 'int');
-		echo getCalendar($getRoomID);
-	} elseif ($getAction == "calendars") {
-		$roomIDS = Request::get('ids', 0, 'string');
-		getCalendars($roomIDS);
+	//} elseif ($getAction == "calendar") {
+//		$getRoomID = Request::get('id', 0, 'int');
+//		echo getCalendar($getRoomID);
+//	} elseif ($getAction == "calendars") {
+//		$roomIDS = Request::get('ids', 0, 'string');
+//		getCalendars($roomIDS);
+	} elseif ($getAction == "test") {
+		$roomIDs = Request::get('id', 0, 'string');
+		$array = getMultipleInformations($roomIDs);
+		getCalendar($array);
 	}
 }
 
@@ -42,6 +46,56 @@ function getMultipleInformations($roomids) {
 	return $filteredIdList;
 }
 
+// ########## <Calendar> ###########
+function getCalendar($idList) {
+
+	//// Build SQL query for multiple ids.
+	$query = "SELECT locationid, l.serverid, serverurl, s.servertype FROM `location_info` as l LEFT JOIN setting_location_info as s ON s.serverid WHERE locationid IN (";
+
+	$query .= implode(",", $idList);
+
+	$query .= ") AND l.serverid = s.serverid ORDER BY servertype ASC";
+
+	$dbquery = Database::simpleQuery($query);
+
+	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+
+	}
+	echo "TODO: Not implemented yet.";
+}
+// ########## </Calendar> ##########
+
+// ########################################################################
+function randomCalendarGenerator() {
+	$randNum = rand(3, 7);
+
+	$result = array();
+
+	for ($i = 0; $i < $randNum; $i++) {
+		$c = array();
+		$c['title'] = getRandomWord();
+
+		$randH = rand(8, 16);
+		$rand2 = $randH + 2;
+		$date = getdate();
+		$mday = $date['mday'] + $i;
+		$todays = $date['year'] . "-" . $date['month'] . "-" . $mday . " " . $randH . ":00:00";
+		$c['start'] = $todays;
+		$todaye = $date['year'] . "-" . $date['month'] . "-" . $mday . " " . $rand2 . ":00:00";
+		$c['end'] = $todaye;
+		$result[] = $c;
+	}
+
+	return json_encode($result);
+}
+
+function getRandomWord($len = 10) {
+    $word = array_merge(range('a', 'z'), range('A', 'Z'));
+    shuffle($word);
+    return substr(implode($word), 0, $len);
+}
+
+/*
 // TODO FILTER 2 weeks or some days only
 function getCalendars($ids) {
 	$idList = getMultipleInformations($ids);
@@ -54,6 +108,46 @@ function getCalendars($ids) {
 	}
 	echo json_encode($calendars);
 }
+
+function getCalendar($getRoomID) {
+	// TODO GET AND RETURN THE ACTUAL calendar
+	//echo randomCalendarGenerator();
+
+	$dbquery = Database::simpleQuery("SELECT calendar, lastcalendarupdate, serverid, serverroomid FROM `location_info` WHERE locationid=:locationID", array('locationID' => $getRoomID));
+
+	$calendar;
+	$lastupdate;
+	$serverid;
+	$serverroomid;
+	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		$lastupdate = (int) $dbresult['lastcalendarupdate'];
+		$calendar = $dbresult['calendar'];
+		$serverid = $dbresult['serverid'];
+		$serverroomid = $dbresult['serverroomid'];
+	}
+
+	$NOW = time();
+	if ($lastupdate == 0 || $NOW - $lastupdate > 900) {
+		return updateCalendar($getRoomID, $serverid, $serverroomid);
+	} else {
+		return $calendar;
+	}
+}
+
+function updateCalendar($locationid, $serverid, $serverroomid) {
+	// TODO CALL UpdateCalendar($serverid, $serverroomid);
+	$result = randomCalendarGenerator();
+	// ^ replace with the actual call
+
+	// Save in db and update timestamp
+	$NOW = time();
+	Database::exec("UPDATE `location_info` Set calendar=:calendar, lastcalendarupdate=:now WHERE locationid=:id", array('id' => $locationid, 'calendar' => $result, 'now' => $NOW));
+
+	return $result;
+}
+*/
+// ########################################################################
+
 
 function getPcStates($idList) {
 	$pcStates = array();
@@ -121,72 +215,6 @@ function getChildsRecursive($id) {
 	}
 
 	return $array;
-}
-
-function randomCalendarGenerator() {
-	$randNum = rand(3, 7);
-
-	$result = array();
-
-	for ($i = 0; $i < $randNum; $i++) {
-		$c = array();
-		$c['title'] = getRandomWord();
-
-		$randH = rand(8, 16);
-		$rand2 = $randH + 2;
-		$date = getdate();
-		$mday = $date['mday'] + $i;
-		$todays = $date['year'] . "-" . $date['month'] . "-" . $mday . " " . $randH . ":00:00";
-		$c['start'] = $todays;
-		$todaye = $date['year'] . "-" . $date['month'] . "-" . $mday . " " . $rand2 . ":00:00";
-		$c['end'] = $todaye;
-		$result[] = $c;
-	}
-
-	return json_encode($result);
-}
-
-function getRandomWord($len = 10) {
-    $word = array_merge(range('a', 'z'), range('A', 'Z'));
-    shuffle($word);
-    return substr(implode($word), 0, $len);
-}
-
-function getCalendar($getRoomID) {
-	// TODO GET AND RETURN THE ACTUAL calendar
-	//echo randomCalendarGenerator();
-
-	$dbquery = Database::simpleQuery("SELECT calendar, lastcalendarupdate, serverid, serverroomid FROM `location_info` WHERE locationid=:locationID", array('locationID' => $getRoomID));
-
-	$calendar;
-	$lastupdate;
-	$serverid;
-	$serverroomid;
-	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-		$lastupdate = (int) $dbresult['lastcalendarupdate'];
-		$calendar = $dbresult['calendar'];
-		$serverid = $dbresult['serverid'];
-		$serverroomid = $dbresult['serverroomid'];
-	}
-
-	$NOW = time();
-	if ($lastupdate == 0 || $NOW - $lastupdate > 900) {
-		return updateCalendar($getRoomID, $serverid, $serverroomid);
-	} else {
-		return $calendar;
-	}
-}
-
-function updateCalendar($locationid, $serverid, $serverroomid) {
-	// TODO CALL UpdateCalendar($serverid, $serverroomid);
-	$result = randomCalendarGenerator();
-	// ^ replace with the actual call
-
-	// Save in db and update timestamp
-	$NOW = time();
-	Database::exec("UPDATE `location_info` Set calendar=:calendar, lastcalendarupdate=:now WHERE locationid=:id", array('id' => $locationid, 'calendar' => $result, 'now' => $NOW));
-
-	return $result;
 }
 
 function getConfig($locationID) {
@@ -287,7 +315,7 @@ function getRoomInfo($idList, $coords) {
 
 	return json_encode($dbresult, true);
 }
-// ########## </Roominfo> ##########
+// ########## </Roominfo> ###########
 
 // ########## <Openingtime> ##########
 
