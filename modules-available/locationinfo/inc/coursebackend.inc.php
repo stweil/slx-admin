@@ -125,10 +125,11 @@ abstract class CourseBackend
 	{
             $sqlr=implode(",", $roomIDs);
             $sqlr = '('.$sqlr.')';
-            $dbquery1 = Database::simpleQuery("SELECT locationid, calendar, serverroomid, lastcalenderupdate FROM location_info WHERE locationid In :ids", array('ids' => $sqlr));
+            $q = "SELECT locationid, calendar, serverroomid, lastcalendarupdate FROM location_info WHERE locationid In ".$sqlr;
+            $dbquery1 = Database::simpleQuery($q);
             foreach ($dbquery1->fetchAll(PDO::FETCH_ASSOC) as $row){
                 $sroomID = $row['serverroomid'];
-                $lastUpdate = $row['lastcalenderupdate'];
+                $lastUpdate = $row['lastcalendarupdate'];
                 $calendar = $row['calendar'];
                 //Check if in cache if lastUpdate is null then it is interpreted as 1970
                 if(strtotime($lastUpdate) > strtotime("-".$this->getCacheTime()."seconds") && $this->getCacheTime()>0) {
@@ -140,10 +141,10 @@ abstract class CourseBackend
                 
             }
             //Check if we should refresh other rooms recently requested by front ends
-            if ($this->getCacheTime()>0&&$this->RefreshTime()>0) {
-                    $dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalenderupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
+            if ($this->getCacheTime()>0&&$this->getRefreshTime()>0) {
+                    $dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalendarupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
                     foreach($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row){
-                        if(strtotime($row['lastcalenderupdate'])>strtotime("-".$this->getRefreshTime()."seconds")&&strtotime($row['lastcalenderupdate'])> strtotime("-".$this->getCacheTime()."seconds")){
+                        if(strtotime($row['lastcalendarupdate'])>strtotime("-".$this->getRefreshTime()."seconds")&&strtotime($row['lastcalendarupdate'])> strtotime("-".$this->getCacheTime()."seconds")){
                             $sroomIDs[$row['locationid']] = $row['serverroomid'];
                             }
                     }
@@ -156,7 +157,7 @@ abstract class CourseBackend
             if($this->getCacheTime()>0){
                 foreach ($newresult as $key => $value) {
                     $now = strtotime('Now');
-                    $dbquery1 = Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalenderupdate = :now WHERE locationid = :id ", array('id' => $key,'ttable' => $value,'now'=> $now));
+                    $dbquery1 = Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalendarupdate = :now WHERE locationid = :id ", array('id' => $key,'ttable' => $value,'now'=> $now));
                 }
             }
             //get all sheduls that are wanted from roomIDs
