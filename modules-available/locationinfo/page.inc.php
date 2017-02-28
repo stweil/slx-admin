@@ -374,10 +374,7 @@ class Page_LocationInfo extends Page
 			die('Unauthorized');
 		}
 		$action = Request::any('action');
-		if ($action === 'pcsubtable') {
-			$id = Request::any('id', 0, 'int');
-			$this->ajaxShowLocation($id);
-		} elseif ($action === 'timetable') {
+		if ($action === 'timetable') {
 			$id = Request::any('id', 0, 'int');
 			$this->ajaxTimeTable($id);
 		} elseif ($action === 'config') {
@@ -387,31 +384,6 @@ class Page_LocationInfo extends Page
 			$id = Request::any('id', 0, 'int');
 			$this->ajaxCredentials($id);
 		}
-	}
-
-//TODO REMOVE FUNCTION. NOT NECCESSARY BUT AFTER TESTING pcSTATE
-	private function ajaxShowLocation($id)
-	{
-		$dbquery = Database::simpleQuery("SELECT machineuuid, clientip, position, logintime, lastseen, lastboot  FROM `machine` WHERE locationid = :id", array('id' => $id));
-
-		$data = array();
-
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$pc = array();
-			$pc['id'] = $dbdata['machineuuid'];
-			$pc['ip'] = $dbdata['clientip'];
-			$pc['pcState'] = LocationInfo::getPcState($dbdata);
-
-			$position = json_decode($dbdata['position'], true);
-			$pc['x'] = $position['gridRow'];
-			$pc['y'] = $position['gridCol'];
-
-			$data[] = $pc;
-		}
-
-		echo Render::parse('pcsubtable', array(
-			'list' => array_values($data)
-		));
 	}
 
 	private function ajaxCredentials($id) {

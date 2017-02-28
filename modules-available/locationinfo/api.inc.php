@@ -27,13 +27,7 @@ function HandleParameters() {
 	} elseif ($getAction == "roomtree") {
 		$roomIDS = Request::get('ids', 0, 'string');
 		getRoomTree($roomIDS);
-	//} elseif ($getAction == "calendar") {
-//		$getRoomID = Request::get('id', 0, 'int');
-//		echo getCalendar($getRoomID);
-//	} elseif ($getAction == "calendars") {
-//		$roomIDS = Request::get('ids', 0, 'string');
-//		getCalendars($roomIDS);
-	} elseif ($getAction == "test") {
+	} elseif ($getAction == "calendar") {
 		$roomIDs = Request::get('id', 0, 'string');
 		$array = getMultipleInformations($roomIDs);
 		getCalendar($array);
@@ -50,22 +44,64 @@ function getMultipleInformations($roomids) {
 function getCalendar($idList) {
 
 	//// Build SQL query for multiple ids.
-	$query = "SELECT locationid, l.serverid, serverurl, s.servertype FROM `location_info` as l LEFT JOIN setting_location_info as s ON s.serverid WHERE locationid IN (";
+	$query = "SELECT locationid, l.serverid AS serverid, serverurl, servertype, credentials FROM `location_info` as l LEFT JOIN setting_location_info as s ON s.serverid = l.serverid WHERE locationid IN (";
 
 	$query .= implode(",", $idList);
 
-	$query .= ") AND l.serverid = s.serverid ORDER BY servertype ASC";
+	$query .= ") AND l.serverid = s.serverid ORDER BY servertype ASC, locationid ASC";
 
 	$dbquery = Database::simpleQuery($query);
 
-	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+	$serverList = array();
 
+	$first = true;
+	$lastservertype = "";
+	$idListPerType = array();
+	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		if ($first) {
+			$first = false;
+			$lastservertype = $dbresult['servertype'];
+		}
+
+		// If the servertype changed excecute the previous one.
+		if ($lastservertype != $dbresult['servertype']) {
+			$server['type'] = $lastservertype;
+			$server['serverurl'] = $dbresult['serverurl'];
+			$server['serverid'] = $dbresult['serverid'];
+			$server['credentials'] = json_decode($dbresult['credentials'], true);
+			$server['idList'] = $idListPerType;
+			$serverList[] = $server;
+			$idListPerType = array();
+		}
+
+		$idListPerType[] = (int)$dbresult['locationid'];
+		$lastservertype = $dbresult['servertype'];
 	}
-	echo "TODO: Not implemented yet.";
+	// Execute the last server type.
+	$server['type'] = $lastservertype;
+	$server['serverurl'] = $dbresult['serverurl'];
+	$server['serverid'] = $dbresult['serverid'];
+	$server['credentials'] = json_decode($dbresult['credentials'], true);
+	$server['idList'] = $idListPerType;
+	$serverList[] = $server;
+	$idListPerType = array();
+
+	$resultarray = array();
+	foreach ($serverList as $server) {
+		$serverInstance = CourseBackend::getInstance($server['type']);
+		$serverInstance->setCredentials(json_encode($server['credentials']), $server['serverurl'], $server['serverid']);
+		$calendarFromBackend = $serverInstance->fetchSchedule($server['idList']);
+
+		$resultarray = array_merge($resultarray, $calendarFromBackend);
+	}
+
+	echo json_encode($resultarray, true);
 }
+
 // ########## </Calendar> ##########
 
-// ########################################################################
+// ################# OLD CALENDAR STUFF ########################################
+/*
 function randomCalendarGenerator() {
 	$randNum = rand(3, 7);
 
@@ -95,7 +131,7 @@ function getRandomWord($len = 10) {
     return substr(implode($word), 0, $len);
 }
 
-/*
+
 // TODO FILTER 2 weeks or some days only
 function getCalendars($ids) {
 	$idList = getMultipleInformations($ids);
@@ -185,8 +221,7 @@ function getRoomTree($ids) {
 	$idList = getMultipleInformations($ids);
 	$roomTree = array();
 	foreach ($idList as $id) {
-		$dbquery = Database::simpleQuery("SELECT locationname FROM `location` WHERE locationid=:locationID", array('locationID' => $id));
-		$dbresult=$dbquery->fetch(PDO::FETCH_ASSOC);
+		$dbresult = Database::queryFirst("SELECT locationname FROM `location` WHERE locationid=:locationID", array('locationID' => $id));
 
 		$a['id'] = $id;
 		$a['name'] = $dbresult['locationname'];
@@ -218,13 +253,11 @@ function getChildsRecursive($id) {
 }
 
 function getConfig($locationID) {
-		$dbquery = Database::simpleQuery("SELECT l.locationname, li.config, li.serverroomid, s.servertype, s.serverurl FROM `location_info` AS li
+		$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverroomid, s.servertype, s.serverurl FROM `location_info` AS li
 		RIGHT JOIN `location` AS l ON l.locationid=li.locationid
 		LEFT JOIN `setting_location_info` AS s ON s.serverid=li.serverid
 		WHERE l.locationid=:locationID", array('locationID' => $locationID));
-
 	$config = array();
-	$dbresult=$dbquery->fetch(PDO::FETCH_ASSOC);
 
 	$config = json_decode($dbresult['config'], true);
 	$config['room'] = $dbresult['locationname'];
@@ -242,6 +275,7 @@ function getConfig($locationID) {
 	}
 }
 
+/*
 function checkIfHidden($locationID) {
 	$dbquery = Database::simpleQuery("SELECT hidden FROM `location_info` WHERE locationid = :locationID", array('locationID' => $locationID));
 
@@ -254,28 +288,20 @@ function checkIfHidden($locationID) {
 		}
 	}
 	return false;
-}
+}*/
 
 // ########## <Roominfo> ##########
 
 function getRoomInfo($idList, $coords) {
 
-	// Build SQL query for multiple ids.
-	$query = "SELECT locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` WHERE ";
-	$or = false;
-	foreach($idList as $id) {
-		if (checkIfHidden($id)) {
-			continue;
-		}
-		if ($or) {
-			$query .= " OR ";
-		}
+	// Build SQL Query for multiple ids.
+	$query = "SELECT m.locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` as m LEFT JOIN location_info AS l ON l.locationid = m.locationid WHERE l.hidden = 0 AND m.locationid IN (";
 
-		$query .= "locationid = " . $id;
-		$or = true;
-	}
+	//$query = "SELECT locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` WHERE locationid IN (";
+	$query .= implode(",", $idList);
+	$query .= ")";
 
-	$query .= " ORDER BY locationid ASC";
+	$query .= " ORDER BY m.locationid ASC";
 	// Execute query.
 	$dbquery = Database::simpleQuery($query);
 	$dbresult = array();
@@ -322,17 +348,9 @@ function getRoomInfo($idList, $coords) {
 function getOpeningTime($idList) {
 
 	// Build SQL Query for multiple ids.
-	$query = "SELECT locationid, openingtime FROM `location_info` WHERE ";
-	$or = false;
-	foreach($idList as $id) {
-		if($or) {
-			$query .= " OR ";
-		}
-
-		$query .= "locationid = " . $id;
-
-		$or = true;
-	}
+	$query = "SELECT locationid, openingtime FROM `location_info` WHERE locationid IN (";
+	$query .= implode(",", $idList);
+	$query .= ")";
 
 	// Execute query.
 	$dbquery = Database::simpleQuery($query);
@@ -400,20 +418,15 @@ function formatOpeningtime($openingtime) {
 
 function getOpeningTimesFromParent($locationID) {
 	// Get parent location id.
-	$dbquery = Database::simpleQuery("SELECT parentlocationid FROM `location` WHERE locationid = :locationID", array('locationID' => $locationID));
+	$dbquery = Database::queryFirst("SELECT parentlocationid FROM `location` WHERE locationid = :locationID", array('locationID' => $locationID));
 	$parentlocationid = 0;
-	while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-		$parentlocationid = (int)$dbdata['parentlocationid'];
-	}
+	$parentlocationid = (int)$dbquery['parentlocationid'];
 
 	if ($parentlocationid == 0) {
 		return createBasicClosingTime();
 	} else {
-		$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :locationID", array('locationID' => $parentlocationid));
-		$dbresult = array();
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$dbresult = json_decode($dbdata['openingtime'], true);
-		}
+		$dbquery = Database::queryFirst("SELECT openingtime FROM `location_info` WHERE locationid = :locationID", array('locationID' => $parentlocationid));
+		$dbresult = json_decode($dbquery['openingtime'], true);
 
 		if (count($dbresult) == 0) {
 			return getOpeningTimesFromParent($parentlocationid);
