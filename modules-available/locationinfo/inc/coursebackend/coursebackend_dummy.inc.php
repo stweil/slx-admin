@@ -30,7 +30,20 @@ class Coursebackend_Dummy extends CourseBackend {
     }
 
     public function fetchSchedulesInternal($roomId){
+      $a = array();
+      foreach ($roomId as $id) {
+        $x['id'] = $id;
+        $calendar['title'] = "test exam";
+        $calendar['start'] = "2017-February-20 10:00:00";
+        $calendar['end'] = "2017-February-20 12:00:00";
+        $calarray = array();
+        $calarray[] = $calendar;
+        $x['calendar'] = $calarray;
+        $a[] = $x;
+      }
 
+
+      return json_encode($a, true);
     }
 
 }
