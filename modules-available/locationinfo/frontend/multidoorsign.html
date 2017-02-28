@@ -44,6 +44,8 @@ optional:
 			float: left;
 			box-sizing: border-box;
 			display:flex;
+			background-color: #cacaca;
+			overflow: hidden;
 
 		}
 
@@ -62,11 +64,12 @@ optional:
 			padding: 0;
 			height: 80px;
 
+
 		}
 		.progressbar{
 			width: 0px;
 			height: 2px;
-			position: relative;
+			position: absolute;
 			background-color: red;
 			bottom: 0px;
 			z-index: 1;
@@ -104,11 +107,21 @@ optional:
 
 		.roomLayoutDesign {
 			position: relative;
-			background: linear-gradient(#cccccc, white);
 			float: left;
 			boxSizing: border-box;
 		}
+
+		.roompadding{
+
+
+
+		}
 		.room{
+			position: relative;
+			background-color: white;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
 
 		}
 
@@ -117,6 +130,8 @@ optional:
 			padding: 0;
 			dboxSizing: border-box;
 			background: linear-gradient(#cccccc, white);
+
+
 		}
 
 		.free-busy-busy {
@@ -512,16 +527,30 @@ optional:
 			if(roomsToshow == 4){
 				height = "50%";
 			}
-
+			var i = 0;
 			for (var property in rooms) {
 
-				var text = "<div class='room'   id ='room_" + rooms[property].id +"'></div>";
-
+				var text = "<div class='roompadding'   id ='roompadding_" + rooms[property].id +"'></div>";
 				$("body").append(text);
-				var obj = document.getElementById("room_" + rooms[property].id);
 
+
+
+
+				var obj = document.getElementById("roompadding_" + rooms[property].id);
+				console.log(obj);
+				if(roomsToshow > 1){
+					obj.style.padding = "5px";
+					if(i == 0) {
+						obj.style.paddingRight = "0px";
+					}
+				}
 				obj.style.width = width;
 				obj.style.height = height;
+				var text = "<div class='room'   id ='room_" + rooms[property].id +"'></div>";
+
+				$("#roompadding_" + rooms[property].id).append(text);
+
+
 				text = "<div id='header_"+rooms[property].id+"' class='row'>"+
 							"<div class='header col-2'>"+
 							"<div class='font' id='roomHeader_"+rooms[property].id+"'></div>"+
@@ -533,7 +562,8 @@ optional:
 					"<div class='FreeSeatsFont' id='freeSeatsHeader_"+rooms[property].id+"'></div>"+
 					"</div>"+
 					"</div>";
-				$("#room_"+rooms[property].id).append(text);
+				$("#room_" + rooms[property].id).append(text);
+
 				if (rooms[property].name != null) {
 					$("#roomHeader_"+rooms[property].id).text(rooms[property].name);
 				}
@@ -555,10 +585,11 @@ optional:
 					preInitRoom(rooms[property]);
 					generateProgressBar(rooms[property].id);
 				}
-				setInterval(mainUpdateLoop,1000);
 
+				i++;
 			}
 
+			setInterval(mainUpdateLoop,1000);
 		}
 
 
@@ -870,6 +901,9 @@ optional:
 				cal.weekCalendar("option", "useShortDayNames", false);
 			}
 			var clientHeight = $(window).height() - document.getElementById('header_'+room.id).clientHeight - document.getElementsByClassName("wc-time-column-header")[0].clientHeight - 10;
+			if(roomsToshow > 1) {
+				clientHeight -= 5;
+			}
 			if (room.config.mode == 1 && room.config.vertical) {
 
 				clientHeight = clientHeight * (room.config.scale / 100);
@@ -1244,11 +1278,17 @@ optional:
 
 		function generateOffsetAndScale(room) {
 			var clientHeight = ($(window).height() - document.getElementById('header_'+room.id).clientHeight - 5);
+			if(roomsToshow > 1) {
+				clientHeight -= 5;
+			}
 			if (room.config.vertical && room.config.mode == 1) {
 				clientHeight = clientHeight * (1 - (room.config.scale / 100));
 			}
 			($("#roomLayout")).height(clientHeight);
-			var clientWidth = document.getElementById('roomLayout_'+room.id).clientWidth;
+			var roomLayout = document.getElementById('roomLayout_'+room.id);
+			var clientWidth = roomLayout.clientWidth;
+			roomLayout.style.height = clientHeight+"px";
+
 			var scaleX;
 			if (room.xDifference != 0) {
 				scaleX = clientWidth / room.xDifference;
