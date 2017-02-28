@@ -26,6 +26,14 @@ $res[] = tableCreate('property', "
 	KEY `dateline` (`dateline`)
 ");
 
+$res[] = tableCreate('property_list', "
+	`name` varchar(50) NOT NULL,
+	`dateline` int(10) unsigned NOT NULL DEFAULT '0',
+	`value` text NOT NULL,
+	KEY (`name`),
+	KEY `dateline` (`dateline`)
+");
+
 $res[] = tableCreate('user', "
 	`userid` int(10) unsigned NOT NULL AUTO_INCREMENT,
 	`login` varchar(100) NOT NULL,
