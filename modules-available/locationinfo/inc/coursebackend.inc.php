@@ -164,7 +164,7 @@ abstract class CourseBackend
             foreach($roomIDs as $id){
                 $result[$id] = $newresult[$id];
             }
-            return $result[$roomID];
+            return $result;
 	}
         
         /**
