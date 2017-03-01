@@ -87,6 +87,11 @@ abstract class CourseBackend
         public abstract function getCredentials();
         
         /**
+         * @return boolean true if the connection works, false otherwise
+         */
+        public abstract function checkConection();
+
+        /**
          * uses json to setCredentials, the json must follow the form given in
          * getCredentials
          * @param json $json jsonarray with the credentials

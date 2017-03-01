@@ -14,6 +14,11 @@ class Coursebackend_Davinci extends CourseBackend {
         $this->serverID = $serverID;
         //Davinci doesn't have credentials
     }
+    
+    public function checkConection(){
+        $this->fetchSchedulesInternal(42);
+        return $this->error;
+    }
     public function getCredentials(){
         $return = array();
         return $return;

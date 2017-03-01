@@ -16,6 +16,11 @@ class CourseBackend_HisInOne extends CourseBackend
         $this->location = $location."/qisserver/services2/CourseService";
         $this->serverID = $serverID;
     }
+    
+    public function checkConection(){
+        $this->findUnit(42);
+        return $this->error;
+    }
 
     //Cache the timetables for 30 minutes ttables older than 60 are not refreshed
     public function getCacheTime(){
@@ -120,6 +125,9 @@ class CourseBackend_HisInOne extends CourseBackend
             $this->errormsg =$respons2['soapenvBody']['soapenvFault']['faultcode']." ".$respons2['soapenvBody']['soapenvFault']['faultstring'];
             return;
         }
+        else{
+            $this->error = false;
+        }
         $id = $respons2['soapenvBody']['hisfindUnitResponse']['hisunitIds']['hisid'];
         return $id;
     }
@@ -153,6 +161,9 @@ class CourseBackend_HisInOne extends CourseBackend
             $this->error = true;
             $this->errormsg =$respons2['soapenvBody']['soapenvFault']['faultcode']." ".$respons2['soapenvBody']['soapenvFault']['faultstring'];
             return;
+        }
+        else{
+            $this->error = false;
         }
         $respons3 = $respons2['soapenvBody']['hisreadUnitResponse'];
         return $respons3;
@@ -313,8 +324,7 @@ class CourseBackend_HisInOne extends CourseBackend
                             foreach($dates as $date){
                                 $roomID = $date['hisroomId'];
                                 $datum = $date['hisexecutiondate'];
-                                if(intval($roomID) == $param && in_array($datum,$currentWeek)){
-
+                                if(intval($roomID) == $room && in_array($datum,$currentWeek)){
                                     $startTime = $date['hisstarttime'];
                                     $endTime = $date['hisendtime'];
                                     $json = array(
@@ -332,7 +342,7 @@ class CourseBackend_HisInOne extends CourseBackend
                                 foreach($dates as $date){
                                     $roomID = $date['hisroomId'];
                                     $datum = $date['hisexecutiondate'];
-                                    if(intval($roomID) == $param && in_array($datum,$currentWeek)){
+                                    if(intval($roomID) == $room && in_array($datum,$currentWeek)){
 
                                         $startTime = $date['hisstarttime'];
                                         $endTime = $date['hisendtime'];
@@ -367,11 +377,10 @@ class CourseBackend_HisInOne extends CourseBackend
 }
 
 
-/*
- * $client = new CourseBackend_HisInOne();
- * $login = ['username'=> '','password'=>'','role'=>''];
-$login = json_encode($login);
-$client->setCredentials($login,"https://histestwebserver.vm.uni-freiburg.de",3);
-$test=$client->fetchSchedulesInternal([42=>42]);
-echo htmlentities($test[42]);
-*/
+
+//$client = new CourseBackend_HisInOne();
+//$login = ['username'=> '','password'=>'','role'=>''];
+//$login = json_encode($login);
+//$client->setCredentials($login,"https://histestwebserver.vm.uni-freiburg.de",3);
+//$test=$client->fetchSchedulesInternal([42=>42]);
+//echo htmlentities($test[42]);
