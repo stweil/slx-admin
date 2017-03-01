@@ -37,7 +37,7 @@
 					</td>
 
 					<td align="center" id="credentials-{{id}}" onclick="event.cancelBubble = true;">
-						<button class="btn btn-sm btn-primary" type="button" title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');" id="credentials">{{lang_credentials}}</button>
+						<button class="btn btn-sm btn-primary" id="credentials-btn-{{id}}" type="button" title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');" id="credentials">{{lang_credentials}}</button>
 					</td>
 					<td align="center" id="btncell-{{id}}">
 						<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}" onclick="editButtonClick({{id}});" id="edit">&#x270E</button>
@@ -56,7 +56,6 @@
 		</table>
 		<br>
 		<button class="btn btn-success btn-sm" id="addServerButton" onclick="addNewServerRow()"><span class="glyphicon glyphicon-plus-sign"> {{lang_addServer}}</span></button>
-		<!--<a class="btn btn-danger btn-sm" onclick=>{{lang_deleteAll}}</a>-->
 		<br><br><br>
 
 </div>

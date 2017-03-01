@@ -39,11 +39,11 @@ class Coursebackend_Dummy extends CourseBackend {
         $calarray = array();
         $calarray[] = $calendar;
         $x['calendar'] = $calarray;
-        $a[] = $x;
+        $a[$id] = $calarray;
       }
 
 
-      return json_encode($a, true);
+      return $a;
     }
 
 }
