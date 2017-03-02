@@ -5,6 +5,7 @@ class CourseBackend_HisInOne extends CourseBackend
     private $username;
     private $password;
     private $location;
+    private $open;
     public $serverID;
 
     //Sets the location and the login information of this client
@@ -13,7 +14,13 @@ class CourseBackend_HisInOne extends CourseBackend
         $data = json_decode($json, TRUE);
         $this->password = $data['password'];
         $this->username = $data['username']."\t".$data['role'];
-        $this->location = $location."/qisserver/services2/CourseService";
+        $this->open = $data['Open'];
+        if($this->open){
+            $this->location = $location."/qisserver/services2/OpenCourseService";
+        }
+        else{
+            $this->location = $location."/qisserver/services2/CourseService";
+        }
         $this->serverID = $serverID;
     }
     
@@ -36,7 +43,7 @@ class CourseBackend_HisInOne extends CourseBackend
     }
     
     public function getCredentials() {
-        $credentials = ["username" => "string", "role" =>"string","password"=>"string"];
+        $credentials = ["username" => "string", "role" =>"string","password"=>"string","open"=>"boolean"];
         return $credentials;
     }
     
@@ -78,10 +85,14 @@ class CourseBackend_HisInOne extends CourseBackend
         $doc->formatOutput = true;
         $envelope = $doc->createElementNS('http://schemas.xmlsoap.org/soap/envelope/', 'SOAP-ENV:Envelope');
         $doc->appendChild($envelope);
-        $envelope->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:ns1', 'http://www.his.de/ws/courseService');
-        
-        $header = $this->getHeader($doc);
-        $envelope->appendChild($header);
+        if($this->Open){
+            $envelope->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:ns1', 'http://www.his.de/ws/OpenCourseService');
+        }
+        else{
+            $envelope->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:ns1', 'http://www.his.de/ws/CourseService');
+            $header = $this->getHeader($doc);
+            $envelope->appendChild($header);
+        }
         //Body of the request
         $body = $doc->createElement('SOAP-ENV:Body');
         $envelope->appendChild($body);
@@ -108,7 +119,15 @@ class CourseBackend_HisInOne extends CourseBackend
         else{
             $this->error = false;
         }
-        $id = $respons2['soapenvBody']['hisfindUnitResponse']['hisunitIds']['hisid'];
+        if($this->open){
+            $units = $respons2['soapenvBody']['hisfindUnitResponse']['hisunits'];
+            foreach ($units as $unit) {
+                $id[]= $unit['hisid'];
+            }
+        }
+        else{
+            $id = $respons2['soapenvBody']['hisfindUnitResponse']['hisunitIds']['hisid'];
+        }
         return $id;
     }
     
@@ -119,10 +138,14 @@ class CourseBackend_HisInOne extends CourseBackend
         $doc->formatOutput = true;
         $envelope = $doc->createElementNS('http://schemas.xmlsoap.org/soap/envelope/', 'SOAP-ENV:Envelope');
         $doc->appendChild($envelope);
-        $envelope->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:ns1', 'http://www.his.de/ws/courseService');
-        
-        $header = $this->getHeader($doc);
-        $envelope->appendChild($header);
+        if($this->Open){
+            $envelope->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:ns1', 'http://www.his.de/ws/OpenCourseService');
+        }
+        else{
+            $envelope->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:ns1', 'http://www.his.de/ws/CourseService');
+            $header = $this->getHeader($doc);
+            $envelope->appendChild($header);
+        }
         //body of the request
         $body = $doc->createElement('SOAP-ENV:Body');
         $envelope->appendChild($body);
