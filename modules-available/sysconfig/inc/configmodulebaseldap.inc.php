@@ -7,7 +7,8 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 
 	private static $REQUIRED_FIELDS = array('server', 'searchbase');
 	private static $OPTIONAL_FIELDS = array('binddn', 'bindpw', 'home', 'ssl', 'fingerprint', 'certificate', 'homeattr',
-		'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia', 'shareOther', 'shareHomeDrive');
+		'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia',
+		'shareOther', 'shareHomeDrive', 'shareDomain', 'credentialPassthrough');
 
 	protected function generateInternal($tgz, $parent)
 	{

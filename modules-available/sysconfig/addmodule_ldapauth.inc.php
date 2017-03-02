@@ -212,7 +212,8 @@ class LdapAuth_HomeDir extends AddModule_Base
 
 	public static function getAttributes()
 	{
-		return array('shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia', 'shareOther', 'shareHomeDrive');
+		return array('shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop',
+			'shareMedia', 'shareOther', 'shareHomeDrive', 'shareDomain', 'credentialPassthrough');
 	}
 
 }
