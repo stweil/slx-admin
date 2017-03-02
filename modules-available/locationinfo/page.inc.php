@@ -97,7 +97,7 @@ class Page_LocationInfo extends Page
 		$result['roomupdate'] = Request::post('roomupdate', 30, 'int');
 		$result['configupdate'] = Request::post('configupdate', 180, 'int');
 		$serverid = Request::post('serverid', 0, 'int');
-		$serverroomid = Request::post('serverroomid', 0, 'int');
+		$serverroomid = Request::post('serverroomid','', 'string');
 
 		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config) VALUES (:id, :serverid, :serverroomid, :config)
 		 ON DUPLICATE KEY UPDATE config=:config, serverid=:serverid, serverroomid=:serverroomid",
