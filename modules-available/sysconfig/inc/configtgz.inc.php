@@ -217,8 +217,8 @@ class ConfigTgz
 	
 	/**
 	 * 
-	 * @param type $deleteOnError
-	 * @param type $timeoutMs
+	 * @param bool $deleteOnError
+	 * @param int $timeoutMs
 	 * @return string - OK (success)
 	 *		- OUTDATED (updating failed, but old version still exists)
 	 *		- MISSING (failed and no old version available)
@@ -228,9 +228,21 @@ class ConfigTgz
 		if (!($this->configId > 0) || !is_array($this->modules) || $this->file === false)
 			Util::traceError ('configId <= 0 or modules not array in ConfigTgz::rebuild()');
 		$files = array();
+		// Get all config modules for system config
 		foreach ($this->modules as $module) {
 			if (!empty($module['filepath']) && file_exists($module['filepath']))
 				$files[] = $module['filepath'];
+		}
+		// Get stuff other modules want to inject
+		$handler = function($hook) {
+			include $hook->file;
+			return isset($file) ? $file : false;
+		};
+		foreach (Hook::load('config-tgz') as $hook) {
+			$file = $handler($hook);
+			if ($file !== false) {
+				$files[] = $file;
+			}
 		}
 		// Hand over to tm
 		$task = Taskmanager::submit('RecompressArchive', array(
@@ -261,7 +273,7 @@ class ConfigTgz
 		));
 		return $task['id'];
 	}
-	
+
 	public function delete()
 	{
 		if ($this->configId === 0)
