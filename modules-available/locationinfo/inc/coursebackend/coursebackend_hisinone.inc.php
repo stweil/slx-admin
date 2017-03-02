@@ -1,6 +1,6 @@
 <?php
 
-class CourseBackend_HisInOne// extends CourseBackend
+class CourseBackend_HisInOne extends CourseBackend
 {
     private $username;
     private $password;
