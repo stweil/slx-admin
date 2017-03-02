@@ -1,0 +1,22 @@
+{
+    "lang_apply": "Anwenden",
+    "lang_displayColumns": "Auswahl angezeigter Spalten",
+    "lang_displaySelection": "Anzeigemodus, Auswahl Zeitfenster",
+    "lang_downloadReport": "Report herunterladen",
+    "lang_export": "Exportieren",
+    "lang_hostname": "Hostname",
+    "lang_lastLogout": "Letzter Logout",
+    "lang_lastStart": "Letzter Boot",
+    "lang_location": "Ort",
+    "lang_longSessions": "Sitzungen \u2265 60s",
+    "lang_medianSessionLength": "Sitzungsdauer Median",
+    "lang_reportingDescription": "Helfen Sie uns bwLehrpool durch das w\u00f6chentliche Verschicken eines anonymisierten Statistikberichts zu verbessern. Wenn Sie den Inhalt eines solchen Reports genauer inspizieren wollen, k\u00f6nnen Sie \u00fcber den untenstehenden Button einen aktuellen Report ihres Servers herunterladen.",
+    "lang_reportingLabel": "Anonymisierte Nutzungsstatistiken herunterladen",
+    "lang_sessions": "Sitzungen",
+    "lang_shortSessions": "Sitzungen < 60s",
+    "lang_total": "Gesamt",
+    "lang_totalOffTime": "Gesamtzeit offline",
+    "lang_totalTime": "Gesamtzeit",
+    "lang_user": "Nutzer",
+    "lang_vm": "Veranstaltung"
+}

@@ -1,0 +1,4 @@
+{
+	"category": "main.content",
+	"dependencies": [ "statistics", "locations", "js_stupidtable", "js_jqueryui" ]
+}

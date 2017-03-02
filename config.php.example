@@ -30,6 +30,8 @@ define('CONFIG_PROXY_CONF', '/opt/openslx/proxy/config');
 define('CONFIG_DOZMOD_URL', 'http://127.0.0.1:9080');
 define('CONFIG_DOZMOD_EXPIRE', 60);
 
+define('CONFIG_REPORTING_URL', 'https://bwlp-masterserver.ruf.uni-freiburg.de/rpc/');
+
 // Sort order for menu
 // Optional - if missing, will be sorted by module id (internal name)
 // Here it is also possible to assign a module to a different category,

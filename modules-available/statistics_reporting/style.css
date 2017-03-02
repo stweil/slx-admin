@@ -1,0 +1,42 @@
+.top-row {
+    margin-bottom: 10px;
+}
+
+.top-row > * {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.top-row #button-settings {
+    margin-right: 0;
+}
+
+.buttonbar button {
+    margin-bottom: 4px;
+}
+
+.buttonbar {
+    margin-bottom: 20px;
+}
+
+#slider {
+    display: inline-block;
+    width: 160px;
+    margin-left: 20px;
+    margin-bottom: 3px;
+    margin-right: 20px;
+}
+
+#lower-handle, #upper-handle {
+    width: 3em;
+    height: 1.6em;
+    top: 50%;
+    margin-top: -.8em;
+    margin-left: -1.5em;
+    text-align: center;
+    line-height: 1.6em;
+}
+
+th[data-sort] {
+    cursor: pointer;
+}
