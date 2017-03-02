@@ -87,30 +87,10 @@ class CourseBackend_HisInOne extends CourseBackend
         $envelope->appendChild($body);
         $findUnit= $doc->createElement('ns1:findUnit');
         $body->appendChild($findUnit);
-        $unitDefaulttext = $doc->createElement('ns1:unitDefaulttext');
-        $findUnit->appendChild($unitDefaulttext);
-        $unitElementnr = $doc->createElement('ns1:unitElementnr');
-        $findUnit->appendChild($unitElementnr);
-        $editingStatusId = $doc->createElement('ns1:editingStatusId');
-        $findUnit->appendChild($editingStatusId);
-        $courseEventtypeId = $doc->createElement('ns1:courseEventtypeId');
-        $findUnit->appendChild($courseEventtypeId);
-        $courseTeachingLanguageId = $doc->createElement('ns1:courseTeachingLanguageId');
-        $findUnit->appendChild($courseTeachingLanguageId);
-        $planelementDefaulttext = $doc->createElement('ns1:planelementDefaulttext');
-        $findUnit->appendChild($planelementDefaulttext);
-        $parallelgroupId= $doc->createElement('ns1:parallelgroupId');
-        $findUnit->appendChild($parallelgroupId);
         $termYearN = $doc->createElement('termYear',$termyear);
         $findUnit->appendChild($termYearN);
         $termTypeValueId = $doc->createElement('termTypeValueId',$termtype);
         $findUnit->appendChild($termTypeValueId);
-        $individualDatesExecutionDate = $doc->createElement('ns1:individualDatesExecutionDate');
-        $findUnit->appendChild($individualDatesExecutionDate);
-        $individualDatesStarttime = $doc->createElement('ns1:individualDatesStarttime');
-        $findUnit->appendChild($individualDatesStarttime);
-        $individualDatesEndtime = $doc->createElement('ns1:individualDatesEndtime');
-        $findUnit->appendChild($individualDatesEndtime);
         $roomIdN = $doc->createElement('ns1:roomId',$roomID);
         $findUnit->appendChild($roomIdN);
         
@@ -367,7 +347,7 @@ class CourseBackend_HisInOne extends CourseBackend
     
     private function getCurrentWeekDates(){
         $DateArray = array();
-        $startdate = strtotime('Now');
+        $startdate = strtotime('-2 month');
         for($i=0 ;$i<=7; $i++) {
             $DateArray[] = date('Y-m-d', strtotime("+ {$i} day", $startdate)); 
         }
@@ -375,12 +355,3 @@ class CourseBackend_HisInOne extends CourseBackend
     }
 
 }
-
-
-
-//$client = new CourseBackend_HisInOne();
-//$login = ['username'=> '','password'=>'','role'=>''];
-//$login = json_encode($login);
-//$client->setCredentials($login,"https://histestwebserver.vm.uni-freiburg.de",3);
-//$test=$client->fetchSchedulesInternal([42=>42]);
-//echo htmlentities($test[42]);
