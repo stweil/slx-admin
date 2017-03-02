@@ -11,6 +11,10 @@ class Coursebackend_Dummy extends CourseBackend {
     public function setCredentials($json,$location,$serverID) {
     }
 
+    public function checkConection(){
+        return $true;
+    }
+
     public function getCredentials(){
       $options = ["opt1", "opt2", "opt3", "opt4", "opt5", "opt6", "opt7", "opt8"];
       $credentials = ["username" => "string","password"=>"string","option"=>$options];
