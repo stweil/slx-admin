@@ -6,7 +6,6 @@ class CourseBackend_HisInOne extends CourseBackend
     private $password;
     private $location;
     private $open;
-    public $serverID;
 
     //Sets the location and the login information of this client
     public function setCredentials($json,$location,$serverID) {
@@ -24,7 +23,7 @@ class CourseBackend_HisInOne extends CourseBackend
         $this->serverID = $serverID;
     }
     
-    public function checkConection(){
+    public function checkConnection(){
         $this->findUnit(42);
         return $this->error;
     }
@@ -71,7 +70,7 @@ class CourseBackend_HisInOne extends CourseBackend
     public function findUnit($roomID){
         $termyear = date('Y');
         $termtype = date('n');
-        if($termtype > 3 && termtype < 10){
+        if($termtype > 3 && $termtype < 10){
             $termtype = 2;
         }
         elseif ($termtype > 10) {
@@ -114,13 +113,14 @@ class CourseBackend_HisInOne extends CourseBackend
         if(isset($respons2['soapenvBody']['soapenvFault'])){
             $this->error = true;
             $this->errormsg =$respons2['soapenvBody']['soapenvFault']['faultcode']." ".$respons2['soapenvBody']['soapenvFault']['faultstring'];
-            return;
+            return false;
         }
         else{
             $this->error = false;
         }
         if($this->open){
             $units = $respons2['soapenvBody']['hisfindUnitResponse']['hisunits']['hisunit'];
+            $id = [];
             foreach ($units as $unit) {
                 $id[]= $unit['hisid'];
             }
@@ -163,7 +163,7 @@ class CourseBackend_HisInOne extends CourseBackend
         if(isset($respons2['soapenvBody']['soapenvFault'])){
             $this->error = true;
             $this->errormsg =$respons2['soapenvBody']['soapenvFault']['faultcode']." ".$respons2['soapenvBody']['soapenvFault']['faultstring'];
-            return;
+            return false;
         }
         else{
             $this->error = false;
@@ -211,15 +211,20 @@ class CourseBackend_HisInOne extends CourseBackend
         curl_close($soap_do);
         return $output;
     }
-    
-    //Request for a timetable with roomid as int
-    public function getJson($param){
+
+	/**
+	 * Request for a timetable
+	 * @param $param int the roomid
+	 * @return string the timetable as json
+	 */
+	public function getJson($param){
         //get all eventIDs in a given room
         $eventIDs = $this-> findUnit($param);
         if($this->error == true){
             return $this->errormsg;
         }
         //get all information on each event
+		 $events = [];
         foreach ($eventIDs as $each_event) {
             $events[] = $this->readUnit((int) $each_event);
             if($this->error == true){
@@ -294,17 +299,18 @@ class CourseBackend_HisInOne extends CourseBackend
     //Request for a timetable with roomids as array
     public function fetchSchedulesInternal($param){
         //get all eventIDs in a given room
+		 	$eventIDs = [];
         foreach ($param as $ID) {
-            $eventIDs = $this-> findUnit($ID);
-            if($this->error == true){
-                return $this->errormsg;
-            }
-        }
-        $eventIDs = array_unique($eventIDs);
-        
+			  $eventIDs = array_merge($eventIDs, $this->findUnit($ID));
+			  var_dump($eventIDs);
+			  $eventIDs = array_unique($eventIDs);
+			  if ($this->error == true) {
+				  return $this->errormsg;
+			  }
+		  }
         //get all information on each event
         foreach ($eventIDs as $each_event) {
-            $events[] = $this->readUnit((int) $each_event);
+            $events[] = $this->readUnit(intval($each_event));
             if($this->error == true){
                 return $this->errormsg;
             }

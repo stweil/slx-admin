@@ -12,14 +12,15 @@ abstract class CourseBackend
 
 	/**
 	 * @var array list of known backends
-         * $error boolean true if there was an error
-         * $errormsg string with the error message
+	 * $error boolean true if there was an error
+	 * $errormsg string with the error message
 	 */
 	private static $backendTypes = false;
-        public $error;
-        public $errormsg;
+	public $error;
+	public $errormsg;
+	public $serverID;
 
-        /**
+	/**
 	 * Load all known backend types. This is done
 	 * by including *.inc.php from inc/coursebackend/.
 	 */
@@ -80,106 +81,108 @@ abstract class CourseBackend
 	public abstract function getDisplayName();
 
 
-        
-        /**
-         * @returns array with parameter name as key and type as value
-         */
-        public abstract function getCredentials();
-        
-        /**
-         * @return boolean true if the connection works, false otherwise
-         */
-        public abstract function checkConection();
+	/**
+	 * @returns array with parameter name as key and type as value
+	 */
+	public abstract function getCredentials();
 
-        /**
-         * uses json to setCredentials, the json must follow the form given in
-         * getCredentials
-         * @param json $json jsonarray with the credentials
-         * @param string $url adress of the server
-         * @param int $serverID ID of the server
-         * @returns void 
-         */
-        public abstract function setCredentials($json, $url, $serverID);
+	/**
+	 * @return boolean true if the connection works, false otherwise
+	 */
+	public abstract function checkConnection();
 
-        /**
+	/**
+	 * uses json to setCredentials, the json must follow the form given in
+	 * getCredentials
+	 *
+	 * @param string $json jsonarray with the credentials
+	 * @param string $url address of the server
+	 * @param int $serverID ID of the server
+	 * @returns void
+	 */
+	public abstract function setCredentials($json, $url, $serverID);
+
+	/**
 	 * @return int desired caching time of results, in seconds. 0 = no caching
 	 */
 	public abstract function getCacheTime();
-        
-        /**
-         * @return int age after which ttables are no longer refreshed should be
-         * greater then CacheTime
-         */
-        public abstract function getRefreshTime();
 
-        /**
+	/**
+	 * @return int age after which timetables are no longer refreshed should be
+	 * greater then CacheTime
+	 */
+	public abstract function getRefreshTime();
+
+	/**
 	 * Internal version of fetch, to be overridden by subclasses.
+	 *
 	 * @param $roomIds
-	 * @return array a multidemensional array that uses the roomID as key
-         * and has the sheduls as string in the value
+	 * @return array a multidimensional array that uses the roomID as key
+	 * and has the schedules as string in the value
 	 */
 	protected abstract function fetchSchedulesInternal($roomId);
 
 	/**
 	 * Method for fetching the schedule of the given rooms on a server.
+	 *
 	 * @param int $roomId int of room ID to fetch
-         * @param int $serverid id of the server
+	 * @param int $serverid id of the server
 	 * @return string|bool some jsonstring as result, or false on error
 	 */
 	public final function fetchSchedule($roomIDs)
 	{
-            $sqlr=implode(",", $roomIDs);
-            $sqlr = '('.$sqlr.')';
-            $q = "SELECT locationid, calendar, serverroomid, lastcalendarupdate FROM location_info WHERE locationid In ".$sqlr;
-            $dbquery1 = Database::simpleQuery($q);
-            foreach ($dbquery1->fetchAll(PDO::FETCH_ASSOC) as $row){
-                $sroomID = $row['serverroomid'];
-                $lastUpdate = $row['lastcalendarupdate'];
-                $calendar = $row['calendar'];
-                //Check if in cache if lastUpdate is null then it is interpreted as 1970
-                if(strtotime($lastUpdate) > strtotime("-".$this->getCacheTime()."seconds") && $this->getCacheTime()>0) {
-                    $result[$row['locationid']]=$calendar;
-                } 
-                else {
-                    $sroomIDs[$row['locationid']] = $sroomID;
-                }
-                
-            }
-            //Check if we should refresh other rooms recently requested by front ends
-            if ($this->getCacheTime()>0&&$this->getRefreshTime()>0) {
-                    $dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalendarupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
-                    foreach($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row){
-                        if(strtotime($row['lastcalendarupdate'])>strtotime("-".$this->getRefreshTime()."seconds")&&strtotime($row['lastcalendarupdate'])> strtotime("-".$this->getCacheTime()."seconds")){
-                            $sroomIDs[$row['locationid']] = $row['serverroomid'];
-                            }
-                    }
-            }
-            $results = $this->fetchSchedulesInternal($sroomIDs);
-            foreach ($sroomIDs as $location => $serverroom){
-                $newresult[$location] = $results[$serverroom];
-            }
-            
-            if($this->getCacheTime()>0){
-                foreach ($newresult as $key => $value) {
-                    $now = strtotime('Now');
-                    $dbquery1 = Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalendarupdate = :now WHERE locationid = :id ", array('id' => $key,'ttable' => $value,'now'=> $now));
-                }
-            }
-            //get all sheduls that are wanted from roomIDs
-            foreach($roomIDs as $id){
-                $result[$id] = $newresult[$id];
-            }
-            return $result;
+		$sqlr = implode(",", $roomIDs);
+		$sqlr = '(' . $sqlr . ')';
+		$q = "SELECT locationid, calendar, serverroomid, lastcalendarupdate FROM location_info WHERE locationid IN " . $sqlr;
+		$dbquery1 = Database::simpleQuery($q);
+		foreach ($dbquery1->fetchAll(PDO::FETCH_ASSOC) as $row) {
+			$sroomID = $row['serverroomid'];
+			$lastUpdate = $row['lastcalendarupdate'];
+			$calendar = $row['calendar'];
+			//Check if in cache if lastUpdate is null then it is interpreted as 1970
+			if (strtotime($lastUpdate) > strtotime("-" . $this->getCacheTime() . "seconds") && $this->getCacheTime() > 0) {
+				$result[$row['locationid']] = $calendar;
+			} else {
+				$sroomIDs[$row['locationid']] = $sroomID;
+			}
+
+		}
+		//Check if we should refresh other rooms recently requested by front ends
+		if ($this->getCacheTime() > 0 && $this->getRefreshTime() > 0) {
+			$dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalendarupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
+			foreach ($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row) {
+				if (strtotime($row['lastcalendarupdate']) > strtotime("-" . $this->getRefreshTime() . "seconds") && strtotime($row['lastcalendarupdate']) > strtotime("-" . $this->getCacheTime() . "seconds")) {
+					$sroomIDs[$row['locationid']] = $row['serverroomid'];
+				}
+			}
+		}
+		$results = $this->fetchSchedulesInternal($sroomIDs);
+		foreach ($sroomIDs as $location => $serverroom) {
+			$newresult[$location] = $results[$serverroom];
+		}
+
+		if ($this->getCacheTime() > 0) {
+			foreach ($newresult as $key => $value) {
+				$now = strtotime('Now');
+				Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalendarupdate = :now WHERE locationid = :id ", array('id' => $key, 'ttable' => $value, 'now' => $now));
+			}
+		}
+		//get all schedules that are wanted from roomIDs
+		foreach ($roomIDs as $id) {
+			$result[$id] = $newresult[$id];
+		}
+		return $result;
 	}
-        
-        /**
-         * @return false if there was no error string with error message if there was one
-         */
-        public final function getError(){
-            if($this->error){
-                return $this->errormsg;
-            }
-            return false;
-        }
+
+	/**
+	 * @return false if there was no error string with error message if there was one
+	 */
+	public final function getError()
+	{
+		if ($this->error) {
+			return $this->errormsg;
+		}
+		return false;
+	}
 
 }
