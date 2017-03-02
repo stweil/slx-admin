@@ -62,9 +62,7 @@ optional:
 			display: table;
 			color: white;
 			padding: 0;
-			height: 80px;
-
-
+			height: 8vw;
 		}
 		.progressbar{
 			width: 0px;
@@ -77,7 +75,7 @@ optional:
 		.font {
 			display: table-cell;
 			vertical-align: middle;
-			font-size: 40px;
+			font-size: 3vw;
 			font-weight: bold
 		}
 
@@ -116,12 +114,19 @@ optional:
 
 
 		}
+
+
+
+
 		.room{
 			position: relative;
 			background-color: white;
 			width: 100%;
 			height: 100%;
 			overflow: hidden;
+			border-width: 1px;
+			border-color: darkgrey;
+			border-style: solid;
 
 		}
 
@@ -155,14 +160,14 @@ optional:
 			display: table;
 			float: right;
 			padding: 0;
-			width: 80px;
-			height: 80px;
+			width: 8vw;
+			height: 8vw;
 		}
 
 		.FreeSeatsFont {
 			display: table-cell;
 			vertical-align: middle;
-			font-size: 65px;
+			font-size: 6vw;
 			color: white;
 			top: 0;
 			margin: 0 auto;
@@ -231,6 +236,7 @@ optional:
 			border-color: grey;
 		}
 
+		/*
 		@media (max-width: 1200px) {
 			.square {
 				height: 60px;
@@ -249,46 +255,9 @@ optional:
 				height: 60px;
 
 			}
-		}
+			*/
 
-		@media (max-width: 800px) {
-			.square {
-				height: 50px;
-				width: 50px;
-			}
 
-			.FreeSeatsFont {
-				font-size: 35px;
-			}
-
-			.font {
-				font-size: 20px;
-			}
-
-			.header {
-				height: 50px;
-
-			}
-		}
-
-		@media (max-width: 600px) {
-			.square {
-				height: 40px;
-				width: 40px;
-			}
-
-			.FreeSeatsFont {
-				font-size: 30px;
-			}
-
-			.font {
-				font-size: 18px;
-			}
-
-			.header {
-				height: 40px;
-
-			}
 		}
 
 	</style>
@@ -540,8 +509,8 @@ optional:
 				console.log(obj);
 				if(roomsToshow > 1){
 					obj.style.padding = "5px";
-					if(i == 0) {
-						obj.style.paddingRight = "0px";
+					if(i != 0) {
+						obj.style.paddingLeft = "0px";
 					}
 				}
 				obj.style.width = width;
@@ -567,6 +536,16 @@ optional:
 				if (rooms[property].name != null) {
 					$("#roomHeader_"+rooms[property].id).text(rooms[property].name);
 				}
+
+				if(roomsToshow == 2) {
+					console.log($("#square_"+rooms[property].id));
+					document.getElementById("square_"+rooms[property].id).style.width = "8vw";
+					document.getElementById("square_"+rooms[property].id).style.height ="8vw";
+					document.getElementById("roomHeader_"+rooms[property].id ).style.fontSize ="2vw" ;
+					document.getElementById("freeSeatsHeader_"+rooms[property].id ).style.fontSize = "5vw";
+					document.getElementById("courseHeading_"+rooms[property].id ).style.fontSize = "2vw";
+				}
+
 
 
 				if (rooms[property].config.mode == 1) {
@@ -847,19 +826,17 @@ optional:
 				cache: false,
 				timeout: 30000,
 				success: function (result) {
-					console.log(result);
 					//todo Update every calendar
 					var l = result.length;
 					// Todo reimplement when backend working
-					/*
+
 					for (var i = 0; i < l;i++){
 
 						//todo test this
-						console.log(rooms[result[i].id]);
-						rooms[result[i]].timetable = result[i];
-						updateCalendar(result[i],rooms[result[i].id]);
+
+						updateCalendar(result[i].calendar,rooms[result[i].id]);
 					}
-					*/
+
 
 				}, error: function () {
 
@@ -869,14 +846,23 @@ optional:
 
 
 		function updateCalendar(json,room) {
-			if (room.config.mode != 3) {
-				var cal = $('#calendar_'+room.id);
-				cal.weekCalendar("option", "data", json);
-				cal.weekCalendar("refresh");
-				cal.weekCalendar("option", "defaultFreeBusy", {free: false});
-				cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
+			if(json == ""){
+				console.log("Error: Calendar data was an empty string.");
+				return;
 			}
-			ComputeCurrentState(room);
+			try {
+				room.timetable = result[i].calendar;
+				if (room.config.mode != 3) {
+					var cal = $('#calendar_' + room.id);
+					cal.weekCalendar("option", "data", json);
+					cal.weekCalendar("refresh");
+					cal.weekCalendar("option", "defaultFreeBusy", {free: false});
+					cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
+				}
+				ComputeCurrentState(room);
+			} catch (e) {
+				consol.log("Error: Couldnt add celndar data");
+			}
 		}
 
 		function scaleCalendar(room) {
