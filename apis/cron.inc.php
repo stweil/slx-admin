@@ -32,14 +32,9 @@ function handleModule($file)
 	include_once $file;
 }
 
-foreach (glob('modules/*/hooks/cron.inc.php', GLOB_NOSORT) as $file) {
-	preg_match('#^modules/([^/]+)/#', $file, $out);
-	$mod = Module::get($out[1]);
-	if ($mod === false)
-		continue;
-	$id = $mod->getIdentifier();
+foreach (Hook::load('cron') as $hook) {
 	// Check if job is still running, or should be considered crashed
-	$status = getJobStatus($id);
+	$status = getJobStatus($hook->moduleId);
 	if ($status !== false) {
 		$runtime = (time() - $status['start']);
 		if ($runtime < 0) {
@@ -51,13 +46,12 @@ foreach (glob('modules/*/hooks/cron.inc.php', GLOB_NOSORT) as $file) {
 		} else {
 			// Consider job crashed
 			Property::removeFromList(CRON_KEY_STATUS, $status['string']);
-			EventLog::failure('Cronjob for module ' . $id . ' seems to be stuck or has crashed. Check the php or web server error log.');
+			EventLog::failure('Cronjob for module ' . $hook->moduleId . ' seems to be stuck or has crashed. Check the php or web server error log.');
 			continue;
 		}
 	}
-	$now = time();
-	Property::addToList(CRON_KEY_STATUS, "$id|$now", 1800);
-	$mod->activate();
-	handleModule($file);
-	Property::removeFromList(CRON_KEY_STATUS, "$id|$now");
+	$value = $hook . '|' . time();
+	Property::addToList(CRON_KEY_STATUS, $value, 1800);
+	handleModule($hook->file);
+	Property::removeFromList(CRON_KEY_STATUS, $value);
 }
