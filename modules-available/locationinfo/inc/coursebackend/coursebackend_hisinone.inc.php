@@ -1,6 +1,6 @@
 <?php
 
-class CourseBackend_HisInOne extends CourseBackend
+class CourseBackend_HisInOne// extends CourseBackend
 {
     private $username;
     private $password;
@@ -347,7 +347,7 @@ class CourseBackend_HisInOne extends CourseBackend
     
     private function getCurrentWeekDates(){
         $DateArray = array();
-        $startdate = strtotime('-2 month');
+        $startdate = strtotime('Now');
         for($i=0 ;$i<=7; $i++) {
             $DateArray[] = date('Y-m-d', strtotime("+ {$i} day", $startdate)); 
         }
