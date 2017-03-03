@@ -11,7 +11,7 @@ class Coursebackend_Dummy extends CourseBackend {
     public function setCredentials($json,$location,$serverID) {
     }
 
-    public function checkConection(){
+    public function checkConnection(){
         return $true;
     }
 
