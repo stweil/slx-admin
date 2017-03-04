@@ -349,6 +349,7 @@ class Page_LocationInfo extends Page
 					$st['active'] = true;
 				} else {
 					$st['type'] = $type['type'];
+					$st['display'] = $type['display'];
 					$st['active'] = false;
 				}
 				$serverty[] = $st;

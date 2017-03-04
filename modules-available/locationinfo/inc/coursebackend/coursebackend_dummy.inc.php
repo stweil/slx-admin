@@ -38,8 +38,8 @@ class Coursebackend_Dummy extends CourseBackend {
       foreach ($roomId as $id) {
         $x['id'] = $id;
         $calendar['title'] = "test exam";
-        $calendar['start'] = "2017-February-20 10:00:00";
-        $calendar['end'] = "2017-February-20 12:00:00";
+        $calendar['start'] = "2017-3-08 13:00:00";
+        $calendar['end'] = "2017-3-08 16:00:00";
         $calarray = array();
         $calarray[] = $calendar;
         $x['calendar'] = $calarray;

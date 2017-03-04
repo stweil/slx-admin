@@ -91,7 +91,6 @@ function getCalendar($idList) {
 		$serverInstance = CourseBackend::getInstance($server['type']);
 		$serverInstance->setCredentials(json_encode($server['credentials']), $server['serverurl'], $server['serverid']);
 		$calendarFromBackend = $serverInstance->fetchSchedule($server['idList']);
-
 		$formattedArray = array();
 		foreach ($calendarFromBackend as $key => $value) {
 			$y['id'] = $key;
