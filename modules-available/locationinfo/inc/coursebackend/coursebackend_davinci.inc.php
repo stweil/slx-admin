@@ -10,11 +10,18 @@ class Coursebackend_Davinci extends CourseBackend
 		$this->location = $location . "/DAVINCIIS.dll?";
 		$this->serverID = $serverID;
 		//Davinci doesn't have credentials
+		$this->checkConnection();
+		return $this->error;
 	}
 
 	public function checkConnection()
 	{
-		$this->fetchSchedulesInternal('B206');
+		if ($this->location != "") {
+			$this->fetchSchedulesInternal('B206');
+			return $this->error;
+		}
+		$this->error = false;
+		$this->errormsg = "No url is given";
 		return $this->error;
 	}
 
@@ -81,28 +88,34 @@ class Coursebackend_Davinci extends CourseBackend
 	public function fetchSchedulesInternal($roomIds)
 	{
 		$schedules = [];
-		foreach ($roomIds as $sroomId) {
-			$return = $this->fetchArray($sroomId);
-			$lessons = $return['Lessons']['Lesson'];
-			$timetable = [];
-			foreach ($lessons as $lesson) {
-				$date = $lesson['Date'];
-				$date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6, 2);
-				$start = $lesson['Start'];
-				$start = substr($start, 0, 2) . ':' . substr($start, 2, 2);
-				$end = $lesson['Finish'];
-				$end = substr($end, 0, 2) . ':' . substr($end, 2, 2);
-				$subject = $lesson['Subject'];
-				$json = array(
-					'title' => $subject,
-					'start' => $date . " " . $start . ':00',
-					'end' => $date . " " . $end . ':00'
-				);
-				array_push($timetable, $json);
+		try {
+			foreach ($roomIds as $sroomId) {
+				$return = $this->fetchArray($sroomId);
+				$lessons = $return['Lessons']['Lesson'];
+				$timetable = [];
+				foreach ($lessons as $lesson) {
+					$date = $lesson['Date'];
+					$date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6, 2);
+					$start = $lesson['Start'];
+					$start = substr($start, 0, 2) . ':' . substr($start, 2, 2);
+					$end = $lesson['Finish'];
+					$end = substr($end, 0, 2) . ':' . substr($end, 2, 2);
+					$subject = $lesson['Subject'];
+					$json = array(
+						'title' => $subject,
+						'start' => $date . " " . $start . ':00',
+						'end' => $date . " " . $end . ':00'
+					);
+					array_push($timetable, $json);
+				}
+				$timetable = json_encode($timetable);
+				$schedules[$sroomId] = $timetable;
 			}
-			$timetable = json_encode($timetable);
-			$schedules[$sroomId] = $timetable;
+		} catch (Exception $e) {
+			$this->error = true;
+			$this->errormsg = $e->getMessage();
 		}
+
 		return $schedules;
 	}
 }
