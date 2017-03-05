@@ -37,7 +37,7 @@
 					</td>
 
 					<td align="center" id="credentials-{{id}}" onclick="event.cancelBubble = true;">
-						<button class="btn btn-sm btn-primary" id="credentials-btn-{{id}}" type="button" title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');" id="credentials">{{lang_credentials}}</button>
+						<button {{#auth}}class="btn btn-sm btn-success"{{/auth}}{{^auth}}class="btn btn-sm btn-danger"{{/auth}} id="credentials-btn-{{id}}" type="button" title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');" id="credentials">{{lang_credentials}}</button>
 					</td>
 					<td align="center" id="btncell-{{id}}">
 						<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}" onclick="editButtonClick({{id}});" id="edit">&#x270E</button>

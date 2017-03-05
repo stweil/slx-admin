@@ -286,7 +286,10 @@ class Page_LocationInfo extends Page
 		}
 	}
 
+// Loads the Infoscreen pange in the admin-panel and passes all needed information.
 	protected function getInfoScreenTable() {
+
+		// Get a table with the needed location info. name, id, hidden, pcState (Count of pcs that are in use), total pcs
 		$dbquery = Database::simpleQuery("SELECT l.locationname, l.locationid, li.hidden, m.pcState, m.total FROM `location_info` AS li
 		RIGHT JOIN `location` AS l ON li.locationid=l.locationid LEFT JOIN
 		(SELECT locationid, Count(case m.logintime WHEN NOT 1 THEN null else 1 end) AS pcState, Count(*) AS total FROM `machine` AS m
@@ -325,6 +328,7 @@ class Page_LocationInfo extends Page
 			}
 		}
 
+		// Get a list of all the backend types.
 		$servertypes = array();
 		$s_list = CourseBackend::getList();
 		foreach ($s_list as $s) {
@@ -334,22 +338,33 @@ class Page_LocationInfo extends Page
 			$servertypes[] = $type;
 		}
 
+		// Get the Serverlist from the DB and make it mustache accesable
 		$serverlist = array();
 		$dbquery2 = Database::simpleQuery("SELECT * FROM `setting_location_info`");
 		while($db=$dbquery2->fetch(PDO::FETCH_ASSOC)) {
 			$server['id'] = $db['serverid'];
 			$server['name'] = $db['servername'];
 
+			// Instance the backend and set the credentials to check if the Authentification is accepted.
+			$backendType = CourseBackend::getInstance($db['servertype']);
+			$backendType->setCredentials(json_encode($db['credentials'], true), $db['serverurl'], $db['serverid']);
+
+			$connection = $backendType->checkConnection();
+			if ($connection === true) {
+				$server['auth'] = true;
+			} else {
+				$server['auth'] = false;
+				Message::addError('auth-failed', $server['id'], $connection);
+			}
+
 			$serverty = array();
 			foreach ($servertypes as $type) {
 				$st = array();
+				$st['type'] = $type['type'];
+				$st['display'] = $type['display'];
 				if ($type['type'] == $db['servertype']) {
-					$st['type'] = $type['type'];
-					$st['display'] = $type['display'];
 					$st['active'] = true;
 				} else {
-					$st['type'] = $type['type'];
-					$st['display'] = $type['display'];
 					$st['active'] = false;
 				}
 				$serverty[] = $st;
@@ -360,6 +375,7 @@ class Page_LocationInfo extends Page
 			$serverlist[] = $server;
 		}
 
+		// Pass the data to the html and render it.
 		Render::addTemplate('location-info', array(
 			'list' => array_values($pcs), 'serverlist' => array_values($serverlist), 'servertypelist' => array_values($servertypes),
 		));

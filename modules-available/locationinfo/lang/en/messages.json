@@ -3,5 +3,6 @@
     "added-x-entries": "Entries added: {{0}}",
     "deleted-x-entries": "Entries deleted: {{0}}",
     "openingtime-updated": "Openingtime updated.",
-    "config-saved": "Config successfully saved."
+    "config-saved": "Config successfully saved.",
+    "auth-failed": "Authentification failed: Locationid {{0}} Error: {{1}}"
 }

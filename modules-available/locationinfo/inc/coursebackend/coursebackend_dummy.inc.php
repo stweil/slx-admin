@@ -12,7 +12,7 @@ class Coursebackend_Dummy extends CourseBackend {
     }
 
     public function checkConnection(){
-        return $true;
+        return "Your Error could be shown here!";
     }
 
     public function getCredentials(){
