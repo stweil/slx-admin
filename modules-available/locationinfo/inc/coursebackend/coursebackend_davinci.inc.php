@@ -3,26 +3,24 @@
 class Coursebackend_Davinci extends CourseBackend
 {
 
-	private $location;
 
 	public function setCredentials($json, $location, $serverID)
 	{
 		$this->location = $location . "/DAVINCIIS.dll?";
 		$this->serverID = $serverID;
 		//Davinci doesn't have credentials
-		$this->checkConnection();
-		return $this->error;
+		return $this->checkConnection();
 	}
 
 	public function checkConnection()
 	{
 		if ($this->location != "") {
 			$this->fetchSchedulesInternal('B206');
-			return $this->error;
+			return !$this->error;
 		}
-		$this->error = false;
+		$this->error = true;
 		$this->errormsg = "No url is given";
-		return $this->error;
+		return !$this->error;
 	}
 
 	public function getCredentials()
@@ -49,9 +47,15 @@ class Coursebackend_Davinci extends CourseBackend
 	private function toArray($response)
 	{
 
-		$cleanresponse = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
-		$xml = new SimpleXMLElement($cleanresponse);
-		$array = json_decode(json_encode((array)$xml), true);
+		try {
+			$cleanresponse = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
+			$xml = new SimpleXMLElement($cleanresponse);
+			$array = json_decode(json_encode((array)$xml), true);
+		} catch (Exception $exception) {
+			$this->error = true;
+			$this->errormsg = "url did not send a xml";
+			$array = [];
+		}
 		return $array;
 	}
 
@@ -91,6 +95,9 @@ class Coursebackend_Davinci extends CourseBackend
 		try {
 			foreach ($roomIds as $sroomId) {
 				$return = $this->fetchArray($sroomId);
+				if ($this->error) {
+					return $schedules;
+				}
 				$lessons = $return['Lessons']['Lesson'];
 				$timetable = [];
 				foreach ($lessons as $lesson) {

@@ -19,6 +19,16 @@ abstract class CourseBackend
 	public $error;
 	public $errormsg;
 	public $serverID;
+	public $location;
+
+	/**
+	 * CourseBackend constructor.
+	 */
+	public final function __construct() {
+		$this->location = "";
+		$this->error = false;
+		$this->errormsg = "";
+	}
 
 	/**
 	 * Load all known backend types. This is done

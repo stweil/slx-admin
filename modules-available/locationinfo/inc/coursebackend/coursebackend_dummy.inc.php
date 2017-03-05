@@ -1,12 +1,8 @@
 <?php
 class Coursebackend_Dummy extends CourseBackend {
 
-    private $location;
-    public $serverID;
 
-    function __construct($location, $serverID) {
 
-    }
 
     public function setCredentials($json,$location,$serverID) {
     }

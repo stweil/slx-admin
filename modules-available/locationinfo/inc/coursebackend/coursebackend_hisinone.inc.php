@@ -4,7 +4,6 @@ class CourseBackend_HisInOne extends CourseBackend
 {
 	private $username;
 	private $password;
-	private $location;
 	private $open;
 
 	//Sets the location and the login information of this client
@@ -21,19 +20,18 @@ class CourseBackend_HisInOne extends CourseBackend
 			$this->location = $location . "/qisserver/services2/CourseService";
 		}
 		$this->serverID = $serverID;
-		$this->checkConnection();
-		return $this->error;
+		return $this->checkConnection();
 	}
 
 	public function checkConnection()
 	{
-		if ($this->location != "") {
-			$this->findUnit(42);
-			return $this->error;
+		if ($this->location = "") {
+			$this->error = true;
+			$this->errormsg = "No url is given";
+			return !$this->error;
 		}
-		$this->error = false;
-		$this->errormsg = "No url is given";
-		return $this->error;
+		$this->findUnit(42);
+		return !$this->error;
 	}
 
 	//Cache the timetables for 30 minutes ttables older than 60 are not refreshed
@@ -80,18 +78,18 @@ class CourseBackend_HisInOne extends CourseBackend
 		return $header;
 	}
 
-	//returns the IDs in an array for a given roomID
+	//returns the IDs in an array for a given roomID or false if there was an error
 	public function findUnit($roomID)
 	{
-		$termyear = date('Y');
-		$termtype = date('n');
-		if ($termtype > 3 && $termtype < 10) {
-			$termtype = 2;
-		} elseif ($termtype > 10) {
-			$termtype = 1;
-			$termyear = $termyear + 1;
+		$termYear = date('Y');
+		$termType = date('n');
+		if ($termType > 3 && $termType < 10) {
+			$termType = 2;
+		} elseif ($termType > 10) {
+			$termType = 1;
+			$termYear = $termYear + 1;
 		} else {
-			$termtype = 1;
+			$termType = 1;
 		}
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
@@ -109,40 +107,50 @@ class CourseBackend_HisInOne extends CourseBackend
 		$envelope->appendChild($body);
 		$findUnit = $doc->createElement('ns1:findUnit');
 		$body->appendChild($findUnit);
-		$termYearN = $doc->createElement('termYear', $termyear);
+		$termYearN = $doc->createElement('termYear', $termYear);
 		$findUnit->appendChild($termYearN);
-		$termTypeValueId = $doc->createElement('termTypeValueId', $termtype);
+		$termTypeValueId = $doc->createElement('termTypeValueId', $termType);
 		$findUnit->appendChild($termTypeValueId);
 		$roomIdN = $doc->createElement('ns1:roomId', $roomID);
 		$findUnit->appendChild($roomIdN);
 
 		$soap_request = $doc->saveXML();
-		$respons1 = $this->__doRequest($soap_request, "findUnit");
+		$response1 = $this->__doRequest($soap_request, "findUnit");
 		if ($this->error == true) {
-			return $this->errormsg;
+			return false;
 		}
-		$respons2 = $this->toArray($respons1);
-		if (isset($respons2['soapenvBody']['soapenvFault'])) {
+		$response2 = $this->toArray($response1);
+		if (isset($response2['soapenvBody']['soapenvFault'])) {
 			$this->error = true;
-			$this->errormsg = $respons2['soapenvBody']['soapenvFault']['faultcode'] . " " . $respons2['soapenvBody']['soapenvFault']['faultstring'];
+			$this->errormsg = $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
 			return false;
 		} else {
 			$this->error = false;
 		}
-		if ($this->open) {
-			$units = $respons2['soapenvBody']['hisfindUnitResponse']['hisunits']['hisunit'];
-			$id = [];
-			foreach ($units as $unit) {
-				$id[] = $unit['hisid'];
+		try {
+			if ($this->open) {
+				$units = $response2['soapenvBody']['hisfindUnitResponse']['hisunits']['hisunit'];
+				$id = [];
+				foreach ($units as $unit) {
+					$id[] = $unit['hisid'];
+				}
+			} else {
+				$id = $response2['soapenvBody']['hisfindUnitResponse']['hisunitIds']['hisid'];
 			}
-		} else {
-			$id = $respons2['soapenvBody']['hisfindUnitResponse']['hisunitIds']['hisid'];
+		} catch (Exception $exception) {
+			if ($this->error) {
+				$id = [];
+			} else {
+				$this->error = true;
+				$this->errormsg = "url send a xml in a wrong format";
+				$id = false;
+			}
 		}
 		return $id;
 	}
 
 	//This function sends a Soaprequest with the eventID and returns an array which contains much
-	// informations, like start and enddates for events and their name.
+	// informations, like start and enddates for events and their name. It returns false if there was an error
 	public function readUnit($unit)
 	{
 		$doc = new DOMDocument('1.0', 'utf-8');
@@ -165,20 +173,30 @@ class CourseBackend_HisInOne extends CourseBackend
 		$readUnit->appendChild($unitId);
 
 		$soap_request = $doc->saveXML();
-		$respons1 = $this->__doRequest($soap_request, "readUnit");
+		$response1 = $this->__doRequest($soap_request, "readUnit");
 		if ($this->error == true) {
-			return $this->errormsg;
-		}
-		$respons2 = $this->toArray($respons1);
-		if (isset($respons2['soapenvBody']['soapenvFault'])) {
-			$this->error = true;
-			$this->errormsg = $respons2['soapenvBody']['soapenvFault']['faultcode'] . " " . $respons2['soapenvBody']['soapenvFault']['faultstring'];
 			return false;
-		} else {
-			$this->error = false;
 		}
-		$respons3 = $respons2['soapenvBody']['hisreadUnitResponse'];
-		return $respons3;
+		$response2 = $this->toArray($response1);
+		if (!$this->error) {
+			if (isset($response2['soapenvBody']['soapenvFault'])) {
+				$this->error = true;
+				$this->errormsg = $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
+				return false;
+			} else {
+				try {
+					$this->error = false;
+					$response3 = $response2['soapenvBody']['hisreadUnitResponse'];
+				} catch (Exception $e) {
+					$this->error = true;
+					$this->errormsg = "url send a xml in a wrong format";
+				}
+			}
+		} else {
+			return false;
+		}
+
+		return $response3;
 	}
 
 	//Makes a SOAP-Request as a normal POST
@@ -209,7 +227,6 @@ class CourseBackend_HisInOne extends CourseBackend
 		if ($output === false) {
 			$this->error = true;
 			$this->errormsg = 'Curl error: ' . curl_error($soap_do);
-			return 'Curl error: ' . curl_error($soap_do);
 		} else {
 			$this->error = false;
 			$this->errormsg = "";
@@ -230,14 +247,14 @@ class CourseBackend_HisInOne extends CourseBackend
 		//get all eventIDs in a given room
 		$eventIDs = $this->findUnit($param);
 		if ($this->error == true) {
-			return $this->errormsg;
+			return "[]";
 		}
 		//get all information on each event
 		$events = [];
 		foreach ($eventIDs as $each_event) {
 			$events[] = $this->readUnit((int)$each_event);
 			if ($this->error == true) {
-				return $this->errormsg;
+				return "[]";
 			}
 		}
 		$timetable = array();
@@ -294,26 +311,33 @@ class CourseBackend_HisInOne extends CourseBackend
 					}
 				}
 			}
-			$timetable = json_encode($timetable);
 		} catch (Exception $e) {
 			$this->error = true;
 			$this->errormsg = "url returns a wrong xml";
 		}
+		$timetable = json_encode($timetable);
 		return $timetable;
 	}
 
-	//this function transforms a xml string into an array
+	//this function transforms a xml string into an array or return false if there was an error
 	private function toArray($response)
 	{
-		$cleanresponse = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
-		$xml = new SimpleXMLElement($cleanresponse);
-		$array = json_decode(json_encode((array)$xml), true);
+		try {
+			$cleanresponse = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
+			$xml = new SimpleXMLElement($cleanresponse);
+			$array = json_decode(json_encode((array)$xml), true);
+		} catch (Exception $e) {
+			$this->error = true;
+			$this->errormsg = "url did not send a xml";
+			$array = false;
+		}
 		return $array;
 	}
 
-	//Request for a timetable with roomids as array
+	//Request for a timetable with roomids as array it will be empty if there was an error
 	public function fetchSchedulesInternal($param)
 	{
+		$tTables = [];
 		//get all eventIDs in a given room
 		$eventIDs = [];
 		foreach ($param as $ID) {
@@ -321,17 +345,16 @@ class CourseBackend_HisInOne extends CourseBackend
 			var_dump($eventIDs);
 			$eventIDs = array_unique($eventIDs);
 			if ($this->error == true) {
-				return $this->errormsg;
+				return $tTables;
 			}
 		}
 		//get all information on each event
 		foreach ($eventIDs as $each_event) {
 			$events[] = $this->readUnit(intval($each_event));
 			if ($this->error == true) {
-				return $this->errormsg;
+				return $tTables;
 			}
 		}
-		$ttables = [];
 		$currentWeek = $this->getCurrentWeekDates();
 		try {
 			foreach ($param as $room) {
@@ -384,14 +407,13 @@ class CourseBackend_HisInOne extends CourseBackend
 						}
 					}
 				}
-				$ttables[$room] = json_encode($timetable);
+				$tTables[$room] = json_encode($timetable);
 			}
-		}
-		catch (Exception $e){
+		} catch (Exception $e) {
 			$this->error = true;
 			$this->errormsg = "url returns a wrong xml";
 		}
-		return $ttables;
+		return $tTables;
 	}
 
 
