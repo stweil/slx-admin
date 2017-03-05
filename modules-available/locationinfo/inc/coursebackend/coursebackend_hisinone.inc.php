@@ -297,7 +297,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			$timetable = json_encode($timetable);
 		} catch (Exception $e) {
 			$this->error = true;
-			$this->errormsg = $e->getMessage();
+			$this->errormsg = "url returns a wrong xml";
 		}
 		return $timetable;
 	}
@@ -333,41 +333,24 @@ class CourseBackend_HisInOne extends CourseBackend
 		}
 		$ttables = [];
 		$currentWeek = $this->getCurrentWeekDates();
-		foreach ($param as $room) {
-			$timetable = array();
-			//Here I go over the soapresponse
-			foreach ($events as $event) {
-				$title = $event['hisunit']['hisplanelements']['hisplanelement'][0]['hisdefaulttext'];
-				foreach ($event as $subject) {
-					$units = $subject['hisplanelements']['hisplanelement'];
-					foreach ($units as $unit) {
-						$pdates = $unit['hisplannedDates']['hisplannedDate'];
-						//there seems to be a bug that gives more than one individualDates in plannedDate
-						//this construction catches it
-						if (array_key_exists('hisindividualDates', $pdates)) {
-							$dates = $pdates['hisindividualDates']['hisindividualDate'];
-							foreach ($dates as $date) {
-								$roomID = $date['hisroomId'];
-								$datum = $date['hisexecutiondate'];
-								if (intval($roomID) == $room && in_array($datum, $currentWeek)) {
-									$startTime = $date['hisstarttime'];
-									$endTime = $date['hisendtime'];
-									$json = array(
-										'title' => $title,
-										'start' => $datum . " " . $startTime,
-										'end' => $datum . " " . $endTime
-									);
-									array_push($timetable, $json);
-								}
-							}
-						} else {
-							foreach ($pdates as $dates2) {
-								$dates = $dates2['hisindividualDates']['hisindividualDate'];
+		try {
+			foreach ($param as $room) {
+				$timetable = array();
+				//Here I go over the soapresponse
+				foreach ($events as $event) {
+					$title = $event['hisunit']['hisplanelements']['hisplanelement'][0]['hisdefaulttext'];
+					foreach ($event as $subject) {
+						$units = $subject['hisplanelements']['hisplanelement'];
+						foreach ($units as $unit) {
+							$pdates = $unit['hisplannedDates']['hisplannedDate'];
+							//there seems to be a bug that gives more than one individualDates in plannedDate
+							//this construction catches it
+							if (array_key_exists('hisindividualDates', $pdates)) {
+								$dates = $pdates['hisindividualDates']['hisindividualDate'];
 								foreach ($dates as $date) {
 									$roomID = $date['hisroomId'];
 									$datum = $date['hisexecutiondate'];
 									if (intval($roomID) == $room && in_array($datum, $currentWeek)) {
-
 										$startTime = $date['hisstarttime'];
 										$endTime = $date['hisendtime'];
 										$json = array(
@@ -378,12 +361,35 @@ class CourseBackend_HisInOne extends CourseBackend
 										array_push($timetable, $json);
 									}
 								}
+							} else {
+								foreach ($pdates as $dates2) {
+									$dates = $dates2['hisindividualDates']['hisindividualDate'];
+									foreach ($dates as $date) {
+										$roomID = $date['hisroomId'];
+										$datum = $date['hisexecutiondate'];
+										if (intval($roomID) == $room && in_array($datum, $currentWeek)) {
+
+											$startTime = $date['hisstarttime'];
+											$endTime = $date['hisendtime'];
+											$json = array(
+												'title' => $title,
+												'start' => $datum . " " . $startTime,
+												'end' => $datum . " " . $endTime
+											);
+											array_push($timetable, $json);
+										}
+									}
+								}
 							}
 						}
 					}
 				}
+				$ttables[$room] = json_encode($timetable);
 			}
-			$ttables[$room] = json_encode($timetable);
+		}
+		catch (Exception $e){
+			$this->error = true;
+			$this->errormsg = "url returns a wrong xml";
 		}
 		return $ttables;
 	}

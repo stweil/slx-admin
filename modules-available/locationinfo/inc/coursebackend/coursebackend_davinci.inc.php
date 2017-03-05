@@ -113,7 +113,7 @@ class Coursebackend_Davinci extends CourseBackend
 			}
 		} catch (Exception $e) {
 			$this->error = true;
-			$this->errormsg = $e->getMessage();
+			$this->errormsg = "url returns a wrong xml";
 		}
 
 		return $schedules;
