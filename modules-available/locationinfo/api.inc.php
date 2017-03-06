@@ -94,10 +94,9 @@ function getCalendar($idList) {
 		$formattedArray = array();
 		foreach ($calendarFromBackend as $key => $value) {
 			$y['id'] = $key;
-			$y['calendar'] = $value;
+			$y['calendar'] = json_decode($value, true);
 			$formattedArray[] = $y;
 		}
-
 		$resultarray = array_merge($resultarray, $formattedArray);
 	}
 
