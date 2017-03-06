@@ -1259,6 +1259,7 @@ optional:
 
 			xDifference = maxX - minX;
 			yDifference = maxY - minY;
+
 			room.xDifference = xDifference;
 			room.yDifference = yDifference;
 			room.minX = minX;
@@ -1305,7 +1306,10 @@ optional:
 			if (scaleXs <= 0) {
 				scaleXs = 9999;
 			}
-			var tmp = [scaleYs, scaleY, scaleXs, scaleX];
+
+
+			var tmp = [scaleYs, scaleY, scaleXs, scaleX,(clientHeight *0.9) / picSizeY,(clientWidth *0.9) / picSizeX];
+			console.log(tmp)
 			room.scale = Math.min.apply(Math, tmp);
 			room.xOffset = 0 - room.minX;
 			room.yOffset = 0 - room.minY;
