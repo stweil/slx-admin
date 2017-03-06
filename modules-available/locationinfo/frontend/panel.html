@@ -103,7 +103,7 @@
 
 		function init() {
 			var ids = getUrlParameter("id");
-			$.getJSON("../../../api.php?do=locationinfo&action=roomtree&ids=" + ids, function (result) {
+			$.getJSON("../../../api.php?do=locationinfo&action=roomtree&id=" + ids, function (result) {
 				generateLayout(result);
 				setInterval(update,1000);
 
@@ -163,13 +163,13 @@
 		function update() {
 
 			if(lastPcUpdate ==null || (new MyDate().getTime()-lastPcUpdate.getTime()) > pcStateUpdateTime*1000){
-				$.getJSON("../../../api.php?do=locationinfo&action=pcstates&ids=" + roomidsString, function (result) {
+				$.getJSON("../../../api.php?do=locationinfo&action=pcstates&id=" + roomidsString, function (result) {
 					updatePcStates(result);
 					lastPcUpdate = new MyDate();
 				});
 			}
 			if(lastTimeTableUpdate ==null || (new MyDate().getTime()-lastTimeTableUpdate.getTime()) > TimeTableUpdateTime*1000){
-				$.getJSON("../../../api.php?do=locationinfo&action=calendars&ids=" + roomidsString, function (result) {
+				$.getJSON("../../../api.php?do=locationinfo&action=calendars&id=" + roomidsString, function (result) {
 					UpdateTimeTables(result);
 					lastTimeTableUpdate = new MyDate();
 				});
@@ -219,7 +219,7 @@
 			}
 
 		}
-		
+
 
 		function updatePcStates(json){
 			var l = json.length;
