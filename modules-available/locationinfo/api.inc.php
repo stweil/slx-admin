@@ -26,11 +26,11 @@ function HandleParameters() {
 		echo getPcStates($array);
 	} elseif ($getAction == "roomtree") {
 		$roomIDS = Request::get('id', 0, 'string');
-		getRoomTree($roomIDS);
+		echo getRoomTree($roomIDS);
 	} elseif ($getAction == "calendar") {
 		$roomIDs = Request::get('id', 0, 'string');
 		$array = getMultipleInformations($roomIDs);
-		getCalendar($array);
+		echo getCalendar($array);
 	}
 }
 
@@ -100,7 +100,7 @@ function getCalendar($idList) {
 		$resultarray = array_merge($resultarray, $formattedArray);
 	}
 
-	echo json_encode($resultarray, true);
+	return json_encode($resultarray, true);
 }
 
 // ########## </Calendar> ##########
@@ -239,7 +239,7 @@ function getRoomTree($ids) {
 		}
 	}
 
-	echo json_encode($roomTree);
+	return json_encode($roomTree);
 }
 
 function getChildsRecursive($id, &$filteredIdList) {
