@@ -25,7 +25,7 @@ function HandleParameters() {
 		$array = getMultipleInformations($roomIDs);
 		echo getPcStates($array);
 	} elseif ($getAction == "roomtree") {
-		$roomIDS = Request::get('ids', 0, 'string');
+		$roomIDS = Request::get('id', 0, 'string');
 		getRoomTree($roomIDS);
 	} elseif ($getAction == "calendar") {
 		$roomIDs = Request::get('id', 0, 'string');
@@ -196,7 +196,7 @@ function getPcStates($idList) {
 
 	$roominfoList = json_decode(getRoomInfo($idList), true);
 	foreach ($roominfoList as $roomInfo) {
-		$result['id'] = $id;
+		$result['id'] = $roomInfo['id'];
 		$idle = 0;
 		$occupied = 0;
 		$off = 0;
@@ -225,20 +225,25 @@ function getPcStates($idList) {
 
 function getRoomTree($ids) {
 	$idList = getMultipleInformations($ids);
+	$idList = array_unique($idList);
 	$roomTree = array();
+	$filteredIdList = array();
 	foreach ($idList as $id) {
 		$dbresult = Database::queryFirst("SELECT locationname FROM `location` WHERE locationid=:locationID", array('locationID' => $id));
 
-		$a['id'] = $id;
-		$a['name'] = $dbresult['locationname'];
-		$a['childs'] = getChildsRecursive($id);
-		$roomTree[] = $a;
+		if (!in_array($id, $filteredIdList)) {
+			$a['id'] = $id;
+			$a['name'] = $dbresult['locationname'];
+			$filteredIdList[] = $id;
+			$a['childs'] = getChildsRecursive($id, $filteredIdList);
+			$roomTree[] = $a;
+		}
 	}
-  // TODO FIlter recursive childs (delete doubles) (Filteere froeach when recursive child exists)
+
 	echo json_encode($roomTree);
 }
 
-function getChildsRecursive($id) {
+function getChildsRecursive($id, &$filteredIdList) {
 	$dbquery = Database::simpleQuery("SELECT locationid, locationname FROM `location` WHERE parentlocationid=:locationID", array('locationID' => $id));
 	$array = array();
 	$dbarray = array();
@@ -246,13 +251,17 @@ function getChildsRecursive($id) {
 	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
 		$dbarray[] = $dbresult;
 	}
-
 	foreach ($dbarray as $db) {
 		$i = $db['locationid'];
-		$a['id'] = $i;
-		$a['name'] = $db['locationname'];
-		$a['childs'] = getChildsRecursive($i);
-		$array[] = $a;
+
+		if (!in_array($i, $filteredIdList)) {
+			$a['id'] = $i;
+			$a['name'] = $db['locationname'];
+			$filteredIdList[] = $i;
+			$a['childs'] = getChildsRecursive($i, $filteredIdList);
+			$array[] = $a;
+		}
+
 	}
 
 	return $array;
@@ -329,7 +338,7 @@ function getRoomInfo($idList, $coords) {
 		$pc['id'] = $dbdata['machineuuid'];
 
 		// Add coordinates if bool = true.
-		if ($coords == '1') {
+		if ($coords == '1' || $coords == 'true') {
 			$position = json_decode($dbdata['position'], true);
 			$pc['x'] = $position['gridCol'];
 			$pc['y'] = $position['gridRow'];
