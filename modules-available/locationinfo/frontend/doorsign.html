@@ -63,6 +63,7 @@ optional:
 			color: white;
 			padding: 0;
 			height: 8vw;
+
 		}
 
 		.progressbar {
@@ -173,10 +174,28 @@ optional:
 			overflow: visible;
 		}
 
-		.pcImg {
+		.PCImgDiv{
 			position: absolute;
 			left: 0;
 			bottom: 0;
+			display: inline-block;
+
+		}
+		.pcImg {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height:100%;
+
+		}
+		.overlay{
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 50%;
+			height:50%;
+			z-index: 5;
 		}
 
 		.wc-scrollable-grid {
@@ -231,7 +250,16 @@ optional:
 		[class*="wc-day-"] {
 			border-color: grey;
 		}
-
+	.overlay1 {
+		width: 20%;
+		height: 50%;
+		left: 0;
+		top: 0;
+		bottom: auto;
+		right: auto;
+		background-color: white;
+		opacity: 0.5
+	}
 
 	</style>
 	<script type='text/javascript'>
@@ -281,6 +309,12 @@ optional:
 
 			}
 		};
+		var overlay = {
+			"1": { 	name:"1.svg",
+					class:"overlay1"
+
+			}
+		}
 
 
 		$(document).ready(function () {
@@ -844,7 +878,7 @@ optional:
 			var columnWidth = document.getElementById("calendar_" + room.id).getElementsByClassName("wc-day-1")[0].clientWidth;
 
 			if (room.config.scaledaysauto) {
-				var result = (44 + cal.weekCalendar("option", "daysToShow") * columnWidth) / 100;
+				var result = (cal.weekCalendar("option", "daysToShow") * columnWidth) / 100;
 				result = parseInt(Math.min(Math.max(Math.abs(result), 1), 7));
 				if (result != parseInt(cal.weekCalendar("option", "daysToShow"))) {
 
@@ -1162,6 +1196,7 @@ optional:
 		function preInitRoom(room) {
 
 			$.getJSON("../../../api.php?do=locationinfo&action=roominfo&id=" + room.id + "&coords=1", function (result) {
+				console.log(result);
 				generateRoomLayoutDiv((100 - room.config.scale) + "%", room);
 				if (result[0] == null) {
 
@@ -1283,14 +1318,31 @@ optional:
 			for (var i = 0; i < layout.length; i++) {
 
 				if (layout[i].y != null && layout[i].x != null && !isNaN(layout[i].y) && !isNaN(layout[i].x)) {
+					var text =  "<div class= 'PCImgDiv'  id ='layout_PC_div_" + room.id + "_"+layout[i].id +"'>" +
+							"<img class= 'pcImg' id ='layout_PC_" + room.id + "_"+layout[i].id +"'> </img" +
+						"</div>";
+
+					$('#roomLayout_' + room.id).append(text);
+					addOverlay($('#layout_PC_div_'+ room.id + "_"+layout[i].id),1);
+					/*
 					var img = $('<img />',
 						{
 							id: "layout_PC_" + room.id + "_" + layout[i].id,
 							class: "pcImg"
 						})
 						.appendTo($('#roomLayout_' + room.id));
+						*/
 				}
 			}
+		}
+
+		function addOverlay(object,overlayId) {
+
+			var text = $("<img class='overlay'  src='img/overlay/"+ overlay[overlayId].name+ "'></img>")
+			text.addClass(overlay[overlayId].class);
+
+			object.append(text);
+
 		}
 
 		// querys Pc states
@@ -1336,10 +1388,12 @@ optional:
 			}
 			for (var i = 0; i < room.layout.length; i++) {
 				if (room.layout[i].y != null && room.layout[i].x != null && !isNaN(room.layout[i].y) && !isNaN(room.layout[i].x)) {
-					var tmp = document.getElementById("layout_PC_" + room.id + "_" + room.layout[i].id);
+					var tmp = document.getElementById("layout_PC_div_" + room.id + "_" + room.layout[i].id);
+					var img  = document.getElementById("layout_PC_" + room.id + "_" + room.layout[i].id);
 					if (tmp != null) {
-						tmp.width = (picSizeX * room.scale);
-						tmp.height = (picSizeY * room.scale);
+						tmp.style.width = (picSizeX * room.scale);
+						tmp.setAttribute("style","width:"+(picSizeX * room.scale)+"px");
+						tmp.style.height = (picSizeY * room.scale)+"px";
 						tmp.style.left = ((parseInt(room.layout[i].x) + room.xOffset) * room.scale) + "px";
 						tmp.style.top = ((parseInt(room.layout[i].y) + room.yOffset) * room.scale ) + "px";
 					}
