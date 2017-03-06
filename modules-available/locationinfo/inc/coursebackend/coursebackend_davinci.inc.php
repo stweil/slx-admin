@@ -54,7 +54,7 @@ class Coursebackend_Davinci extends CourseBackend
 		} catch (Exception $exception) {
 			$this->error = true;
 			$this->errormsg = "url did not send a xml";
-			$array = [];
+			$array = false;
 		}
 		return $array;
 	}
@@ -95,8 +95,8 @@ class Coursebackend_Davinci extends CourseBackend
 		try {
 			foreach ($roomIds as $sroomId) {
 				$return = $this->fetchArray($sroomId);
-				if ($this->error) {
-					return $schedules;
+				if ($return === false) {
+					return false;
 				}
 				$lessons = $return['Lessons']['Lesson'];
 				$timetable = [];
@@ -121,6 +121,7 @@ class Coursebackend_Davinci extends CourseBackend
 		} catch (Exception $e) {
 			$this->error = true;
 			$this->errormsg = "url returns a wrong xml";
+			return false;
 		}
 
 		return $schedules;

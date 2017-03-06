@@ -139,7 +139,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			}
 		} catch (Exception $exception) {
 			if ($this->error) {
-				$id = [];
+				$id = false;
 			} else {
 				$this->error = true;
 				$this->errormsg = "url send a xml in a wrong format";
@@ -190,6 +190,7 @@ class CourseBackend_HisInOne extends CourseBackend
 				} catch (Exception $e) {
 					$this->error = true;
 					$this->errormsg = "url send a xml in a wrong format";
+					return false;
 				}
 			}
 		} else {
@@ -240,21 +241,21 @@ class CourseBackend_HisInOne extends CourseBackend
 	 * Request for a timetable
 	 *
 	 * @param $param int the roomid
-	 * @return string the timetable as json
+	 * @return string the timetable as json or false if there was an error
 	 */
 	public function getJson($param)
 	{
 		//get all eventIDs in a given room
 		$eventIDs = $this->findUnit($param);
 		if ($this->error == true) {
-			return "[]";
+			return false;
 		}
 		//get all information on each event
 		$events = [];
 		foreach ($eventIDs as $each_event) {
 			$events[] = $this->readUnit((int)$each_event);
 			if ($this->error == true) {
-				return "[]";
+				return false;
 			}
 		}
 		$timetable = array();
@@ -314,6 +315,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		} catch (Exception $e) {
 			$this->error = true;
 			$this->errormsg = "url returns a wrong xml";
+			return false;
 		}
 		$timetable = json_encode($timetable);
 		return $timetable;
@@ -334,7 +336,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		return $array;
 	}
 
-	//Request for a timetable with roomids as array it will be empty if there was an error
+	//Request for a timetable with roomids as array it will be boolean false if there was an error
 	public function fetchSchedulesInternal($param)
 	{
 		$tTables = [];
@@ -345,14 +347,14 @@ class CourseBackend_HisInOne extends CourseBackend
 			var_dump($eventIDs);
 			$eventIDs = array_unique($eventIDs);
 			if ($this->error == true) {
-				return $tTables;
+				return false;
 			}
 		}
 		//get all information on each event
 		foreach ($eventIDs as $each_event) {
 			$events[] = $this->readUnit(intval($each_event));
 			if ($this->error == true) {
-				return $tTables;
+				return false;
 			}
 		}
 		$currentWeek = $this->getCurrentWeekDates();
@@ -412,6 +414,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		} catch (Exception $e) {
 			$this->error = true;
 			$this->errormsg = "url returns a wrong xml";
+			return false;
 		}
 		return $tTables;
 	}

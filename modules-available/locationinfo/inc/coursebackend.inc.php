@@ -24,7 +24,8 @@ abstract class CourseBackend
 	/**
 	 * CourseBackend constructor.
 	 */
-	public final function __construct() {
+	public final function __construct()
+	{
 		$this->location = "";
 		$this->error = false;
 		$this->errormsg = "";
@@ -145,6 +146,8 @@ abstract class CourseBackend
 		$sqlr = '(' . $sqlr . ')';
 		$q = "SELECT locationid, calendar, serverroomid, lastcalendarupdate FROM location_info WHERE locationid IN " . $sqlr;
 		$dbquery1 = Database::simpleQuery($q);
+		$result = [];
+		$sRoomIDs = [];
 		foreach ($dbquery1->fetchAll(PDO::FETCH_ASSOC) as $row) {
 			$sroomID = $row['serverroomid'];
 			$lastUpdate = $row['lastcalendarupdate'];
@@ -153,7 +156,7 @@ abstract class CourseBackend
 			if (strtotime($lastUpdate) > strtotime("-" . $this->getCacheTime() . "seconds") && $this->getCacheTime() > 0) {
 				$result[$row['locationid']] = $calendar;
 			} else {
-				$sroomIDs[$row['locationid']] = $sroomID;
+				$sRoomIDs[$row['locationid']] = $sroomID;
 			}
 
 		}
@@ -162,24 +165,28 @@ abstract class CourseBackend
 			$dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalendarupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
 			foreach ($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row) {
 				if (strtotime($row['lastcalendarupdate']) > strtotime("-" . $this->getRefreshTime() . "seconds") && strtotime($row['lastcalendarupdate']) > strtotime("-" . $this->getCacheTime() . "seconds")) {
-					$sroomIDs[$row['locationid']] = $row['serverroomid'];
+					$sRoomIDs[$row['locationid']] = $row['serverroomid'];
 				}
 			}
 		}
-		$results = $this->fetchSchedulesInternal($sroomIDs);
-		foreach ($sroomIDs as $location => $serverroom) {
-			$newresult[$location] = $results[$serverroom];
+		$results = $this->fetchSchedulesInternal($sRoomIDs);
+		if ($results === false) {
+			return false;
+		}
+		$newResult = [];
+		foreach ($sRoomIDs as $location => $serverRoom) {
+			$newResult[$location] = $results[$serverRoom];
 		}
 
 		if ($this->getCacheTime() > 0) {
-			foreach ($newresult as $key => $value) {
+			foreach ($newResult as $key => $value) {
 				$now = strtotime('Now');
 				Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalendarupdate = :now WHERE locationid = :id ", array('id' => $key, 'ttable' => $value, 'now' => $now));
 			}
 		}
 		//get all schedules that are wanted from roomIDs
 		foreach ($roomIDs as $id) {
-			$result[$id] = $newresult[$id];
+			$result[$id] = $newResult[$id];
 		}
 		return $result;
 	}
