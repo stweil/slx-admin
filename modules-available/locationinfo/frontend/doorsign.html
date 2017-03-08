@@ -720,9 +720,10 @@ optional:
 				daysToShow: daysToShow,
 				height: function ($calendar) {
 					var height = $(window).height() - document.getElementById('header_' + room.id).clientHeight - 5;
-					if (room.mode == 1 && room.config.vertical) {
+					if (room.config.mode == 1 && room.config.vertical) {
 						height = height * (room.config.scale / 100)
 					}
+
 					return height;
 				},
 				eventRender: function (calEvent, $event) {
@@ -912,7 +913,6 @@ optional:
 
 				clientHeight = clientHeight * (room.config.scale / 100);
 				clientHeight -= 22;
-
 			}
 
 
@@ -1288,6 +1288,7 @@ optional:
 
 		function generateOffsetAndScale(room) {
 			var clientHeight = ($(window).height() - document.getElementById('header_' + room.id).clientHeight - 5);
+
 			if (roomsToshow > 1) {
 				clientHeight -= 5;
 			}
