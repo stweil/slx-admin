@@ -14,7 +14,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			$this->password = $data['password'];
 			$this->username = $data['username'] . "\t" . $data['role'];
 			$this->open = $data['open'];
-			if ($location = "") {
+			if ($location == "") {
 				$this->error = true;
 				$this->errormsg = "No url is given";
 				return !$this->error;
