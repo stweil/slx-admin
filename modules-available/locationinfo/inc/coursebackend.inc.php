@@ -106,12 +106,12 @@ abstract class CourseBackend
 	 * uses json to setCredentials, the json must follow the form given in
 	 * getCredentials
 	 *
-	 * @param string $json jsonarray with the credentials
+	 * @param string $data array with the credentials
 	 * @param string $url address of the server
 	 * @param int $serverID ID of the server
 	 * @returns void
 	 */
-	public abstract function setCredentials($json, $url, $serverID);
+	public abstract function setCredentials($data, $url, $serverID);
 
 	/**
 	 * @return int desired caching time of results, in seconds. 0 = no caching
@@ -180,6 +180,7 @@ abstract class CourseBackend
 
 		if ($this->getCacheTime() > 0) {
 			foreach ($newResult as $key => $value) {
+				$value = json_encode($value);
 				$now = strtotime('Now');
 				Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalendarupdate = :now WHERE locationid = :id ", array('id' => $key, 'ttable' => $value, 'now' => $now));
 			}

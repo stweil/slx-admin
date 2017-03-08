@@ -7,29 +7,39 @@ class CourseBackend_HisInOne extends CourseBackend
 	private $open;
 
 	//Sets the location and the login information of this client
-	public function setCredentials($json, $location, $serverID)
+	public function setCredentials($data, $location, $serverID)
 	{
-		$this->error = false;
-		$data = json_decode($json, true);
-		$this->password = $data['password'];
-		$this->username = $data['username'] . "\t" . $data['role'];
-		$this->open = $data['open'];
-		if ($this->open) {
-			$this->location = $location . "/qisserver/services2/OpenCourseService";
-		} else {
-			$this->location = $location . "/qisserver/services2/CourseService";
+		try {
+			$this->error = false;
+			$this->password = $data['password'];
+			$this->username = $data['username'] . "\t" . $data['role'];
+			$this->open = $data['open'];
+			if ($location = "") {
+				$this->error = true;
+				$this->errormsg = "No url is given";
+				return !$this->error;
+			}
+			if ($this->open) {
+				$this->location = $location . "/qisserver/services2/OpenCourseService";
+			} else {
+				$this->location = $location . "/qisserver/services2/CourseService";
+			}
+			$this->serverID = $serverID;
+		} catch (Exception $e) {
+			$this->error = true;
+			$this->errormsg = $e->getMessage();
+			return false;
 		}
-		$this->serverID = $serverID;
-		return $this->checkConnection();
+		return true;
 	}
 
 	public function checkConnection()
 	{
 		if ($this->location = "") {
 			$this->error = true;
-			$this->errormsg = "No url is given";
-			return !$this->error;
+			$this->errormsg = "Credentials are not set";
 		}
+
 		$this->findUnit(42);
 		return !$this->error;
 	}
@@ -53,7 +63,7 @@ class CourseBackend_HisInOne extends CourseBackend
 
 	public function getCredentials()
 	{
-		$credentials = ["username" => "string", "role" => "string", "password" => "string", "open" => "boolean"];
+		$credentials = ["username" => "string", "role" => "string", "password" => "string", "open" => "bool"];
 		return $credentials;
 	}
 
@@ -178,7 +188,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			return false;
 		}
 		$response2 = $this->toArray($response1);
-		if (!$this->error) {
+		if ($response2 != false) {
 			if (isset($response2['soapenvBody']['soapenvFault'])) {
 				$this->error = true;
 				$this->errormsg = $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
@@ -343,8 +353,11 @@ class CourseBackend_HisInOne extends CourseBackend
 		//get all eventIDs in a given room
 		$eventIDs = [];
 		foreach ($param as $ID) {
-			$eventIDs = array_merge($eventIDs, $this->findUnit($ID));
-			var_dump($eventIDs);
+			$unitID = $this->findUnit($ID);
+			if ($unitID === false) {
+				return false;
+			}
+			$eventIDs = array_merge($eventIDs, $unitID);
 			$eventIDs = array_unique($eventIDs);
 			if ($this->error == true) {
 				return false;
@@ -409,7 +422,7 @@ class CourseBackend_HisInOne extends CourseBackend
 						}
 					}
 				}
-				$tTables[$room] = json_encode($timetable);
+				$tTables[$room] = $timetable;
 			}
 		} catch (Exception $e) {
 			$this->error = true;

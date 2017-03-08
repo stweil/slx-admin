@@ -4,22 +4,27 @@ class Coursebackend_Davinci extends CourseBackend
 {
 
 
-	public function setCredentials($json, $location, $serverID)
+	public function setCredentials($data, $location, $serverID)
 	{
+		if ($location = "") {
+			$this->error = true;
+			$this->errormsg = "No url is given";
+			return !$this->error;
+		}
 		$this->location = $location . "/DAVINCIIS.dll?";
 		$this->serverID = $serverID;
 		//Davinci doesn't have credentials
-		return $this->checkConnection();
+		return true;
 	}
 
 	public function checkConnection()
 	{
 		if ($this->location != "") {
-			$this->fetchSchedulesInternal('B206');
+			$this->fetchArray('B206');
 			return !$this->error;
 		}
 		$this->error = true;
-		$this->errormsg = "No url is given";
+		$this->errormsg = "Credentials are not set";
 		return !$this->error;
 	}
 
@@ -115,7 +120,6 @@ class Coursebackend_Davinci extends CourseBackend
 					);
 					array_push($timetable, $json);
 				}
-				$timetable = json_encode($timetable);
 				$schedules[$sroomId] = $timetable;
 			}
 		} catch (Exception $e) {
