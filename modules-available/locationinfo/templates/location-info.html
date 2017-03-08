@@ -11,7 +11,7 @@
 			<th width="90">{{lang_serverType}}</th>
 			<th>{{lang_locationName}}</th>
 			<th>{{lang_serverUrl}}</th>
-			<th width="80" style="text-align: center;"></th>
+			<th width="130" style="text-align: center;"></th>
 			<th width="80" style="text-align: center;"></th>
 		</tr>
 {{#serverlist}}
@@ -37,7 +37,8 @@
 					</td>
 
 					<td align="center" id="credentials-{{id}}" onclick="event.cancelBubble = true;">
-						<button {{#auth}}class="btn btn-sm btn-success"{{/auth}}{{^auth}}class="btn btn-sm btn-danger"{{/auth}} id="credentials-btn-{{id}}" type="button" title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');" id="credentials">{{lang_credentials}}</button>
+						<button {{#auth}}class="btn btn-sm btn-success"{{/auth}}{{^auth}}class="btn btn-sm btn-danger"{{/auth}} id="credentials-btn-{{id}}" type="button" title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');">{{lang_credentials}}</button>
+						<button class="btn btn-sm btn-primary table-refresh" id="refresh-btn-{{id}}" title="refresh" onclick="refreshButtonClick({{id}});">&#8634</button>
 					</td>
 					<td align="center" id="btncell-{{id}}">
 						<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}" onclick="editButtonClick({{id}});" id="edit">&#x270E</button>
@@ -208,16 +209,17 @@ function editButtonClick(id) {
 	<button class="btn btn-sm btn-danger" title="{{lang_cancel}}" onclick="cancelButtonClick(' + id + ');">&#10008</button>');
 	$('.table-edit').attr('disabled', true);
 	$('.table-delete').attr('disabled', true);
+	$('.table-refresh').attr('disabled', true);
 	$('#addServerButton').attr('disabled', true);
 };
 
 function saveButtonClick(id) {
-	//$('#input-name-' + id).val($('#lname-' + id).text());
-	//$('#input-url-' + id).val($('#lurl-' + id).text());
-	//$('#input-user-' + id).val($('#luser-' + id).text());
-	//$('#input-password-' + id).val($('#lpassword-' + id).text());
 	$('#serverFormAction-' + id).val("updateServer");
+	$('#submit-serverForm-' + id).trigger("click");
+};
 
+function refreshButtonClick(id) {
+	$('#serverFormAction-' + id).val("checkConnection");
 	$('#submit-serverForm-' + id).trigger("click");
 };
 
@@ -257,6 +259,7 @@ function cancelButtonClick(id) {
 	<button class="btn btn-sm btn-danger table-delete" type="button" title="{{lang_delete}}" onclick="deleteButtonClick(' + id + ');">&#10008</button>');
 	$('.table-edit').attr('disabled', false);
 	$('.table-delete').attr('disabled', false);
+	$('.table-refresh').attr('disabled', false);
 	$('#addServerButton').attr('disabled', false);
 }
 

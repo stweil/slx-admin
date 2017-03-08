@@ -19,11 +19,20 @@ $res[] = tableCreate('setting_location_info', '
 	`servername` VARCHAR(2000) NOT NULL,
 	`serverurl` VARCHAR(2000) NOT NULL,
 	`servertype` VARCHAR(100) NOT NULL,
-	`auth` VARCHAR(100) NOT NULL,
+  `credentials` VARCHAR(2000),
+	`error` VARCHAR(2000),
 	PRIMARY KEY (`serverid`)
 ');
 
 // Create response for browser
+if (!tableHasColumn('setting_location_info', 'error')) {
+  $ret = Database::exec("ALTER TABLE `setting_location_info` ADD `error` VARCHAR(2000) AFTER `credentials`");
+  if ($ret === false) {
+    finalResponse(UPDATE_FAILED, 'Adding column error failed: ' . Database::lastError());
+  }
+  $res[] = UPDATE_DONE;
+}
+
 if (!tableHasColumn('setting_location_info', 'credentials')) {
   $ret = Database::exec("ALTER TABLE `setting_location_info` ADD `credentials` VARCHAR(2000) AFTER `servertype`");
   if ($ret === false) {

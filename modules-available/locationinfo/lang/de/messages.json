@@ -4,5 +4,5 @@
     "deleted-x-entries": "Eintr\u00e4ge gelöscht: {{0}}",
     "openingtime-updated": "Öffnungszeiten aktualisierts.",
     "config-saved": "Einstellungen erfolgreich gespeichert.",
-    "auth-failed": "Authentifizierung  fehlgeschlagen: Locationid {{0}} Error: {{1}}"
+    "auth-failed": "[{{0}}] {{1}} Error: {{2}}"
 }

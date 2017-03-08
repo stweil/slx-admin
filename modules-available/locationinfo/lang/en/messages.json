@@ -4,5 +4,5 @@
     "deleted-x-entries": "Entries deleted: {{0}}",
     "openingtime-updated": "Openingtime updated.",
     "config-saved": "Config successfully saved.",
-    "auth-failed": "Authentification failed: Locationid {{0}} Error: {{1}}"
+    "auth-failed": "[{{0}}] {{1}} Error: {{2}}"
 }

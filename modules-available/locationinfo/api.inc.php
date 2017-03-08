@@ -66,13 +66,17 @@ function getCalendar($idList) {
 	$resultarray = array();
 	foreach ($serverList as $serverid => $server) {
 		$serverInstance = CourseBackend::getInstance($server['type']);
-		$serverInstance->setCredentials($server['credentials'], $server['url'], $serverid);
-		echo $serverInstance->getError();
+		$setCred = $serverInstance->setCredentials($server['credentials'], $server['url'], $serverid);
+
 		$calendarFromBackend = $serverInstance->fetchSchedule($server['idlist']);
 		$formattedArray = array();
 
-		if ($calendarFromBackend === false) {
-			// TODO: write error in db.
+		if ($calendarFromBackend === false || $setCred === false) {
+			$error['timestamp'] = time();
+			$error['error'] = $serverInstance->getError();
+			Database::exec("UPDATE `setting_location_info` Set error=:error WHERE serverid=:id", array('id' => $serverid, 'error' => json_encode($error, true)));
+		} else {
+			Database::exec("UPDATE `setting_location_info` Set error=NULL WHERE serverid=:id", array('id' => $serverid));
 		}
 
 		foreach ($calendarFromBackend as $key => $value) {

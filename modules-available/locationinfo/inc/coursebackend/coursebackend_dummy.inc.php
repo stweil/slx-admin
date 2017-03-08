@@ -1,14 +1,30 @@
 <?php
 class Coursebackend_Dummy extends CourseBackend {
-
-
-
+    private $pw;
 
     public function setCredentials($json,$location,$serverID) {
+      $x = $json;
+      $this->pw = $x['password'];
+
+      if ($this->pw == "mfg") {
+        $this->error = false;
+        return true;
+      } else {
+        $this->errormsg = "USE mfg as password!";
+        $this->error = true;
+        return false;
+      }
     }
 
     public function checkConnection(){
-        return "Your Error could be shown here!";
+      if ($this->pw == "mfg") {
+        $this->error = false;
+        return true;
+      } else {
+        $this->errormsg = "USE mfg as password!";
+        $this->error = true;
+        return false;
+      }
     }
 
     public function getCredentials(){

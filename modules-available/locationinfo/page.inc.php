@@ -29,6 +29,8 @@ class Page_LocationInfo extends Page
 			$this->deleteServer();
 		} elseif ($this->action === 'updateCredentials') {
 			$this->updateCredentials();
+		} elseif ($this->action === 'checkConnection') {
+			$this->checkConnection();
 		}
 	}
 
@@ -70,13 +72,13 @@ class Page_LocationInfo extends Page
 			ON DUPLICATE KEY UPDATE servername=:name, serverurl=:url, servertype=:type",
 			 array('id' => $id, 'name' => Request::post('name', '', 'string'), 'url' => Request::post('url', '', 'string'), 'type' => Request::post('type', '', 'string')));
 		}
-		Util::redirect('?do=locationinfo&action=infoscreen');
+
+		$this->checkConnection();
 	}
 
 	private function deleteServer() {
 		$id = Request::post('id', 0, 'int');
 		Database::exec("DELETE FROM `setting_location_info` WHERE serverid=:id", array('id' => $id));
-		Util::redirect('?do=locationinfo&action=infoscreen');
 	}
 
 	private function updateConfig()
@@ -118,6 +120,7 @@ class Page_LocationInfo extends Page
 			$credentialsJson[$key] = Request::post($key);
 		}
 		Database::exec('UPDATE `setting_location_info` SET credentials = :credentials WHERE serverid = :id', array('id' => $serverid, 'credentials' => json_encode($credentialsJson, true)));
+		$this->checkConnection();
 	}
 
 	private function updateOpeningTimeExpert()
@@ -230,6 +233,27 @@ class Page_LocationInfo extends Page
 
 		Message::addSuccess('openingtime-updated');
 		Util::redirect('?do=locationinfo');
+	}
+
+	private function checkConnection() {
+		$serverid = Request::post('id', 0, 'int');
+
+		if ($serverid != 0) {
+			$dbresult = Database::queryFirst("SELECT * FROM `setting_location_info` WHERE serverid = :serverid", array('serverid' => $serverid));
+
+			$serverInstance = CourseBackend::getInstance($dbresult['servertype']);
+			$serverInstance->setCredentials(json_decode($dbresult['credentials'], true), $dbresult['serverurl'], $serverid);
+			//$setCred = $serverInstance->fetchSchedule(array(42));
+			$setCred = $serverInstance->checkConnection();
+
+			if (!$setCred) {
+				$error['timestamp'] = time();
+				$error['error'] = $serverInstance->getError();
+				Database::exec("UPDATE `setting_location_info` Set error=:error WHERE serverid=:id", array('id' => $serverid, 'error' => json_encode($error, true)));
+		  } else {
+				Database::exec("UPDATE `setting_location_info` Set error=NULL WHERE serverid=:id", array('id' => $serverid));
+			}
+		}
 	}
 
 	protected function toggleHidden($id, $val) {
@@ -345,16 +369,15 @@ class Page_LocationInfo extends Page
 			$server['id'] = $db['serverid'];
 			$server['name'] = $db['servername'];
 
-			// Instance the backend and set the credentials to check if the Authentification is accepted.
-			$backendType = CourseBackend::getInstance($db['servertype']);
-			$backendType->setCredentials(json_decode($db['credentials'], true), $db['serverurl'], $db['serverid']);
-
-			$connection = $backendType->checkConnection();
-			if ($connection === true) {
+			if ($db['error'] == NULL) {
 				$server['auth'] = true;
 			} else {
 				$server['auth'] = false;
-				Message::addError('auth-failed', $server['id'], $connection);
+				$error = json_decode($db['error'], true);
+
+				$time = date('Y/m/d H:i:s', $error['timestamp']);
+
+				Message::addError('auth-failed', $server['id'], $time, $error['error']);
 			}
 
 			$serverty = array();
