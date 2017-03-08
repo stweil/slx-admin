@@ -56,50 +56,33 @@ function getCalendar($idList) {
 
 	$first = true;
 	$lastservertype = "";
-	$idListPerType = array();
 	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
-		if ($first) {
-			$first = false;
-			$lastservertype = $dbresult['servertype'];
+		if (!isset($serverList[$dbresult['serverid']])) {
+			$serverList[$dbresult['serverid']] = array('credentials' => json_decode($dbresult['credentials'], true), 'url' => $dbresult['serverurl'], 'type' => $dbresult['servertype'], 'idlist' => array());
 		}
-
-		// If the servertype changed excecute the previous one.
-		if ($lastservertype != $dbresult['servertype']) {
-			$server['type'] = $lastservertype;
-			$server['serverurl'] = $dbresult['serverurl'];
-			$server['serverid'] = $dbresult['serverid'];
-			$server['credentials'] = json_decode($dbresult['credentials'], true);
-			$server['idList'] = $idListPerType;
-			$serverList[] = $server;
-			$idListPerType = array();
-		}
-
-		$idListPerType[] = (int)$dbresult['locationid'];
-		$lastservertype = $dbresult['servertype'];
+		$serverList[$dbresult['serverid']]['idlist'][] = $dbresult['locationid'];
 	}
-	// Execute the last server type.
-	$server['type'] = $lastservertype;
-	$server['serverurl'] = $dbresult['serverurl'];
-	$server['serverid'] = $dbresult['serverid'];
-	$server['credentials'] = json_decode($dbresult['credentials'], true);
-	$server['idList'] = $idListPerType;
-	$serverList[] = $server;
-	$idListPerType = array();
 
 	$resultarray = array();
-	foreach ($serverList as $server) {
+	foreach ($serverList as $serverid => $server) {
 		$serverInstance = CourseBackend::getInstance($server['type']);
-		$serverInstance->setCredentials($server['credentials'], $server['serverurl'], $server['serverid']);
-		$calendarFromBackend = $serverInstance->fetchSchedule($server['idList']);
+		$serverInstance->setCredentials($server['credentials'], $server['url'], $serverid);
+		echo $serverInstance->getError();
+		$calendarFromBackend = $serverInstance->fetchSchedule($server['idlist']);
 		$formattedArray = array();
+
+		if ($calendarFromBackend === false) {
+			// TODO: write error in db.
+		}
+
 		foreach ($calendarFromBackend as $key => $value) {
 			$y['id'] = $key;
-			$y['calendar'] = json_decode($value, true);
+			$y['calendar'] = $value;
 			$formattedArray[] = $y;
 		}
 		$resultarray = array_merge($resultarray, $formattedArray);
-	}
 
+	}
 	return json_encode($resultarray, true);
 }
 
@@ -308,6 +291,7 @@ function checkIfHidden($locationID) {
 
 function getRoomInfo($idList, $coords) {
 
+	$coordinates = (string)$coords;
 	// Build SQL Query for multiple ids.
 	$query = "SELECT m.locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` as m LEFT JOIN location_info AS l ON l.locationid = m.locationid WHERE l.hidden = 0 AND m.locationid IN (";
 
@@ -322,7 +306,6 @@ function getRoomInfo($idList, $coords) {
 
 	$currentlocationid = 0;
 
-	$lastentry;
 	$pclist = array();
 	while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
 
@@ -337,7 +320,7 @@ function getRoomInfo($idList, $coords) {
 		$pc['id'] = $dbdata['machineuuid'];
 
 		// Add coordinates if bool = true.
-		if ($coords == '1' || $coords == 'true') {
+		if ($coordinates == '1' || $coordinates == 'true') {
 			$position = json_decode($dbdata['position'], true);
 			$pc['x'] = $position['gridCol'];
 			$pc['y'] = $position['gridRow'];
