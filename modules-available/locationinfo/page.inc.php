@@ -347,7 +347,7 @@ class Page_LocationInfo extends Page
 
 			// Instance the backend and set the credentials to check if the Authentification is accepted.
 			$backendType = CourseBackend::getInstance($db['servertype']);
-			$backendType->setCredentials(json_encode($db['credentials'], true), $db['serverurl'], $db['serverid']);
+			$backendType->setCredentials(json_decode($db['credentials'], true), $db['serverurl'], $db['serverid']);
 
 			$connection = $backendType->checkConnection();
 			if ($connection === true) {
