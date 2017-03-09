@@ -327,6 +327,9 @@ function getRoomInfo($idList, $coords) {
 			$pc['x'] = $position['gridCol'];
 			$pc['y'] = $position['gridRow'];
 			$pc['overlay'] = $position['overlays'];
+			if ($pc['overlay'] == null) {
+				$pc['overlay'] = array();
+			}
 		}
 		$pc['pcState'] = LocationInfo::getPcState($dbdata);
 
