@@ -5,6 +5,8 @@
     "lang_asteriskRequired": "Felder mit (*) sind erforderlich",
     "lang_blockCount": "Anzahl Bl\u00f6cke",
     "lang_canLogin": "Nutzer dieser Einrichtung k\u00f6nnen sich am Satelliten anmelden",
+    "lang_canLoginOrganization": "Nutzer dieser Einrichtung k\u00f6nnen sich am Satelliten anmelden",
+    "lang_canLoginUser": "Nutzer kann sich am Satelliten anmelden",
     "lang_createTime": "Erstellt",
     "lang_currentFilter": "Aktueller Filter",
     "lang_defaultImagePermissionAdmin": "Administrieren",
