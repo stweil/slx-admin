@@ -70,7 +70,7 @@ function getCalendar($idList) {
 
 		$calendarFromBackend = $serverInstance->fetchSchedule($server['idlist']);
 		$formattedArray = array();
-
+		$resultarray = array();
 		if ($calendarFromBackend === false || $setCred === false) {
 			$error['timestamp'] = time();
 			$error['error'] = $serverInstance->getError();
@@ -78,14 +78,14 @@ function getCalendar($idList) {
 		} else {
 			Database::exec("UPDATE `setting_location_info` Set error=NULL WHERE serverid=:id", array('id' => $serverid));
 		}
-
-		foreach ($calendarFromBackend as $key => $value) {
-			$y['id'] = $key;
-			$y['calendar'] = $value;
-			$formattedArray[] = $y;
+		if (is_array($calendarFromBackend)) {
+			foreach ($calendarFromBackend as $key => $value) {
+				$y['id'] = $key;
+				$y['calendar'] = $value;
+				$formattedArray[] = $y;
+			}
+			$resultarray = array_merge($resultarray, $formattedArray);
 		}
-		$resultarray = array_merge($resultarray, $formattedArray);
-
 	}
 	return json_encode($resultarray, true);
 }
@@ -293,7 +293,7 @@ function checkIfHidden($locationID) {
 
 // ########## <Roominfo> ##########
 
-function getRoomInfo($idList, $coords) {
+function getRoomInfo($idList, $coords = false) {
 
 	$coordinates = (string)$coords;
 	// Build SQL Query for multiple ids.
@@ -326,8 +326,11 @@ function getRoomInfo($idList, $coords) {
 			$position = json_decode($dbdata['position'], true);
 			$pc['x'] = $position['gridCol'];
 			$pc['y'] = $position['gridRow'];
-			$pc['overlay'] = $position['overlays'];
-			if ($pc['overlay'] == null) {
+
+			if (isset($position['overlays'])) {
+				$pc['overlay'] = $position['overlays'];
+			}
+			else {
 				$pc['overlay'] = array();
 			}
 		}
