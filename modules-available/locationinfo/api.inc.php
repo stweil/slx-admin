@@ -299,11 +299,11 @@ function getRoomInfo($idList, $coords) {
 	// Build SQL Query for multiple ids.
 	$query = "SELECT m.locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` as m LEFT JOIN location_info AS l ON l.locationid = m.locationid WHERE l.hidden = 0 AND m.locationid IN (";
 
-	//$query = "SELECT locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` WHERE locationid IN (";
 	$query .= implode(",", $idList);
 	$query .= ")";
 
 	$query .= " ORDER BY m.locationid ASC";
+
 	// Execute query.
 	$dbquery = Database::simpleQuery($query);
 	$dbresult = array();
@@ -311,36 +311,31 @@ function getRoomInfo($idList, $coords) {
 	$currentlocationid = 0;
 
 	$pclist = array();
+
+	// Fetch db data.
 	while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
 
-		// Add the data in the array if locationid changed
-		if ($dbdata['locationid'] != $currentlocationid && $currentlocationid != 0) {
-			$data['id'] = $currentlocationid;
-			$data['computer'] = $pclist;
-			$dbresult[] = $data;
-			$pclist = array();
+		// Set the id if the locationid changed.
+		if (!isset($dbresult[$dbdata['locationid']])) {
+			$dbresult[$dbdata['locationid']] = array('id' => $dbdata['locationid'], 'computer' => array());
 		}
 
+		// Compact the pc data in one array.
 		$pc['id'] = $dbdata['machineuuid'];
-
-		// Add coordinates if bool = true.
 		if ($coordinates == '1' || $coordinates == 'true') {
 			$position = json_decode($dbdata['position'], true);
 			$pc['x'] = $position['gridCol'];
 			$pc['y'] = $position['gridRow'];
+			$pc['overlay'] = $position['overlays'];
 		}
-
 		$pc['pcState'] = LocationInfo::getPcState($dbdata);
-		$pclist[] = $pc;
 
-		// Save the last entry to add this at the end.
-		$lastentry['id'] = $dbdata['locationid'];
-		$lastentry['computer'] = $pclist;
-		$currentlocationid = $dbdata['locationid'];
+		// Add the array to the computer list.
+		$dbresult[$dbdata['locationid']]['computer'][] = $pc;
 	}
-	$dbresult[] = $lastentry;
 
-	return json_encode($dbresult, true);
+	// The array keys are only used for the isset -> Return only the values.
+	return json_encode(array_values($dbresult), true);
 }
 // ########## </Roominfo> ###########
 
