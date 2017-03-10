@@ -198,6 +198,25 @@ class ConfigTgz
 	 * Static part
 	 */
 
+	/**
+	 * Marks all modules as outdated and triggers generate()
+	 * on each one. This mostly makes sense to call if a global module
+	 * that is injected via a hook has changed.
+	 */
+	public static function rebuildAllConfigs()
+	{
+		Database::exec("UPDATE configtgz SET status = :status", array(
+			'status' => 'OUTDATED'
+		));
+		$res = Database::simpleQuery("SELECT configid FROM configtgz");
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$module = self::get($row['configid']);
+			if ($module !== false) {
+				$module->generate();
+			}
+		}
+	}
+
 	public static function insert($title, $moduleIds)
 	{
 		if (!is_array($moduleIds))
