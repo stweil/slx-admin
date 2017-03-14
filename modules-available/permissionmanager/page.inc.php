@@ -1,6 +1,6 @@
 <?php
 
-class Page_LocationInfo extends Page
+class Page_PermissionManager extends Page
 {
 
 	/**
