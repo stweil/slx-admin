@@ -149,14 +149,14 @@ abstract class CourseBackend
 		$result = [];
 		$sRoomIDs = [];
 		foreach ($dbquery1->fetchAll(PDO::FETCH_ASSOC) as $row) {
-			$sroomID = $row['serverroomid'];
+			$sRoomID = $row['serverroomid'];
 			$lastUpdate = $row['lastcalendarupdate'];
 			$calendar = $row['calendar'];
 			//Check if in cache if lastUpdate is null then it is interpreted as 1970
 			if (strtotime($lastUpdate) > strtotime("-" . $this->getCacheTime() . "seconds") && $this->getCacheTime() > 0) {
-				$result[$row['locationid']] = $calendar;
+				$result[$row['locationid']] = json_decode($calendar);
 			} else {
-				$sRoomIDs[$row['locationid']] = $sroomID;
+				$sRoomIDs[$row['locationid']] = $sRoomID;
 			}
 
 		}
