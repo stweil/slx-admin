@@ -164,7 +164,7 @@ abstract class CourseBackend
 		if ($this->getCacheTime() > 0 && $this->getRefreshTime() > 0) {
 			$dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalendarupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
 			foreach ($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row) {
-				if(isset($row['lastcalendarupdate'])) {
+				if (isset($row['lastcalendarupdate'])) {
 					$lastUpdate = $row['lastcalendarupdate'];
 					if (strtotime($lastUpdate) > strtotime("-" . $this->getRefreshTime() . "seconds") && strtotime($lastUpdate) > strtotime("-" . $this->getCacheTime() . "seconds")) {
 						$sRoomIDs[$row['locationid']] = $row['serverroomid'];
