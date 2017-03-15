@@ -11,14 +11,14 @@ class LocationInfo
 		 *  [2] = OFF
 		 *  [3] = 10 days offline (BROKEN?)
 		 */
-		 // TODO USE STATE NAME instead of numbers
+		// TODO USE STATE NAME instead of numbers
 
 		$logintime = (int)$pc['logintime'];
 		$lastseen = (int)$pc['lastseen'];
 		$lastboot = (int)$pc['lastboot'];
 		$NOW = time();
 
-		if ($NOW - $lastseen > 14*86400) {
+		if ($NOW - $lastseen > 14 * 86400) {
 			return 3;
 		} elseif (($NOW - $lastseen > 610) || $lastboot === 0) {
 			return 2;

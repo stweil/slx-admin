@@ -1,52 +1,65 @@
 <div>
-<h1>{{lang_mainHeader}}</h1>
+	<h1>{{lang_mainHeader}}</h1>
 
-<br>
-<h4>{{lang_serverTable}}</h4>
-<div id="serverTable">
+	<br>
+	<h4>{{lang_serverTable}}</h4>
+	<div id="serverTable">
 
-	<table class="table table-condensed locations" style="margin-bottom:0;">
-		<tr>
-			<th title="{{lang_serverID}}">{{lang_sID}}</th>
-			<th width="1">{{lang_serverType}}</th>
-			<th>{{lang_locationName}}</th>
-			<th>{{lang_serverUrl}}</th>
-			<th width="1"></th>
-			<th width="1"></th>
-		</tr>
-{{#serverlist}}
-		<form method="post" action="?do=locationinfo" id="serverForm-{{id}}">
-			<input type="hidden" name="token" value="{{token}}">
-			<input id="serverFormAction-{{id}}" type="hidden" name="action" value="updateServer">
-			<input type="submit" id="submit-serverForm-{{id}}" style="display:none;">
+		<table class="table table-condensed locations" style="margin-bottom:0;">
+			<tr>
+				<th title="{{lang_serverID}}">{{lang_sID}}</th>
+				<th width="1">{{lang_serverType}}</th>
+				<th>{{lang_locationName}}</th>
+				<th>{{lang_serverUrl}}</th>
+				<th width="1"></th>
+				<th width="1"></th>
+			</tr>
+			{{#serverlist}}
+			<form method="post" action="?do=locationinfo" id="serverForm-{{id}}">
+				<input type="hidden" name="token" value="{{token}}">
+				<input id="serverFormAction-{{id}}" type="hidden" name="action" value="updateServer">
+				<input type="submit" id="submit-serverForm-{{id}}" style="display:none;">
 
 				<tr class=tablerow>
 					<td align="center"><input id="input-id-{{id}}" name="id" type="hidden" value="{{id}}">{{id}}</td>
 					<td id="type-{{id}}">
-						<select disabled id="input-type-{{id}}" name="type" value="{{type}}" onchange="servertype_changed(this.value, {{id}});">
+						<select disabled id="input-type-{{id}}" name="type" value="{{type}}"
+								  onchange="servertype_changed(this.value, {{id}});">
 							{{#types}}
-								<option id="{{type}}" value="{{type}}" {{#active}}selected{{/active}} >{{display}}
+							<option id="{{type}}" value="{{type}}" {{#active}}selected{{/active}}>{{display}}
 							{{/types}}
 						</select>
 					</td>
 					<td id="name-{{id}}" style="padding:8px;">
-							<input readonly required id="input-name-{{id}}" name="name" type="text" value="{{name}}" style="padding:0;height:100%;width:100%;"></input>
+						<input readonly required id="input-name-{{id}}" name="name" type="text" value="{{name}}"
+								 style="padding:0;height:100%;width:100%;"></input>
 					</td>
 					<td id="url-{{id}}" style="padding:8px;">
-							<input readonly required id="input-url-{{id}}" name="url" type="text" value="{{url}}" style="padding:0;height:100%;width:100%;"></input>
+						<input readonly required id="input-url-{{id}}" name="url" type="text" value="{{url}}"
+								 style="padding:0;height:100%;width:100%;"></input>
 					</td>
 
-					<td align="center" id="credentials-{{id}}" onclick="event.cancelBubble = true;" style="white-space:nowrap;">
-						<button {{#auth}}class="btn btn-sm btn-success"{{/auth}}{{^auth}}class="btn btn-sm btn-danger"{{/auth}} id="credentials-btn-{{id}}" type="button" title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');">{{lang_credentials}}</button>
-						<button class="btn btn-sm btn-primary table-refresh" id="refresh-btn-{{id}}" title="refresh" onclick="refreshButtonClick({{id}});">&#8634</button>
+					<td align="center" id="credentials-{{id}}" onclick="event.cancelBubble = true;"
+						 style="white-space:nowrap;">
+						<button {{#auth}}class="btn btn-sm btn-success" {{/auth}}
+								  {{^auth}}class="btn btn-sm btn-danger"{{/auth}} id="credentials-btn-{{id}}" type="button"
+								  title="credentials" onclick="loadCredentialModal({{id}},'{{name}}');">{{lang_credentials}}
+						</button>
+						<button class="btn btn-sm btn-primary table-refresh" id="refresh-btn-{{id}}" title="refresh"
+								  onclick="refreshButtonClick({{id}});">&#8634
+						</button>
 					</td>
 					<td align="center" id="btncell-{{id}}" style="white-space:nowrap;">
-						<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}" onclick="editButtonClick({{id}});" id="edit">&#x270E</button>
-						<button class="btn btn-sm btn-danger table-delete" type="button" title="{{lang_delete}}" onclick="deleteButtonClick({{id}});">&#10008</button>
+						<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}"
+								  onclick="editButtonClick({{id}});" id="edit">&#x270E
+						</button>
+						<button class="btn btn-sm btn-danger table-delete" type="button" title="{{lang_delete}}"
+								  onclick="deleteButtonClick({{id}});">&#10008
+						</button>
 					</td>
 				</tr>
 			</form>
-{{/serverlist}}
+			{{/serverlist}}
 			<form method="post" action="?do=locationinfo" id="serverForm-0">
 				<input type="hidden" name="token" value="{{token}}">
 				<input id="serverFormAction-0" type="hidden" name="action" value="updateServer">
@@ -56,38 +69,41 @@
 
 		</table>
 		<br>
-		<button class="btn btn-success btn-sm" id="addServerButton" onclick="addNewServerRow()"><span class="glyphicon glyphicon-plus-sign"> {{lang_addServer}}</span></button>
+		<button class="btn btn-success btn-sm" id="addServerButton" onclick="addNewServerRow()"><span
+				class="glyphicon glyphicon-plus-sign"> {{lang_addServer}}</span></button>
 		<br><br><br>
 
-</div>
-<br>
+	</div>
+	<br>
 
-<h4>{{lang_buildingTable}}</h4>
-<table class="table table-condensed locations" style="margin-bottom:0">
+	<h4>{{lang_buildingTable}}</h4>
+	<table class="table table-condensed locations" style="margin-bottom:0">
 
-	<tr>
-		<th>{{lang_locationName}}</th>
-		<th width=10>{{lang_locationID}}</th>
-		<th width=80>{{lang_locationInUse}}</th>
-    <th width=50>{{lang_locationIsHidden}}</th>
-		<th width=50>{{lang_openingTime}}</th>
-    <th width=50>{{lang_locationSettings}}</th>
-	</tr>
+		<tr>
+			<th>{{lang_locationName}}</th>
+			<th width=10>{{lang_locationID}}</th>
+			<th width=80>{{lang_locationInUse}}</th>
+			<th width=50>{{lang_locationIsHidden}}</th>
+			<th width=50>{{lang_openingTime}}</th>
+			<th width=50>{{lang_locationSettings}}</th>
+		</tr>
 
-{{#list}}
-	<tr id="row{{locationid}}" class="tablerow">
+		{{#list}}
+		<tr id="row{{locationid}}" class="tablerow">
 
-		<td><div style="display:inline-block;width:{{depth}}em"></div><a href="modules-available/locationinfo/frontend/doorsign.html?id={{locationid}}">{{locationname}}</a></td>
-		<td align="center">[{{locationid}}]</td>
-		<td align="center">{{#hasPcs}}{{pcState}} / {{total}}{{/hasPcs}}</td>
+			<td>
+				<div style="display:inline-block;width:{{depth}}em"></div>
+				<a href="modules-available/locationinfo/frontend/doorsign.html?id={{locationid}}">{{locationname}}</a></td>
+			<td align="center">[{{locationid}}]</td>
+			<td align="center">{{#hasPcs}}{{pcState}} / {{total}}{{/hasPcs}}</td>
 
-		<td id={{locationid}} onclick="event.cancelBubble = true;" align="center"></td>
-		<script>
-		  var cbh = document.getElementById('{{locationid}}');
-			var cb = document.createElement('input');
+			<td id={{locationid}} onclick="event.cancelBubble = true;" align="center"></td>
+			<script>
+				var cbh = document.getElementById('{{locationid}}');
+				var cb = document.createElement('input');
 
-    	cb.type = 'checkbox';
-    	cbh.appendChild(cb);
+				cb.type = 'checkbox';
+				cbh.appendChild(cb);
 
     	cb.id = 'cb' + {{locationid}};
     	cb.value = {{hidden}};
@@ -95,183 +111,187 @@
 				cb.checked = true;
 			}
 			cb.addEventListener("click", function() { cbClick(this, {{locationid}}); });
-    </script>
-		<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" onclick="loadTimeModal({{locationid}}, '{{locationname}}');">{{lang_openingTime}}</a></td>
-		<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" onclick="loadConfigModal({{locationid}}, '{{locationname}}');">{{lang_locationSettings}}</a></td>
-	</tr>
+			</script>
+			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button"
+																	  onclick="loadTimeModal({{locationid}}, '{{locationname}}');">{{lang_openingTime}}</a>
+			</td>
+			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button"
+																	  onclick="loadConfigModal({{locationid}}, '{{locationname}}');">{{lang_locationSettings}}</a>
+			</td>
+		</tr>
 
-{{/list}}
-</table>
+		{{/list}}
+	</table>
 
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog">
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
 
-    <div class="modal-content">
-      <div class="modal-header" id="myModalHeader"></div>
-      <div class="modal-body" id="myModalBody"></div>
-      <div class="modal-footer">
-        <a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a>
-      </div>
-    </div>
+			<div class="modal-content">
+				<div class="modal-header" id="myModalHeader"></div>
+				<div class="modal-body" id="myModalBody"></div>
+				<div class="modal-footer">
+					<a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a>
+				</div>
+			</div>
 
-  </div>
+		</div>
+	</div>
 </div>
-
 <script type="text/javascript">
-var lastPcSubTable = false;
+	var lastPcSubTable = false;
 
-function cbClick(cb, locID) {
-	var value;
+	function cbClick(cb, locID) {
+		var value;
 
-	if (cb.checked == true) {
-		value = 1;
-	} else {
-		value = 0;
+		if (cb.checked == true) {
+			value = 1;
+		} else {
+			value = 0;
+		}
+		window.location.href = "?do=locationinfo&action=hide&id=" + locID + "&value=" + value;
 	}
-	window.location.href = "?do=locationinfo&action=hide&id=" + locID + "&value=" + value;
-}
 
-function loadCredentialModal(serverid, servername) {
-	$('#myModalHeader').text("[" + serverid + "] " + servername).css("font-weight","Bold");
+	function loadCredentialModal(serverid, servername) {
+		$('#myModalHeader').text("[" + serverid + "] " + servername).css("font-weight", "Bold");
 
-	$('#myModal').modal('show');
-  $('#myModalBody').load("?do=locationinfo&action=credentials&id=" + serverid);
-}
-
-function loadTimeModal(locationId, locationName) {
-	$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight","Bold");
-
-	$('#myModal').modal('show');
-  $('#myModalBody').load("?do=locationinfo&action=timetable&id=" + locationId);
-}
-
-function loadConfigModal(locationId, locationName) {
-	$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight","Bold");
-
-  $('#myModal').modal('show');
-	$('#myModalBody').load("?do=locationinfo&action=config&id=" + locationId);
-}
-
-// ########### Server Table ###########
-var preEditName;
-var preEditUrl;
-var preEditUser;
-var preEditPassword;
-var preEditType;
-
-function deleteButtonClick(id) {
-	var del = confirm("{{lang_deleteConfirmation}}");
-	if (del == true) {
-		$('#serverFormAction-' + id).val("deleteServer");
-		$('#serverForm-' + id).submit();
+		$('#myModal').modal('show');
+		$('#myModalBody').load("?do=locationinfo&action=credentials&id=" + serverid);
 	}
-};
 
-function servertype_changed(value, id) {
-	if (value == "Frontend") {
-		$('#input-user-' + id).removeAttr('required');
-		$('#input-password-' + id).removeAttr('required');
-	} else {
-		$('#input-user-' + id).attr('required');
-		$('#input-password-' + id).attr('required');
+	function loadTimeModal(locationId, locationName) {
+		$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight", "Bold");
+
+		$('#myModal').modal('show');
+		$('#myModalBody').load("?do=locationinfo&action=timetable&id=" + locationId);
 	}
-};
 
-function editButtonClick(id) {
-	var name = $('#input-name-' + id);
-	var url = $('#input-url-' + id);
-	var user = $('#input-user-' + id);
-	var password = $('#input-password-' + id);
-	var type = $('#input-type-' + id);
+	function loadConfigModal(locationId, locationName) {
+		$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight", "Bold");
 
-	name.attr('readonly', false);
-	url.attr('readonly', false);
-	user.attr('readonly', false);
-	password.attr('readonly', false);
-	type.attr('disabled', false);
+		$('#myModal').modal('show');
+		$('#myModalBody').load("?do=locationinfo&action=config&id=" + locationId);
+	}
 
-	name.css("color", "#000");
-	url.css("color", "#000");
-	user.css("color", "#000");
-	password.css("color", "#000");
-	type.css("color", "#000");
+	// ########### Server Table ###########
+	var preEditName;
+	var preEditUrl;
+	var preEditUser;
+	var preEditPassword;
+	var preEditType;
 
-	preEditName = name.val();
-	preEditUrl = url.val();
-	preEditUser = user.val();
-	preEditPassword = password.val();
-	preEditType = type.val();
+	function deleteButtonClick(id) {
+		var del = confirm("{{lang_deleteConfirmation}}");
+		if (del == true) {
+			$('#serverFormAction-' + id).val("deleteServer");
+			$('#serverForm-' + id).submit();
+		}
+	}
 
-	servertype_changed(preEditType, id);
+	function servertype_changed(value, id) {
+		if (value == "Frontend") {
+			$('#input-user-' + id).removeAttr('required');
+			$('#input-password-' + id).removeAttr('required');
+		} else {
+			$('#input-user-' + id).attr('required');
+			$('#input-password-' + id).attr('required');
+		}
+	}
 
-	$('#btncell-' + id).html('\
+	function editButtonClick(id) {
+		var name = $('#input-name-' + id);
+		var url = $('#input-url-' + id);
+		var user = $('#input-user-' + id);
+		var password = $('#input-password-' + id);
+		var type = $('#input-type-' + id);
+
+		name.attr('readonly', false);
+		url.attr('readonly', false);
+		user.attr('readonly', false);
+		password.attr('readonly', false);
+		type.attr('disabled', false);
+
+		name.css("color", "#000");
+		url.css("color", "#000");
+		user.css("color", "#000");
+		password.css("color", "#000");
+		type.css("color", "#000");
+
+		preEditName = name.val();
+		preEditUrl = url.val();
+		preEditUser = user.val();
+		preEditPassword = password.val();
+		preEditType = type.val();
+
+		servertype_changed(preEditType, id);
+
+		$('#btncell-' + id).html('\
 	<button class="btn btn-sm btn-success" title="{{lang_save}}" onclick="saveButtonClick(' + id + ');">&#10004</button>	\
 	<button class="btn btn-sm btn-danger" title="{{lang_cancel}}" onclick="cancelButtonClick(' + id + ');">&#10008</button>');
-	$('.table-edit').attr('disabled', true);
-	$('.table-delete').attr('disabled', true);
-	$('.table-refresh').attr('disabled', true);
-	$('#addServerButton').attr('disabled', true);
-};
+		$('.table-edit').attr('disabled', true);
+		$('.table-delete').attr('disabled', true);
+		$('.table-refresh').attr('disabled', true);
+		$('#addServerButton').attr('disabled', true);
+	}
 
-function saveButtonClick(id) {
-	$('#serverFormAction-' + id).val("updateServer");
-	$('#submit-serverForm-' + id).trigger("click");
-};
+	function saveButtonClick(id) {
+		$('#serverFormAction-' + id).val("updateServer");
+		$('#submit-serverForm-' + id).trigger("click");
+	}
 
-function refreshButtonClick(id) {
-	$('#serverFormAction-' + id).val("checkConnection");
-	$('#submit-serverForm-' + id).trigger("click");
-};
+	function refreshButtonClick(id) {
+		$('#serverFormAction-' + id).val("checkConnection");
+		$('#submit-serverForm-' + id).trigger("click");
+	}
 
-function addNewServer() {
-	$('#serverFormAction-0').val("updateServer");
+	function addNewServer() {
+		$('#serverFormAction-0').val("updateServer");
 
-	$('#submit-serverForm-0').trigger("click");
-};
+		$('#submit-serverForm-0').trigger("click");
+	}
 
-function cancelButtonClick(id) {
-	var name = $('#input-name-' + id);
-	var url = $('#input-url-' + id);
-	var user = $('#input-user-' + id);
-	var password = $('#input-password-' + id);
-	var type = $('#input-type-' + id);
+	function cancelButtonClick(id) {
+		var name = $('#input-name-' + id);
+		var url = $('#input-url-' + id);
+		var user = $('#input-user-' + id);
+		var password = $('#input-password-' + id);
+		var type = $('#input-type-' + id);
 
-	name.attr('readonly', true);
-	url.attr('readonly', true);
-	user.attr('readonly', true);
-	password.attr('readonly', true);
-	type.attr('disabled', true);
+		name.attr('readonly', true);
+		url.attr('readonly', true);
+		user.attr('readonly', true);
+		password.attr('readonly', true);
+		type.attr('disabled', true);
 
-	name.css("color", "");
-	url.css("color", "");
-	user.css("color", "");
-	password.css("color", "");
-	type.css("color", "");
+		name.css("color", "");
+		url.css("color", "");
+		user.css("color", "");
+		password.css("color", "");
+		type.css("color", "");
 
-	name.val(preEditName);
-	url.val(preEditUrl);
-	user.val(preEditUser);
-	password.val(preEditPassword);
-	type.val(preEditType);
+		name.val(preEditName);
+		url.val(preEditUrl);
+		user.val(preEditUser);
+		password.val(preEditPassword);
+		type.val(preEditType);
 
-	$('#btncell-' + id).html('\
+		$('#btncell-' + id).html('\
 	<button class="btn btn-sm btn-primary table-edit" title="{{lang_edit}}" onclick="editButtonClick(' + id + ');" id="edit">&#x270E</button> \
 	<button class="btn btn-sm btn-danger table-delete" type="button" title="{{lang_delete}}" onclick="deleteButtonClick(' + id + ');">&#10008</button>');
-	$('.table-edit').attr('disabled', false);
-	$('.table-delete').attr('disabled', false);
-	$('.table-refresh').attr('disabled', false);
-	$('#addServerButton').attr('disabled', false);
-}
+		$('.table-edit').attr('disabled', false);
+		$('.table-delete').attr('disabled', false);
+		$('.table-refresh').attr('disabled', false);
+		$('#addServerButton').attr('disabled', false);
+	}
 
-function deleteNewServer() {
-	$('#new').remove();
-	$('.table-edit').attr('disabled', false);
-	$('.table-delete').attr('disabled', false);
-	$('#addServerButton').attr('disabled', false);
-};
+	function deleteNewServer() {
+		$('#new').remove();
+		$('.table-edit').attr('disabled', false);
+		$('.table-delete').attr('disabled', false);
+		$('#addServerButton').attr('disabled', false);
+	}
 
-function addNewServerRow() {
-  $('#lastServerTableElement').before('<tr class=tablerow id="new">\
+	function addNewServerRow() {
+		$('#lastServerTableElement').before('<tr class=tablerow id="new">\
 		<td align="center"><input id="input-id-0" name="id" type="hidden" form="serverForm-0" value="0"></td>\
 		<td id="type-0"><select id="input-type-0" name="type" form="serverForm-0" onchange="servertype_changed(this.value, 0)">\
 		{{#servertypelist}}<option value="{{type}}"> {{display}}{{/servertypelist}}\
@@ -286,6 +306,5 @@ function addNewServerRow() {
 		$('.table-edit').attr('disabled', true);
 		$('.table-delete').attr('disabled', true);
 		$('#addServerButton').attr('disabled', true);
-};
+	}
 </script>
-</div>

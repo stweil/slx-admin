@@ -2,7 +2,8 @@
 
 HandleParameters();
 
-function HandleParameters() {
+function HandleParameters()
+{
 
 	$getAction = Request::get('action', 0, 'string');
 	if ($getAction == "roominfo") {
@@ -35,16 +36,18 @@ function HandleParameters() {
 	}
 }
 
-function filterIdList($roomids) {
+function filterIdList($roomids)
+{
 	$idList = explode(',', $roomids);
 	$filteredIdList = array_filter($idList, 'is_numeric');
-  $filteredIdList = array_unique($filteredIdList);
+	$filteredIdList = array_unique($filteredIdList);
 	$filteredIdList = filterHiddenRoom($filteredIdList);
 
 	return $filteredIdList;
 }
 
-function filterHiddenRoom($idArray) {
+function filterHiddenRoom($idArray)
+{
 	$filteredArray = array();
 	if (!empty($idArray)) {
 		$query = "SELECT locationid, hidden FROM `location_info` WHERE locationid IN (";
@@ -53,7 +56,7 @@ function filterHiddenRoom($idArray) {
 
 		$dbquery = Database::simpleQuery($query);
 
-		while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			if ($dbresult['hidden'] == false) {
 				$filteredArray[] = $dbresult['locationid'];
 			}
@@ -65,14 +68,15 @@ function filterHiddenRoom($idArray) {
 
 // ########## <Roominfo> ##########
 
-function getRoomInfo($idList, $coords = false) {
+function getRoomInfo($idList, $coords = false)
+{
 
 	$coordinates = (string)$coords;
 	$dbresult = array();
 
 	if (!empty($idList)) {
 		// Build SQL Query for multiple ids.
-		$query = "SELECT m.locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` as m LEFT JOIN location_info AS l ON l.locationid = m.locationid WHERE l.hidden = 0 AND m.locationid IN (";
+		$query = "SELECT m.locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` AS m LEFT JOIN location_info AS l ON l.locationid = m.locationid WHERE l.hidden = 0 AND m.locationid IN (";
 
 		$query .= implode(",", $idList);
 		$query .= ")";
@@ -87,7 +91,7 @@ function getRoomInfo($idList, $coords = false) {
 		$pclist = array();
 
 		// Fetch db data.
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 
 			// Set the id if the locationid changed.
 			if (!isset($dbresult[$dbdata['locationid']])) {
@@ -103,8 +107,7 @@ function getRoomInfo($idList, $coords = false) {
 
 				if (isset($position['overlays'])) {
 					$pc['overlay'] = $position['overlays'];
-				}
-				else {
+				} else {
 					$pc['overlay'] = array();
 				}
 			}
@@ -118,11 +121,13 @@ function getRoomInfo($idList, $coords = false) {
 	// The array keys are only used for the isset -> Return only the values.
 	return json_encode(array_values($dbresult), true);
 }
+
 // ########## </Roominfo> ###########
 
 // ########## <Openingtime> ##########
 
-function getOpeningTime($idList) {
+function getOpeningTime($idList)
+{
 	$dbresult = array();
 
 	if (!empty($idList)) {
@@ -134,7 +139,7 @@ function getOpeningTime($idList) {
 		// Execute query.
 		$dbquery = Database::simpleQuery($query);
 		$handledIds = array();
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$data['id'] = $dbdata['locationid'];
 			$data['openingtime'] = json_decode($dbdata['openingtime'], true);
 			$handledIds[] = $data['id'];
@@ -151,7 +156,7 @@ function getOpeningTime($idList) {
 	}
 
 	// Go through the db entrys [id] = id; [openingtime] = e.g. [{"days":["Saturday","Sunday"],"openingtime":"12:32","closingtime":"14:35"}]
-	foreach($dbresult as $entry) {
+	foreach ($dbresult as $entry) {
 		$tmp = array();
 		// Get the parents time if there is no openingtime defined.
 		if (count($entry['openingtime']) == 0) {
@@ -168,12 +173,13 @@ function getOpeningTime($idList) {
 }
 
 // Format the openingtime in the frontend needed format.
-function formatOpeningtime($openingtime) {
-	$weekarray = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+function formatOpeningtime($openingtime)
+{
+	$weekarray = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
 	foreach ($weekarray as $d) {
 		$array = array();
 		foreach ($openingtime as $opt) {
-			foreach($opt['days'] as $val) {
+			foreach ($opt['days'] as $val) {
 				if ($val == $d) {
 					$arr = array();
 
@@ -188,7 +194,7 @@ function formatOpeningtime($openingtime) {
 					$array[] = $arr;
 				}
 			}
-			if(!empty($array)) {
+			if (!empty($array)) {
 				$result[$d] = $array;
 			}
 		}
@@ -196,7 +202,8 @@ function formatOpeningtime($openingtime) {
 	return $result;
 }
 
-function getOpeningTimesFromParent($locationID) {
+function getOpeningTimesFromParent($locationID)
+{
 	// Get parent location id.
 	$dbquery = Database::queryFirst("SELECT parentlocationid FROM `location` WHERE locationid = :locationID", array('locationID' => $locationID));
 	$parentlocationid = 0;
@@ -216,8 +223,9 @@ function getOpeningTimesFromParent($locationID) {
 	}
 }
 
-function createBasicClosingTime() {
-	$weekarray = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+function createBasicClosingTime()
+{
+	$weekarray = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
 	$array = array();
 	foreach ($weekarray as $d) {
 		$a = array();
@@ -234,8 +242,9 @@ function createBasicClosingTime() {
 
 // ########## </Openingtime> ##########
 
-function getConfig($locationID) {
-		$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverroomid, s.servertype, s.serverurl FROM `location_info` AS li
+function getConfig($locationID)
+{
+	$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverroomid, s.servertype, s.serverurl FROM `location_info` AS li
 		RIGHT JOIN `location` AS l ON l.locationid=li.locationid
 		LEFT JOIN `setting_location_info` AS s ON s.serverid=li.serverid
 		WHERE l.locationid=:locationID", array('locationID' => $locationID));
@@ -246,18 +255,19 @@ function getConfig($locationID) {
 	$date = getdate();
 	$config['time'] = $date['year'] . "-" . $date['mon'] . "-" . $date['mday'] . " " . $date['hours'] . ":" . $date['minutes'] . ":" . $date['seconds'];
 
-	if($dbresult['servertype'] === "Frontend") {
+	if ($dbresult['servertype'] === "Frontend") {
 		$config['calendarqueryurl'] = $dbresult['serverurl'] . "/" . $dbresult['serverroomid'] . ".json";
 	}
 
 	if (empty($config)) {
 		echo json_encode(array());
 	} else {
-		echo json_encode($config,  JSON_UNESCAPED_SLASHES);
+		echo json_encode($config, JSON_UNESCAPED_SLASHES);
 	}
 }
 
-function getPcStates($idList) {
+function getPcStates($idList)
+{
 	$pcStates = array();
 
 	$roominfoList = json_decode(getRoomInfo($idList), true);
@@ -271,11 +281,11 @@ function getPcStates($idList) {
 		foreach ($roomInfo['computer'] as $computer) {
 			if ($computer['pcState'] == 0) {
 				$idle++;
-			} elseif($computer['pcState'] == 1) {
+			} elseif ($computer['pcState'] == 1) {
 				$occupied++;
-			} elseif($computer['pcState'] == 2) {
+			} elseif ($computer['pcState'] == 2) {
 				$off++;
-			} elseif($computer['pcState'] == 3) {
+			} elseif ($computer['pcState'] == 3) {
 				$broken++;
 			}
 		}
@@ -289,7 +299,8 @@ function getPcStates($idList) {
 	return json_encode($pcStates);
 }
 
-function getRoomTree($idList) {
+function getRoomTree($idList)
+{
 	$roomTree = array();
 	$filteredIdList = array();
 	foreach ($idList as $id) {
@@ -307,12 +318,13 @@ function getRoomTree($idList) {
 	return json_encode($roomTree);
 }
 
-function getChildsRecursive($id, &$filteredIdList) {
+function getChildsRecursive($id, &$filteredIdList)
+{
 	$dbquery = Database::simpleQuery("SELECT locationid, locationname FROM `location` WHERE parentlocationid=:locationID", array('locationID' => $id));
 	$array = array();
 	$dbarray = array();
 
-	while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+	while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 		$dbarray[] = $dbresult;
 	}
 	foreach ($dbarray as $db) {
@@ -332,13 +344,14 @@ function getChildsRecursive($id, &$filteredIdList) {
 }
 
 // ########## <Calendar> ###########
-function getCalendar($idList) {
+function getCalendar($idList)
+{
 
 	$serverList = array();
 
 	if (!empty($idList)) {
 		//// Build SQL query for multiple ids.
-		$query = "SELECT locationid, l.serverid AS serverid, serverurl, servertype, credentials FROM `location_info` as l LEFT JOIN setting_location_info as s ON s.serverid = l.serverid WHERE locationid IN (";
+		$query = "SELECT locationid, l.serverid AS serverid, serverurl, servertype, credentials FROM `location_info` AS l LEFT JOIN setting_location_info AS s ON s.serverid = l.serverid WHERE locationid IN (";
 
 		$query .= implode(",", $idList);
 
@@ -348,7 +361,7 @@ function getCalendar($idList) {
 
 		$first = true;
 		$lastservertype = "";
-		while($dbresult=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			if (!isset($serverList[$dbresult['serverid']])) {
 				$serverList[$dbresult['serverid']] = array('credentials' => json_decode($dbresult['credentials'], true), 'url' => $dbresult['serverurl'], 'type' => $dbresult['servertype'], 'idlist' => array());
 			}
@@ -367,9 +380,9 @@ function getCalendar($idList) {
 		if ($calendarFromBackend === false || $setCred === false) {
 			$error['timestamp'] = time();
 			$error['error'] = $serverInstance->getError();
-			Database::exec("UPDATE `setting_location_info` Set error=:error WHERE serverid=:id", array('id' => $serverid, 'error' => json_encode($error, true)));
+			Database::exec("UPDATE `setting_location_info` SET error=:error WHERE serverid=:id", array('id' => $serverid, 'error' => json_encode($error, true)));
 		} else {
-			Database::exec("UPDATE `setting_location_info` Set error=NULL WHERE serverid=:id", array('id' => $serverid));
+			Database::exec("UPDATE `setting_location_info` SET error=NULL WHERE serverid=:id", array('id' => $serverid));
 		}
 		if (is_array($calendarFromBackend)) {
 			foreach ($calendarFromBackend as $key => $value) {

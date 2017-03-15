@@ -3,13 +3,13 @@
 $res = array();
 
 $res[] = tableCreate('location_info', '
- `locationid` INT(11) NOT NULL,
-  `serverid` INT(11) NOT NULL,
+	`locationid` INT(11) NOT NULL,
+	`serverid` INT(11) NOT NULL,
 	`serverroomid` VARCHAR(2000),
 	`hidden` BOOLEAN NOT NULL DEFAULT 0,
 	`openingtime` VARCHAR(2000),
 	`config` VARCHAR(2000),
-  `calendar` VARCHAR(2000),
+	`calendar` VARCHAR(2000),
 	`lastcalendarupdate` INT(11) NOT NULL DEFAULT 0,
 	PRIMARY KEY (`locationid`)
 ');
@@ -19,85 +19,85 @@ $res[] = tableCreate('setting_location_info', '
 	`servername` VARCHAR(2000) NOT NULL,
 	`serverurl` VARCHAR(2000) NOT NULL,
 	`servertype` VARCHAR(100) NOT NULL,
-  `credentials` VARCHAR(2000),
+	`credentials` VARCHAR(2000),
 	`error` VARCHAR(2000),
 	PRIMARY KEY (`serverid`)
 ');
 
 // Create response for browser
 if (!tableHasColumn('setting_location_info', 'error')) {
-  $ret = Database::exec("ALTER TABLE `setting_location_info` ADD `error` VARCHAR(2000) AFTER `credentials`");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Adding column error failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `setting_location_info` ADD `error` VARCHAR(2000) AFTER `credentials`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding column error failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 if (!tableHasColumn('setting_location_info', 'credentials')) {
-  $ret = Database::exec("ALTER TABLE `setting_location_info` ADD `credentials` VARCHAR(2000) AFTER `servertype`");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Adding column credentials failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `setting_location_info` ADD `credentials` VARCHAR(2000) AFTER `servertype`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding column credentials failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 if (tableHasColumn('setting_location_info', 'login')) {
-  $ret = Database::exec("ALTER TABLE `setting_location_info` DROP COLUMN login");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Dropping column login failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `setting_location_info` DROP COLUMN login");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Dropping column login failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 if (tableHasColumn('setting_location_info', 'passwd')) {
-  $ret = Database::exec("ALTER TABLE `setting_location_info` DROP COLUMN passwd");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Dropping column passwd failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `setting_location_info` DROP COLUMN passwd");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Dropping column passwd failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 if (tableHasColumn('location_info', 'serverroomid')) {
-  $ret = Database::exec("ALTER TABLE `location_info` MODIFY serverroomid VARCHAR(2000)");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Updateing column serverroomid failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `location_info` MODIFY serverroomid VARCHAR(2000)");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Updateing column serverroomid failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 if (tableHasColumn('location_info', 'openingtime')) {
-  $ret = Database::exec("ALTER TABLE `location_info` MODIFY openingtime VARCHAR(2000)");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Updateing column openingtime failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `location_info` MODIFY openingtime VARCHAR(2000)");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Updateing column openingtime failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 if (tableHasColumn('location_info', 'config')) {
-  $ret = Database::exec("ALTER TABLE `location_info` MODIFY config VARCHAR(2000)");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Updateing column config failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `location_info` MODIFY config VARCHAR(2000)");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Updateing column config failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 if (tableHasColumn('location_info', 'calendar')) {
-  $ret = Database::exec("ALTER TABLE `location_info` MODIFY calendar VARCHAR(2000)");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Updateing column calendar failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `location_info` MODIFY calendar VARCHAR(2000)");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Updateing column calendar failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 if (tableHasColumn('location_info', 'lastcalendarupdate')) {
-  $ret = Database::exec("ALTER TABLE `location_info` MODIFY lastcalendarupdate INT(11) NOT NULL DEFAULT 0");
-  if ($ret === false) {
-    finalResponse(UPDATE_FAILED, 'Updateing column lastcalendarupdate failed: ' . Database::lastError());
-  }
-  $res[] = UPDATE_DONE;
+	$ret = Database::exec("ALTER TABLE `location_info` MODIFY lastcalendarupdate INT(11) NOT NULL DEFAULT 0");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Updateing column lastcalendarupdate failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
-if(tableExists('locationinfo')) {
+if (tableExists('locationinfo')) {
 	$ret = Database::exec("DROP TABLE `locationinfo`");
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Droping table locationinfo failed: ' . Database::lastError());
