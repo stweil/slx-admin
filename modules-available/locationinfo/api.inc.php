@@ -374,7 +374,11 @@ function getCalendar($idList)
 		$serverInstance = CourseBackend::getInstance($server['type']);
 		$setCred = $serverInstance->setCredentials($server['credentials'], $server['url'], $serverid);
 
-		$calendarFromBackend = $serverInstance->fetchSchedule($server['idlist']);
+		$calendarFromBackend = array();
+		if ($setCred) {
+			$calendarFromBackend = $serverInstance->fetchSchedule($server['idlist']);
+		}
+
 		$formattedArray = array();
 		$resultarray = array();
 		if ($calendarFromBackend === false || $setCred === false) {

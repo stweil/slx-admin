@@ -259,10 +259,13 @@ class Page_LocationInfo extends Page
 			$dbresult = Database::queryFirst("SELECT * FROM `setting_location_info` WHERE serverid = :serverid", array('serverid' => $serverid));
 
 			$serverInstance = CourseBackend::getInstance($dbresult['servertype']);
-			$serverInstance->setCredentials(json_decode($dbresult['credentials'], true), $dbresult['serverurl'], $serverid);
-			$setCred = $serverInstance->checkConnection();
+			$setCredentials = $serverInstance->setCredentials(json_decode($dbresult['credentials'], true), $dbresult['serverurl'], $serverid);
 
-			if (!$setCred) {
+			if ($setCredentials) {
+				$setCred = $serverInstance->checkConnection();
+			}
+
+			if (!$setCredentials || !$setCred) {
 				$error['timestamp'] = time();
 				$error['error'] = $serverInstance->getError();
 				Database::exec("UPDATE `setting_location_info` Set error=:error WHERE serverid=:id", array('id' => $serverid, 'error' => json_encode($error, true)));
@@ -491,7 +494,7 @@ class Page_LocationInfo extends Page
 					$credential['type'] = "array";
 					$credential['array'] = $selection;
 				}
-				
+
 				$backend['credentials'][] = $credential;
 			}
 			$serverBackends[] = $backend;
