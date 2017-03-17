@@ -4,6 +4,7 @@
     "lang_locationName": "Name",
     "lang_locationID": "ID",
     "lang_locationIsHidden": "Hidden",
+    "lang_locationIsHidden_title": "If checked the API doesn't return information about the room.",
     "lang_locationInUse": "In use / total",
     "lang_locationSettings": "Settings",
     "lang_locationConfig": "Config",
@@ -15,9 +16,8 @@
     "lang_pcState": "PC state",
 
     "lang_day": "Day",
-    "lang_openingTime": "Opening time",
+    "lang_openingTime": "Opening times",
     "lang_closingTime": "Closing time",
-    "lang_deleteAll": "Delete all",
 
     "lang_shortMonday": "Mon",
     "lang_shortTuesday": "Tue",
@@ -31,6 +31,7 @@
     "lang_saturday": "Saturday",
     "lang_sunday": "Sunday",
     "lang_expertMode": "Expert mode",
+    "lang_expertMode_title": "Allows you to set openingtimes for every day.",
 
     "lang_language": "Language",
     "lang_languageEn": "en",
@@ -65,9 +66,10 @@
     "lang_autoScale": "Auto scale",
     "lang_deleteConfirmation": "Are you sure?",
     "lang_addServer": "Server",
+    "lang_addServer_title": "Add server",
     "lang_serverTable": "Server List",
     "lang_buildingTable": "Building / Room List",
-    "lang_serverUrl": "Url",
+    "lang_serverUrl": "URL",
     "lang_serverType": "Type",
     "lang_serverUser": "User",
     "lang_serverPassword": "Password",
@@ -75,5 +77,9 @@
     "lang_sID": "sID",
     "lang_server": "Server",
     "lang_serverRoomId": "Server: Room ID",
-    "lang_credentials": "Credentials"
+    "lang_credentials": "Login",
+    "lang_refresh_title": "Checks if the server connection is valid.",
+    "lang_delete": "Delete",
+    "lang_refresh": "Refresh",
+    "lang_general": "General"
 }

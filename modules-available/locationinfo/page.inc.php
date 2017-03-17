@@ -27,10 +27,10 @@ class Page_LocationInfo extends Page
 			$this->updateServer();
 		} elseif ($this->action === 'deleteServer') {
 			$this->deleteServer();
-		} elseif ($this->action === 'updateCredentials') {
-			$this->updateCredentials();
 		} elseif ($this->action === 'checkConnection') {
 			$this->checkConnection();
+		} elseif ($this->action === 'updateServerSettings') {
+			$this->updateServerSettings();
 		}
 	}
 
@@ -109,18 +109,32 @@ class Page_LocationInfo extends Page
 		 Util::redirect('?do=locationinfo');
 	}
 
-	private function updateCredentials() {
-		$serverid = Request::post('id', 0, 'int');
-		$dbresult = Database::queryFirst('SELECT servertype FROM `setting_location_info` WHERE serverid = :id', array('id' => $serverid));
-		$backend = CourseBackend::getInstance($dbresult['servertype']);
+	private function updateServerSettings() {
+		$serverid = Request::post('id', -1, 'int');
+		$servername = Request::post('name', 'unnamed', 'string');
+		$serverurl = Request::post('url', '', 'string');
+		$servertype = Request::post('type', '', 'string');
+
+		$backend = CourseBackend::getInstance($servertype);
 		$tmptypeArray = $backend->getCredentials();
 
 		$credentialsJson = array();
 		foreach ($tmptypeArray as $key => $value) {
 			$credentialsJson[$key] = Request::post($key);
 		}
-		Database::exec('UPDATE `setting_location_info` SET credentials = :credentials WHERE serverid = :id', array('id' => $serverid, 'credentials' => json_encode($credentialsJson, true)));
-		$this->checkConnection();
+		if ($serverid == 0) {
+			Database::exec('INSERT INTO `setting_location_info` (servername, serverurl, servertype, credentials) VALUES (:name, :url, :type, :credentials)',
+			array('name' => $servername, 'url' => $serverurl, 'type' => $servertype, 'credentials' => json_encode($credentialsJson, true)));
+
+			$dbresult = Database::queryFirst('SELECT serverid FROM `setting_location_info` WHERE servername = :name AND serverurl = :url AND servertype = :type AND credentials = :credentials',
+			array('name' => $servername, 'url' => $serverurl, 'type' => $servertype, 'credentials' => json_encode($credentialsJson, true)));
+
+			$this->checkConnection($dbresult['serverid']);
+		} else {
+			Database::exec('UPDATE `setting_location_info` SET servername = :name, serverurl = :url, servertype = :type, credentials = :credentials WHERE serverid = :id',
+			 array('id' => $serverid, 'name' => $servername, 'url' => $serverurl, 'type' => $servertype, 'credentials' => json_encode($credentialsJson, true)));
+			 $this->checkConnection();
+		}
 	}
 
 	private function updateOpeningTimeExpert()
@@ -235,15 +249,17 @@ class Page_LocationInfo extends Page
 		Util::redirect('?do=locationinfo');
 	}
 
-	private function checkConnection() {
+	private function checkConnection($id = 0) {
 		$serverid = Request::post('id', 0, 'int');
+		if ($id != 0) {
+			$serverid = $id;
+		}
 
 		if ($serverid != 0) {
 			$dbresult = Database::queryFirst("SELECT * FROM `setting_location_info` WHERE serverid = :serverid", array('serverid' => $serverid));
 
 			$serverInstance = CourseBackend::getInstance($dbresult['servertype']);
 			$serverInstance->setCredentials(json_decode($dbresult['credentials'], true), $dbresult['serverurl'], $serverid);
-			//$setCred = $serverInstance->fetchSchedule(array(42));
 			$setCred = $serverInstance->checkConnection();
 
 			if (!$setCred) {
@@ -356,10 +372,10 @@ class Page_LocationInfo extends Page
 		$servertypes = array();
 		$s_list = CourseBackend::getList();
 		foreach ($s_list as $s) {
-			$type['type'] = $s;
+			$t['type'] = $s;
 			$typeInstance = CourseBackend::getInstance($s);
-			$type['display'] = $typeInstance->getDisplayName();
-			$servertypes[] = $type;
+			$t['display'] = $typeInstance->getDisplayName();
+			$servertypes[] = $t;
 		}
 
 		// Get the Serverlist from the DB and make it mustache accesable
@@ -368,6 +384,13 @@ class Page_LocationInfo extends Page
 		while($db=$dbquery2->fetch(PDO::FETCH_ASSOC)) {
 			$server['id'] = $db['serverid'];
 			$server['name'] = $db['servername'];
+			$server['type'] = $db['servertype'];
+			foreach ($servertypes as $type) {
+				if ($server['type'] == $type['type']) {
+					$server['display'] = $type['display'];
+					break;
+				}
+			}
 
 			if ($db['error'] == NULL) {
 				$server['auth'] = true;
@@ -377,22 +400,8 @@ class Page_LocationInfo extends Page
 
 				$time = date('Y/m/d H:i:s', $error['timestamp']);
 
-				Message::addError('auth-failed', $server['id'], $time, $error['error']);
+				Message::addError('auth-failed', $server['name'], $time, $error['error']);
 			}
-
-			$serverty = array();
-			foreach ($servertypes as $type) {
-				$st = array();
-				$st['type'] = $type['type'];
-				$st['display'] = $type['display'];
-				if ($type['type'] == $db['servertype']) {
-					$st['active'] = true;
-				} else {
-					$st['active'] = false;
-				}
-				$serverty[] = $st;
-			}
-			$server['types'] = $serverty;
 
 			$server['url'] = $db['serverurl'];
 			$serverlist[] = $server;
@@ -400,7 +409,7 @@ class Page_LocationInfo extends Page
 
 		// Pass the data to the html and render it.
 		Render::addTemplate('location-info', array(
-			'list' => array_values($pcs), 'serverlist' => array_values($serverlist), 'servertypelist' => array_values($servertypes),
+			'list' => array_values($pcs), 'serverlist' => array_values($serverlist),
 		));
 	}
 
@@ -420,47 +429,75 @@ class Page_LocationInfo extends Page
 		} elseif ($action === 'config') {
 			$id = Request::any('id', 0, 'int');
 			$this->ajaxConfig($id);
-		} elseif ($action === 'credentials') {
+		} elseif ($action === 'serverSettings') {
 			$id = Request::any('id', 0, 'int');
-			$this->ajaxCredentials($id);
+			$this->ajaxServerSettings($id);
 		}
 	}
 
-	private function ajaxCredentials($id) {
-		$dbresult = Database::queryFirst('SELECT servertype, credentials FROM `setting_location_info` WHERE serverid = :id', array('id' => $id));
-		$tmpcredentialArray = json_decode($dbresult['credentials'], true);
-		$backend = CourseBackend::getInstance($dbresult['servertype']);
-		$tmptypeArray = $backend->getCredentials();
-		$credentialsArray = array();
-		foreach ($tmptypeArray as $key => $value) {
-			$x['name'] = $key;
+	private function ajaxServerSettings($id) {
+		$dbresult = Database::queryFirst('SELECT servername, serverurl, servertype, credentials FROM `setting_location_info` WHERE serverid = :id', array('id' => $id));
 
-			foreach ($tmpcredentialArray as $ke => $val) {
-				if($ke == $key) {
-					$x['value'] = $val;
-					break;
-				}
+		// Credentials stuff.
+		$dbcredentials = json_decode($dbresult['credentials'], true);
+
+		// Get a list of all the backend types.
+		$serverBackends = array();
+		$s_list = CourseBackend::getList();
+		foreach ($s_list as $s) {
+			$backend['typ'] = $s;
+			$backendInstance = CourseBackend::getInstance($s);
+			$backend['display'] = $backendInstance->getDisplayName();
+
+			if ($backend['typ'] == $dbresult['servertype']) {
+				$backend['active'] = true;
+			} else {
+				$backend['active'] = false;
 			}
-			$x['type'] = $value;
 
-			if (is_array($value)) {
-				$selection = array();
-				foreach ($value as $opt) {
-					$option['option'] = $opt;
-					if ($opt == $x['value']) {
-						$option['active'] = true;
-					} else {
-						$option['active'] = false;
+			$credentials = $backendInstance->getCredentials();
+			$backend['credentials'] = array();
+			foreach ($credentials as $key => $value) {
+				$credential['name'] = $key;
+				$credential['type'] = $value[0];
+				$credential['title'] = $value[1];
+
+				if (Property::getPasswordFieldType() === 'text') {
+					$credential['mask'] = false;
+				} else {
+					$credential['mask'] = $value[2];
+				}
+
+				if ($backend['typ'] == $dbresult['servertype']) {
+					foreach ($dbcredentials as $k => $v) {
+						if($k == $key) {
+							$credential['value'] = $v;
+							break;
+						}
 					}
-					$selection[] = $option;
 				}
-				$x['type'] = "array";
-				$x['array'] = $selection;
+
+				if (is_array($value[0])) {
+					$selection = array();
+					foreach ($value[0] as $opt) {
+						$option['option'] = $opt;
+						if ($opt == $credential['value']) {
+							$option['active'] = true;
+						} else {
+							$option['active'] = false;
+						}
+						$selection[] = $option;
+					}
+					$credential['type'] = "array";
+					$credential['array'] = $selection;
+				}
+				
+				$backend['credentials'][] = $credential;
 			}
-			$credentialsArray[] = $x;
+			$serverBackends[] = $backend;
 		}
 
-		echo Render::parse('credentials', array('id' => $id, 'credentials' => array_values($credentialsArray)));
+		echo Render::parse('server-settings', array('id' => $id, 'name' => $dbresult['servername'], 'url' => $dbresult['serverurl'], 'servertype' => $dbresult['servertype'], 'backendList' => array_values($serverBackends)));
 	}
 
 	private function ajaxTimeTable($id) {
@@ -480,10 +517,16 @@ class Page_LocationInfo extends Page
 			foreach($dbresult as $db) {
 				$index = 0;
 				foreach ($db as $key) {
-					$str = "| ";
+					$str = "";
+
+					$first = true;
 					foreach ($key['days'] as $val) {
+						if ($first) {
+							$first = false;
+						} else {
+							$str .= ", ";
+						}
 						$str .= $val;
-						$str .= " | ";
 					}
 					$ar = array();
 					$ar['days'] = $str;

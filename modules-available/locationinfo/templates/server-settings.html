@@ -1,0 +1,128 @@
+<div>
+	<form method="post" action="?do=locationinfo" id="settingsForm">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="updateServerSettings">
+		<input type="hidden" name="id" value="{{id}}">
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading">{{lang_general}}</div>
+			<div class="panel-body">
+				<div class="list-group">
+
+					<div class="list-group-item">
+						<div class="row">
+							<div class="col-md-3" >
+								<label>{{lang_locationName}}</label>
+							</div>
+							<div class="col-md-8">
+								<input required class="form-control" id="input-name-{{id}}" name="name" type="text" value="{{name}}"></input>
+							</div>
+						</div>
+					</div>
+
+					<div class="list-group-item">
+						<div class="row">
+							<div class="col-md-3">
+								<label>{{lang_serverUrl}}</label>
+							</div>
+							<div class="col-md-8">
+								<input required class="form-control" id="input-url-{{id}}" name="url" type="text" value="{{url}}" ></input>
+							</div>
+						</div>
+					</div>
+
+					<div class="list-group-item">
+						<div class="row">
+							<div class="col-md-3">
+								<label>{{lang_serverType}}</label>
+							</div>
+							<div class="col-md-8">
+
+							<select class="form-control" id="input-type-{{id}}" name="type" value="{{typ}}" onchange="servertype_changed(this.value);">
+									{{#backendList}}
+									<option id="{{typ}}" value="{{typ}}" {{#active}}selected{{/active}}>{{display}}
+									{{/backendList}}
+							</select>
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<div class="panel panel-default" id="credentials-div">
+			<div class="panel-heading">{{lang_credentials}}</div>
+			<div class="panel-body">
+				<div class="list-group" id="credentials-list">
+
+				</div>
+			</div>
+		</div>
+
+		<div id="credentials" class="list-group"></div>
+		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	</form>
+</div>
+<script type="text/javascript">
+	var type = "{{servertype}}";
+	if (type == "") {
+		type = $('#input-type-{{id}}').val();
+	}
+	loadCredentials();
+	function loadCredentials() {
+		// {{name}} name of auth {{type}} type of auth (string, int etc.) {{value}} value from the db
+		{{#backendList}}
+		if (type == "{{typ}}") {
+			{{#credentials}}
+			$('#credentials-div').fadeIn('fast');
+
+			if ("{{type}}" == "string") {
+				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
+				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
+				<div class="col-md-8">\
+				<input required class="form-control" {{#mask}}type="password"{{/mask}}{{^mask}}type="text"{{/mask}} name="{{name}}" value="{{value}}" form="settingsForm">\
+				</div></div></div>');
+			} else if ("{{type}}" == "int") {
+				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
+				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
+				<div class="col-md-8">\
+				<input required class="form-control" {{#mask}}type="password" pattern="[0-9]*"{{/mask}}{{^mask}}type="number"{{/mask}} name="{{name}}" value="{{value}}" form="settingsForm">\
+				</div></div></div>');
+			} else if ("{{type}}" == "bool") {
+				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
+				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
+				<div class="col-md-8">\
+				<input class="form-control" type="checkbox" name="{{name}}" value="true" form="settingsForm" {{#value}}checked{{/value}}>\
+				</div></div></div>');
+			} else if ("{{type}}" == "array") {
+				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
+				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
+				<div class="col-md-8">\
+				<select class="form-control" name="{{name}}" form="settingsForm">\
+				{{#array}}\
+				<option value="{{option}}" {{#active}}selected{{/active}}>{{option}}</option>\
+				{{/array}}\
+				</select>\
+				</div></div></div>');
+			}
+			{{/credentials}}
+			{{^credentials}}
+			$('#credentials-div').hide();
+			{{/credentials}}
+		}
+		{{/backendList}}
+
+	}
+
+	function servertype_changed(value) {
+		type = value;
+		$('#credentials-div').fadeOut('fast', function() {
+			$('#credentials-list').empty();
+			loadCredentials();
+		});
+	}
+
+</script>

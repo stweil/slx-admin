@@ -1,7 +1,7 @@
 <div>
 
 	<div align="right">
-		<label for="CB_1">{{lang_expertMode}}</label>
+		<label for="CB_1" title="{{lang_expertMode_title}}">{{lang_expertMode}}</label>
 		<input class="bs-switch" name="1" id="CB_1" type="checkbox" {{#expertMode}}checked="checked"{{/expertMode}}>
 	</div>
 	<br>
@@ -115,7 +115,6 @@
 					<td>{{openingtime}}</td>
 					<td>{{closingtime}}</td>
 					<td align="center"><input type="checkbox" name="delete[]" value="{{index}}"></td>
-					<!--<td><button class="btn btn-sm btn-danger">X</button></td>-->
 				</tr>
 				{{/openingtimes}}
 
@@ -125,7 +124,6 @@
 			<br>
 			<a class="btn btn-success btn-sm" onclick=newOpeningTime()><span class="glyphicon glyphicon-plus-sign"></span>
 				{{lang_openingTime}}</a>
-			<!--<a class="btn btn-danger btn-sm" onclick=>{{lang_deleteAll}}</a>-->
 			<br>
 			<br>
 			<button type="submit" class="btn btn-primary">{{lang_save}}</button>

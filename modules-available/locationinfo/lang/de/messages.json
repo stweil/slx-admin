@@ -2,7 +2,7 @@
     "no-days-selected": "Es wurden keine Tage ausgewählt.",
     "added-x-entries": "Eintr\u00e4ge hinzugef\u00fcgt: {{0}}",
     "deleted-x-entries": "Eintr\u00e4ge gelöscht: {{0}}",
-    "openingtime-updated": "Öffnungszeiten aktualisierts.",
+    "openingtime-updated": "Öffnungszeiten aktualisiert.",
     "config-saved": "Einstellungen erfolgreich gespeichert.",
     "auth-failed": "[{{0}}] {{1}} Error: {{2}}"
 }
