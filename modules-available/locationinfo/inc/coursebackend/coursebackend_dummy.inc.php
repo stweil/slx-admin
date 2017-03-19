@@ -29,7 +29,8 @@ class Coursebackend_Dummy extends CourseBackend {
 
     public function getCredentials(){
       $options = ["opt1", "opt2", "opt3", "opt4", "opt5", "opt6", "opt7", "opt8"];
-      $credentials = ["username" => ["string", "This is a helptext.", false],"password_str"=>["string", "SOME SECRET PW U WILL NEVER KNOW!", true],"password_int"=>["int", "INT PW", true],"option"=>[$options, "OMG WHAT THE", false], "CheckTheBox" => ["bool", "Test with a cb", false]];
+      $credentials = ["username" => ["string", "This is a helptext.", false],"password_str"=>["string", "SOME SECRET PW U WILL NEVER KNOW!", true],"password int"=>["int", "INT PW", true],"option"=>[$options, "OMG WHAT THE", false], "CheckTheBox" => ["bool", "Test with a cb", false],
+      "CB2 t" => ["bool", "Second checkbox test", false]];
       return $credentials;
     }
 

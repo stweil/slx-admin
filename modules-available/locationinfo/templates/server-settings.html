@@ -83,25 +83,26 @@
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
 				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
 				<div class="col-md-8">\
-				<input required class="form-control" {{#mask}}type="password"{{/mask}}{{^mask}}type="text"{{/mask}} name="{{name}}" value="{{value}}" form="settingsForm">\
+				<input required class="form-control" {{#mask}}type="password"{{/mask}}{{^mask}}type="text"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm">\
 				</div></div></div>');
 			} else if ("{{type}}" == "int") {
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
 				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
 				<div class="col-md-8">\
-				<input required class="form-control" {{#mask}}type="password" pattern="[0-9]*"{{/mask}}{{^mask}}type="number"{{/mask}} name="{{name}}" value="{{value}}" form="settingsForm">\
+				<input required class="form-control" {{#mask}}type="password" pattern="[0-9]*"{{/mask}}{{^mask}}type="number"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm">\
 				</div></div></div>');
 			} else if ("{{type}}" == "bool") {
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
 				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
 				<div class="col-md-8">\
-				<input class="form-control" type="checkbox" name="{{name}}" value="true" form="settingsForm" {{#value}}checked{{/value}}>\
+				<input class="bs-switch" id="bs-{{uid}}" type="checkbox" name="{{uid}}" value="true" form="settingsForm" {{#value}}checked{{/value}}>\
 				</div></div></div>');
+				$('#bs-{{uid}}').bootstrapSwitch();
 			} else if ("{{type}}" == "array") {
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
 				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
 				<div class="col-md-8">\
-				<select class="form-control" name="{{name}}" form="settingsForm">\
+				<select class="form-control" name="{{uid}}" form="settingsForm">\
 				{{#array}}\
 				<option value="{{option}}" {{#active}}selected{{/active}}>{{option}}</option>\
 				{{/array}}\

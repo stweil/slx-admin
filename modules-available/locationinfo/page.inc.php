@@ -119,8 +119,10 @@ class Page_LocationInfo extends Page
 		$tmptypeArray = $backend->getCredentials();
 
 		$credentialsJson = array();
+		$counter = 0;
 		foreach ($tmptypeArray as $key => $value) {
-			$credentialsJson[$key] = Request::post($key);
+			$credentialsJson[$key] = Request::post($counter);
+			$counter++;
 		}
 		if ($serverid == 0) {
 			Database::exec('INSERT INTO `setting_location_info` (servername, serverurl, servertype, credentials) VALUES (:name, :url, :type, :credentials)',
@@ -460,7 +462,10 @@ class Page_LocationInfo extends Page
 
 			$credentials = $backendInstance->getCredentials();
 			$backend['credentials'] = array();
+
+			$counter = 0;
 			foreach ($credentials as $key => $value) {
+				$credential['uid'] = $counter;
 				$credential['name'] = $key;
 				$credential['type'] = $value[0];
 				$credential['title'] = $value[1];
@@ -496,6 +501,8 @@ class Page_LocationInfo extends Page
 				}
 
 				$backend['credentials'][] = $credential;
+
+				$counter++;
 			}
 			$serverBackends[] = $backend;
 		}
