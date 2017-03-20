@@ -323,6 +323,9 @@ function MyDate() {
         this._loadCalEvents(this.element.data('startDate'));
       },
 
+        resizeCalendar:function(){
+        this._resizeCalendar();
+        },
       /*
        * Clear all events currently loaded into the calendar
        */
@@ -1266,10 +1269,12 @@ function MyDate() {
        * Draws a thin line which indicates the current time.
        */
       _drawCurrentHourLine: function() {
+        var self = this;
         var d = new MyDate(),
             options = this.options,
             businessHours = options.businessHours;
 
+          self._scrollToHour(d.getHours() ,false);
         // first, we remove the old hourline if it exists
         $('.wc-hourline', this.element).remove();
 

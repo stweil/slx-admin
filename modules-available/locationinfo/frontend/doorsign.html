@@ -277,8 +277,6 @@ optional:
 		var rooms = {};
 		var lastSwitchTime;
 		var roomsToshow = 0;
-		var lastRoomUpdateTime;
-		var lastCalendarUpdateTime;
 		var roomIds;
 		//Todo change these
 		var CalendarUpdateTime = 60 * 1000;
@@ -336,6 +334,8 @@ optional:
 
 		});
 		// Downloads the config of a room
+
+
 		function getConfig(id, room) {
 			$.ajax({
 				url: "../../../api.php?do=locationinfo&action=config&id=" + id,
@@ -386,6 +386,7 @@ optional:
 
 
 		// gets the Parameter IDs from the Urls
+
 		function getId() {
 			roomIds = getUrlParameter("id");
 			if (roomIds == null) {
@@ -412,6 +413,7 @@ optional:
 		// gets Additional Parameters from the URL, and from the
 		// downloaded json.
 		// also makes sure parameters are in a given range
+
 		function getParamerter(room) {
 			var lang;
 
@@ -515,8 +517,8 @@ optional:
 				height = "50%";
 			}
 			var i = 0;
-			for (var property in rooms) {
-
+			for (var t = 0; t < roomIds.length; t++) {
+			    var property = roomIds[t];
 				var text = "<div class='roompadding'   id ='roompadding_" + rooms[property].id + "'></div>";
 				$("body").append(text);
 
@@ -607,53 +609,48 @@ optional:
 		}
 
 
-		// helper function: checks which rooms are in which mode
-		function getUpdateIdsforMode(modearray) {
-			var roomIdsToUpdate = "";
-			for (var property in rooms) {
-				if (rooms[property].config.mode in modearray) {
-					if (roomIdsToUpdate == "") {
-						roomIdsToUpdate = rooms[property].id;
-					} else {
-						roomIdsToUpdate = roomIdsToUpdate + "," + rooms[property].id;
-					}
-				}
-			}
-			return roomIdsToUpdate;
+		function addIdToUpdateList(list,id) {
+        	if(list=="") {
+                list += id;
+            } else {
+                list +=(","+ id);
+            }
+            return list;
 		}
+
 
 		// Main Update loop, this loop runs every 1 seconds and calls all
 		// function which should be called periodically
+		var timeSteps = 0;
 		function mainUpdateLoop() {
 
-			//todo add config reload
+		    // check ervery 10 sec if rooms need new calendar data or room data
+			// groups request
+			if(timeSteps > 9) {
+			    timeSteps = 0;
+
+                    var calendarUpdateIds ="";
+                    var rommUpdateIds="";
+                    for (var property in rooms) {
+                        if (rooms[property].config.lastCalendarUpdate == null || rooms[property].config.lastCalendarUpdate  + rooms[property].config.calupdate *60* 1000 < MyDate().getTime()) {
+
+                            calendarUpdateIds = addIdToUpdateList(calendarUpdateIds,rooms[property].id);
+                            rooms[property].config.lastCalendarUpdate = MyDate().getTime();
+                        }
+                        if (rooms[property].config.lastRoomUpdate == null || rooms[property].config.lastRoomUpdate  + rooms[property].config.roomupdate *1000 < MyDate().getTime()) {
+                            rommUpdateIds= addIdToUpdateList(rommUpdateIds,rooms[property].id);
+                            rooms[property].config.lastRoomUpdate = MyDate().getTime();
+                        }
+                    }
 
 
-			//updates calendar
-			if (lastCalendarUpdateTime == null || lastCalendarUpdateTime + CalendarUpdateTime < MyDate().getTime()) {
-
-				//Todo
-				var roomIdsToUpdate = getUpdateIdsforMode([1, 2, 3, 4]);
-
-				if (roomIdsToUpdate != "") {
-					// Todo update calendars
-					queryCalendars(roomIdsToUpdate);
-				}
-
-				lastCalendarUpdateTime = MyDate().getTime();
-			}
-
-
-			// updates Pcs states
-			if (lastRoomUpdateTime == null || lastRoomUpdateTime + RoomUpdateTime < MyDate().getTime()) {
-
-				var roomIdsToUpdate = getUpdateIdsforMode([1, 2, 3, 4]);
-
-				if (roomIdsToUpdate != "") {
-					queryRooms(roomIdsToUpdate);
-				}
-				lastRoomUpdateTime = MyDate().getTime();
-			}
+                    if (calendarUpdateIds != "") {
+                        queryCalendars(calendarUpdateIds);
+                    }
+              	  	if (rommUpdateIds != "") {
+                    	queryRooms(rommUpdateIds);
+                	}
+                }
 
 
 			// switches calendar and roomlayout in mode 4
@@ -690,6 +687,7 @@ optional:
 				}
 			}
 			date = now;
+            timeSteps++;
 
 		}
 
@@ -709,6 +707,8 @@ optional:
 				layout: null,
 				freePcs: 0,
 				resized: false,
+				lastCalendarUpdate:null,
+				lastRoomUpdate:null,
 				getState: function () {
 					if (this.state == null) {
 						ComputeCurrentState(this);
@@ -735,7 +735,7 @@ optional:
 			generateCalendarDiv(percent, room);
 			var $calendar = $("#calendar_" + room.id).weekCalendar({
 				timeslotsPerHour: 1,
-				timeslotHeight: 20,
+				timeslotHeight: 30,
 				daysToShow: daysToShow,
 				height: function ($calendar) {
 					var height = $(window).height();
@@ -761,6 +761,7 @@ optional:
 				date: MyDate(),
 				dateFormat: "j.n",
 				timeFormat: "G:i",
+                scrollToHourMillis:500,
 				use24Hour: true,
 				readonly: true,
 				showHeader: false,
@@ -781,7 +782,11 @@ optional:
 		// downloads openingTimes for an room
 		function getOpeningTimes(room) {
 			$.getJSON("../../../api.php?do=locationinfo&action=openingtime&id=" + room.id, function (result) {
-				SetOpeningTimes(result[0].openingtime, room);
+                if(Object.prototype.toString.call( result ) === '[object Array]' ) {
+                    if(result.length > 0){
+                        SetOpeningTimes(result[0].openingtime, room);
+					}
+				}
 				scaleCalendar(room);
 
 			})
@@ -790,6 +795,8 @@ optional:
 
 				})
 		}
+
+
 
 		function generateCalendarDiv(width, room) {
 			var div = document.createElement("div");
@@ -943,16 +950,22 @@ optional:
 				clientHeight -= 22;
 			}
 
-
 			var height = clientHeight / (room.openTimes * cal.weekCalendar("option", "timeslotsPerHour"));
-			cal.weekCalendar("option", "timeslotHeight", height);
-			cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
-		}
-		/**
-		 * @return {string}
-		 * @return {string}
-		 */
 
+
+
+            if(height < 30){
+                height = 30;
+            }
+
+
+			cal.weekCalendar("option", "timeslotHeight", height);
+			if(room.openingTimesCalendar != null) {
+                cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
+            }
+            cal.weekCalendar("resizeCalendar");
+
+		}
 		// used for countdown
 		// computes the time difference between 2 Date objects
 
