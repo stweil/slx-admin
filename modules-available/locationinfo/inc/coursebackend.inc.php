@@ -12,8 +12,10 @@ abstract class CourseBackend
 
 	/**
 	 * @var array list of known backends
-	 * $error boolean true if there was an error
-	 * $errormsg string with the error message
+	 * @var boolean  true if there was an error
+	 * @var string with the error message
+	 * @var int as internal serverID
+	 * @var string url of the service
 	 */
 	private static $backendTypes = false;
 	public $error;
@@ -81,11 +83,6 @@ abstract class CourseBackend
 		return self::$backendTypes[$moduleType];
 	}
 
-
-	/*
-	 * TODO: Insert required methods here
-	 */
-
 	/**
 	 * @return string return display name of backend
 	 */
@@ -93,7 +90,7 @@ abstract class CourseBackend
 
 
 	/**
-	 * @returns array with parameter name as key and type as value
+	 * @returns array with parameter name as key and and an array with type, help text and mask  as value
 	 */
 	public abstract function getCredentials();
 
@@ -106,10 +103,10 @@ abstract class CourseBackend
 	 * uses json to setCredentials, the json must follow the form given in
 	 * getCredentials
 	 *
-	 * @param string $data array with the credentials
+	 * @param array $data with the credentials
 	 * @param string $url address of the server
 	 * @param int $serverID ID of the server
-	 * @returns void
+	 * @returns bool if the credentials were in the correct format
 	 */
 	public abstract function setCredentials($data, $url, $serverID);
 
@@ -127,7 +124,7 @@ abstract class CourseBackend
 	/**
 	 * Internal version of fetch, to be overridden by subclasses.
 	 *
-	 * @param $roomIds
+	 * @param $roomIds array with local ID as key and serverID as value
 	 * @return array a multidimensional array that uses the roomID as key
 	 * and has the schedules as string in the value
 	 */
@@ -136,9 +133,8 @@ abstract class CourseBackend
 	/**
 	 * Method for fetching the schedule of the given rooms on a server.
 	 *
-	 * @param int $roomId int of room ID to fetch
-	 * @param int $serverid id of the server
-	 * @return string|bool some jsonstring as result, or false on error
+	 * @param array $roomId array of room ID to fetch
+	 * @return array|bool array containing the timetables as value and roomid as key as result, or false on error
 	 */
 	public final function fetchSchedule($roomIDs)
 	{
@@ -148,13 +144,14 @@ abstract class CourseBackend
 		$dbquery1 = Database::simpleQuery($q);
 		$result = [];
 		$sRoomIDs = [];
+		$newResult = [];
 		foreach ($dbquery1->fetchAll(PDO::FETCH_ASSOC) as $row) {
 			$sRoomID = $row['serverroomid'];
 			$lastUpdate = $row['lastcalendarupdate'];
 			$calendar = $row['calendar'];
 			//Check if in cache if lastUpdate is null then it is interpreted as 1970
-			if (strtotime($lastUpdate) > strtotime("-" . $this->getCacheTime() . "seconds") && $this->getCacheTime() > 0) {
-				$result[$row['locationid']] = json_decode($calendar);
+			if ($lastUpdate > strtotime("-" . $this->getCacheTime() . "seconds")) {
+				$newResult[$row['locationid']] = json_decode($calendar);
 			} else {
 				$sRoomIDs[$row['locationid']] = $sRoomID;
 			}
@@ -176,7 +173,7 @@ abstract class CourseBackend
 		if ($results === false) {
 			return false;
 		}
-		$newResult = [];
+
 		foreach ($sRoomIDs as $location => $serverRoom) {
 			$newResult[$location] = $results[$serverRoom];
 		}
@@ -205,5 +202,59 @@ abstract class CourseBackend
 		}
 		return false;
 	}
+	/**
+	 * Query path in array-representation of XML document.
+	 * e.g. 'path/syntax/foo/wanteditem'
+	 * This works for intermediate nodes (that have more children)
+	 * and leaf nodes. The result is always an array on success, or
+	 * false if not found.
+	 */
+	function getAttributes($array, $path)
+	{
+		if (!is_array($path)) {
+			// Convert 'path/syntax/foo/wanteditem' to array for further processing and recursive calls
+			$path = explode('/', $path);
+		}
+		do {
+			// Get next element from array, loop to ignore empty elements (so double slashes in the path are allowed)
+			$element = array_shift($path);
+		} while (empty($element) && !empty($path));
+		if (!isset($array[$element])) {
+			// Current path element does not exist - error
+			return false;
+		}
+		if (empty($path)) {
+			// Path is now empty which means we're at 'wanteditem' from out example above
+			if (!is_array($array[$element]) || !isset($array[$element][0])) {
+				// If it's a leaf node of the array, wrap it in plain array, so the function will
+				// always return an array on success
+				return array($array[$element]);
+			}
+			// 'wanteditem' is not a unique leaf node, return as is
+			// This means it's either a plain array, in case there are multiple 'wanteditem' elements on the same level
+			// or it's an associative array if 'wanteditem' has any sub-nodes
+			return $array[$element];
+		}
+		// Recurse
+		if (!is_array($array[$element])) {
+			// We're in the middle of the requested path, but the current element is already a leaf node with no
+			// children - error
+			return false;
+		}
+		if (isset($array[$element][0])) {
+			// The currently handled element of the path exists multiple times on the current level, so it is
+			// wrapped in a plain array - recurse into each one of them and merge the results
+			$return = [];
+			foreach ($array[$element] as $item) {
+				$test = $this->getAttributes($item, $path);
+				If(gettype($test) == "array" ){
+					$return = array_merge($return, $test);
+				}
 
+			}
+			return $return;
+		}
+		// Unique non-leaf node - simple recursion
+		return $this->getAttributes($array[$element], $path);
+	}
 }
