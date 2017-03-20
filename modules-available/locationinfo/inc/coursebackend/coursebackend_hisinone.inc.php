@@ -265,7 +265,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			$timetable = array();
 			//Here I go over the soapresponse
 			foreach ($events as $event) {
-				$name = $this->getAttributes($event,'/hisunit/defaulttext');
+				$name = $this->getAttributes($event,'/hisunit/hisdefaulttext');
 				if($name==false){
 					//if HisInOne has no default text then there is no name
 					$name = [''];
