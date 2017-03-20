@@ -5,9 +5,24 @@
 		<div class="panel-heading">{{lang_httpsSettings}}</div>
 		<div class="panel-body">
 			<p>{{lang_httpsDescription}}</p>
-			{{^httpsEnabled}}
-			<p>{{lang_HttpsIsDisabled}}</p>
-			{{/httpsEnabled}}
+			{{^httpsUsed}}
+			{{lang_youreNotUsingHttps}}
+			{{/httpsUsed}}
+			{{#httpsUsed}}
+			{{lang_youreUsingHttps}}
+			{{/httpsUsed}}
+			{{#offSelected}}
+			<p>{{lang_offSelected}}</p>
+			{{/offSelected}}
+			{{#unknownSelected}}
+			<p>{{lang_unknownSelected}}</p>
+			{{/unknownSelected}}
+			{{#generatedSelected}}
+			<p>{{lang_generatedSelected}}</p>
+			{{/generatedSelected}}
+			{{#suppliedSelected}}
+			<p>{{lang_suppliedSelected}}</p>
+			{{/suppliedSelected}}
 			{{#httpsEnabled}}
 			<div class="input-group" onclick="$('#moff').prop('checked', true);
 					$('#wcustom').hide()">
@@ -31,6 +46,7 @@
 					{{lang_customCert}}
 				</span>
 			</div>
+
 			<div class="well well-sm" style="display:none" id="wcustom">
 				{{lang_certificate}}
 				<pre class="small">
@@ -52,6 +68,16 @@ MIIFfTCCA...
 				<textarea name="cachain" class="form-control small" cols="101" rows="10"></textarea>
 				<hr>
 			</div>
+
+			<br>
+			<div class="input-group">
+				<span class="input-group-addon"><input id="httpsredirect" type="checkbox" name="httpsredirect" value="on" {{redirect_checked}}></span>
+				<span class="form-control" onclick="$('#httpsredirect').prop('checked', !$('#httpsredirect').prop('checked'))">
+					{{lang_httpsRedirect}}
+				</span>
+			</div>
+			<br>
+
 			<div class="pull-right">
 				<button type="submit" class="btn btn-primary">{{lang_save}}</button>
 			</div>

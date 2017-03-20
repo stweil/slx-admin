@@ -1,0 +1,6 @@
+{
+    "https-on-cert-missing": "HTTPS ist aktiviert, das Zertifikat ist jedoch nicht vorhanden. Bitte nehmen Sie die HTTPS-Konfiguration erneut vor.",
+    "https-used-without-cert": "HTTPS wird gerade verwendet, obwohl kein Zertifikat installiert ist. Falls Sie die Webserver-Konfiguration manuell angepasst haben, um HTTPS zu aktivieren beachten Sie bitte, dass die Konfiguration bei einem zuk\u00fcnftigen Server-Update ohne Nachfrage \u00fcberschrieben werden k\u00f6nnte.",
+    "https-want-off-is-used": "HTTPS wird gerade verwendet, obwohl es laut Einstellungen deaktiviert ist. Merkw\u00fcrdig.",
+    "https-want-redirect-is-plain": "Weiterleitung von HTTP auf HTTPS ist aktiviert, trotzdem scheint die Verbindung Ihres Browsers mit dem Server unverschl\u00fcsselt zu sein. Nehmen Sie die Konfiguration erneut vor und wenden Sie sich an den Support, wenn das Problem weiterhin besteht."
+}
