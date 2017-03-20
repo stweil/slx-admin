@@ -346,7 +346,6 @@ function getChildsRecursive($id, &$filteredIdList)
 // ########## <Calendar> ###########
 function getCalendar($idList)
 {
-
 	$serverList = array();
 
 	if (!empty($idList)) {
@@ -380,7 +379,6 @@ function getCalendar($idList)
 		}
 
 		$formattedArray = array();
-		$resultarray = array();
 		if ($calendarFromBackend === false || $setCred === false) {
 			$error['timestamp'] = time();
 			$error['error'] = $serverInstance->getError();
