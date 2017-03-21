@@ -18,6 +18,8 @@ if (RemoteReport::isReportingEnabled()) {
 
 		if ($code != 200) {
 			EventLog::warning("Statistics Reporting failed: " . $code, $result);
+		} else {
+			EventLog::info('Statistics report sent to ' . CONFIG_REPORTING_URL);
 		}
 	}
 }
