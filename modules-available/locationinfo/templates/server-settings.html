@@ -82,12 +82,20 @@
 	loadCredentials();
 	initalizeBootstrap();
 
+	/**
+	 * Initialize the bootstrap elements.
+	 */
 	function initalizeBootstrap() {
 		$('#help-name').tooltip();
 		$('#help-url').tooltip();
 		$('#help-type').tooltip();
 	}
 
+	/**
+	 * Loads the dynamic credentials forms.
+	 *
+	 * @param {bool} useValue If false the form elements will be empty. Default = true.
+	 */
 	function loadCredentials(useValue = true) {
 		// {{name}} name of auth {{type}} type of auth (string, int etc.) {{value}} value from the db
 		{{#backendList}}
@@ -145,6 +153,11 @@
 
 	}
 
+	/**
+	 * After the servertype switch changed, the new credentials needs to be loaded.
+	 *
+	 * @param {string} value The new type of the server which credentials needs to be loaded.
+	 */
 	function servertype_changed(value) {
 		type = value;
 		$('#credentials-div').fadeOut('fast', function() {

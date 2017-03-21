@@ -2,6 +2,9 @@
 
 HandleParameters();
 
+/**
+ * Handles the API paramenters.
+ */
 function HandleParameters()
 {
 
@@ -36,6 +39,12 @@ function HandleParameters()
 	}
 }
 
+/**
+ * Filters the id list. Removes Double / non-int / hidden rooms.
+ *
+ * @param $roomids Array of the room ids.
+ * @return array The filtered array of the room ids.
+ */
 function filterIdList($roomids)
 {
 	$idList = explode(',', $roomids);
@@ -46,6 +55,12 @@ function filterIdList($roomids)
 	return $filteredIdList;
 }
 
+/**
+ * Filters the hidden rooms from an array.
+ *
+ * @param $idArray Id list
+ * @return array Filtered id list
+ */
 function filterHiddenRoom($idArray)
 {
 	$filteredArray = array();
@@ -67,7 +82,13 @@ function filterHiddenRoom($idArray)
 }
 
 // ########## <Roominfo> ##########
-
+/**
+ * Gets the room info of the given rooms.
+ *
+ * @param $idList Array list of ids.
+ * @param bool $coords Defines if coords should be included or not.
+ * @return string Roominfo JSON
+ */
 function getRoomInfo($idList, $coords = false)
 {
 
@@ -125,7 +146,12 @@ function getRoomInfo($idList, $coords = false)
 // ########## </Roominfo> ###########
 
 // ########## <Openingtime> ##########
-
+/**
+ * Gets the Opening time of the given locations.
+ *
+ * @param $idList Array list of locations
+ * @return string Opening times JSON
+ */
 function getOpeningTime($idList)
 {
 	$dbresult = array();
@@ -172,7 +198,12 @@ function getOpeningTime($idList)
 	return json_encode($finalArray, true);
 }
 
-// Format the openingtime in the frontend needed format.
+/**
+ * Format the openingtime in the frontend needed format.
+ *
+ * @param $openingtime The opening time in the db saved format.
+ * @return mixed The opening time in the frontend needed format.
+ */
 function formatOpeningtime($openingtime)
 {
 	$weekarray = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
@@ -202,6 +233,12 @@ function formatOpeningtime($openingtime)
 	return $result;
 }
 
+/**
+ * Recursively gets the opening time from the parent location.
+ *
+ * @param $locationID Id of the location you want to get the parent opening time.
+ * @return array|mixed The opening time from the parent location.
+ */
 function getOpeningTimesFromParent($locationID)
 {
 	// Get parent location id.
@@ -223,6 +260,11 @@ function getOpeningTimesFromParent($locationID)
 	}
 }
 
+/**
+ * Creates the basic opening time where everything is closed.
+ *
+ * @return array Basic opening time.
+ */
 function createBasicClosingTime()
 {
 	$weekarray = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
@@ -241,7 +283,11 @@ function createBasicClosingTime()
 }
 
 // ########## </Openingtime> ##########
-
+/**
+ * Gets the config of the location.
+ *
+ * @param $locationID ID of the location
+ */
 function getConfig($locationID)
 {
 	$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverroomid, s.servertype, s.serverurl FROM `location_info` AS li
@@ -266,6 +312,12 @@ function getConfig($locationID)
 	}
 }
 
+/**
+ * Gets the pc states of the given locations.
+ *
+ * @param $idList Array list of the location ids.
+ * @return string PC state JSON
+ */
 function getPcStates($idList)
 {
 	$pcStates = array();
@@ -299,6 +351,12 @@ function getPcStates($idList)
 	return json_encode($pcStates);
 }
 
+/**
+ * Gets the room tree of the given locations.
+ *
+ * @param $idList Array list of the locations.
+ * @return string Room tree JSON.
+ */
 function getRoomTree($idList)
 {
 	$roomTree = array();
@@ -318,6 +376,13 @@ function getRoomTree($idList)
 	return json_encode($roomTree);
 }
 
+/**
+ * Recursively gets the Childs of a location.
+ *
+ * @param $id Location id you want all childs from.
+ * @param $filteredIdList Pointer to the filtered list to avoid double ids.
+ * @return array List with all the Childs.
+ */
 function getChildsRecursive($id, &$filteredIdList)
 {
 	$dbquery = Database::simpleQuery("SELECT locationid, locationname FROM `location` WHERE parentlocationid=:locationID", array('locationID' => $id));
@@ -344,6 +409,12 @@ function getChildsRecursive($id, &$filteredIdList)
 }
 
 // ########## <Calendar> ###########
+/**
+ * Gets the calendar of the given ids.
+ *
+ * @param $idList Array list with the location ids.
+ * @return string Calendar JSON.
+ */
 function getCalendar($idList)
 {
 	$serverList = array();

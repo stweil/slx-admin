@@ -279,7 +279,9 @@
 	initBootstrap();
 	loadValues();
 
-
+	/**
+	 * Initialize the bootstrap elements.
+	 */
 	function initBootstrap() {
 		// Init Bootstrap stuff.
 		$('#help-updateroom').tooltip();
@@ -298,6 +300,9 @@
 		$('#help-switchtime').tooltip();
 	}
 
+	/**
+	 * Loads the Values in the config form elements.
+	 */
 	function loadValues() {
 		$("#{{language}}").attr("selected", "selected");
 
@@ -394,14 +399,29 @@
 		modeChange(mode.val());
 	}
 
+	/**
+	 * Updates the value from the scale slider.
+	 *
+	 * @param newValue The new value the scale slider was set to.
+	 */
 	function showScaleValue(newValue) {
 		$("#scale").text(newValue + " %");
 	}
 
+	/**
+	 * Updates the value from the switchtime slider.
+	 *
+	 * @param newValue The new value the switchtime slider was set to.
+	 */
 	function showSwitchValue(newValue) {
 		$("#switch").text(newValue + " " + '{{lang_sec}}');
 	}
 
+	/**
+	 * If the mode was changed the mode settings have to be adjusted.
+	 *
+	 * @param value The new mode that was set. 1-4
+	 */
 	function modeChange(value) {
 		$('#item-vertical').hide();
 		$('#item-autoscale').hide();
@@ -429,6 +449,11 @@
 		}
 	}
 
+	/**
+	 * If the auto scale changes the days to show must be shown / hided
+	 *
+	 * @param value The new value of the autoscale switch.
+	 */
 	function autoScaleChange(value) {
 		autoscale = value;
 		if (value) {

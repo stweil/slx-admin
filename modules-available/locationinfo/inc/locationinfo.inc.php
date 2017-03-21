@@ -3,6 +3,12 @@
 class LocationInfo
 {
 
+	/**
+	 * Gets the pc data and returns it's state.
+	 *
+	 * @param $pc The pc data from the db. Array('logintime' =>, 'lastseen' =>, 'lastboot' =>)
+	 * @return int pc state
+	 */
 	public static function getPcState($pc)
 	{
 		/*   pcState:
