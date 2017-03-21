@@ -81,8 +81,13 @@ class Page_ServerSetup extends Page
 			return false;
 		}
 
-		if ($this->taskStatus['statusCode'] === TASK_WAITING) { // TODO: Async if just displaying
-			$this->taskStatus = Taskmanager::waitComplete($this->taskStatus['id']);
+		if (!Taskmanager::isFinished($this->taskStatus)) { // TODO: Async if just displaying
+			$this->taskStatus = Taskmanager::waitComplete($this->taskStatus['id'], 4000);
+		}
+
+		if (Taskmanager::isFailed($this->taskStatus) || !isset($this->taskStatus['data']['addresses'])) {
+			$this->taskStatus['data']['addresses'] = false;
+			return false;
 		}
 
 		$sortIp = array();

@@ -50,7 +50,7 @@ foreach (Hook::load('cron') as $hook) {
 			continue;
 		}
 	}
-	$value = $hook . '|' . time();
+	$value = $hook->moduleId . '|' . time();
 	Property::addToList(CRON_KEY_STATUS, $value, 1800);
 	handleModule($hook->file);
 	Property::removeFromList(CRON_KEY_STATUS, $value);

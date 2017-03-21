@@ -375,7 +375,7 @@ SADFACE;
 	 * @param bool $secure true = only use strong random sources
 	 * @return string|bool string of requested length, false on error
 	 */
-	public static function randomBytes($length, $secure)
+	public static function randomBytes($length, $secure = true)
 	{
 		if (function_exists('random_bytes')) {
 			return random_bytes($length);
