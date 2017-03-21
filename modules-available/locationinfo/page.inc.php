@@ -101,6 +101,10 @@ class Page_LocationInfo extends Page
 		$serverid = Request::post('serverid', 0, 'int');
 		$serverroomid = Request::post('serverroomid','', 'string');
 
+		error_log("eco: " . $result['eco']);
+		error_log("vertical: " . $result['vertical']);
+		error_log("scaledaysauto: " . $result['scaledaysauto']);
+
 		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config) VALUES (:id, :serverid, :serverroomid, :config)
 		 ON DUPLICATE KEY UPDATE config=:config, serverid=:serverid, serverroomid=:serverroomid",
 		 array('id' => $locationid, 'config' => json_encode($result, true), 'serverid' => $serverid, 'serverroomid' => $serverroomid));

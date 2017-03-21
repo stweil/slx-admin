@@ -95,11 +95,11 @@
 			}
 			cb.addEventListener("click", function() { cbClick(this, {{locationid}}); });
 			</script>
-			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button"
-																	  onclick="loadTimeModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-time"></span>{{lang_openingTime}}</a>
+			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" style="width: 100%"
+																	  onclick="loadTimeModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-time"></span></a>
 			</td>
-			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button"
-																	  onclick="loadConfigModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>{{lang_locationSettings}}</a>
+			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" style="width: 100%;"
+																	  onclick="loadConfigModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span></a>
 			</td>
 		</tr>
 
