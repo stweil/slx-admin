@@ -279,13 +279,7 @@ optional:
 		var roomsToshow = 0;
 		var roomIds;
 		//Todo change these
-		var CalendarUpdateTime = 60 * 1000;
-		var RoomUpdateTime = 60 * 1000;
-
 		var date;
-
-		var configJson;
-
 		var supportSvg = typeof SVGRect != "undefined";
 		var calendarQueryUrl;
 		var translation = {
@@ -317,12 +311,7 @@ optional:
 
 			}
 		};
-		var overlay = {
-			"1": { 	name:"1.svg",
-					class:"overlay1"
 
-			}
-		}
 
 
 		$(document).ready(function () {
@@ -343,7 +332,7 @@ optional:
 				cache: false,
 				timeout: 30000,
 				success: function (result) {
-					if (configJson == null) {
+					if (room == null) {
 						if (result.room == null) {
 							// Todo Error Handling: wrong id?
 							return;
@@ -621,23 +610,25 @@ optional:
 
 		// Main Update loop, this loop runs every 1 seconds and calls all
 		// function which should be called periodically
-		var timeSteps = 0;
+		var timeSteps = 10;
+
 		function mainUpdateLoop() {
 
 		    // check ervery 10 sec if rooms need new calendar data or room data
 			// groups request
+
 			if(timeSteps > 9) {
 			    timeSteps = 0;
 
                     var calendarUpdateIds ="";
                     var rommUpdateIds="";
                     for (var property in rooms) {
-                        if (rooms[property].config.lastCalendarUpdate == null || rooms[property].config.lastCalendarUpdate  + rooms[property].config.calupdate *60* 1000 < MyDate().getTime()) {
+                        if (rooms[property].config.lastCalendarUpdate == null || rooms[property].config.lastCalendarUpdate  + rooms[property].config.calupdate < MyDate().getTime()) {
 
                             calendarUpdateIds = addIdToUpdateList(calendarUpdateIds,rooms[property].id);
                             rooms[property].config.lastCalendarUpdate = MyDate().getTime();
                         }
-                        if (rooms[property].config.lastRoomUpdate == null || rooms[property].config.lastRoomUpdate  + rooms[property].config.roomupdate *1000 < MyDate().getTime()) {
+                        if (rooms[property].config.lastRoomUpdate == null || rooms[property].config.lastRoomUpdate  + rooms[property].config.roomupdate < MyDate().getTime()) {
                             rommUpdateIds= addIdToUpdateList(rommUpdateIds,rooms[property].id);
                             rooms[property].config.lastRoomUpdate = MyDate().getTime();
                         }
@@ -731,6 +722,7 @@ optional:
 		}
 
 		// inilizes the Calendar for an room
+
 		function setUpCalendar(percent, daysToShow, room) {
 			generateCalendarDiv(percent, room);
 			var $calendar = $("#calendar_" + room.id).weekCalendar({
