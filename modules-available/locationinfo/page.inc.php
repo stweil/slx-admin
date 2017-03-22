@@ -114,9 +114,9 @@ class Page_LocationInfo extends Page
 		error_log("vertical: " . $result['vertical']);
 		error_log("scaledaysauto: " . $result['scaledaysauto']);
 
-		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config) VALUES (:id, :serverid, :serverroomid, :config)
-		 ON DUPLICATE KEY UPDATE config=:config, serverid=:serverid, serverroomid=:serverroomid",
-		 array('id' => $locationid, 'config' => json_encode($result, true), 'serverid' => $serverid, 'serverroomid' => $serverroomid));
+		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config, lastcalendarupdate) VALUES (:id, :serverid, :serverroomid, :config, :lastcalendarupdate)
+		 ON DUPLICATE KEY UPDATE config=:config, serverid=:serverid, serverroomid=:serverroomid, lastcalendarupdate=:lastcalendarupdate",
+		 array('id' => $locationid, 'config' => json_encode($result, true), 'serverid' => $serverid, 'serverroomid' => $serverroomid, 'lastcalendarupdate' => 0));
 
 		 Message::addSuccess('config-saved');
 		 Util::redirect('?do=locationinfo');

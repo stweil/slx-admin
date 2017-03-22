@@ -56,7 +56,7 @@
 										<label>{{lang_language}}</label>
 									</div>
 									<div class="col-md-7">
-										<select class="form-control" name="language">
+										<select class="form-control" name="language" id="language" onchange="modifyCustomUrl('&amp;language=', this.value);">
 											<option value="en" id="en">{{lang_languageEn}}</option>
 											<option value="de" id="de">{{lang_languageDe}}</option>
 											<option value="pt" id="pt">{{lang_languagePt}}</option>
@@ -74,7 +74,7 @@
 										<label>{{lang_mode}}</label>
 									</div>
 									<div class="col-md-7">
-										<select class="form-control" name="mode" onchange="modeChange(this.value);">
+										<select class="form-control" name="mode" id="mode" onchange="modeChange(this.value);modifyCustomUrl('&amp;mode=', this.value);">
 											<option value="1" id="mode1">{{lang_mode1}}</option>
 											<option value="2" id="mode2">{{lang_mode2}}</option>
 											<option value="3" id="mode3">{{lang_mode3}}</option>
@@ -148,7 +148,7 @@
 										<label>{{lang_daysToShow}}</label>
 									</div>
 									<div class="col-md-7" >
-										<select class="form-control" name="daystoshow">
+										<select class="form-control" id="daystoshow" name="daystoshow" onchange="modifyCustomUrl('&amp;daystoshow=', this.value);">
 											<option value="1" id="day1">1</option>
 											<option value="2" id="day2">2</option>
 											<option value="3" id="day3">3</option>
@@ -170,7 +170,7 @@
 										<label>{{lang_rotation}}</label>
 									</div>
 									<div class="col-md-7">
-										<select class="form-control" name="rotation">
+										<select class="form-control" id="rotation" name="rotation" onchange="modifyCustomUrl('&amp;rotation=', this.value);">
 											<option value="0" id="rotation0">{{lang_rotation0}}</option>
 											<option value="3" id="rotation3">{{lang_rotation3}}</option>
 											<option value="2" id="rotation2">{{lang_rotation2}}</option>
@@ -190,7 +190,7 @@
 									</div>
 									<div class="col-md-7" >
 										<span id="scale">50 %</span>
-										<input name="scale" id="sl_scale" type="range" step="1" min="10" max="90" value="50" oninput="showScaleValue(this.value)"/>
+										<input name="scale" id="sl_scale" type="range" step="1" min="10" max="90" value="50" oninput="showScaleValue(this.value)" onchange="modifyCustomUrl('&amp;scale=', this.value);"/>
 									</div>
 									<div class="col-md-2">
 										<a class="btn btn-default" id="help-scale" title="{{lang_scaleTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -205,7 +205,7 @@
 									</div>
 									<div class="col-md-7" >
 										<span id="switch">20 {{lang_sec}}</span>
-										<input name="switchtime" id="sl_switch" type="range" step="1" min="1" max="120" value="20" oninput="showSwitchValue(this.value)"/>
+										<input name="switchtime" id="sl_switch" type="range" step="1" min="1" max="120" value="20" oninput="showSwitchValue(this.value)" onchange="modifyCustomUrl('&amp;switchtime=', this.value);"/>
 									</div>
 									<div class="col-md-2">
 										<a class="btn btn-default" id="help-switchtime" title="{{lang_switchTimeTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -228,7 +228,7 @@
 										<label>{{lang_calendar}}</label>
 									</div>
 									<div class="col-md-7" >
-										<input class="form-control" id="updateCalendar" name="calupdate" type="number" min="0" max="1440"/>
+										<input class="form-control" id="updateCalendar" name="calupdate" type="number" min="0" max="1440" onchange="modifyCustomUrl('&amp;calupdate=', this.value);"/>
 									</div>
 									<div class="col-md-2">
 										<a class="btn btn-default" id="help-updatecalendar" title="{{lang_calupdateTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -242,7 +242,7 @@
 										<label>{{lang_room}}</label>
 									</div>
 									<div class="col-md-7" >
-										<input class="form-control" id="updateRoom" name="roomupdate" type="number" min="0" max="86400"/>
+										<input class="form-control" id="updateRoom" name="roomupdate" type="number" min="0" max="86400" onchange="modifyCustomUrl('&amp;roomupdate=', this.value);"/>
 									</div>
 									<div class="col-md-2">
 										<a class="btn btn-default" id="help-updateroom" title="{{lang_roomupdateTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -256,7 +256,7 @@
 										<label>{{lang_config}}</label>
 									</div>
 									<div class="col-md-7" >
-										<input class="form-control" id="updateConfig" name="configupdate" type="number" min="0" max="1440"/>
+										<input class="form-control" id="updateConfig" name="configupdate" type="number" min="0" max="1440" onchange="modifyCustomUrl('&amp;configupdate=', this.value);"/>
 									</div>
 									<div class="col-md-2">
 										<a class="btn btn-default" id="help-updateconfig" title="{{lang_configupdateTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -268,16 +268,73 @@
 					</div>
 				</div>
 
-		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+				<div class="panel panel-default">
+					<div class="panel-heading">{{lang_customUrl}}</div>
+					<div class="panel-body">
+						<div class="list-group">
 
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_serverUrl}}</label>
+									</div>
+									<div class="col-md-7" >
+										<input readonly class="form-control" id="custom-url" type="text"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-customURL" title="{{lang_customUrlTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
 	</form>
 </div>
 
 <script type="text/javascript">
 
+	var customURL = "http://" + window.location.hostname + "/slx-admin/modules-available/locationinfo/frontend/doorsign.html?id={{id}}";
+	$('#custom-url').val(customURL);
 	var autoscale = '{{scaledaysauto}}';
 	initBootstrap();
 	loadValues();
+	initCustomUrl();
+
+	/**
+	 * Initialize the url preview.
+	 */
+	function initCustomUrl() {
+		$('#daystoshow').change();
+		$('#rotation').change();
+		$('#sl_scale').change();
+		$('#sl_switch').change();
+		$('#updateCalendar').change();
+		$('#updateRoom').change();
+		$('#updateConfig').change();
+		$('#language').change();
+		$('#mode').change();
+	}
+
+	/**
+	 * Modifies the url preview.
+	 */
+	function modifyCustomUrl(parameter, value) {
+		if (!value) {
+			var reExp = new RegExp(parameter +"[0-9a-zA-Z]*");
+			customURL = customURL.replace(reExp, "");
+		} else if (customURL.search(parameter) > 0) {
+			var reExp = new RegExp(parameter +"[0-9a-zA-Z]*");
+			customURL = customURL.replace(reExp, parameter + value);
+		} else {
+			customURL += parameter + value;
+		}
+
+		$('#custom-url').val(customURL);
+
+		console.log(customURL);
+	}
 
 	/**
 	 * Initialize the bootstrap elements.
@@ -298,6 +355,18 @@
 		$('#help-autoscale').tooltip();
 		$('#help-scale').tooltip();
 		$('#help-switchtime').tooltip();
+		$('#help-customURL').tooltip();
+	}
+
+	/**
+	 * Converts an int value to bool. 1 = true else false
+	 */
+	function intToBool(int) {
+		if (int == 1) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -324,7 +393,10 @@
 			} else {
 				$('#cb_input_vertical').val(0);
 			}
+			modifyCustomUrl("&vertical=", value);
 		});
+
+		modifyCustomUrl("&vertical=", intToBool({{vertical}}));
 
 		$('#cb_eco').bootstrapSwitch({
 			state: '{{eco}}',
@@ -336,7 +408,9 @@
 			} else {
 				$('#cb_input_eco').val(0);
 			}
+			modifyCustomUrl("&eco=", value);
 		});
+		modifyCustomUrl("&eco=", intToBool({{eco}}));
 
 		$('#cb_autoScale').bootstrapSwitch({
 			state: '{{scaledaysauto}}',
@@ -350,7 +424,9 @@
 				$('#cb_input_autoScale').val(0);
 			}
 			autoScaleChange(value);
+			modifyCustomUrl("&scaledaysauto=", value);
 		});
+		modifyCustomUrl("&scaledaysauto=", intToBool({{scaledaysauto}}));
 
 		var day = $("#{{daystoshow}}");
 		if (!day.length) {

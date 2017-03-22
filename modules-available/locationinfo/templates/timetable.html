@@ -1,5 +1,4 @@
 <div>
-
 	<div align="right">
 		<label for="CB_1" title="{{lang_expertMode_title}}">{{lang_expertMode}}</label>
 		<input class="bs-switch" name="1" id="CB_1" type="checkbox" {{#expertMode}}checked="checked"{{/expertMode}}>
@@ -7,7 +6,7 @@
 	<br>
 
 	<div id="easyMode" style="{{#expertMode}}display: none;{{/expertMode}}">
-		<form method="post" action="?do=locationinfo" id="timeForm">
+		<form method="post" action="?do=locationinfo" id="timeFormEasy">
 			<input type="hidden" name="token" value="{{token}}">
 			<input type="hidden" name="action" value="updateOpeningTimeEasy">
 			<input type="hidden" name="id" value="{{id}}">
@@ -84,17 +83,11 @@
 					</td>
 				</tr>
 			</table>
-
-			<br>
-			<br>
-			<br>
-			<button type="submit" class="btn btn-primary">{{lang_save}}</button>
-			<br>
 		</form>
 	</div>
 
 	<div id="expertMode" style="{{#easyMode}}display: none;{{/easyMode}}">
-		<form method="post" action="?do=locationinfo" id="timeForm">
+		<form method="post" action="?do=locationinfo" id="timeFormExpert">
 			<input type="hidden" name="token" value="{{token}}">
 			<input type="hidden" name="action" value="updateOpeningTimeExpert">
 			<input type="hidden" name="id" value="{{id}}">
@@ -124,10 +117,6 @@
 			<br>
 			<a class="btn btn-success btn-sm" onclick=newOpeningTime()><span class="glyphicon glyphicon-plus-sign"></span>
 				{{lang_openingTime}}</a>
-			<br>
-			<br>
-			<button type="submit" class="btn btn-primary">{{lang_save}}</button>
-			<br>
 		</form>
 	</div>
 </div>
@@ -140,11 +129,19 @@
 		if (data == false) {
 			$('#expertMode').hide();
 			$('#easyMode').show();
+			$('#myModalSubmitButton').attr("Form", "timeFormEasy");
 		} else {
 			$('#easyMode').hide();
 			$('#expertMode').show();
+			$('#myModalSubmitButton').attr("Form", "timeFormExpert");
 		}
 	});
+
+	if ('{{easyMode}}' == true) {
+		$('#myModalSubmitButton').attr("Form", "timeFormEasy");
+	} else if ('{{expertMode}}' == true) {
+		$('#myModalSubmitButton').attr("Form", "timeFormExpert");
+	}
 
 	/**
 	 * Sets the timepicker element.

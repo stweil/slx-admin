@@ -113,6 +113,8 @@
 				<div class="modal-header" id="myModalHeader"></div>
 				<div class="modal-body" id="myModalBody"></div>
 				<div class="modal-footer">
+					<button type="submit" id="myModalSubmitButton" class="btn btn-primary" form="">{{lang_save}}</button>
+
 					<a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a>
 				</div>
 			</div>
@@ -148,7 +150,7 @@
 	 */
 	function loadSettingsModal(serverid, servername) {
 		$('#myModalHeader').text("{{lang_locationSettings}}").css("font-weight", "Bold");
-
+		$('#myModalSubmitButton').attr("Form", "settingsForm");
 		$('#myModal').modal('show');
 		$('#myModalBody').load("?do=locationinfo&action=serverSettings&id=" + serverid);
 	}
@@ -161,7 +163,6 @@
 	 */
 	function loadTimeModal(locationId, locationName) {
 		$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight", "Bold");
-
 		$('#myModal').modal('show');
 		$('#myModalBody').load("?do=locationinfo&action=timetable&id=" + locationId);
 	}
@@ -174,7 +175,7 @@
 	 */
 	function loadConfigModal(locationId, locationName) {
 		$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight", "Bold");
-
+		$('#myModalSubmitButton').attr("Form", "configForm");
 		$('#myModal').modal('show');
 		$('#myModalBody').load("?do=locationinfo&action=config&id=" + locationId);
 	}

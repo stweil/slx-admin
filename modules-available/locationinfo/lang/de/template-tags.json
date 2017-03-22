@@ -75,6 +75,8 @@
     "lang_serverTable": "Server Liste",
     "lang_buildingTable": "Gebäude / Raum Liste",
     "lang_serverUrl": "URL",
+    "lang_customUrl": "Benutzerdefinierter URL",
+    "lang_customUrlTooltip": "Dieser URL überscheibt die Einstellungen von dem Raum.",
     "lang_serverType": "Typ",
     "lang_serverUser": "Benutzer",
     "lang_serverPassword": "Passwort",

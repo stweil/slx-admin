@@ -80,6 +80,8 @@
     "lang_serverTable": "Server List",
     "lang_buildingTable": "Building / Room List",
     "lang_serverUrl": "URL",
+    "lang_customUrl": "Custom URL",
+    "lang_customUrlTooltip": "This URL will override the config settings from the room.",
     "lang_serverType": "Type",
     "lang_serverUser": "User",
     "lang_serverPassword": "Password",
