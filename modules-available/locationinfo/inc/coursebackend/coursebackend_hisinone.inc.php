@@ -41,7 +41,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			$this->error = true;
 			$this->errormsg = "Credentials are not set";
 		}
-		$this->fetchSchedulesInternal([190=>190]);
+		$this->findUnit(190);
 		return !$this->error;
 	}
 
@@ -219,7 +219,7 @@ class CourseBackend_HisInOne extends CourseBackend
 
 	public function getCredentials()
 	{
-		$credentials = ["username" => ["string", "Name used to identify on HisInOne", false], "role" =>["string", "Role used to identify on HisInOne", false], "password" => ["string", "Password for the username on HisInOne", true], "open" => ["bool", "If checked the opencourseservice interface is used", false]];
+		$credentials = ["username" => "string", "role" =>"string", "password" => "password", "open" => "bool"];
 		return $credentials;
 	}
 
@@ -237,13 +237,12 @@ class CourseBackend_HisInOne extends CourseBackend
 		foreach ($param as $ID) {
 			$unitID = $this->findUnit($ID);
 			if ($unitID == false) {
-				return false;
+				$this->error = false;
+				error_log($this->errormsg);
+				continue;
 			}
 			$eventIDs = array_merge($eventIDs, $unitID);
 			$eventIDs = array_unique($eventIDs);
-			if ($this->error == true) {
-				return false;
-			}
 		}
 		if (empty($eventIDs)) {
 			foreach ($param as $room) {
@@ -256,7 +255,9 @@ class CourseBackend_HisInOne extends CourseBackend
 		foreach ($eventIDs as $each_event) {
 			$event = $this->readUnit(intval($each_event));
 			if ($event === false) {
-				return false;
+				$this->error = false;
+				error_log($this->errormsg);
+				continue;
 			}
 			$events[] = $event;
 		}

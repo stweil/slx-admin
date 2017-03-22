@@ -22,6 +22,7 @@ abstract class CourseBackend
 	public $errormsg;
 	public $serverID;
 	public $location;
+	const nrOtherRooms = 5;
 
 	/**
 	 * CourseBackend constructor.
@@ -125,8 +126,9 @@ abstract class CourseBackend
 	 * Internal version of fetch, to be overridden by subclasses.
 	 *
 	 * @param $roomIds array with local ID as key and serverID as value
-	 * @return array a multidimensional array that uses the roomID as key
-	 * and has the schedules as string in the value
+	 * @return array a recursive array that uses the roomID as key
+	 * and has the schedule array as value. A shedule array contains jsons in this format:
+	 * {"start":JJJJ-MM-DD HH:MM:SS,"end":JJJJ-MM-DD HH:MM:SS,"title":string}
 	 */
 	protected abstract function fetchSchedulesInternal($roomId);
 
@@ -151,20 +153,22 @@ abstract class CourseBackend
 			$calendar = $row['calendar'];
 			//Check if in cache if lastUpdate is null then it is interpreted as 1970
 			if ($lastUpdate > strtotime("-" . $this->getCacheTime() . "seconds")) {
-				$newResult[$row['locationid']] = json_decode($calendar);
+				$result[$row['locationid']] = json_decode($calendar);
 			} else {
 				$sRoomIDs[$row['locationid']] = $sRoomID;
 			}
 
 		}
 		//Check if we should refresh other rooms recently requested by front ends
-		if ($this->getCacheTime() > 0 && $this->getRefreshTime() > 0) {
+		if ($this->getCacheTime() > 0) {
+			$i = 0; //number of rooms getting refreshed
 			$dbquery4 = Database::simpleQuery("SELECT locationid ,serverroomid, lastcalendarupdate FROM location_info WHERE serverid= :id", array('id' => $this->serverID));
 			foreach ($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row) {
 				if (isset($row['lastcalendarupdate'])) {
 					$lastUpdate = $row['lastcalendarupdate'];
-					if (strtotime($lastUpdate) > strtotime("-" . $this->getRefreshTime() . "seconds") && strtotime($lastUpdate) > strtotime("-" . $this->getCacheTime() . "seconds")) {
+					if ($lastUpdate < strtotime("-" . $this->getRefreshTime() . "seconds") && $lastUpdate > strtotime("-" . $this->getCacheTime() . "seconds"&& $i<self::nrOtherRooms)) {
 						$sRoomIDs[$row['locationid']] = $row['serverroomid'];
+						$i = $i +1;
 					}
 				}
 			}
@@ -187,7 +191,9 @@ abstract class CourseBackend
 		}
 		//get all schedules that are wanted from roomIDs
 		foreach ($roomIDs as $id) {
-			$result[$id] = $newResult[$id];
+			if(isset($newResult[$id])){
+				$result[$id] = $newResult[$id];
+			}
 		}
 		return $result;
 	}
