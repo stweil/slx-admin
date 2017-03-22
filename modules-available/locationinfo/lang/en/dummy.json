@@ -1,0 +1,14 @@
+{
+  "username": "Username",
+  "username_title": "A fkn username field",
+  "password": "Password 1",
+  "password_title": "Password 1 title alalala :D",
+  "integer": "A integer value",
+  "integer_title": "What is this for?!",
+  "option": "Option Array",
+  "option_title": "LALALA OPtion title bla bla",
+  "CheckTheBox": "CheckBox",
+  "CheckTheBox_title": "Check this if you are bored",
+  "CB2 t": "Another cb",
+  "CB2 t_title": "meeh fk it. This cb does nothing. :P"
+}

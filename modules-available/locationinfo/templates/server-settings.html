@@ -107,14 +107,21 @@
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
 				<div class="col-md-3"><label>{{name}}</label></div>\
 				<div class="col-md-7">\
-				<input required class="form-control" id="input-{{uid}}" {{#mask}}type="password"{{/mask}}{{^mask}}type="text"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
+				<input required class="form-control" id="input-{{uid}}" type="text" name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
 				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
 				</div></div>');
 			} else if ("{{type}}" == "int") {
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
 				<div class="col-md-3"><label>{{name}}</label></div>\
 				<div class="col-md-7">\
-				<input required class="form-control" id="input-{{uid}}" {{#mask}}type="password" pattern="[0-9]*"{{/mask}}{{^mask}}type="number"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
+				<input required class="form-control" id="input-{{uid}}" type="number" name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
+				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
+				</div></div>');
+			} else if ("{{type}}" == "password") {
+				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
+				<div class="col-md-3"><label>{{name}}</label></div>\
+				<div class="col-md-7">\
+				<input required class="form-control" id="input-{{uid}}" {{#mask}}type="password"{{/mask}}{{^mask}}type="text"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
 				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
 				</div></div>');
 			} else if ("{{type}}" == "bool") {
@@ -124,7 +131,7 @@
 				<input class="bs-switch" id="input-{{uid}}" type="checkbox" name="{{uid}}" value="true" form="settingsForm" {{#value}}checked{{/value}}></div>\
 				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
 				</div></div>');
-				$('#bs-{{uid}}').bootstrapSwitch({
+				$('#input-{{uid}}').bootstrapSwitch({
 					size: "small"
 				});
 			} else if ("{{type}}" == "array") {

@@ -517,14 +517,16 @@ class Page_LocationInfo extends Page
 			$counter = 0;
 			foreach ($credentials as $key => $value) {
 				$credential['uid'] = $counter;
-				$credential['name'] = $key;
-				$credential['type'] = $value[0];
-				$credential['title'] = $value[1];
+				$credential['name'] = Dictionary::translateFile($s, $key);;
+				$credential['type'] = $value;
+				$credential['title'] = Dictionary::translateFile($s, $key."_title");
 
 				if (Property::getPasswordFieldType() === 'text') {
 					$credential['mask'] = false;
 				} else {
-					$credential['mask'] = $value[2];
+					if ($value == "password") {
+						$credential['mask'] = true;
+					}
 				}
 
 				if ($backend['typ'] == $dbresult['servertype']) {
