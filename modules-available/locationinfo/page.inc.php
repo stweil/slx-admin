@@ -62,6 +62,9 @@ class Page_LocationInfo extends Page
 
 	}
 
+	/**
+	 * Updates the server in the db.
+	 */
 	private function updateServer() {
 		$id = Request::post('id', 0, 'int');
 		if ($id == 0) {
@@ -76,11 +79,17 @@ class Page_LocationInfo extends Page
 		$this->checkConnection();
 	}
 
+	/**
+	 * Deletes the server from the db.
+	 */
 	private function deleteServer() {
 		$id = Request::post('id', 0, 'int');
 		Database::exec("DELETE FROM `setting_location_info` WHERE serverid=:id", array('id' => $id));
 	}
 
+	/**
+	 * Updated the config in the db.
+	 */
 	private function updateConfig()
 	{
 		$result = array();
@@ -101,6 +110,10 @@ class Page_LocationInfo extends Page
 		$serverid = Request::post('serverid', 0, 'int');
 		$serverroomid = Request::post('serverroomid','', 'string');
 
+		error_log("eco: " . $result['eco']);
+		error_log("vertical: " . $result['vertical']);
+		error_log("scaledaysauto: " . $result['scaledaysauto']);
+
 		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config) VALUES (:id, :serverid, :serverroomid, :config)
 		 ON DUPLICATE KEY UPDATE config=:config, serverid=:serverid, serverroomid=:serverroomid",
 		 array('id' => $locationid, 'config' => json_encode($result, true), 'serverid' => $serverid, 'serverroomid' => $serverroomid));
@@ -109,6 +122,9 @@ class Page_LocationInfo extends Page
 		 Util::redirect('?do=locationinfo');
 	}
 
+	/**
+	 * Updates the server settings in the db.
+	 */
 	private function updateServerSettings() {
 		$serverid = Request::post('id', -1, 'int');
 		$servername = Request::post('name', 'unnamed', 'string');
@@ -139,6 +155,9 @@ class Page_LocationInfo extends Page
 		}
 	}
 
+	/**
+	 * Updates the opening time in the db from the expert mode.
+	 */
 	private function updateOpeningTimeExpert()
 	{
 		$days = Request::post('days');
@@ -223,6 +242,9 @@ class Page_LocationInfo extends Page
 		Util::redirect('?do=locationinfo');
 	}
 
+	/**
+	 * Updates the opening time in the db from the easy mode.
+	 */
 	private function updateOpeningTimeEasy() {
 		$locationid = Request::post('id', 0, 'int');
 		$openingtime = Request::post('openingtime');
@@ -251,6 +273,11 @@ class Page_LocationInfo extends Page
 		Util::redirect('?do=locationinfo');
 	}
 
+	/**
+	 * Checks if the server connection to a backend is valid.
+	 *
+	 * @param int $id Server id which connection should be checked.
+	 */
 	private function checkConnection($id = 0) {
 		$serverid = Request::post('id', 0, 'int');
 		if ($id != 0) {
@@ -277,6 +304,12 @@ class Page_LocationInfo extends Page
 		}
 	}
 
+	/**
+	 * Sets the new hidden value and checks childs and parents.
+	 *
+	 * @param $id The location id which was toggled
+	 * @param $val The hidden value true / false
+	 */
 	protected function toggleHidden($id, $val) {
 		Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $id, 'hidden' => $val));
 
@@ -285,6 +318,12 @@ class Page_LocationInfo extends Page
 
 	}
 
+	/**
+	 * Recursivly sets all hidden values to all childs.
+	 *
+	 * @param $id The location id which childs should be checked
+	 * @param $val The hidden value
+	 */
 	protected function checkChildRecursive($id, $val) {
 		$dbquery = Database::simpleQuery("SELECT locationid FROM `location` WHERE parentlocationid = :locationid", array('locationid' => $id));
 		$childs = array();
@@ -299,6 +338,11 @@ class Page_LocationInfo extends Page
 		}
 	}
 
+	/**
+	 * Recursively check all parent locations and updates the hidden values if necessary
+	 *
+	 * @param $id The id of the location which was toggled.
+	 */
 	protected function checkParentRecursive($id) {
 		$dbquery = Database::simpleQuery("SELECT parentlocationid FROM `location` WHERE locationid = :locationid", array('locationid' => $id));
 		$parent = 0;
@@ -331,7 +375,9 @@ class Page_LocationInfo extends Page
 		}
 	}
 
-// Loads the Infoscreen pange in the admin-panel and passes all needed information.
+	/**
+	 * Loads the Infoscreen page in the admin-panel and passes all needed information.
+	 */
 	protected function getInfoScreenTable() {
 
 		// Get a table with the needed location info. name, id, hidden, pcState (Count of pcs that are in use), total pcs
@@ -440,6 +486,11 @@ class Page_LocationInfo extends Page
 		}
 	}
 
+	/**
+	 * Ajax the server settings.
+	 *
+	 * @param $id Serverid
+	 */
 	private function ajaxServerSettings($id) {
 		$dbresult = Database::queryFirst('SELECT servername, serverurl, servertype, credentials FROM `setting_location_info` WHERE serverid = :id', array('id' => $id));
 
@@ -510,6 +561,11 @@ class Page_LocationInfo extends Page
 		echo Render::parse('server-settings', array('id' => $id, 'name' => $dbresult['servername'], 'url' => $dbresult['serverurl'], 'servertype' => $dbresult['servertype'], 'backendList' => array_values($serverBackends)));
 	}
 
+	/**
+	 * Ajax the time table
+	 *
+	 * @param $id id of the location
+	 */
 	private function ajaxTimeTable($id) {
 		$array = array();
 		$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $id));
@@ -551,6 +607,12 @@ class Page_LocationInfo extends Page
 		}
 	}
 
+	/**
+	 * Checks if easymode or expert mode is active.
+	 *
+	 * @param $array Array of the saved openingtimes.
+	 * @return bool True if easy mode, false if expert mode
+	 */
 	private function isEasyMode($array) {
 		if(count($array[0]) == 3) {
 			if ($array[0][0]['days'] == array ("Monday","Tuesday","Wednesday","Thursday","Friday")
@@ -566,6 +628,11 @@ class Page_LocationInfo extends Page
 		}
 	}
 
+	/**
+	 * Ajax the config of a location.
+	 *
+	 * @param $id Location ID
+	 */
 	private function ajaxConfig($id) {
 		$array = array();
 

@@ -15,8 +15,11 @@
 							<div class="col-md-3" >
 								<label>{{lang_locationName}}</label>
 							</div>
-							<div class="col-md-8">
+							<div class="col-md-7">
 								<input required class="form-control" id="input-name-{{id}}" name="name" type="text" value="{{name}}"></input>
+							</div>
+							<div class="col-md-2">
+								<a class="btn btn-default" id="help-name" title="{{lang_nameTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
 							</div>
 						</div>
 					</div>
@@ -26,8 +29,11 @@
 							<div class="col-md-3">
 								<label>{{lang_serverUrl}}</label>
 							</div>
-							<div class="col-md-8">
+							<div class="col-md-7">
 								<input required class="form-control" id="input-url-{{id}}" name="url" type="text" value="{{url}}" ></input>
+							</div>
+							<div class="col-md-2">
+								<a class="btn btn-default" id="help-url" title="{{lang_urlTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
 							</div>
 						</div>
 					</div>
@@ -37,14 +43,15 @@
 							<div class="col-md-3">
 								<label>{{lang_serverType}}</label>
 							</div>
-							<div class="col-md-8">
-
-							<select class="form-control" id="input-type-{{id}}" name="type" value="{{typ}}" onchange="servertype_changed(this.value);">
+							<div class="col-md-7">
+								<select class="form-control" id="input-type-{{id}}" name="type" value="{{typ}}" onchange="servertype_changed(this.value);">
 									{{#backendList}}
-									<option id="{{typ}}" value="{{typ}}" {{#active}}selected{{/active}}>{{display}}
+										<option id="{{typ}}" value="{{typ}}" {{#active}}selected{{/active}}>{{display}}
 									{{/backendList}}
-							</select>
-
+								</select>
+							</div>
+							<div class="col-md-2">
+								<a class="btn btn-default" id="help-type" title="{{lang_typeTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
 							</div>
 						</div>
 					</div>
@@ -71,8 +78,25 @@
 	if (type == "") {
 		type = $('#input-type-{{id}}').val();
 	}
+
 	loadCredentials();
-	function loadCredentials() {
+	initalizeBootstrap();
+
+	/**
+	 * Initialize the bootstrap elements.
+	 */
+	function initalizeBootstrap() {
+		$('#help-name').tooltip();
+		$('#help-url').tooltip();
+		$('#help-type').tooltip();
+	}
+
+	/**
+	 * Loads the dynamic credentials forms.
+	 *
+	 * @param {bool} useValue If false the form elements will be empty. Default = true.
+	 */
+	function loadCredentials(useValue = true) {
 		// {{name}} name of auth {{type}} type of auth (string, int etc.) {{value}} value from the db
 		{{#backendList}}
 		if (type == "{{typ}}") {
@@ -81,33 +105,44 @@
 
 			if ("{{type}}" == "string") {
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
-				<div class="col-md-8">\
-				<input required class="form-control" {{#mask}}type="password"{{/mask}}{{^mask}}type="text"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm">\
-				</div></div></div>');
+				<div class="col-md-3"><label>{{name}}</label></div>\
+				<div class="col-md-7">\
+				<input required class="form-control" id="input-{{uid}}" {{#mask}}type="password"{{/mask}}{{^mask}}type="text"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
+				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
+				</div></div>');
 			} else if ("{{type}}" == "int") {
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
-				<div class="col-md-8">\
-				<input required class="form-control" {{#mask}}type="password" pattern="[0-9]*"{{/mask}}{{^mask}}type="number"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm">\
-				</div></div></div>');
+				<div class="col-md-3"><label>{{name}}</label></div>\
+				<div class="col-md-7">\
+				<input required class="form-control" id="input-{{uid}}" {{#mask}}type="password" pattern="[0-9]*"{{/mask}}{{^mask}}type="number"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
+				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
+				</div></div>');
 			} else if ("{{type}}" == "bool") {
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
-				<div class="col-md-8">\
-				<input class="bs-switch" id="bs-{{uid}}" type="checkbox" name="{{uid}}" value="true" form="settingsForm" {{#value}}checked{{/value}}>\
-				</div></div></div>');
-				$('#bs-{{uid}}').bootstrapSwitch();
+				<div class="col-md-3"><label>{{name}}</label></div>\
+				<div class="col-md-7">\
+				<input class="bs-switch" id="input-{{uid}}" type="checkbox" name="{{uid}}" value="true" form="settingsForm" {{#value}}checked{{/value}}></div>\
+				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
+				</div></div>');
+				$('#bs-{{uid}}').bootstrapSwitch({
+					size: "small"
+				});
 			} else if ("{{type}}" == "array") {
 				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label title="{{title}}">{{name}}</label></div>\
-				<div class="col-md-8">\
-				<select class="form-control" name="{{uid}}" form="settingsForm">\
+				<div class="col-md-3"><label>{{name}}</label></div>\
+				<div class="col-md-7">\
+				<select class="form-control" id="input-{{uid}}" name="{{uid}}" form="settingsForm">\
 				{{#array}}\
 				<option value="{{option}}" {{#active}}selected{{/active}}>{{option}}</option>\
 				{{/array}}\
-				</select>\
-				</div></div></div>');
+				</select></div>\
+				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
+				</div></div>');
+			}
+
+			$('#help-{{uid}}').tooltip();
+			if (!useValue) {
+				$('#input-{{uid}}').val("");
 			}
 			{{/credentials}}
 			{{^credentials}}
@@ -118,11 +153,16 @@
 
 	}
 
+	/**
+	 * After the servertype switch changed, the new credentials needs to be loaded.
+	 *
+	 * @param {string} value The new type of the server which credentials needs to be loaded.
+	 */
 	function servertype_changed(value) {
 		type = value;
 		$('#credentials-div').fadeOut('fast', function() {
 			$('#credentials-list').empty();
-			loadCredentials();
+			loadCredentials(false);
 		});
 	}
 

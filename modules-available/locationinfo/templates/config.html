@@ -4,105 +4,269 @@
 		<input type="hidden" name="action" value="updateConfig">
 		<input type="hidden" name="id" value="{{id}}">
 
+		<div class="panel panel-default">
+					<div class="panel-heading">{{lang_server}}</div>
+					<div class="panel-body">
+						<div class="list-group">
 
-		<div style="float: left;">
-			<Label>{{lang_server}}</Label><br>
-			<select name="serverid">
-				{{#serverlist}}
-				<option id="serverOption-{{sid}}" value="{{sid}}">{{sname}}</option>
-				{{/serverlist}}
-			</select>
-		</div>
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_server}}</label>
+									</div>
+									<div class="col-md-7">
+										<select class="form-control" name="serverid">
+											{{#serverlist}}
+											<option id="serverOption-{{sid}}" value="{{sid}}">{{sname}}</option>
+											{{/serverlist}}
+										</select>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-server" title="{{lang_serverTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
 
-		<div style="float: left; margin-left: 15px;">
-			<Label>{{lang_serverRoomId}}</Label><br>
-			<input name="serverroomid" id="serverroomid" value="{{serverroomid}}"
-					 style="width: 250px; text-align: center;">
-		</div>
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_roomId}}</label>
+									</div>
+									<div class="col-md-7">
+										<input class="form-control" name="serverroomid" id="serverroomid" value="{{serverroomid}}">
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-roomId" title="{{lang_roomIdTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">{{lang_display}}</div>
+					<div class="panel-body">
+						<div class="list-group">
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_language}}</label>
+									</div>
+									<div class="col-md-7">
+										<select class="form-control" name="language">
+											<option value="en" id="en">{{lang_languageEn}}</option>
+											<option value="de" id="de">{{lang_languageDe}}</option>
+											<option value="pt" id="pt">{{lang_languagePt}}</option>
+										</select>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-language" title="{{lang_languageTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_mode}}</label>
+									</div>
+									<div class="col-md-7">
+										<select class="form-control" name="mode" onchange="modeChange(this.value);">
+											<option value="1" id="mode1">{{lang_mode1}}</option>
+											<option value="2" id="mode2">{{lang_mode2}}</option>
+											<option value="3" id="mode3">{{lang_mode3}}</option>
+											<option value="4" id="mode4">{{lang_mode4}}</option>
+										</select>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-mode" title="{{lang_modeTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3">
+										<label>{{lang_ecoMode}}</label>
+									</div>
+									<div class="col-md-7">
+										<input type="hidden" name="eco" value="{{eco}}" id="cb_input_eco"/>
+										<input class="bs-switch" id="cb_eco" type="checkbox"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-eco" title="{{lang_ecoTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
 
 
-		<br><br><br><br>
+				<div class="panel panel-default" id="extra-div">
+					<div class="panel-heading">{{lang_mode}}</div>
+					<div class="panel-body">
+						<div class="list-group">
 
-		<div style="float: left;">
-			<Label>{{lang_language}}</Label><br>
-			<select name="language">
-				<option value="en" id="en">{{lang_languageEn}}</option>
-				<option value="de" id="de">{{lang_languageDe}}</option>
-				<option value="pt" id="pt">{{lang_languagePt}}</option>
-			</select>
-		</div>
-		<div style="float: left; margin-left: 15px;">
-			<Label>{{lang_mode}}</Label><br>
-			<select name="mode" onchange="vertical_cb(this.value);">
-				<option value="1" id="mode1">{{lang_mode1}}</option>
-				<option value="2" id="mode2">{{lang_mode2}}</option>
-				<option value="3" id="mode3">{{lang_mode3}}</option>
-				<option value="4" id="mode4">{{lang_mode4}}</option>
-			</select>
-		</div>
-		<div style="float: left; margin-left: 15px;">
-			<input name="vertical" id="cb_vertical" type="checkbox"/> {{lang_vertical}}<br>
-			<input name="eco" id="cb_eco" type="checkbox"/> {{lang_ecoMode}}<br>
-			<input name="autoscale" id="cb_autoScale" type="checkbox"/> {{lang_autoScale}}
-		</div>
+							<div class="list-group-item" id="item-vertical">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_vertical}}</label>
+									</div>
+									<div class="col-md-7" >
+										<input type="hidden" name="vertical" value="{{vertical}}" id="cb_input_vertical"/>
+										<input class="bs-switch" id="cb_vertical" type="checkbox"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-vertical" title="{{lang_verticalTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
 
-		<div style="float: left; margin-left: 15px;">
-			<Label data-toggle="tooltip" title="{{lang_daysToShowTooltip}}">{{lang_daysToShow}}</Label><br>
-			<select name="daystoshow">
-				<option value="1" id="day1">1</option>
-				<option value="2" id="day2">2</option>
-				<option value="3" id="day3">3</option>
-				<option value="4" id="day4">4</option>
-				<option value="5" id="day5">5</option>
-				<option value="6" id="day6">6</option>
-				<option value="7" id="day7">7</option>
-			</select>
-		</div>
+							<div class="list-group-item" id="item-autoscale">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_autoScale}}</label>
+									</div>
+									<div class="col-md-7" >
+										<input type="hidden" name="autoscale" value="{{scaledaysauto}}" id="cb_input_autoScale"/>
+										<input class="bs-switch" id="cb_autoScale" type="checkbox"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-autoscale" title="{{lang_autoscaleTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
 
-		<div style="float: left; margin-left: 15px;">
-			<Label>{{lang_rotation}}</Label><br>
-			<select name="rotation">
-				<option value="0" id="rotation0">{{lang_rotation0}}</option>
-				<option value="3" id="rotation3">{{lang_rotation3}}</option>
-				<option value="2" id="rotation2">{{lang_rotation2}}</option>
-				<option value="1" id="rotation1">{{lang_rotation1}}</option>
-			</select>
-		</div>
+							<div class="list-group-item" id="item-daystoshow">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_daysToShow}}</label>
+									</div>
+									<div class="col-md-7" >
+										<select class="form-control" name="daystoshow">
+											<option value="1" id="day1">1</option>
+											<option value="2" id="day2">2</option>
+											<option value="3" id="day3">3</option>
+											<option value="4" id="day4">4</option>
+											<option value="5" id="day5">5</option>
+											<option value="6" id="day6">6</option>
+											<option value="7" id="day7">7</option>
+										</select>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-daystoshow" title="{{lang_daysToShowTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
 
-		<br><br><br><br>
+							<div class="list-group-item" id="item-rotation">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_rotation}}</label>
+									</div>
+									<div class="col-md-7">
+										<select class="form-control" name="rotation">
+											<option value="0" id="rotation0">{{lang_rotation0}}</option>
+											<option value="3" id="rotation3">{{lang_rotation3}}</option>
+											<option value="2" id="rotation2">{{lang_rotation2}}</option>
+											<option value="1" id="rotation1">{{lang_rotation1}}</option>
+										</select>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-rotation" title="{{lang_rotationTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
 
-		<Label data-toggle="tooltip" title="{{lang_scaleTooltip}}">{{lang_scale}}</Label><br>
-		<span id="scale">50 %</span><input name="scale" id="sl_scale" type="range" step="1" min="10" max="90" value="50"
-													  style="width: 300px;" oninput="showScaleValue(this.value)"/>
+							<div class="list-group-item" id="item-scale">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_scale}}</label>
+									</div>
+									<div class="col-md-7" >
+										<span id="scale">50 %</span>
+										<input name="scale" id="sl_scale" type="range" step="1" min="10" max="90" value="50" oninput="showScaleValue(this.value)"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-scale" title="{{lang_scaleTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
 
-		<br><br>
+							<div class="list-group-item" id="item-switchtime">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_switchTime}}</label>
+									</div>
+									<div class="col-md-7" >
+										<span id="switch">20 {{lang_sec}}</span>
+										<input name="switchtime" id="sl_switch" type="range" step="1" min="1" max="120" value="20" oninput="showSwitchValue(this.value)"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-switchtime" title="{{lang_switchTimeTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
 
-		<Label data-toggle="tooltip" title="{{lang_switchTimeTooltip}}">{{lang_switchTime}}</Label><br>
-		<span id="switch">20 {{lang_sec}}</span><input name="switchtime" id="sl_switch" type="range" step="1" min="1"
-																	  max="120" value="20" style="width: 300px;"
-																	  oninput="showSwitchValue(this.value)"/>
+						</div>
+					</div>
+				</div>
 
-		<br><br>
+				<div class="panel panel-default">
+					<div class="panel-heading">{{lang_updateRates}}</div>
+					<div class="panel-body">
+						<div class="list-group">
 
-		<div>
-			<div style="float: left;">
-				<Label data-toggle="tooltip" title="{{lang_calupdateTooltip}}">{{lang_calupdate}}</Label><br>
-				<input id="updateCalendar" name="calupdate" type="number" style="width: 50px; text-align: center;" min="0"
-						 max="1440"/> {{lang_min}}
-			</div>
-			<div style="float: left; margin-left: 15px;">
-				<Label data-toggle="tooltip" title="{{lang_roomupdateTooltip}}">{{lang_roomupdate}}</Label><br>
-				<input id="updateRoom" name="roomupdate" type="number" style="width: 50px; text-align: center;" min="0"
-						 max="86400"/> {{lang_sec}}
-			</div>
-			<div style="float: left; margin-left: 15px;">
-				<Label data-toggle="tooltip" title="{{lang_configupdateTooltip}}">{{lang_configupdate}}</Label><br>
-				<input id="updateConfig" name="configupdate" type="number" style="width: 50px; text-align: center;" min="0"
-						 max="1440"/> {{lang_min}}
-			</div>
-		</div>
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_calendar}}</label>
+									</div>
+									<div class="col-md-7" >
+										<input class="form-control" id="updateCalendar" name="calupdate" type="number" min="0" max="1440"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-updatecalendar" title="{{lang_calupdateTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
 
-		<br><br><br><br>
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_room}}</label>
+									</div>
+									<div class="col-md-7" >
+										<input class="form-control" id="updateRoom" name="roomupdate" type="number" min="0" max="86400"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-updateroom" title="{{lang_roomupdateTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-md-3" >
+										<label>{{lang_config}}</label>
+									</div>
+									<div class="col-md-7" >
+										<input class="form-control" id="updateConfig" name="configupdate" type="number" min="0" max="1440"/>
+									</div>
+									<div class="col-md-2">
+										<a class="btn btn-default" id="help-updateconfig" title="{{lang_configupdateTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
 
 		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
 
@@ -110,8 +274,35 @@
 </div>
 
 <script type="text/javascript">
+
+	var autoscale = '{{scaledaysauto}}';
+	initBootstrap();
 	loadValues();
 
+	/**
+	 * Initialize the bootstrap elements.
+	 */
+	function initBootstrap() {
+		// Init Bootstrap stuff.
+		$('#help-updateroom').tooltip();
+		$('#help-updateconfig').tooltip();
+		$('#help-updatecalendar').tooltip();
+		$('#help-daystoshow').tooltip();
+		$('#help-rotation').tooltip();
+		$('#help-server').tooltip();
+		$('#help-roomId').tooltip();
+		$('#help-language').tooltip();
+		$('#help-mode').tooltip();
+		$('#help-eco').tooltip();
+		$('#help-vertical').tooltip();
+		$('#help-autoscale').tooltip();
+		$('#help-scale').tooltip();
+		$('#help-switchtime').tooltip();
+	}
+
+	/**
+	 * Loads the Values in the config form elements.
+	 */
 	function loadValues() {
 		$("#{{language}}").attr("selected", "selected");
 
@@ -122,17 +313,44 @@
 			mode = $("#mode1");
 		}
 		mode.attr("selected", "selected");
-		vertical_cb(mode.val());
-		if ('{{vertical}}' == true) {
-			$("#cb_vertical").prop("checked", true);
-		}
-		if ('{{eco}}' == true) {
-			$("#cb_eco").prop("checked", true);
-		}
 
-		if ('{{scaledaysauto}}' == true) {
-			$("#cb_autoScale").prop("checked", true);
-		}
+		$('#cb_vertical').bootstrapSwitch({
+			state: '{{vertical}}',
+			size: 'small'
+		});
+		$('#cb_vertical').on('switchChange.bootstrapSwitch', function(e, value) {
+			if (value) {
+				$('#cb_input_vertical').val(1);
+			} else {
+				$('#cb_input_vertical').val(0);
+			}
+		});
+
+		$('#cb_eco').bootstrapSwitch({
+			state: '{{eco}}',
+			size: 'small'
+		});
+		$('#cb_eco').on('switchChange.bootstrapSwitch', function(e, value) {
+			if (value) {
+				$('#cb_input_eco').val(1);
+			} else {
+				$('#cb_input_eco').val(0);
+			}
+		});
+
+		$('#cb_autoScale').bootstrapSwitch({
+			state: '{{scaledaysauto}}',
+			size: 'small'
+		});
+
+		$('#cb_autoScale').on('switchChange.bootstrapSwitch', function(e, value) {
+			if (value) {
+				$('#cb_input_autoScale').val(1);
+			} else {
+				$('#cb_input_autoScale').val(0);
+			}
+			autoScaleChange(value);
+		});
 
 		var day = $("#{{daystoshow}}");
 		if (!day.length) {
@@ -177,23 +395,72 @@
 			configupdate = 180;
 		}
 		$("#updateConfig").attr("value", configupdate);
+
+		modeChange(mode.val());
 	}
 
+	/**
+	 * Updates the value from the scale slider.
+	 *
+	 * @param newValue The new value the scale slider was set to.
+	 */
 	function showScaleValue(newValue) {
 		$("#scale").text(newValue + " %");
 	}
 
+	/**
+	 * Updates the value from the switchtime slider.
+	 *
+	 * @param newValue The new value the switchtime slider was set to.
+	 */
 	function showSwitchValue(newValue) {
 		$("#switch").text(newValue + " " + '{{lang_sec}}');
 	}
 
-	function vertical_cb(value) {
-		var cb = $("#cb_vertical");
-		if (value == 1) {
-			cb.prop("disabled", false);
-		} else {
-			cb.prop("disabled", true);
-			cb.prop("checked", false);
+	/**
+	 * If the mode was changed the mode settings have to be adjusted.
+	 *
+	 * @param value The new mode that was set. 1-4
+	 */
+	function modeChange(value) {
+		$('#item-vertical').hide();
+		$('#item-autoscale').hide();
+		$('#item-daystoshow').hide();
+		$('#item-rotation').hide();
+		$('#item-scale').hide();
+		$('#item-switchtime').hide();
+
+		autoScaleChange(autoscale);
+
+		if (value == "1") {
+			$('#item-vertical').show();
+			$('#item-autoscale').show();
+			$('#item-rotation').show();
+			$('#item-scale').show();
+		} else if (value == "2"){
+			$('#item-autoscale').show();
+		} else if (value == "3"){
+			$('#item-rotation').show();
+			$('#item-daystoshow').hide();
+		} else if (value == "4"){
+			$('#item-autoscale').show();
+			$('#item-rotation').show();
+			$('#item-switchtime').show();
 		}
 	}
+
+	/**
+	 * If the auto scale changes the days to show must be shown / hided
+	 *
+	 * @param value The new value of the autoscale switch.
+	 */
+	function autoScaleChange(value) {
+		autoscale = value;
+		if (value) {
+			$('#item-daystoshow').hide();
+		} else {
+			$('#item-daystoshow').show();
+		}
+	}
+
 </script>

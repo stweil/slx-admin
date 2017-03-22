@@ -146,6 +146,9 @@
 		}
 	});
 
+	/**
+	 * Sets the timepicker element.
+	 */
 	function setTimepicker() {
 		$('.timepicker2').timepicker({
 			minuteStep: 1,
@@ -157,6 +160,9 @@
 		});
 	}
 
+	/**
+	 * Adds a new opening time to the table in expert mode.
+	 */
 	function newOpeningTime() {
 		$('#lastOpenTimesTableElement').before('<tr>\
       <td>\
@@ -172,7 +178,6 @@
         <input type="hidden" name="days[]" value="-">\
         </td>\
         <td>\
-        \
         <div class="input-group bootstrap-timepicker">\
         		<span class="input-group-addon">\
         			<span class="glyphicon glyphicon-time"></span>\

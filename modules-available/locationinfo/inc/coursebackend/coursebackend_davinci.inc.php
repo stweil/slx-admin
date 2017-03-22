@@ -20,7 +20,7 @@ class Coursebackend_Davinci extends CourseBackend
 	public function checkConnection()
 	{
 		if ($this->location != "") {
-			$this->fetchArray('B206');
+			$this->fetchSchedulesInternal(['B206']);
 			return !$this->error;
 		}
 		$this->error = true;
@@ -49,21 +49,28 @@ class Coursebackend_Davinci extends CourseBackend
 		return 0;
 	}
 
+	/**
+	 * @param $response xml document
+	 * @return bool|array array representation of the xml if possible
+	 */
 	private function toArray($response)
 	{
-
 		try {
 			$cleanresponse = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
 			$xml = new SimpleXMLElement($cleanresponse);
 			$array = json_decode(json_encode((array)$xml), true);
 		} catch (Exception $exception) {
 			$this->error = true;
-			$this->errormsg = "url did not send a xml";
+			$this->errormsg = "url did not answer with a xml, maybe the url is wrong or the room is wrong";
 			$array = false;
 		}
 		return $array;
 	}
 
+	/**
+	 * @param $roomId string name of the room
+	 * @return array|bool if successful the arrayrepresentation of the timetable
+	 */
 	private function fetchArray($roomId)
 	{
 		$startDate = new DateTime('monday this week');
@@ -97,18 +104,17 @@ class Coursebackend_Davinci extends CourseBackend
 	public function fetchSchedulesInternal($roomIds)
 	{
 		$schedules = [];
-
 		foreach ($roomIds as $sroomId) {
 			$return = $this->fetchArray($sroomId);
 			if ($return === false) {
 				return false;
-			} elseif (!isset($return['Lessons']['Lesson'])) {
+			}
+			$lessons = $this->getAttributes($return,'Lessons/Lesson');
+			if (!$lessons) {
 				$this->error = true;
 				$this->errormsg = "url send a xml in a wrong format";
 				return false;
 			}
-			$lessons = $return['Lessons']['Lesson'];
-
 			$timetable = [];
 			foreach ($lessons as $lesson) {
 				$date = $lesson['Date'];
@@ -127,6 +133,7 @@ class Coursebackend_Davinci extends CourseBackend
 			}
 			$schedules[$sroomId] = $timetable;
 		}
+		error_log('123'.json_encode($schedules));
 		return $schedules;
 	}
 }

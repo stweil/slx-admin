@@ -95,11 +95,11 @@
 			}
 			cb.addEventListener("click", function() { cbClick(this, {{locationid}}); });
 			</script>
-			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button"
-																	  onclick="loadTimeModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-time"></span>{{lang_openingTime}}</a>
+			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" style="width: 100%"
+																	  onclick="loadTimeModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-time"></span></a>
 			</td>
-			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button"
-																	  onclick="loadConfigModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>{{lang_locationSettings}}</a>
+			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" style="width: 100%;"
+																	  onclick="loadConfigModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span></a>
 			</td>
 		</tr>
 
@@ -123,6 +123,12 @@
 <script type="text/javascript">
 	var lastPcSubTable = false;
 
+	/**
+	 *	Sets the checkbox value and calls the php hide action.
+	 *
+	 * @param cb The checkbox which was clicked.
+	 * @param locID the locationID of the checkbox.
+	 */
 	function cbClick(cb, locID) {
 		var value;
 
@@ -134,6 +140,12 @@
 		window.location.href = "?do=locationinfo&action=hide&id=" + locID + "&value=" + value;
 	}
 
+	/**
+	 * Loads the settings modal of a server.
+	 *
+	 * @param serverid The id of the server.
+	 * @param servername The name of the server.
+	 */
 	function loadSettingsModal(serverid, servername) {
 		$('#myModalHeader').text("{{lang_locationSettings}}").css("font-weight", "Bold");
 
@@ -141,6 +153,12 @@
 		$('#myModalBody').load("?do=locationinfo&action=serverSettings&id=" + serverid);
 	}
 
+	/**
+	 * Load a opening time modal of a location.
+	 *
+	 * @param locationId The id of the location.
+	 * @param locationName The name of the location.
+	 */
 	function loadTimeModal(locationId, locationName) {
 		$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight", "Bold");
 
@@ -149,9 +167,10 @@
 	}
 
 	/**
+	 * Loads the config modal of a location.
 	 *
-	 * @param locationId
-	 * @param locationName
+	 * @param locationId The id of the location
+	 * @param locationName the name of the location
 	 */
 	function loadConfigModal(locationId, locationName) {
 		$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight", "Bold");
@@ -167,6 +186,11 @@
 	var preEditPassword;
 	var preEditType;
 
+	/**
+	 * Deletes a server.
+	 *
+	 * @param id The serverid
+	 */
 	function deleteButtonClick(id) {
 		var del = confirm("{{lang_deleteConfirmation}}");
 		if (del == true) {
@@ -175,12 +199,20 @@
 		}
 	}
 
+	/**
+	 * Calls the checkConnection php function to check a server connection.
+	 *
+	 * @param id The id of the server.
+	 */
 	function refreshButtonClick(id) {
 		$('#refresh-btn-animate-' + id).addClass('glyphicon-refresh-animate');
 		$('#serverFormAction-' + id).val("checkConnection");
 		$('#submit-serverForm-' + id).trigger("click");
 	}
 
+	/**
+	 * Loads a new / empty server settings modal.
+	 */
 	function addServer() {
 		loadSettingsModal(0, '');
 	}
