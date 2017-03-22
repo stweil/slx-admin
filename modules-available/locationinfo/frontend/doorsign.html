@@ -933,15 +933,13 @@ optional:
 
 			clientHeight = clientHeight	- document.getElementById('header_' + room.id).clientHeight
 				- document.getElementsByClassName("wc-time-column-header")[0].clientHeight -2;
-			if (roomsToshow > 1) {
-				clientHeight -= 5;
-			}
+
 			if (room.config.mode == 1 && room.config.vertical) {
 
 				clientHeight = clientHeight * (room.config.scale / 100);
 				clientHeight -= 22;
 			}
-
+            clientHeight -=5;
 			var height = clientHeight / (room.openTimes * cal.weekCalendar("option", "timeslotsPerHour"));
 
 
@@ -956,6 +954,7 @@ optional:
                 cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
             }
             cal.weekCalendar("resizeCalendar");
+            cal.weekCalendar("scrollToHour");
 
 		}
 		// used for countdown

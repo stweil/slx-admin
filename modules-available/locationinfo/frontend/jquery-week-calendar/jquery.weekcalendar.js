@@ -323,9 +323,13 @@ function MyDate() {
         this._loadCalEvents(this.element.data('startDate'));
       },
 
-        resizeCalendar:function(){
+      resizeCalendar:function(){
         this._resizeCalendar();
-        },
+      },
+      scrollToHour:function(){
+          console.log("scroll");
+          this._scrollToHour(new MyDate(), false);
+      },
       /*
        * Clear all events currently loaded into the calendar
        */
