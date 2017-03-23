@@ -327,8 +327,7 @@ function MyDate() {
         this._resizeCalendar();
       },
       scrollToHour:function(){
-          console.log("scroll");
-          this._scrollToHour(new MyDate(), false);
+          this._scrollToHour(this._getCurrentScrollHour(), false);
       },
       /*
        * Clear all events currently loaded into the calendar

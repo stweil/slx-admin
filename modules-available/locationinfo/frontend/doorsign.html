@@ -297,7 +297,7 @@ optional:
 				"closed": "Geschlossen",
 				"free": "Frei",
 				"shortDays": ["Son", "Mon", "Die", "Mit", "Don", "Frei", "Sam"],
-				"longDays": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitrag", "Samstag"],
+				"longDays": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
 				"to": "bis"
 			},
 			"pt": {
@@ -332,11 +332,24 @@ optional:
 				cache: false,
 				timeout: 30000,
 				success: function (result) {
+
 					if (room == null) {
-						if (result.room == null) {
-							// Todo Error Handling: wrong id?
+
+					    if (result.room == null) {
+
+                            for (var i=roomIds.length-1; i>=0; i--) {
+                                if (roomIds[i] === id) {
+                                    roomIds.splice(i, 1);
+                                }
+                            }
+                            if (roomsToshow == roomIds.length) {
+
+                                initRooms();
+
+                            }
 							return;
 						}
+
 						var time = new Date(result.time);
 						if (isNaN(time.getTime())) {
 							time = new Date();
@@ -404,9 +417,6 @@ optional:
 		// also makes sure parameters are in a given range
 
 		function getParamerter(room) {
-			var lang;
-
-			lang = room.config.lang;
 
 
 			if (room.config != null) {
@@ -430,13 +440,19 @@ optional:
 			}
 			if (getUrlParameter("scaledaysauto") == "true") {
 				room.config.scaledaysauto = true;
-			}
+			} else if (getUrlParameter("scaledaysauto") == "false") {
+                room.config.scaledaysauto = false;
+            }
 			if (getUrlParameter("vertical") == "true") {
 				room.config.vertical = true;
-			}
+			}else if (getUrlParameter("vertical") == "false") {
+                room.config.vertical = false;
+            }
 			if (getUrlParameter("einkmode") == "true") {
 				room.config.einkmode = true;
-			}
+			}else if (getUrlParameter("einkmode") == "false") {
+                room.config.einkmode = false;
+            }
 
 			if (getUrlParameter("scale") != null) {
 				room.config.scale = parseInt(getUrlParameter("scale"));
@@ -486,9 +502,9 @@ optional:
 			}
 
 			if (getUrlParameter("lang") != null && getUrlParameter("lang") in translation) {
-				room.config.lang = getUrlParameter("lang");
+				room.config.language = getUrlParameter("lang");
 			}
-			$('html').attr('lang', lang);
+			$('html').attr('lang', room.config.language);
 		}
 
 		// generates the Room divs and calls the needed functions depending on the rooms mode
@@ -758,10 +774,10 @@ optional:
 				readonly: true,
 				showHeader: false,
 				hourLine: true,
-				shortDays: t("shortDays"),
-				longDays: t("longDays"),
+				shortDays: t("shortDays",room.config.language),
+				longDays: t("longDays",room.config.language),
 				buttons: false,
-				timeSeparator: " " + t("to") + " ",
+				timeSeparator: " " + t("to",room.config.language) + " ",
 				startOnFirstDayOfWeek: false,
 				displayFreeBusys: true,
 				defaultFreeBusy: {free: false}
@@ -939,7 +955,7 @@ optional:
 				clientHeight = clientHeight * (room.config.scale / 100);
 				clientHeight -= 22;
 			}
-            clientHeight -=5;
+            clientHeight -=6;
 			var height = clientHeight / (room.openTimes * cal.weekCalendar("option", "timeslotsPerHour"));
 
 
@@ -1122,16 +1138,16 @@ optional:
 		function UpdateRoomHeader(room) {
 			var tmp = room.getState();
 			if (tmp.state == "closed") {
-				$("#courseHeading_" + room.id).text(t("closed") + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
+				$("#courseHeading_" + room.id).text(t("closed",room.config.language) + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
 				SetFreeSeats(room.id, room.freePcs);
 			} else if (tmp.state == "ClaendarEvent") {
 				$("#courseHeading_" + room.id).text(tmp.title);
 				SetFreeSeats(room.id, -1);
 			} else if (tmp.state == "Free") {
-				$("#courseHeading_" + room.id).text(t("free") + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
+				$("#courseHeading_" + room.id).text(t("free",room.config.language) + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
 				SetFreeSeats(room.id, room.freePcs);
 			} else if (tmp.state == "FreeNoEnd") {
-				$("#courseHeading_" + room.id).text(t("free"));
+				$("#courseHeading_" + room.id).text(t("free",room.config.language));
 				SetFreeSeats(room.id, room.freePcs);
 			}
 		}
@@ -1587,10 +1603,13 @@ optional:
 		};
 
 
-		function t(toTranslate) {
-			var r = translation[$('html')[0].lang][toTranslate];
-			if (r === undefined) {
-				r = translation['en'][toTranslate]
+		function t(toTranslate,lang) {
+
+            var r
+			if (lang === undefined) {
+				r = translation['en'][toTranslate];
+			} else {
+                 r = translation[lang][toTranslate];
 			}
 			return r;
 		}
