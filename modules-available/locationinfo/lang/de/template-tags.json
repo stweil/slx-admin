@@ -72,6 +72,7 @@
     "lang_deleteConfirmation": "Bist du sicher?",
     "lang_addServer": "Server",
     "lang_addServer_title": "Server hinzufügen",
+    "lang_noServer": "<Kein Server>",
     "lang_serverTable": "Server Liste",
     "lang_buildingTable": "Gebäude / Raum Liste",
     "lang_serverUrl": "URL",

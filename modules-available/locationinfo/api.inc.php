@@ -420,7 +420,7 @@ function getCalendar($idList)
 	$serverList = array();
 
 	if (!empty($idList)) {
-		//// Build SQL query for multiple ids.
+		// Build SQL query for multiple ids.
 		$query = "SELECT locationid, l.serverid AS serverid, serverurl, servertype, credentials FROM `location_info` AS l LEFT JOIN setting_location_info AS s ON s.serverid = l.serverid WHERE locationid IN (";
 
 		$query .= implode(",", $idList);

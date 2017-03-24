@@ -16,6 +16,7 @@
 									</div>
 									<div class="col-md-7">
 										<select class="form-control" name="serverid">
+											<option id="serverOption-{{sid}}" value="0">{{lang_noServer}}</option>
 											{{#serverlist}}
 											<option id="serverOption-{{sid}}" value="{{sid}}">{{sname}}</option>
 											{{/serverlist}}
