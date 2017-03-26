@@ -110,10 +110,6 @@ class Page_LocationInfo extends Page
 		$serverid = Request::post('serverid', 0, 'int');
 		$serverroomid = Request::post('serverroomid','', 'string');
 
-		error_log("eco: " . $result['eco']);
-		error_log("vertical: " . $result['vertical']);
-		error_log("scaledaysauto: " . $result['scaledaysauto']);
-
 		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config, lastcalendarupdate) VALUES (:id, :serverid, :serverroomid, :config, :lastcalendarupdate)
 		 ON DUPLICATE KEY UPDATE config=:config, serverid=:serverid, serverroomid=:serverroomid, lastcalendarupdate=:lastcalendarupdate",
 		 array('id' => $locationid, 'config' => json_encode($result, true), 'serverid' => $serverid, 'serverroomid' => $serverroomid, 'lastcalendarupdate' => 0));
@@ -160,13 +156,13 @@ class Page_LocationInfo extends Page
 	 */
 	private function updateOpeningTimeExpert()
 	{
-		$days = Request::post('days');
+		$days = Request::post('days', array(), 'array');
 		$locationid = Request::post('id', 0, 'int');
-		$openingtime = Request::post('openingtime');
-		$closingtime = Request::post('closingtime');
-		$easyMode = Request::post('easyMode');
-		$delete = Request::post('delete');
-		$dontadd = Request::post('dontadd');
+		$openingtime = Request::post('openingtime', array(), 'array');
+		$closingtime = Request::post('closingtime', array(), 'array');
+		$easyMode = Request::post('easyMode', false, 'bool');
+		$delete = Request::post('delete', array(), 'array');
+		$dontadd = Request::post('dontadd', array(), 'array');
 		$count = 0;
 		$result = array();
 		$resulttmp = array();
@@ -182,6 +178,7 @@ class Page_LocationInfo extends Page
 
 			foreach ($resulttmp as $day) {
 				$skip = false;
+
 				foreach ($delete as $del) {
 					if ($del == $index) {
 						$skip = true;
@@ -252,19 +249,31 @@ class Page_LocationInfo extends Page
 		$result = array();
 
 		$opt0['days'] = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
-		$opt0['openingtime'] = $openingtime[0];
-		$opt0['closingtime'] = $closingtime[0];
-		$result[] = $opt0;
+		if (isset($openingtime[0]) && isset($closingtime[0])) {
+			if ($closingtime[0] != "" && $openingtime[0] != "") {
+				$opt0['openingtime'] = $openingtime[0];
+				$opt0['closingtime'] = $closingtime[0];
+				$result[] = $opt0;
+			}
+		}
 
 		$opt1['days'] = array ("Saturday");
-		$opt1['openingtime'] = $openingtime[1];
-		$opt1['closingtime'] = $closingtime[1];
-		$result[] = $opt1;
+		if (isset($openingtime[1]) && isset($closingtime[1])) {
+			if ($closingtime[1] != "" && $closingtime[1] != "") {
+				$opt1['openingtime'] = $openingtime[1];
+				$opt1['closingtime'] = $closingtime[1];
+				$result[] = $opt1;
+			}
+		}
 
 		$opt2['days'] = array ("Sunday");
-		$opt2['openingtime'] = $openingtime[2];
-		$opt2['closingtime'] = $closingtime[2];
-		$result[] = $opt2;
+		if (isset($openingtime[2]) && isset($closingtime[2])) {
+			if ($closingtime[2] != "" && $openingtime[2] != "") {
+				$opt2['openingtime'] = $openingtime[2];
+				$opt2['closingtime'] = $closingtime[2];
+				$result[] = $opt2;
+			}
+		}
 
 		Database::exec("INSERT INTO `location_info` (locationid, openingtime) VALUES (:id, :openingtime) ON DUPLICATE KEY UPDATE openingtime=:openingtime",
 		 array('id' => $locationid, 'openingtime' => json_encode($result, true)));
