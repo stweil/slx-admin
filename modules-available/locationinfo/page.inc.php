@@ -538,9 +538,9 @@ class Page_LocationInfo extends Page
 					}
 				}
 
-				if (is_array($value[0])) {
+				if (is_array($value)) {
 					$selection = array();
-					foreach ($value[0] as $opt) {
+					foreach ($value as $opt) {
 						$option['option'] = $opt;
 						if ($opt == $credential['value']) {
 							$option['active'] = true;
