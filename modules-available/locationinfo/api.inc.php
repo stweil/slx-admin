@@ -332,13 +332,13 @@ function getPcStates($idList)
 		$broken = 0;
 
 		foreach ($roomInfo['computer'] as $computer) {
-			if ($computer['pcState'] == 0) {
+			if ($computer['pcState'] == "IDLE") {
 				$idle++;
-			} elseif ($computer['pcState'] == 1) {
+			} elseif ($computer['pcState'] == "OCCUPIED") {
 				$occupied++;
-			} elseif ($computer['pcState'] == 2) {
+			} elseif ($computer['pcState'] == "OFF") {
 				$off++;
-			} elseif ($computer['pcState'] == 3) {
+			} elseif ($computer['pcState'] == "BROKEN") {
 				$broken++;
 			}
 		}

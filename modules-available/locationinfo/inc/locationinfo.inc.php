@@ -25,13 +25,13 @@ class LocationInfo
 		$NOW = time();
 
 		if ($NOW - $lastseen > 14 * 86400) {
-			return 3;
+			return "BROKEN";
 		} elseif (($NOW - $lastseen > 610) || $lastboot === 0) {
-			return 2;
+			return "OFF";
 		} elseif ($logintime === 0) {
-			return 0;
+			return "IDLE";
 		} elseif ($logintime > 0) {
-			return 1;
+			return "OCCUPIED";
 		}
 		return -1;
 	}
