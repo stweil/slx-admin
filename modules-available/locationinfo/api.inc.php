@@ -155,6 +155,7 @@ function getRoomInfo($idList, $coords = false)
 function getOpeningTime($idList)
 {
 	$dbresult = array();
+	$finalArray = array();
 
 	if (!empty($idList)) {
 		// Build SQL Query for multiple ids.
@@ -171,14 +172,14 @@ function getOpeningTime($idList)
 			$handledIds[] = $data['id'];
 			$dbresult[] = $data;
 		}
-	}
 
-	$finalArray = array();
-	$idList = array_diff($idList, $handledIds);
-	foreach ($idList as $id) {
-		$data['id'] = $id;
-		$data['openingtime'] = array();
-		$dbresult[] = $data;
+
+		$idList = array_diff($idList, $handledIds);
+		foreach ($idList as $id) {
+			$data['id'] = $id;
+			$data['openingtime'] = array();
+			$dbresult[] = $data;
+		}
 	}
 
 	// Go through the db entrys [id] = id; [openingtime] = e.g. [{"days":["Saturday","Sunday"],"openingtime":"12:32","closingtime":"14:35"}]

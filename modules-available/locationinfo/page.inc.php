@@ -547,15 +547,28 @@ class Page_LocationInfo extends Page
 					}
 				}
 
+				$selection = array();
+
 				if (is_array($value)) {
-					$selection = array();
+
+					$selfirst = true;
 					foreach ($value as $opt) {
 						$option['option'] = $opt;
-						if ($opt == $credential['value']) {
-							$option['active'] = true;
+						if (isset($credential['value'])) {
+							if ($opt == $credential['value']) {
+								$option['active'] = true;
+							} else {
+								$option['active'] = false;
+							}
 						} else {
-							$option['active'] = false;
+							if ($selfirst) {
+								$option['active'] = true;
+								$selfirst = false;
+							} else {
+								$option['active'] = false;
+							}
 						}
+
 						$selection[] = $option;
 					}
 					$credential['type'] = "array";
