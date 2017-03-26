@@ -200,7 +200,7 @@ class CourseBackend_HisInOne extends CourseBackend
 
 	public function getCacheTime()
 	{
-		return 30 * 60;
+		return 30* 60;
 	}
 
 
@@ -229,7 +229,9 @@ class CourseBackend_HisInOne extends CourseBackend
 	{
 		if (empty($param)) {
 			$this->error = true;
-			$this->errormsg = 'No roomid was given';
+			$this->errormsg = 'Internal Error HisInOne';
+			error_log('No roomId was given in HisInOne fetchShedule');
+			return false;
 		}
 		$tTables = [];
 		//get all eventIDs in a given room

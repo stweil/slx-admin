@@ -133,7 +133,6 @@ class Coursebackend_Davinci extends CourseBackend
 			}
 			$schedules[$sroomId] = $timetable;
 		}
-		error_log('123'.json_encode($schedules));
 		return $schedules;
 	}
 }

@@ -127,8 +127,8 @@ abstract class CourseBackend
 	 *
 	 * @param $roomIds array with local ID as key and serverID as value
 	 * @return array a recursive array that uses the roomID as key
-	 * and has the schedule array as value. A shedule array contains jsons in this format:
-	 * {"start":JJJJ-MM-DD HH:MM:SS,"end":JJJJ-MM-DD HH:MM:SS,"title":string}
+	 * and has the schedule array as value. A shedule array contains an array in this format:
+	 * {"start"=>'JJJJ-MM-DD HH:MM:SS',"end"=>'JJJJ-MM-DD HH:MM:SS',"title"=>string}
 	 */
 	protected abstract function fetchSchedulesInternal($roomId);
 
@@ -140,6 +140,11 @@ abstract class CourseBackend
 	 */
 	public final function fetchSchedule($roomIDs)
 	{
+		if(empty($roomIDs)){
+			$this->error = true;
+			$this->errormsg = 'No roomid was given to fetch Shedule';
+			return false;
+		}
 		$sqlr = implode(",", $roomIDs);
 		$sqlr = '(' . $sqlr . ')';
 		$q = "SELECT locationid, calendar, serverroomid, lastcalendarupdate FROM location_info WHERE locationid IN " . $sqlr;
@@ -172,6 +177,10 @@ abstract class CourseBackend
 					}
 				}
 			}
+		}
+		//This is true if there is no need to check the HisInOne Server
+		if(empty($sRoomIDs)){
+			return $result;
 		}
 		$results = $this->fetchSchedulesInternal($sRoomIDs);
 		if ($results === false) {
