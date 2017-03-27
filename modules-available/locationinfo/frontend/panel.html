@@ -4,6 +4,9 @@
 <head>
 	<script type='text/javascript' src='../../../script/jquery.js'></script>
 	<style type='text/css'>
+		body{
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		}
 		.main{
 			background-color: lightgrey;
 
@@ -14,11 +17,23 @@
 			display: inline-block;
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			padding: 1vmin;
-
+			float:left;
+		}
+		.parent{
+			background-color: white;
+			display: inline-block;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			padding: 1vmin;
+			float:left
+		}
+		.childWithBorder{
+			display: inline-flex;
+			padding: 0.4vmin;
+			width:20vm;
 
 		}
 		.border{
-			display: inline-block;
+			display: inline-flex;
 			padding: 0.4vmin;
 		}
 		.courseFont{
@@ -103,8 +118,10 @@
 
 		function init() {
 			var ids = getUrlParameter("id");
+            console.log(ids);
 			$.getJSON("../../../api.php?do=locationinfo&action=roomtree&id=" + ids, function (result) {
 				generateLayout(result);
+
 				setInterval(update,1000);
 
 			});
@@ -121,7 +138,7 @@
 
 		function generateLayout(json) {
 			for (var i = 0; i< json.length;i++){
-				generateObject(json[i],($("body")));
+				generateObject(json[i],($("#main")));
 
 			}
 		}
@@ -160,27 +177,57 @@
 			}
 			return event;
 		}
+
+        /**
+         * Helper function to generate id string used in query functions
+         * @param list A string, wicht contains ids or not(for now)
+         * @param id An ID which should be added to the list
+         */
+        function addIdToUpdateList(list, id) {
+            if (list == "") {
+                list += id;
+            } else {
+                list += ("," + id);
+            }
+            return list;
+        }
+
+
+
+        var timeSteps = 10;
 		function update() {
 
-			if(lastPcUpdate ==null || (new MyDate().getTime()-lastPcUpdate.getTime()) > pcStateUpdateTime*1000){
-				$.getJSON("../../../api.php?do=locationinfo&action=pcstates&id=" + roomidsString, function (result) {
-					updatePcStates(result);
-					lastPcUpdate = new MyDate();
-				});
-			}
-			if(lastTimeTableUpdate ==null || (new MyDate().getTime()-lastTimeTableUpdate.getTime()) > TimeTableUpdateTime*1000){
-				$.getJSON("../../../api.php?do=locationinfo&action=calendars&id=" + roomidsString, function (result) {
-					UpdateTimeTables(result);
-					lastTimeTableUpdate = new MyDate();
-				});
-			}
+            if (timeSteps > 9) {
+                timeSteps = 0;
 
-		// todo get opeing time
-			if(lastTimeTableUpdate != null && lastPcUpdate !=null ) {
+                var calendarUpdateIds = "";
+                var rommUpdateIds = "";
+                for (var property in rooms) {
+                    if (rooms[property].config.lastCalendarUpdate == null || rooms[property].config.lastCalendarUpdate + rooms[property].config.calupdate < MyDate().getTime()) {
+
+                        calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
+                        rooms[property].config.lastCalendarUpdate = MyDate().getTime();
+                    }
+                    if (rooms[property].config.lastRoomUpdate == null || rooms[property].config.lastRoomUpdate + rooms[property].config.roomupdate < MyDate().getTime()) {
+                        rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
+                        rooms[property].config.lastRoomUpdate = MyDate().getTime();
+                    }
+                }
+
+
+                if (calendarUpdateIds != "") {
+                    console.log(calendarUpdateIds);
+                    queryCalendars(calendarUpdateIds);
+                }
+                if (rommUpdateIds != "") {
+                    queryRooms(rommUpdateIds);
+                }
+            }
+            // TODO
 				for (var property in rooms) {
-					upDateRoomState(rooms[property]);
-				}
-			}
+                    upDateRoomState(rooms[property]);
+                }
+
 
 		}
 		function UpdateTimeTables(json) {
@@ -195,7 +242,32 @@
 			}
 		}
 
-		function upDateRoomState(room) {
+        /**
+         * Querys Pc states
+         * @param ids Room ID's which should be queried. Format for e.g.: "20,5,6"
+         */
+        function queryRooms(ids) {
+            $.ajax({
+                url: "../../../api.php?do=locationinfo&action=pcstates&id=" + ids,
+                dataType: 'json',
+                cache: false,
+                timeout: 30000,
+                success: function (result) {
+                    var l = result.length;
+                    if (result[0] == null) {
+                        console.log("Error: Backend reported null back for RoomUpdate, this might happend if the room isn't" +
+                            "configurated.");
+                        return;
+                    }
+                    updatePcStates(result);
+                }, error: function () {
+
+                }
+            })
+        }
+
+
+        function upDateRoomState(room) {
 			if(room === undefined){
 				console.log("error");
 				return;
@@ -224,13 +296,12 @@
 		function updatePcStates(json){
 			var l = json.length;
 			for (var i = 0; i < l;i++){
-
 				updateRoomUsage(json[i].id,json[i].idle,json[i].occupied,json[i].off,json[i].broken)
 			}
 
 		}
 
-		function addRoom(id,name) {
+		function addRoom(id,name,config) {
 			var room = {
 				id: id,
 				name: name,
@@ -240,6 +311,9 @@
 				timeTilFree: null,
 				state: null,
 				openingTimes: null,
+                config: config,
+                lastCalendarUpdate: null,
+                lastRoomUpdate: null,
 				getState: function () {
 					if (this.state == null) {
 						ComputeCurrentState(this);
@@ -334,6 +408,9 @@
 
 		//need testing
 		function getNextEvent(json) {
+            if (json == null) {
+                return;
+            }
 			var event;
 			var now = new MyDate();
 			for (var i = 0; i < json.length; i++) {
@@ -353,6 +430,7 @@
 			}
 			return event;
 		}
+
 		function GetNextOpening(room) {
 			var now = new MyDate();
 			var day = now.getDay();
@@ -439,30 +517,48 @@
 
 		function generateChild(target,id,name) {
 
-			var text="<div class='border'>"  +
+			var text="<div class='childWithBorder'>"  +
 				"<div class='child paperEffect'>" +
 				"<div class='headerFont'>"+name+"</div>" +
 				"<div class='divAroundPcStates'>" +
-				"<div id = 'div_pc_On_"+id+"'  class='divPcOn '></div>" +
-				"<div id = 'div_pc_Used_"+id+"' class='divPcPcUsed'></div>" +
-				"<div id = 'div_pc_Off_"+id+"' class='divPcPcOff'></div>" +
-				"<div id = 'div_pc_Defect_"+id+"' class='divPcPcDefect'></div>" +
+				"<div id = 'div_pc_On_"+id+"'  class='divPcOn '>"+0+"</div>" +
+				"<div id = 'div_pc_Used_"+id+"' class='divPcPcUsed'>"+0+"</div>" +
+				"<div id = 'div_pc_Off_"+id+"' class='divPcPcOff'>"+0+"</div>" +
+				"<div id = 'div_pc_Defect_"+id+"' class='divPcPcDefect'>"+0+"</div>" +
 				"</div>" +
 				"<div id = 'div_course"+id+"'class='courseFont'></div>" +
 				"<div id = 'div_Time_"+id+"'class='courseFont'></div></div></div>";
 			$(target).append(text);
-			addRoom(id,name);
+            getConfig((id));
 
 		}
 
 		function generateParent(target,id,name) {
 			var text="<div class='border'>"  +
-			"<div class='child paperEffect'>" +
+			"<div class='parent paperEffect'>" +
 			"<div class='headerFont'>"+name+"</div>" +
 				"<div id='parent_"+ id +"'</div>"+
 				"</div></div>";
 			$(target).append(text);
 		}
+
+        function getConfig(id) {
+            $.ajax({
+                url: "../../../api.php?do=locationinfo&action=config&id=" + id,
+                dataType: 'json',
+                cache: false,
+                timeout: 30000,
+                success: function (result) {
+                        if (result.room != null) {
+                            delete result.time;
+                            room = addRoom(id, result.room, result);
+                        }
+                }, error: function () {
+                    //Todo Error handling:
+                }
+            })
+        }
+
 		var getUrlParameter = function getUrlParameter(sParam) {
 			var sPageURL = decodeURIComponent(window.location.search.substring(1)),
 				sURLVariables = sPageURL.split('&'),
@@ -477,6 +573,40 @@
 				}
 			}
 		};
+
+
+        /**
+         * querys the Calendar data
+         * @param ids ID'S of rooms to query as string, for e.g.: "5,17,8" or "5"
+         */
+        function queryCalendars(ids) {
+            var url = "../../../api.php?do=locationinfo&action=calendar&id=" + ids;
+
+            // Todo reimplement Frontend methode if needed
+			/*
+			 if(!(room.config.calendarqueryurl === undefined)) {
+			 url = room.config.calendarqueryurl;
+			 }
+			 */
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                cache: false,
+                timeout: 30000,
+                success: function (result) {
+                    console.log(result);
+                    UpdateTimeTables(result);
+
+
+                }, error: function () {
+
+                }
+            });
+        }
+
+
+
+
 		function GetTimeDiferenceAsString(a, b) {
 			if (a == null || b == null) {
 				return "";
@@ -505,5 +635,6 @@
 </head>
 <body class="main">
 	<h1>Raum Übersicht</h1>
+	<div id="main"></div>
 </body>
 </html>

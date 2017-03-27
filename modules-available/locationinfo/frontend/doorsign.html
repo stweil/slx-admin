@@ -27,252 +27,255 @@ optional:
 <html lang="de">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
 <head>
-	<title>DoorSign</title>
-	<script type='text/javascript' src='../../../script/jquery.js'></script>
-	<script type='text/javascript' src='../../js_jqueryui/clientscript.js'></script>
-	<link rel='stylesheet' type='text/css' href='../../js_jqueryui/style.css'/>
-	<link rel='stylesheet' type='text/css' href='jquery-week-calendar/jquery.weekcalendar.css'/>
+    <title>DoorSign</title>
+    <script type='text/javascript' src='../../../script/jquery.js'></script>
+    <script type='text/javascript' src='../../js_jqueryui/clientscript.js'></script>
+    <link rel='stylesheet' type='text/css' href='../../js_jqueryui/style.css'/>
+    <link rel='stylesheet' type='text/css' href='jquery-week-calendar/jquery.weekcalendar.css'/>
 
-	<script type='text/javascript' src="jquery-week-calendar/jquery.weekcalendar.js"></script>
-	<style type='text/css'>
+    <script type='text/javascript' src="jquery-week-calendar/jquery.weekcalendar.js"></script>
+    <style type='text/css'>
 
-		body {
-			font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
-			margin: 0;
-			width: 100%;
-			height: 100%;
-			float: left;
-			box-sizing: border-box;
+        body {
+            font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            float: left;
+            box-sizing: border-box;
 
-			background-color: #cacaca;
-			overflow: hidden;
-			position: absolute;
-			display: table;
+            background-color: #cacaca;
+            overflow: hidden;
+            position: absolute;
+            display: table;
 
-		}
+        }
 
-		.row {
-			background-color: #404040;
-			box-shadow: 0 0.1875rem 0.375rem rgba(0, 0, 0, 0.25);
-			margin-bottom: 4px;
+        .row {
+            background-color: #404040;
+            box-shadow: 0 0.1875rem 0.375rem rgba(0, 0, 0, 0.25);
+            margin-bottom: 4px;
 
-			width: 100%;
+            width: 100%;
 
-		}
+        }
 
-		.header {
-			display: table;
-			color: white;
-			padding: 0;
-			height: 8vw;
+        .header {
+            display: table;
+            color: white;
+            padding: 0;
+            height: 8vw;
 
-		}
+        }
 
-		.progressbar {
-			width: 0px;
-			height: 2px;
-			position: absolute;
-			background-color: red;
-			bottom: 2px;
-			z-index: 1;
-		}
+        .progressbar {
+            width: 0px;
+            height: 2px;
+            position: absolute;
+            background-color: red;
+            bottom: 2px;
+            z-index: 1;
+        }
 
-		.font {
-			display: table-cell;
-			vertical-align: middle;
-			font-size: 3vw;
-			font-weight: bold
-		}
+        .font {
+            display: table-cell;
+            vertical-align: middle;
+            font-size: 3vw;
+            font-weight: bold
+        }
 
-		.courseText {
-			text-align: center;
-		}
+        .courseText {
+            text-align: center;
+        }
 
-		.row::after {
-			content: "";
-			clear: both;
-			display: block;
-		}
+        .row::after {
+            content: "";
+            clear: both;
+            display: block;
+        }
 
-		[class*="col-"] {
-			float: left;;
-			padding: 0;
-			box-sizing: border-box;
-		}
+        [class*="col-"] {
+            float: left;;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-		.col-1 {
-			width: 33%;
-		}
+        .col-1 {
+            width: 33%;
+        }
 
-		.col-2 {
-			width: 33%;
-		}
+        .col-2 {
+            width: 33%;
+        }
 
-		.roomLayoutDesign {
-			position: relative;
-			float: left;
-			boxSizing: border-box;
-		}
+        .roomLayoutDesign {
+            position: relative;
+            float: left;
+            boxSizing: border-box;
+        }
 
-		.roompadding {
-			float: left;
-			position: relative;
-		}
+        .roompadding {
+            float: left;
+            position: relative;
+        }
 
-		.room {
-			position: relative;
-			background-color: white;
-			width: 100%;
-			height: 100%;
-			overflow: hidden;
-			border-width: 1px;
-			border-color: darkgrey;
-			border-style: solid;
+        .room {
+            position: relative;
+            background-color: white;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-width: 1px;
+            border-color: darkgrey;
+            border-style: solid;
 
-		}
+        }
 
-		.calendar {
-			float: left;
-			padding: 0;
-			dboxSizing: border-box;
-			background: linear-gradient(#cccccc, white);
+        .calendar {
+            float: left;
+            padding: 0;
+            dboxSizing: border-box;
+            background: linear-gradient(#cccccc, white);
 
-		}
+        }
 
-		.free-busy-busy {
-			background: grey;
-		}
+        .free-busy-busy {
+            background: grey;
+        }
 
-		.ui-widget-content {
-			color: white;
-		}
+        .ui-widget-content {
+            color: white;
+        }
 
-		.wc-header {
-			background-color: #404040;
-			font-weight: bold;
-		}
+        .wc-header {
+            background-color: #404040;
+            font-weight: bold;
+        }
 
-		.ui-state-default {
-			text-shadow: none;
-		}
+        .ui-state-default {
+            text-shadow: none;
+        }
 
-		.square {
-			display: table;
-			float: right;
-			padding: 0;
-			width: 8vw;
-			height: 8vw;
-		}
+        .square {
+            display: table;
+            float: right;
+            padding: 0;
+            width: 8vw;
+            height: 8vw;
+        }
 
-		.FreeSeatsFont {
-			display: table-cell;
-			vertical-align: middle;
-			font-size: 6vw;
-			color: white;
-			top: 0;
-			margin: 0 auto;
-			position: relative;
-			text-align: center;
-			font-weight: bold;
-			overflow: visible;
-		}
+        .FreeSeatsFont {
+            display: table-cell;
+            vertical-align: middle;
+            font-size: 6vw;
+            color: white;
+            top: 0;
+            margin: 0 auto;
+            position: relative;
+            text-align: center;
+            font-weight: bold;
+            overflow: visible;
+        }
 
-		.PCImgDiv{
-			position: absolute;
-			left: 0;
-			bottom: 0;
-			display: inline-block;
+        .PCImgDiv {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            display: inline-block;
 
-		}
-		.OverlayDiv{
-			position: absolute;
-			left: 0;
-			bottom: 0;
-			width: 100%;
-			height: 100%;
-			display: table;
-		}
-		.pcImg {
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height:100%;
+        }
 
-		}
-		.overlay{
-			position: relative;
-			width: 50%;
-			height: 50%;
-			opacity: 0.5;
-			float:left;
-			z-index: 5;
-		}
+        .OverlayDiv {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            display: table;
+        }
 
-		.overlay-rollstuhl {
-			width: 25%;
-			height: 50%;
-			background-color: white;
-			opacity: 0.5;
-			float:left;
-		}
+        .pcImg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
 
-		.wc-scrollable-grid {
+        }
 
-		}
+        .overlay {
+            position: relative;
+            width: 50%;
+            height: 50%;
+            opacity: 0.5;
+            float: left;
+            z-index: 5;
+        }
 
-		.ui-widget-content .ui-state-active {
-			font-weight: bold;
-			color: black;
-		}
+        .overlay-rollstuhl {
+            width: 25%;
+            height: 50%;
+            background-color: white;
+            opacity: 0.5;
+            float: left;
+        }
 
-		.wc-container {
-			font-weight: bold;
-		}
+        .wc-scrollable-grid {
 
-		.wc-today {
-			background-color: white;
-		}
+        }
 
-		.wc-time-header-cell {
-			background-color: #eeeeee;
-			border: none;
-		}
+        .ui-widget-content .ui-state-active {
+            font-weight: bold;
+            color: black;
+        }
 
-		.ui-corner-all {
-			moz-border-radius-bottomright: 0;
-			webkit-border-bottom-right-radius: 0;
-			-khtml-border-bottom-right-radius: 0;
-			border-bottom-right-radius: 0;
+        .wc-container {
+            font-weight: bold;
+        }
 
-			moz-border-radius-topright: 0;
-			webkit-border-top-right-radius: 0;
-			-khtml-border-top-right-radius: 0;
-			border-top-right-radius: 0;
+        .wc-today {
+            background-color: white;
+        }
 
-			moz-border-radius-bottomleft: 0;
-			webkit-border-bottom-left-radius: 0;
-			-khtml-border-bottom-left-radius: 0;
-			border-bottom-left-radius: 0;
+        .wc-time-header-cell {
+            background-color: #eeeeee;
+            border: none;
+        }
 
-			moz-border-radius-topleft: 0;
-			webkit-border-left-right-radius: 0;
-			-khtml-border-left-right-radius: 0;
-			border-top-left-radius: 0;
-		}
+        .ui-corner-all {
+            moz-border-radius-bottomright: 0;
+            webkit-border-bottom-right-radius: 0;
+            -khtml-border-bottom-right-radius: 0;
+            border-bottom-right-radius: 0;
 
-		.wc-scrollable-grid .wc-day-column-first {
-			border-style: solid;
+            moz-border-radius-topright: 0;
+            webkit-border-top-right-radius: 0;
+            -khtml-border-top-right-radius: 0;
+            border-top-right-radius: 0;
 
-		}
+            moz-border-radius-bottomleft: 0;
+            webkit-border-bottom-left-radius: 0;
+            -khtml-border-bottom-left-radius: 0;
+            border-bottom-left-radius: 0;
 
-		[class*="wc-day-"] {
-			border-color: grey;
-		}
+            moz-border-radius-topleft: 0;
+            webkit-border-left-right-radius: 0;
+            -khtml-border-left-right-radius: 0;
+            border-top-left-radius: 0;
+        }
+
+        .wc-scrollable-grid .wc-day-column-first {
+            border-style: solid;
+
+        }
+
+        [class*="wc-day-"] {
+            border-color: grey;
+        }
 
 
-	</style>
-	<script type='text/javascript'>
+    </style>
+    <script type='text/javascript'>
 
         var rooms = {};
         var lastSwitchTime;
@@ -313,7 +316,6 @@ optional:
         };
 
 
-
         $(document).ready(function () {
             if (!getId()) {
 
@@ -339,7 +341,7 @@ optional:
 
                         if (result.room == null) {
 
-                            for (var i=roomIds.length-1; i>=0; i--) {
+                            for (var i = roomIds.length - 1; i >= 0; i--) {
                                 if (roomIds[i] === id) {
                                     roomIds.splice(i, 1);
                                 }
@@ -451,12 +453,12 @@ optional:
             }
             if (getUrlParameter("vertical") == "true") {
                 room.config.vertical = true;
-            }else if (getUrlParameter("vertical") == "false") {
+            } else if (getUrlParameter("vertical") == "false") {
                 room.config.vertical = false;
             }
             if (getUrlParameter("einkmode") == "true") {
                 room.config.einkmode = true;
-            }else if (getUrlParameter("einkmode") == "false") {
+            } else if (getUrlParameter("einkmode") == "false") {
                 room.config.einkmode = false;
             }
 
@@ -567,9 +569,9 @@ optional:
                     document.getElementById("roomHeader_" + rooms[property].id).style.fontSize = "1.8vw";
                     document.getElementById("freeSeatsHeader_" + rooms[property].id).style.fontSize = "4.5vw";
                     document.getElementById("courseHeading_" + rooms[property].id).style.fontSize = "1.8vw";
-                    var headers =     document.getElementsByClassName('header');
-                    for(var j=0; j<headers.length; j++) {
-                        headers[j].style.height= "6vw";
+                    var headers = document.getElementsByClassName('header');
+                    for (var j = 0; j < headers.length; j++) {
+                        headers[j].style.height = "6vw";
                     }
                 }
                 if (roomsToshow == 3) {
@@ -578,9 +580,9 @@ optional:
                     document.getElementById("roomHeader_" + rooms[property].id).style.fontSize = "1.2vw";
                     document.getElementById("freeSeatsHeader_" + rooms[property].id).style.fontSize = "2.5vw";
                     document.getElementById("courseHeading_" + rooms[property].id).style.fontSize = "1.2vw";
-                    var headers =     document.getElementsByClassName('header');
-                    for(var j=0; j<headers.length; j++) {
-                        headers[j].style.height= "4vw";
+                    var headers = document.getElementsByClassName('header');
+                    for (var j = 0; j < headers.length; j++) {
+                        headers[j].style.height = "4vw";
                     }
 
                 }
@@ -591,9 +593,9 @@ optional:
                     document.getElementById("freeSeatsHeader_" + rooms[property].id).style.fontSize = "2.5vw";
                     document.getElementById("courseHeading_" + rooms[property].id).style.fontSize = "1.5vw";
 
-                    var headers =     document.getElementsByClassName('header');
-                    for(var j=0; j<headers.length; j++) {
-                        headers[j].style.height= "4vw";
+                    var headers = document.getElementsByClassName('header');
+                    for (var j = 0; j < headers.length; j++) {
+                        headers[j].style.height = "4vw";
                     }
                 }
 
@@ -626,15 +628,14 @@ optional:
          * @param list A string, wicht contains ids or not(for now)
          * @param id An ID which should be added to the list
          */
-        function addIdToUpdateList(list,id) {
-            if(list=="") {
+        function addIdToUpdateList(list, id) {
+            if (list == "") {
                 list += id;
             } else {
-                list +=(","+ id);
+                list += ("," + id);
             }
             return list;
         }
-
 
 
         var timeSteps = 10;
@@ -647,19 +648,19 @@ optional:
             // check ervery 10 sec if rooms need new calendar data or room data
             // groups request
 
-            if(timeSteps > 9) {
+            if (timeSteps > 9) {
                 timeSteps = 0;
 
-                var calendarUpdateIds ="";
-                var rommUpdateIds="";
+                var calendarUpdateIds = "";
+                var rommUpdateIds = "";
                 for (var property in rooms) {
-                    if (rooms[property].config.lastCalendarUpdate == null || rooms[property].config.lastCalendarUpdate  + rooms[property].config.calupdate < MyDate().getTime()) {
+                    if (rooms[property].config.lastCalendarUpdate == null || rooms[property].config.lastCalendarUpdate + rooms[property].config.calupdate < MyDate().getTime()) {
 
-                        calendarUpdateIds = addIdToUpdateList(calendarUpdateIds,rooms[property].id);
+                        calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
                         rooms[property].config.lastCalendarUpdate = MyDate().getTime();
                     }
-                    if (rooms[property].config.lastRoomUpdate == null || rooms[property].config.lastRoomUpdate  + rooms[property].config.roomupdate < MyDate().getTime()) {
-                        rommUpdateIds= addIdToUpdateList(rommUpdateIds,rooms[property].id);
+                    if (rooms[property].config.lastRoomUpdate == null || rooms[property].config.lastRoomUpdate + rooms[property].config.roomupdate < MyDate().getTime()) {
+                        rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
                         rooms[property].config.lastRoomUpdate = MyDate().getTime();
                     }
                 }
@@ -732,9 +733,9 @@ optional:
                 currentfreePcs: 0,
                 layout: null,
                 freePcs: 0,
-                resized: false,
-                lastCalendarUpdate:null,
-                lastRoomUpdate:null,
+                resized: true,
+                lastCalendarUpdate: null,
+                lastRoomUpdate: null,
                 getState: function () {
                     if (this.state == null) {
                         ComputeCurrentState(this);
@@ -770,11 +771,11 @@ optional:
                 daysToShow: daysToShow,
                 height: function ($calendar) {
                     var height = $(window).height();
-                    if(roomsToshow == 4) {
-                        height = height/2;
+                    if (roomsToshow == 4) {
+                        height = height / 2;
                     }
 
-                    height = height- document.getElementById('header_' + room.id).clientHeight - 5;
+                    height = height - document.getElementById('header_' + room.id).clientHeight - 5;
                     if (room.config.mode == 1 && room.config.vertical) {
                         height = height * (room.config.scale / 100)
                     }
@@ -792,15 +793,15 @@ optional:
                 date: MyDate(),
                 dateFormat: "j.n",
                 timeFormat: "G:i",
-                scrollToHourMillis:500,
+                scrollToHourMillis: 500,
                 use24Hour: true,
                 readonly: true,
                 showHeader: false,
                 hourLine: true,
-                shortDays: t("shortDays",room.config.language),
-                longDays: t("longDays",room.config.language),
+                shortDays: t("shortDays", room.config.language),
+                longDays: t("longDays", room.config.language),
                 buttons: false,
-                timeSeparator: " " + t("to",room.config.language) + " ",
+                timeSeparator: " " + t("to", room.config.language) + " ",
                 startOnFirstDayOfWeek: false,
                 displayFreeBusys: true,
                 defaultFreeBusy: {free: false}
@@ -816,8 +817,8 @@ optional:
          */
         function getOpeningTimes(room) {
             $.getJSON("../../../api.php?do=locationinfo&action=openingtime&id=" + room.id, function (result) {
-                if(Object.prototype.toString.call( result ) === '[object Array]' ) {
-                    if(result.length > 0){
+                if (Object.prototype.toString.call(result) === '[object Array]') {
+                    if (result.length > 0) {
                         SetOpeningTimes(result[0].openingtime, room);
                     }
                 }
@@ -911,11 +912,11 @@ optional:
             var url = "../../../api.php?do=locationinfo&action=calendar&id=" + ids;
 
             // Todo reimplement Frontend methode if needed
-			/*
-			 if(!(room.config.calendarqueryurl === undefined)) {
-			 url = room.config.calendarqueryurl;
-			 }
-			 */
+            /*
+             if(!(room.config.calendarqueryurl === undefined)) {
+             url = room.config.calendarqueryurl;
+             }
+             */
             $.ajax({
                 url: url,
                 dataType: 'json',
@@ -966,7 +967,7 @@ optional:
          * @param room Room Object
          */
         function scaleCalendar(room) {
-            if (room.config.mode == 3){
+            if (room.config.mode == 3) {
                 return;
             }
             if (room.openTimes == null) {
@@ -989,30 +990,29 @@ optional:
                 cal.weekCalendar("option", "useShortDayNames", false);
             }
             var clientHeight = $(window).height();
-            if(roomsToshow == 4) {
-                clientHeight = clientHeight/2;
+            if (roomsToshow == 4) {
+                clientHeight = clientHeight / 2;
             }
 
-            clientHeight = clientHeight	- document.getElementById('header_' + room.id).clientHeight
-                - document.getElementsByClassName("wc-time-column-header")[0].clientHeight -2;
+            clientHeight = clientHeight - document.getElementById('header_' + room.id).clientHeight
+                - document.getElementsByClassName("wc-time-column-header")[0].clientHeight - 2;
 
             if (room.config.mode == 1 && room.config.vertical) {
 
                 clientHeight = clientHeight * (room.config.scale / 100);
                 clientHeight -= 22;
             }
-            clientHeight -=6;
+            clientHeight -= 6;
             var height = clientHeight / (room.openTimes * cal.weekCalendar("option", "timeslotsPerHour"));
 
 
-
-            if(height < 30){
+            if (height < 30) {
                 height = 30;
             }
 
 
             cal.weekCalendar("option", "timeslotHeight", height);
-            if(room.openingTimesCalendar != null) {
+            if (room.openingTimesCalendar != null) {
                 cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
             }
             cal.weekCalendar("resizeCalendar");
@@ -1094,7 +1094,6 @@ optional:
         }
 
 
-
         /**
          * checks if a room is on a given date/time open
          * @param date Date Object
@@ -1164,7 +1163,6 @@ optional:
         }
 
 
-
         /**
          * Sets the free PCs number in the right corner and updates the sqare color acordingly
          * @param id Room id
@@ -1190,16 +1188,16 @@ optional:
         function UpdateRoomHeader(room) {
             var tmp = room.getState();
             if (tmp.state == "closed") {
-                $("#courseHeading_" + room.id).text(t("closed",room.config.language) + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
+                $("#courseHeading_" + room.id).text(t("closed", room.config.language) + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
                 SetFreeSeats(room.id, room.freePcs);
             } else if (tmp.state == "ClaendarEvent") {
                 $("#courseHeading_" + room.id).text(tmp.title);
                 SetFreeSeats(room.id, -1);
             } else if (tmp.state == "Free") {
-                $("#courseHeading_" + room.id).text(t("free",room.config.language) + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
+                $("#courseHeading_" + room.id).text(t("free", room.config.language) + " " + GetTimeDiferenceAsString(tmp.end, new MyDate(), room));
                 SetFreeSeats(room.id, room.freePcs);
             } else if (tmp.state == "FreeNoEnd") {
-                $("#courseHeading_" + room.id).text(t("free",room.config.language));
+                $("#courseHeading_" + room.id).text(t("free", room.config.language));
                 SetFreeSeats(room.id, room.freePcs);
             }
         }
@@ -1210,7 +1208,7 @@ optional:
          * @param Room Object
          */
         function ComputeCurrentState(room) {
-            if (!IsOpen(new MyDate(),room)) {
+            if (!IsOpen(new MyDate(), room)) {
                 room.state = {state: "closed", end: GetNextOpening(room), title: "", next: ""};
 
                 return;
@@ -1291,9 +1289,9 @@ optional:
 
             return resultDate;
         }
-		/*
-		 /========================================== Room Layout =============================================
-		 */
+        /*
+         /========================================== Room Layout =============================================
+         */
 
 
         var picSizeX = 3.8;
@@ -1314,8 +1312,12 @@ optional:
             }
 
             div.style.width = width;
+            if(room.config.mode == 4){
+                div.style.display = "none";
+            }
             //document.body.appendChild(div);
             $("#room_" + room.id).append(div);
+
 
         }
         /**
@@ -1414,11 +1416,11 @@ optional:
 
 
             var clientHeight = $(window).height();
-            if(roomsToshow == 4) {
-                clientHeight = clientHeight/2;
+            if (roomsToshow == 4) {
+                clientHeight = clientHeight / 2;
             }
 
-            clientHeight = clientHeight- document.getElementById('header_' + room.id).clientHeight - 5;
+            clientHeight = clientHeight - document.getElementById('header_' + room.id).clientHeight - 5;
 
             if (roomsToshow > 1) {
                 clientHeight -= 5;
@@ -1427,8 +1429,9 @@ optional:
                 clientHeight = clientHeight * (1 - (room.config.scale / 100));
             }
             var roomLayout = document.getElementById('roomLayout_' + room.id);
+
             var clientWidth = roomLayout.clientWidth;
-            roomLayout.style.height = clientHeight + "px";
+            //roomLayout.style.height = clientHeight + "px";
 
             var scaleX;
             if (room.xDifference != 0) {
@@ -1452,7 +1455,7 @@ optional:
             }
 
 
-            var tmp = [scaleYs, scaleY, scaleXs, scaleX,(clientHeight *0.9) / picSizeY,(clientWidth *0.9) / picSizeX];
+            var tmp = [scaleYs, scaleY, scaleXs, scaleX, (clientHeight * 0.9) / picSizeY, (clientWidth * 0.9) / picSizeX];
             room.scale = Math.min.apply(Math, tmp);
             room.xOffset = 0 - room.minX;
             room.yOffset = 0 - room.minY;
@@ -1470,15 +1473,15 @@ optional:
             for (var i = 0; i < layout.length; i++) {
 
                 if (layout[i].y != null && layout[i].x != null && !isNaN(layout[i].y) && !isNaN(layout[i].x)) {
-                    var text =  "<div class= 'PCImgDiv'  id ='layout_PC_div_" + room.id + "_"+layout[i].id +"'>" +
+                    var text = "<div class= 'PCImgDiv'  id ='layout_PC_div_" + room.id + "_" + layout[i].id + "'>" +
 
-                        "<div class= 'OverlayDiv' id ='layout_PC_overlay_"+ room.id + "_"+layout[i].id +"'>" +
-                        "</div>"+
-                        "<img class= 'pcImg' id ='layout_PC_" + room.id + "_"+layout[i].id +"'> </img>" +
+                        "<div class= 'OverlayDiv' id ='layout_PC_overlay_" + room.id + "_" + layout[i].id + "'>" +
+                        "</div>" +
+                        "<img class= 'pcImg' id ='layout_PC_" + room.id + "_" + layout[i].id + "'> </img>" +
                         "</div>";
 
                     $('#roomLayout_' + room.id).append(text);
-                    if(layout[i].hasOwnProperty('overlay')) {
+                    if (layout[i].hasOwnProperty('overlay')) {
                         for (var a = 0; a < layout[i].overlay.length; a++) {
                             addOverlay($('#layout_PC_overlay_' + room.id + "_" + layout[i].id), layout[i].overlay[a]);
                         }
@@ -1492,22 +1495,21 @@ optional:
          * @param object Object where the overlay should be added
          * @param overlayName name of the overlay (image name without ending)
          */
-        function addOverlay(object,overlayName) {
-            var a = [".svg",".png","jpg"];
+        function addOverlay(object, overlayName) {
+            var a = [".svg", ".png", "jpg"];
             var imgname;
-            for (var i = 0; i < a.length; a++ ) {
-                if(imageExists("img/overlay/" + overlayName + a[i])) {
+            for (var i = 0; i < a.length; a++) {
+                if (imageExists("img/overlay/" + overlayName + a[i])) {
                     imgname = "img/overlay/" + overlayName + a[i];
                     break;
                 }
 
             }
-            if(imgname == null)
-            {
+            if (imgname == null) {
                 return;
             }
-            var text = $("<img class='overlay'  src='"+ imgname+"'></img>");
-            text.addClass("overlay-"+overlayName);
+            var text = $("<img class='overlay'  src='" + imgname + "'></img>");
+            text.addClass("overlay-" + overlayName);
 
             object.append(text);
 
@@ -1521,9 +1523,8 @@ optional:
          * checks if images exists on the webserver(chaches it also)
          * @param image_url Path to the image
          */
-        function imageExists(image_url){
-            if(!imgExists.hasOwnProperty(image_url))
-            {
+        function imageExists(image_url) {
+            if (!imgExists.hasOwnProperty(image_url)) {
                 var http = new XMLHttpRequest();
                 http.open('HEAD', image_url, false);
                 http.send();
@@ -1545,7 +1546,7 @@ optional:
                 timeout: 30000,
                 success: function (result) {
                     var l = result.length;
-                    if(result[0]== null){
+                    if (result[0] == null) {
                         console.log("Error: Backend reported null back for RoomUpdate, this might happend if the room isn't" +
                             "configurated.");
                         return;
@@ -1559,7 +1560,6 @@ optional:
                 }
             })
         }
-
 
 
         /**
@@ -1589,11 +1589,11 @@ optional:
             for (var i = 0; i < room.layout.length; i++) {
                 if (room.layout[i].y != null && room.layout[i].x != null && !isNaN(room.layout[i].y) && !isNaN(room.layout[i].x)) {
                     var tmp = document.getElementById("layout_PC_div_" + room.id + "_" + room.layout[i].id);
-                    var img  = document.getElementById("layout_PC_" + room.id + "_" + room.layout[i].id);
+                    var img = document.getElementById("layout_PC_" + room.id + "_" + room.layout[i].id);
                     if (tmp != null) {
                         tmp.style.width = (picSizeX * room.scale);
-                        tmp.setAttribute("style","width:"+(picSizeX * room.scale)+"px");
-                        tmp.style.height = (picSizeY * room.scale)+"px";
+                        tmp.setAttribute("style", "width:" + (picSizeX * room.scale) + "px");
+                        tmp.style.height = (picSizeY * room.scale) + "px";
                         tmp.style.left = ((parseInt(room.layout[i].x) + room.xOffset) * room.scale) + "px";
                         tmp.style.top = ((parseInt(room.layout[i].y) + room.yOffset) * room.scale ) + "px";
                     }
@@ -1618,7 +1618,7 @@ optional:
 
                 var img;
                 // Pc free
-                if (update[i].pcState == "0") {
+                if (update[i].pcState == "IDLE") {
                     if (supportSvg) {
                         img = "img/pc_free";
                     } else {
@@ -1626,14 +1626,14 @@ optional:
                     }
                     freePcs++;
                     // Pc in use
-                } else if (update[i].pcState == "1") {
+                } else if (update[i].pcState == "OCCUPIED") {
                     if (supportSvg) {
                         img = "img/pc_used";
                     } else {
                         imgobj.style.backgroundColor = "red";
                     }
                     // PC off
-                } else if (update[i].pcState == "2") {
+                } else if (update[i].pcState == "OFF") {
                     if (supportSvg) {
                         img = "img/pc_off";
                     } else {
@@ -1662,9 +1662,9 @@ optional:
 
         }
 
-		/*
-		 /========================================== Misc =============================================
-		 */
+        /*
+         /========================================== Misc =============================================
+         */
         var resizeTimeout;
 
         // called when browser window changes size
@@ -1673,7 +1673,7 @@ optional:
         $(window).resize(function () {
 
             clearTimeout(resizeTimeout);
-            resizeTimeout =setTimeout(function () {
+            resizeTimeout = setTimeout(function () {
 
                 for (var property in rooms) {
 
@@ -1719,7 +1719,7 @@ optional:
          * @param lang languages in which should be translated
          * @returns r translated string
          */
-        function t(toTranslate,lang) {
+        function t(toTranslate, lang) {
 
             var r;
             if (lang === undefined) {
@@ -1793,7 +1793,7 @@ optional:
         }
 
 
-	</script>
+    </script>
 </head>
 <body>
 </body>
