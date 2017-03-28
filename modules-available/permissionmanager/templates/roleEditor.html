@@ -29,7 +29,7 @@
 		<div class="col-md-3">
 			<div class="btn-group-vertical module-toggle-group" role="group">
 				{{#moduleNames}}
-				<button id="button-{{.}}" type="button" class="btn btn-default module-toggle">{{.}}</button>
+				<button id="button-{{id}}" type="button" class="btn btn-default module-toggle" data-moduleid="{{id}}">{{name}}</button>
 				{{/moduleNames}}
 			</div>
 		</div>
@@ -69,7 +69,7 @@
 
 		$(".module-toggle").click(function () {
 			var button = $(this);
-			var moduleBox = $("#" + button.text());
+			var moduleBox = $("#" + button.data("moduleid"));
 			if (button.hasClass("btn-default")) {
 				button.removeClass("btn-default");
 				button.addClass("btn-primary");

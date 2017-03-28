@@ -83,12 +83,13 @@ class Page_PermissionManager extends Page
 			$permissions = PermissionUtil::getPermissions();
 			$permissionHTML = "";
 			foreach ($permissions as $k => $v) {
+				$name = Dictionary::translateFileModule($k, "module", "module_name");
 				$permissionHTML .= "
 				<div id='$k' class='panel panel-primary module-box' style='display: none;'>
 					<div class='panel-heading'>
 						<div class='checkbox'>
 							<input name='permissions[]' value='$k.*' type='checkbox' class='form-control'>
-							<label>$k</label>
+							<label>$name</label>
 						</div>
 					</div>
 					<div class='panel-body'>
@@ -98,7 +99,12 @@ class Page_PermissionManager extends Page
 			}
 
 			$data["locations"] = GetData::getLocations($selectedLocations);
-			$data["moduleNames"] = array_keys($permissions);
+			$data["moduleNames"] = array();
+			foreach (array_keys($permissions) as $moduleid) {
+				$data["moduleNames"][] = array("id" => $moduleid,
+					"name" => Dictionary::translateFileModule($moduleid, "module", "module_name"));
+			}
+
 			$data["permissionHTML"] = $permissionHTML;
 			Render::addTemplate('roleEditor', $data);
 		}
