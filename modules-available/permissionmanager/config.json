@@ -1,3 +1,4 @@
 {
-	"category":"main.content"
+	"category":"main.content",
+	"dependencies": [ "js_stupidtable"]
 }

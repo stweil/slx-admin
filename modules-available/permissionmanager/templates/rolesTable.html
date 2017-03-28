@@ -1,0 +1,65 @@
+<form method="post" action="?do=permissionmanager">
+	<input type="hidden" name="token" value="{{token}}">
+
+	<button class="btn btn-success" type="button" onclick="openRoleEditor()"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</button>
+
+	<div class="row">
+		<div class="col-md-12">
+			<table id="rolesTable" class="table table-condensed table-hover">
+				<thead>
+					<tr>
+						<th data-sort="string">{{lang_Roles}}</th>
+						<th>{{lang_Edit}}</th>
+						<th>{{lang_Delete}}</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				{{#roles}}
+					<tr>
+						<td>{{roleName}}</td>
+						<td>
+							<a href="?do=permissionmanager&show=roleEditor&roleid={{roleId}}">{{lang_Edit}}</a>
+						</td>
+						<td>
+							<a href="#deleteModal" data-toggle="modal" data-target="#deleteModal" onclick="deleteRole('{{roleId}}')">{{lang_Delete}}</a>
+						</td>
+					</tr>
+				{{/roles}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+	<!-- Modals -->
+	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">{{lang_Delete}}</h4>
+				</div>
+				<div class="modal-body">
+					{{lang_deleteCheck}}
+				</div>
+				<div class="modal-footer">
+					<input type="hidden" id="deleteId" name="deleteId" value=""/>
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="deleteRole" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_Delete}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</form>
+
+<script>
+	function openRoleEditor() {
+		window.location.href = "?do=permissionmanager&show=roleEditor"
+	}
+
+	function deleteRole($roleId) {
+		$(".modal-footer #deleteId").val($roleId);
+	}
+</script>

@@ -1,0 +1,160 @@
+<form method="post" action="?do=permissionmanager">
+	<input type="hidden" name="token" value="{{token}}">
+	<button class="btn btn-success" type="button" data-toggle="modal" data-target="#addRoleToUserModal"><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
+	<button class="btn btn-danger" type="button" data-toggle="modal" data-target="#removeRoleFromUserModal"><span class="glyphicon glyphicon-trash"></span> {{lang_removeRole}}</button>
+
+	<div class="row">
+		<div class="col-md-12">
+			<table id="usersTable" class="table table-condensed table-hover">
+				<thead>
+					<tr>
+						<th data-sort="string">{{lang_Users}}</th>
+						<th>{{lang_Roles}}</th>
+						<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				{{#user}}
+				<tr>
+					<td>{{name}}</td>
+					<td>
+						{{#role}}
+						<span class="label label-default customSpanMargin">{{.}}</span>
+						{{/role}}
+					</td>
+					<td data-sort-value="0">
+						<div class="checkbox">
+							<input id="{{userid}}" type="checkbox" name="users[]" value='{{userid}}'>
+							<label for="{{userid}}"></label>
+						</div>
+					</td>
+				</tr>
+				{{/user}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Modals -->
+	<div class ="modal fade" id="addRoleToUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">{{lang_addRole}}</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12 scrollingTable">
+							<table id="addRoleToUserTable" class="table table-condensed table-hover">
+								<thead>
+									<tr>
+										<th data-sort="string">{{lang_Roles}}</th>
+										<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
+									</tr>
+								</thead>
+
+									<tbody>
+									{{#roles}}
+									<tr>
+										<td>{{roleName}}</td>
+										<td data-sort-value="0">
+											<div class="checkbox">
+												<input id="add{{roleId}}" type="checkbox" name="roles[]" value='{{roleId}}'>
+												<label for="add{{roleId}}"></label>
+											</div>
+										</td>
+									</tr>
+									{{/roles}}
+									</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="addRoleToUser" class="btn btn-success"  onclick="clearRemoveRoleModal()"><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class ="modal fade" id="removeRoleFromUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel2">{{lang_Remove}}</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12 scrollingTable">
+							<table id="removeRoleFromUserTable" class="table table-condensed table-hover">
+								<thead>
+								<tr>
+									<th data-sort="string">{{lang_Roles}}</th>
+									<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
+								</tr>
+								</thead>
+
+								<tbody>
+								{{#roles}}
+								<tr>
+									<td>{{roleName}}</td>
+									<td data-sort-value="0">
+										<div class="checkbox">
+											<input id="remove{{roleId}}" type="checkbox" name="roles[]" value='{{roleId}}'>
+											<label for="remove{{roleId}}"></label>
+										</div>
+									</td>
+								</tr>
+								{{/roles}}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="removeRoleFromUser" class="btn btn-danger" onclick="clearAddRoleModal()"><span class="glyphicon glyphicon-trash"></span> {{lang_Remove}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function() {
+		// if checked,: mark green, else: unmark
+		$('input:checkbox').change(function() {
+			if ($(this).is(':checked')) {
+				$(this).closest("td").data("sort-value", 1);
+				$(this).closest("tr").css("background-color", "#f2ffe6");
+			} else {
+				$(this).closest("td").data("sort-value", 0);
+				$(this).closest("tr").css("background-color", "");
+			}
+
+		});
+
+	});
+
+
+	// if remove-Role button is clicked, uncheck all checkboxes in add-role modal so they aren't submitted too
+	function clearAddRoleModal () {
+		$('#addRoleToUserModal')
+			.find("input[type=checkbox]")
+			.prop("checked", "")
+			.end();
+	}
+
+	// if add-Role button is clicked, uncheck all checkboxes in remove-role modal so they aren't submitted too
+	function clearRemoveRoleModal() {
+		$('#removeRoleFromUserModal')
+			.find("input[type=checkbox]")
+			.prop("checked", "")
+			.end();
+	}
+
+</script>

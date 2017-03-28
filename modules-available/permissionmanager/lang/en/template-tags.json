@@ -1,3 +1,14 @@
 {
-    "lang_hello": "Hello"
+    "lang_Roles": "Roles",
+    "lang_Users": "Users",
+    "lang_Locations": "Locations",
+    "lang_addRole": "Add Role",
+    "lang_removeRole": "Remove Role",
+    "lang_newRole": "New Role",
+    "lang_Selected": "Selected",
+    "lang_Edit": "Edit",
+    "lang_Remove": "Remove",
+    "lang_Delete": "Delete",
+    "lang_removeCheck": "Are you sure you want to remove this role?",
+    "lang_deleteCheck": "Are you sure you want to delete this role?"
 }

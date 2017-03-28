@@ -1,3 +1,14 @@
 {
-    "lang_hello": "Hallo"
+    "lang_Roles": "Rollen",
+    "lang_Users": "Nutzer",
+    "lang_Locations": "Räume",
+    "lang_addRole": "Rolle zuweisen",
+    "lang_removeRole": "Rolle entfernen",
+    "lang_newRole": "Rolle anlegen",
+    "lang_Selected": "Ausgewählt",
+    "lang_Edit": "Bearbeiten",
+    "lang_Remove": "Entfernen",
+    "lang_Delete": "Löschen",
+    "lang_removeCheck": "Sind Sie sich sicher, dass Sie diese Rolle entfernen wollen?",
+    "lang_deleteCheck": "Sind Sie sich sicher, dass Sie diese Rolle löschen wollen?"
 }
