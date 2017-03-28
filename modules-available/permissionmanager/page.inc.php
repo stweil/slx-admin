@@ -60,7 +60,7 @@ class Page_PermissionManager extends Page
 	}
 
 	// Menu: Selected table is shown in blue (btn-primary)
-	function setButtonColors($show) {
+	private function setButtonColors($show) {
 		if ($show === 'roles') {
 			$buttonColors['rolesButtonClass'] = 'btn-primary';
 			$buttonColors['usersButtonClass'] = 'btn-default';
