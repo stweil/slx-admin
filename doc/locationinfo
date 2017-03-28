@@ -39,4 +39,68 @@ Returns an array with the calendar of the room(s). (JSON)
 e.g.:
 [{"id":7,"calendar":[{"title":"test exam","start":"2017-3-08 13:00:00","end":"2017-3-08 16:00:00"}]}]
 
-#########################
+##############################
+########## Frontend ##########
+##############################
+
+Doorsign
+========
+
+1.Usage
+=======
+parameter
+
+required:
+    id: [integer] room id, see in admin panel. For e.g.: id=5 or multiple, up to 4 e.g.: id=5,6,7,8
+
+optional:
+
+    lang:[en,de] set the language
+    mode:[1,2,3,4] sets the displaying
+        1: Calendar & Room
+        2: only Calendar
+        3: only Room
+        4: Calendar & Room alternately
+    daystoshow:[1,2,3,4,5,6,7] sets how many days the calendar shows
+    scale:[10-90] scales the calendar and Roomplan in mode 1
+    switchtime:[1-120] sets the time between switchen in mode 4  (in seconds)
+    calupdate: Time the calender querys for updates,in minutes.
+    roomupdate: Time the PCs in the room gets updated,in seconds.
+    rotation:[0-3] rotation of the roomplan
+    vertical:[true] only mode 1, sets the calendar above the roomplan
+    configupdate: Time interval the config gets updated (in minutes)
+    scaledaysauto: [true] if true it finds automatically the daystoshow parameter depending on display size
+
+
+All the optional parameters will overwrite the config settings in the admin panel. If more then one room is shown,then it will
+overwrite it for all rooms.
+
+2. Add an overlay
+=================
+First you need an Image(svg,png,jpg), add it to ./locationinfo/frontend/img/overlay.
+You can add your own css class if you want. To do so create an css  calss named .overlay-YOUR_IMAGE_NAME in the doorsign.html.
+You can find an example in the doorsign.html called ".overlay-rollstuhl".
+The backend functionaltiy is right now not implemented since it relays on the roominfo module.
+But you can add it manually.
+You need to add the image name (without ending) in the machine database on the position column with the key overlays in an array.
+
+For example (the name of the images could be overlay1.jpg, overlay1.svg):
+
+{"gridRow":"41","gridCol":"48","itemlook":"pc-south", "overlays":["overlay1","overlay2"]}
+
+
+3.Tipps & Tricks
+==================
+
+-if you show 2-3 rooms in mode 1, it's useful to use vertical mode.
+-if calendar items don't fit, show less days or if in mode 1 give the calendar more space(calendar width);
+-it is possible to use different modes if you show more then one room
+
+
+Panel
+=====
+
+parameter
+
+required:
+    id: [integer] room id, see in admin panel. For e.g.: id=5 or multiple, up to 4 e.g.: id=5,6,7,8
