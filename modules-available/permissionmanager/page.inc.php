@@ -20,13 +20,20 @@ class Page_PermissionManager extends Page
 			$users = Request::post('users', '');
 			$roles = Request::post('roles', '');
 			DbUpdate::addRoleToUser($users, $roles);
-		} else if ($action === 'removeRoleFromUser') {
+		} elseif ($action === 'removeRoleFromUser') {
 			$users = Request::post('users', '');
 			$roles = Request::post('roles', '');
 			DbUpdate::removeRoleFromUser($users, $roles);
-		} else if ($action === 'deleteRole') {
+		} elseif ($action === 'deleteRole') {
 			$id = Request::post('deleteId', false, 'string');
 			DbUpdate::deleteRole($id);
+		} elseif ($action === 'saveRole') {
+			$roleID = Request::post("roleid", false);
+			$roleName = Request::post("roleName");
+			$locType = Request::post("include", "off") == "on" ? "include" : "exclude";
+			$locations = Request::post("locations");
+			$permissions = Request::post("permissions");
+			DbUpdate::saveRole($roleName, $locType, $locations, $permissions, $roleID);
 		}
 	}
 
@@ -35,14 +42,15 @@ class Page_PermissionManager extends Page
 	 */
 	protected function doRender()
 	{
-		$show = Request::get("show", false);
-		// get menu button colors
-		$buttonColors = self::setButtonColors($show);
-
-		$data = array();
+		$show = Request::get("show", "roles");
 
 		// switch between tables, but always show menu to switch tables
-		if (!$show || $show === 'roles' || $show === 'users' || $show === 'locations') {
+		if ( $show === 'roles' || $show === 'users' || $show === 'locations' ) {
+			// get menu button colors
+			$buttonColors = self::setButtonColors($show);
+
+			$data = array();
+
 			Render::openTag('div', array('class' => 'row'));
 			Render::addtemplate('_page', $buttonColors);
 			Render::closeTag('div');
@@ -50,12 +58,49 @@ class Page_PermissionManager extends Page
 			if ($show === "roles") {
 				$data = array("roles" => GetData::getRoles());
 				Render::addTemplate('rolesTable', $data);
-			} else if ($show === "users") {
+			} elseif ($show === "users") {
 				$data = array("user" => GetData::getUserData(), "roles" => GetData::getRoles());
 				Render::addTemplate('usersTable', $data);
-			} else if ($show === "locations") {
+			} elseif ($show === "locations") {
 				Render::addTemplate('locationsTable', $data);
 			}
+		} elseif ($show === "roleEditor") {
+			$data = array();
+
+			$roleID = Request::get("roleid", false);
+			$selectedLocations = array();
+			if ($roleID) {
+				$roleData = GetData::getRoleData($roleID);
+				$selectedLocations = $roleData["locations"];
+				$data["roleid"] = $roleID;
+				$data["roleName"] = $roleData["name"];
+				$data["includeChecked"] = $roleData["locType"] == "include" ? "checked" : "";
+				$data["selectedPermissions"] = implode(" ", $roleData["permissions"]);
+			} else {
+				$data["includeChecked"] = "checked";
+			}
+
+			$permissions = PermissionUtil::getPermissions();
+			$permissionHTML = "";
+			foreach ($permissions as $k => $v) {
+				$permissionHTML .= "
+				<div id='$k' class='panel panel-primary module-box' style='display: none;'>
+					<div class='panel-heading'>
+						<div class='checkbox'>
+							<input name='permissions[]' value='$k.*' type='checkbox' class='form-control'>
+							<label>$k</label>
+						</div>
+					</div>
+					<div class='panel-body'>
+			";
+				$permissionHTML .= self::generateSubPermissionHTML($v, $k);
+				$permissionHTML .= "</div></div>";
+			}
+
+			$data["locations"] = GetData::getLocations($selectedLocations);
+			$data["moduleNames"] = array_keys($permissions);
+			$data["permissionHTML"] = $permissionHTML;
+			Render::addTemplate('roleEditor', $data);
 		}
 	}
 
@@ -65,11 +110,11 @@ class Page_PermissionManager extends Page
 			$buttonColors['rolesButtonClass'] = 'btn-primary';
 			$buttonColors['usersButtonClass'] = 'btn-default';
 			$buttonColors['locationsButtonClass'] = 'btn-default';
-		} else if ($show === 'users') {
+		} elseif ($show === 'users') {
 			$buttonColors['rolesButtonClass'] = 'btn-default';
 			$buttonColors['usersButtonClass'] = 'btn-primary';
 			$buttonColors['locationsButtonClass'] = 'btn-default';
-		} else if ($show === 'locations') {
+		} elseif ($show === 'locations') {
 			$buttonColors['rolesButtonClass'] = 'btn-default';
 			$buttonColors['usersButtonClass'] = 'btn-default';
 			$buttonColors['locationsButtonClass'] = 'btn-primary';
@@ -80,6 +125,33 @@ class Page_PermissionManager extends Page
 		}
 
 		return $buttonColors;
+	}
+
+	private static function generateSubPermissionHTML($subPermissions, $permissionString)
+	{
+		$html = "<ul class='list-group'>";
+		foreach ($subPermissions as $k => $v) {
+			$tmpPermString = $permissionString.".".$k;
+			$checkBoxValue  = $tmpPermString;
+			if (is_array($v)) {
+				$checkBoxValue .= ".*";
+			} else {
+				$k .= " - ".$v;
+			}
+			$html .= "
+				<li class='list-group-item'>
+					<div class='checkbox'>
+						<input name='permissions[]' value='$checkBoxValue' type='checkbox' class='form-control'>
+						<label>$k</label>
+					</div>
+			";
+			if (is_array($v)) {
+				$html .= self::generateSubPermissionHTML($v, $tmpPermString);
+			}
+			$html .= "</li>";
+		}
+		$html .= "</ul>";
+		return $html;
 	}
 
 }

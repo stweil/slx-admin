@@ -1,4 +1,4 @@
 {
 	"category":"main.content",
-	"dependencies": [ "js_stupidtable"]
+	"dependencies": [ "js_stupidtable", "bootstrap_switch", "js_selectize" ]
 }

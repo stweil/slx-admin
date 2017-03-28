@@ -29,6 +29,34 @@ class GetData {
 		return $data;
 	}
 
+	public static function getLocations($selected) {
+		$res = Database::simplequery("SELECT locationid, locationname FROM location");
+		$data = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$data[] = array('locid' => $row['locationid'], 'locName' => $row['locationname'],
+				'selected' => in_array($row['locationid'], $selected) ? "selected" : "");
+		}
+		return $data;
+	}
+
+	public static function getRoleData($roleID) {
+		$query = "SELECT id, name, locType FROM role WHERE id = $roleID";
+		$data = Database::queryFirst($query);
+		$query = "SELECT roleid, locid FROM roleXlocation WHERE roleid = $roleID";
+		$res = Database::simpleQuery($query);
+		$data["locations"] = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$data["locations"][] = $row['locid'];
+		}
+		$query = "SELECT roleid, permissionid FROM roleXpermission WHERE roleid = $roleID";
+		$res = Database::simpleQuery($query);
+		$data["permissions"] = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$data["permissions"][] = $row['permissionid'];
+		}
+		return $data;
+	}
+
 	// UserID, User Login Name, Roles of each User
 	private static function queryUserData() {
 		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, GROUP_CONCAT(role.name ORDER BY role.name ASC) AS role

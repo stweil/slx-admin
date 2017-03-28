@@ -3,6 +3,17 @@
     margin-bottom: 50px;
 }
 
+#saveButton {
+    margin-right: 10px;
+}
+
+
+#roleName {
+    width: 200px;
+    display: inline-block;
+    margin-left: 20px;
+}
+
 .table {
     margin-top: 20px;
 }
@@ -10,11 +21,6 @@
 .table > tbody > tr > td {
     vertical-align: middle;
     height: 50px;
-}
-
-.checkbox {
-    margin-top: 0;
-    margin-bottom: 0;
 }
 
 .scrollingTable {
@@ -26,4 +32,54 @@
     display: inline-block;
     margin-top: 2px;
     margin-bottom: 2px;
+}
+
+.panel-primary > .panel-heading {
+    background-image: none;
+}
+
+.panel, .row {
+    margin-bottom: 20px;
+}
+
+.list-group, .checkbox {
+    margin: 0;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.module-toggle-group {
+    width: 100%;
+}
+
+.module-container {
+    -moz-column-gap: 20px;
+    -webkit-column-gap: 20px;
+    column-gap: 20px;
+}
+
+
+.module-container div {
+    display: inline-block;
+    width: 100%;
+}
+
+
+@media (max-width: 767px) {
+    .module-container {
+        -moz-column-count: 1;
+        -webkit-column-count: 1;
+        column-count: 1;
+    }
+}
+
+@media (min-width: 768px) {
+    .module-container {
+        -moz-column-count: 2;
+        -webkit-column-count: 2;
+        column-count: 2;
+    }
 }

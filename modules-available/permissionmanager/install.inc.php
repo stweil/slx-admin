@@ -5,6 +5,7 @@ $res = array();
 $res[] = tableCreate('role', "
 	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 	`name` varchar(200) NOT NULL,
+	`locType` varchar(200) NOT NULL DEFAULT 'include',
 	PRIMARY KEY (`id`)
 ");
 
@@ -22,6 +23,6 @@ $res[] = tableCreate('roleXlocation', "
 
 $res[] = tableCreate('roleXpermission', "
 	`roleid` int(10) unsigned NOT NULL,
-	`permissionid`int(10) unsigned NOT NULL,
+	`permissionid` varchar(200) NOT NULL,
 	PRIMARY KEY (`roleid`, `permissionid`)
 ");

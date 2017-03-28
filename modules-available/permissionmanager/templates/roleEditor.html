@@ -1,0 +1,127 @@
+<form method="post" action="?do=permissionmanager">
+	<input type="hidden" name="action" value="saveRole">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="roleid" value="{{roleid}}">
+	<div class="row">
+		<div class="col-md-12">
+			<b>Name:</b>
+			<input name="roleName" value="{{roleName}}" type="text" id="roleName" class="form-control">
+			<button type="button" id="cancelButton" class="btn btn-default pull-right"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+			<button type="submit" id="saveButton" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-3">
+			<b style="line-height: 34px">Locations:</b>
+			<div class="pull-right"><input name="include" {{includeChecked}} type="checkbox" id="locSwitch"></div>
+		</div>
+		<div class="col-md-9 text-left">
+			<select multiple name="locations[]" id="select-location">
+				<option value></option>
+				{{#locations}}
+				<option value="{{locid}}" {{selected}}>{{locName}}</option>
+				{{/locations}}
+			</select>
+		</div>
+	</div>
+	{{abc}}
+	<div class="row">
+		<div class="col-md-3">
+			<div class="btn-group-vertical module-toggle-group" role="group">
+				{{#moduleNames}}
+				<button id="button-{{.}}" type="button" class="btn btn-default module-toggle">{{.}}</button>
+				{{/moduleNames}}
+			</div>
+		</div>
+		<div class="col-md-9 module-container">
+
+			{{{permissionHTML}}}
+
+		</div>
+	</div>
+</form>
+
+<script type="application/javascript">
+
+	selectedPermissions = "{{selectedPermissions}}";
+
+	document.addEventListener("DOMContentLoaded", function () {
+		$('#select-location').selectize({
+			allowEmptyOption: false,
+			maxItems: null,
+			highlight: false,
+			hideSelected: true,
+			create: false,
+			plugins: [ "remove_button" ]
+		});
+
+		var locSwitch = $("#locSwitch");
+		locSwitch.bootstrapSwitch("size", "normal");
+		locSwitch.bootstrapSwitch("labelWidth", 1);
+		locSwitch.bootstrapSwitch("onText", "include");
+		locSwitch.bootstrapSwitch("offText", "exclude");
+		locSwitch.bootstrapSwitch("onColor", "success");
+		locSwitch.bootstrapSwitch("offColor", "danger");
+
+		$("form input").keydown(function(e) {
+			if (e.keyCode === 13) e.preventDefault();
+		});
+
+		$(".module-toggle").click(function () {
+			var button = $(this);
+			var moduleBox = $("#" + button.text());
+			if (button.hasClass("btn-default")) {
+				button.removeClass("btn-default");
+				button.addClass("btn-primary");
+				moduleBox.show();
+			} else {
+				button.removeClass("btn-primary");
+				button.addClass("btn-default");
+				moduleBox.hide();
+			}
+		});
+
+		$(".module-container input[type=checkbox]").change(function () {
+			var parent = $(this).parent().parent();
+			if (parent.hasClass("panel-heading")) parent = parent.parent();
+			parent = parent.find("ul:first");
+			parent.find("ul").removeClass("disabled");
+			var checkboxes = parent.find("input[type=checkbox]");
+			if (parent.hasClass("disabled")) {
+				checkboxes.prop("disabled", false);
+				checkboxes.prop("checked", false);
+				parent.removeClass("disabled");
+			} else {
+				checkboxes.prop("disabled", true);
+				checkboxes.prop("checked", true);
+				parent.addClass("disabled");
+			}
+		});
+		
+		$("#cancelButton").click(function () {
+			window.location.replace("?do=permissionmanager&show=roles");
+		});
+
+		$('form').submit(function () {
+			var name = $.trim($('#roleName').val());
+			if (name  === '') {
+				alert('{{lang_emptyNameWarning}}');
+				return false;
+			}
+		});
+
+		var permissions = selectedPermissions.split(" ");
+		var arrayLength = permissions.length;
+		for (var i = 0; i < arrayLength; i++) {
+			var checkbox = $("input[type=checkbox][value='"+permissions[i]+"']");
+			checkbox.trigger('change').attr('checked', 'checked');
+			var moduleBox = checkbox.closest(".module-box");
+			moduleBox.show();
+			var button = $("#button-"+moduleBox.attr('id'));
+			button.removeClass("btn-default");
+			button.addClass("btn-primary");
+		}
+
+	});
+
+</script>
