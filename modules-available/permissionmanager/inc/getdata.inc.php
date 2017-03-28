@@ -18,7 +18,7 @@ class GetData {
 
 	// get all roles from database (id and name)
 	public static function getRoles() {
-		$res = Database::simpleQuery("SELECT id, name FROM role ORDER BY name");
+		$res = Database::simpleQuery("SELECT id, name FROM role ORDER BY name ASC");
 		$data = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$data[] = array(
@@ -31,7 +31,7 @@ class GetData {
 
 	// UserID, User Login Name, Roles of each User
 	private static function queryUserData() {
-		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, GROUP_CONCAT(role.name) AS role
+		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, GROUP_CONCAT(role.name ORDER BY role.name ASC) AS role
 												FROM user
 													LEFT JOIN userXrole ON user.userid = userXrole.userid
 													LEFT JOIN role ON userXrole.roleid = role.id
