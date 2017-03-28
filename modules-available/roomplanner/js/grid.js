@@ -17,6 +17,7 @@ if (!roomplanner) var roomplanner = {
 		},
 		settings: {
 			cellsep: 4,
+			cellsize: 25,
 			scale: 100,
 			room: {
 				width: 33,
@@ -363,6 +364,7 @@ if (!roomplanner) var roomplanner = {
 			});
 			
 			roomplanner.grid.scale(roomplanner.settings.scale);
+			roomplanner.fitContent();
 		},
 		clear: function() {
 			$('#draw-element-area').html('');
@@ -393,20 +395,18 @@ roomplanner.grid = (function() {
 				$('#drawarea').css('background-size',num);
 				roomplanner.settings.scale = num;
 				$('#draw-element-area .ui-draggable').each(function(idx,item) {
-					var h = $(item).attr('data-height') * roomplanner.getScaleFactor();
-					var w = $(item).attr('data-width') * roomplanner.getScaleFactor();
+					var $item = $(item);
+					var h = $item.attr('data-height') * roomplanner.getScaleFactor();
+					var w = $item.attr('data-width') * roomplanner.getScaleFactor();
 					//var pos = roomplanner.getCelloffset()
+
+					var pos = roomplanner.getCellPositionFromGrid($item.attr('gridRow'),$item.attr('gridCol'));
 					
-					var l = parseInt($(item).css('left')) * roomplanner.getScaleFactor();
-					var t = parseInt($(item).css('top')) * roomplanner.getScaleFactor();
-					
-					var pos = roomplanner.getCellPositionFromGrid($(item).attr('gridRow'),$(item).attr('gridCol'));
-					
-					$(item).css({width: w+"px", height: h+"px", left: pos[0]+"px", top: pos[1]+"px"});
-					$(item).draggable("option","grid",[(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)]);
+					$item.css({width: w+"px", height: h+"px", left: pos[0]+"px", top: pos[1]+"px"});
+					$item.draggable("option","grid",[(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)]);
 					
 					if (roomplanner.isElementResizable(item)) {
-						$(item).resizable("option","grid",[(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)]);
+						$item.resizable("option","grid",[(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)]);
 					}
 				});
 				this.resize();
@@ -422,6 +422,44 @@ roomplanner.grid = (function() {
 		return grid;
 }
 )();
+
+roomplanner.fitContent = function() {
+	var minX = 99999;
+	var minY = 99999;
+	var maxX = -99999;
+	var maxY = -99999;
+	$('#draw-element-area .ui-draggable').each(function(idx,item) {
+		var $item = $(item);
+
+		var l = parseInt($item.attr('gridcol')) * roomplanner.settings.cellsize;
+		var r = l + parseInt($item.attr('data-width'));
+		var t = parseInt($item.attr('gridrow')) * roomplanner.settings.cellsize;
+		var b = t + parseInt($item.attr('data-height'));
+
+		if (l < minX) minX = l;
+		if (t < minY) minY = t;
+		if (r > maxX) maxX = r;
+		if (b > maxY) maxY = b;
+	});
+	if (minX > maxX)
+		return;
+	var width = (maxX - minX) / $('#drawpanel .panel-body').width();
+	var height = (maxY - minY) / $('#drawpanel .panel-body').height();
+	var scale;
+	if (width > height) {
+		scale = Math.floor(100 / width);
+	} else {
+		scale = Math.floor(100 / height);
+	}
+	roomplanner.slider.slider('value', scale);
+	scale = roomplanner.settings.scale;
+	var opts = {
+		left: -(minX * (scale / 100)) + "px",
+		top: -(minY * (scale / 100)) + "px"
+	};
+
+	$('#drawarea').css(opts);
+};
 
 $(document).ready(function(){
 	roomplanner.grid.init();
