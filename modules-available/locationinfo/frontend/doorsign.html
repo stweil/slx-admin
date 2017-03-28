@@ -1009,8 +1009,22 @@ optional:
             if (height < 30) {
                 height = 30;
             }
-
-
+            // Scale calendar font
+            console.log(height);
+            if(height > 120){
+                cal.weekCalendar("option","textSize",28);
+            }
+            else if(height > 100){
+                cal.weekCalendar("option","textSize",24);
+            } else if(height > 80) {
+                cal.weekCalendar("option","textSize",22);
+            } else if(height > 70) {
+                cal.weekCalendar("option","textSize",20);
+            } else if (height > 60) {
+                cal.weekCalendar("option","textSize",14);
+            } else {
+                cal.weekCalendar("option","textSize",13);
+            }
             cal.weekCalendar("option", "timeslotHeight", height);
             if (room.openingTimesCalendar != null) {
                 cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
