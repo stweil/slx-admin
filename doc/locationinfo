@@ -1,0 +1,42 @@
+########## API ##########
+
+/slx-admin/api.php?do=locationinfo
+
+&action=roominfo
+&id= (1 or 1,2,3…)
+[optional] &coords= (true/false)
+Returns an array with the information of the room(s). (JSON) pcState => (IDLE, OCCUPIED, OFF, BROKEN))
+e.g.:
+[{"id":"11","computer":[{"id":"6BF41E7F-C663-E211-9BAC-C5625F50F9E8","pcState":"OFF"}]}]
+
+&action=openingtime
+&id= (1 or 1,2,3...)
+Return an array with the openingtime of the room(s). (JSON)
+e.g.:
+[{"id":"11","openingtime":{"Monday":[{"HourOpen":"7","MinutesOpen":"00","HourClose":"20","MinutesClose":"00"}],"Tuesday":[{"HourOpen":"7","MinutesOpen":"00","HourClose":"20","MinutesClose":"00"}],"Wednesday":[{"HourOpen":"7","MinutesOpen":"00","HourClose":"20","MinutesClose":"00"}],"Thursday":[{"HourOpen":"7","MinutesOpen":"00","HourClose":"20","MinutesClose":"00"}],"Friday":[{"HourOpen":"7","MinutesOpen":"00","HourClose":"20","MinutesClose":"00"}],"Saturday":[{"HourOpen":"9","MinutesOpen":"00","HourClose":"13","MinutesClose":"00"}]}}]
+
+&action=roomtree
+&id= (1 or 1,2,3...)
+Returns the roomtree. (JSON)
+e.g.:
+[{"id":"8","name":"4er-Netz","childs":[{"id":"1","name":"4er-Netz(1-10)","childs":[{"id":"5","name":"bwLehrstuhl 4.4","childs":[]}]},{"id":"11","name":"Raum -113","childs":[]}]}]
+
+&action=config
+&id= (1)
+Return the config of a room. (JSON)
+e.g.:
+{"language":"en","mode":1,"vertical":false,"eco":false,"scaledaysauto":false,"daystoshow":7,"rotation":0,"scale":50,"switchtime":20,"calupdate":30,"roomupdate":30,"configupdate":180,"room":"Raum -113","time":"2017-3-27 2:36:40"}
+
+&action=pcstates
+&id= (1 or 1,2,3...)
+Returns an array of the state stats of the room(s). (JSON)
+e.g.:
+[{"id":"11","idle":0,"occupied":0,"off":1,"broken":0}]
+
+&action=calendar
+&id= (1 or 1,2,3...)
+Returns an array with the calendar of the room(s). (JSON)
+e.g.:
+[{"id":7,"calendar":[{"title":"test exam","start":"2017-3-08 13:00:00","end":"2017-3-08 16:00:00"}]}]
+
+#########################
