@@ -3,9 +3,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
 <head>
 	<script type='text/javascript' src='../../../script/jquery.js'></script>
+
 	<style type='text/css'>
 		body{
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			background-color: lightgrey;
 		}
 		.main{
 			background-color: lightgrey;
@@ -29,13 +31,24 @@
 		.childWithBorder{
 			display: inline-flex;
 			padding: 0.4vmin;
-			width:20vm;
 
+		}
+		.outermost{
+
+
+		}
+		.row{
+			float:left
 		}
 		.border{
 			display: inline-flex;
 			padding: 0.4vmin;
 		}
+		.borderout{
+			display: inline-flex;
+			padding: 0.4vmin;
+		}
+
 		.courseFont{
 			padding: 0.5vmin;
 			font-size: 2vmin;
@@ -118,7 +131,6 @@
 
 		function init() {
 			var ids = getUrlParameter("id");
-            console.log(ids);
 			$.getJSON("../../../api.php?do=locationinfo&action=roomtree&id=" + ids, function (result) {
 				generateLayout(result);
 
@@ -137,46 +149,78 @@
 		}
 
 		function generateLayout(json) {
-			for (var i = 0; i< json.length;i++){
-				generateObject(json[i],($("#main")));
+            var ids = getUrlParameter("id");
+            ids = ids.split(',');
+            for(var t = 0; t< ids.length;t++)
+            {
 
-			}
+                for (var i = 0; i < json.length; i++) {
+                    if(ids[t]== json[i].id) {
+                        var el = generateObject(json[i], ($("#main")), true);
+                    }
+
+                }
+            }
+
 		}
 
-
-		function generateObject(json,myParent){
+        /**
+         * generates the divs, decidecs if parent or child
+         * @param json Room tree json
+		 * @param myParent parent div
+         * @param outermost if the object is a root node
+         * @returns generated div
+         */
+		function generateObject(json,myParent,outermost){
+		    var obj;
 			if(json.childs.length == 0) {
-				generateChild(myParent,json.id,json.name)
+				obj  =generateChild(myParent,json.id,json.name,outermost)
 			} else {
-				generateParent(myParent,json.id,json.name);
+				obj = generateParent(myParent,json.id,json.name,outermost);
 				for (var i = 0; i < json.childs.length;i++){
 
 					generateObject(json.childs[i],$("#parent_"+json.id));
 				}
 			}
+			return obj;
 
 		}
 
-		function getNextEvent(json) {
-			var event;
-			var now = new MyDate();
-			for (var i = 0; i < json.length; i++) {
-				//event is now active
-				if (json[i].start.getTime() < now.getTime() && json[i].end.getTime() > now.getTime()) {
-					return json[i];
+        /**
+         * Retruns the number of leaveschilds of the current node (inklusive leaves childs of childs)
+         * @param json Json of the room tree
+         * @returns number of leaveschilds of the current node
+         */
+		function getChildsRekusivly(json){
+		    var childs = 0;
+            for (var i = 0; i < json.childs.length;i++){
+                if(json.childs[i].childs.length == 0){
+                    childs++;
+                } else {
+                    childs = getChildsRekusivly(json.childs[i]);
 				}
-				//first element to consider
-				if (event == null) {
-					if (json[i].start.getTime() > now.getTime()) {
-						event = json[i];
-					}
-				}
-				if (json[i].start.getTime() > now.getTime() && event.start.getTime() > json[i].start.getTime()) {
-					event = json[i];
-				}
-			}
-			return event;
+
+            }
+            return childs;
 		}
+
+		/**
+		 * Retruns the number of leaves childs of the current node
+		 * @param json Json of the room tree
+		 * @returns number of leaveschilds of the current node
+		 */
+		function getChilds(json) {
+
+		    var childs = 0;
+            for (var i = 0; i < json.childs.length;i++){
+                if(json.childs[i].childs.length == 0){
+                    childs++;
+				}
+            }
+            return childs;
+        }
+
+
 
         /**
          * Helper function to generate id string used in query functions
@@ -203,20 +247,17 @@
                 var calendarUpdateIds = "";
                 var rommUpdateIds = "";
                 for (var property in rooms) {
-                    if (rooms[property].config.lastCalendarUpdate == null || rooms[property].config.lastCalendarUpdate + rooms[property].config.calupdate < MyDate().getTime()) {
-
+                    if (rooms[property].lastCalendarUpdate == null || rooms[property].lastCalendarUpdate + rooms[property].config.calupdates< MyDate().getTime()) {
                         calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
-                        rooms[property].config.lastCalendarUpdate = MyDate().getTime();
+                        rooms[property].lastCalendarUpdate = MyDate().getTime();
                     }
-                    if (rooms[property].config.lastRoomUpdate == null || rooms[property].config.lastRoomUpdate + rooms[property].config.roomupdate < MyDate().getTime()) {
+                    if (rooms[property].lastRoomUpdate == null || rooms[property].lastRoomUpdate + rooms[property].config.roomupdate < MyDate().getTime()) {
                         rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
-                        rooms[property].config.lastRoomUpdate = MyDate().getTime();
+                        rooms[property].lastRoomUpdate = MyDate().getTime();
+
                     }
                 }
-
-
                 if (calendarUpdateIds != "") {
-                    console.log(calendarUpdateIds);
                     queryCalendars(calendarUpdateIds);
                 }
                 if (rommUpdateIds != "") {
@@ -227,9 +268,11 @@
 				for (var property in rooms) {
                     upDateRoomState(rooms[property]);
                 }
-
+            timeSteps++;
 
 		}
+
+
 		function UpdateTimeTables(json) {
 			var l = json.length;
 			for (var i = 0; i < l;i++){
@@ -266,7 +309,10 @@
             })
         }
 
-
+		/**
+		 * Updates a room visualy
+		 * @param room A room to update
+		 */
         function upDateRoomState(room) {
 			if(room === undefined){
 				console.log("error");
@@ -292,7 +338,10 @@
 
 		}
 
-
+		/**
+		 * Updates for all rooms the PC's states
+		 * @param json Json with information about the PC's states
+		 */
 		function updatePcStates(json){
 			var l = json.length;
 			for (var i = 0; i < l;i++){
@@ -300,7 +349,12 @@
 			}
 
 		}
-
+        /**
+         *  Generates a room Object and adds it to the rooms array
+         *  @param id ID of the room
+         *  @param name Name of the room
+         *  @param config Config Json of the room
+         */
 		function addRoom(id,name,config) {
 			var room = {
 				id: id,
@@ -328,7 +382,16 @@
 				}
 
 
-			}
+			};
+			if( room.config.calupdate === undefined || room.config.calupdate < 1){
+                room.config.calupdate = 1;
+            }
+            room.config.calupdate = room.config.calupdate * 60 * 1000;
+            if( room.config.roomupdate === undefined || room.config.roomupdate < 1){
+                room.config.roomupdate = 1;
+            }
+            room.config.roomupdate = room.config.roomupdate  * 1000;
+
 			rooms[id]=room;
 
 			if(roomidsString == "") {
@@ -339,7 +402,11 @@
 		}
 
 
-		//need testing
+        /**
+         * computes state of a room, states are:
+         * closed, FreeNoEnd, Free, ClaendarEvent.
+         * @param Room Object
+         */
 		function ComputeCurrentState(room) {
 			if (!IsOpenNow(room)) {
 				room.state = {state: "closed", end: GetNextOpening(room), titel: "", next: ""};
@@ -380,7 +447,11 @@
 				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
 			}
 		}
-
+        /**
+         * checks if a room is open
+         * @param room Room object
+         * @returns bool for open or not
+         */
 		function IsOpenNow(room) {
 			var now = new MyDate();
 			if (room.openingTimes == null) {
@@ -406,7 +477,11 @@
 			return false;
 		}
 
-		//need testing
+        /**
+         * returns next event from a given json of events
+         * @param json Json which contains the calendar data.
+         * @returns event next Carlendar Event
+         */
 		function getNextEvent(json) {
             if (json == null) {
                 return;
@@ -431,6 +506,11 @@
 			return event;
 		}
 
+        /**
+         * Retruns next Opening
+         * @param room Room Object
+         * @returns bestdate Date Object of next opening
+         */
 		function GetNextOpening(room) {
 			var now = new MyDate();
 			var day = now.getDay();
@@ -465,6 +545,11 @@
 			return bestdate;
 		}
 
+        /**
+         * returns next closing time of a given room
+         * @param room
+         * @returns Date Object of next closing
+         */
 		function GetNextClosing(room) {
 			var now = new MyDate();
 			var day = now.getDay();
@@ -500,7 +585,14 @@
 			return bestdate;
 		}
 
-
+        /**
+         * Updates the Course Text of a child
+         * @param id of the child
+         * @param on PC's on
+		 * @param used PC's used
+		 * @param off PC's that are off
+		 * @param defect PC's that are defect
+         */
 		function updateRoomUsage(id,on,used,off,defect){
 			$("#div_pc_On_"+id).text(on);
 			$("#div_pc_Used_"+id).text(used);
@@ -508,17 +600,50 @@
 			$("#div_pc_Defect_"+id).text(defect);
 		}
 
+        /**
+         * Updates the Course Text of a child
+         * @param id of the child
+         * @param text Text
+         */
 		function updateCourseText(id,text) {
 			$("#div_course"+id).text(text);
 		}
+
+		/**
+		 * Updates the Course time of a child
+		 * @param id of the child
+		 * @param time Time value
+		 */
 		function updateCoursTimer(id,time) {
 			$("#div_Time_"+id).text(time);
 		}
+		/**
+		 * generates a new Div
+         * @param target Div it should be inserted
+         * @returns generated div
+		 */
+        function generateRow(target){
+			var text="<div class='row' ></div>";
+            return $(target).append(text);
+		}
 
-		function generateChild(target,id,name) {
+        /**
+         * generates a Div, used for a child node
+         * @param target Div it should be inserted
+         * @param id ID of the Object it represents
+         * @param name Name of the Object it represents
+         * @param outermost if the object is a root node
+         * @returns generated div
+         */
+		function generateChild(target,id,name,outermost) {
+
+            var c="";
+            if(outermost){
+                c = "outermost";
+			}
 
 			var text="<div class='childWithBorder'>"  +
-				"<div class='child paperEffect'>" +
+				"<div class='child paperEffect "+c+"'>" +
 				"<div class='headerFont'>"+name+"</div>" +
 				"<div class='divAroundPcStates'>" +
 				"<div id = 'div_pc_On_"+id+"'  class='divPcOn '>"+0+"</div>" +
@@ -528,20 +653,38 @@
 				"</div>" +
 				"<div id = 'div_course"+id+"'class='courseFont'></div>" +
 				"<div id = 'div_Time_"+id+"'class='courseFont'></div></div></div>";
-			$(target).append(text);
+			var obj = $(target).append(text);
             getConfig((id));
+            return obj
 
 		}
 
-		function generateParent(target,id,name) {
-			var text="<div class='border'>"  +
+		/**
+		 * generates a Div, used for a parent node
+		 * @param target Div it should be inserted
+		 * @param id ID of the Object it represents
+		 * @param name Name of the Object it represents
+		 * @param outermost if the object is a root node
+		 * @returns generated div
+		 */
+		function generateParent(target,id,name,outermost) {
+            var c="";
+            if(outermost){
+                c = "outermost";
+            }
+
+            var text="<div class='border "+c+"'>"  +
 			"<div class='parent paperEffect'>" +
 			"<div class='headerFont'>"+name+"</div>" +
 				"<div id='parent_"+ id +"'</div>"+
 				"</div></div>";
-			$(target).append(text);
+			return $(target).append(text);
 		}
 
+        /**
+         * Downloads the config of a room
+         * @param id ID of the room
+         */
         function getConfig(id) {
             $.ajax({
                 url: "../../../api.php?do=locationinfo&action=config&id=" + id,
@@ -559,6 +702,11 @@
             })
         }
 
+        /**
+         * returns parameter value from the url
+         *  @param sParam
+         *  @returns value for given parameter
+         */
 		var getUrlParameter = function getUrlParameter(sParam) {
 			var sPageURL = decodeURIComponent(window.location.search.substring(1)),
 				sURLVariables = sPageURL.split('&'),
@@ -594,7 +742,6 @@
                 cache: false,
                 timeout: 30000,
                 success: function (result) {
-                    console.log(result);
                     UpdateTimeTables(result);
 
 
@@ -605,8 +752,13 @@
         }
 
 
-
-
+        /**
+         *  used for countdown
+         * computes the time difference between 2 Date objects
+         * @param a Date Object
+         * @param b Date Object
+		 * @returns time string
+         */
 		function GetTimeDiferenceAsString(a, b) {
 			if (a == null || b == null) {
 				return "";
@@ -633,7 +785,7 @@
 		}
 	</script>
 </head>
-<body class="main">
+<body class="">
 	<h1>Raum Übersicht</h1>
 	<div id="main"></div>
 </body>
