@@ -11,18 +11,20 @@
 			{{#httpsUsed}}
 			{{lang_youreUsingHttps}}
 			{{/httpsUsed}}
-			{{#offSelected}}
-			<p>{{lang_offSelected}}</p>
-			{{/offSelected}}
-			{{#unknownSelected}}
-			<p>{{lang_unknownSelected}}</p>
-			{{/unknownSelected}}
-			{{#generatedSelected}}
-			<p>{{lang_generatedSelected}}</p>
-			{{/generatedSelected}}
-			{{#suppliedSelected}}
-			<p>{{lang_suppliedSelected}}</p>
-			{{/suppliedSelected}}
+			<div class="text-info slx-bold">
+				{{#offSelected}}
+				<p>{{lang_offSelected}}</p>
+				{{/offSelected}}
+				{{#unknownSelected}}
+				<p>{{lang_unknownSelected}}</p>
+				{{/unknownSelected}}
+				{{#generatedSelected}}
+				<p>{{lang_generatedSelected}}</p>
+				{{/generatedSelected}}
+				{{#suppliedSelected}}
+				<p>{{lang_suppliedSelected}}</p>
+				{{/suppliedSelected}}
+			</div>
 			{{#httpsEnabled}}
 			<div class="input-group" onclick="$('#moff').prop('checked', true);
 					$('#wcustom').hide()">

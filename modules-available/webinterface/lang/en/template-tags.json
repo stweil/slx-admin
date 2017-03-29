@@ -5,7 +5,7 @@
     "lang_customCert": "Supply own certificate",
     "lang_generatedSelected": "The server is currently using an automatically generated, self-signed certificate.",
     "lang_hidePasswords": "Mask passwords",
-    "lang_httpsDescription": "Here you can set whether the web interface should be accessible via https. You can chose if you want to use a random self signed certificate, or supply your own.",
+    "lang_httpsDescription": "Here you can set whether the web interface should be accessible via https. You can choose if you want to use a random self signed certificate, or supply your own.",
     "lang_httpsRedirect": "Redirect incoming HTTP requests to HTTPS (if enabled).",
     "lang_httpsSettings": "HTTPS settings",
     "lang_installAndRestart": "Installing certificate and restarting web server",
