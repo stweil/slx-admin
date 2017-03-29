@@ -806,7 +806,7 @@ class Page_Statistics extends Page
 		// Client log
 		if (Module::get('syslog') !== false) {
 			$lres = Database::simpleQuery('SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog'
-				. ' WHERE clientip = :clientip ORDER BY logid DESC LIMIT 25', array('clientip' => $client['clientip']));
+				. ' WHERE machineuuid = :uuid ORDER BY logid DESC LIMIT 25', array('uuid' => $client['machineuuid']));
 			$today = date('d.m.Y');
 			$yesterday = date('d.m.Y', time() - 86400);
 			$count = 0;
