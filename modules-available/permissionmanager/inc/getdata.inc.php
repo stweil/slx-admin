@@ -40,7 +40,7 @@ class GetData {
 	}
 
 	public static function getRoleData($roleID) {
-		$query = "SELECT id, name, locType FROM role WHERE id = $roleID";
+		$query = "SELECT id, name FROM role WHERE id = $roleID";
 		$data = Database::queryFirst($query);
 		$query = "SELECT roleid, locid FROM roleXlocation WHERE roleid = $roleID";
 		$res = Database::simpleQuery($query);

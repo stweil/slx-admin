@@ -34,13 +34,13 @@ class DbUpdate {
 		Database::exec($query);
 	}
 
-	public static function saveRole($roleName, $locType, $locations, $permissions, $role = NULL) {
+	public static function saveRole($roleName, $locations, $permissions, $role = NULL) {
 		if ($role) {
-			Database::exec("UPDATE role SET name = '$roleName', locType = '$locType' WHERE id = $role");
+			Database::exec("UPDATE role SET name = '$roleName' WHERE id = $role");
 			Database::exec("DELETE FROM roleXlocation WHERE roleid = $role");
 			Database::exec("DELETE FROM roleXpermission WHERE roleid = $role");
 		} else {
-			Database::exec("INSERT INTO role (name, locType) VALUES ('$roleName', '$locType')");
+			Database::exec("INSERT INTO role (name) VALUES ('$roleName')");
 			$role = Database::lastInsertId();
 		}
 		foreach ($locations as $locID) {

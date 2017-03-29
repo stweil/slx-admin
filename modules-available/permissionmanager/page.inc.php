@@ -30,10 +30,9 @@ class Page_PermissionManager extends Page
 		} elseif ($action === 'saveRole') {
 			$roleID = Request::post("roleid", false);
 			$roleName = Request::post("roleName");
-			$locType = Request::post("include", "off") == "on" ? "include" : "exclude";
-			$locations = Request::post("locations");
+			$locations = Request::post("allLocations", "off") == "on" ? array(0) : Request::post("locations");
 			$permissions = Request::post("permissions");
-			DbUpdate::saveRole($roleName, $locType, $locations, $permissions, $roleID);
+			DbUpdate::saveRole($roleName, $locations, $permissions, $roleID);
 		}
 	}
 
@@ -71,13 +70,20 @@ class Page_PermissionManager extends Page
 			$selectedLocations = array();
 			if ($roleID) {
 				$roleData = GetData::getRoleData($roleID);
-				$selectedLocations = $roleData["locations"];
 				$data["roleid"] = $roleID;
 				$data["roleName"] = $roleData["name"];
-				$data["includeChecked"] = $roleData["locType"] == "include" ? "checked" : "";
+				if (count($roleData["locations"]) == 1 && $roleData["locations"][0] == 0) {
+					$data["allLocChecked"] = "checked";
+					$data["selectizeClass"] = "disabled";
+				} else {
+					$data["allLocChecked"] = "";
+					$data["selectizeClass"] = "";
+					$selectedLocations = $roleData["locations"];
+				}
 				$data["selectedPermissions"] = implode(" ", $roleData["permissions"]);
 			} else {
-				$data["includeChecked"] = "checked";
+				$data["allLocChecked"] = "checked";
+				$data["selectizeClass"] = "disabled";
 			}
 
 			$permissions = PermissionUtil::getPermissions();
