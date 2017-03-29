@@ -291,7 +291,6 @@ class CourseBackend_HisInOne extends CourseBackend
 					}
 				}
 			}
-			error_log(json_encode($timetable));
 			$tTables[$room] = $timetable;
 		}
 		return $tTables;
