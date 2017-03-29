@@ -11,5 +11,10 @@
     "lang_Delete": "Löschen",
     "lang_removeCheck": "Sind Sie sich sicher, dass Sie diese Rolle entfernen wollen?",
     "lang_deleteCheck": "Sind Sie sich sicher, dass Sie diese Rolle löschen wollen?",
-    "lang_emptyNameWarning": "Der Name der Rolle darf nicht leer sein!"
+    "lang_emptyNameWarning": "Der Name der Rolle darf nicht leer sein!",
+    "lang_Name": "Name",
+    "lang_Cancel": "Abbrechen",
+    "lang_Save": "Speichern",
+    "lang_all": "alle",
+    "lang_selected": "ausgewählte"
 }

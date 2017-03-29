@@ -4,15 +4,15 @@
 	<input type="hidden" name="roleid" value="{{roleid}}">
 	<div class="row">
 		<div class="col-md-12">
-			<b>Name:</b>
+			<b>{{lang_Name}}:</b>
 			<input name="roleName" value="{{roleName}}" type="text" id="roleName" class="form-control">
-			<button type="button" id="cancelButton" class="btn btn-default pull-right"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
-			<button type="submit" id="saveButton" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+			<button type="button" id="cancelButton" class="btn btn-default pull-right"><span class="glyphicon glyphicon-remove"></span> {{lang_Cancel}}</button>
+			<button type="submit" id="saveButton" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_Save}}</button>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-3">
-			<b style="line-height: 34px">Locations:</b>
+			<b style="line-height: 34px">{{lang_Locations}}:</b>
 			<div class="pull-right"><input name="allLocations" {{allLocChecked}} type="checkbox" id="allLocations"></div>
 		</div>
 		<div id="selectize-container" class="col-md-9 text-left {{selectizeClass}}">
@@ -58,8 +58,8 @@
 		var allLocations = $("#allLocations");
 		allLocations.bootstrapSwitch("size", "normal");
 		allLocations.bootstrapSwitch("labelWidth", 1);
-		allLocations.bootstrapSwitch("onText", "all");
-		allLocations.bootstrapSwitch("offText", "selected");
+		allLocations.bootstrapSwitch("onText", "{{lang_all}}");
+		allLocations.bootstrapSwitch("offText", "{{lang_selected}}");
 		allLocations.bootstrapSwitch("onColor", "default");
 		allLocations.bootstrapSwitch("offColor", "primary");
 
