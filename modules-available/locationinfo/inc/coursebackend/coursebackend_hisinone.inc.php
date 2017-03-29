@@ -79,8 +79,10 @@ class CourseBackend_HisInOne extends CourseBackend
 		$body->appendChild($findUnit);
 		$termYearN = $doc->createElement('termYear', $termYear);
 		$findUnit->appendChild($termYearN);
-		$termTypeValueId = $doc->createElement('termTypeValueId', $termType);
-		$findUnit->appendChild($termTypeValueId);
+		if($termType1 !=3 && $termType1 != 10){
+			$termTypeValueId = $doc->createElement('termTypeValueId', $termType);
+			$findUnit->appendChild($termTypeValueId);
+		}
 		$roomIdN = $doc->createElement('ns1:roomId', $roomID);
 		$findUnit->appendChild($roomIdN);
 
@@ -289,6 +291,7 @@ class CourseBackend_HisInOne extends CourseBackend
 					}
 				}
 			}
+			error_log(json_encode($timetable));
 			$tTables[$room] = $timetable;
 		}
 		return $tTables;
