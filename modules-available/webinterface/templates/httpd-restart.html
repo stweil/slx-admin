@@ -1,6 +1,42 @@
 <div class="panel panel-default">
 	<div class="panel-heading">{{lang_applyingSettings}}</div>
 	<div class="panel-body">
-		<div data-tm-id="{{taskid}}" data-tm-log="error">{{lang_installAndRestart}}</div>
+		<div data-tm-id="{{taskid}}" data-tm-log="error" data-tm-callback="slxRestartCb">{{lang_installAndRestart}}</div>
 	</div>
 </div>
+<script type="application/javascript"><!--
+
+var slxRedirTimeout = 0;
+var slxRedirTimer = false;
+
+function slxRestartCb(task) {
+	if (!task || !task.statusCode)
+		return;
+	if (task.statusCode === 'TASK_WAITING' || task.statusCode === 'TASK_PROCESSING') {
+		// Polling still works, reset counter
+		console.log('Resetting because ' + task.statusCode);
+		slxRedirTimeout = 0;
+	} else {
+		console.log('Disabling because ' + task.statusCode);
+		clearInterval(slxRedirTimer);
+		window.location.replace(window.location.href.replace('&show=httpsupdate', ''));
+	}
+}
+
+slxRedirTimer = setInterval(function() {
+	// Didn't get status update from TM for 6 seconds - try to switch protocols
+	if (++slxRedirTimeout > 6) {
+		console.log('TIMEOUT REACHED');
+		clearInterval(slxRedirTimer);
+		var url = window.location.href.split(':', 2)[1];
+		if (window.location.protocol === 'https:') {
+			url = 'http:' + url;
+		} else {
+			url = 'https:' + url;
+		}
+		console.log('REDIRECT TO ' + url);
+		window.location.replace(url);
+	}
+}, 1000);
+
+//--></script>

@@ -26,9 +26,11 @@ class Page_WebInterface extends Page
 	private function actionConfigureHttps()
 	{
 		$task = false;
+		$off = '';
 		switch (Request::post('mode')) {
 			case 'off':
 				$task = $this->setHttpsOff();
+				$off = '&hsts=off';
 				break;
 			case 'random':
 				$task = $this->setHttpsRandomCert();
@@ -42,7 +44,7 @@ class Page_WebInterface extends Page
 		}
 		if (isset($task['id'])) {
 			Session::set('https-id', $task['id']);
-			Util::redirect('?do=WebInterface&show=httpsupdate');
+			Util::redirect('?do=WebInterface&show=httpsupdate' . $off);
 		}
 		Util::redirect('?do=WebInterface');
 	}
@@ -117,6 +119,7 @@ class Page_WebInterface extends Page
 	private function setHttpsOff()
 	{
 		Property::set(self::PROP_TYPE, 'off');
+		Header('Strict-Transport-Security: max-age=0', true);
 		return Taskmanager::submit('LighttpdHttps', array());
 	}
 
