@@ -2,12 +2,23 @@
 	<div class="col-md-12">
 		<table id="locationsTable" class="table table-condensed table-hover">
 			<thead>
-
+				<tr>
+					<th data-sort="string">{{lang_Locations}}</th>
+					<th>{{lang_Roles}}</th>
+				</tr>
 			</thead>
 
 			<tbody>
-
-
+				{{#location}}
+				<tr>
+					<td>{{name}}</td>
+					<td>
+						{{#role}}
+						<span class="label label-default customSpanMargin">{{.}}</span>
+						{{/role}}
+					</td>
+				</tr>
+			{{/location}}
 			</tbody>
 		</table>
 	</div>

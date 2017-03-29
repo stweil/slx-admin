@@ -61,6 +61,7 @@ class Page_PermissionManager extends Page
 				$data = array("user" => GetData::getUserData(), "roles" => GetData::getRoles());
 				Render::addTemplate('usersTable', $data);
 			} elseif ($show === "locations") {
+				$data = array("location" => GetData::getLocationData());
 				Render::addTemplate('locationsTable', $data);
 			}
 		} elseif ($show === "roleEditor") {

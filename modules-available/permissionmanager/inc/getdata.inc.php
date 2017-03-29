@@ -16,6 +16,20 @@ class GetData {
 		return $data;
 	}
 
+	// get LocationIDs, Location Names, Roles of each Location
+	public static function getLocationData() {
+		$res = self::queryLocationData();
+		$data = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$data[] = array(
+				'locid' => $row['locid'],
+				'name' => $row['locname'],
+				'role' => explode(",",$row['role'])
+			);
+		}
+		return $data;
+	}
+
 	// get all roles from database (id and name)
 	public static function getRoles() {
 		$res = Database::simpleQuery("SELECT id, name FROM role ORDER BY name ASC");
@@ -64,6 +78,18 @@ class GetData {
 													LEFT JOIN userXrole ON user.userid = userXrole.userid
 													LEFT JOIN role ON userXrole.roleid = role.id
 												GROUP BY user.userid
+												");
+		return $res;
+	}
+
+	// LocationID, Location Name, Roles of each Location
+	private static function queryLocationData() {
+		$res = Database::simpleQuery("SELECT location.locationid AS locid, location.locationname AS locname, GROUP_CONCAT(role.name ORDER BY role.name ASC) AS role
+												FROM location
+													LEFT JOIN roleXlocation ON location.locationid = roleXlocation.locid
+													LEFT JOIN role ON roleXlocation.roleid = role.id
+												GROUP BY location.locationid
+												ORDER BY location.locationname
 												");
 		return $res;
 	}
