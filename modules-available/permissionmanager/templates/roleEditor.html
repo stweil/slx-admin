@@ -27,16 +27,16 @@
 	{{abc}}
 	<div class="row">
 		<div class="col-md-3">
-			<div class="btn-group-vertical module-toggle-group" role="group">
+			<b style="line-height: 34px">{{lang_Permissions}}:</b>
+			<div class="pull-right"><input name="allPermissions" {{allPermChecked}} type="checkbox" id="allPermissions"></div>
+			<div class="btn-group-vertical module-toggle-group permissions-container {{permissionsClass}}" role="group">
 				{{#moduleNames}}
 				<button id="button-{{id}}" type="button" class="btn btn-default module-toggle" data-moduleid="{{id}}">{{name}}</button>
 				{{/moduleNames}}
 			</div>
 		</div>
-		<div class="col-md-9 module-container">
-
+		<div class="col-md-9 module-container permissions-container {{permissionsClass}}">
 			{{{permissionHTML}}}
-
 		</div>
 	</div>
 </form>
@@ -60,14 +60,27 @@
 		allLocations.bootstrapSwitch("labelWidth", 1);
 		allLocations.bootstrapSwitch("onText", "{{lang_all}}");
 		allLocations.bootstrapSwitch("offText", "{{lang_selected}}");
-		allLocations.bootstrapSwitch("onColor", "default");
-		allLocations.bootstrapSwitch("offColor", "primary");
 
 		allLocations.on('switchChange.bootstrapSwitch', function(event, state) {
 			if (state) {
 				$("#selectize-container").addClass("disabled");
 			} else {
 				$("#selectize-container").removeClass("disabled");
+			}
+		});
+
+		var allPermissions = $("#allPermissions");
+		allPermissions.bootstrapSwitch("size", "normal");
+		allPermissions.bootstrapSwitch("labelWidth", 1);
+		allPermissions.bootstrapSwitch("onText", "{{lang_all}}");
+		allPermissions.bootstrapSwitch("offText", "{{lang_selected}}");
+
+
+		allPermissions.on('switchChange.bootstrapSwitch', function(event, state) {
+			if (state) {
+				$(".permissions-container").addClass("disabled");
+			} else {
+				$(".permissions-container").removeClass("disabled");
 			}
 		});
 

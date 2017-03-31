@@ -31,7 +31,7 @@ class Page_PermissionManager extends Page
 			$roleID = Request::post("roleid", false);
 			$roleName = Request::post("roleName");
 			$locations = Request::post("allLocations", "off") == "on" ? array(0) : Request::post("locations");
-			$permissions = Request::post("permissions");
+			$permissions = Request::post("allPermissions", "off") == "on" ? array("*") : Request::post("permissions");;
 			DbUpdate::saveRole($roleName, $locations, $permissions, $roleID);
 		}
 	}
@@ -81,10 +81,14 @@ class Page_PermissionManager extends Page
 					$data["selectizeClass"] = "";
 					$selectedLocations = $roleData["locations"];
 				}
-				$data["selectedPermissions"] = implode(" ", $roleData["permissions"]);
-			} else {
-				$data["allLocChecked"] = "checked";
-				$data["selectizeClass"] = "disabled";
+				if (count($roleData["permissions"]) == 1 && $roleData["permissions"][0] == "*") {
+					$data["allPermChecked"] = "checked";
+					$data["permissionsClass"] = "disabled";
+				} else {
+					$data["allPermChecked"] = "";
+					$data["permissionsClass"] = "";
+					$data["selectedPermissions"] = implode(" ", $roleData["permissions"]);
+				}
 			}
 
 			$permissions = PermissionUtil::getPermissions();
@@ -111,7 +115,6 @@ class Page_PermissionManager extends Page
 				$data["moduleNames"][] = array("id" => $moduleid,
 					"name" => Dictionary::translateFileModule($moduleid, "module", "module_name"));
 			}
-
 			$data["permissionHTML"] = $permissionHTML;
 			Render::addTemplate('roleEditor', $data);
 		}
