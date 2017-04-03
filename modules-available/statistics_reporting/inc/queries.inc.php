@@ -15,7 +15,7 @@ class Queries
 													GROUP BY machine.machineuuid
 												) 	t1 
 												RIGHT JOIN (
-													SELECT machine.hostname AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.endInBound) AS 'lastStart', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
+													SELECT IF(machine.hostname = '', machine.clientip, machine.hostname) AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.endInBound) AS 'lastStart', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
 														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid
 														LEFT JOIN location ON machine.locationid = location.locationid
