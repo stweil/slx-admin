@@ -128,7 +128,7 @@ abstract class CourseBackend
 	 * @param $roomIds array with local ID as key and serverID as value
 	 * @return array a recursive array that uses the roomID as key
 	 * and has the schedule array as value. A shedule array contains an array in this format:
-	 * {"start"=>'JJJJ-MM-DD HH:MM:SS',"end"=>'JJJJ-MM-DD HH:MM:SS',"title"=>string}
+	 * ["start"=>'JJJJ-MM-DD HH:MM:SS',"end"=>'JJJJ-MM-DD HH:MM:SS',"title"=>string]
 	 */
 	protected abstract function fetchSchedulesInternal($roomId);
 

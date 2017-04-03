@@ -96,6 +96,14 @@ For example (the name of the images could be overlay1.jpg, overlay1.svg):
 -if calendar items don't fit, show less days or if in mode 1 give the calendar more space(calendar width);
 -it is possible to use different modes if you show more then one room
 
+4.CourseBackend
+===============
+fetchSchedule returns an array containing an array as value and the local room ID as key.
+The contained array contains arrays that have this form ["start"=>'JJJJ-MM-DD HH:MM:SS',"end"=>'JJJJ-MM-DD HH:MM:SS',"title"=>string].
+getError returns the last errormessage.
+checkConection uses a hardcoded room for test purposes.
+If you want to write a new Class you can look at the Dummy Class to learn the structure.
+You also should write the language files for your options into the lang directory.
 
 Panel
 =====
