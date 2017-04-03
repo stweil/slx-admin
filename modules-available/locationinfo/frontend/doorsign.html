@@ -476,9 +476,9 @@ optional:
             }
 
             // parameter validation
-            if (room.config.switchtime == null || isNaN(room.config.switchtime) || room.config.switchtime > 120
-                || room.config.switchtime < 1) {
-                room.config.switchtime = 5;
+            if (room.config.switchtime == null || isNaN(room.config.switchtime) || room.config.switchtime > 120*1000
+                || room.config.switchtime < 1*1000) {
+                room.config.switchtime = 5*1000;
             }
             if (room.config.scale == null || isNaN(room.config.scale) || room.config.scale > 90 || room.config.scale < 10) {
                 room.config.scale = 50;
@@ -680,7 +680,7 @@ optional:
             for (var property in rooms) {
                 if (rooms[property].config.mode == 4) {
                     if (rooms[property].lastSwitchTime == null
-                        || rooms[property].lastSwitchTime + rooms[property].config.switchtime * 1000 < MyDate().getTime()) {
+                        || rooms[property].lastSwitchTime + rooms[property].config.switchtime  < MyDate().getTime()) {
 
 
                         switchLayout(rooms[property]);
@@ -689,7 +689,7 @@ optional:
                         if (rooms[property].lastSwitchTime == null) {
                             rooms[property].lastSwitchTime = MyDate().getTime();
                         } else {
-                            rooms[property].lastSwitchTime = rooms[property].lastSwitchTime + rooms[property].config.switchtime * 1000;
+                            rooms[property].lastSwitchTime = rooms[property].lastSwitchTime + rooms[property].config.switchtime;
                         }
                     }
 
@@ -1010,7 +1010,6 @@ optional:
                 height = 30;
             }
             // Scale calendar font
-            console.log(height);
             if(height > 120){
                 cal.weekCalendar("option","textSize",28);
             }
@@ -1428,7 +1427,6 @@ optional:
          */
         function generateOffsetAndScale(room) {
 
-
             var clientHeight = $(window).height();
             if (roomsToshow == 4) {
                 clientHeight = clientHeight / 2;
@@ -1685,7 +1683,6 @@ optional:
         // scales calendar and room layout acordingly
 
         $(window).resize(function () {
-
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function () {
 
@@ -1794,7 +1791,7 @@ optional:
         function MoveProgressBar(roomId, time) {
             var elem = document.getElementById("progressBar_" + roomId);
             var width = 1;
-            var id = setInterval(frame, time * 10);
+            var id = setInterval(frame, time /100);
 
             function frame() {
                 if (width >= 100) {
