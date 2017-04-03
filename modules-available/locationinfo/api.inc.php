@@ -297,20 +297,43 @@ function getConfig($locationID)
 		WHERE l.locationid=:locationID", array('locationID' => $locationID));
 	$config = array();
 
-	$config = json_decode($dbresult['config'], true);
-	$config['room'] = $dbresult['locationname'];
-	$date = getdate();
-	$config['time'] = $date['year'] . "-" . $date['mon'] . "-" . $date['mday'] . " " . $date['hours'] . ":" . $date['minutes'] . ":" . $date['seconds'];
-
-	if ($dbresult['servertype'] === "Frontend") {
-		$config['calendarqueryurl'] = $dbresult['serverurl'] . "/" . $dbresult['serverroomid'] . ".json";
-	}
-
-	if (empty($config)) {
-		echo json_encode(array());
+	if ($dbresult['locationname'] == null) {
+		$config = array();
 	} else {
-		echo json_encode($config, JSON_UNESCAPED_SLASHES);
+
+		if ($dbresult['config'] == null) {
+			defaultConfig($config);
+		} else {
+			$config = json_decode($dbresult['config'], true);
+		}
+
+		$config['room'] = $dbresult['locationname'];
+		$date = getdate();
+		$config['time'] = $date['year'] . "-" . $date['mon'] . "-" . $date['mday'] . " " . $date['hours'] . ":" . $date['minutes'] . ":" . $date['seconds'];
 	}
+	echo json_encode($config, true);
+}
+
+/**
+	* Creates and returns a default config for room that didn't saved a config yet.
+	*
+	* @return Return a default config.
+	*/
+function defaultConfig(&$config) {
+	$config['language'] = 'en';
+	$config['mode'] = 1;
+	$config['vertical'] = false;
+	$config['eco'] = false;
+	$config['scaledaysauto'] = true;
+	$config['daystoshow'] = 7;
+	$config['rotation'] = 0;
+	$config['scale'] = 50;
+	$config['switchtime'] = 20;
+	$config['calupdate'] = 30;
+	$config['roomupdate'] = 5;
+	$config['configupdate'] = 180;
+
+	return $config;
 }
 
 /**
