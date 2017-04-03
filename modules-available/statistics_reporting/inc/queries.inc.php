@@ -8,7 +8,7 @@ class Queries
 	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
 		$notassigned = Dictionary::translate('notAssigned', true);
 		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT name AS clientName, timeSum, medianSessionLength, offlineSum, IFNULL(lastStart, 0) as lastStart, IFNULL(lastLogout, 0) as lastLogout, longSessions, shortSessions, locId, locName, MD5(CONCAT(locId, :salt)) AS locHash, MD5(CONCAT(t1.uuid, :salt)) AS clientHash FROM (
+		$res = Database::simpleQuery("SELECT t2.name AS clientName, timeSum, medianSessionLength, offlineSum, IFNULL(lastStart, 0) as lastStart, IFNULL(lastLogout, 0) as lastLogout, longSessions, shortSessions, t2.locId, t2.locName, MD5(CONCAT(t2.locId, :salt)) AS locHash, MD5(CONCAT(t2.uuid, :salt)) AS clientHash FROM (
 													SELECT machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions', MAX(sessionTable.endInBound) AS 'lastLogout'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
@@ -30,7 +30,7 @@ class Queries
 	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
 		$notassigned = Dictionary::translate('notAssigned', true);
 		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT t1.locId, locName AS locName, MD5(CONCAT(t1.locId, :salt)) AS locHash, timeSum, medianSessionLength, offlineSum, longSessions, shortSessions FROM (
+		$res = Database::simpleQuery("SELECT t2.locId, t2.locName, MD5(CONCAT(t2.locId, :salt)) AS locHash, timeSum, medianSessionLength, offlineSum, longSessions, shortSessions FROM (
 													SELECT location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
 												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
