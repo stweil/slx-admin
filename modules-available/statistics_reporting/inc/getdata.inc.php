@@ -124,7 +124,7 @@ class GetData
 		return $data;
 	}
 
-	private function nullToZero(&$row)
+	private static function nullToZero(&$row)
 	{
 		foreach ($row as &$field) {
 			if (is_null($field)) {
