@@ -201,6 +201,79 @@ if ($type{0} === '~') {
 			}
 		}
 		Database::exec('UPDATE machine SET logintime = 0, lastseen = UNIX_TIMESTAMP(), lastboot = 0 WHERE machineuuid = :uuid', array('uuid' => $uuid));
+	} elseif ($type === '~screens') {
+		$screens = Request::post('screen', false, 'array');
+		if (is_array($screens)) {
+			// `devicetype`, `devicename`, `subid`, `machineuuid`
+			// Make sure all screens are in the general hardware table
+			$hwids = array();
+			foreach ($screens as $port => $screen) {
+				if (!array_key_exists('name', $screen))
+					continue;
+				if (array_key_exists($screen['name'], $hwids)) {
+					$hwid = $hwids[$screen['name']];
+				} else {
+					$hwid = (int)Database::insertIgnore('statistic_hw', 'hwid',
+						array('hwtype' => DeviceType::SCREEN, 'hwname' => $screen['name']));
+					$hwids[$screen['name']] = $hwid;
+				}
+				// Now add new entries
+				$machinehwid = Database::insertIgnore('machine_x_hw', 'machinehwid', array(
+					'hwid' => $hwid,
+					'machineuuid' => $uuid,
+					'devpath' => $port,
+				), array('disconnecttime' => 0));
+				$validProps = array();
+				if (count($screen) > 1) {
+					// Screen has additional properties (resolution, size, etc.)
+					unset($screen['name']);
+					foreach ($screen as $key => $value) {
+						if (!preg_match('/^[a-zA-Z0-9][\x21-\x7e]{0,15}$/', $key)) {
+							echo "No matsch '$key'\n";
+							continue; // Ignore evil key names
+						}
+						$validProps[] = $key;
+						Database::exec("INSERT INTO machine_x_hw_prop (machinehwid, prop, value)"
+							. " VALUES (:id, :key, :value) ON DUPLICATE KEY UPDATE value = VALUES(value)", array(
+							'id' => $machinehwid,
+							'key' => $key,
+							'value' => $value,
+						));
+					}
+				}
+				// Purge properties that might have existed in the past
+				if (empty($validProps)) {
+					Database::exec("DELETE FROM machine_x_hw_prop WHERE machinehwid = :machinehwid AND prop NOT LIKE '@%'",
+						array('machinehwid' => $machinehwid));
+				} else {
+					$qs = '?' . str_repeat(',?', count($validProps) - 1);
+					array_unshift($validProps, $machinehwid);
+					Database::exec("DELETE FROM machine_x_hw_prop"
+						. " WHERE machinehwid = ? AND prop NOT LIKE '@%' AND prop NOT IN ($qs)",
+						$validProps);
+				}
+			}
+			// Remove/disable stale entries
+			if (empty($hwids)) {
+				// No screens connected at all, purge all screen entries for this machine
+				Database::exec("UPDATE machine_x_hw x, statistic_hw h"
+					. " SET x.disconnecttime = UNIX_TIMESTAMP()"
+					. " WHERE x.machineuuid = :uuid AND x.hwid = h.hwid AND h.hwtype = :type AND x.disconnecttime = 0",
+					array('uuid' => $uuid, 'type' => DeviceType::SCREEN));
+			} else {
+				// Some screens connected, make sure old entries get removed
+				$params = array_values($hwids);
+				array_unshift($params, $uuid);
+				array_unshift($params, DeviceType::SCREEN);
+				$qs = '?' . str_repeat(',?', count($hwids) - 1);
+				Database::exec("UPDATE machine_x_hw x, statistic_hw h"
+					. " SET x.disconnecttime = UNIX_TIMESTAMP()"
+					. " WHERE h.hwid = x.hwid AND x.disconnecttime = 0 AND h.hwtype = ? AND x.machineuuid = ? AND x.hwid NOT IN ($qs)", $params);
+
+			}
+		}
+	} else {
+		die("INVALID ACTION '$type'");
 	}
 	die("OK. (RESULT=0)\n");
 }
