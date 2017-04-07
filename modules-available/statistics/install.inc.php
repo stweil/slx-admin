@@ -201,16 +201,21 @@ if ($addTrigger) {
 }
 
 if ($machineHwCreate === UPDATE_DONE) {
-	$ret = true;
 	$ret = Database::exec('ALTER TABLE `machine_x_hw`
 		ADD CONSTRAINT `machine_x_hw_ibfk_1` FOREIGN KEY (`hwid`) REFERENCES `statistic_hw` (`hwid`) ON DELETE CASCADE,
-		ADD CONSTRAINT `machine_x_hw_ibfk_2` FOREIGN KEY (`machineuuid`) REFERENCES `machine` (`machineuuid`) ON DELETE CASCADE') && $ret;
-	$ret = Database::exec('ALTER TABLE `machine_x_hw_prop`
-		ADD CONSTRAINT `machine_x_hw_prop_ibfk_1` FOREIGN KEY (`machinehwid`) REFERENCES `machine_x_hw` (`machinehwid`) ON DELETE CASCADE') && $ret;
-	$ret = Database::exec('ALTER TABLE `statistic_hw_prop`
-		ADD CONSTRAINT `statistic_hw_prop_ibfk_1` FOREIGN KEY (`hwid`) REFERENCES `statistic_hw` (`hwid`) ON DELETE CASCADE') && $ret;
+		ADD CONSTRAINT `machine_x_hw_ibfk_2` FOREIGN KEY (`machineuuid`) REFERENCES `machine` (`machineuuid`) ON DELETE CASCADE');
 	if ($ret === false) {
-		finalResponse(UPDATE_FAILED, 'Adding foreign key machineuuid to hardware* failed: ' . Database::lastError());
+		finalResponse(UPDATE_FAILED, 'Adding constraints to machine_x_hw failed: ' . Database::lastError());
+	}
+	$ret = Database::exec('ALTER TABLE `machine_x_hw_prop`
+		ADD CONSTRAINT `machine_x_hw_prop_ibfk_1` FOREIGN KEY (`machinehwid`) REFERENCES `machine_x_hw` (`machinehwid`) ON DELETE CASCADE');
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding constraint to machine_x_hw_prop failed: ' . Database::lastError());
+	}
+	$ret = Database::exec('ALTER TABLE `statistic_hw_prop`
+		ADD CONSTRAINT `statistic_hw_prop_ibfk_1` FOREIGN KEY (`hwid`) REFERENCES `statistic_hw` (`hwid`) ON DELETE CASCADE');
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding constraint to statistic_hw_prop failed: ' . Database::lastError());
 	}
 }
 
