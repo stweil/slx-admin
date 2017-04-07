@@ -21,6 +21,11 @@ class Util
 			exit(1);
 		}
 		Header('HTTP/1.1 500 Internal Server Error');
+		if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'html') === false ) {
+			Header('Content-Type: text/plain; charset=utf-8');
+			echo 'API ERROR: ', $message, "\n", self::formatBacktracePlain(debug_backtrace());
+			exit(0);
+		}
 		Header('Content-Type: text/html; charset=utf-8');
 		echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>', "\n",
 			".arg { color: red; background: white; }\n",
@@ -79,19 +84,38 @@ SADFACE;
 		exit(0);
 	}
 
+	private static function formatArgument($arg, $expandArray = true)
+	{
+		if (is_string($arg)) {
+			$arg = "'$arg'";
+		} elseif (is_object($arg)) {
+			$arg = 'instanceof ' . get_class($arg);
+		} elseif (is_array($arg)) {
+			if ($expandArray && count($arg) < 20) {
+				$expanded = '';
+				foreach ($arg as $key => $value) {
+					if (!empty($expanded)) {
+						$expanded .= ', ';
+					}
+					$expanded .= $key . ': ' . self::formatArgument($value, false);
+					if (strlen($expanded) > 200)
+						break;
+				}
+				if (strlen($expanded) <= 200)
+					return '[' . $expanded . ']';
+			}
+			$arg = 'Array(' . count($arg) . ')';
+		}
+		return $arg;
+	}
+
 	public static function formatBacktraceHtml($trace, $escape = true)
 	{
 		$output = '';
 		foreach ($trace as $idx => $line) {
 			$args = array();
 			foreach ($line['args'] as $arg) {
-				if (is_string($arg)) {
-					$arg = "'$arg'";
-				} elseif (is_object($arg)) {
-					$arg = 'instanceof ' . get_class($arg);
-				} elseif (is_array($arg)) {
-					$arg = 'Array(' . count($arg) . ')';
-				}
+				$arg = self::formatArgument($arg);
 				$args[] = '<span class="arg">' . htmlspecialchars($arg) . '</span>';
 			}
 			$frame = str_pad('#' . $idx, 3, ' ', STR_PAD_LEFT);
@@ -111,14 +135,7 @@ SADFACE;
 		foreach ($trace as $idx => $line) {
 			$args = array();
 			foreach ($line['args'] as $arg) {
-				if (is_string($arg)) {
-					$arg = "'$arg'";
-				} elseif (is_object($arg)) {
-					$arg = 'instanceof ' . get_class($arg);
-				} elseif (is_array($arg)) {
-					$arg = 'Array(' . count($arg) . ')';
-				}
-				$args[] = $arg;
+				$args[] = self::formatArgument($arg);
 			}
 			$frame = str_pad('#' . $idx, 3, ' ', STR_PAD_LEFT);
 			$args = implode(', ', $args);
