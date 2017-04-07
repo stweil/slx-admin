@@ -20,29 +20,29 @@
 		<div class="col-md-12">
 			<table id="usersTable" class="table table-condensed table-hover">
 				<thead>
-				<tr>
-					<th data-sort="string">{{lang_Users}}</th>
-					<th>{{lang_Roles}}</th>
-					<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
-				</tr>
+					<tr>
+						<th data-sort="string">{{lang_Users}}</th>
+						<th>{{lang_Roles}}</th>
+						<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
+					</tr>
 				</thead>
 
 				<tbody>
 				{{#user}}
-				<tr data-selectizeCount='0'>
-					<td>{{username}}</td>
-					<td>
-						{{#roles}}
-						<span class="label label-default customSpanMargin roleId-{{roleId}}">{{roleName}}</span>
-						{{/roles}}
-					</td>
-					<td data-sort-value="0">
-						<div class="checkbox">
-							<input id="{{userid}}" type="checkbox" name="users[]" value='{{userid}}'>
-							<label for="{{userid}}"></label>
-						</div>
-					</td>
-				</tr>
+					<tr data-selectizeCount='0'>
+						<td>{{username}}</td>
+						<td>
+							{{#roles}}
+							<span class="label label-default customSpanMargin roleId-{{roleId}}">{{roleName}}</span>
+							{{/roles}}
+						</td>
+						<td data-sort-value="0">
+							<div class="checkbox">
+								<input id="{{userid}}" type="checkbox" name="users[]" value='{{userid}}'>
+								<label for="{{userid}}"></label>
+							</div>
+						</td>
+					</tr>
 				{{/user}}
 				</tbody>
 			</table>
@@ -62,23 +62,23 @@
 						<div class="col-md-12 scrollingTable">
 							<table id="addRoleToUserTable" class="table table-condensed table-hover">
 								<thead>
-								<tr>
-									<th data-sort="string">{{lang_Roles}}</th>
-									<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
-								</tr>
+									<tr>
+										<th data-sort="string">{{lang_Roles}}</th>
+										<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
+									</tr>
 								</thead>
 
 								<tbody>
 								{{#roles}}
-								<tr>
-									<td>{{roleName}}</td>
-									<td data-sort-value="0">
-										<div class="checkbox">
-											<input id="add{{roleId}}" type="checkbox" name="roles[]" value='{{roleId}}'>
-											<label for="add{{roleId}}"></label>
-										</div>
-									</td>
-								</tr>
+									<tr>
+										<td>{{roleName}}</td>
+										<td data-sort-value="0">
+											<div class="checkbox">
+												<input id="add{{roleId}}" type="checkbox" name="roles[]" value='{{roleId}}'>
+												<label for="add{{roleId}}"></label>
+											</div>
+										</td>
+									</tr>
 								{{/roles}}
 								</tbody>
 							</table>
@@ -105,23 +105,23 @@
 						<div class="col-md-12 scrollingTable">
 							<table id="removeRoleFromUserTable" class="table table-condensed table-hover">
 								<thead>
-								<tr>
-									<th data-sort="string">{{lang_Roles}}</th>
-									<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
-								</tr>
+									<tr>
+										<th data-sort="string">{{lang_Roles}}</th>
+										<th data-sort="int" data-sort-default="desc">{{lang_Selected}}</th>
+									</tr>
 								</thead>
 
 								<tbody>
 								{{#roles}}
-								<tr>
-									<td>{{roleName}}</td>
-									<td data-sort-value="0">
-										<div class="checkbox">
-											<input id="remove{{roleId}}" type="checkbox" name="roles[]" value='{{roleId}}'>
-											<label for="remove{{roleId}}"></label>
-										</div>
-									</td>
-								</tr>
+									<tr>
+										<td>{{roleName}}</td>
+										<td data-sort-value="0">
+											<div class="checkbox">
+												<input id="remove{{roleId}}" type="checkbox" name="roles[]" value='{{roleId}}'>
+												<label for="remove{{roleId}}"></label>
+											</div>
+										</td>
+									</tr>
 								{{/roles}}
 								</tbody>
 							</table>

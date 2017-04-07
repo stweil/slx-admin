@@ -13,22 +13,22 @@
 	<div class="col-md-12">
 		<table id="locationsTable" class="table table-condensed table-hover">
 			<thead>
-			<tr>
-				<th data-sort="string">{{lang_Locations}}</th>
-				<th>{{lang_Roles}}</th>
-			</tr>
+				<tr>
+					<th data-sort="string">{{lang_Locations}}</th>
+					<th>{{lang_Roles}}</th>
+				</tr>
 			</thead>
 
 			<tbody>
 			{{#location}}
-			<tr data-selectizeCount='0'>
-				<td>{{locname}}</td>
-				<td>
-					{{#roles}}
-					<span class="label label-default customSpanMargin roleId-{{roleId}}">{{roleName}}</span>
-					{{/roles}}
-				</td>
-			</tr>
+				<tr data-selectizeCount='0'>
+					<td>{{locname}}</td>
+					<td>
+						{{#roles}}
+						<span class="label label-default customSpanMargin roleId-{{roleId}}">{{roleName}}</span>
+						{{/roles}}
+					</td>
+				</tr>
 			{{/location}}
 			</tbody>
 		</table>
