@@ -1,6 +1,6 @@
 <?php
 
-class GetData {
+class GetPermissionData {
 
 	// get UserIDs, User Login Names, User Roles
 	public static function getUserData() {
@@ -53,17 +53,17 @@ class GetData {
 		return $data;
 	}
 
-	public static function getRoleData($roleID) {
-		$query = "SELECT id, name FROM role WHERE id = $roleID";
-		$data = Database::queryFirst($query);
-		$query = "SELECT roleid, locid FROM roleXlocation WHERE roleid = $roleID";
-		$res = Database::simpleQuery($query);
+	public static function getRoleData($roleId) {
+		$query = "SELECT id, name FROM role WHERE id = :roleId";
+		$data = Database::queryFirst($query, array("roleId" => $roleId));
+		$query = "SELECT roleid, locid FROM role_x_location WHERE roleid = :roleId";
+		$res = Database::simpleQuery($query, array("roleId" => $roleId));
 		$data["locations"] = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$data["locations"][] = $row['locid'];
 		}
-		$query = "SELECT roleid, permissionid FROM roleXpermission WHERE roleid = $roleID";
-		$res = Database::simpleQuery($query);
+		$query = "SELECT roleid, permissionid FROM role_x_permission WHERE roleid = :roleId";
+		$res = Database::simpleQuery($query, array("roleId" => $roleId));
 		$data["permissions"] = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$data["permissions"][] = $row['permissionid'];
@@ -75,8 +75,8 @@ class GetData {
 	private static function queryUserData() {
 		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, GROUP_CONCAT(role.name ORDER BY role.name ASC) AS role
 												FROM user
-													LEFT JOIN userXrole ON user.userid = userXrole.userid
-													LEFT JOIN role ON userXrole.roleid = role.id
+													LEFT JOIN user_x_role ON user.userid = user_x_role.userid
+													LEFT JOIN role ON user_x_role.roleid = role.id
 												GROUP BY user.userid
 												");
 		return $res;
@@ -86,8 +86,8 @@ class GetData {
 	private static function queryLocationData() {
 		$res = Database::simpleQuery("SELECT location.locationid AS locid, location.locationname AS locname, GROUP_CONCAT(role.name ORDER BY role.name ASC) AS role
 												FROM location
-													LEFT JOIN roleXlocation ON location.locationid = roleXlocation.locid
-													LEFT JOIN role ON roleXlocation.roleid = role.id
+													LEFT JOIN role_x_location ON location.locationid = role_x_location.locid
+													LEFT JOIN role ON role_x_location.roleid = role.id
 												GROUP BY location.locationid
 												ORDER BY location.locationname
 												");

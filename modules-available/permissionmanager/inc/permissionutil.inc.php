@@ -16,10 +16,18 @@ class PermissionUtil
 				$permissions = self::putInPermissionTree($out[1].".".$k, $v, $permissions);
 			}
 		}
+		ksort($permissions);
+		global $MENU_CAT_OVERRIDE;
+		$sortingOrder = $MENU_CAT_OVERRIDE;
+		foreach ($permissions as $module => $v) $sortingOrder[Module::get($module)->getCategory()][] = $module;
+		$permissions = array_replace(array_flip(call_user_func_array('array_merge', $sortingOrder)), $permissions);
+		foreach ($permissions as $module => $v) if (is_int($v)) unset($permissions[$module]);
+
+
 		return $permissions;
 	}
 
-	private function putInPermissionTree($permission, $description, $tree)
+	private static function putInPermissionTree($permission, $description, $tree)
 	{
 		$subPermissions = explode('.', $permission);
 		$original =& $tree;

@@ -19,20 +19,20 @@ class Page_PermissionManager extends Page
 		if ($action === 'addRoleToUser') {
 			$users = Request::post('users', '');
 			$roles = Request::post('roles', '');
-			DbUpdate::addRoleToUser($users, $roles);
+			PermissionDbUpdate::addRoleToUser($users, $roles);
 		} elseif ($action === 'removeRoleFromUser') {
 			$users = Request::post('users', '');
 			$roles = Request::post('roles', '');
-			DbUpdate::removeRoleFromUser($users, $roles);
+			PermissionDbUpdate::removeRoleFromUser($users, $roles);
 		} elseif ($action === 'deleteRole') {
 			$id = Request::post('deleteId', false, 'string');
-			DbUpdate::deleteRole($id);
+			PermissionDbUpdate::deleteRole($id);
 		} elseif ($action === 'saveRole') {
 			$roleID = Request::post("roleid", false);
 			$roleName = Request::post("roleName");
 			$locations = Request::post("allLocations", "off") == "on" ? array(0) : Request::post("locations");
 			$permissions = Request::post("allPermissions", "off") == "on" ? array("*") : Request::post("permissions");;
-			DbUpdate::saveRole($roleName, $locations, $permissions, $roleID);
+			PermissionDbUpdate::saveRole($roleName, $locations, $permissions, $roleID);
 		}
 	}
 
@@ -55,14 +55,14 @@ class Page_PermissionManager extends Page
 			Render::closeTag('div');
 
 			if ($show === "roles") {
-				$data = array("roles" => GetData::getRoles());
-				Render::addTemplate('rolesTable', $data);
+				$data = array("roles" => GetPermissionData::getRoles());
+				Render::addTemplate('rolestable', $data);
 			} elseif ($show === "users") {
-				$data = array("user" => GetData::getUserData(), "roles" => GetData::getRoles());
-				Render::addTemplate('usersTable', $data);
+				$data = array("user" => GetPermissionData::getUserData(), "roles" => GetPermissionData::getRoles());
+				Render::addTemplate('userstable', $data);
 			} elseif ($show === "locations") {
-				$data = array("location" => GetData::getLocationData());
-				Render::addTemplate('locationsTable', $data);
+				$data = array("location" => GetPermissionData::getLocationData());
+				Render::addTemplate('locationstable', $data);
 			}
 		} elseif ($show === "roleEditor") {
 			$data = array();
@@ -70,7 +70,7 @@ class Page_PermissionManager extends Page
 			$roleID = Request::get("roleid", false);
 			$selectedLocations = array();
 			if ($roleID) {
-				$roleData = GetData::getRoleData($roleID);
+				$roleData = GetPermissionData::getRoleData($roleID);
 				$data["roleid"] = $roleID;
 				$data["roleName"] = $roleData["name"];
 				if (count($roleData["locations"]) == 1 && $roleData["locations"][0] == 0) {
@@ -94,7 +94,7 @@ class Page_PermissionManager extends Page
 			$permissions = PermissionUtil::getPermissions();
 			$permissionHTML = "";
 			foreach ($permissions as $k => $v) {
-				$name = Dictionary::translateFileModule($k, "module", "module_name");
+				$name = Module::get($k)->getDisplayName();
 				$permissionHTML .= "
 				<div id='$k' class='panel panel-primary module-box' style='display: none;'>
 					<div class='panel-heading'>
@@ -104,19 +104,19 @@ class Page_PermissionManager extends Page
 						</div>
 					</div>
 					<div class='panel-body'>
-			";
-				$permissionHTML .= self::generateSubPermissionHTML($v, $k);
+				";
+				$permissionHTML .= self::generatePermissionHTML($v, $k);
 				$permissionHTML .= "</div></div>";
 			}
 
-			$data["locations"] = GetData::getLocations($selectedLocations);
+			$data["locations"] = GetPermissionData::getLocations($selectedLocations);
 			$data["moduleNames"] = array();
 			foreach (array_keys($permissions) as $moduleid) {
-				$data["moduleNames"][] = array("id" => $moduleid,
-					"name" => Dictionary::translateFileModule($moduleid, "module", "module_name"));
+				$data["moduleNames"][] = array("id" => $moduleid, "name" => Module::get($moduleid)->getDisplayName());
 			}
 			$data["permissionHTML"] = $permissionHTML;
-			Render::addTemplate('roleEditor', $data);
+			Render::addTemplate('roleeditor', $data);
+
 		}
 	}
 
@@ -143,31 +143,18 @@ class Page_PermissionManager extends Page
 		return $buttonColors;
 	}
 
-	private static function generateSubPermissionHTML($subPermissions, $permissionString)
+	private static function generatePermissionHTML($subPermissions, $permString)
 	{
-		$html = "<ul class='list-group'>";
+		$genModuleBox = $permString == "*";
+		$res = "";
 		foreach ($subPermissions as $k => $v) {
-			$tmpPermString = $permissionString.".".$k;
-			$checkBoxValue  = $tmpPermString;
-			if (is_array($v)) {
-				$checkBoxValue .= ".*";
-			} else {
-				$k .= " - ".$v;
-			}
-			$html .= "
-				<li class='list-group-item'>
-					<div class='checkbox'>
-						<input name='permissions[]' value='$checkBoxValue' type='checkbox' class='form-control'>
-						<label>$k</label>
-					</div>
-			";
-			if (is_array($v)) {
-				$html .= self::generateSubPermissionHTML($v, $tmpPermString);
-			}
-			$html .= "</li>";
+			$res .= Render::parse($genModuleBox ? "modulepermissionbox" : is_array($v) ? "permissiontreenode" : "permission",
+				array("id" =>  $genModuleBox ? $k : $permString.".".$k,
+						"name" => $genModuleBox ? Module::get($k)->getDisplayName(): $k,
+						"HTML" => self::generatePermissionHTML($v, $genModuleBox ? $k : $permString.".".$k),
+						"description" => $v));
 		}
-		$html .= "</ul>";
-		return $html;
+		return $res;
 	}
 
 }
