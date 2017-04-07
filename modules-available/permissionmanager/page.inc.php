@@ -92,29 +92,13 @@ class Page_PermissionManager extends Page
 			}
 
 			$permissions = PermissionUtil::getPermissions();
-			$permissionHTML = "";
-			foreach ($permissions as $k => $v) {
-				$name = Module::get($k)->getDisplayName();
-				$permissionHTML .= "
-				<div id='$k' class='panel panel-primary module-box' style='display: none;'>
-					<div class='panel-heading'>
-						<div class='checkbox'>
-							<input name='permissions[]' value='$k.*' type='checkbox' class='form-control'>
-							<label>$name</label>
-						</div>
-					</div>
-					<div class='panel-body'>
-				";
-				$permissionHTML .= self::generatePermissionHTML($v, $k);
-				$permissionHTML .= "</div></div>";
-			}
 
 			$data["locations"] = GetPermissionData::getLocations($selectedLocations);
 			$data["moduleNames"] = array();
 			foreach (array_keys($permissions) as $moduleid) {
 				$data["moduleNames"][] = array("id" => $moduleid, "name" => Module::get($moduleid)->getDisplayName());
 			}
-			$data["permissionHTML"] = $permissionHTML;
+			$data["permissionHTML"] = self::generatePermissionHTML($permissions, "*");
 			Render::addTemplate('roleeditor', $data);
 
 		}
@@ -148,7 +132,7 @@ class Page_PermissionManager extends Page
 		$genModuleBox = $permString == "*";
 		$res = "";
 		foreach ($subPermissions as $k => $v) {
-			$res .= Render::parse($genModuleBox ? "modulepermissionbox" : is_array($v) ? "permissiontreenode" : "permission",
+			$res .= Render::parse($genModuleBox ? "modulepermissionbox" : (is_array($v) ? "permissiontreenode" : "permission"),
 				array("id" =>  $genModuleBox ? $k : $permString.".".$k,
 						"name" => $genModuleBox ? Module::get($k)->getDisplayName(): $k,
 						"HTML" => self::generatePermissionHTML($v, $genModuleBox ? $k : $permString.".".$k),
