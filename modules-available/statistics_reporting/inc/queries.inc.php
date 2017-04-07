@@ -11,13 +11,13 @@ class Queries
 		$res = Database::simpleQuery("SELECT t2.name AS clientName, timeSum, medianSessionLength, offlineSum, IFNULL(lastStart, 0) as lastStart, IFNULL(lastLogout, 0) as lastLogout, longSessions, shortSessions, t2.locId, t2.locName, MD5(CONCAT(t2.locId, :salt)) AS locHash, MD5(CONCAT(t2.uuid, :salt)) AS clientHash FROM (
 													SELECT machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions', MAX(sessionTable.endInBound) AS 'lastLogout'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
-														INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid
+														RIGHT JOIN machine ON sessionTable.machineuuid = machine.machineuuid
 													GROUP BY machine.machineuuid
 												) 	t1 
 												RIGHT JOIN (
 													SELECT IF(machine.hostname = '', machine.clientip, machine.hostname) AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.endInBound) AS 'lastStart', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
-														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid
+														RIGHT JOIN machine ON offlineTable.machineuuid = machine.machineuuid
 														LEFT JOIN location ON machine.locationid = location.locationid
 													GROUP BY machine.machineuuid
 												) 	t2 
@@ -33,14 +33,14 @@ class Queries
 		$res = Database::simpleQuery("SELECT t2.locId, t2.locName, MD5(CONCAT(t2.locId, :salt)) AS locHash, timeSum, medianSessionLength, offlineSum, longSessions, shortSessions FROM (
 													SELECT location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
 													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
-												   	INNER JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
+												   	RIGHT JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
 													GROUP BY machine.locationid
 												) 	t1 
 												RIGHT JOIN (
 													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
 													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
-														INNER JOIN machine ON offlineTable.machineuuid = machine.machineuuid 
+														RIGHT JOIN machine ON offlineTable.machineuuid = machine.machineuuid 
 														LEFT JOIN location ON machine.locationid = location.locationid 
 													GROUP BY machine.locationid
 												) 	t2 
