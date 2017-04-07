@@ -17,5 +17,6 @@
     "lang_Save": "Speichern",
     "lang_all": "alle",
     "lang_selected": "ausgewählte",
-    "lang_Permissions": "Rechte"
+    "lang_Permissions": "Rechte",
+    "lang_selectizePlaceholder": "Nach Rollen filtern..."
 }

@@ -17,5 +17,6 @@
     "lang_Save": "Save",
     "lang_all": "all",
     "lang_selected": "selected",
-    "lang_Permissions": "Permissions"
+    "lang_Permissions": "Permissions",
+    "lang_selectizePlaceholder": "Filter for roles..."
 }
