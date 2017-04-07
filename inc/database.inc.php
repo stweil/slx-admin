@@ -132,4 +132,98 @@ class Database
 		return self::$dbh->prepare($query);
 	}
 
+	/**
+	 * Insert row into table, returning the generated key.
+	 * This requires the table to have an AUTO_INCREMENT column and
+	 * usually requires the given $uniqueValues to span across a UNIQUE index.
+	 * The code first tries to SELECT the key for the given values without
+	 * inserting first. This means this function is best used for cases
+	 * where you expect that the entry already exists in the table, so
+	 * only one SELECT will run. For all the entries that do not exist,
+	 * an INSERT or INSERT IGNORE is run, depending on whether $additionalValues
+	 * is empty or not. Another reason we don't run the INSERT (IGNORE) first
+	 * is that it will increase the AUTO_INCREMENT value on InnoDB, even when
+	 * no INSERT took place. So if you expect a lot of collisions you might
+	 * use this function to prevent your A_I value from counting up too
+	 * quickly.
+	 * Other than that, this is just a dumb version of running INSERT and then
+	 * getting the LAST_INSERT_ID(), or doing a query for the existing ID in
+	 * case of a key collision.
+	 *
+	 * @param string $table table to insert into
+	 * @param string $aiKey name of the AUTO_INCREMENT column
+	 * @param array $uniqueValues assoc array containing columnName => value mapping
+	 * @param array $additionalValues assoc array containing columnName => value mapping
+	 * @return int[] list of AUTO_INCREMENT values matching the list of $values
+	 */
+	public static function insertIgnore($table, $aiKey, $uniqueValues, $additionalValues = false)
+	{
+		// Sanity checks
+		if (array_key_exists($aiKey, $uniqueValues)) {
+			Util::traceError("$aiKey must not be in \$uniqueValues");
+		}
+		if (is_array($additionalValues) && array_key_exists($aiKey, $additionalValues)) {
+			Util::traceError("$aiKey must not be in \$additionalValues");
+		}
+		// Simple SELECT first
+		$selectSql = 'SELECT ' . $aiKey . ' FROM ' . $table . ' WHERE 1';
+		foreach ($uniqueValues as $key => $value) {
+			$selectSql .= ' AND ' . $key . ' = :' . $key;
+		}
+		$selectSql .= ' LIMIT 1';
+		$res = self::queryFirst($selectSql, $uniqueValues);
+		if ($res !== false) {
+			// Exists
+			if (!empty($additionalValues)) {
+				// Simulate ON DUPLICATE KEY UPDATE ...
+				$updateSql = 'UPDATE ' . $table . ' SET ';
+				$first = true;
+				foreach ($additionalValues as $key => $value) {
+					if ($first) {
+						$first = false;
+					} else {
+						$updateSql .= ', ';
+					}
+					$updateSql .= $key . ' = :' . $key;
+				}
+				$updateSql .= ' WHERE ' . $aiKey . ' = :' . $aiKey;
+				$additionalValues[$aiKey] = $res[$aiKey];
+				Database::exec($updateSql, $additionalValues);
+			}
+			return $res[$aiKey];
+		}
+		// Does not exist:
+		if (empty($additionalValues)) {
+			$combined =& $uniqueValues;
+		} else {
+			$combined = $uniqueValues + $additionalValues;
+		}
+		// Aight, try INSERT or INSERT IGNORE
+		$insertSql = 'INTO ' . $table . ' (' . implode(', ', array_keys($combined))
+			. ') VALUES (:' . implode(', :', array_keys($combined)) . ')';
+		if (empty($additionalValues)) {
+			// Simple INSERT IGNORE
+			$insertSql = 'INSERT IGNORE ' . $insertSql;
+		} else {
+			// INSERT ... ON DUPLICATE (in case we have a race)
+			$insertSql = 'INSERT ' . $insertSql . ' ON DUPLICATE KEY UPDATE ';
+			$first = true;
+			foreach ($additionalValues as $key => $value) {
+				if ($first) {
+					$first = false;
+				} else {
+					$insertSql .= ', ';
+				}
+				$insertSql .= $key . ' =  VALUES(' . $key . ')';
+			}
+		}
+		self::exec($insertSql, $combined);
+		// Insert done, retrieve key again
+		$res = self::queryFirst($selectSql, $uniqueValues);
+		if ($res === false) {
+			Util::traceError('Could not find value in table ' . $table . ' that was just inserted');
+		}
+		return $res[$aiKey];
+	}
+
 }
