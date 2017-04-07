@@ -4,7 +4,6 @@
     "lang_allowLoginDescription": "Wenn diese Option aktiviert ist, k\u00f6nnen sich alle Mitarbeiter der Einrichtung \u00fcber die bwLehrpool-Suite anmelden und VMs\/Veranstaltungen verwalten. Wenn Sie diese Option deaktivieren, m\u00fcssen Sie in der Untersektion \"Benutzer und Berechtigungen\" jeden Benutzer nach dem ersten Loginversuch manuell freischalten.",
     "lang_asteriskRequired": "Felder mit (*) sind erforderlich",
     "lang_blockCount": "Anzahl Bl\u00f6cke",
-    "lang_canLogin": "Nutzer dieser Einrichtung k\u00f6nnen sich am Satelliten anmelden",
     "lang_canLoginOrganization": "Nutzer dieser Einrichtung k\u00f6nnen sich am Satelliten anmelden",
     "lang_canLoginUser": "Nutzer kann sich am Satelliten anmelden",
     "lang_createTime": "Erstellt",
