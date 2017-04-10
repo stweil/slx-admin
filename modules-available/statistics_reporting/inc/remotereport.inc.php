@@ -73,8 +73,6 @@ class RemoteReport
 		GetData::$salt = bin2hex(Util::randomBytes(20, false));
 		$data = GetData::total(GETDATA_ANONYMOUS);
 		$data['perLocation'] = GetData::perLocation(GETDATA_ANONYMOUS);
-		$data['perClient'] = GetData::perClient(GETDATA_ANONYMOUS);
-		$data['perUser'] = GetData::perUser(GETDATA_ANONYMOUS);
 		$data['perVM'] = GetData::perVM(GETDATA_ANONYMOUS);
 		$data['tsFrom'] = $from;
 		$data['tsTo'] = $to;
