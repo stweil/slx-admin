@@ -1,7 +1,8 @@
 <div class="row">
-	<div class="col-md-4 text-left">
+	<div class="col-md-4"></div>
+	<div class="col-md-4">
 		<select multiple name="roles[]" id="select-role">
-			<option value></option>
+			<option value>{{lang_selectizePlaceholder}}</option>
 			{{#roles}}
 			<option value="{{roleId}}">{{roleName}}</option>
 			{{/roles}}
@@ -11,7 +12,7 @@
 
 <div class="row">
 	<div class="col-md-12">
-		<table id="locationsTable" class="table table-condensed table-hover">
+		<table id="locationsTable" class="table table-condensed table-hover dataTable">
 			<thead>
 				<tr>
 					<th data-sort="string">{{lang_Locations}}</th>
@@ -34,52 +35,3 @@
 		</table>
 	</div>
 </div>
-
-<script>
-	document.addEventListener("DOMContentLoaded", function() {
-		var selectize = $('#select-role').selectize({
-			allowEmptyOption: false,
-			maxItems: null,
-			highlight: false,
-			hideSelected: true,
-			create: false,
-			placeholder: "{{lang_selectizePlaceholder}}",
-			plugins: [ "remove_button" ]
-		})[0].selectize;
-
-		// If Site gets refreshed, all data-selectizeCounts will be reset to 0, so delete the filters from the selectize
-		selectize.clear();
-
-		selectize.on('item_add', function(value, $item) {
-			// When first item gets added the filter isn't empty anymore, so hide all rows
-			if (selectize.items.length === 1) {
-				$('#locationsTable').find('tr').hide();
-			}
-			// Find all rows which shall be shown and increase their counter by 1
-			$(".roleId-"+value).closest("tr").each(function() {
-				$(this).data("selectizeCount", $(this).data("selectizeCount") + 1);
-				$(this).show();
-			});
-		});
-
-		selectize.on('item_remove', function(value, $item) {
-			// When no items in the filter, show all rows again
-			if (selectize.items.length === 0) {
-				$('#locationsTable').find('tr').show();
-			} else {
-				// Find all rows which have the delete role, decrease their counter by 1
-				$(".roleId-"+value).closest("tr").each(function() {
-					$(this).data("selectizeCount", $(this).data("selectizeCount") - 1);
-					// If counter is 0, hide the row (no filter given to show the row anymore)
-					if ($(this).data("selectizeCount") === 0) {
-						$(this).closest("tr").hide();
-					}
-				});
-			}
-		});
-
-		$("form input").keydown(function(e) {
-			if (e.keyCode === 13) e.preventDefault();
-		});
-	});
-</script>

@@ -18,5 +18,6 @@
     "lang_all": "all",
     "lang_selected": "selected",
     "lang_Permissions": "Permissions",
-    "lang_selectizePlaceholder": "Filter for roles..."
+    "lang_selectizePlaceholder": "Filter for roles...",
+    "lang_searchPlaceholder": "Search for roles..."
 }

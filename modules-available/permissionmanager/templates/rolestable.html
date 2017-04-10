@@ -1,7 +1,14 @@
 <form method="post" action="?do=permissionmanager">
 	<input type="hidden" name="token" value="{{token}}">
 
-	<button class="btn btn-success" type="button" onclick="openRoleEditor()"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</button>
+	<div class="row">
+		<div class="col-md-4">
+			<button class="btn btn-success" type="button" onclick="openRoleEditor()"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</button>
+		</div>
+		<div class="col-md-4">
+			<input type="text" class="form-control" id="roleNameSearchField" onkeyup="searchFieldFunction()" placeholder="{{lang_searchPlaceholder}}">
+		</div>
+	</div>
 
 	<div class="row">
 		<div class="col-md-12">
@@ -16,8 +23,8 @@
 
 				<tbody>
 				{{#roles}}
-					<tr>
-						<td>{{roleName}}</td>
+					<tr class="rolesRow">
+						<td class="rolesData">{{roleName}}</td>
 						<td>
 							<a href="?do=permissionmanager&show=roleEditor&roleid={{roleId}}">{{lang_Edit}}</a>
 						</td>
@@ -61,5 +68,24 @@
 
 	function deleteRole($roleId) {
 		$(".modal-footer #deleteId").val($roleId);
+	}
+
+	function searchFieldFunction() {
+		// Declare variables
+		var input, filter, table, trs, a, i;
+		input = document.getElementById('roleNameSearchField');
+		filter = input.value.toUpperCase();
+		table = document.getElementById("rolesTable");
+		trs = table.getElementsByClassName('rolesRow');
+
+		// Loop through all list items, and hide those who don't match the search query
+		for (i = 0; i < trs.length; i++) {
+			a = trs[i].getElementsByClassName("rolesData")[0];
+			if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+				trs[i].style.display = "";
+			} else {
+				trs[i].style.display = "none";
+			}
+		}
 	}
 </script>
