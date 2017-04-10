@@ -26,10 +26,16 @@ class User
 		return self::$user['fullname'];
 	}
 
-	public static function hasPermission($permission)
+	public static function hasPermission($permission, $locationid = NULL)
 	{
 		if (!self::isLoggedIn())
 			return false;
+		if (Module::get("permissionmanager")) {
+			require_once "modules/permissionmanager/inc/permissionutil.inc.php";
+			$module = Request::get("do", false);
+			$permission = $module ? $module.".".$permission : $permission;
+			return PermissionUtil::userHasPermission(self::$user['userid'], $permission, $locationid);
+		}
 		return (self::$user['permissions'] & (Permission::get($permission) | Permission::get('superadmin'))) != 0;
 	}
 

@@ -124,7 +124,12 @@ class Page_Statistics_Reporting extends Page
 			Render::addTemplate('columnChooser', $data);
 
 			$data['data'] = $this->fetchData(GETDATA_PRINTABLE);
-			Render::addTemplate('table-' . $this->type, $data);
+
+			if (User::hasPermission("table.view.$this->type"))
+				Render::addTemplate('table-' . $this->type, $data);
+			else
+				Message::addError('main.no-permission');
+
 		}
 	}
 

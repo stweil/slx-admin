@@ -45,6 +45,7 @@
 	selectedPermissions = "{{selectedPermissions}}";
 
 	document.addEventListener("DOMContentLoaded", function () {
+
 		$('#select-location').selectize({
 			allowEmptyOption: false,
 			maxItems: null,
@@ -138,6 +139,11 @@
 			button.addClass("btn-primary");
 		}
 
+
+		$('[data-toggle="tooltip"]').tooltip({
+			container: 'body',
+			trigger : 'hover'
+		});
 	});
 
 </script>
