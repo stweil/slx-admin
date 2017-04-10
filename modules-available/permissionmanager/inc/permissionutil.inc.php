@@ -2,6 +2,41 @@
 
 class PermissionUtil
 {
+	public static function userHasPermission($userid, $permissionid, $locationid) {
+		$locations = array();
+		if (!is_null($locationid)) {
+			$res = Database::simpleQuery("SELECT locationid, parentlocationid FROM location");
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$locations[$row["locationid"]] = $row["parentlocationid"];
+			}
+			if (!array_key_exists($locationid, $locations)) return false;
+		}
+
+		$res = Database::simpleQuery("SELECT role_x_permission.permissionid as 'permissionid',
+													role_x_location.locid as 'locationid'
+												FROM user_x_role
+												INNER JOIN role_x_permission ON user_x_role.roleid = role_x_permission.roleid
+												LEFT JOIN role_x_location ON role_x_permission.roleid = role_x_location.roleid
+												WHERE user_x_role.userid = :userid", array("userid" => $userid));
+
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$userPermission = trim($row["permissionid"], "*");
+			if (substr($permissionid, 0, strlen($userPermission)) === $userPermission) {
+				if (is_null($locationid) || $locationid == $row["locationid"]) {
+					return true;
+				} else {
+					$parentlocid = $locationid;
+					while ($parentlocid != 0) {
+						$parentlocid  = $locations[$parentlocid];
+						if ($parentlocid == $row["locationid"]) return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+
 	public static function getPermissions()
 	{
 		$permissions = array();

@@ -135,7 +135,7 @@ class Page_PermissionManager extends Page
 			$res .= Render::parse($genModuleBox ? "modulepermissionbox" : (is_array($v) ? "permissiontreenode" : "permission"),
 				array("id" =>  $genModuleBox ? $k : $permString.".".$k,
 						"name" => $genModuleBox ? Module::get($k)->getDisplayName(): $k,
-						"HTML" => self::generatePermissionHTML($v, $genModuleBox ? $k : $permString.".".$k),
+						"HTML" => is_array($v) ? self::generatePermissionHTML($v, $genModuleBox ? $k : $permString.".".$k) : "",
 						"description" => $v));
 		}
 		return $res;
