@@ -269,6 +269,38 @@ class Page_SystemStatus extends Page
 		echo '<pre>', htmlspecialchars(substr($data, $start), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '</pre>';
 	}
 
+	protected function ajaxLighttpdLog()
+	{
+		$fh = @fopen('/var/log/lighttpd/error.log', 'r');
+		if ($fh === false) {
+			echo 'Error opening log file';
+			return;
+		}
+		fseek($fh, -6000, SEEK_END);
+		$data = fread($fh, 6000);
+		@fclose($fh);
+		if ($data === false) {
+			echo 'Error reading from log file';
+			return;
+		}
+		// If we could read less, try the .1 file too
+		$amount = 6000 - strlen($data);
+		if ($amount > 100) {
+			$fh = @fopen('/var/log/lighttpd/error.log.1', 'r');
+			if ($fh !== false) {
+				fseek($fh, -$amount, SEEK_END);
+				$data = fread($fh, $amount) . $data;
+				@fclose($fh);
+			}
+		}
+		if (strlen($data) < 5990) {
+			$start = 0;
+		} else {
+			$start = strpos($data, "\n") + 1;
+		}
+		echo '<pre>', htmlspecialchars(substr($data, $start), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '</pre>';
+	}
+
 	protected function ajaxLdadpLog()
 	{
 		$haveSysconfig = Module::isAvailable('sysconfig');

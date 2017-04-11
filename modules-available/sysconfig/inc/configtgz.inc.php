@@ -82,7 +82,141 @@ class ConfigTgz
 		));
 		return true;
 	}
-		
+	
+	/**
+	 * 
+	 * @param bool $deleteOnError
+	 * @param int $timeoutMs
+	 * @return string - OK (success)
+	 *		- OUTDATED (updating failed, but old version still exists)
+	 *		- MISSING (failed and no old version available)
+	 */
+	public function generate($deleteOnError = false, $timeoutMs = 0)
+	{
+		if (!($this->configId > 0) || !is_array($this->modules) || $this->file === false)
+			Util::traceError ('configId <= 0 or modules not array in ConfigTgz::rebuild()');
+		$files = array();
+		// Get all config modules for system config
+		foreach ($this->modules as $module) {
+			if (!empty($module['filepath']) && file_exists($module['filepath']))
+				$files[] = $module['filepath'];
+		}
+		// Get stuff other modules want to inject
+		$handler = function($hook) {
+			include $hook->file;
+			return isset($file) ? $file : false;
+		};
+		foreach (Hook::load('config-tgz') as $hook) {
+			$file = $handler($hook);
+			if ($file !== false) {
+				$files[] = $file;
+			}
+		}
+		// Hand over to tm
+		$task = Taskmanager::submit('RecompressArchive', array(
+			'inputFiles' => $files,
+			'outputFile' => $this->file
+		));
+		// Wait for completion
+		if ($timeoutMs > 0 && !Taskmanager::isFailed($task) && !Taskmanager::isFinished($task))
+			$task = Taskmanager::waitComplete($task, $timeoutMs);
+		if ($task === true || (isset($task['statusCode']) && $task['statusCode'] === TASK_FINISHED)) {
+			// Success!
+			$this->markUpdated();
+			return true;
+		}
+		if (!is_array($task) || !isset($task['id']) || Taskmanager::isFailed($task)) {
+			// Failed...
+			Taskmanager::addErrorMessage($task);
+			if (!$deleteOnError)
+				$this->markFailed();
+			else
+				$this->delete();
+			return false;
+		}
+		// Still running, add callback
+		TaskmanagerCallback::addCallback($task, 'cbConfTgzCreated', array(
+			'configid' => $this->configId,
+			'deleteOnError' => $deleteOnError
+		));
+		return $task['id'];
+	}
+
+	public function delete()
+	{
+		if ($this->configId === 0)
+			Util::traceError('ConfigTgz::delete called with invalid config id!');
+		$ret = Database::exec("DELETE FROM configtgz WHERE configid = :configid LIMIT 1", array(
+				'configid' => $this->configId
+			), true) !== false;
+		if ($ret !== false) {
+			if ($this->file !== false)
+				Taskmanager::submit('DeleteFile', array('file' => $this->file), true);
+			$this->configId = 0;
+			$this->modules = false;
+			$this->file = false;
+		}
+		return $ret;
+	}
+	
+	public function markOutdated()
+	{
+		if ($this->configId === 0)
+			Util::traceError('ConfigTgz::markOutdated called with invalid config id!');
+		return $this->mark('OUTDATED');
+	}
+	
+	private function markUpdated()
+	{
+		if ($this->configId === 0)
+			Util::traceError('ConfigTgz::markUpdated called with invalid config id!');
+		Event::activeConfigChanged();
+		if ($this->areAllModulesUpToDate())
+			return $this->mark('OK');
+		return $this->mark('OUTDATED');
+	}
+	
+	private function markFailed()
+	{
+		if ($this->configId === 0)
+			Util::traceError('ConfigTgz::markFailed called with invalid config id!');
+		if ($this->file === false || !file_exists($this->file))
+			return $this->mark('MISSING');
+		return $this->mark('OUTDATED');
+	}
+	
+	private function mark($status)
+	{
+		Database::exec("UPDATE configtgz SET status = :status WHERE configid = :configid LIMIT 1", array(
+			'configid' => $this->configId,
+			'status' => $status
+		));
+		return $status;
+	}
+
+	/*
+	 * Static part
+	 */
+
+	/**
+	 * Marks all modules as outdated and triggers generate()
+	 * on each one. This mostly makes sense to call if a global module
+	 * that is injected via a hook has changed.
+	 */
+	public static function rebuildAllConfigs()
+	{
+		Database::exec("UPDATE configtgz SET status = :status", array(
+			'status' => 'OUTDATED'
+		));
+		$res = Database::simpleQuery("SELECT configid FROM configtgz");
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$module = self::get($row['configid']);
+			if ($module !== false) {
+				$module->generate();
+			}
+		}
+	}
+
 	public static function insert($title, $moduleIds)
 	{
 		if (!is_array($moduleIds))
@@ -116,7 +250,7 @@ class ConfigTgz
 		}
 		return $instance;
 	}
-	
+
 	public static function get($configId)
 	{
 		$ret = Database::queryFirst("SELECT configid, title, filepath FROM configtgz WHERE configid = :configid", array(
@@ -137,7 +271,7 @@ class ConfigTgz
 		}
 		return $instance;
 	}
-	
+
 	public static function getAllForModule($moduleId)
 	{
 		$res = Database::simpleQuery("SELECT configid, title, filepath FROM configtgz_x_module "
@@ -213,105 +347,6 @@ class ConfigTgz
 			return;
 		}
 		$config->markUpdated();
-	}
-	
-	/**
-	 * 
-	 * @param type $deleteOnError
-	 * @param type $timeoutMs
-	 * @return string - OK (success)
-	 *		- OUTDATED (updating failed, but old version still exists)
-	 *		- MISSING (failed and no old version available)
-	 */
-	public function generate($deleteOnError = false, $timeoutMs = 0)
-	{
-		if (!($this->configId > 0) || !is_array($this->modules) || $this->file === false)
-			Util::traceError ('configId <= 0 or modules not array in ConfigTgz::rebuild()');
-		$files = array();
-		foreach ($this->modules as $module) {
-			if (!empty($module['filepath']) && file_exists($module['filepath']))
-				$files[] = $module['filepath'];
-		}
-		// Hand over to tm
-		$task = Taskmanager::submit('RecompressArchive', array(
-			'inputFiles' => $files,
-			'outputFile' => $this->file
-		));
-		// Wait for completion
-		if ($timeoutMs > 0 && !Taskmanager::isFailed($task) && !Taskmanager::isFinished($task))
-			$task = Taskmanager::waitComplete($task, $timeoutMs);
-		if ($task === true || (isset($task['statusCode']) && $task['statusCode'] === TASK_FINISHED)) {
-			// Success!
-			$this->markUpdated();
-			return true;
-		}
-		if (!is_array($task) || !isset($task['id']) || Taskmanager::isFailed($task)) {
-			// Failed...
-			Taskmanager::addErrorMessage($task);
-			if (!$deleteOnError)
-				$this->markFailed();
-			else
-				$this->delete();
-			return false;
-		}
-		// Still running, add callback
-		TaskmanagerCallback::addCallback($task, 'cbConfTgzCreated', array(
-			'configid' => $this->configId,
-			'deleteOnError' => $deleteOnError
-		));
-		return $task['id'];
-	}
-	
-	public function delete()
-	{
-		if ($this->configId === 0)
-			Util::traceError('ConfigTgz::delete called with invalid config id!');
-		$ret = Database::exec("DELETE FROM configtgz WHERE configid = :configid LIMIT 1", array(
-				'configid' => $this->configId
-			), true) !== false;
-		if ($ret !== false) {
-			if ($this->file !== false)
-				Taskmanager::submit('DeleteFile', array('file' => $this->file), true);
-			$this->configId = 0;
-			$this->modules = false;
-			$this->file = false;
-		}
-		return $ret;
-	}
-	
-	public function markOutdated()
-	{
-		if ($this->configId === 0)
-			Util::traceError('ConfigTgz::markOutdated called with invalid config id!');
-		return $this->mark('OUTDATED');
-	}
-	
-	private function markUpdated()
-	{
-		if ($this->configId === 0)
-			Util::traceError('ConfigTgz::markUpdated called with invalid config id!');
-		Event::activeConfigChanged();
-		if ($this->areAllModulesUpToDate())
-			return $this->mark('OK');
-		return $this->mark('OUTDATED');
-	}
-	
-	private function markFailed()
-	{
-		if ($this->configId === 0)
-			Util::traceError('ConfigTgz::markFailed called with invalid config id!');
-		if ($this->file === false || !file_exists($this->file))
-			return $this->mark('MISSING');
-		return $this->mark('OUTDATED');
-	}
-	
-	private function mark($status)
-	{
-		Database::exec("UPDATE configtgz SET status = :status WHERE configid = :configid LIMIT 1", array(
-			'configid' => $this->configId,
-			'status' => $status
-		));
-		return $status;
 	}
 	
 }

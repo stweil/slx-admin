@@ -165,7 +165,8 @@ class Page_Exams extends Page
 	{
 		$out = [];
 		$now = time();
-		$cutoff = strtotime('+ 5 day');
+		$cutoff = strtotime('+30 day');
+		$theCount = 0;
 		foreach ($this->lectures as $lecture) {
 			if ($lecture['endtime'] < $now || $lecture['starttime'] > $cutoff)
 				continue;
@@ -178,6 +179,9 @@ class Page_Exams extends Page
 			$duration = $lecture['endtime'] - $lecture['starttime'];
 			if ($duration < 86400) {
 				$entry['duration_s'] = gmdate('H:i', $duration);
+			}
+			if (++$theCount > 5) {
+				$entry['class'] = 'collapse';
 			}
 			$out[] = $entry;
 		}
@@ -356,7 +360,8 @@ class Page_Exams extends Page
 				Message::addInfo('no-upcoming-lecture-exams');
 			} else {
 				Render::addTemplate('page-upcoming-lectures', [
-					'pending_lectures' => $upcoming
+					'pending_lectures' => $upcoming,
+					'decollapse' => array_key_exists('class', end($upcoming))
 				]);
 			}
 			// Vis.js timeline

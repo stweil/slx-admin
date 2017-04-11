@@ -16,6 +16,8 @@ class PvsGenerator
 
 		/* get all rooms */
 		$rooms = array();
+		// Use left joins everywhere so we still have the complete list of locations below
+		// for figuring out which locations are leafs and which aren't
 		$ret = Database::simpleQuery(
 			'SELECT l.locationid, l.parentlocationid, l.locationname, lr.locationid AS notnull, lr.managerip, lr.tutoruuid, m.clientip as tutorip '
 			. 'FROM location l '
@@ -27,12 +29,27 @@ class PvsGenerator
 			settype($row['parentlocationid'], 'int');
 			$rooms[$row['locationid']] = $row;
 		}
+		// Mark all non-leafs as skip
 		foreach ($rooms as &$room) {
 			if ($room['parentlocationid'] > 0 && isset($rooms[$room['parentlocationid']])) {
 				$rooms[$room['parentlocationid']]['skip'] = true; // Don't just unset, might be wrong order
 			}
 		}
-		unset($room); // refd!
+		// Now un-mark all where there's at least one child without valid room plan
+		foreach ($rooms as &$room) {
+			if (!isset($room['skip']) && (is_null($room['notnull']) || empty($room['managerip']))) {
+				$room['skip'] = true;
+				$r2 =& $room;
+				while ($r2['parentlocationid'] > 0) {
+					$r2 =& $rooms[$r2['parentlocationid']];
+					if (!(is_null($room['notnull']) || empty($room['managerip']))) {
+						unset($r2['skip']);
+						break;
+					}
+				}
+			}
+		}
+		unset($room, $r2); // refd!
 
 		/* collect names and build room blocks - filter empty rooms while at it */
 		$roomNames = array();

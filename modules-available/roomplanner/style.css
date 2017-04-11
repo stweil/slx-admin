@@ -40,7 +40,7 @@ body {
 #scaleContainer {
 	position: absolute;
 	bottom: 5px;
-	right: 30px;
+	right: 50px;
 	width: 15%;
 	z-index:1000;
 	}
@@ -48,7 +48,7 @@ body {
 #scaleslider {
 	position:relative;}
 
-#zoom-out, #zoom-in {
+#zoom-out, #zoom-in, #zoom-fit {
 	cursor:pointer;
 }
 
@@ -60,6 +60,9 @@ body {
 
 #scaleContainer .glyphicon-zoom-out {
 	left:-20px;}
+
+#scaleContainer .glyphicon-move {
+	right:-40px;}
 
 #scaleContainer .glyphicon-zoom-in {
 	right:-20px; }

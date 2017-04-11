@@ -1,8 +1,3 @@
-<div class="slx-bold">
-	{{lang_homedirHandling}}
-</div>
-<div><i>{{lang_handlingNotes}}</i></div>
-
 <!-- 'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia', 'shareOther' -->
 
 <form method="post" class="form-horizontal" action="?do=SysConfig&amp;action=addmodule&amp;step={{next}}">
@@ -21,6 +16,17 @@
 	{{/ssl}}
 	<input name="fingerprint" value="{{fingerprint}}" type="hidden">
 
+	<div class="slx-bold">{{lang_credentialPassing}}</div>
+	<div class="checkbox">
+		<input type="checkbox" class="form-control" id="inputcredentialPassthrough" name="credentialPassthrough">
+		<label for="inputcredentialPassthrough">{{lang_credentialPassing}}</label>
+	</div>
+	<div><i>{{lang_credPassingNotes}}</i></div>
+
+	<hr>
+	<div class="slx-bold">{{lang_homedirHandling}}</div>
+	<div><i>{{lang_handlingNotes}}</i></div>
+
 	<div class="form-group row">
 		<label for="inputshareRemapMode" class="control-label col-xs-4">{{lang_shareRemapMode}}</label>
 		<div class="col-xs-8">
@@ -30,6 +36,14 @@
 				<option value="3" {{shareRemapMode_3}}>{{lang_mapModeVmware}}</option>
 				<option value="2" {{shareRemapMode_2}}>{{lang_mapModeNativeFallback}}</option>
 			</select>
+			<p><i>{{lang_shareModeNote}}</i></p>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="inputshareDomain" class="control-label col-xs-4">{{lang_shareDomainLabel}}</label>
+		<div class="col-xs-8">
+			<input type="text" class="form-control" id="inputshareDomain" name="shareDomain">
+			<p><i>{{lang_shareDomainNote}}</i></p>
 		</div>
 	</div>
 	<div class="form-group row">
@@ -40,31 +54,37 @@
 				<option {{selected}}>{{drive}}</option>
 				{{/drives}}
 			</select>
+			<p><i>{{lang_driveLetterNote}}</i></p>
 		</div>
 	</div>
+
 	<hr>
 	<div class="slx-bold">{{lang_folderRedirection}}</div>
 	<div><i>{{lang_redirectionWarning}}</i></div>
-	<div>
-		<label class="control-label"><input type="checkbox" name="shareDocuments" {{shareDocuments_c}}> {{lang_shareDocuments}}</label>
+
+	<div class="checkbox">
+		<input  id="shareDocuments" type="checkbox" class="form-control" name="shareDocuments" {{shareDocuments_c}}>
+		<label for="shareDocuments">{{lang_shareDocuments}}</label>
 	</div>
-	<div>
-		<label class="control-label"><input type="checkbox" name="shareDownloads" {{shareDownloads_c}}> {{lang_shareDownloads}}</label>
+	<div class="checkbox">
+		<input  id="shareDownloads" type="checkbox" class="form-control" name="shareDownloads" {{shareDownloads_c}}>
+		<label for="shareDownloads">{{lang_shareDownloads}}</label>
 	</div>
-	<div>
-		<label class="control-label"><input type="checkbox" name="shareDesktop" {{shareDesktop_c}}> {{lang_shareDesktop}}</label>
+	<div class="checkbox">
+		<input  id="shareDesktop" type="checkbox" class="form-control" name="shareDesktop" {{shareDesktop_c}}>
+		<label for="shareDesktop">{{lang_shareDesktop}}</label>
 	</div>
-	<div>
-		<label class="control-label"><input type="checkbox" name="shareMedia" {{shareMedia_c}}> {{lang_shareMedia}}</label>
+	<div class="checkbox">
+		<input  id="shareMedia" type="checkbox" class="form-control" name="shareMedia" {{shareMedia_c}}>
+		<label for="shareMedia">{{lang_shareMedia}}</label>
 	</div>
-	<div>
-		<label class="control-label"><input type="checkbox" name="shareOther" {{shareOther_c}}> {{lang_shareOther}}</label>
+	<div class="checkbox">
+		<input  id="shareOther" type="checkbox" class="form-control" name="shareOther" {{shareOther_c}}>
+		<label for="shareOther">{{lang_shareOther}}</label>
 	</div>
-	<div class="row">
-		<div class="col-xs-2"></div>
-		<div class="col-xs-10">
-			<label class="control-label"><input type="checkbox" name="shareRemapCreate" {{shareRemapCreate_c}}> {{lang_shareMapCreate}}</label>
-		</div>
+	<div class="checkbox">
+		<input  id="shareRemapCreate" type="checkbox" class="form-control" name="shareRemapCreate" {{shareRemapCreate_c}}>
+		<label for="shareRemapCreate">{{lang_shareMapCreate}}</label>
 	</div>
 	<div class="pull-right">
 		<button type="submit" class="btn btn-primary">{{lang_next}} &raquo;</button>

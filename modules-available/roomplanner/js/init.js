@@ -59,6 +59,10 @@ function initRoomplanner() {
 	$('#zoom-in').click(function() {
 		roomplanner.slider.slider('value', roomplanner.settings.scale + 10);
 	});
+
+	$('#zoom-fit').click(function() {
+		roomplanner.fitContent();
+	});
 }
 
 var translation = {

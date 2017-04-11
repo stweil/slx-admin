@@ -11,6 +11,7 @@
     "lang_goToStoreConf": "Go to VM store configuration",
     "lang_iAmSure": "Yes, I am sure",
     "lang_ldadpLog": "AD\/LDAP proxy log",
+    "lang_lighttpdLog": "lighttpd-error log",
     "lang_logicCPUs": "Logic CPUs",
     "lang_maintenance": "Maintenance",
     "lang_notDetermined": "Could not be determined",

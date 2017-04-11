@@ -97,6 +97,14 @@
 </div>
 <div class="panel panel-default">
 	<div class="panel-heading">
+		{{lang_lighttpdLog}}
+	</div>
+	<div class="panel-body" id="lighttpd-log">
+		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
 		netstat -tulpn
 	</div>
 	<div class="panel-body" id="netstat">
@@ -124,6 +132,7 @@
 			$('#netstat').load('?do=SystemStatus&action=Netstat');
 			$('#pslist').load('?do=SystemStatus&action=PsList');
 			$('#ldadp-log').load('?do=SystemStatus&action=LdadpLog');
+			$('#lighttpd-log').load('?do=SystemStatus&action=LighttpdLog');
 		}, 300);
 	}, false);
 </script>

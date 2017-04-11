@@ -12,7 +12,7 @@ $res[] = tableCreate('statistic', "
   `dateline` int(10) unsigned NOT NULL,
   `typeid` varchar(30) NOT NULL,
   `clientip` varchar(40) NOT NULL,
-  `machineuuid` varchar(36) CHARACTER SET ascii DEFAULT NULL,
+  `machineuuid` char(36) CHARACTER SET ascii DEFAULT NULL,
   `username` varchar(30) NOT NULL,
   `data` varchar(255) NOT NULL,
   PRIMARY KEY (`logid`),
@@ -24,7 +24,7 @@ $res[] = tableCreate('statistic', "
 
 // Main table containing all known clients
 
-$res[] = tableCreate('machine', "
+$res[] = $machineCreate = tableCreate('machine', "
   `machineuuid` char(36) CHARACTER SET ascii NOT NULL,
   `fixedlocationid` int(11) DEFAULT NULL           COMMENT 'Manually set location (e.g. roomplanner)',
   `subnetlocationid` int(11) DEFAULT NULL          COMMENT 'Automatically determined location (e.g. from subnet match),
@@ -61,6 +61,40 @@ $res[] = tableCreate('machine', "
   KEY `systemmodel` (`systemmodel`)
 ");
 
+$res[] = $machineHwCreate = tableCreate('machine_x_hw', "
+  `machinehwid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `hwid` int(10) unsigned NOT NULL,
+  `machineuuid` char(36) CHARACTER SET ascii NOT NULL,
+  `devpath` char(50) CHARACTER SET ascii NOT NULL,
+  `disconnecttime` int(10) unsigned NOT NULL COMMENT 'time the device was not connected to the pc anymore for the first time, 0 if it is connected',
+  PRIMARY KEY (`machinehwid`),
+  UNIQUE KEY `hwid` (`hwid`,`machineuuid`,`devpath`),
+  KEY `machineuuid` (`machineuuid`,`hwid`),
+  KEY `disconnecttime` (`disconnecttime`)
+ ");
+
+$res[] = tableCreate('machine_x_hw_prop', "
+  `machinehwid` int(10) unsigned NOT NULL,
+  `prop` char(16) CHARACTER SET ascii NOT NULL,
+  `value` varchar(500) NOT NULL,
+  PRIMARY KEY (`machinehwid`,`prop`)
+");
+
+$res[] = tableCreate('statistic_hw', "
+  `hwid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `hwtype` char(11) CHARACTER SET ascii NOT NULL,
+  `hwname` varchar(200) NOT NULL,
+  PRIMARY KEY (`hwid`),
+  UNIQUE KEY `hwtype` (`hwtype`,`hwname`)
+");
+
+$res[] = tableCreate('statistic_hw_prop', "
+  `hwid` int(10) unsigned NOT NULL,
+  `prop` char(16) CHARACTER SET ascii NOT NULL,
+  `value` varchar(500) NOT NULL,
+  PRIMARY KEY (`hwid`,`prop`)
+");
+
 // PCI-ID cache
 
 $res[] = tableCreate('pciid', "
@@ -71,7 +105,8 @@ $res[] = tableCreate('pciid', "
 	PRIMARY KEY (`category`,`id`)
 ");
 
-if (in_array(UPDATE_DONE, $res)) {
+// need trigger?
+if ($machineCreate === UPDATE_DONE) {
 	$addTrigger = true;
 }
 
@@ -162,6 +197,25 @@ if ($addTrigger) {
 		} else {
 			finalResponse(UPDATE_RETRY, 'Locations module not installed yet, retry later');
 		}
+	}
+}
+
+if ($machineHwCreate === UPDATE_DONE) {
+	$ret = Database::exec('ALTER TABLE `machine_x_hw`
+		ADD CONSTRAINT `machine_x_hw_ibfk_1` FOREIGN KEY (`hwid`) REFERENCES `statistic_hw` (`hwid`) ON DELETE CASCADE,
+		ADD CONSTRAINT `machine_x_hw_ibfk_2` FOREIGN KEY (`machineuuid`) REFERENCES `machine` (`machineuuid`) ON DELETE CASCADE');
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding constraints to machine_x_hw failed: ' . Database::lastError());
+	}
+	$ret = Database::exec('ALTER TABLE `machine_x_hw_prop`
+		ADD CONSTRAINT `machine_x_hw_prop_ibfk_1` FOREIGN KEY (`machinehwid`) REFERENCES `machine_x_hw` (`machinehwid`) ON DELETE CASCADE');
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding constraint to machine_x_hw_prop failed: ' . Database::lastError());
+	}
+	$ret = Database::exec('ALTER TABLE `statistic_hw_prop`
+		ADD CONSTRAINT `statistic_hw_prop_ibfk_1` FOREIGN KEY (`hwid`) REFERENCES `statistic_hw` (`hwid`) ON DELETE CASCADE');
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding constraint to statistic_hw_prop failed: ' . Database::lastError());
 	}
 }
 

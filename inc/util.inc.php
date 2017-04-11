@@ -21,6 +21,11 @@ class Util
 			exit(1);
 		}
 		Header('HTTP/1.1 500 Internal Server Error');
+		if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'html') === false ) {
+			Header('Content-Type: text/plain; charset=utf-8');
+			echo 'API ERROR: ', $message, "\n", self::formatBacktracePlain(debug_backtrace());
+			exit(0);
+		}
 		Header('Content-Type: text/html; charset=utf-8');
 		echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>', "\n",
 			".arg { color: red; background: white; }\n",
@@ -79,19 +84,38 @@ SADFACE;
 		exit(0);
 	}
 
+	private static function formatArgument($arg, $expandArray = true)
+	{
+		if (is_string($arg)) {
+			$arg = "'$arg'";
+		} elseif (is_object($arg)) {
+			$arg = 'instanceof ' . get_class($arg);
+		} elseif (is_array($arg)) {
+			if ($expandArray && count($arg) < 20) {
+				$expanded = '';
+				foreach ($arg as $key => $value) {
+					if (!empty($expanded)) {
+						$expanded .= ', ';
+					}
+					$expanded .= $key . ': ' . self::formatArgument($value, false);
+					if (strlen($expanded) > 200)
+						break;
+				}
+				if (strlen($expanded) <= 200)
+					return '[' . $expanded . ']';
+			}
+			$arg = 'Array(' . count($arg) . ')';
+		}
+		return $arg;
+	}
+
 	public static function formatBacktraceHtml($trace, $escape = true)
 	{
 		$output = '';
 		foreach ($trace as $idx => $line) {
 			$args = array();
 			foreach ($line['args'] as $arg) {
-				if (is_string($arg)) {
-					$arg = "'$arg'";
-				} elseif (is_object($arg)) {
-					$arg = 'instanceof ' . get_class($arg);
-				} elseif (is_array($arg)) {
-					$arg = 'Array(' . count($arg) . ')';
-				}
+				$arg = self::formatArgument($arg);
 				$args[] = '<span class="arg">' . htmlspecialchars($arg) . '</span>';
 			}
 			$frame = str_pad('#' . $idx, 3, ' ', STR_PAD_LEFT);
@@ -111,14 +135,7 @@ SADFACE;
 		foreach ($trace as $idx => $line) {
 			$args = array();
 			foreach ($line['args'] as $arg) {
-				if (is_string($arg)) {
-					$arg = "'$arg'";
-				} elseif (is_object($arg)) {
-					$arg = 'instanceof ' . get_class($arg);
-				} elseif (is_array($arg)) {
-					$arg = 'Array(' . count($arg) . ')';
-				}
-				$args[] = $arg;
+				$args[] = self::formatArgument($arg);
 			}
 			$frame = str_pad('#' . $idx, 3, ' ', STR_PAD_LEFT);
 			$args = implode(', ', $args);
@@ -363,6 +380,58 @@ SADFACE;
 		if ($delete)
 			@unlink($file);
 		exit(0);
+	}
+
+	/**
+	 * Return a binary string of given length, containing
+	 * random bytes. If $secure is given, only methods of
+	 * obtaining cryptographically strong random bytes will
+	 * be used, otherwise, weaker methods might be used.
+	 *
+	 * @param int $length number of bytes to return
+	 * @param bool $secure true = only use strong random sources
+	 * @return string|bool string of requested length, false on error
+	 */
+	public static function randomBytes($length, $secure = true)
+	{
+		if (function_exists('random_bytes')) {
+			return random_bytes($length);
+		}
+		if ($secure) {
+			if (function_exists('openssl_random_pseudo_bytes')) {
+				$bytes = openssl_random_pseudo_bytes($length, $ok);
+				if ($bytes !== false && $ok) {
+					return $bytes;
+				}
+			}
+			$file = '/dev/random';
+		} else {
+			$file = '/dev/urandom';
+		}
+		$fh = @fopen($file, 'r');
+		if ($fh !== false) {
+			$bytes = fread($fh, $length);
+			while ($bytes !== false && strlen($bytes) < $length) {
+				$new = fread($fh, $length - strlen($bytes));
+				if ($new === false) {
+					$bytes = false;
+					break;
+				}
+				$bytes .= $new;
+			}
+			fclose($fh);
+			if ($bytes !== false) {
+				return $bytes;
+			}
+		}
+		if ($secure) {
+			return false;
+		}
+		$bytes = '';
+		while ($length > 0) {
+			$bytes .= chr(mt_rand(0, 255));
+		}
+		return $bytes;
 	}
 
 }

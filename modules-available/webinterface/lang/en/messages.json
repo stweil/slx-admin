@@ -1,0 +1,6 @@
+{
+    "https-on-cert-missing": "HTTPS is enabled, but the certificate is missing. Please redo the configuration steps.",
+    "https-used-without-cert": "HTTPS is currently used, but there is no certificate installed. If you tweaked the web server's configuration manually to enable HTTPS bear in mind that a future server update might overwrite your modified configuration without asking.",
+    "https-want-off-is-used": "HTTPS is currently in use although it is disabled in the settings. Very weird indeed.",
+    "https-want-redirect-is-plain": "HTTP to HTTPS redirects are enabled, but the connection from your browser appears to be unencrypted. Please redo the HTTPS configuration and contact support if the problem persists."
+}

@@ -24,11 +24,8 @@ class Page_Main extends Page
 
 		// Warnings
 		$needSetup = false;
-		foreach (glob('modules/*/hooks/main-warning.inc.php') as $file) {
-			preg_match('#^modules/([^/]+)/#', $file, $out);
-			if (!Module::isAvailable($out[1]))
-				continue;
-			include $file;
+		foreach (Hook::load('main-warning') as $hook) {
+			include $hook->file;
 		}
 
 		// Update warning state
