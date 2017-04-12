@@ -9,7 +9,7 @@ class Branding_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		Render::addDialog(Dictionary::translate('config-module', 'branding_title'), false, 'branding-start', array(
+		Render::addDialog(Dictionary::translateFile('config-module', 'branding_title'), false, 'branding-start', array(
 			'step' => 'Branding_ProcessFile',
 			'edit' => $this->edit ? $this->edit->id() : false
 		));

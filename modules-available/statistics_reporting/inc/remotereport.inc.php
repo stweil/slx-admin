@@ -40,7 +40,7 @@ class RemoteReport
 		if ($ts === 0) {
 			// No timestamp stored yet - might be a fresh install
 			// schedule for next time
-			self::updateNextReportingTimestamp();
+			self::writeNextReportingTimestamp();
 			$ts = Property::get(self::NEXT_SUBMIT_ID, 0);
 		} elseif ($ts < strtotime('last monday')) {
 			// Too long ago, move forward to last monday
@@ -63,18 +63,16 @@ class RemoteReport
 	 * Generate the multi-dimensional array containing the anonymized
 	 * (weekly) statistics to report.
 	 *
-	 * @param $from start timestamp
-	 * @param $to end timestamp
+	 * @param int $from start timestamp
+	 * @param int $to end timestamp
 	 * @return array wrapped up statistics, ready for reporting
 	 */
 	public static function generateReport($from, $to) {
 		GetData::$from = $from;
 		GetData::$to = $to;
-		GetData::$salt = bin2hex(Util::randomBytes(20));
+		GetData::$salt = bin2hex(Util::randomBytes(20, false));
 		$data = GetData::total(GETDATA_ANONYMOUS);
 		$data['perLocation'] = GetData::perLocation(GETDATA_ANONYMOUS);
-		$data['perClient'] = GetData::perClient(GETDATA_ANONYMOUS);
-		$data['perUser'] = GetData::perUser(GETDATA_ANONYMOUS);
 		$data['perVM'] = GetData::perVM(GETDATA_ANONYMOUS);
 		$data['tsFrom'] = $from;
 		$data['tsTo'] = $to;

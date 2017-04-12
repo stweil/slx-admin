@@ -1,0 +1,4 @@
+{
+	"category":"main.content",
+	"dependencies": [ "locations", "js_stupidtable" ]
+}

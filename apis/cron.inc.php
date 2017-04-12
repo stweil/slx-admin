@@ -50,8 +50,13 @@ foreach (Hook::load('cron') as $hook) {
 			continue;
 		}
 	}
-	$value = $hook . '|' . time();
+	$value = $hook->moduleId . '|' . time();
 	Property::addToList(CRON_KEY_STATUS, $value, 1800);
-	handleModule($hook->file);
+	try {
+		handleModule($hook->file);
+	} catch (Exception $e) {
+		// Logging
+		EventLog::failure('Cronjob for module ' . $hook->moduleId . ' has crashed. Check the php or web server error log.', $e->toString());
+	}
 	Property::removeFromList(CRON_KEY_STATUS, $value);
 }

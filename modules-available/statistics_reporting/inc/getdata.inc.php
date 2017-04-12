@@ -40,6 +40,7 @@ class GetData
 		$res = Queries::getLocationStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			self::nullToZero($row);
 			$median = self::calcMedian(self::calcMedian($row['medianSessionLength']));
 			$entry = array(
 				'location' => ($anonymize ? $row['locHash'] : $row['locName']),
@@ -69,6 +70,7 @@ class GetData
 		$res = Queries::getClientStatistics(self::$from, self::$to, self::$lowerTimeBound, self::$upperTimeBound);
 		$data = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			self::nullToZero($row);
 			$median = self::calcMedian(self::calcMedian($row['medianSessionLength']));
 			$entry = array(
 				'hostname' => ($anonymize ? $row['clientHash'] : $row['clientName']),
@@ -116,12 +118,20 @@ class GetData
 		$data = array();
 		$vm = $anonymize ? 'vmHash' : 'name';
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			self::nullToZero($row);
 			$data[] = array('vm' => $row[$vm], 'sessions' => $row['count']);
 		}
 		return $data;
 	}
 
-
+	private static function nullToZero(&$row)
+	{
+		foreach ($row as &$field) {
+			if (is_null($field)) {
+				$field = 0;
+			}
+		}
+	}
 
 	// Format $seconds into ".d .h .m .s" format (day, hour, minute, second)
 	private static function formatSeconds($seconds)

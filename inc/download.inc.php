@@ -49,8 +49,8 @@ class Download
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$data = curl_exec($ch);
 		$head = self::getContents($head);
-		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $head, $out)) {
-			$code = (int) $out[1];
+		if (preg_match_all('#^HTTP/\d+\.\d+ (\d+) #m', $head, $out)) {
+			$code = (int) array_pop($out[1]);
 		} else {
 			$code = 999;
 		}
@@ -83,8 +83,8 @@ class Download
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $string);
 		$data = curl_exec($ch);
 		$head = self::getContents($head);
-		if (preg_match('#^HTTP/\d+\.\d+ (\d+) #', $head, $out)) {
-			$code = (int) $out[1];
+		if (preg_match_all('#^HTTP/\d+\.\d+ (\d+) #m', $head, $out)) {
+			$code = (int) array_pop($out[1]);
 		} else {
 			$code = 999;
 		}
@@ -116,8 +116,8 @@ class Download
 			@unlink($target);
 			return false;
 		}
-		if (preg_match_all('#\bHTTP/\d+\.\d+ (\d+) #', $head, $out, PREG_SET_ORDER)) {
-			$code = (int) $out[count($out) - 1][1];
+		if (preg_match_all('#^HTTP/\d+\.\d+ (\d+) #m', $head, $out)) {
+			$code = (int) array_pop($out[1]);
 		} else {
 			$code = '999 ' . curl_error($ch);
 		}

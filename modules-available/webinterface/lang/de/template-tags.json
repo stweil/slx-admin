@@ -1,17 +1,23 @@
 {
-    "lang_HttpsIsDisabled": "HTTPS ist derzeit deaktiviert",
     "lang_applyingSettings": "Anwenden der Einstellungen",
     "lang_caChain": "Optional k\u00f6nnen Sie hier die zum Zertifikat geh\u00f6rende Zertifikatkette (CA-Chain) einf\u00fcgen. Dies wird ben\u00f6tigt, wenn das Zertifikat nicht direkt von einer der in Browsern mitgeliferten CAs signiert wurde. Die Datei enth\u00e4lt ein oder meherere Zertifikatsbl\u00f6cke, im gleichen Format wie das oben gezeigte Zertifikat.",
     "lang_certificate": "Bitte f\u00fcgen Sie hier das Zertifikat ein. Das Zertifikat wird im Base64-codierten x509-Format erwartet (manchmal pem genannt). Es sieht in etwa wie folgt aus:",
     "lang_customCert": "Eigenes Zertifikat verwenden",
+    "lang_generatedSelected": "Der Server verwendet zur Zeit ein automatisch generiertes, selbst signiertes Zertifikat.",
     "lang_hidePasswords": "Passw\u00f6rter maskieren",
     "lang_httpsDescription": "Hier k\u00f6nnen Sie festlegen, ob das Web-Interface auch per HTTPS erreichbar sein soll, und welches Zertifikat daf\u00fcr verwendet werden soll.",
+    "lang_httpsRedirect": "Anfragen per HTTP immer auf HTTPS umleiten (sofern aktiviert)",
     "lang_httpsSettings": "HTTPS-Konfiguration",
     "lang_installAndRestart": "Zertifikat installieren und Webserver neustarten",
     "lang_noHttps": "HTTPS wieder deaktivieren, aktuelles Zertifikat l\u00f6schen",
+    "lang_offSelected": "HTTPS ist derzeit deaktiviert.",
     "lang_passwordFields": "Passwortfelder",
     "lang_passwordsDescription": "Legen Sie fest, ob Passwortfelder in der Web-Schnittstelle maskiert werden, oder ob Ihr Inhalt sichtbar sein soll. Wenn Sie die Schnittstelle in einer sicheren Umgebung nutzen (keine neugierigen Augen), kann dies den Komfort erh\u00f6hen. Das Passwortfeld der Anmeldemaske ist von dieser Einstellung ausgenommen.",
     "lang_privateKey": "Bitte f\u00fcgen Sie hier den privaten Schl\u00fcssel ein, der zum obigen Zertifikat geh\u00f6rt. Er muss ebenfalls im \"pem\"-Format vorliegen, und sieht wie folgt aus:",
     "lang_randomCert": "Neues selbstsigniertes Zertifikat generieren",
-    "lang_showPasswords": "Passw\u00f6rter anzeigen"
+    "lang_showPasswords": "Passw\u00f6rter anzeigen",
+    "lang_suppliedSelected": "Der Server verwendet zur Zeit ein \u00fcber die Option \"Eigenes Zertifikat\" hochgeladenes Zertifikat.",
+    "lang_unknownSelected": "Unbekanntes oder ung\u00fcltiges Zertifikat vorhanden. Wahrscheinlich wurde der Server von einer alten Version aktualisiert. Um diese Meldung zu entfernen, die HTTPS-Konfiguration erneut vornehmen.",
+    "lang_youreNotUsingHttps": "Sie besuchen diese Seite nicht per HTTPS (oder die HTTPS-Terminierung wird von einem vorgeschalteten Proxy \u00fcbernommen).",
+    "lang_youreUsingHttps": "Sie besuchen diese Seite (aus Sicht des Webservers) per HTTPS."
 }

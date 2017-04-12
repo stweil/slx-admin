@@ -119,6 +119,53 @@ class Page_Statistics extends Page
 		/* TODO ... */
 	}
 
+	/*
+	 * TODO: Move to separate unit... hardware configurator?
+	 */
+
+	protected function handleProjector($action)
+	{
+		$hwid = Request::post('hwid', false, 'int');
+		if ($hwid === false) {
+			Util::traceError('Param hwid missing');
+		}
+		if ($action === 'addprojector') {
+			Database::exec('INSERT INTO statistic_hw_prop (hwid, prop, value)'
+				. ' VALUES (:hwid, :prop, :value)', array(
+					'hwid' => $hwid,
+					'prop' => 'projector',
+					'value' => 'true',
+			));
+		} else {
+			Database::exec('DELETE FROM statistic_hw_prop WHERE hwid = :hwid AND prop = :prop', array(
+				'hwid' => $hwid,
+				'prop' => 'projector',
+			));
+		}
+		if (Module::isAvailable('sysconfig')) {
+			ConfigTgz::rebuildAllConfigs();
+		}
+		Util::redirect('?do=statistics&show=projectors');
+	}
+
+	protected function showProjectors()
+	{
+		$res = Database::simpleQuery('SELECT h.hwname, h.hwid FROM statistic_hw h'
+			. " INNER JOIN statistic_hw_prop p ON (h.hwid = p.hwid AND p.prop = :projector)"
+			. " WHERE h.hwtype = :screen ORDER BY h.hwname ASC", array(
+				'projector' => 'projector',
+				'screen' => DeviceType::SCREEN,
+		));
+		$data = array(
+			'projectors' => $res->fetchAll(PDO::FETCH_ASSOC)
+		);
+		Render::addTemplate('projector-list', $data);
+	}
+
+	/*
+	 * End TODO
+	 */
+
 	protected function doPreprocess()
 	{
 		$this->initConstants();
@@ -140,6 +187,8 @@ class Page_Statistics extends Page
 			));
 			Message::addSuccess('notes-saved');
 			Util::redirect('?do=Statistics&uuid=' . $uuid);
+		} elseif ($action === 'addprojector' || $action === 'delprojector') {
+			$this->handleProjector($action);
 		}
 		// Fix online state of machines that crashed -- TODO: Make cronjob for this
 		Database::exec("UPDATE machine SET lastboot = 0 WHERE lastseen < UNIX_TIMESTAMP() - 610");
@@ -173,6 +222,9 @@ class Page_Statistics extends Page
 			$this->showFilter('list', $filterSet);
 			Render::closeTag('div');
 			$this->showMachineList($filterSet);
+			return;
+		} elseif ($show === 'projectors') {
+			$this->showProjectors();
 			return;
 		}
 		Render::openTag('div', array('class' => 'row'));
@@ -723,6 +775,24 @@ class Page_Statistics extends Page
 			}
 			$client['locations'] = $output;
 		}
+		// Screens TODO Move everything else to hw table instead of blob parsing above
+		// `devicetype`, `devicename`, `subid`, `machineuuid`
+		$res = Database::simpleQuery("SELECT m.hwid, h.hwname, m.devpath AS connector, m.disconnecttime,"
+			. " p.value AS resolution, q.prop AS projector FROM machine_x_hw m"
+			. " INNER JOIN statistic_hw h ON (m.hwid = h.hwid AND h.hwtype = :screen)"
+			. " LEFT JOIN machine_x_hw_prop p ON (m.machinehwid = p.machinehwid AND p.prop = 'resolution')"
+			. " LEFT JOIN statistic_hw_prop q ON (m.hwid = q.hwid AND q.prop = 'projector')"
+			. " WHERE m.machineuuid = :uuid",
+			array('screen' => DeviceType::SCREEN, 'uuid' => $uuid));
+		$client['screens'] = array();
+		$ports = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($row['disconnecttime'] != 0)
+				continue;
+			$ports[] = $row['connector'];
+			$client['screens'][] = $row;
+		}
+		array_multisort($ports, SORT_ASC, $client['screens']);
 		// Throw output at user
 		Render::addTemplate('machine-main', $client);
 		// Sessions
@@ -806,7 +876,7 @@ class Page_Statistics extends Page
 		// Client log
 		if (Module::get('syslog') !== false) {
 			$lres = Database::simpleQuery('SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog'
-				. ' WHERE clientip = :clientip ORDER BY logid DESC LIMIT 25', array('clientip' => $client['clientip']));
+				. ' WHERE machineuuid = :uuid ORDER BY logid DESC LIMIT 25', array('uuid' => $client['machineuuid']));
 			$today = date('d.m.Y');
 			$yesterday = date('d.m.Y', time() - 86400);
 			$count = 0;

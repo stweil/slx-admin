@@ -1,0 +1,21 @@
+<div class="panel panel-default">
+	<div class="panel-heading">{{lang_projectors}}</div>
+	<div class="panel-body">
+		<form method="post" action="?do=statistics" id="delprojector">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="delprojector">
+			<p>{{lang_thoseAreProjectors}}</p>
+			{{#projectors}}
+			<div>
+				<button type="submit" name="hwid" value="{{hwid}}" class="btn btn-danger">
+					<span class="glyphicon glyphicon-remove"></span>
+				</button>
+				{{hwname}}
+			</div>
+			{{/projectors}}
+			{{^projectors}}
+			<div class="alert alert-info">{{lang_noProjectorsDefined}}</div>
+			{{/projectors}}
+		</form>
+	</div>
+</div>

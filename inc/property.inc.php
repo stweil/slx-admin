@@ -146,19 +146,19 @@ class Property
 
 	public static function getVersionCheckInformation()
 	{
-		$data = json_decode(self::get('versioncheck-data'), true);
-		if (isset($data['time']) && $data['time'] + 120 > time())
+		$data = json_decode(self::get('versioncheck-data', '[]'), true);
+		if (isset($data['time']) && $data['time'] + 60 > time())
 			return $data;
 		$task = Taskmanager::submit('DownloadText', array(
 				'url' => CONFIG_REMOTE_ML . '/list.php'
 		));
 		if (!isset($task['id']))
 			return 'Could not start list download (' . Message::asString() . ')';
-		if ($task['statusCode'] !== TASK_FINISHED) {
+		if (!Taskmanager::isFinished($task)) {
 			$task = Taskmanager::waitComplete($task['id'], 5000);
 		}
 		if ($task['statusCode'] !== TASK_FINISHED || !isset($task['data']['content'])) {
-			return $task['data']['error'];
+			return isset($task['data']['error']) ? $task['data']['error'] : 'Timeout';
 		}
 		$data = json_decode($task['data']['content'], true);
 		$data['time'] = time();

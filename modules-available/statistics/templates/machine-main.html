@@ -130,6 +130,36 @@
 						<td class="text-nowrap">{{lang_64bitSupport}}</td>
 						<td>{{kvmstate}}</td>
 					</tr>
+					<tr>
+						<td class="text-nowrap">{{lang_screens}}</td>
+						<td>
+							<form method="post" action="?do=statistics" id="delprojector">
+								<input type="hidden" name="token" value="{{token}}">
+								<input type="hidden" name="action" value="delprojector">
+							</form>
+							<form method="post" action="?do=statistics" id="addprojector">
+								<input type="hidden" name="token" value="{{token}}">
+								<input type="hidden" name="action" value="addprojector">
+							</form>
+							{{#screens}}
+							<div class="small">
+								<div class="pull-right btn-group btn-group-xs">
+									{{#projector}}
+									<a href="?do=statistics&amp;show=projectors" class="btn btn-default">{{lang_projector}}</a>
+									<button form="delprojector" type="submit" name="hwid" value="{{hwid}}"
+											  class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
+									{{/projector}}
+									{{^projector}}
+									<button form="addprojector" type="submit" name="hwid" value="{{hwid}}"
+											  class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> {{lang_projector}}</button>
+									{{/projector}}
+								</div>
+								{{connector}}: <b>{{hwname}}</b> {{resolution}}
+								<div class="clearfix"></div>
+							</div>
+							{{/screens}}
+						</td>
+					</tr>
 				</table>
 				<h4>{{lang_devices}}</h4>
 				{{#lspci1}}

@@ -4,7 +4,7 @@ if (RemoteReport::isReportingEnabled()) {
 	$nextReporting = RemoteReport::getReportingTimestamp();
 
 	// It's time to generate a new report
-	if ($nextReporting <= time()) {
+	while ($nextReporting <= time()) {
 		RemoteReport::writeNextReportingTimestamp();
 
 		$from = strtotime("-7 days", $nextReporting);
@@ -18,6 +18,9 @@ if (RemoteReport::isReportingEnabled()) {
 
 		if ($code != 200) {
 			EventLog::warning("Statistics Reporting failed: " . $code, $result);
+		} else {
+			EventLog::info('Statistics report sent to ' . CONFIG_REPORTING_URL);
 		}
+		$nextReporting = strtotime("+7 days", $nextReporting);
 	}
 }
