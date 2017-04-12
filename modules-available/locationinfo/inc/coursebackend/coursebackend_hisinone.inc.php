@@ -31,7 +31,6 @@ class CourseBackend_HisInOne extends CourseBackend
 			return false;
 		}
 
-
 		return true;
 	}
 
@@ -79,7 +78,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		$body->appendChild($findUnit);
 		$termYearN = $doc->createElement('termYear', $termYear);
 		$findUnit->appendChild($termYearN);
-		if($termType1 !=3 && $termType1 != 10){
+		if ($termType1 != 3 && $termType1 != 10) {
 			$termTypeValueId = $doc->createElement('termTypeValueId', $termType);
 			$findUnit->appendChild($termTypeValueId);
 		}
@@ -101,12 +100,12 @@ class CourseBackend_HisInOne extends CourseBackend
 			$this->errormsg = $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
 			return false;
 		} elseif ($this->open) {
-			$units = $this->getAttributes($response2,'soapenvBody/hisfindUnitResponse/hisunits/hisunit');
+			$units = $this->getAttributes($response2, 'soapenvBody/hisfindUnitResponse/hisunits/hisunit');
 			foreach ($units as $unit) {
 				$id[] = $unit['hisid'];
 			}
 		} elseif (!$this->open) {
-				$id = $this->getAttributes($response2,'soapenvBody/hisfindUnitResponse/hisunitIds/hisid');
+			$id = $this->getAttributes($response2, 'soapenvBody/hisfindUnitResponse/hisunitIds/hisid');
 		} else {
 			$this->error = true;
 			$this->errormsg = "url send a xml in a wrong format";
@@ -199,12 +198,10 @@ class CourseBackend_HisInOne extends CourseBackend
 	}
 
 
-
 	public function getCacheTime()
 	{
-		return 30* 60;
+		return 30 * 60;
 	}
-
 
 
 	public function getRefreshTime()
@@ -221,10 +218,9 @@ class CourseBackend_HisInOne extends CourseBackend
 
 	public function getCredentials()
 	{
-		$credentials = ["username" => "string", "role" =>"string", "password" => "password", "open" => "bool"];
+		$credentials = ["username" => "string", "role" => "string", "password" => "password", "open" => "bool"];
 		return $credentials;
 	}
-
 
 
 	public function fetchSchedulesInternal($param)
@@ -270,18 +266,19 @@ class CourseBackend_HisInOne extends CourseBackend
 			$timetable = array();
 			//Here I go over the soapresponse
 			foreach ($events as $event) {
-				$name = $this->getAttributes($event,'/hisunit/hisdefaulttext');
-				if($name==false){
+				$name = $this->getAttributes($event, '/hisunit/hisdefaulttext');
+				if ($name == false) {
 					//if HisInOne has no default text then there is no name
 					$name = [''];
 				}
-				$dates = $this->getAttributes($event,'/hisunit/hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
+				$dates = $this->getAttributes($event,
+					'/hisunit/hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
 				foreach ($dates as $date) {
-					$roomID =$this->getAttributes($date,'/hisroomId')[0];
-					$datum = $this->getAttributes($date,'/hisexecutiondate')[0];
+					$roomID = $this->getAttributes($date, '/hisroomId')[0];
+					$datum = $this->getAttributes($date, '/hisexecutiondate')[0];
 					if (intval($roomID) == $room && in_array($datum, $currentWeek)) {
-						$startTime = $this->getAttributes($date,'hisstarttime')[0];
-						$endTime = $this->getAttributes($date,'hisendtime')[0];
+						$startTime = $this->getAttributes($date, 'hisstarttime')[0];
+						$endTime = $this->getAttributes($date, 'hisendtime')[0];
 						$json = array(
 							'title' => $name[0],
 							'start' => $datum . " " . $startTime,
@@ -331,7 +328,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		if ($response2 != false) {
 			if (isset($response2['soapenvBody']['soapenvFault'])) {
 				$this->error = true;
-				$this->errormsg = 'SOAP-Fault'.$response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
+				$this->errormsg = 'SOAP-Fault' . $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
 				return false;
 			} elseif (isset($response2['soapenvBody']['hisreadUnitResponse'])) {
 				$this->error = false;

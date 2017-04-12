@@ -1,6 +1,8 @@
 <?php
-class Coursebackend_Dummy extends CourseBackend {
-    private $pw;
+
+class Coursebackend_Dummy extends CourseBackend
+{
+	private $pw;
 
 	/**
 	 * uses json to setCredentials, the json must follow the form given in
@@ -11,62 +13,77 @@ class Coursebackend_Dummy extends CourseBackend {
 	 * @param int $serverID ID of the server
 	 * @returns bool if the credentials were in the correct format
 	 */
-    public function setCredentials($json,$location,$serverID) {
-      $x = $json;
-      $this->pw = $x['password'];
+	public function setCredentials($json, $location, $serverID)
+	{
+		$x = $json;
+		$this->pw = $x['password'];
 
-      if ($this->pw == "mfg") {
-        $this->error = false;
-        return true;
-      } else {
-        $this->errormsg = "USE mfg as password!";
-        $this->error = true;
-        return false;
-      }
-    }
+		if ($this->pw === "mfg") {
+			$this->error = false;
+			return true;
+		} else {
+			$this->errormsg = "USE mfg as password!";
+			$this->error = true;
+			return false;
+		}
+	}
 
 	/**
 	 * @return boolean true if the connection works, false otherwise
 	 */
-    public function checkConnection(){
-      if ($this->pw == "mfg") {
-        $this->error = false;
-        return true;
-      } else {
-        $this->errormsg = "USE mfg as password!";
-        $this->error = true;
-        return false;
-      }
-    }
+	public function checkConnection()
+	{
+		if ($this->pw == "mfg") {
+			$this->error = false;
+			return true;
+		} else {
+			$this->errormsg = "USE mfg as password!";
+			$this->error = true;
+			return false;
+		}
+	}
 
 	/**
 	 * @returns array with parameter name as key and and an array with type, help text and mask  as value
 	 */
-    public function getCredentials(){
-      $options = ["opt1", "opt2", "opt3", "opt4", "opt5", "opt6", "opt7", "opt8"];
-      $credentials = ["username" => "string","password"=>"password","integer"=>"int","option"=>$options,"CheckTheBox" =>"bool","CB2 t" =>"bool"];
-      return $credentials;
-    }
+	public function getCredentials()
+	{
+		$options = ["opt1", "opt2", "opt3", "opt4", "opt5", "opt6", "opt7", "opt8"];
+		$credentials = [
+			"username" => "string",
+			"password" => "password",
+			"integer" => "int",
+			"option" => $options,
+			"CheckTheBox" => "bool",
+			"CB2 t" => "bool"
+		];
+		return $credentials;
+	}
 
 	/**
 	 * @return string return display name of backend
 	 */
-    public function getDisplayName(){
-        return'Dummy with array';
-    }
+	public function getDisplayName()
+	{
+		return 'Dummy with array';
+	}
+
 	/**
 	 * @return int desired caching time of results, in seconds. 0 = no caching
 	 */
-    public function getCacheTime(){
-        return 0;
-    }
+	public function getCacheTime()
+	{
+		return 0;
+	}
+
 	/**
-	* @return int age after which timetables are no longer refreshed should be
-	* greater then CacheTime
-	*/
-    public function getRefreshTime(){
-        return 0;
-    }
+	 * @return int age after which timetables are no longer refreshed should be
+	 * greater then CacheTime
+	 */
+	public function getRefreshTime()
+	{
+		return 0;
+	}
 
 	/**
 	 * Internal version of fetch, to be overridden by subclasses.
@@ -76,22 +93,24 @@ class Coursebackend_Dummy extends CourseBackend {
 	 * and has the schedule array as value. A shedule array contains an array in this format:
 	 * ["start"=>'JJJJ-MM-DD HH:MM:SS',"end"=>'JJJJ-MM-DD HH:MM:SS',"title"=>string]
 	 */
-    public function fetchSchedulesInternal($roomId){
-      $a = array();
-      foreach ($roomId as $id) {
-        $x['id'] = $id;
-        $calendar['title'] = "test exam";
-        $calendar['start'] = "2017-3-08 13:00:00";
-        $calendar['end'] = "2017-3-08 16:00:00";
-        $calarray = array();
-        $calarray[] = $calendar;
-        $x['calendar'] = $calarray;
-        $a[$id] = $calarray;
-      }
+	public function fetchSchedulesInternal($roomId)
+	{
+		$a = array();
+		foreach ($roomId as $id) {
+			$x['id'] = $id;
+			$calendar['title'] = "test exam";
+			$calendar['start'] = "2017-3-08 13:00:00";
+			$calendar['end'] = "2017-3-08 16:00:00";
+			$calarray = array();
+			$calarray[] = $calendar;
+			$x['calendar'] = $calarray;
+			$a[$id] = $calarray;
+		}
 
 
-      return $a;
-    }
+		return $a;
+	}
 
 }
+
 ?>

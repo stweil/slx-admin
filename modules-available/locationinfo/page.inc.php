@@ -17,9 +17,9 @@ class Page_LocationInfo extends Page
 		}
 
 		$this->action = Request::post('action');
-	 	if ($this->action === 'updateOpeningTimeExpert') {
+		if ($this->action === 'updateOpeningTimeExpert') {
 			$this->updateOpeningTimeExpert();
-		} elseif($this->action === 'updateOpeningTimeEasy') {
+		} elseif ($this->action === 'updateOpeningTimeEasy') {
 			$this->updateOpeningTimeEasy();
 		} elseif ($this->action === 'updateConfig') {
 			$this->updateConfig();
@@ -48,7 +48,7 @@ class Page_LocationInfo extends Page
 			$this->getInfoScreenTable();
 		}
 
-		if($getAction == 'updateroomdb') {
+		if ($getAction == 'updateroomdb') {
 			$this->updateInfoscreenDb();
 			Util::redirect('?do=locationinfo&action=infoscreen');
 		}
@@ -65,15 +65,21 @@ class Page_LocationInfo extends Page
 	/**
 	 * Updates the server in the db.
 	 */
-	private function updateServer() {
+	private function updateServer()
+	{
 		$id = Request::post('id', 0, 'int');
 		if ($id == 0) {
 			Database::exec("INSERT INTO `setting_location_info` (servername, serverurl, servertype) VALUES (:name, :url, :type)",
-			 array('name' => Request::post('name', '', 'string'), 'url' => Request::post('url', '', 'string'), 'type' => Request::post('type', '', 'string')));
+				array('name' => Request::post('name', '', 'string'),
+					'url' => Request::post('url', '', 'string'),
+					'type' => Request::post('type', '', 'string')));
 		} else {
 			Database::exec("INSERT INTO `setting_location_info` (serverid, servername, servertype, serverurl) VALUES (:id, :name, :type, :url)
 			ON DUPLICATE KEY UPDATE servername=:name, serverurl=:url, servertype=:type",
-			 array('id' => $id, 'name' => Request::post('name', '', 'string'), 'url' => Request::post('url', '', 'string'), 'type' => Request::post('type', '', 'string')));
+				array('id' => $id,
+					'name' => Request::post('name', '', 'string'),
+					'url' => Request::post('url', '', 'string'),
+					'type' => Request::post('type', '', 'string')));
 		}
 
 		$this->checkConnection();
@@ -82,7 +88,8 @@ class Page_LocationInfo extends Page
 	/**
 	 * Deletes the server from the db.
 	 */
-	private function deleteServer() {
+	private function deleteServer()
+	{
 		$id = Request::post('id', 0, 'int');
 		Database::exec("DELETE FROM `setting_location_info` WHERE serverid=:id", array('id' => $id));
 	}
@@ -108,20 +115,25 @@ class Page_LocationInfo extends Page
 		$result['roomupdate'] = Request::post('roomupdate', 30, 'int');
 		$result['configupdate'] = Request::post('configupdate', 180, 'int');
 		$serverid = Request::post('serverid', 0, 'int');
-		$serverroomid = Request::post('serverroomid','', 'string');
+		$serverroomid = Request::post('serverroomid', '', 'string');
 
 		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config, lastcalendarupdate) VALUES (:id, :serverid, :serverroomid, :config, :lastcalendarupdate)
 		 ON DUPLICATE KEY UPDATE config=:config, serverid=:serverid, serverroomid=:serverroomid, lastcalendarupdate=:lastcalendarupdate",
-		 array('id' => $locationid, 'config' => json_encode($result, true), 'serverid' => $serverid, 'serverroomid' => $serverroomid, 'lastcalendarupdate' => 0));
+			array('id' => $locationid,
+				'config' => json_encode($result, true),
+				'serverid' => $serverid,
+				'serverroomid' => $serverroomid,
+				'lastcalendarupdate' => 0));
 
-		 Message::addSuccess('config-saved');
-		 Util::redirect('?do=locationinfo');
+		Message::addSuccess('config-saved');
+		Util::redirect('?do=locationinfo');
 	}
 
 	/**
 	 * Updates the server settings in the db.
 	 */
-	private function updateServerSettings() {
+	private function updateServerSettings()
+	{
 		$serverid = Request::post('id', -1, 'int');
 		$servername = Request::post('name', 'unnamed', 'string');
 		$serverurl = Request::post('url', '', 'string');
@@ -138,16 +150,26 @@ class Page_LocationInfo extends Page
 		}
 		if ($serverid == 0) {
 			Database::exec('INSERT INTO `setting_location_info` (servername, serverurl, servertype, credentials) VALUES (:name, :url, :type, :credentials)',
-			array('name' => $servername, 'url' => $serverurl, 'type' => $servertype, 'credentials' => json_encode($credentialsJson, true)));
+				array('name' => $servername,
+					'url' => $serverurl,
+					'type' => $servertype,
+					'credentials' => json_encode($credentialsJson, true)));
 
 			$dbresult = Database::queryFirst('SELECT serverid FROM `setting_location_info` WHERE servername = :name AND serverurl = :url AND servertype = :type AND credentials = :credentials',
-			array('name' => $servername, 'url' => $serverurl, 'type' => $servertype, 'credentials' => json_encode($credentialsJson, true)));
+				array('name' => $servername,
+					'url' => $serverurl,
+					'type' => $servertype,
+					'credentials' => json_encode($credentialsJson, true)));
 
 			$this->checkConnection($dbresult['serverid']);
 		} else {
 			Database::exec('UPDATE `setting_location_info` SET servername = :name, serverurl = :url, servertype = :type, credentials = :credentials WHERE serverid = :id',
-			 array('id' => $serverid, 'name' => $servername, 'url' => $serverurl, 'type' => $servertype, 'credentials' => json_encode($credentialsJson, true)));
-			 $this->checkConnection();
+				array('id' => $serverid,
+					'name' => $servername,
+					'url' => $serverurl,
+					'type' => $servertype,
+					'credentials' => json_encode($credentialsJson, true)));
+			$this->checkConnection();
 		}
 	}
 
@@ -170,7 +192,7 @@ class Page_LocationInfo extends Page
 
 		if (!$easyMode) {
 			$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $locationid));
-			while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+			while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 				$resulttmp = json_decode($dbdata['openingtime'], true);
 			}
 
@@ -199,7 +221,7 @@ class Page_LocationInfo extends Page
 		if (!empty($days) && !is_array($days)) {
 			Message::addError('no-days-selected');
 			Util::redirect('?do=locationinfo');
-		} else{
+		} else {
 
 			$dayz = array();
 			$da = array();
@@ -227,7 +249,7 @@ class Page_LocationInfo extends Page
 		}
 
 		Database::exec("INSERT INTO `location_info` (locationid, openingtime) VALUES (:id, :openingtime) ON DUPLICATE KEY UPDATE openingtime=:openingtime",
-		 array('id' => $locationid, 'openingtime' => json_encode($result, true)));
+			array('id' => $locationid, 'openingtime' => json_encode($result, true)));
 
 		if ($deleteCounter > 0) {
 			Message::addSuccess('deleted-x-entries', $deleteCounter);
@@ -242,13 +264,14 @@ class Page_LocationInfo extends Page
 	/**
 	 * Updates the opening time in the db from the easy mode.
 	 */
-	private function updateOpeningTimeEasy() {
+	private function updateOpeningTimeEasy()
+	{
 		$locationid = Request::post('id', 0, 'int');
 		$openingtime = Request::post('openingtime');
 		$closingtime = Request::post('closingtime');
 		$result = array();
 
-		$opt0['days'] = array ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
+		$opt0['days'] = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
 		if (isset($openingtime[0]) && isset($closingtime[0])) {
 			if ($closingtime[0] != "" && $openingtime[0] != "") {
 				$opt0['openingtime'] = $openingtime[0];
@@ -257,7 +280,7 @@ class Page_LocationInfo extends Page
 			}
 		}
 
-		$opt1['days'] = array ("Saturday");
+		$opt1['days'] = array("Saturday");
 		if (isset($openingtime[1]) && isset($closingtime[1])) {
 			if ($closingtime[1] != "" && $closingtime[1] != "") {
 				$opt1['openingtime'] = $openingtime[1];
@@ -266,7 +289,7 @@ class Page_LocationInfo extends Page
 			}
 		}
 
-		$opt2['days'] = array ("Sunday");
+		$opt2['days'] = array("Sunday");
 		if (isset($openingtime[2]) && isset($closingtime[2])) {
 			if ($closingtime[2] != "" && $openingtime[2] != "") {
 				$opt2['openingtime'] = $openingtime[2];
@@ -276,7 +299,7 @@ class Page_LocationInfo extends Page
 		}
 
 		Database::exec("INSERT INTO `location_info` (locationid, openingtime) VALUES (:id, :openingtime) ON DUPLICATE KEY UPDATE openingtime=:openingtime",
-		 array('id' => $locationid, 'openingtime' => json_encode($result, true)));
+			array('id' => $locationid, 'openingtime' => json_encode($result, true)));
 
 		Message::addSuccess('openingtime-updated');
 		Util::redirect('?do=locationinfo');
@@ -287,7 +310,8 @@ class Page_LocationInfo extends Page
 	 *
 	 * @param int $id Server id which connection should be checked.
 	 */
-	private function checkConnection($id = 0) {
+	private function checkConnection($id = 0)
+	{
 		$serverid = Request::post('id', 0, 'int');
 		if ($id != 0) {
 			$serverid = $id;
@@ -306,9 +330,10 @@ class Page_LocationInfo extends Page
 			if (!$setCredentials || !$setCred) {
 				$error['timestamp'] = time();
 				$error['error'] = $serverInstance->getError();
-				Database::exec("UPDATE `setting_location_info` Set error=:error WHERE serverid=:id", array('id' => $serverid, 'error' => json_encode($error, true)));
-		  } else {
-				Database::exec("UPDATE `setting_location_info` Set error=NULL WHERE serverid=:id", array('id' => $serverid));
+				Database::exec("UPDATE `setting_location_info` SET error=:error WHERE serverid=:id", array('id' => $serverid,
+					'error' => json_encode($error, true)));
+			} else {
+				Database::exec("UPDATE `setting_location_info` SET error=NULL WHERE serverid=:id", array('id' => $serverid));
 			}
 		}
 	}
@@ -319,8 +344,10 @@ class Page_LocationInfo extends Page
 	 * @param $id The location id which was toggled
 	 * @param $val The hidden value true / false
 	 */
-	protected function toggleHidden($id, $val) {
-		Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $id, 'hidden' => $val));
+	protected function toggleHidden($id, $val)
+	{
+		Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $id,
+			'hidden' => $val));
 
 		$this->checkChildRecursive($id, $val);
 		$this->checkParentRecursive($id);
@@ -333,15 +360,17 @@ class Page_LocationInfo extends Page
 	 * @param $id The location id which childs should be checked
 	 * @param $val The hidden value
 	 */
-	protected function checkChildRecursive($id, $val) {
+	protected function checkChildRecursive($id, $val)
+	{
 		$dbquery = Database::simpleQuery("SELECT locationid FROM `location` WHERE parentlocationid = :locationid", array('locationid' => $id));
 		$childs = array();
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$childs[] = $dbdata['locationid'];
 		}
 
 		foreach ($childs as $key) {
-			Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $key, 'hidden' => $val));
+			Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $key,
+				'hidden' => $val));
 
 			$this->checkChildRecursive($key, $val);
 		}
@@ -352,32 +381,35 @@ class Page_LocationInfo extends Page
 	 *
 	 * @param $id The id of the location which was toggled.
 	 */
-	protected function checkParentRecursive($id) {
+	protected function checkParentRecursive($id)
+	{
 		$dbquery = Database::simpleQuery("SELECT parentlocationid FROM `location` WHERE locationid = :locationid", array('locationid' => $id));
 		$parent = 0;
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$parent = (int)$dbdata['parentlocationid'];
 		}
 		if ($parent === 0) {
 			return;
 		} else {
-			$dbq = Database::simpleQuery("SELECT COUNT(case li.hidden when '0' then 1 else null end) AS '0',
-			 															COUNT(case li.hidden when '1' then 1 else null end) AS '1',
-																		 COUNT(*) - COUNT(case li.hidden when '0' then 1 else null end) - COUNT(case li.hidden when '1' then 1 else null end) AS 'NULL'
+			$dbq = Database::simpleQuery("SELECT COUNT(CASE li.hidden WHEN '0' THEN 1 ELSE NULL END) AS '0',
+			 															COUNT(CASE li.hidden WHEN '1' THEN 1 ELSE NULL END) AS '1',
+																		 COUNT(*) - COUNT(CASE li.hidden WHEN '0' THEN 1 ELSE NULL END) - COUNT(CASE li.hidden WHEN '1' THEN 1 ELSE NULL END) AS 'NULL'
 																		 FROM `location` AS l LEFT JOIN `location_info` AS li ON l.locationid=li.locationid
 																		 WHERE parentlocationid = :parentId;", array('parentId' => $parent));
 			$amountofzero = 0;
 			$amountofnull = 0;
 
-			while($dbd=$dbq->fetch(PDO::FETCH_ASSOC)) {
+			while ($dbd = $dbq->fetch(PDO::FETCH_ASSOC)) {
 				$amountofzero = (int)$dbd['0'];
 				$amountofnull = (int)$dbd['NULL'];
 			}
 
 			if ($amountofzero == 0 AND $amountofnull == 0) {
-				Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $parent, 'hidden' => 1));
+				Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $parent,
+					'hidden' => 1));
 			} else {
-				Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $parent, 'hidden' => 0));
+				Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $parent,
+					'hidden' => 0));
 			}
 
 			$this->checkParentRecursive($parent);
@@ -387,12 +419,13 @@ class Page_LocationInfo extends Page
 	/**
 	 * Loads the Infoscreen page in the admin-panel and passes all needed information.
 	 */
-	protected function getInfoScreenTable() {
+	protected function getInfoScreenTable()
+	{
 
 		// Get a table with the needed location info. name, id, hidden, pcState (Count of pcs that are in use), total pcs
 		$dbquery = Database::simpleQuery("SELECT l.locationname, l.locationid, li.hidden, m.pcState, m.total FROM `location_info` AS li
 		RIGHT JOIN `location` AS l ON li.locationid=l.locationid LEFT JOIN
-		(SELECT locationid, Count(case m.logintime WHEN NOT 1 THEN null else 1 end) AS pcState, Count(*) AS total FROM `machine` AS m
+		(SELECT locationid, Count(CASE m.logintime WHEN NOT 1 THEN NULL ELSE 1 END) AS pcState, Count(*) AS total FROM `machine` AS m
 		WHERE locationid IS NOT NULL GROUP BY locationid) AS m ON l.locationid=m.locationid");
 		$pcs = array();
 
@@ -402,25 +435,25 @@ class Page_LocationInfo extends Page
 				$data['locationid'] = (int)$loc['locationid'];
 				$data['locationname'] = $loc['locationname'];
 				$data['depth'] = $loc['depth'];
-				$data['hidden'] = NULL;
+				$data['hidden'] = null;
 				$locid = (int)$loc['locationid'];
 				$pcs[$locid] = $data;
 			}
 		}
 
-		while($roominfo=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($roominfo = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$locid = (int)$roominfo['locationid'];
 
-			if ($roominfo['hidden'] == NULL) {
+			if ($roominfo['hidden'] == null) {
 				$pcs[$locid]['hidden'] = 0;
 			} else {
 				$pcs[$locid]['hidden'] = $roominfo['hidden'];
 			}
 
-			if ($roominfo['pcState'] != NULL) {
+			if ($roominfo['pcState'] != null) {
 				$pcs[$locid]['pcState'] = $roominfo['pcState'];
 			}
-			if ($roominfo['total'] != NULL) {
+			if ($roominfo['total'] != null) {
 				$pcs[$locid]['total'] = $roominfo['total'];
 				$pcs[$locid]['hasPcs'] = true;
 			} else {
@@ -441,7 +474,7 @@ class Page_LocationInfo extends Page
 		// Get the Serverlist from the DB and make it mustache accesable
 		$serverlist = array();
 		$dbquery2 = Database::simpleQuery("SELECT * FROM `setting_location_info`");
-		while($db=$dbquery2->fetch(PDO::FETCH_ASSOC)) {
+		while ($db = $dbquery2->fetch(PDO::FETCH_ASSOC)) {
 			$server['id'] = $db['serverid'];
 			$server['name'] = $db['servername'];
 			$server['type'] = $db['servertype'];
@@ -452,7 +485,7 @@ class Page_LocationInfo extends Page
 				}
 			}
 
-			if ($db['error'] == NULL) {
+			if ($db['error'] == null) {
 				$server['auth'] = true;
 			} else {
 				$server['auth'] = false;
@@ -469,13 +502,14 @@ class Page_LocationInfo extends Page
 
 		// Pass the data to the html and render it.
 		Render::addTemplate('location-info', array(
-			'list' => array_values($pcs), 'serverlist' => array_values($serverlist),
+			'list' => array_values($pcs),
+			'serverlist' => array_values($serverlist),
 		));
 	}
 
 	/**
- 	 * AJAX
- 	 */
+	 * AJAX
+	 */
 	protected function doAjax()
 	{
 		User::load();
@@ -500,7 +534,8 @@ class Page_LocationInfo extends Page
 	 *
 	 * @param $id Serverid
 	 */
-	private function ajaxServerSettings($id) {
+	private function ajaxServerSettings($id)
+	{
 		$dbresult = Database::queryFirst('SELECT servername, serverurl, servertype, credentials FROM `setting_location_info` WHERE serverid = :id', array('id' => $id));
 
 		// Credentials stuff.
@@ -528,7 +563,7 @@ class Page_LocationInfo extends Page
 				$credential['uid'] = $counter;
 				$credential['name'] = Dictionary::translateFile($s, $key);;
 				$credential['type'] = $value;
-				$credential['title'] = Dictionary::translateFile($s, $key."_title");
+				$credential['title'] = Dictionary::translateFile($s, $key . "_title");
 
 				if (Property::getPasswordFieldType() === 'text') {
 					$credential['mask'] = false;
@@ -540,7 +575,7 @@ class Page_LocationInfo extends Page
 
 				if ($backend['typ'] == $dbresult['servertype']) {
 					foreach ($dbcredentials as $k => $v) {
-						if($k == $key) {
+						if ($k == $key) {
 							$credential['value'] = $v;
 							break;
 						}
@@ -582,7 +617,11 @@ class Page_LocationInfo extends Page
 			$serverBackends[] = $backend;
 		}
 
-		echo Render::parse('server-settings', array('id' => $id, 'name' => $dbresult['servername'], 'url' => $dbresult['serverurl'], 'servertype' => $dbresult['servertype'], 'backendList' => array_values($serverBackends)));
+		echo Render::parse('server-settings', array('id' => $id,
+			'name' => $dbresult['servername'],
+			'url' => $dbresult['serverurl'],
+			'servertype' => $dbresult['servertype'],
+			'backendList' => array_values($serverBackends)));
 	}
 
 	/**
@@ -590,21 +629,27 @@ class Page_LocationInfo extends Page
 	 *
 	 * @param $id id of the location
 	 */
-	private function ajaxTimeTable($id) {
+	private function ajaxTimeTable($id)
+	{
 		$array = array();
 		$dbquery = Database::simpleQuery("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $id));
 		$dbresult = array();
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$dbresult[] = json_decode($dbdata['openingtime'], true);
 		}
-		if($this->isEasyMode($dbresult)) {
-			echo Render::parse('timetable', array('id' => $id, 'openingtime0' => $dbresult[0][0]['openingtime'],
-			 'closingtime0' => $dbresult[0][0]['closingtime'], 'openingtime1' => $dbresult[0][1]['openingtime'],
-			  'closingtime1' => $dbresult[0][1]['closingtime'], 'openingtime2' => $dbresult[0][2]['openingtime'],
-				 'closingtime2' => $dbresult[0][2]['closingtime'], 'easyMode' => true, 'expertMode' => false));
+		if ($this->isEasyMode($dbresult)) {
+			echo Render::parse('timetable', array('id' => $id,
+				'openingtime0' => $dbresult[0][0]['openingtime'],
+				'closingtime0' => $dbresult[0][0]['closingtime'],
+				'openingtime1' => $dbresult[0][1]['openingtime'],
+				'closingtime1' => $dbresult[0][1]['closingtime'],
+				'openingtime2' => $dbresult[0][2]['openingtime'],
+				'closingtime2' => $dbresult[0][2]['closingtime'],
+				'easyMode' => true,
+				'expertMode' => false));
 
-		} else{
-			foreach($dbresult as $db) {
+		} else {
+			foreach ($dbresult as $db) {
 				$index = 0;
 				foreach ($db as $key) {
 					$str = "";
@@ -627,7 +672,10 @@ class Page_LocationInfo extends Page
 					$index++;
 				}
 			}
-			echo Render::parse('timetable', array('id' => $id, 'openingtimes' => array_values($array), 'easyMode' => false, 'expertMode' => true));
+			echo Render::parse('timetable', array('id' => $id,
+				'openingtimes' => array_values($array),
+				'easyMode' => false,
+				'expertMode' => true));
 		}
 	}
 
@@ -637,10 +685,12 @@ class Page_LocationInfo extends Page
 	 * @param $array Array of the saved openingtimes.
 	 * @return bool True if easy mode, false if expert mode
 	 */
-	private function isEasyMode($array) {
-		if(count($array[0]) == 3) {
-			if ($array[0][0]['days'] == array ("Monday","Tuesday","Wednesday","Thursday","Friday")
-			&& $array[0][1]['days'] == array ("Saturday") && $array[0][2]['days'] == array ("Sunday")) {
+	private function isEasyMode($array)
+	{
+		if (count($array[0]) == 3) {
+			if ($array[0][0]['days'] == array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+				&& $array[0][1]['days'] == array("Saturday") && $array[0][2]['days'] == array("Sunday")
+			) {
 				return true;
 			} else {
 				return false;
@@ -657,14 +707,15 @@ class Page_LocationInfo extends Page
 	 *
 	 * @param $id Location ID
 	 */
-	private function ajaxConfig($id) {
+	private function ajaxConfig($id)
+	{
 		$array = array();
 
 		// Get Config data from db
 		$dbquery = Database::simpleQuery("SELECT config, serverid, serverroomid FROM `location_info` WHERE locationid = :id", array('id' => $id));
 		$serverid;
 		$serverroomid;
-		while($dbdata=$dbquery->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$array = json_decode($dbdata['config'], true);
 			$serverid = $dbdata['serverid'];
 			$serverroomid = $dbdata['serverroomid'];
@@ -673,17 +724,30 @@ class Page_LocationInfo extends Page
 		// get Server / ID list
 		$dbq = Database::simpleQuery("SELECT serverid, servername FROM `setting_location_info`");
 		$serverList = array();
-		while($dbd=$dbq->fetch(PDO::FETCH_ASSOC)) {
+		while ($dbd = $dbq->fetch(PDO::FETCH_ASSOC)) {
 			$d['sid'] = $dbd['serverid'];
 			$d['sname'] = $dbd['servername'];
 			$serverList[] = $d;
 		}
 
-		echo Render::parse('config', array('id' => $id, 'language' => $array['language'], 'mode' => 'mode'.$array['mode'], 'vertical' => $array['vertical'],
-													'eco' => $array['eco'], 'daystoshow' => 'day'.$array['daystoshow'], 'scaledaysauto' => $array['scaledaysauto'], 'rotation' => 'rotation'.$array['rotation'],
-													'scale' => $array['scale'], 'switchtime' => $array['switchtime'], 'calupdate' => $array['calupdate'],
-													 'roomupdate' => $array['roomupdate'], 'configupdate' => $array['configupdate'],
-													 'serverlist' => array_values($serverList), 'serverid' => $serverid, 'serverroomid' => $serverroomid));
+		echo Render::parse('config', array(
+			'id' => $id,
+			'language' => $array['language'],
+			'mode' => 'mode' . $array['mode'],
+			'vertical' => $array['vertical'],
+			'eco' => $array['eco'],
+			'daystoshow' => 'day' . $array['daystoshow'],
+			'scaledaysauto' => $array['scaledaysauto'],
+			'rotation' => 'rotation' . $array['rotation'],
+			'scale' => $array['scale'],
+			'switchtime' => $array['switchtime'],
+			'calupdate' => $array['calupdate'],
+			'roomupdate' => $array['roomupdate'],
+			'configupdate' => $array['configupdate'],
+			'serverlist' => array_values($serverList),
+			'serverid' => $serverid,
+			'serverroomid' => $serverroomid
+		));
 	}
 
 }

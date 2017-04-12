@@ -140,7 +140,7 @@ abstract class CourseBackend
 	 */
 	public final function fetchSchedule($roomIDs)
 	{
-		if(empty($roomIDs)){
+		if (empty($roomIDs)) {
 			$this->error = true;
 			$this->errormsg = 'No roomid was given to fetch Shedule';
 			return false;
@@ -171,15 +171,17 @@ abstract class CourseBackend
 			foreach ($dbquery4->fetchAll(PDO::FETCH_COLUMN) as $row) {
 				if (isset($row['lastcalendarupdate'])) {
 					$lastUpdate = $row['lastcalendarupdate'];
-					if ($lastUpdate < strtotime("-" . $this->getRefreshTime() . "seconds") && $lastUpdate > strtotime("-" . $this->getCacheTime() . "seconds"&& $i<self::nrOtherRooms)) {
+					if ($lastUpdate < strtotime("-" . $this->getRefreshTime() . "seconds")
+							&& $lastUpdate > strtotime("-" . $this->getCacheTime() . "seconds"
+							&& $i < self::nrOtherRooms)) {
 						$sRoomIDs[$row['locationid']] = $row['serverroomid'];
-						$i = $i +1;
+						$i = $i + 1;
 					}
 				}
 			}
 		}
 		//This is true if there is no need to check the HisInOne Server
-		if(empty($sRoomIDs)){
+		if (empty($sRoomIDs)) {
 			return $result;
 		}
 		$results = $this->fetchSchedulesInternal($sRoomIDs);
@@ -195,12 +197,17 @@ abstract class CourseBackend
 			foreach ($newResult as $key => $value) {
 				$value = json_encode($value);
 				$now = strtotime('Now');
-				Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalendarupdate = :now WHERE locationid = :id ", array('id' => $key, 'ttable' => $value, 'now' => $now));
+				Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalendarupdate = :now
+					WHERE locationid = :id ", array(
+					'id' => $key,
+					'ttable' => $value,
+					'now' => $now
+				));
 			}
 		}
 		//get all schedules that are wanted from roomIDs
 		foreach ($roomIDs as $id) {
-			if(isset($newResult[$id])){
+			if (isset($newResult[$id])) {
 				$result[$id] = $newResult[$id];
 			}
 		}
@@ -217,6 +224,7 @@ abstract class CourseBackend
 		}
 		return false;
 	}
+
 	/**
 	 * Query path in array-representation of XML document.
 	 * e.g. 'path/syntax/foo/wanteditem'
@@ -262,7 +270,7 @@ abstract class CourseBackend
 			$return = [];
 			foreach ($array[$element] as $item) {
 				$test = $this->getAttributes($item, $path);
-				If(gettype($test) == "array" ){
+				If (gettype($test) == "array") {
 					$return = array_merge($return, $test);
 				}
 

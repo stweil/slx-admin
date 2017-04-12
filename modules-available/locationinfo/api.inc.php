@@ -315,11 +315,12 @@ function getConfig($locationID)
 }
 
 /**
-	* Creates and returns a default config for room that didn't saved a config yet.
-	*
-	* @return Return a default config.
-	*/
-function defaultConfig(&$config) {
+ * Creates and returns a default config for room that didn't saved a config yet.
+ *
+ * @return Return a default config.
+ */
+function defaultConfig(&$config)
+{
 	$config['language'] = 'en';
 	$config['mode'] = 1;
 	$config['vertical'] = false;
@@ -445,7 +446,10 @@ function getCalendar($idList)
 
 	if (!empty($idList)) {
 		// Build SQL query for multiple ids.
-		$query = "SELECT locationid, l.serverid AS serverid, serverurl, servertype, credentials FROM `location_info` AS l LEFT JOIN setting_location_info AS s ON s.serverid = l.serverid WHERE locationid IN (";
+		$query = "SELECT locationid, l.serverid AS serverid, serverurl, servertype, credentials
+				FROM `location_info` AS l
+				LEFT JOIN setting_location_info AS s ON (s.serverid = l.serverid)
+				WHERE locationid IN (";
 
 		$query .= implode(",", $idList);
 
@@ -457,7 +461,12 @@ function getCalendar($idList)
 		$lastservertype = "";
 		while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			if (!isset($serverList[$dbresult['serverid']])) {
-				$serverList[$dbresult['serverid']] = array('credentials' => json_decode($dbresult['credentials'], true), 'url' => $dbresult['serverurl'], 'type' => $dbresult['servertype'], 'idlist' => array());
+				$serverList[$dbresult['serverid']] = array(
+					'credentials' => json_decode($dbresult['credentials'], true),
+					'url' => $dbresult['serverurl'],
+					'type' => $dbresult['servertype'],
+					'idlist' => array()
+				);
 			}
 			$serverList[$dbresult['serverid']]['idlist'][] = $dbresult['locationid'];
 		}
@@ -477,9 +486,11 @@ function getCalendar($idList)
 		if ($calendarFromBackend === false || $setCred === false) {
 			$error['timestamp'] = time();
 			$error['error'] = $serverInstance->getError();
-			Database::exec("UPDATE `setting_location_info` SET error=:error WHERE serverid=:id", array('id' => $serverid, 'error' => json_encode($error, true)));
+			Database::exec("UPDATE `setting_location_info` SET error=:error WHERE serverid=:id",
+				array('id' => $serverid, 'error' => json_encode($error, true)));
 		} else {
-			Database::exec("UPDATE `setting_location_info` SET error=NULL WHERE serverid=:id", array('id' => $serverid));
+			Database::exec("UPDATE `setting_location_info` SET error=NULL WHERE serverid=:id",
+				array('id' => $serverid));
 		}
 		if (is_array($calendarFromBackend)) {
 			foreach ($calendarFromBackend as $key => $value) {

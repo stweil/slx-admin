@@ -89,7 +89,7 @@ class Coursebackend_Davinci extends CourseBackend
 		$output = curl_exec($ch);
 		if ($output === false) {
 			$this->error = true;
-			$this->errormsg = 'Curl error: ' . curl_error($ch).$url;
+			$this->errormsg = 'Curl error: ' . curl_error($ch) . $url;
 			return false;
 		} else {
 			$this->error = false;
@@ -109,7 +109,7 @@ class Coursebackend_Davinci extends CourseBackend
 			if ($return === false) {
 				return false;
 			}
-			$lessons = $this->getAttributes($return,'Lessons/Lesson');
+			$lessons = $this->getAttributes($return, 'Lessons/Lesson');
 			if (!$lessons) {
 				$this->error = true;
 				$this->errormsg = "url send a xml in a wrong format";
