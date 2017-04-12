@@ -733,6 +733,7 @@ class Page_LocationInfo extends Page
 		echo Render::parse('config', array(
 			'id' => $id,
 			'language' => $array['language'],
+			'languages' => Dictionary::getLanguages(true),
 			'mode' => 'mode' . $array['mode'],
 			'vertical' => $array['vertical'],
 			'eco' => $array['eco'],

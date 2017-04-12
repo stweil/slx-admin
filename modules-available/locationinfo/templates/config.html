@@ -61,9 +61,9 @@
 							<div class="col-md-7">
 								<select class="form-control" name="language" id="language"
 										  onchange="modifyCustomUrl('&amp;language=', this.value);">
-									<option value="en" id="en">{{lang_languageEn}}</option>
-									<option value="de" id="de">{{lang_languageDe}}</option>
-									<option value="pt" id="pt">{{lang_languagePt}}</option>
+									{{#languages}}
+									<option value="{{cc}}" id="lang-{{cc}}">{{name}}</option>
+									{{/languages}}
 								</select>
 							</div>
 							<div class="col-md-2">
@@ -400,7 +400,7 @@
 	 * Loads the Values in the config form elements.
 	 */
 	function loadValues() {
-		$("#{{language}}").attr("selected", "selected");
+		$("#lang-{{language}}").attr("selected", "selected");
 
 		$('#serverOption-{{serverid}}').attr("selected", "selected");
 
