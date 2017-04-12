@@ -1,0 +1,245 @@
+<form id="tableDataForm" method="post" action="?do=rebootcontrol" class="form-inline">
+	<input type="hidden" name="token" value="{{token}}">
+	<div class="row">
+		<div class="col-md-12">
+				<label>{{lang_location}}:
+					<select id="locationDropdown" name="locationId" class="form-control" onchange="selectLocation()">
+						{{#locations}}
+						<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
+						{{/locations}}
+					</select>
+				</label>
+			<button type="button" id="settingsButton" class="btn btn-default pull-right" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></button>
+			<button type="button" id="selectAllButton" class="btn btn-primary pull-right" onclick="selectAllRows()"><span class="glyphicon glyphicon-check"></span> {{lang_selectall}}</button>
+			<button type="button" id="unselectAllButton" class="btn btn-default pull-right" onclick="unselectAllRows()" style="display: none;"><span class="glyphicon glyphicon-unchecked"></span> {{lang_unselectall}}</button>
+			<button type="button" id="rebootButton" class="btn btn-warning pull-right" data-toggle="modal" data-target="#rebootModal" disabled><span class="glyphicon glyphicon-repeat"></span> {{lang_rebootButton}}</button>
+			<button type="button" id="shutdownButton" class="btn btn-danger pull-right" data-toggle="modal" data-target="#shutdownModal" disabled><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<table class="table table-condensed table-hover" id="dataTable">
+				<thead>
+					<tr>
+						<th data-sort="string">{{lang_client}}</th>
+						<th data-sort="ipsort">{{lang_ip}}</th>
+						<th data-sort="string">{{lang_status}}</th>
+						<th data-sort="string">{{lang_session}}</th>
+						<th data-sort="string">{{lang_user}}</th>
+						<th data-sort="int" data-sort-default="desc">{{lang_selected}}</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				{{#data}}
+					<tr>
+						<td>
+							{{hostname}}
+							{{^hostname}}{{clientip}}{{/hostname}}
+						</td>
+						<td>{{clientip}}</td>
+						<td class="statusColumn">
+							{{#status}}
+							{{lang_on}}
+							{{/status}}
+							{{^status}}
+							{{lang_off}}
+							{{/status}}
+						</td>
+						<td>{{#status}}{{currentsession}}{{/status}}</td>
+						<td>{{#status}}{{currentuser}}{{/status}}</td>
+						<td data-sort-value="0" class="checkboxColumn">
+							<div class="checkbox">
+								<input id="m-{{machineuuid}}" type="checkbox" name="clients[]" value='{{machineuuid}}'>
+								<label for="m-{{machineuuid}}"></label>
+							</div>
+						</td>
+					</tr>
+				{{/data}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+	<!-- Modals -->
+
+	<div id="settingsModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title"><b>{{lang_settings}}</b></h4>
+				</div>
+				<div class="modal-body">
+					<span id="pubKeyTitle">{{lang_pubKey}}</span>
+					<button class="btn btn-s btn-warning pull-right" onclick="generateNewKeypair()" type="button">{{lang_genNew}}</button>
+					<pre id="pubKey">{{pubKey}}</pre>
+				</div>
+				<div class="modal-footer">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class ="modal fade" id="rebootModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">{{lang_rebootButton}}</h4>
+				</div>
+				<div class="modal-body">
+					{{lang_rebootCheck}}
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="startReboot" class="btn btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_reboot}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class ="modal fade" id="shutdownModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel2">{{lang_shutdownButton}}</h4>
+				</div>
+				<div class="modal-body">
+					{{lang_shutdownCheck}}
+						{{lang_shutdownIn}} <input id="shutdownTimer" name="minutes" title="{{lang_shutdownIn}}" type="number" value="0" min="0" onkeypress="return isNumberKey(event)"> {{lang_minutes}}
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="startShutdown" class="btn btn-danger"><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+
+<script type="application/javascript">
+	document.addEventListener("DOMContentLoaded", function() {
+		markCheckedRows();
+
+		$('input:checkbox').change(
+			function(){
+				//give each checkbox the function to mark the row (in green)
+				if ($(this).is(':checked')) {
+					markRows($(this).closest("tr"), true);
+					$(this).closest("td").data("sort-value", 1);
+				} else {
+					markRows($(this).closest("tr"), false);
+					$(this).closest("td").data("sort-value", 0);
+				}
+
+				//if all are checked, change the selectAll-Button to unselectAll. if one is not checked, change unselectAll to selectAll
+				var dataTable = $("#dataTable");
+				var unchecked = dataTable.find("input[type=checkbox]:not(:checked)").length;
+				if (unchecked == 0) {
+					$('#selectAllButton').hide();
+					$('#unselectAllButton').show();
+				} else if (unchecked == 1) {
+					$('#selectAllButton').show();
+					$('#unselectAllButton').hide();
+				}
+
+				//if no client is selected, disable the shutdown/reboot button, and enable them if a client is selected
+				var checked = dataTable.find("input[type=checkbox]:checked").length;
+				if (checked == 0) {
+					$('#rebootButton').prop('disabled', true);
+					$('#shutdownButton').prop('disabled', true);
+				} else {
+					$('#rebootButton').prop('disabled', false);
+					$('#shutdownButton').prop('disabled', false);
+				}
+		});
+		$('.checkboxColumn').click(function(e) {
+			if (e.target === this) {
+				$(this).find('input[type="checkbox"]').click();
+			}
+		});
+	});
+
+	// Change Location when selected in Dropdown Menu
+	function selectLocation() {
+		var dropdown = $("#locationDropdown");
+		var location = dropdown.val();
+		window.location.replace("?do=rebootcontrol&location="+location);
+	}
+
+	// Check all checkboxes, change selectAll button, make shutdown/reboot button enabled as clients will certainly be selected
+	function selectAllRows() {
+		var checked = $("tr input:checkbox:checked");
+
+		//change button
+		$('#selectAllButton').hide();
+		$('#unselectAllButton').show();
+
+		//check rows and mark them
+		$('input[type="checkbox"]', '#dataTable').prop('checked', true);
+		markRows($("tr:not(:first)"), true);
+		$(".checkboxColumn").data("sort-value", 1);
+
+		//enable shutdown/reboot button
+		$('#rebootButton').prop('disabled', false);
+		$('#shutdownButton').prop('disabled', false);
+	}
+
+	// Uncheck all checkboxes, change unselectAll Button, make shutdown/reboot button disabled as clients will certainly be not selected
+	function unselectAllRows() {
+		//change button
+		$('#selectAllButton').show();
+		$('#unselectAllButton').hide();
+
+		//uncheck rows and unmark them
+		$('input[type="checkbox"]', '#dataTable').prop('checked', false);
+		markRows($("tr"), false);
+		$(".checkboxColumn").data("sort-value", 0);
+
+		//disable shutdown/reboot button
+		$('#rebootButton').prop('disabled', true);
+		$('#shutdownButton').prop('disabled', true);
+	}
+
+	// mark all previous checked rows (used when loading site)
+	function markCheckedRows() {
+		var checked = $("tr input:checkbox:checked");
+		markRows(checked.closest("tr"), true);
+		var unchecked = $("#dataTable").find("input[type=checkbox]:not(:checked)").length;
+		if(unchecked == 0) {
+			$('#selectAllButton').hide();
+			$('#unselectAllButton').show();
+		}
+	}
+
+	// only allow numbers to get typed into the "shutdown in X Minutes" box.
+	function isNumberKey(evt){
+		var charCode = (evt.which) ? evt.which : event.keyCode;
+		return !(charCode > 31 && (charCode < 48 || charCode > 57));
+	}
+
+	function markRows($rows, marked) {
+		if (marked) {
+			$rows.addClass('active');
+		} else {
+			$rows.removeClass('active');
+		}
+	}
+
+	function generateNewKeypair() {
+		$.ajax({
+			url: '?do=rebootcontrol',
+			type: 'POST',
+			data: { action: "generateNewKeypair", token: TOKEN },
+			success: function(value) {
+				$('#pubKey').text(value);
+			}
+		});
+	}
+
+</script>
