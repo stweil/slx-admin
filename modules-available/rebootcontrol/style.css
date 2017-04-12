@@ -1,0 +1,47 @@
+.rebootTimerForm {
+    margin-top: 20px;
+}
+
+.statusColumn {
+    text-align: center;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+    height: 50px;
+}
+
+.checkbox {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#rebootButton, #settingsButton, #selectAllButton, #unselectAllButton {
+    margin-left: 10px;
+}
+
+#rebootButton, #shutdownButton, #selectAllButton, #unselectAllButton {
+    width: 140px;
+}
+
+#dataTable {
+    margin-top: 20px;
+}
+
+
+#shutdownTimer {
+    text-align: center;
+}
+#pubKeyTitle {
+    display: inline-block;
+    margin-top: 7px;
+    margin-bottom: 20px;
+}
+
+pre {
+    white-space: pre-wrap;
+}
+
+th[data-sort] {
+    cursor: pointer;
+}

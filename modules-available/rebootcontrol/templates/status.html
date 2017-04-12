@@ -1,0 +1,62 @@
+<div>
+	<form class="form-inline">
+			<b>{{lang_location}}: {{locationName}}</b>
+			<input type="hidden" name="do" value="rebootcontrol">
+			<input type="hidden" name="location" value="{{locationId}}">
+			<button type="submit" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-arrow-left"></span> {{lang_back}}</button>
+	</form>
+</div>
+
+<div data-tm-id="{{taskId}}" data-tm-log="error" data-tm-callback="updateStatus"></div>
+
+<div>
+	<table class="table table-hover" id="dataTable">
+		<thead>
+			<tr>
+				<th data-sort="string">{{lang_client}}</th>
+				<th data-sort="ipsort">{{lang_ip}}</th>
+				<th data-sort="string">
+					{{lang_status}}
+				</th>
+			</tr>
+		</thead>
+
+		<tbody>
+		{{#clients}}
+			<tr>
+				<td>{{machineuuid}}</td>
+				<td>{{clientip}}</td>
+				<td id="status-{{machineuuid}}"></td>
+			</tr>
+		{{/clients}}
+		</tbody>
+	</table>
+</div>
+
+<script type="application/javascript">
+	statusStrings = {
+		"CONNECTING" : "{{lang_connecting}}",
+		"REBOOTING" : "{{lang_rebooting}}",
+		"REBOOT_AT" : "{{lang_rebootAt}}",
+		"ONLINE" : "{{lang_online}}",
+		"ERROR" : "{{lang_error}}",
+		"SHUTDOWN" : "{{lang_shutdown}}",
+		"SHUTDOWN_AT" : "{{lang_shutdownAt}}",
+		"AUTH_FAIL" : "{{lang_authFail}}"
+	};
+
+	function updateStatus(task) {
+		if (!task || !task.data || !task.data.clientStatus)
+			return;
+		var clientStatus = task.data.clientStatus;
+		for (var uuid in clientStatus) {
+			if (clientStatus.hasOwnProperty(uuid)) {
+				var shutdownTime = ' ';
+				if (clientStatus[uuid] === 'SHUTDOWN_AT' || clientStatus[uuid] === 'REBOOT_AT') {
+					shutdownTime += task.data.time;
+				}
+				$("#status-" + uuid).text(statusStrings[clientStatus[uuid]] + shutdownTime);
+			}
+		}
+	}
+</script>
