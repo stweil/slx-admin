@@ -1,7 +1,7 @@
 <div>
 	<div align="right">
 		<label for="CB_1" title="{{lang_expertMode_title}}">{{lang_expertMode}}</label>
-		<input class="bs-switch" name="1" id="CB_1" type="checkbox" {{#expertMode}}checked="checked"{{/expertMode}}>
+		<input class="bs-switch" name="1" id="CB_1" type="checkbox" {{#expertMode}}checked{{/expertMode}}>
 	</div>
 	<br>
 
@@ -19,64 +19,64 @@
 					<th>{{lang_closingTime}}</th>
 				</tr>
 
-				<tr class=tablerow>
+				<tr class="tablerow">
 					<td>{{lang_monTilFr}}</td>
 					<td>
 						<div class="input-group bootstrap-timepicker">
-            		<span class="input-group-addon">
-            			<span class="glyphicon glyphicon-time"></span>
-            		</span>
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
 							<input type="text" class="form-control timepicker2" name="openingtime[]" id="openingtimepicker"
 									 pattern="[0-9]{1,2}:[0-9]{2}" value="{{openingtime0}}">
 						</div>
 					</td>
 					<td>
 						<div class="input-group bootstrap-timepicker">
-            		<span class="input-group-addon">
-            			<span class="glyphicon glyphicon-time"></span>
-            		</span>
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
 							<input type="text" class="form-control timepicker2" name="closingtime[]" id="openingtimepicker"
 									 pattern="[0-9]{1,2}:[0-9]{2}" value="{{closingtime0}}">
 						</div>
 					</td>
 				</tr>
-				<tr class=tablerow>
+				<tr class="tablerow">
 					<td>{{lang_saturday}}</td>
 					<td>
 						<div class="input-group bootstrap-timepicker">
-            		<span class="input-group-addon">
-            			<span class="glyphicon glyphicon-time"></span>
-            		</span>
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
 							<input type="text" class="form-control timepicker2" name="openingtime[]" id="openingtimepicker"
 									 pattern="[0-9]{1,2}:[0-9]{2}" value="{{openingtime1}}">
 						</div>
 					</td>
 					<td>
 						<div class="input-group bootstrap-timepicker">
-            		<span class="input-group-addon">
-            			<span class="glyphicon glyphicon-time"></span>
-            		</span>
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
 							<input type="text" class="form-control timepicker2" name="closingtime[]" id="openingtimepicker"
 									 pattern="[0-9]{1,2}:[0-9]{2}" value="{{closingtime1}}">
 						</div>
 					</td>
 				</tr>
-				<tr class=tablerow>
+				<tr class="tablerow">
 					<td>{{lang_sunday}}</td>
 					<td>
 						<div class="input-group bootstrap-timepicker">
-            		<span class="input-group-addon">
-            			<span class="glyphicon glyphicon-time"></span>
-            		</span>
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
 							<input type="text" class="form-control timepicker2" name="openingtime[]" id="openingtimepicker"
 									 pattern="[0-9]{1,2}:[0-9]{2}" value="{{openingtime2}}">
 						</div>
 					</td>
 					<td>
 						<div class="input-group bootstrap-timepicker">
-            		<span class="input-group-addon">
-            			<span class="glyphicon glyphicon-time"></span>
-            		</span>
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
 							<input type="text" class="form-control timepicker2" name="closingtime[]" id="openingtimepicker"
 									 pattern="[0-9]{1,2}:[0-9]{2}" value="{{closingtime2}}">
 						</div>
@@ -115,8 +115,10 @@
 			</table>
 
 			<br>
-			<a class="btn btn-success btn-sm" onclick=newOpeningTime()><span class="glyphicon glyphicon-plus-sign"></span>
-				{{lang_openingTime}}</a>
+			<a class="btn btn-success btn-sm" onclick=newOpeningTime()>
+				<span class="glyphicon glyphicon-plus-sign"></span>
+				{{lang_openingTime}}
+			</a>
 		</form>
 	</div>
 </div>

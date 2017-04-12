@@ -12,14 +12,17 @@
 
 					<div class="list-group-item">
 						<div class="row">
-							<div class="col-md-3" >
+							<div class="col-md-3">
 								<label>{{lang_locationName}}</label>
 							</div>
 							<div class="col-md-7">
-								<input required class="form-control" id="input-name-{{id}}" name="name" type="text" value="{{name}}"></input>
+								<input required class="form-control" id="input-name-{{id}}" name="name" type="text"
+										 value="{{name}}">
 							</div>
 							<div class="col-md-2">
-								<a class="btn btn-default" id="help-name" title="{{lang_nameTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+								<a class="btn btn-default" id="help-name" title="{{lang_nameTooltip}}">
+									<span class="glyphicon glyphicon-question-sign"></span>
+								</a>
 							</div>
 						</div>
 					</div>
@@ -30,10 +33,13 @@
 								<label>{{lang_serverUrl}}</label>
 							</div>
 							<div class="col-md-7">
-								<input required class="form-control" id="input-url-{{id}}" name="url" type="text" value="{{url}}" ></input>
+								<input required class="form-control" id="input-url-{{id}}" name="url" type="text"
+										 value="{{url}}">
 							</div>
 							<div class="col-md-2">
-								<a class="btn btn-default" id="help-url" title="{{lang_urlTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+								<a class="btn btn-default" id="help-url" title="{{lang_urlTooltip}}">
+									<span class="glyphicon glyphicon-question-sign"></span>
+								</a>
 							</div>
 						</div>
 					</div>
@@ -44,14 +50,17 @@
 								<label>{{lang_serverType}}</label>
 							</div>
 							<div class="col-md-7">
-								<select class="form-control" id="input-type-{{id}}" name="type" value="{{typ}}" onchange="servertype_changed(this.value);">
+								<select class="form-control" id="input-type-{{id}}" name="type" value="{{typ}}"
+										  onchange="servertype_changed(this.value);">
 									{{#backendList}}
-										<option id="{{typ}}" value="{{typ}}" {{#active}}selected{{/active}}>{{display}}
+									<option id="{{typ}}" value="{{typ}}" {{#active}}selected{{/active}}>{{display}}
 									{{/backendList}}
 								</select>
 							</div>
 							<div class="col-md-2">
-								<a class="btn btn-default" id="help-type" title="{{lang_typeTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+								<a class="btn btn-default" id="help-type" title="{{lang_typeTooltip}}">
+									<span class="glyphicon glyphicon-question-sign"></span>
+								</a>
 							</div>
 						</div>
 					</div>
@@ -63,9 +72,7 @@
 		<div class="panel panel-default" id="credentials-div">
 			<div class="panel-heading">{{lang_credentials}}</div>
 			<div class="panel-body">
-				<div class="list-group" id="credentials-list">
-
-				</div>
+				<div class="list-group" id="credentials-list"></div>
 			</div>
 		</div>
 		<div id="credentials" class="list-group"></div>

@@ -27,17 +27,22 @@
 
 					<td align="center" id="credentials-{{id}}" onclick="event.cancelBubble = true;"
 						 style="white-space:nowrap;">
-						<button {{#auth}}class="btn btn-sm btn-success" {{/auth}}
-								  {{^auth}}class="btn btn-sm btn-danger"{{/auth}} id="credentials-btn-{{id}}" type="button"
-								  onclick="loadSettingsModal({{id}},'{{name}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>{{lang_locationSettings}}
+						<button class="btn btn-sm {{#auth}}btn-success{{/auth}}{{^auth}}btn-danger{{/auth}}"
+								  id="credentials-btn-{{id}}" type="button" onclick="loadSettingsModal({{id}},'{{name}}');">
+							<span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>
+							{{lang_locationSettings}}
 						</button>
-						<button class="btn btn-sm btn-primary table-refresh" id="refresh-btn-{{id}}" title="{{lang_refresh_title}}"
-								  onclick="refreshButtonClick({{id}});"><span id="refresh-btn-animate-{{id}}" style="margin-right: 5px;" class="glyphicon glyphicon-refresh"></span>{{lang_refresh}}
+						<button class="btn btn-sm btn-primary table-refresh" id="refresh-btn-{{id}}"
+								  title="{{lang_refresh_title}}" onclick="refreshButtonClick({{id}});">
+							<span id="refresh-btn-animate-{{id}}" style="margin-right: 5px;"
+									class="glyphicon glyphicon-refresh"></span>
+							{{lang_refresh}}
 						</button>
 					</td>
 					<td align="center" id="btncell-{{id}}" style="white-space:nowrap;">
-						<button class="btn btn-sm btn-danger table-delete" type="button"
-								  onclick="deleteButtonClick({{id}});"><span style="margin-right: 5px;" class="glyphicon glyphicon-remove"></span>{{lang_delete}}
+						<button class="btn btn-sm btn-danger table-delete" type="button" onclick="deleteButtonClick({{id}});">
+							<span style="margin-right: 5px;" class="glyphicon glyphicon-remove"></span>
+							{{lang_delete}}
 						</button>
 					</td>
 				</tr>
@@ -52,8 +57,12 @@
 
 		</table>
 		<br>
-		<button class="btn btn-sm btn-success" id="addServerButton" onclick="addServer()"><span
-				title="{{lang_addServer_title}}"><span style="margin-right: 5px;" class="glyphicon glyphicon-plus"></span>{{lang_addServer}}</button>
+		<button class="btn btn-sm btn-success" id="addServerButton" onclick="addServer()">
+			<span title="{{lang_addServer_title}}">
+				<span style="margin-right: 5px;" class="glyphicon glyphicon-plus"></span>
+				{{lang_addServer}}
+			</span>
+		</button>
 		<br><br><br>
 
 	</div>
@@ -88,18 +97,24 @@
 				cb.type = 'checkbox';
 				cbh.appendChild(cb);
 
-    	cb.id = 'cb' + {{locationid}};
-    	cb.value = {{hidden}};
-			if ({{hidden}} == 1) {
-				cb.checked = true;
-			}
-			cb.addEventListener("click", function() { cbClick(this, {{locationid}}); });
+				cb.id = 'cb' + {{locationid}};
+				cb.value = {{hidden}};
+				if ({{hidden}} == 1) {
+					cb.checked = true;
+				}
+				cb.addEventListener("click", function() { cbClick(this, {{locationid}}); });
 			</script>
-			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" style="width: 100%"
-																	  onclick="loadTimeModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-time"></span></a>
+			<td onclick="event.cancelBubble = true;">
+				<a class="btn btn-sm btn-default" role="button" style="width: 100%"
+					onclick="loadTimeModal({{locationid}}, '{{locationname}}');">
+					<span style="margin-right: 5px;" class="glyphicon glyphicon-time"></span>
+				</a>
 			</td>
-			<td onclick="event.cancelBubble = true;"><a class="btn btn-sm btn-default" role="button" style="width: 100%;"
-																	  onclick="loadConfigModal({{locationid}}, '{{locationname}}');"><span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span></a>
+			<td onclick="event.cancelBubble = true;">
+				<a class="btn btn-sm btn-default" role="button" style="width: 100%;"
+					onclick="loadConfigModal({{locationid}}, '{{locationname}}');">
+					<span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>
+				</a>
 			</td>
 		</tr>
 
