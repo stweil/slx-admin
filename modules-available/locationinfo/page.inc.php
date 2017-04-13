@@ -106,7 +106,7 @@ class Page_LocationInfo extends Page
 		$result['mode'] = Request::post('mode', 1, 'int');
 		$result['vertical'] = Request::post('vertical', false, 'bool');
 		$result['eco'] = Request::post('eco', false, 'bool');
-		$result['scaledaysauto'] = Request::post('autoscale', false, 'bool');
+		$result['scaledaysauto'] = Request::post('scaledaysauto', false, 'bool');
 		$result['daystoshow'] = Request::post('daystoshow', 7, 'int');
 		$result['rotation'] = Request::post('rotation', 0, 'int');
 		$result['scale'] = Request::post('scale', 50, 'int');
@@ -709,45 +709,47 @@ class Page_LocationInfo extends Page
 	 */
 	private function ajaxConfig($id)
 	{
-		$array = array();
-
 		// Get Config data from db
-		$dbquery = Database::simpleQuery("SELECT config, serverid, serverroomid FROM `location_info` WHERE locationid = :id", array('id' => $id));
-		$serverid;
-		$serverroomid;
-		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$array = json_decode($dbdata['config'], true);
-			$serverid = $dbdata['serverid'];
-			$serverroomid = $dbdata['serverroomid'];
+		$location = Database::queryFirst("SELECT config, serverid, serverroomid FROM `location_info` WHERE locationid = :id", array('id' => $id));
+		if ($location === false) {
+			die("Invalid location id: $id");
 		}
 
+		$config = json_decode($location['config'], true); // TODO: Validate we got an array, fill with defaults otherwise
+
 		// get Server / ID list
-		$dbq = Database::simpleQuery("SELECT serverid, servername FROM `setting_location_info`");
+		$dbq = Database::simpleQuery("SELECT serverid, servername FROM setting_location_info ORDER BY servername ASC");
 		$serverList = array();
-		while ($dbd = $dbq->fetch(PDO::FETCH_ASSOC)) {
-			$d['sid'] = $dbd['serverid'];
-			$d['sname'] = $dbd['servername'];
-			$serverList[] = $d;
+		while ($row = $dbq->fetch(PDO::FETCH_ASSOC)) {
+			if ($row['serverid'] == $location['serverid']) {
+				$row['selected'] = 'selected';
+			}
+			$serverList[] = $row;
+		}
+		$langs = Dictionary::getLanguages(true);
+		foreach ($langs as &$lang) {
+			if ($lang['cc'] === $config['language']) {
+				$lang['selected'] = 'selected';
+			}
 		}
 
 		echo Render::parse('config', array(
 			'id' => $id,
-			'language' => $array['language'],
-			'languages' => Dictionary::getLanguages(true),
-			'mode' => 'mode' . $array['mode'],
-			'vertical' => $array['vertical'],
-			'eco' => $array['eco'],
-			'daystoshow' => 'day' . $array['daystoshow'],
-			'scaledaysauto' => $array['scaledaysauto'],
-			'rotation' => 'rotation' . $array['rotation'],
-			'scale' => $array['scale'],
-			'switchtime' => $array['switchtime'],
-			'calupdate' => $array['calupdate'],
-			'roomupdate' => $array['roomupdate'],
-			'configupdate' => $array['configupdate'],
-			'serverlist' => array_values($serverList),
-			'serverid' => $serverid,
-			'serverroomid' => $serverroomid
+			'languages' => $langs,
+			'mode' => $config['mode'],
+			'vertical_checked' => $config['vertical'] ? 'checked' : '',
+			'eco_checked' => $config['eco'] ? 'checked' : '',
+			'scaledaysauto_checked' => $config['scaledaysauto'] ? 'checked' : '',
+			'daystoshow' => $config['daystoshow'],
+			'rotation' => $config['rotation'],
+			'scale' => $config['scale'],
+			'switchtime' => $config['switchtime'],
+			'calupdate' => $config['calupdate'],
+			'roomupdate' => $config['roomupdate'],
+			'configupdate' => $config['configupdate'],
+			'serverlist' => $serverList,
+			'serverid' => $location['serverid'],
+			'serverroomid' => $location['serverroomid']
 		));
 	}
 
