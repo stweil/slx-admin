@@ -5,7 +5,7 @@
 	<h4>{{lang_serverTable}}</h4>
 
 	<div id="serverTable">
-		<table class="table table-condensed locations" style="margin-bottom:0;">
+		<table class="table table-condensed table-hover" style="margin-bottom:0;">
 			<tr>
 				<th width="1">{{lang_serverType}}</th>
 				<th>{{lang_locationName}}</th>
@@ -19,7 +19,7 @@
 				<input id="serverFormAction-{{id}}" type="hidden" name="action" value="updateServer">
 				<input type="submit" id="submit-serverForm-{{id}}" style="display:none;">
 
-				<tr class=tablerow>
+				<tr>
 					<input id="input-id-{{id}}" name="id" type="hidden" value="{{id}}">
 					<td id="type-{{id}}" nowrap>{{display}}</td>
 					<td id="name-{{id}}" nowrap>{{name}}</td>
@@ -69,27 +69,27 @@
 	<br>
 
 	<h4>{{lang_buildingTable}}</h4>
-	<table class="table table-condensed locations" style="margin-bottom:0">
+	<table class="table table-condensed table-hover" style="margin-bottom:0">
 
 		<tr>
 			<th>{{lang_locationName}}</th>
-			<th width=10>{{lang_locationID}}</th>
-			<th width=80>{{lang_locationInUse}}</th>
-			<th width=50 title="{{lang_locationIsHidden_title}}">{{lang_locationIsHidden}}</th>
-			<th width=50>{{lang_openingTime}}</th>
-			<th width=50>{{lang_locationSettings}}</th>
+			<th width="10">{{lang_locationID}}</th>
+			<th width="80">{{lang_locationInUse}}</th>
+			<th width="50" title="{{lang_locationIsHidden_title}}">{{lang_locationIsHidden}}</th>
+			<th width="50">{{lang_openingTime}}</th>
+			<th width="50">{{lang_locationSettings}}</th>
 		</tr>
 
 		{{#list}}
-		<tr id="row{{locationid}}" class="tablerow">
+		<tr id="row{{locationid}}">
 
 			<td>
 				<div style="display:inline-block;width:{{depth}}em"></div>
-				<a href="modules-available/locationinfo/frontend/doorsign.html?id={{locationid}}">{{locationname}}</a></td>
+				<a href="modules/locationinfo/frontend/doorsign.html?id={{locationid}}">{{locationname}}</a></td>
 			<td align="center">[{{locationid}}]</td>
 			<td align="center">{{#hasPcs}}{{pcState}} / {{total}}{{/hasPcs}}</td>
 
-			<td id={{locationid}} onclick="event.cancelBubble = true;" align="center"></td>
+			<td id="{{locationid}}" onclick="event.cancelBubble = true;" align="center"></td>
 			<script>
 				var cbh = document.getElementById('{{locationid}}');
 				var cb = document.createElement('input');
@@ -149,7 +149,7 @@
 	function cbClick(cb, locID) {
 		var value;
 
-		if (cb.checked == true) {
+		if (cb.checked) {
 			value = 1;
 		} else {
 			value = 0;
