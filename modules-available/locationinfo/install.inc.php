@@ -2,6 +2,7 @@
 
 $res = array();
 
+// TODO: serverid NULL, constraint to serverlist on delete set NULL
 $res[] = tableCreate('location_info', '
 	`locationid` INT(11) NOT NULL,
 	`serverid` INT(11) NOT NULL,
@@ -14,6 +15,7 @@ $res[] = tableCreate('location_info', '
 	PRIMARY KEY (`locationid`)
 ');
 
+// TODO: KEY `servername` (`servername`)
 $res[] = tableCreate('setting_location_info', '
 	`serverid` int(10) NOT NULL AUTO_INCREMENT,
 	`servername` VARCHAR(2000) NOT NULL,
@@ -25,18 +27,19 @@ $res[] = tableCreate('setting_location_info', '
 ');
 
 // Create response for browser
-if (!tableHasColumn('setting_location_info', 'error')) {
-	$ret = Database::exec("ALTER TABLE `setting_location_info` ADD `error` VARCHAR(2000) AFTER `credentials`");
-	if ($ret === false) {
-		finalResponse(UPDATE_FAILED, 'Adding column error failed: ' . Database::lastError());
-	}
-	$res[] = UPDATE_DONE;
-}
 
 if (!tableHasColumn('setting_location_info', 'credentials')) {
 	$ret = Database::exec("ALTER TABLE `setting_location_info` ADD `credentials` VARCHAR(2000) AFTER `servertype`");
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Adding column credentials failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+
+if (!tableHasColumn('setting_location_info', 'error')) {
+	$ret = Database::exec("ALTER TABLE `setting_location_info` ADD `error` VARCHAR(2000) AFTER `credentials`");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding column error failed: ' . Database::lastError());
 	}
 	$res[] = UPDATE_DONE;
 }
