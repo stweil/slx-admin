@@ -84,7 +84,7 @@
 		type = $('#input-type-{{id}}').val();
 	}
 
-	loadCredentials();
+	loadCredentials(true);
 	initalizeBootstrap();
 
 	/**
@@ -101,7 +101,7 @@
 	 *
 	 * @param {bool} useValue If false the form elements will be empty. Default = true.
 	 */
-	function loadCredentials(useValue = true) {
+	function loadCredentials(useValue) {
 		// {{name}} name of auth {{type}} type of auth (string, int etc.) {{value}} value from the db
 		{{#backendList}}
 		if (type == "{{typ}}") {

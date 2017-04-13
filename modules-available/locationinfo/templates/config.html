@@ -18,7 +18,7 @@
 									<select class="form-control" name="serverid">
 										<option value="0">{{lang_noServer}}</option>
 										{{#serverlist}}
-											<option value="{{sid}}" {{selected}}>{{servername}}</option>
+											<option value="{{serverid}}" {{selected}}>{{servername}}</option>
 										{{/serverlist}}
 									</select>
 								</div>
@@ -319,17 +319,21 @@
 </form>
 
 <script type="text/javascript"><!--
-
-	var customURL = window.location.protocol + "//" + window.location.hostname + "/slx-admin/modules/locationinfo/frontend/doorsign.html?id={{id}}";
-	$('#custom-url').val(customURL);
+	// Get list of form elements which affect the generated custom URL
 	var $inputs = $('.modify-inputs input, .modify-inputs select');
+	// Base for displaying the custom URL
+	var customURL = window.location.protocol + "//" + window.location.hostname + "/slx-admin/modules/locationinfo/frontend/doorsign.html?id={{id}}";
+	// Initialize fancy tooltips
 	$('a.helptext').tooltip();
+	// Add listener to range sliders so their label can be updated
 	$('input[type="range"]').change(function () {
 		$(this).siblings().find('.range-display').text($(this).val());
 	});
+	// Set state of input controls that aren't statically initialized server side
 	loadValues();
+	// Update the custom URL
 	buildCustomUrl();
-
+	// Add listener to all the elements affecting custom URL
 	$inputs.change(function () {
 		$this = $(this);
 		if ($this.attr('type') === 'hidden')

@@ -53,13 +53,6 @@ class Page_LocationInfo extends Page
 			Util::redirect('?do=locationinfo&action=infoscreen');
 		}
 
-		if ($getAction === 'hide') {
-			$roomId = Request::get('id', 0, 'int');
-			$hiddenValue = Request::get('value', 0, 'int');
-			$this->toggleHidden($roomId, $hiddenValue);
-			Util::redirect('?do=locationinfo&action=infoscreen#row' . $roomId);
-		}
-
 	}
 
 	/**
@@ -341,79 +334,45 @@ class Page_LocationInfo extends Page
 	/**
 	 * Sets the new hidden value and checks childs and parents.
 	 *
-	 * @param $id The location id which was toggled
-	 * @param $val The hidden value true / false
+	 * @param int $id The location id which was toggled
+	 * @param bool $hidden The hidden value true / false
 	 */
-	protected function toggleHidden($id, $val)
+	protected function toggleHidden($id, $hidden)
 	{
-		Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $id,
-			'hidden' => $val));
+		$locs = Location::getLocationsAssoc();
+		if (!isset($locs[$id]))
+			die('Invalid location id');
+		$loc = $locs[$id];
 
-		$this->checkChildRecursive($id, $val);
-		$this->checkParentRecursive($id);
+		// The JSON to return, telling the client which locationids to update in the view
+		$return = array();
+		$return[] = array('locationid' => $id, 'hidden' => $hidden);
 
-	}
-
-	/**
-	 * Recursivly sets all hidden values to all childs.
-	 *
-	 * @param $id The location id which childs should be checked
-	 * @param $val The hidden value
-	 */
-	protected function checkChildRecursive($id, $val)
-	{
-		$dbquery = Database::simpleQuery("SELECT locationid FROM `location` WHERE parentlocationid = :locationid", array('locationid' => $id));
-		$childs = array();
-		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$childs[] = $dbdata['locationid'];
+		// Update the location, plus all child locations
+		$qs = '(?,?)' . str_repeat(',(?,?)', count($loc['children']));
+		$params = array($id, $hidden);
+		foreach ($loc['children'] as $child) {
+			$params[] = $child;
+			$params[] = $hidden;
+			$return[] = array('locationid' => $child, 'hidden' => $hidden);
 		}
+		Database::exec("INSERT INTO location_info (locationid, hidden)
+				VALUES $qs ON DUPLICATE KEY UPDATE hidden = VALUES(hidden)", $params);
 
-		foreach ($childs as $key) {
-			Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $key,
-				'hidden' => $val));
-
-			$this->checkChildRecursive($key, $val);
+		// Handle parents - uncheck if not all children are checked
+		while ($loc['parentlocationid'] != 0) {
+			$stats = Database::queryFirst('SELECT Count(*) AS total, Sum(li.hidden > 0) AS hidecount FROM location l
+					LEFT JOIN location_info li USING (locationid)
+					WHERE l.parentlocationid = :parent', array('parent' => $loc['parentlocationid']));
+			$hidden = ($stats['total'] == $stats['hidecount']) ? 1 : 0;
+			$params = array('locationid' => $loc['parentlocationid'], 'hidden' => $hidden);
+			Database::exec('INSERT INTO location_info (locationid, hidden)
+					VALUES (:locationid, :hidden) ON DUPLICATE KEY UPDATE hidden = VALUES(hidden)', $params);
+			$return[] = $params;
+			$loc = $locs[$loc['parentlocationid']];
 		}
-	}
-
-	/**
-	 * Recursively check all parent locations and updates the hidden values if necessary
-	 *
-	 * @param $id The id of the location which was toggled.
-	 */
-	protected function checkParentRecursive($id)
-	{
-		$dbquery = Database::simpleQuery("SELECT parentlocationid FROM `location` WHERE locationid = :locationid", array('locationid' => $id));
-		$parent = 0;
-		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$parent = (int)$dbdata['parentlocationid'];
-		}
-		if ($parent === 0) {
-			return;
-		} else {
-			$dbq = Database::simpleQuery("SELECT COUNT(CASE li.hidden WHEN '0' THEN 1 ELSE NULL END) AS '0',
-			 															COUNT(CASE li.hidden WHEN '1' THEN 1 ELSE NULL END) AS '1',
-																		 COUNT(*) - COUNT(CASE li.hidden WHEN '0' THEN 1 ELSE NULL END) - COUNT(CASE li.hidden WHEN '1' THEN 1 ELSE NULL END) AS 'NULL'
-																		 FROM `location` AS l LEFT JOIN `location_info` AS li ON l.locationid=li.locationid
-																		 WHERE parentlocationid = :parentId;", array('parentId' => $parent));
-			$amountofzero = 0;
-			$amountofnull = 0;
-
-			while ($dbd = $dbq->fetch(PDO::FETCH_ASSOC)) {
-				$amountofzero = (int)$dbd['0'];
-				$amountofnull = (int)$dbd['NULL'];
-			}
-
-			if ($amountofzero == 0 AND $amountofnull == 0) {
-				Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $parent,
-					'hidden' => 1));
-			} else {
-				Database::exec("INSERT INTO `location_info` (locationid, hidden) VALUES (:id, :hidden) ON DUPLICATE KEY UPDATE hidden=:hidden", array('id' => $parent,
-					'hidden' => 0));
-			}
-
-			$this->checkParentRecursive($parent);
-		}
+		error_log(print_r($return, true));
+		return $return;
 	}
 
 	/**
@@ -421,89 +380,47 @@ class Page_LocationInfo extends Page
 	 */
 	protected function getInfoScreenTable()
 	{
+		$locations = Location::getLocations(0, 0, false, true);
 
-		// Get a table with the needed location info. name, id, hidden, pcState (Count of pcs that are in use), total pcs
-		$dbquery = Database::simpleQuery("SELECT l.locationname, l.locationid, li.hidden, m.pcState, m.total FROM `location_info` AS li
-		RIGHT JOIN `location` AS l ON li.locationid=l.locationid LEFT JOIN
-		(SELECT locationid, Count(CASE m.logintime WHEN NOT 1 THEN NULL ELSE 1 END) AS pcState, Count(*) AS total FROM `machine` AS m
-		WHERE locationid IS NOT NULL GROUP BY locationid) AS m ON l.locationid=m.locationid");
-		$pcs = array();
+		// Get hidden state of all locations
+		$dbquery = Database::simpleQuery("SELECT li.locationid, li.hidden FROM `location_info` AS li");
 
-		if (Module::isAvailable('locations')) {
-			foreach (Location::getLocations() as $loc) {
-				$data = array();
-				$data['locationid'] = (int)$loc['locationid'];
-				$data['locationname'] = $loc['locationname'];
-				$data['depth'] = $loc['depth'];
-				$data['hidden'] = null;
-				$locid = (int)$loc['locationid'];
-				$pcs[$locid] = $data;
-			}
-		}
-
-		while ($roominfo = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$locid = (int)$roominfo['locationid'];
-
-			if ($roominfo['hidden'] == null) {
-				$pcs[$locid]['hidden'] = 0;
-			} else {
-				$pcs[$locid]['hidden'] = $roominfo['hidden'];
-			}
-
-			if ($roominfo['pcState'] != null) {
-				$pcs[$locid]['pcState'] = $roominfo['pcState'];
-			}
-			if ($roominfo['total'] != null) {
-				$pcs[$locid]['total'] = $roominfo['total'];
-				$pcs[$locid]['hasPcs'] = true;
-			} else {
-				$pcs[$locid]['hasPcs'] = false;
-			}
+		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
+			$locid = (int)$row['locationid'];
+			$locations[$locid]['hidden_checked'] = $row['hidden'] != 0 ? 'checked' : '';
 		}
 
 		// Get a list of all the backend types.
 		$servertypes = array();
 		$s_list = CourseBackend::getList();
 		foreach ($s_list as $s) {
-			$t['type'] = $s;
 			$typeInstance = CourseBackend::getInstance($s);
-			$t['display'] = $typeInstance->getDisplayName();
-			$servertypes[] = $t;
+			$servertypes[$s] = $typeInstance->getDisplayName();
 		}
 
-		// Get the Serverlist from the DB and make it mustache accesable
+		// Get the Serverlist from the DB and make it mustache accessable
 		$serverlist = array();
 		$dbquery2 = Database::simpleQuery("SELECT * FROM `setting_location_info`");
-		while ($db = $dbquery2->fetch(PDO::FETCH_ASSOC)) {
-			$server['id'] = $db['serverid'];
-			$server['name'] = $db['servername'];
-			$server['type'] = $db['servertype'];
-			foreach ($servertypes as $type) {
-				if ($server['type'] == $type['type']) {
-					$server['display'] = $type['display'];
-					break;
+		while ($row = $dbquery2->fetch(PDO::FETCH_ASSOC)) {
+			$row['typename'] = $servertypes[$row['servertype']];
+
+			if (!empty($row['error'])) {
+				$row['autherror'] = true;
+				$error = json_decode($row['error'], true);
+				if (isset($error['timestamp'])) {
+					$time = date('Y/m/d H:i:s', $error['timestamp']);
+				} else {
+					$time = '???';
 				}
+				Message::addError('auth-failed', $row['servername'], $time, $error['error']);
 			}
-
-			if ($db['error'] == null) {
-				$server['auth'] = true;
-			} else {
-				$server['auth'] = false;
-				$error = json_decode($db['error'], true);
-
-				$time = date('Y/m/d H:i:s', $error['timestamp']);
-
-				Message::addError('auth-failed', $server['name'], $time, $error['error']);
-			}
-
-			$server['url'] = $db['serverurl'];
-			$serverlist[] = $server;
+			$serverlist[] = $row;
 		}
 
 		// Pass the data to the html and render it.
 		Render::addTemplate('location-info', array(
-			'list' => array_values($pcs),
-			'serverlist' => array_values($serverlist),
+			'list' => array_values($locations),
+			'serverlist' => $serverlist,
 		));
 	}
 
@@ -526,7 +443,23 @@ class Page_LocationInfo extends Page
 		} elseif ($action === 'serverSettings') {
 			$id = Request::any('id', 0, 'int');
 			$this->ajaxServerSettings($id);
+		} elseif ($action === 'hide') {
+			$this->ajaxHideLocation();
 		}
+	}
+
+	/**
+	 * Request to deny displaying the door sign for the
+	 * given location. Sends a list of all affected
+	 * locations, so the client can update its view.
+	 */
+	private function ajaxHideLocation()
+	{
+		$locationId = Request::post('locationid', 0, 'int');
+		$hidden = Request::post('hidden', 0, 'int');
+		Header('Content-Type: application/json; charset=utf-8');
+		$ret = $this->toggleHidden($locationId, $hidden);
+		echo json_encode(array('changed' => $ret));
 	}
 
 	/**

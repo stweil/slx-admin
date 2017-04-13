@@ -14,33 +14,32 @@
 				<th width="1"></th>
 			</tr>
 			{{#serverlist}}
-			<form method="post" action="?do=locationinfo" id="serverForm-{{id}}">
+			<form method="post" action="?do=locationinfo" id="serverForm-{{serverid}}">
 				<input type="hidden" name="token" value="{{token}}">
-				<input id="serverFormAction-{{id}}" type="hidden" name="action" value="updateServer">
-				<input type="submit" id="submit-serverForm-{{id}}" style="display:none;">
+				<input id="serverFormAction-{{serverid}}" type="hidden" name="action" value="updateServer">
+				<input type="submit" id="submit-serverForm-{{serverid}}" style="display:none;">
 
 				<tr>
-					<input id="input-id-{{id}}" name="id" type="hidden" value="{{id}}">
-					<td id="type-{{id}}" nowrap>{{display}}</td>
-					<td id="name-{{id}}" nowrap>{{name}}</td>
-					<td id="url-{{id}}" nowrap>{{url}}</td>
+					<input id="input-id-{{serverid}}" name="id" type="hidden" value="{{serverid}}">
+					<td id="type-{{serverid}}" nowrap>{{typename}}</td>
+					<td id="name-{{serverid}}" nowrap>{{servername}}</td>
+					<td id="url-{{serverid}}" nowrap>{{serverurl}}</td>
 
-					<td align="center" id="credentials-{{id}}" onclick="event.cancelBubble = true;"
-						 style="white-space:nowrap;">
-						<button class="btn btn-sm {{#auth}}btn-success{{/auth}}{{^auth}}btn-danger{{/auth}}"
-								  id="credentials-btn-{{id}}" type="button" onclick="loadSettingsModal({{id}},'{{name}}');">
+					<td align="center" id="credentials-{{serverid}}" style="white-space:nowrap;">
+						<button class="btn btn-sm {{^autherror}}btn-success{{/autherror}}{{#autherror}}btn-danger{{/autherror}}"
+								  id="credentials-btn-{{serverid}}" type="button" onclick="loadSettingsModal({{serverid}},'{{servername}}');">
 							<span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>
 							{{lang_locationSettings}}
 						</button>
-						<button class="btn btn-sm btn-primary table-refresh" id="refresh-btn-{{id}}"
-								  title="{{lang_refresh_title}}" onclick="refreshButtonClick({{id}});">
-							<span id="refresh-btn-animate-{{id}}" style="margin-right: 5px;"
+						<button class="btn btn-sm btn-primary table-refresh" id="refresh-btn-{{serverid}}"
+								  title="{{lang_refresh_title}}" onclick="refreshButtonClick({{serverid}});">
+							<span id="refresh-btn-animate-{{serverid}}" style="margin-right: 5px;"
 									class="glyphicon glyphicon-refresh"></span>
 							{{lang_refresh}}
 						</button>
 					</td>
-					<td align="center" id="btncell-{{id}}" style="white-space:nowrap;">
-						<button class="btn btn-sm btn-danger table-delete" type="button" onclick="deleteButtonClick({{id}});">
+					<td align="center" id="btncell-{{serverid}}" style="white-space:nowrap;">
+						<button class="btn btn-sm btn-danger table-delete" type="button" onclick="deleteButtonClick({{serverid}});">
 							<span style="margin-right: 5px;" class="glyphicon glyphicon-remove"></span>
 							{{lang_delete}}
 						</button>
@@ -73,8 +72,6 @@
 
 		<tr>
 			<th>{{lang_locationName}}</th>
-			<th width="10">{{lang_locationID}}</th>
-			<th width="80">{{lang_locationInUse}}</th>
 			<th width="50" title="{{lang_locationIsHidden_title}}">{{lang_locationIsHidden}}</th>
 			<th width="50">{{lang_openingTime}}</th>
 			<th width="50">{{lang_locationSettings}}</th>
@@ -82,35 +79,20 @@
 
 		{{#list}}
 		<tr id="row{{locationid}}">
-
 			<td>
 				<div style="display:inline-block;width:{{depth}}em"></div>
-				<a href="modules/locationinfo/frontend/doorsign.html?id={{locationid}}">{{locationname}}</a></td>
-			<td align="center">[{{locationid}}]</td>
-			<td align="center">{{#hasPcs}}{{pcState}} / {{total}}{{/hasPcs}}</td>
-
-			<td id="{{locationid}}" onclick="event.cancelBubble = true;" align="center"></td>
-			<script>
-				var cbh = document.getElementById('{{locationid}}');
-				var cb = document.createElement('input');
-
-				cb.type = 'checkbox';
-				cbh.appendChild(cb);
-
-				cb.id = 'cb' + {{locationid}};
-				cb.value = {{hidden}};
-				if ({{hidden}} == 1) {
-					cb.checked = true;
-				}
-				cb.addEventListener("click", function() { cbClick(this, {{locationid}}); });
-			</script>
-			<td onclick="event.cancelBubble = true;">
+				<a href="modules/locationinfo/frontend/doorsign.html?id={{locationid}}">{{locationname}}</a>
+			</td>
+			<td align="center">
+				<input class="hidden-toggle" type="checkbox" data-locationid="{{locationid}}" {{hidden_checked}}>
+			</td>
+			<td>
 				<a class="btn btn-sm btn-default" role="button" style="width: 100%"
 					onclick="loadTimeModal({{locationid}}, '{{locationname}}');">
 					<span style="margin-right: 5px;" class="glyphicon glyphicon-time"></span>
 				</a>
 			</td>
-			<td onclick="event.cancelBubble = true;">
+			<td>
 				<a class="btn btn-sm btn-default" role="button" style="width: 100%;"
 					onclick="loadConfigModal({{locationid}}, '{{locationname}}');">
 					<span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>
@@ -138,23 +120,43 @@
 	</div>
 </div>
 <script type="text/javascript"><!--
-	var lastPcSubTable = false;
+
+	document.addEventListener("DOMContentLoaded", function () {
+
+		/**
+		 * React to click on a "hidden" checkbox.
+		 */
+		$('.hidden-toggle').change(function() {
+			$input = $(this);
+			$.ajax({
+				type: 'POST',
+				url: '?do=locationinfo&action=hide',
+				data: {locationid: $input.data('locationid'), hidden: $input[0].checked ? 1 : 0, token: TOKEN },
+				dataType: 'json'
+			}).done(function(data) {
+				if (data && $.isArray(data.changed)) {
+					markBoxes(data.changed);
+				} else {
+					$input.replaceWith('ERROR');
+				}
+			}).fail(function () {
+				$input.replaceWith('ERROR');
+			});
+		});
+
+	});
 
 	/**
-	 *	Sets the checkbox value and calls the php hide action.
-	 *
-	 * @param cb The checkbox which was clicked.
-	 * @param locID the locationID of the checkbox.
+	 * Gets a status array delivered by backend's ajaxHideLocation()
+	 * and sets the checkbox states accordingly.
 	 */
-	function cbClick(cb, locID) {
-		var value;
-
-		if (cb.checked) {
-			value = 1;
-		} else {
-			value = 0;
+	function markBoxes(boxArray) {
+		for (var i = 0; i < boxArray.length; ++i) {
+			if (boxArray[i].locationid) {
+				var lid = parseInt(boxArray[i].locationid);
+				$('input.hidden-toggle[data-locationid="' + lid + '"]').prop('checked', !!boxArray[i].hidden);
+			}
 		}
-		window.location.href = "?do=locationinfo&action=hide&id=" + locID + "&value=" + value;
 	}
 
 	/**
@@ -199,11 +201,6 @@
 	}
 
 	// ########### Server Table ###########
-	var preEditName;
-	var preEditUrl;
-	var preEditUser;
-	var preEditPassword;
-	var preEditType;
 
 	/**
 	 * Deletes a server.
@@ -224,7 +221,7 @@
 	 * @param id The id of the server.
 	 */
 	function refreshButtonClick(id) {
-		$('#refresh-btn-animate-' + id).addClass('glyphicon-refresh-animate');
+		$('#refresh-btn-animate-' + id).addClass('slx-rotation');
 		$('#serverFormAction-' + id).val("checkConnection");
 		$('#submit-serverForm-' + id).trigger("click");
 	}
