@@ -61,12 +61,18 @@ class Location
 				'locationid' => (int)$node['locationid'],
 				'parentlocationid' => (int)$node['parentlocationid'],
 				'parents' => $parents,
+				'children' => empty($node['children']) ? array() : array_map(function ($item) { return $item['locationid']; }, $node['children']),
 				'locationname' => $node['locationname'],
 				'depth' => $depth,
 				'isleaf' => true,
 			);
 			if (!empty($node['children'])) {
-				$output += self::flattenTreeAssoc($node['children'], array_merge($parents, array((int)$node['locationid'])), $depth + 1);
+				$childNodes = self::flattenTreeAssoc($node['children'], array_merge($parents, array((int)$node['locationid'])), $depth + 1);
+				$output[(int)$node['locationid']]['children'] = array_merge($output[(int)$node['locationid']]['children'],
+					array_reduce($childNodes, function ($carry, $item) {
+						return array_merge($carry, $item['children']);
+					}, array()));
+				$output += $childNodes;
 			}
 		}
 		foreach ($output as &$entry) {
@@ -119,7 +125,7 @@ class Location
 		return array_values($rows);
 	}
 
-	public static function buildTree($elements, $parentId = 0)
+	private static function buildTree($elements, $parentId = 0)
 	{
 		$branch = array();
 		$sort = array();
