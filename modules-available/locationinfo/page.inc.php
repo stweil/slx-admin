@@ -23,14 +23,17 @@ class Page_LocationInfo extends Page
 			$this->updateOpeningTimeEasy();
 		} elseif ($this->action === 'updateConfig') {
 			$this->updateLocationConfig();
-		} elseif ($this->action === 'updateServer') {
-			$this->updateServer();
 		} elseif ($this->action === 'deleteServer') {
 			$this->deleteServer();
 		} elseif ($this->action === 'checkConnection') {
-			$this->checkConnection();
+			$this->checkConnection(Request::post('serverid', 0, 'int'));
 		} elseif ($this->action === 'updateServerSettings') {
 			$this->updateServerSettings();
+		} elseif (Request::isPost()) {
+			Messages::addWarning('main.invalid-action', $this->action);
+		}
+		if (Request::isPost()) {
+			Util::redirect('?do=locationinfo');
 		}
 	}
 
@@ -43,35 +46,15 @@ class Page_LocationInfo extends Page
 	}
 
 	/**
-	 * Updates the server in the db.
-	 */
-	private function updateServer()
-	{
-		$id = Request::post('id', 0, 'int');
-		if ($id == 0) {
-			Database::exec("INSERT INTO `setting_location_info` (servername, serverurl, servertype) VALUES (:name, :url, :type)",
-				array('name' => Request::post('name', '', 'string'),
-					'url' => Request::post('url', '', 'string'),
-					'type' => Request::post('type', '', 'string')));
-		} else {
-			Database::exec("UPDATE setting_location_info SET servername = :name, serverurl = :url, servertype = :type
-					WHERE serverid = :id", array(
-				'id' => $id,
-				'name' => Request::post('name', '', 'string'),
-				'url' => Request::post('url', '', 'string'),
-				'type' => Request::post('type', '', 'string')
-			));
-		}
-
-		$this->checkConnection();
-	}
-
-	/**
 	 * Deletes the server from the db.
 	 */
 	private function deleteServer()
 	{
-		$id = Request::post('id', 0, 'int');
+		$id = Request::post('serverid', false, 'int');
+		if ($id === false) {
+			Messages::addError('server-id-missing');
+			return;
+		}
 		Database::exec("DELETE FROM `setting_location_info` WHERE serverid=:id", array('id' => $id));
 	}
 
@@ -141,7 +124,6 @@ class Page_LocationInfo extends Page
 			$counter++;
 		}
 		$params = array(
-			'id' => $serverid,
 			'name' => $servername,
 			'url' => $serverurl,
 			'type' => $servertype,
@@ -152,6 +134,7 @@ class Page_LocationInfo extends Page
 					VALUES (:name, :url, :type, :credentials)', $params);
 			$this->checkConnection(Database::lastInsertId());
 		} else {
+			$params['id'] = $serverid;
 			Database::exec('UPDATE `setting_location_info`
 					SET servername = :name, serverurl = :url, servertype = :type, credentials = :credentials
 					WHERE serverid = :id', $params);
@@ -268,13 +251,13 @@ class Page_LocationInfo extends Page
 			2 => array("Sunday"),
 		);
 		foreach ($blocks as $idx => $days) {
-			if (!empty($openingtime[$idx]) && !empty($closingtime[$idx])) {
+			//if (!empty($openingtime[$idx]) && !empty($closingtime[$idx])) {
 				$result[] = array(
 					'days' => $days,
 					'openingtime' => $openingtime[$idx],
 					'closingtime' => $closingtime[$idx],
 				);
-			}
+			//}
 		}
 
 		Database::exec("INSERT INTO `location_info` (locationid, openingtime)
@@ -577,7 +560,7 @@ class Page_LocationInfo extends Page
 	{
 		$row = Database::queryFirst("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $id));
 		if ($row !== false) {
-			$openingtimes = json_decode($dbdata['openingtime'], true);
+			$openingtimes = json_decode($row['openingtime'], true);
 		}
 		if (!is_array($openingtimes)) {
 			$openingtimes = array();

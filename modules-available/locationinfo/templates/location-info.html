@@ -1,71 +1,56 @@
 <div>
 	<h1>{{lang_mainHeader}}</h1>
 
-	<br>
 	<h4>{{lang_serverTable}}</h4>
 
-	<div id="serverTable">
-		<table class="table table-condensed table-hover" style="margin-bottom:0;">
+	<table class="table table-condensed table-hover">
+		<tr>
+			<th width="1">{{lang_serverType}}</th>
+			<th>{{lang_locationName}}</th>
+			<th>{{lang_serverUrl}}</th>
+			<th width="1"></th>
+			<th width="1"></th>
+		</tr>
+		{{#serverlist}}
+		<form method="post" action="?do=locationinfo">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="serverid" value="{{serverid}}">
 			<tr>
-				<th width="1">{{lang_serverType}}</th>
-				<th>{{lang_locationName}}</th>
-				<th>{{lang_serverUrl}}</th>
-				<th width="1"></th>
-				<th width="1"></th>
+				<td nowrap>{{typename}}</td>
+				<td nowrap>{{servername}}</td>
+				<td nowrap>{{serverurl}}</td>
+
+				<td align="center" nowrap>
+					<button class="btn btn-sm {{^autherror}}btn-success{{/autherror}}{{#autherror}}btn-danger{{/autherror}}"
+							data-server-edit="{{serverid}}" {{disabled}} type="button">
+						<span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>
+						{{lang_locationSettings}}
+					</button>
+					<button class="btn btn-sm btn-primary server-check" {{disabled}} name="action" value="checkConnection"
+							title="{{lang_refresh_title}}" type="submit">
+						<span style="margin-right: 5px;" class="glyphicon glyphicon-refresh"></span>
+						{{lang_refresh}}
+					</button>
+				</td>
+				<td align="center" nowrap>
+					<button class="btn btn-sm btn-danger server-delete" type="submit" name="action" value="deleteServer">
+						<span style="margin-right: 5px;" class="glyphicon glyphicon-remove"></span>
+						{{lang_delete}}
+					</button>
+				</td>
 			</tr>
-			{{#serverlist}}
-			<form method="post" action="?do=locationinfo" id="serverForm-{{serverid}}">
-				<input type="hidden" name="token" value="{{token}}">
-				<input id="serverFormAction-{{serverid}}" type="hidden" name="action" value="updateServer">
-				<input type="submit" id="submit-serverForm-{{serverid}}" style="display:none;">
+		</form>
+		{{/serverlist}}
+	</table>
 
-				<tr>
-					<input id="input-id-{{serverid}}" name="id" type="hidden" value="{{serverid}}">
-					<td id="type-{{serverid}}" nowrap>{{typename}}</td>
-					<td id="name-{{serverid}}" nowrap>{{servername}}</td>
-					<td id="url-{{serverid}}" nowrap>{{serverurl}}</td>
-
-					<td align="center" id="credentials-{{serverid}}" style="white-space:nowrap;">
-						<button class="btn btn-sm {{^autherror}}btn-success{{/autherror}}{{#autherror}}btn-danger{{/autherror}}" {{disabled}}
-								id="credentials-btn-{{serverid}}" type="button" onclick="loadSettingsModal({{serverid}},'{{servername}}');">
-							<span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>
-							{{lang_locationSettings}}
-						</button>
-						<button class="btn btn-sm btn-primary table-refresh" id="refresh-btn-{{serverid}}" {{disabled}}
-								title="{{lang_refresh_title}}" onclick="refreshButtonClick({{serverid}});">
-							<span id="refresh-btn-animate-{{serverid}}" style="margin-right: 5px;"
-									class="glyphicon glyphicon-refresh"></span>
-							{{lang_refresh}}
-						</button>
-					</td>
-					<td align="center" id="btncell-{{serverid}}" style="white-space:nowrap;">
-						<button class="btn btn-sm btn-danger table-delete" type="button" onclick="deleteButtonClick({{serverid}});">
-							<span style="margin-right: 5px;" class="glyphicon glyphicon-remove"></span>
-							{{lang_delete}}
-						</button>
-					</td>
-				</tr>
-			</form>
-			{{/serverlist}}
-			<form method="post" action="?do=locationinfo" id="serverForm-0">
-				<input type="hidden" name="token" value="{{token}}">
-				<input id="serverFormAction-0" type="hidden" name="action" value="updateServer">
-				<input type="submit" id="submit-serverForm-0" style="display:none;">
-				<tr id="lastServerTableElement"></tr>
-			</form>
-
-		</table>
-		<br>
+	<div>
 		<button class="btn btn-sm btn-success" id="addServerButton" onclick="addServer()">
 			<span title="{{lang_addServer_title}}">
 				<span style="margin-right: 5px;" class="glyphicon glyphicon-plus"></span>
 				{{lang_addServer}}
 			</span>
 		</button>
-		<br><br><br>
-
 	</div>
-	<br>
 
 	<h4>{{lang_buildingTable}}</h4>
 	<table class="table table-condensed table-hover" style="margin-bottom:0">
@@ -94,7 +79,7 @@
 			</td>
 			<td>
 				<a class="btn btn-sm btn-default" role="button" style="width: 100%;"
-					onclick="loadConfigModal({{locationid}}, '{{locationname}}');">
+					onclick="loadLocationConfigModal({{locationid}}, '{{locationname}}');">
 					<span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>
 				</a>
 			</td>
@@ -144,6 +129,26 @@
 			});
 		});
 
+		/**
+		 * Confirm deleting a server.
+		 */
+		$('.server-delete').click(function(ev) {
+			var del = confirm("{{lang_deleteConfirmation}}");
+			if (!del) ev.preventDefault();
+		});
+
+		/**
+		 * Animate refresh icon while page is loading
+		 */
+		$('.server-check').click(function() {
+			$(this).find('.glyphicon').addClass('slx-rotation');
+		});
+
+		$('button[data-server-edit]').click(function() {
+			var id = $(this).data('server-edit');
+			loadServerSettingsModal(id);
+		});
+
 	});
 
 	/**
@@ -163,11 +168,10 @@
 	 * Loads the settings modal of a server.
 	 *
 	 * @param serverid The id of the server.
-	 * @param servername The name of the server.
 	 */
-	function loadSettingsModal(serverid, servername) {
+	function loadServerSettingsModal(serverid) {
 		$('#myModalHeader').text("{{lang_locationSettings}}").css("font-weight", "Bold");
-		$('#myModalSubmitButton').attr("Form", "settingsForm");
+		$('#myModalSubmitButton').attr("form", "settingsForm");
 		$('#myModal .modal-dialog').css('width', '');
 		$('#myModal').modal('show');
 		$('#myModalBody').load("?do=locationinfo&action=serverSettings&id=" + serverid);
@@ -192,9 +196,9 @@
 	 * @param locationId The id of the location
 	 * @param locationName the name of the location
 	 */
-	function loadConfigModal(locationId, locationName) {
+	function loadLocationConfigModal(locationId, locationName) {
 		$('#myModalHeader').text("[" + locationId + "] " + locationName).css("font-weight", "Bold");
-		$('#myModalSubmitButton').attr("Form", "configForm");
+		$('#myModalSubmitButton').attr("form", "configForm");
 		$('#myModal .modal-dialog').css('width', '90%');
 		$('#myModal').modal('show');
 		$('#myModalBody').load("?do=locationinfo&action=config&id=" + locationId);
@@ -203,33 +207,9 @@
 	// ########### Server Table ###########
 
 	/**
-	 * Deletes a server.
-	 *
-	 * @param id The serverid
-	 */
-	function deleteButtonClick(id) {
-		var del = confirm("{{lang_deleteConfirmation}}");
-		if (del == true) {
-			$('#serverFormAction-' + id).val("deleteServer");
-			$('#serverForm-' + id).submit();
-		}
-	}
-
-	/**
-	 * Calls the checkConnection php function to check a server connection.
-	 *
-	 * @param id The id of the server.
-	 */
-	function refreshButtonClick(id) {
-		$('#refresh-btn-animate-' + id).addClass('slx-rotation');
-		$('#serverFormAction-' + id).val("checkConnection");
-		$('#submit-serverForm-' + id).trigger("click");
-	}
-
-	/**
 	 * Loads a new / empty server settings modal.
 	 */
 	function addServer() {
-		loadSettingsModal(0, '');
+		loadServerSettingsModal(0);
 	}
 //--></script>
