@@ -5,59 +5,66 @@
 	<script type='text/javascript' src='../../../script/jquery.js'></script>
 
 	<style type='text/css'>
-		body{
+		body {
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			background-color: lightgrey;
 		}
-		.main{
+
+		.main {
 			background-color: lightgrey;
 
 		}
 
-		.child{
+		.child {
 			background-color: white;
 			display: inline-block;
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			padding: 1vmin;
-			float:left;
+			float: left;
 		}
-		.parent{
+
+		.parent {
 			background-color: white;
 			display: inline-block;
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			padding: 5px;
-			float:left;
+			float: left;
 
 		}
-		.childWithBorder{
+
+		.childWithBorder {
 			display: inline-flex;
 			padding: 0.4vmin;
 
 		}
-		.outermost{
 
+		.outermost {
 
 		}
-		.row{
-			float:left
+
+		.row {
+			float: left
 		}
-		.border{
+
+		.border {
 			display: inline-flex;
 			padding: 5px;
 		}
-		.borderout{
+
+		.borderout {
 			display: inline-flex;
 			padding: 0.4vmin;
 		}
 
-		.courseFont{
+		.courseFont {
 			padding: 0.5vmin;
 			font-size: 2vmin;
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: bold;
 			overflow: hidden;
 		}
-		.headerFont{
+
+		.headerFont {
 			font-size: 4vmin;
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: bold;
@@ -65,10 +72,11 @@
 			border-bottom: 0.2vmin;
 			margin-bottom: 1vmin;
 			border-color: grey;
-			border-style:solid;
+			border-style: solid;
 
 		}
-		.divPcOn, .divPcPcUsed, .divPcPcOff, .divPcPcDefect{
+
+		.divPcOn, .divPcPcUsed, .divPcPcOff, .divPcPcDefect {
 			width: 4vmin;
 			height: 4vmin;
 			text-align: center;
@@ -78,30 +86,32 @@
 
 		}
 
-
 		.divPcOn {
 			background-color: green;
 			text-align: center;
 		}
-		.divPcPcUsed{
+
+		.divPcPcUsed {
 
 			background-color: red;
 		}
-		.divPcPcOff{
+
+		.divPcPcOff {
 			background-color: darkgrey;
 		}
-		.divPcPcDefect{
+
+		.divPcPcDefect {
 			background-color: black;
 			color: white;
 		}
 
-		.divAroundPcStates{
+		.divAroundPcStates {
 			display: flex;
 			justify-content: flex-end;
 
 		}
-		.paperEffect
-		{
+
+		.paperEffect {
 			margin: 0 auto;
 			background-color: #fff;
 			-webkit-box-shadow: 0 0 0.2vmin rgba(0, 0, 0, 0.4), inset 0 0 1vmin rgba(0, 0, 0, 0.1);
@@ -109,7 +119,6 @@
 			box-shadow: 0 0 0.2vmin rgba(0, 0, 0, 0.4), inset 0 0 1vmin rgba(0, 0, 0, 0.1);
 			border-radius: 1px;
 		}
-
 
 
 	</style>
@@ -123,7 +132,7 @@
 
 		// Todo change these
 		var pcStateUpdateTime = 60; // in seconds
-		var TimeTableUpdateTime = 60*30; //in seconds
+		var TimeTableUpdateTime = 60 * 30; //in seconds
 
 
 		$(document).ready(function () {
@@ -137,8 +146,8 @@
 			$.getJSON("../../../api.php?do=locationinfo&action=roomtree&id=" + ids, function (result) {
 				generateLayout(result);
 
-				setInterval(update,1000);
-                arrange();
+				setInterval(update, 1000);
+				arrange();
 			});
 
 		}
@@ -147,173 +156,172 @@
 		 * Main Fuction for aranging the divs
 		 */
 		function arrange() {
-		    var height = $( window ).height();
-            var width = $( window ).width();
-       	    var childs = $(".childWithBorder");
+			var height = $(window).height();
+			var width = $(window).width();
+			var childs = $(".childWithBorder");
 			var parents = [];
-			for(var i = 0; i < childs.length;i++){
-              	var parent= $(childs[i]).parent();
-              	if($.inArray(parent[0],parents)==-1){
-			       parents.push(parent[0]);
+			for (var i = 0; i < childs.length; i++) {
+				var parent = $(childs[i]).parent();
+				if ($.inArray(parent[0], parents) == -1) {
+					parents.push(parent[0]);
 				}
 			}
-			for (var i = 0; i < parents.length;i++) {
-			    childs = $(parents[i]).children();
+			for (var i = 0; i < parents.length; i++) {
+				childs = $(parents[i]).children();
 
-               if(checkForLineBreak(parents[i],childs) > 0){
-                   makeItFit(parents[i],childs,childs.length/2);
-			   }
+				if (checkForLineBreak(parents[i], childs) > 0) {
+					makeItFit(parents[i], childs, childs.length / 2);
+				}
 
-          	}
+			}
 
-        }
+		}
 		/**
 		 * rekursive calls itselfs and trys to find the best number off childs
 		 * which should be side by side.
-         * @param parent Parent div
-         * @param childs Child divs
-         * @param breakAfter number after the divs should go in the next row
+		 * @param parent Parent div
+		 * @param childs Child divs
+		 * @param breakAfter number after the divs should go in the next row
 		 */
-        function makeItFit(parent,childs,breakAfter) {
-            breakAfter= Math.abs(breakAfter);
-            var width =  checkIfFit(parent,childs,breakAfter)
-			if(width > 0){
-				$(parent).width(width+20);
+		function makeItFit(parent, childs, breakAfter) {
+			breakAfter = Math.abs(breakAfter);
+			var width = checkIfFit(parent, childs, breakAfter)
+			if (width > 0) {
+				$(parent).width(width + 20);
 			} else {
-                makeItFit(parent, childs, breakAfter-1);
-            }
-        }
+				makeItFit(parent, childs, breakAfter - 1);
+			}
+		}
 
 		/**
 		 * checks if a given number off divs(side by side) would fit on the screen
-         * @param parent Parent div
-         * @param childs Child divs
+		 * @param parent Parent div
+		 * @param childs Child divs
 		 * @param breakAfter number after the divs should go in the next row
 		 * @returns -1 if it wouldn't fit else the width the div should have
 		 */
-        function checkIfFit(parent,childs,breakAfter) {
-            var parentWidth = $(parent).width();
-            var maxWidth = 0;
-            var curWidth = 0;
-            var t = 0;
-            for (var i = 0; i < childs.length;i++) {
-                var childWidth = $(childs[i]).width();
-                if((curWidth + childWidth > parentWidth && breakAfter > 1)){
-                    return -1;
+		function checkIfFit(parent, childs, breakAfter) {
+			var parentWidth = $(parent).width();
+			var maxWidth = 0;
+			var curWidth = 0;
+			var t = 0;
+			for (var i = 0; i < childs.length; i++) {
+				var childWidth = $(childs[i]).width();
+				if ((curWidth + childWidth > parentWidth && breakAfter > 1)) {
+					return -1;
 				}
-                curWidth += childWidth;
-                t++;
-				if(t == breakAfter){
-                    maxWidth =Math.max(curWidth,maxWidth);
-                    curWidth = 0;
-                    t=0;
+				curWidth += childWidth;
+				t++;
+				if (t == breakAfter) {
+					maxWidth = Math.max(curWidth, maxWidth);
+					curWidth = 0;
+					t = 0;
 				}
 
-            }
-            return maxWidth
-        }
+			}
+			return maxWidth
+		}
 
-        /**
+		/**
 		 * return the number of Linebreaks the divs would make
 		 * @param parent Parent div
 		 * @param childs Child divs
 		 * @returns the number of Linebreaks the divs would make
 		 */
-        function checkForLineBreak (parent,childs){
-		    var linebreaks = 0;
+		function checkForLineBreak(parent, childs) {
+			var linebreaks = 0;
 			var curWidth = 0;
-            var parentWidth = $(parent).width();
-            for (var i = 0; i < childs.length;i++) {
-                var childWidth = $(childs[i]).width();
-            	if(curWidth + childWidth < parentWidth ){
-                    curWidth += childWidth;
+			var parentWidth = $(parent).width();
+			for (var i = 0; i < childs.length; i++) {
+				var childWidth = $(childs[i]).width();
+				if (curWidth + childWidth < parentWidth) {
+					curWidth += childWidth;
 				} else {
-                    linebreaks++;
+					linebreaks++;
 
-                    curWidth = childWidth;
+					curWidth = childWidth;
 				}
-            }
-            return linebreaks;
+			}
+			return linebreaks;
 		}
 
 		function SetUpDate(d) {
-			startdate = d.getTime()-new Date().getTime();
+			startdate = d.getTime() - new Date().getTime();
 		}
 
 		function MyDate() {
-			return new Date(startdate +new Date().getTime());
+			return new Date(startdate + new Date().getTime());
 		}
 
 		function generateLayout(json) {
-            var ids = getUrlParameter("id");
-            ids = ids.split(',');
-            for(var t = 0; t< ids.length;t++)
-            {
+			var ids = getUrlParameter("id");
+			ids = ids.split(',');
+			for (var t = 0; t < ids.length; t++) {
 
-                for (var i = 0; i < json.length; i++) {
-                    if(ids[t]== json[i].id) {
-                        var el = generateObject(json[i], ($("#main")), true);
-                    }
+				for (var i = 0; i < json.length; i++) {
+					if (ids[t] == json[i].id) {
+						var el = generateObject(json[i], ($("#main")), true);
+					}
 
-                }
-            }
+				}
+			}
 
 		}
 
-        /**
-         * generates the divs, decidecs if parent or child
-         * @param json Room tree json
+		/**
+		 * generates the divs, decidecs if parent or child
+		 * @param json Room tree json
 		 * @param myParent parent div
-         * @param outermost if the object is a root node
-         * @returns generated div
-         */
-		function generateObject(json,myParent,outermost){
-		    var obj;
-			if(json.childs.length == 0) {
-				obj  =generateChild(myParent,json.id,json.name,outermost);
+		 * @param outermost if the object is a root node
+		 * @returns generated div
+		 */
+		function generateObject(json, myParent, outermost) {
+			var obj;
+			if (json.childs.length == 0) {
+				obj = generateChild(myParent, json.id, json.name, outermost);
 			} else {
-				obj = generateParent(myParent,json.id,json.name,outermost);
-				for (var i = 0; i < json.childs.length;i++){
+				obj = generateParent(myParent, json.id, json.name, outermost);
+				for (var i = 0; i < json.childs.length; i++) {
 
-					generateObject(json.childs[i],$("#parent_"+json.id));
+					generateObject(json.childs[i], $("#parent_" + json.id));
 				}
 			}
 			return obj;
 
 		}
 
-        /**
-         * Retruns the number of childs of the current node (inklusive childs of childs)
-         * @param json Json of the room tree
-         * @returns number of childs of the current node
-         */
-        function getAllchildsRekusivly(json){
-            var childs = 0;
-            for (var i = 0; i < json.childs.length;i++){
-                childs++;
-                if(json.childs[i].childs.length != 0){
-                    childs = getAllchildsRekusivly(json.childs[i]);
-                }
-            }
-            return childs;
+		/**
+		 * Retruns the number of childs of the current node (inklusive childs of childs)
+		 * @param json Json of the room tree
+		 * @returns number of childs of the current node
+		 */
+		function getAllchildsRekusivly(json) {
+			var childs = 0;
+			for (var i = 0; i < json.childs.length; i++) {
+				childs++;
+				if (json.childs[i].childs.length != 0) {
+					childs = getAllchildsRekusivly(json.childs[i]);
+				}
+			}
+			return childs;
 		}
 
-        /**
-         * Retruns the number of leaveschilds of the current node (inklusive leaves childs of childs)
-         * @param json Json of the room tree
-         * @returns number of leaveschilds of the current node
-         */
-		function getChildsRekusivly(json){
-		    var childs = 0;
-            for (var i = 0; i < json.childs.length;i++){
-                if(json.childs[i].childs.length == 0){
-                    childs++;
-                } else {
-                    childs = getChildsRekusivly(json.childs[i]);
+		/**
+		 * Retruns the number of leaveschilds of the current node (inklusive leaves childs of childs)
+		 * @param json Json of the room tree
+		 * @returns number of leaveschilds of the current node
+		 */
+		function getChildsRekusivly(json) {
+			var childs = 0;
+			for (var i = 0; i < json.childs.length; i++) {
+				if (json.childs[i].childs.length == 0) {
+					childs++;
+				} else {
+					childs = getChildsRekusivly(json.childs[i]);
 				}
 
-            }
-            return childs;
+			}
+			return childs;
 		}
 
 		/**
@@ -323,72 +331,70 @@
 		 */
 		function getChilds(json) {
 
-		    var childs = 0;
-            for (var i = 0; i < json.childs.length;i++){
-                if(json.childs[i].childs.length == 0){
-                    childs++;
+			var childs = 0;
+			for (var i = 0; i < json.childs.length; i++) {
+				if (json.childs[i].childs.length == 0) {
+					childs++;
 				}
-            }
-            return childs;
-        }
+			}
+			return childs;
+		}
 
 
-
-        /**
-         * Helper function to generate id string used in query functions
-         * @param list A string, wicht contains ids or not(for now)
-         * @param id An ID which should be added to the list
-         */
-        function addIdToUpdateList(list, id) {
-            if (list == "") {
-                list += id;
-            } else {
-                list += ("," + id);
-            }
-            return list;
-        }
-
+		/**
+		 * Helper function to generate id string used in query functions
+		 * @param list A string, wicht contains ids or not(for now)
+		 * @param id An ID which should be added to the list
+		 */
+		function addIdToUpdateList(list, id) {
+			if (list == "") {
+				list += id;
+			} else {
+				list += ("," + id);
+			}
+			return list;
+		}
 
 
-        var timeSteps = 10;
+		var timeSteps = 10;
 		function update() {
 
-            if (timeSteps > 9) {
-                timeSteps = 0;
-                var calendarUpdateIds = "";
-                var rommUpdateIds = "";
-                for (var property in rooms) {
-                    if (rooms[property].lastCalendarUpdate == null || rooms[property].lastCalendarUpdate + rooms[property].config.calupdates< MyDate().getTime()) {
-                        calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
-                        rooms[property].lastCalendarUpdate = MyDate().getTime();
-                    }
-                    if (rooms[property].lastRoomUpdate == null || rooms[property].lastRoomUpdate + rooms[property].config.roomupdate < MyDate().getTime()) {
-                        rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
-                        rooms[property].lastRoomUpdate = MyDate().getTime();
-
-                    }
-                }
-                if (calendarUpdateIds != "") {
-                    queryCalendars(calendarUpdateIds);
-                }
-                if (rommUpdateIds != "") {
-                    queryRooms(rommUpdateIds);
-                }
-            }
-            // TODO
+			if (timeSteps > 9) {
+				timeSteps = 0;
+				var calendarUpdateIds = "";
+				var rommUpdateIds = "";
 				for (var property in rooms) {
-                    upDateRoomState(rooms[property]);
-                }
-            timeSteps++;
+					if (rooms[property].lastCalendarUpdate == null || rooms[property].lastCalendarUpdate + rooms[property].config.calupdates < MyDate().getTime()) {
+						calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
+						rooms[property].lastCalendarUpdate = MyDate().getTime();
+					}
+					if (rooms[property].lastRoomUpdate == null || rooms[property].lastRoomUpdate + rooms[property].config.roomupdate < MyDate().getTime()) {
+						rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
+						rooms[property].lastRoomUpdate = MyDate().getTime();
+
+					}
+				}
+				if (calendarUpdateIds != "") {
+					queryCalendars(calendarUpdateIds);
+				}
+				if (rommUpdateIds != "") {
+					queryRooms(rommUpdateIds);
+				}
+			}
+			// TODO
+			for (var property in rooms) {
+				upDateRoomState(rooms[property]);
+			}
+			timeSteps++;
 
 		}
 
 
 		function UpdateTimeTables(json) {
 			var l = json.length;
-			for (var i = 0; i < l;i++){
+			for (var i = 0; i < l; i++) {
 				rooms[json[i].id].timetable = json[i].calendar;
-				for (var property in rooms[json[i].id].timetable ) {
+				for (var property in rooms[json[i].id].timetable) {
 					rooms[json[i].id].timetable[property].start = new Date(rooms[json[i].id].timetable[property].start);
 					rooms[json[i].id].timetable[property].end = new Date(rooms[json[i].id].timetable[property].end);
 				}
@@ -396,55 +402,55 @@
 			}
 		}
 
-        /**
-         * Querys Pc states
-         * @param ids Room ID's which should be queried. Format for e.g.: "20,5,6"
-         */
-        function queryRooms(ids) {
-            $.ajax({
-                url: "../../../api.php?do=locationinfo&action=pcstates&id=" + ids,
-                dataType: 'json',
-                cache: false,
-                timeout: 30000,
-                success: function (result) {
-                    var l = result.length;
-                    if (result[0] == null) {
-                        console.log("Error: Backend reported null back for RoomUpdate, this might happend if the room isn't" +
-                            "configurated.");
-                        return;
-                    }
-                    updatePcStates(result);
-                }, error: function () {
+		/**
+		 * Querys Pc states
+		 * @param ids Room ID's which should be queried. Format for e.g.: "20,5,6"
+		 */
+		function queryRooms(ids) {
+			$.ajax({
+				url: "../../../api.php?do=locationinfo&action=pcstates&id=" + ids,
+				dataType: 'json',
+				cache: false,
+				timeout: 30000,
+				success: function (result) {
+					var l = result.length;
+					if (result[0] == null) {
+						console.log("Error: Backend reported null back for RoomUpdate, this might happend if the room isn't" +
+								"configurated.");
+						return;
+					}
+					updatePcStates(result);
+				}, error: function () {
 
-                }
-            })
-        }
+				}
+			})
+		}
 
 		/**
 		 * Updates a room visualy
 		 * @param room A room to update
 		 */
-        function upDateRoomState(room) {
-			if(room === undefined){
+		function upDateRoomState(room) {
+			if (room === undefined) {
 				console.log("error");
 				return;
 			}
 
 			var state = room.getState();
 
-			if(state.state == "ClaendarEvent") {
-				updateCourseText(room.id,state.titel);
-				updateCoursTimer(room.id,GetTimeDiferenceAsString(state.end,MyDate()));
-			} else if(state.state == "Free") {
-				updateCourseText(room.id,"Frei");
-				updateCoursTimer(room.id,GetTimeDiferenceAsString(state.end,MyDate()));
-			} else if(state.state == "FreeNoEnd") {
-				updateCourseText(room.id,"Frei");
-				updateCoursTimer(room.id,"");
+			if (state.state == "ClaendarEvent") {
+				updateCourseText(room.id, state.titel);
+				updateCoursTimer(room.id, GetTimeDiferenceAsString(state.end, MyDate()));
+			} else if (state.state == "Free") {
+				updateCourseText(room.id, "Frei");
+				updateCoursTimer(room.id, GetTimeDiferenceAsString(state.end, MyDate()));
+			} else if (state.state == "FreeNoEnd") {
+				updateCourseText(room.id, "Frei");
+				updateCoursTimer(room.id, "");
 			}
-			else if(state.state == "closed") {
-				updateCourseText(room.id,"Geschlossen");
-				updateCoursTimer(room.id,"");
+			else if (state.state == "closed") {
+				updateCourseText(room.id, "Geschlossen");
+				updateCoursTimer(room.id, "");
 			}
 
 		}
@@ -453,20 +459,20 @@
 		 * Updates for all rooms the PC's states
 		 * @param json Json with information about the PC's states
 		 */
-		function updatePcStates(json){
+		function updatePcStates(json) {
 			var l = json.length;
-			for (var i = 0; i < l;i++){
-				updateRoomUsage(json[i].id,json[i].idle,json[i].occupied,json[i].off,json[i].broken)
+			for (var i = 0; i < l; i++) {
+				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].off, json[i].broken)
 			}
 
 		}
-        /**
-         *  Generates a room Object and adds it to the rooms array
-         *  @param id ID of the room
-         *  @param name Name of the room
-         *  @param config Config Json of the room
-         */
-		function addRoom(id,name,config) {
+		/**
+		 *  Generates a room Object and adds it to the rooms array
+		 *  @param id ID of the room
+		 *  @param name Name of the room
+		 *  @param config Config Json of the room
+		 */
+		function addRoom(id, name, config) {
 			var room = {
 				id: id,
 				name: name,
@@ -476,9 +482,9 @@
 				timeTilFree: null,
 				state: null,
 				openingTimes: null,
-                config: config,
-                lastCalendarUpdate: null,
-                lastRoomUpdate: null,
+				config: config,
+				lastCalendarUpdate: null,
+				lastRoomUpdate: null,
 				getState: function () {
 					if (this.state == null) {
 						ComputeCurrentState(this);
@@ -494,30 +500,30 @@
 
 
 			};
-			if( room.config.calupdate === undefined || room.config.calupdate < 1){
-                room.config.calupdate = 1;
-            }
-            room.config.calupdate = room.config.calupdate * 60 * 1000;
-            if( room.config.roomupdate === undefined || room.config.roomupdate < 1){
-                room.config.roomupdate = 1;
-            }
-            room.config.roomupdate = room.config.roomupdate  * 1000;
+			if (room.config.calupdate === undefined || room.config.calupdate < 1) {
+				room.config.calupdate = 1;
+			}
+			room.config.calupdate = room.config.calupdate * 60 * 1000;
+			if (room.config.roomupdate === undefined || room.config.roomupdate < 1) {
+				room.config.roomupdate = 1;
+			}
+			room.config.roomupdate = room.config.roomupdate * 1000;
 
-			rooms[id]=room;
+			rooms[id] = room;
 
-			if(roomidsString == "") {
+			if (roomidsString == "") {
 				roomidsString = id;
 			} else {
-				roomidsString = roomidsString +","+id;
+				roomidsString = roomidsString + "," + id;
 			}
 		}
 
 
-        /**
-         * computes state of a room, states are:
-         * closed, FreeNoEnd, Free, ClaendarEvent.
-         * @param Room Object
-         */
+		/**
+		 * computes state of a room, states are:
+		 * closed, FreeNoEnd, Free, ClaendarEvent.
+		 * @param Room Object
+		 */
 		function ComputeCurrentState(room) {
 			if (!IsOpenNow(room)) {
 				room.state = {state: "closed", end: GetNextOpening(room), titel: "", next: ""};
@@ -540,7 +546,7 @@
 			}
 
 			// event is at the moment
-			if ((closing==null||event.start.getTime() < closing.getTime()) && event.start.getTime() < new MyDate()) {
+			if ((closing == null || event.start.getTime() < closing.getTime()) && event.start.getTime() < new MyDate()) {
 				room.state = {state: "ClaendarEvent", end: event.end, titel: event.title, next: ""};
 				return;
 			}
@@ -558,11 +564,11 @@
 				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
 			}
 		}
-        /**
-         * checks if a room is open
-         * @param room Room object
-         * @returns bool for open or not
-         */
+		/**
+		 * checks if a room is open
+		 * @param room Room object
+		 * @returns bool for open or not
+		 */
 		function IsOpenNow(room) {
 			var now = new MyDate();
 			if (room.openingTimes == null) {
@@ -588,15 +594,15 @@
 			return false;
 		}
 
-        /**
-         * returns next event from a given json of events
-         * @param json Json which contains the calendar data.
-         * @returns event next Carlendar Event
-         */
+		/**
+		 * returns next event from a given json of events
+		 * @param json Json which contains the calendar data.
+		 * @returns event next Carlendar Event
+		 */
 		function getNextEvent(json) {
-            if (json == null) {
-                return;
-            }
+			if (json == null) {
+				return;
+			}
 			var event;
 			var now = new MyDate();
 			for (var i = 0; i < json.length; i++) {
@@ -606,7 +612,7 @@
 				}
 				//first element to consider
 				if (event == null) {
-					if(json[i].start.getTime() > now.getTime()) {
+					if (json[i].start.getTime() > now.getTime()) {
 						event = json[i];
 					}
 				}
@@ -617,11 +623,11 @@
 			return event;
 		}
 
-        /**
-         * Retruns next Opening
-         * @param room Room Object
-         * @returns bestdate Date Object of next opening
-         */
+		/**
+		 * Retruns next Opening
+		 * @param room Room Object
+		 * @returns bestdate Date Object of next opening
+		 */
 		function GetNextOpening(room) {
 			var now = new MyDate();
 			var day = now.getDay();
@@ -656,11 +662,11 @@
 			return bestdate;
 		}
 
-        /**
-         * returns next closing time of a given room
-         * @param room
-         * @returns Date Object of next closing
-         */
+		/**
+		 * returns next closing time of a given room
+		 * @param room
+		 * @returns Date Object of next closing
+		 */
 		function GetNextClosing(room) {
 			var now = new MyDate();
 			var day = now.getDay();
@@ -668,7 +674,7 @@
 			var bestdate;
 			for (var a = 0; a < 7; a++) {
 				//Test
-				if(room.openingTimes=== null) {
+				if (room.openingTimes === null) {
 					return null;
 				}
 				var tmp = room.openingTimes[day];
@@ -696,28 +702,28 @@
 			return bestdate;
 		}
 
-        /**
-         * Updates the Course Text of a child
-         * @param id of the child
-         * @param on PC's on
+		/**
+		 * Updates the Course Text of a child
+		 * @param id of the child
+		 * @param on PC's on
 		 * @param used PC's used
 		 * @param off PC's that are off
 		 * @param defect PC's that are defect
-         */
-		function updateRoomUsage(id,on,used,off,defect){
-			$("#div_pc_On_"+id).text(on);
-			$("#div_pc_Used_"+id).text(used);
-			$("#div_pc_Off_"+id).text(off);
-			$("#div_pc_Defect_"+id).text(defect);
+		 */
+		function updateRoomUsage(id, on, used, off, defect) {
+			$("#div_pc_On_" + id).text(on);
+			$("#div_pc_Used_" + id).text(used);
+			$("#div_pc_Off_" + id).text(off);
+			$("#div_pc_Defect_" + id).text(defect);
 		}
 
-        /**
-         * Updates the Course Text of a child
-         * @param id of the child
-         * @param text Text
-         */
-		function updateCourseText(id,text) {
-			$("#div_course"+id).text(text);
+		/**
+		 * Updates the Course Text of a child
+		 * @param id of the child
+		 * @param text Text
+		 */
+		function updateCourseText(id, text) {
+			$("#div_course" + id).text(text);
 		}
 
 		/**
@@ -725,49 +731,49 @@
 		 * @param id of the child
 		 * @param time Time value
 		 */
-		function updateCoursTimer(id,time) {
-			$("#div_Time_"+id).text(time);
+		function updateCoursTimer(id, time) {
+			$("#div_Time_" + id).text(time);
 		}
 		/**
 		 * generates a new Div
-         * @param target Div it should be inserted
-         * @returns generated div
+		 * @param target Div it should be inserted
+		 * @returns generated div
 		 */
-        function generateRow(target){
-			var text="<div class='row' ></div>";
-            return $(target).append(text);
+		function generateRow(target) {
+			var text = "<div class='row' ></div>";
+			return $(target).append(text);
 		}
 
-        /**
-         * generates a Div, used for a child node
-         * @param target Div it should be inserted
-         * @param id ID of the Object it represents
-         * @param name Name of the Object it represents
-         * @param outermost if the object is a root node
-         * @returns generated div
-         */
-		function generateChild(target,id,name,outermost) {
+		/**
+		 * generates a Div, used for a child node
+		 * @param target Div it should be inserted
+		 * @param id ID of the Object it represents
+		 * @param name Name of the Object it represents
+		 * @param outermost if the object is a root node
+		 * @returns generated div
+		 */
+		function generateChild(target, id, name, outermost) {
 
-            var c="";
-            if(outermost){
-                c = "outermost";
+			var c = "";
+			if (outermost) {
+				c = "outermost";
 			}
 
-			var text="<div class='childWithBorder'>"  +
-				"<div class='child paperEffect "+c+"'>" +
-				"<div class='headerFont'>"+name+"</div>" +
-				"<div class='divAroundPcStates'>" +
-				"<div id = 'div_pc_On_"+id+"'  class='divPcOn '>"+0+"</div>" +
-				"<div id = 'div_pc_Used_"+id+"' class='divPcPcUsed'>"+0+"</div>" +
-				"<div id = 'div_pc_Off_"+id+"' class='divPcPcOff'>"+0+"</div>" +
-				"<div id = 'div_pc_Defect_"+id+"' class='divPcPcDefect'>"+0+"</div>" +
-				"</div>" +
-				"<div class='aroundCourse'>"+
-				"<div id = 'div_course"+id+"'class='courseFont'></div>" +
-				"<div id = 'div_Time_"+id+"'class='courseFont'></div></div></div></div>";
+			var text = "<div class='childWithBorder'>" +
+					"<div class='child paperEffect " + c + "'>" +
+					"<div class='headerFont'>" + name + "</div>" +
+					"<div class='divAroundPcStates'>" +
+					"<div id = 'div_pc_On_" + id + "'  class='divPcOn '>" + 0 + "</div>" +
+					"<div id = 'div_pc_Used_" + id + "' class='divPcPcUsed'>" + 0 + "</div>" +
+					"<div id = 'div_pc_Off_" + id + "' class='divPcPcOff'>" + 0 + "</div>" +
+					"<div id = 'div_pc_Defect_" + id + "' class='divPcPcDefect'>" + 0 + "</div>" +
+					"</div>" +
+					"<div class='aroundCourse'>" +
+					"<div id = 'div_course" + id + "'class='courseFont'></div>" +
+					"<div id = 'div_Time_" + id + "'class='courseFont'></div></div></div></div>";
 			var obj = $(target).append(text);
-            getConfig((id));
-            return obj
+			getConfig((id));
+			return obj
 
 		}
 
@@ -779,51 +785,51 @@
 		 * @param outermost if the object is a root node
 		 * @returns generated div
 		 */
-		function generateParent(target,id,name,outermost) {
-            var c="";
-            if(outermost){
-                c = "outermost";
-            }
+		function generateParent(target, id, name, outermost) {
+			var c = "";
+			if (outermost) {
+				c = "outermost";
+			}
 
-            var text="<div class='border "+c+"'>"  +
-			"<div class='parent paperEffect'>" +
-			"<div class='headerFont'>"+name+"</div>" +
-				"<div id='parent_"+ id +"'</div>"+
-				"</div></div>";
+			var text = "<div class='border " + c + "'>" +
+					"<div class='parent paperEffect'>" +
+					"<div class='headerFont'>" + name + "</div>" +
+					"<div id='parent_" + id + "'</div>" +
+					"</div></div>";
 			return $(target).append(text);
 		}
 
-        /**
-         * Downloads the config of a room
-         * @param id ID of the room
-         */
-        function getConfig(id) {
-            $.ajax({
-                url: "../../../api.php?do=locationinfo&action=config&id=" + id,
-                dataType: 'json',
-                cache: false,
-                timeout: 30000,
-                success: function (result) {
-                        if (result.room != null) {
-                            delete result.time;
-                            room = addRoom(id, result.room, result);
-                        }
-                }, error: function () {
-                    //Todo Error handling:
-                }
-            })
-        }
+		/**
+		 * Downloads the config of a room
+		 * @param id ID of the room
+		 */
+		function getConfig(id) {
+			$.ajax({
+				url: "../../../api.php?do=locationinfo&action=config&id=" + id,
+				dataType: 'json',
+				cache: false,
+				timeout: 30000,
+				success: function (result) {
+					if (result.room != null) {
+						delete result.time;
+						room = addRoom(id, result.room, result);
+					}
+				}, error: function () {
+					//Todo Error handling:
+				}
+			})
+		}
 
-        /**
-         * returns parameter value from the url
-         *  @param sParam
-         *  @returns value for given parameter
-         */
+		/**
+		 * returns parameter value from the url
+		 *  @param sParam
+		 *  @returns value for given parameter
+		 */
 		var getUrlParameter = function getUrlParameter(sParam) {
 			var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-				sURLVariables = sPageURL.split('&'),
-				sParameterName,
-				i;
+					sURLVariables = sPageURL.split('&'),
+					sParameterName,
+					i;
 
 			for (i = 0; i < sURLVariables.length; i++) {
 				sParameterName = sURLVariables[i].split('=');
@@ -835,42 +841,42 @@
 		};
 
 
-        /**
-         * querys the Calendar data
-         * @param ids ID'S of rooms to query as string, for e.g.: "5,17,8" or "5"
-         */
-        function queryCalendars(ids) {
-            var url = "../../../api.php?do=locationinfo&action=calendar&id=" + ids;
+		/**
+		 * querys the Calendar data
+		 * @param ids ID'S of rooms to query as string, for e.g.: "5,17,8" or "5"
+		 */
+		function queryCalendars(ids) {
+			var url = "../../../api.php?do=locationinfo&action=calendar&id=" + ids;
 
-            // Todo reimplement Frontend methode if needed
+			// Todo reimplement Frontend methode if needed
 			/*
 			 if(!(room.config.calendarqueryurl === undefined)) {
 			 url = room.config.calendarqueryurl;
 			 }
 			 */
-            $.ajax({
-                url: url,
-                dataType: 'json',
-                cache: false,
-                timeout: 30000,
-                success: function (result) {
-                    UpdateTimeTables(result);
+			$.ajax({
+				url: url,
+				dataType: 'json',
+				cache: false,
+				timeout: 30000,
+				success: function (result) {
+					UpdateTimeTables(result);
 
 
-                }, error: function () {
+				}, error: function () {
 
-                }
-            });
-        }
+				}
+			});
+		}
 
 
-        /**
-         *  used for countdown
-         * computes the time difference between 2 Date objects
-         * @param a Date Object
-         * @param b Date Object
+		/**
+		 *  used for countdown
+		 * computes the time difference between 2 Date objects
+		 * @param a Date Object
+		 * @param b Date Object
 		 * @returns time string
-         */
+		 */
 		function GetTimeDiferenceAsString(a, b) {
 			if (a == null || b == null) {
 				return "";
@@ -898,7 +904,7 @@
 	</script>
 </head>
 <body class="">
-	<h1>Raum Übersicht</h1>
-	<div id="main"></div>
+<h1>Raum Übersicht</h1>
+<div id="main"></div>
 </body>
 </html>
