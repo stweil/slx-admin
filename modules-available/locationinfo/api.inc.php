@@ -73,7 +73,7 @@ function filterHiddenRoom($idArray)
 
 		while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			if ($dbresult['hidden'] == false) {
-				$filteredArray[] = $dbresult['locationid'];
+				$filteredArray[] = (int)$dbresult['locationid'];
 			}
 		}
 	}
@@ -153,55 +153,52 @@ function getRoomInfo($idList, $coords = false)
  */
 function getOpeningTime($idList)
 {
-	$dbresult = array();
-	$finalArray = array();
-
-	if (!empty($idList)) {
-		// Build SQL Query for multiple ids.
-		$query = "SELECT locationid, openingtime FROM `location_info` WHERE locationid IN (";
-		$query .= implode(",", $idList);
-		$query .= ")";
-
-		// Execute query.
-		$dbquery = Database::simpleQuery($query);
-		$handledIds = array();
-		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$data['id'] = $dbdata['locationid'];
-			$data['openingtime'] = json_decode($dbdata['openingtime'], true);
-			$handledIds[] = $data['id'];
-			$dbresult[] = $data;
-		}
-
-
-		$idList = array_diff($idList, $handledIds);
-		foreach ($idList as $id) {
-			$data['id'] = $id;
-			$data['openingtime'] = array();
-			$dbresult[] = $data;
+	$locations = Location::getLocationsAssoc();
+	$allIds = $idList;
+	foreach ($idList as $id) {
+		if (isset($locations[$id]) && isset($locations[$id]['parents'])) {
+			$allIds = array_merge($allIds, $locations[$id]['parents']);
 		}
 	}
-
-	// Go through the db entrys [id] = id; [openingtime] = e.g. [{"days":["Saturday","Sunday"],"openingtime":"12:32","closingtime":"14:35"}]
-	foreach ($dbresult as $entry) {
-		$tmp = array();
-		// Get the parents time if there is no openingtime defined.
-		if (count($entry['openingtime']) == 0) {
-			//$tmp = getOpeningTimesFromParent($entry['id']);
-			$tmp['id'] = $entry['id'];
-			$tmp['openingtime'] = getOpeningTimesFromParent($entry['id']);
-		} else {
-			$tmp['id'] = $entry['id'];
-			$tmp['openingtime'] = formatOpeningtime($entry['openingtime']);
-		}
-		$finalArray[] = $tmp;
+	if (empty($allIds))
+		return '[]';
+	$openingTimes = array();
+	$qs = '?' . str_repeat(',?', count($allIds) - 1);
+	$res = Database::simpleQuery("SELECT locationid, openingtime FROM location_info WHERE locationid IN ($qs)",
+		array_values($allIds));
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		$openingTimes[(int)$row['locationid']] = $row['openingtime'];
 	}
-	return json_encode($finalArray, true);
+	$returnValue = array();
+	foreach ($idList as $locationid) {
+		$id = $locationid;
+		while ($id !== 0) {
+			if (!empty($openingTimes[$id])) {
+				$cal = json_decode($openingTimes[$id], true);
+				if (is_array($cal)) {
+					$cal = formatOpeningtime($cal);
+				}
+				if (!empty($cal)) {
+					$returnValue[] = array(
+						'id' => $locationid,
+						'openingtime' => $cal,
+					);
+					break;
+				}
+			}
+			$id = $locations[$id]['parentlocationid'];
+		}
+	}
+	return json_encode($returnValue);
 }
 
 /**
  * Format the openingtime in the frontend needed format.
+ * One key per week day, wich contains an array of {
+ * 'HourOpen' => hh, 'MinutesOpen' => mm,
+ * 'HourClose' => hh, 'MinutesClose' => mm }
  *
- * @param $openingtime The opening time in the db saved format.
+ * @param array $openingtime The opening time in the db saved format.
  * @return mixed The opening time in the frontend needed format.
  */
 function formatOpeningtime($openingtime)
@@ -231,55 +228,6 @@ function formatOpeningtime($openingtime)
 		}
 	}
 	return $result;
-}
-
-/**
- * Recursively gets the opening time from the parent location.
- *
- * @param $locationID Id of the location you want to get the parent opening time.
- * @return array|mixed The opening time from the parent location.
- */
-function getOpeningTimesFromParent($locationID)
-{
-	// Get parent location id.
-	$dbquery = Database::queryFirst("SELECT parentlocationid FROM `location` WHERE locationid = :locationID", array('locationID' => $locationID));
-	$parentlocationid = 0;
-	$parentlocationid = (int)$dbquery['parentlocationid'];
-
-	if ($parentlocationid == 0) {
-		return createBasicClosingTime();
-	} else {
-		$dbquery = Database::queryFirst("SELECT openingtime FROM `location_info` WHERE locationid = :locationID", array('locationID' => $parentlocationid));
-		$dbresult = json_decode($dbquery['openingtime'], true);
-
-		if (count($dbresult) == 0) {
-			return getOpeningTimesFromParent($parentlocationid);
-		} else {
-			return formatOpeningtime($dbresult);
-		}
-	}
-}
-
-/**
- * Creates the basic opening time where everything is closed.
- *
- * @return array Basic opening time.
- */
-function createBasicClosingTime()
-{
-	$weekarray = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-	$array = array();
-	foreach ($weekarray as $d) {
-		$a = array();
-		$arr['HourOpen'] = '00';
-		$arr['MinutesOpen'] = '00';
-
-		$arr['HourClose'] = '23';
-		$arr['MinutesClose'] = '59';
-		$a[] = $arr;
-		$array[$d] = $a;
-	}
-	return $array;
 }
 
 // ########## </Openingtime> ##########
