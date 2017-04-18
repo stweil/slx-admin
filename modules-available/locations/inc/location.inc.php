@@ -8,7 +8,7 @@ class Location
 	private static $treeCache = false;
 	private static $subnetMapCache = false;
 
-	private static function getTree()
+	public static function getTree()
 	{
 		if (self::$treeCache === false) {
 			self::$treeCache = self::queryLocations();
