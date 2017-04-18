@@ -56,7 +56,7 @@ class Coursebackend_Davinci extends CourseBackend
 	private function toArray($response)
 	{
 		try {
-			$cleanresponse = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
+			$cleanresponse = preg_replace('/(<\/?)(\w+):([^>]*>)/', "$1$2$3", $response);
 			$xml = new SimpleXMLElement($cleanresponse);
 			$array = json_decode(json_encode((array)$xml), true);
 		} catch (Exception $exception) {
@@ -73,8 +73,8 @@ class Coursebackend_Davinci extends CourseBackend
 	 */
 	private function fetchArray($roomId)
 	{
-		$startDate = new DateTime('monday this week');
-		$endDate = new DateTime('sunday');
+		$startDate = new DateTime('today 0:00');
+		$endDate = new DateTime('+7 days 0:00');
 		$url = $this->location . "content=xml&type=room&name=" . $roomId . "&startdate=" . $startDate->format('d.m.Y') . "&enddate=" . $endDate->format('d.m.Y');
 		$ch = curl_init();
 		$options = array(
@@ -97,6 +97,7 @@ class Coursebackend_Davinci extends CourseBackend
 			///Operation completed successfully
 		}
 		curl_close($ch);
+		error_log($output);
 		return $this->toArray($output);
 
 	}
