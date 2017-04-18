@@ -36,4 +36,28 @@ class LocationInfo
 		return -1;
 	}
 
+	/**
+	 * Set current error message of given server. Pass null or false to clear.
+	 *
+	 * @param int $serverId id of server
+	 * @param string $message error message to set, null or false clears error.
+	 */
+	public static function setServerError($serverId, $message)
+	{
+		if ($message === false || $message === null) {
+			Database::exec("UPDATE `setting_location_info` SET error = NULL
+					WHERE serverid = :id", array('id' => $serverId));
+		} else {
+			if (empty($message))  {
+				$message = '<empty error message>';
+			}
+			$error = json_encode(array(
+				'timestamp' => time(),
+				'error' => (string)$message
+			));
+			Database::exec("UPDATE `setting_location_info` SET error = :error
+					WHERE serverid = :id", array('id' => $serverId, 'error' => $error));
+		}
+	}
+
 }

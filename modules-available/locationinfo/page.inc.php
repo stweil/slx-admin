@@ -286,7 +286,7 @@ class Page_LocationInfo extends Page
 
 		$serverInstance = CourseBackend::getInstance($dbresult['servertype']);
 		if ($serverInstance === false) {
-			$this->setServerError($serverid, 'Unknown backend type: ' . $dbresult['servertype']);
+			LocationInfo::setServerError($serverid, 'Unknown backend type: ' . $dbresult['servertype']);
 			return;
 		}
 		$credentialsOk = $serverInstance->setCredentials(json_decode($dbresult['credentials'], true), $dbresult['serverurl'], $serverid);
@@ -295,32 +295,9 @@ class Page_LocationInfo extends Page
 			$connectionOk = $serverInstance->checkConnection();
 		}
 
-		if (!$credentialsOk || !$connectionOk) {
-			$this->setServerError($serverid, $serverInstance->getError());
-		} else {
-			$this->setServerError($serverid, null);
-		}
+		LocationInfo::setServerError($serverid, $serverInstance->getError());
 	}
 
-	/**
-	 * Set current error message of given server. Pass empty message to clear.
-	 * @param int $serverid id of server
-	 * @param string $message error message to set
-	 */
-	private function setServerError($serverid, $message)
-	{
-		if (empty($message)) {
-			Database::exec("UPDATE `setting_location_info` SET error = NULL
-					WHERE serverid = :id", array('id' => $serverid));
-		} else {
-			$error = json_encode(array(
-				'timestamp' => time(),
-				'error' => $message
-			));
-			Database::exec("UPDATE `setting_location_info` SET error = :error
-					WHERE serverid = :id", array('id' => $serverid, 'error' => $error));
-		}
-	}
 
 	/**
 	 * Sets the new hidden value and checks childs and parents.

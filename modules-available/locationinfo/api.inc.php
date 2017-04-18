@@ -97,19 +97,14 @@ function getRoomInfo($idList, $coords = false)
 
 	if (!empty($idList)) {
 		// Build SQL Query for multiple ids.
-		$query = "SELECT m.locationid, machineuuid, position, logintime, lastseen, lastboot FROM `machine` AS m LEFT JOIN location_info AS l ON l.locationid = m.locationid WHERE l.hidden = 0 AND m.locationid IN (";
+		$query = "SELECT l.locationid, m.machineuuid, m.position, m.logintime, m.lastseen, m.lastboot FROM location_info AS l
+				LEFT JOIN `machine` AS m ON l.locationid = m.locationid WHERE l.hidden = 0 AND l.locationid IN (";
 
 		$query .= implode(",", $idList);
 		$query .= ")";
 
-		$query .= " ORDER BY m.locationid ASC";
-
 		// Execute query.
 		$dbquery = Database::simpleQuery($query);
-
-		$currentlocationid = 0;
-
-		$pclist = array();
 
 		// Fetch db data.
 		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
@@ -118,6 +113,10 @@ function getRoomInfo($idList, $coords = false)
 			if (!isset($dbresult[$dbdata['locationid']])) {
 				$dbresult[$dbdata['locationid']] = array('id' => $dbdata['locationid'], 'computer' => array());
 			}
+
+			// Left join, no data
+			if (empty($dbdata['machineuuid']))
+				continue;
 
 			// Compact the pc data in one array.
 			$pc['id'] = $dbdata['machineuuid'];
@@ -379,58 +378,28 @@ function getPcStates($idList)
 /**
  * Gets the room tree of the given locations.
  *
- * @param $idList Array list of the locations.
+ * @param int[] $idList Array list of the locations.
  * @return string Room tree JSON.
  */
 function getRoomTree($idList)
 {
-	$roomTree = array();
-	$filteredIdList = array();
-	foreach ($idList as $id) {
-		$dbresult = Database::queryFirst("SELECT locationname FROM `location` WHERE locationid=:locationID", array('locationID' => $id));
+	$locations = Location::getTree();
 
-		if (!in_array($id, $filteredIdList)) {
-			$a['id'] = $id;
-			$a['name'] = $dbresult['locationname'];
-			$filteredIdList[] = $id;
-			$a['childs'] = getChildsRecursive($id, $filteredIdList);
-			$roomTree[] = $a;
-		}
-	}
-
-	return json_encode($roomTree);
+	$ret = findRooms($locations, $idList);
+	return json_encode($ret);
 }
 
-/**
- * Recursively gets the Childs of a location.
- *
- * @param $id Location id you want all childs from.
- * @param $filteredIdList Pointer to the filtered list to avoid double ids.
- * @return array List with all the Childs.
- */
-function getChildsRecursive($id, &$filteredIdList)
+function findRooms($locations, $idList)
 {
-	$dbquery = Database::simpleQuery("SELECT locationid, locationname FROM `location` WHERE parentlocationid=:locationID", array('locationID' => $id));
-	$array = array();
-	$dbarray = array();
-
-	while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-		$dbarray[] = $dbresult;
-	}
-	foreach ($dbarray as $db) {
-		$i = $db['locationid'];
-
-		if (!in_array($i, $filteredIdList)) {
-			$a['id'] = $i;
-			$a['name'] = $db['locationname'];
-			$filteredIdList[] = $i;
-			$a['childs'] = getChildsRecursive($i, $filteredIdList);
-			$array[] = $a;
+	$ret = array();
+	foreach ($locations as $location) {
+		if (in_array($location['locationid'], $idList)) {
+			$ret[] = $location;
+		} elseif (!empty($location['children'])) {
+			$ret = array_merge($ret, findRooms($location['children'], $idList));
 		}
-
 	}
-
-	return $array;
+	return $ret;
 }
 
 // ########## <Calendar> ###########
@@ -446,19 +415,15 @@ function getCalendar($idList)
 
 	if (!empty($idList)) {
 		// Build SQL query for multiple ids.
-		$query = "SELECT locationid, l.serverid AS serverid, serverurl, servertype, credentials
+		$qs = '?' . str_repeat(',?', count($idList) - 1);
+		$query = "SELECT l.locationid, l.serverid, l.serverroomid, s.serverurl, s.servertype, s.credentials
 				FROM `location_info` AS l
-				LEFT JOIN setting_location_info AS s ON (s.serverid = l.serverid)
-				WHERE locationid IN (";
+				INNER JOIN setting_location_info AS s ON (s.serverid = l.serverid)
+				WHERE l.hidden = 0 AND l.locationid IN ($qs)
+				ORDER BY s.servertype ASC";
 
-		$query .= implode(",", $idList);
+		$dbquery = Database::simpleQuery($query, array_values($idList));
 
-		$query .= ") AND l.serverid = s.serverid ORDER BY servertype ASC, locationid ASC";
-
-		$dbquery = Database::simpleQuery($query);
-
-		$first = true;
-		$lastservertype = "";
 		while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			if (!isset($serverList[$dbresult['serverid']])) {
 				$serverList[$dbresult['serverid']] = array(
@@ -472,36 +437,36 @@ function getCalendar($idList)
 		}
 	}
 
-	$resultarray = array();
+	$resultArray = array();
 	foreach ($serverList as $serverid => $server) {
 		$serverInstance = CourseBackend::getInstance($server['type']);
-		$setCred = $serverInstance->setCredentials($server['credentials'], $server['url'], $serverid);
+		if ($serverInstance === false) {
+			EventLog::warning('Cannot fetch schedule for locationid ' . $server['locationid']
+				. ': Backend type ' . $server['type'] . ' unknown. Disabling location.');
+			Database::exec("UPDATE location_info SET serverid = 0 WHERE locationid = :lid",
+				array('lid' => $server['locationid']));
+			continue;
+		}
+		$credentialsOk = $serverInstance->setCredentials($server['credentials'], $server['url'], $serverid);
 
-		$calendarFromBackend = array();
-		if ($setCred) {
+		if ($credentialsOk) {
 			$calendarFromBackend = $serverInstance->fetchSchedule($server['idlist']);
+		} else {
+			$calendarFromBackend = array();
 		}
 
-		$formattedArray = array();
-		if ($calendarFromBackend === false || $setCred === false) {
-			$error['timestamp'] = time();
-			$error['error'] = $serverInstance->getError();
-			Database::exec("UPDATE `setting_location_info` SET error=:error WHERE serverid=:id",
-				array('id' => $serverid, 'error' => json_encode($error, true)));
-		} else {
-			Database::exec("UPDATE `setting_location_info` SET error=NULL WHERE serverid=:id",
-				array('id' => $serverid));
-		}
+		LocationInfo::setServerError($serverid, $serverInstance->getError());
+
 		if (is_array($calendarFromBackend)) {
 			foreach ($calendarFromBackend as $key => $value) {
-				$y['id'] = $key;
-				$y['calendar'] = $value;
-				$formattedArray[] = $y;
+				$resultArray[] = array(
+					'id' => $key,
+					'calendar' => $value,
+				);
 			}
-			$resultarray = array_merge($resultarray, $formattedArray);
 		}
 	}
-	return json_encode($resultarray, true);
+	return json_encode($resultArray);
 }
 
 // ########## </Calendar> ##########

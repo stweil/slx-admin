@@ -259,7 +259,7 @@
 			for (var t = 0; t < ids.length; t++) {
 
 				for (var i = 0; i < json.length; i++) {
-					if (ids[t] == json[i].id) {
+					if (ids[t] == json[i].locationid) {
 						var el = generateObject(json[i], ($("#main")), true);
 					}
 
@@ -277,69 +277,17 @@
 		 */
 		function generateObject(json, myParent, outermost) {
 			var obj;
-			if (json.childs.length == 0) {
-				obj = generateChild(myParent, json.id, json.name, outermost);
+			if (!json.children || json.children.length == 0) {
+				obj = generateChild(myParent, json.locationid, json.locationname, outermost);
 			} else {
-				obj = generateParent(myParent, json.id, json.name, outermost);
-				for (var i = 0; i < json.childs.length; i++) {
-
-					generateObject(json.childs[i], $("#parent_" + json.id));
+				obj = generateParent(myParent, json.locationid, json.locationname, outermost);
+				for (var i = 0; i < json.children.length; i++) {
+					generateObject(json.children[i], $("#parent_" + json.locationid));
 				}
 			}
 			return obj;
 
 		}
-
-		/**
-		 * Retruns the number of childs of the current node (inklusive childs of childs)
-		 * @param json Json of the room tree
-		 * @returns number of childs of the current node
-		 */
-		function getAllchildsRekusivly(json) {
-			var childs = 0;
-			for (var i = 0; i < json.childs.length; i++) {
-				childs++;
-				if (json.childs[i].childs.length != 0) {
-					childs = getAllchildsRekusivly(json.childs[i]);
-				}
-			}
-			return childs;
-		}
-
-		/**
-		 * Retruns the number of leaveschilds of the current node (inklusive leaves childs of childs)
-		 * @param json Json of the room tree
-		 * @returns number of leaveschilds of the current node
-		 */
-		function getChildsRekusivly(json) {
-			var childs = 0;
-			for (var i = 0; i < json.childs.length; i++) {
-				if (json.childs[i].childs.length == 0) {
-					childs++;
-				} else {
-					childs = getChildsRekusivly(json.childs[i]);
-				}
-
-			}
-			return childs;
-		}
-
-		/**
-		 * Retruns the number of leaves childs of the current node
-		 * @param json Json of the room tree
-		 * @returns number of leaveschilds of the current node
-		 */
-		function getChilds(json) {
-
-			var childs = 0;
-			for (var i = 0; i < json.childs.length; i++) {
-				if (json.childs[i].childs.length == 0) {
-					childs++;
-				}
-			}
-			return childs;
-		}
-
 
 		/**
 		 * Helper function to generate id string used in query functions
