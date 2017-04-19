@@ -463,7 +463,7 @@ class Page_LocationInfo extends Page
 			$counter = 0;
 			foreach ($credentials as $cred) {
 				$credential['uid'] = $counter;
-				$credential['name'] = Dictionary::translateFile($s, $cred->property);
+				$credential['name'] = Dictionary::translateFile($s, $cred->property, true);
 				$credential['type'] = $cred->type;
 				$credential['title'] = Dictionary::translateFile($s, $cred->property . "_title");
 
