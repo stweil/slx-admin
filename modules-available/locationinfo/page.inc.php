@@ -114,7 +114,7 @@ class Page_LocationInfo extends Page
 			Util::redirect('?do=locationinfo');
 		}
 
-		$tmptypeArray = $backend->getCredentials();
+		$tmptypeArray = $backend->getCredentialDefinitions();
 
 		$credentialsJson = array();
 		$counter = 0;
@@ -457,7 +457,7 @@ class Page_LocationInfo extends Page
 				$backend['active'] = false;
 			}
 
-			$credentials = $backendInstance->getCredentials();
+			$credentials = $backendInstance->getCredentialDefinitions();
 			$backend['credentials'] = array();
 
 			$counter = 0;

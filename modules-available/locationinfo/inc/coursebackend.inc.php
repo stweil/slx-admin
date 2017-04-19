@@ -94,7 +94,7 @@ abstract class CourseBackend
 	/**
 	 * @returns \BackendProperty[] list of properties that need to be set
 	 */
-	public abstract function getCredentials();
+	public abstract function getCredentialDefinitions();
 
 	/**
 	 * @return boolean true if the connection works, false otherwise
@@ -210,7 +210,7 @@ abstract class CourseBackend
 
 	public final function setCredentials($serverId, $data)
 	{
-		foreach ($this->getCredentials() as $prop) {
+		foreach ($this->getCredentialDefinitions() as $prop) {
 			if (!isset($data[$prop->property])) {
 				$data[$prop->property] = $prop->default;
 			}
@@ -242,7 +242,7 @@ abstract class CourseBackend
 	 * and leaf nodes. The result is always an array on success, or
 	 * false if not found.
 	 */
-	protected function getAttributes($array, $path)
+	protected function getArrayPath($array, $path)
 	{
 		if (!is_array($path)) {
 			// Convert 'path/syntax/foo/wanteditem' to array for further processing and recursive calls
@@ -279,7 +279,7 @@ abstract class CourseBackend
 			// wrapped in a plain array - recurse into each one of them and merge the results
 			$return = [];
 			foreach ($array[$element] as $item) {
-				$test = $this->getAttributes($item, $path);
+				$test = $this->getArrayPath($item, $path);
 				If (gettype($test) == "array") {
 					$return = array_merge($return, $test);
 				}
@@ -288,14 +288,14 @@ abstract class CourseBackend
 			return $return;
 		}
 		// Unique non-leaf node - simple recursion
-		return $this->getAttributes($array[$element], $path);
+		return $this->getArrayPath($array[$element], $path);
 	}
 
 	/**
 	 * @param string $response xml document to convert
 	 * @return bool|array array representation of the xml if possible, false otherwise
 	 */
-	protected function toArray($response)
+	protected function xmlStringToArray($response)
 	{
 		$cleanresponse = preg_replace('/(<\/?)(\w+):([^>]*>)/', '$1$2$3', $response);
 		try {

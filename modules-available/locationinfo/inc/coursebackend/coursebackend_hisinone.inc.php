@@ -42,7 +42,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		return true;
 	}
 
-	public function getCredentials()
+	public function getCredentialDefinitions()
 	{
 		return [
 			new BackendProperty('baseUrl', 'string'),
@@ -105,11 +105,11 @@ class CourseBackend_HisInOne extends CourseBackend
 		$findUnit->appendChild($doc->createElement('ns1:roomId', $roomId));
 
 		$soap_request = $doc->saveXML();
-		$response1 = $this->__doRequest($soap_request, "findUnit");
+		$response1 = $this->postToServer($soap_request, "findUnit");
 		if ($this->error !== false) {
 			return false;
 		}
-		$response2 = $this->toArray($response1);
+		$response2 = $this->xmlStringToArray($response1);
 		if (!is_array($response2)) {
 			if ($this->error === false) {
 				$this->error = 'Cannot convert XML response to array';
@@ -133,7 +133,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		} else {
 			$path = '/soapenvBody/hisfindUnitResponse/hisunitIds/hisid';
 		}
-		$id = $this->getAttributes($response2, $path);
+		$id = $this->getArrayPath($response2, $path);
 		if ($id === false) {
 			$this->error = 'Cannot find ' . $path;
 		}
@@ -169,7 +169,7 @@ class CourseBackend_HisInOne extends CourseBackend
 	 * @param $action string with the name of the SOAP action
 	 * @return bool|string if successful the answer xml from the SOAP server
 	 */
-	private function __doRequest($request, $action)
+	private function postToServer($request, $action)
 	{
 		$header = array(
 			"Content-type: text/xml;charset=\"utf-8\"",
@@ -261,7 +261,7 @@ class CourseBackend_HisInOne extends CourseBackend
 							'/hisshorttext',
 							'/hisshortcomment',
 							'/hisplanelements/hisplanelement/hisdefaulttext') as $path) {
-				$name = $this->getAttributes($event, $path);
+				$name = $this->getArrayPath($event, $path);
 				if (!empty($name) && !empty($name[0]))
 					break;
 				$name = false;
@@ -269,18 +269,18 @@ class CourseBackend_HisInOne extends CourseBackend
 			if ($name === false) {
 				$name = ['???'];
 			}
-			$unitPlannedDates = $this->getAttributes($event,
+			$unitPlannedDates = $this->getArrayPath($event,
 				'/hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
 			if ($unitPlannedDates === false) {
 				$this->error = 'Cannot find ./hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate';
 				return false;
 			}
 			foreach ($unitPlannedDates as $plannedDate) {
-				$eventRoomId = $this->getAttributes($plannedDate, '/hisroomId')[0];
-				$eventDate = $this->getAttributes($plannedDate, '/hisexecutiondate')[0];
+				$eventRoomId = $this->getArrayPath($plannedDate, '/hisroomId')[0];
+				$eventDate = $this->getArrayPath($plannedDate, '/hisexecutiondate')[0];
 				if (in_array($eventRoomId, $requestedRoomIds) && in_array($eventDate, $currentWeek)) {
-					$startTime = $this->getAttributes($plannedDate, '/hisstarttime')[0];
-					$endTime = $this->getAttributes($plannedDate, '/hisendtime')[0];
+					$startTime = $this->getArrayPath($plannedDate, '/hisstarttime')[0];
+					$endTime = $this->getArrayPath($plannedDate, '/hisendtime')[0];
 					$tTables[$eventRoomId][] = array(
 						'title' => $name[0],
 						'start' => $eventDate . " " . $startTime,
@@ -318,11 +318,11 @@ class CourseBackend_HisInOne extends CourseBackend
 		$readUnit->appendChild($doc->createElement('ns1:unitId', $unit));
 
 		$soap_request = $doc->saveXML();
-		$response1 = $this->__doRequest($soap_request, "readUnit");
+		$response1 = $this->postToServer($soap_request, "readUnit");
 		if ($response1 === false) {
 			return false;
 		}
-		$response2 = $this->toArray($response1);
+		$response2 = $this->xmlStringToArray($response1);
 		if ($response2 === false)
 			return false;
 		if (!isset($response2['soapenvBody'])) {
@@ -333,7 +333,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			$this->error = 'SOAP-Fault' . $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
 			return false;
 		}
-		return $this->getAttributes($response2, '/soapenvBody/hisreadUnitResponse/hisunit');
+		return $this->getArrayPath($response2, '/soapenvBody/hisreadUnitResponse/hisunit');
 	}
 
 	/**

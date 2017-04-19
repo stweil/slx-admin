@@ -44,7 +44,7 @@ class CourseBackend_Dummy extends CourseBackend
 	/**
 	 * @returns array with parameter name as key and and an array with type, help text and mask  as value
 	 */
-	public function getCredentials()
+	public function getCredentialDefinitions()
 	{
 		$options = ["opt1", "opt2", "opt3", "opt4", "opt5", "opt6", "opt7", "opt8"];
 		return [

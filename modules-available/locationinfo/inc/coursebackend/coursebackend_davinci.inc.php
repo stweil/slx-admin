@@ -30,7 +30,7 @@ class CourseBackend_Davinci extends CourseBackend
 		return $this->error === false;
 	}
 
-	public function getCredentials()
+	public function getCredentialDefinitions()
 	{
 		return [
 			new BackendProperty('baseUrl', 'string')
@@ -93,11 +93,11 @@ class CourseBackend_Davinci extends CourseBackend
 			if ($return === false) {
 				continue;
 			}
-			$return = $this->toArray($return);
+			$return = $this->xmlStringToArray($return);
 			if ($return === false) {
 				continue;
 			}
-			$lessons = $this->getAttributes($return, '/Lessons/Lesson');
+			$lessons = $this->getArrayPath($return, '/Lessons/Lesson');
 			if ($lessons === false) {
 				$this->error = "Cannot find /Lessons/Lesson in XML";
 				continue;
