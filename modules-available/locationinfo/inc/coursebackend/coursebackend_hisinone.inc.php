@@ -7,7 +7,7 @@ class CourseBackend_HisInOne extends CourseBackend
 	private $open;
 
 
-	public function setCredentials($data, $url, $serverID)
+	public function setCredentials($data, $url, $serverId)
 	{
 		if (array_key_exists('password', $data) && array_key_exists('username', $data) && array_key_exists('role', $data) && isset($data['open'])) {
 			$this->error = false;
@@ -15,19 +15,17 @@ class CourseBackend_HisInOne extends CourseBackend
 			$this->username = $data['username'] . "\t" . $data['role'];
 			$this->open = $data['open'];
 			if ($url == "") {
-				$this->error = true;
-				$this->errormsg = "No url is given";
-				return !$this->error;
+				$this->error = "No url is given";
+				return false;
 			}
 			if ($this->open) {
 				$this->location = $url . "/qisserver/services2/OpenCourseService";
 			} else {
 				$this->location = $url . "/qisserver/services2/CourseService";
 			}
-			$this->serverID = $serverID;
+			$this->serverId = $serverId;
 		} else {
-			$this->error = true;
-			$this->errormsg = "wrong credentials";
+			$this->error = "wrong credentials";
 			return false;
 		}
 
@@ -36,19 +34,20 @@ class CourseBackend_HisInOne extends CourseBackend
 
 	public function checkConnection()
 	{
-		if ($this->location == "") {
-			$this->error = true;
-			$this->errormsg = "Credentials are not set";
+		if (empty($this->location)) {
+			$this->error = "Credentials are not set";
+		} else {
+			$this->findUnit(123456789, true);
 		}
-		$this->findUnit(190);
-		return !$this->error;
+		return $this->error === false;
 	}
 
 	/**
-	 * @param $roomID int
-	 * @return array|bool if successful an array with the subjectIDs that take place in the room
+	 * @param int $roomId his in one room id to get
+	 * @param bool $connectionCheckOnly true will only check if no soapError is returned, return value will be empty
+	 * @return array|bool if successful an array with the event ids that take place in the room
 	 */
-	public function findUnit($roomID)
+	public function findUnit($roomId, $connectionCheckOnly = false)
 	{
 		$termYear = date('Y');
 		$termType1 = date('n');
@@ -76,40 +75,44 @@ class CourseBackend_HisInOne extends CourseBackend
 		$envelope->appendChild($body);
 		$findUnit = $doc->createElement('ns1:findUnit');
 		$body->appendChild($findUnit);
-		$termYearN = $doc->createElement('termYear', $termYear);
-		$findUnit->appendChild($termYearN);
+		$findUnit->appendChild($doc->createElement('termYear', $termYear));
 		if ($termType1 != 3 && $termType1 != 10) {
-			$termTypeValueId = $doc->createElement('termTypeValueId', $termType);
-			$findUnit->appendChild($termTypeValueId);
+			$findUnit->appendChild($doc->createElement('termTypeValueId', $termType));
 		}
-		$roomIdN = $doc->createElement('ns1:roomId', $roomID);
-		$findUnit->appendChild($roomIdN);
+		$findUnit->appendChild($doc->createElement('ns1:roomId', $roomId));
 
 		$soap_request = $doc->saveXML();
 		$response1 = $this->__doRequest($soap_request, "findUnit");
-		$id = [];
-		if ($this->error == true) {
+		if ($this->error !== false) {
 			return false;
 		}
 		$response2 = $this->toArray($response1);
-		if ($response2 === false) {
+		if (!is_array($response2)) {
+			if ($this->error === false) {
+				$this->error = 'Cannot convert XML response to array';
+			}
+			return false;
+		}
+		if (!isset($response2['soapenvBody'])) {
+			$this->error = 'findUnit(' . $roomId . '): Backend reply is missing element soapenvBody';
 			return false;
 		}
 		if (isset($response2['soapenvBody']['soapenvFault'])) {
-			$this->error = true;
-			$this->errormsg = $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
+			$this->error = $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
 			return false;
-		} elseif ($this->open) {
-			$units = $this->getAttributes($response2, 'soapenvBody/hisfindUnitResponse/hisunits/hisunit');
-			foreach ($units as $unit) {
-				$id[] = $unit['hisid'];
-			}
-		} elseif (!$this->open) {
-			$id = $this->getAttributes($response2, 'soapenvBody/hisfindUnitResponse/hisunitIds/hisid');
+		}
+		// We only need to check if the connection is working (URL ok, credentials ok, ..) so bail out early
+		if ($connectionCheckOnly) {
+			return array();
+		}
+		if ($this->open) {
+			$path = '/soapenvBody/hisfindUnitResponse/hisunits/hisunit/hisid';
 		} else {
-			$this->error = true;
-			$this->errormsg = "url send a xml in a wrong format";
-			$id = false;
+			$path = '/soapenvBody/hisfindUnitResponse/hisunitIds/hisid';
+		}
+		$id = $this->getAttributes($response2, $path);
+		if ($id === false) {
+			$this->error = 'Cannot find ' . $path;
 		}
 		return $id;
 	}
@@ -168,35 +171,14 @@ class CourseBackend_HisInOne extends CourseBackend
 		$output = curl_exec($soap_do);
 
 		if ($output === false) {
-			$this->error = true;
-			$this->errormsg = 'Curl error: ' . curl_error($soap_do);
+			$this->error = 'Curl error: ' . curl_error($soap_do);
 		} else {
 			$this->error = false;
-			$this->errormsg = "";
 			///Operation completed successfully
 		}
 		curl_close($soap_do);
 		return $output;
 	}
-
-	/**
-	 * @param $response xml document
-	 * @return bool|array array representation of the xml if possible
-	 */
-	private function toArray($response)
-	{
-		try {
-			$cleanresponse = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
-			$xml = new SimpleXMLElement($cleanresponse);
-			$array = json_decode(json_encode((array)$xml), true);
-		} catch (Exception $e) {
-			$this->error = true;
-			$this->errormsg = "url did not send a xml";
-			$array = false;
-		}
-		return $array;
-	}
-
 
 	public function getCacheTime()
 	{
@@ -223,72 +205,74 @@ class CourseBackend_HisInOne extends CourseBackend
 	}
 
 
-	public function fetchSchedulesInternal($param)
+	public function fetchSchedulesInternal($requestedRoomIds)
 	{
-		if (empty($param)) {
-			$this->error = true;
-			$this->errormsg = 'Internal Error HisInOne';
-			error_log('No roomId was given in HisInOne fetchShedule');
-			return false;
+		if (empty($requestedRoomIds)) {
+			return array();
 		}
 		$tTables = [];
 		//get all eventIDs in a given room
-		$eventIDs = [];
-		foreach ($param as $ID) {
-			$unitID = $this->findUnit($ID);
-			if ($unitID == false) {
+		$eventIds = [];
+		foreach ($requestedRoomIds as $roomId) {
+			$roomEventIds = $this->findUnit($roomId);
+			if ($roomEventIds === false) {
+				error_log($this->error);
 				$this->error = false;
-				error_log($this->errormsg);
+				// TODO: Error gets swallowed
 				continue;
 			}
-			$eventIDs = array_merge($eventIDs, $unitID);
-			$eventIDs = array_unique($eventIDs);
+			$tTables[$roomId] = [];
+			$eventIds = array_merge($eventIds, $roomEventIds);
 		}
-		if (empty($eventIDs)) {
-			foreach ($param as $room) {
-				$tTables[$room] = [];
-			}
+		$eventIds = array_unique($eventIds);
+		if (empty($eventIds)) {
 			return $tTables;
 		}
-		$events = [];
+		$eventDetails = [];
 		//get all information on each event
-		foreach ($eventIDs as $each_event) {
-			$event = $this->readUnit(intval($each_event));
+		foreach ($eventIds as $eventId) {
+			$event = $this->readUnit(intval($eventId));
 			if ($event === false) {
+				error_log($this->error);
 				$this->error = false;
-				error_log($this->errormsg);
+				// TODO: Error gets swallowed
 				continue;
 			}
-			$events[] = $event;
+			$eventDetails = array_merge($eventDetails, $event);
 		}
 		$currentWeek = $this->getCurrentWeekDates();
-		foreach ($param as $room) {
-			$timetable = array();
-			//Here I go over the soapresponse
-			foreach ($events as $event) {
-				$name = $this->getAttributes($event, '/hisunit/hisdefaulttext');
-				if ($name == false) {
-					//if HisInOne has no default text then there is no name
-					$name = [''];
-				}
-				$dates = $this->getAttributes($event,
-					'/hisunit/hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
-				foreach ($dates as $date) {
-					$roomID = $this->getAttributes($date, '/hisroomId')[0];
-					$datum = $this->getAttributes($date, '/hisexecutiondate')[0];
-					if (intval($roomID) == $room && in_array($datum, $currentWeek)) {
-						$startTime = $this->getAttributes($date, 'hisstarttime')[0];
-						$endTime = $this->getAttributes($date, 'hisendtime')[0];
-						$json = array(
-							'title' => $name[0],
-							'start' => $datum . " " . $startTime,
-							'end' => $datum . " " . $endTime
-						);
-						array_push($timetable, $json);
-					}
+		foreach ($eventDetails as $event) {
+			foreach (array('/hisdefaulttext',
+							'/hisshorttext',
+							'/hisshortcomment',
+							'/hisplanelements/hisplanelement/hisdefaulttext') as $path) {
+				$name = $this->getAttributes($event, $path);
+				if (!empty($name) && !empty($name[0]))
+					break;
+				$name = false;
+			}
+			if ($name === false) {
+				$name = ['???'];
+			}
+			$unitPlannedDates = $this->getAttributes($event,
+				'/hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
+			if ($unitPlannedDates === false) {
+				$this->error = 'Cannot find ./hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate';
+				return false;
+			}
+			foreach ($unitPlannedDates as $plannedDate) {
+				$eventRoomId = $this->getAttributes($plannedDate, '/hisroomId')[0];
+				$eventDate = $this->getAttributes($plannedDate, '/hisexecutiondate')[0];
+				if (in_array($eventRoomId, $requestedRoomIds) && in_array($eventDate, $currentWeek)) {
+					$startTime = $this->getAttributes($plannedDate, '/hisstarttime')[0];
+					$endTime = $this->getAttributes($plannedDate, '/hisendtime')[0];
+					$tTables[$eventRoomId][] = array(
+						'title' => $name[0],
+						'start' => $eventDate . " " . $startTime,
+						'end' => $eventDate . " " . $endTime
+					);
 				}
 			}
-			$tTables[$room] = $timetable;
 		}
 		return $tTables;
 	}
@@ -316,32 +300,25 @@ class CourseBackend_HisInOne extends CourseBackend
 		$envelope->appendChild($body);
 		$readUnit = $doc->createElement('ns1:readUnit');
 		$body->appendChild($readUnit);
-		$unitId = $doc->createElement('ns1:unitId', $unit);
-		$readUnit->appendChild($unitId);
+		$readUnit->appendChild($doc->createElement('ns1:unitId', $unit));
 
 		$soap_request = $doc->saveXML();
 		$response1 = $this->__doRequest($soap_request, "readUnit");
-		if ($response1 == false) {
+		if ($response1 === false) {
 			return false;
 		}
 		$response2 = $this->toArray($response1);
-		if ($response2 != false) {
-			if (isset($response2['soapenvBody']['soapenvFault'])) {
-				$this->error = true;
-				$this->errormsg = 'SOAP-Fault' . $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
-				return false;
-			} elseif (isset($response2['soapenvBody']['hisreadUnitResponse'])) {
-				$this->error = false;
-				$response3 = $response2['soapenvBody']['hisreadUnitResponse'];
-				$this->errormsg = '';
-				return $response3;
-			} else {
-				$this->error = true;
-				$this->errormsg = "wrong url or the url send a xml in the wrong format";
-				return false;
-			}
+		if ($response2 === false)
+			return false;
+		if (!isset($response2['soapenvBody'])) {
+			$this->error = 'findUnit(' . $unit . '): Backend reply is missing element soapenvBody';
+			return false;
 		}
-		return false;
+		if (isset($response2['soapenvBody']['soapenvFault'])) {
+			$this->error = 'SOAP-Fault' . $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
+			return false;
+		}
+		return $this->getAttributes($response2, '/soapenvBody/hisreadUnitResponse/hisunit');
 	}
 
 	/**
@@ -349,12 +326,12 @@ class CourseBackend_HisInOne extends CourseBackend
 	 */
 	private function getCurrentWeekDates()
 	{
-		$DateArray = array();
-		$startdate = strtotime('Now');
+		$returnValue = array();
+		$startDate = time();
 		for ($i = 0; $i <= 7; $i++) {
-			$DateArray[] = date('Y-m-d', strtotime("+ {$i} day", $startdate));
+			$returnValue[] = date('Y-m-d', strtotime("+{$i} day 12:00", $startDate));
 		}
-		return $DateArray;
+		return $returnValue;
 	}
 
 }

@@ -1,37 +1,36 @@
 <?php
 
-class Coursebackend_Davinci extends CourseBackend
+class CourseBackend_Davinci extends CourseBackend
 {
 
-
-	public function setCredentials($data, $location, $serverID)
+	public function setCredentials($data, $location, $serverId)
 	{
-		if ($location == "") {
-			$this->error = true;
-			$this->errormsg = "No url is given";
-			return !$this->error;
+		if (empty($location)) {
+			$this->error = "No url is given";
+			return false;
 		}
 		$this->location = $location . "/DAVINCIIS.dll?";
-		$this->serverID = $serverID;
+		$this->serverId = $serverId;
 		//Davinci doesn't have credentials
 		return true;
 	}
 
 	public function checkConnection()
 	{
-		if ($this->location != "") {
-			$this->fetchSchedulesInternal(['B206']);
-			return !$this->error;
+		if (empty($this->location)) {
+			$this->error = "Credentials are not set";
+		} else {
+			$data = $this->fetchRoomRaw('someroomid123');
+			if (strpos($data, 'DAVINCI SERVER') === false) {
+				$this->error = "This doesn't seem to be a DAVINCI server";
+			}
 		}
-		$this->error = true;
-		$this->errormsg = "Credentials are not set";
-		return !$this->error;
+		return $this->error === false;
 	}
 
 	public function getCredentials()
 	{
-		$return = array();
-		return $return;
+		return array();
 	}
 
 	public function getDisplayName()
@@ -50,32 +49,15 @@ class Coursebackend_Davinci extends CourseBackend
 	}
 
 	/**
-	 * @param $response xml document
-	 * @return bool|array array representation of the xml if possible
-	 */
-	private function toArray($response)
-	{
-		try {
-			$cleanresponse = preg_replace('/(<\/?)(\w+):([^>]*>)/', "$1$2$3", $response);
-			$xml = new SimpleXMLElement($cleanresponse);
-			$array = json_decode(json_encode((array)$xml), true);
-		} catch (Exception $exception) {
-			$this->error = true;
-			$this->errormsg = "url did not answer with a xml, maybe the url is wrong or the room is wrong";
-			$array = false;
-		}
-		return $array;
-	}
-
-	/**
 	 * @param $roomId string name of the room
 	 * @return array|bool if successful the arrayrepresentation of the timetable
 	 */
-	private function fetchArray($roomId)
+	private function fetchRoomRaw($roomId)
 	{
 		$startDate = new DateTime('today 0:00');
 		$endDate = new DateTime('+7 days 0:00');
-		$url = $this->location . "content=xml&type=room&name=" . $roomId . "&startdate=" . $startDate->format('d.m.Y') . "&enddate=" . $endDate->format('d.m.Y');
+		$url = $this->location . "content=xml&type=room&name=" . urlencode($roomId)
+			. "&startdate=" . $startDate->format('d.m.Y') . "&enddate=" . $endDate->format('d.m.Y');
 		$ch = curl_init();
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true,
@@ -88,53 +70,55 @@ class Coursebackend_Davinci extends CourseBackend
 		curl_setopt_array($ch, $options);
 		$output = curl_exec($ch);
 		if ($output === false) {
-			$this->error = true;
-			$this->errormsg = 'Curl error: ' . curl_error($ch) . $url;
+			$this->error = 'Curl error: ' . curl_error($ch);
 			return false;
 		} else {
 			$this->error = false;
-			$this->errormsg = "";
 			///Operation completed successfully
 		}
 		curl_close($ch);
-		error_log($output);
-		return $this->toArray($output);
+		return $output;
 
 	}
 
-	public function fetchSchedulesInternal($roomIds)
+	public function fetchSchedulesInternal($requestedRoomIds)
 	{
 		$schedules = [];
-		foreach ($roomIds as $sroomId) {
-			$return = $this->fetchArray($sroomId);
+		foreach ($requestedRoomIds as $roomId) {
+			$return = $this->fetchRoomRaw($roomId);
 			if ($return === false) {
-				return false;
+				continue;
 			}
-			$lessons = $this->getAttributes($return, 'Lessons/Lesson');
-			if (!$lessons) {
-				$this->error = true;
-				$this->errormsg = "url send a xml in a wrong format";
-				return false;
+			$return = $this->toArray($return);
+			if ($return === false) {
+				continue;
+			}
+			$lessons = $this->getAttributes($return, '/Lessons/Lesson');
+			if ($lessons === false) {
+				$this->error = "Cannot find /Lessons/Lesson in XML";
+				continue;
 			}
 			$timetable = [];
 			foreach ($lessons as $lesson) {
+				if (!isset($lesson['Date']) || !isset($lesson['Start']) || !isset($lesson['Finish'])) {
+					$this->error = 'Lesson is missing Date, Start or Finish';
+					continue;
+				}
 				$date = $lesson['Date'];
 				$date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6, 2);
 				$start = $lesson['Start'];
 				$start = substr($start, 0, 2) . ':' . substr($start, 2, 2);
 				$end = $lesson['Finish'];
 				$end = substr($end, 0, 2) . ':' . substr($end, 2, 2);
-				$subject = $lesson['Subject'];
-				$json = array(
+				$subject = isset($lesson['Subject']) ? $lesson['Subject'] : '???';
+				$timetable[] = array(
 					'title' => $subject,
 					'start' => $date . " " . $start . ':00',
 					'end' => $date . " " . $end . ':00'
 				);
-				array_push($timetable, $json);
 			}
-			$schedules[$sroomId] = $timetable;
+			$schedules[$roomId] = $timetable;
 		}
 		return $schedules;
 	}
 }
-

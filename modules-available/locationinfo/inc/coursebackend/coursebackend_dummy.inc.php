@@ -1,6 +1,6 @@
 <?php
 
-class Coursebackend_Dummy extends CourseBackend
+class CourseBackend_Dummy extends CourseBackend
 {
 	private $pw;
 
@@ -10,10 +10,10 @@ class Coursebackend_Dummy extends CourseBackend
 	 *
 	 * @param array $data with the credentials
 	 * @param string $url address of the server
-	 * @param int $serverID ID of the server
+	 * @param int $serverId ID of the server
 	 * @returns bool if the credentials were in the correct format
 	 */
-	public function setCredentials($json, $location, $serverID)
+	public function setCredentials($json, $location, $serverId)
 	{
 		$x = $json;
 		$this->pw = $x['password'];
@@ -22,8 +22,7 @@ class Coursebackend_Dummy extends CourseBackend
 			$this->error = false;
 			return true;
 		} else {
-			$this->errormsg = "USE mfg as password!";
-			$this->error = true;
+			$this->error = "USE mfg as password!";
 			return false;
 		}
 	}
@@ -37,8 +36,7 @@ class Coursebackend_Dummy extends CourseBackend
 			$this->error = false;
 			return true;
 		} else {
-			$this->errormsg = "USE mfg as password!";
-			$this->error = true;
+			$this->error = "USE mfg as password!";
 			return false;
 		}
 	}
@@ -88,7 +86,7 @@ class Coursebackend_Dummy extends CourseBackend
 	/**
 	 * Internal version of fetch, to be overridden by subclasses.
 	 *
-	 * @param $roomIds array with local ID as key and serverID as value
+	 * @param $roomIds array with local ID as key and serverId as value
 	 * @return array a recursive array that uses the roomID as key
 	 * and has the schedule array as value. A shedule array contains an array in this format:
 	 * ["start"=>'JJJJ-MM-DD HH:MM:SS',"end"=>'JJJJ-MM-DD HH:MM:SS',"title"=>string]
