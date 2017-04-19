@@ -2,34 +2,57 @@
 
 class CourseBackend_HisInOne extends CourseBackend
 {
-	private $username;
-	private $password;
-	private $open;
+	private $username = '';
+	private $password = '';
+	private $open = true;
+	private $location;
+	private $verifyHostname = true;
+	private $verifyCert = true;
 
 
-	public function setCredentials($data, $url, $serverId)
+	public function setCredentialsInternal($data)
 	{
-		if (array_key_exists('password', $data) && array_key_exists('username', $data) && array_key_exists('role', $data) && isset($data['open'])) {
-			$this->error = false;
-			$this->password = $data['password'];
-			$this->username = $data['username'] . "\t" . $data['role'];
-			$this->open = $data['open'];
-			if ($url == "") {
-				$this->error = "No url is given";
-				return false;
+		if (!$data['open']) {
+			// If not using OpenCourseService, require credentials
+			foreach (['username', 'password'] as $field) {
+				if (empty($data[$field])) {
+					$this->error = 'setCredentials: Missing field ' . $field;
+					return false;
+				}
 			}
-			if ($this->open) {
-				$this->location = $url . "/qisserver/services2/OpenCourseService";
-			} else {
-				$this->location = $url . "/qisserver/services2/CourseService";
-			}
-			$this->serverId = $serverId;
-		} else {
-			$this->error = "wrong credentials";
+		}
+		if (empty($data['baseUrl'])) {
+			$this->error = "No url is given";
 			return false;
 		}
 
+		$this->error = false;
+		$this->username = $data['username'] . "\t" . $data['role'];
+		$this->password = $data['password'];
+		$this->open = $data['open'];
+		$url = preg_replace('#(/+qisserver(/+services\d+(/+OpenCourseService)?)?)?\W*$#i', '', $data['baseUrl']);
+		if ($this->open) {
+			$this->location = $url . "/qisserver/services2/OpenCourseService";
+		} else {
+			$this->location = $url . "/qisserver/services2/CourseService";
+		}
+		$this->verifyHostname = $data['verifyHostname'];
+		$this->verifyCert = $data['verifyCert'];
+
 		return true;
+	}
+
+	public function getCredentials()
+	{
+		return [
+			new BackendProperty('baseUrl', 'string'),
+			new BackendProperty('username', 'string'),
+			new BackendProperty('role', 'string'),
+			new BackendProperty('password', 'password'),
+			new BackendProperty('open', 'bool', true),
+			new BackendProperty('verifyCert', 'bool', true),
+			new BackendProperty('verifyHostname', 'bool', true)
+		];
 	}
 
 	public function checkConnection()
@@ -159,8 +182,8 @@ class CourseBackend_HisInOne extends CourseBackend
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_SSL_VERIFYHOST => false,
-			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => $this->verifyHostname,
+			CURLOPT_SSL_VERIFYPEER => $this->verifyCert,
 			CURLOPT_URL => $this->location,
 			CURLOPT_POSTFIELDS => $request,
 			CURLOPT_HTTPHEADER => $header,
@@ -196,14 +219,6 @@ class CourseBackend_HisInOne extends CourseBackend
 	{
 		return "HisInOne";
 	}
-
-
-	public function getCredentials()
-	{
-		$credentials = ["username" => "string", "role" => "string", "password" => "password", "open" => "bool"];
-		return $credentials;
-	}
-
 
 	public function fetchSchedulesInternal($requestedRoomIds)
 	{

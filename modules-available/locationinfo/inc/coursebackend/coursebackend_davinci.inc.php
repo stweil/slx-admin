@@ -3,14 +3,16 @@
 class CourseBackend_Davinci extends CourseBackend
 {
 
-	public function setCredentials($data, $location, $serverId)
+	private $location;
+
+	public function setCredentialsInternal($data)
 	{
-		if (empty($location)) {
+		if (empty($data['baseUrl'])) {
 			$this->error = "No url is given";
 			return false;
 		}
+		$location = preg_replace('#/+(davinciis\.dll)?\W*$#i', '', $data['baseUrl']);
 		$this->location = $location . "/DAVINCIIS.dll?";
-		$this->serverId = $serverId;
 		//Davinci doesn't have credentials
 		return true;
 	}
@@ -30,7 +32,9 @@ class CourseBackend_Davinci extends CourseBackend
 
 	public function getCredentials()
 	{
-		return array();
+		return [
+			new BackendProperty('baseUrl', 'string')
+		];
 	}
 
 	public function getDisplayName()

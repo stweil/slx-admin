@@ -13,7 +13,7 @@ class CourseBackend_Dummy extends CourseBackend
 	 * @param int $serverId ID of the server
 	 * @returns bool if the credentials were in the correct format
 	 */
-	public function setCredentials($json, $location, $serverId)
+	public function setCredentialsInternal($json)
 	{
 		$x = $json;
 		$this->pw = $x['password'];
@@ -47,15 +47,14 @@ class CourseBackend_Dummy extends CourseBackend
 	public function getCredentials()
 	{
 		$options = ["opt1", "opt2", "opt3", "opt4", "opt5", "opt6", "opt7", "opt8"];
-		$credentials = [
-			"username" => "string",
-			"password" => "password",
-			"integer" => "int",
-			"option" => $options,
-			"CheckTheBox" => "bool",
-			"CB2 t" => "bool"
+		return [
+			new BackendProperty('username', 'string', 'default-user'),
+			new BackendProperty('password', 'password'),
+			new BackendProperty('integer', 'int', 7),
+			new BackendProperty('option', $options),
+			new BackendProperty('CheckTheBox', 'bool'),
+			new BackendProperty('CB2t', 'bool', true)
 		];
-		return $credentials;
 	}
 
 	/**

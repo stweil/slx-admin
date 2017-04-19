@@ -23,10 +23,6 @@ abstract class CourseBackend
 	 */
 	protected $serverId;
 	/**
-	 * @var string url of the service
-	 */
-	protected $location;
-	/**
 	 * @const int max number of additional locations to fetch (for backends that benefit from request coalesc.)
 	 */
 	const MAX_ADDIDIONAL_LOCATIONS = 5;
@@ -36,7 +32,6 @@ abstract class CourseBackend
 	 */
 	public final function __construct()
 	{
-		$this->location = "";
 		$this->error = false;
 	}
 
@@ -97,7 +92,7 @@ abstract class CourseBackend
 
 
 	/**
-	 * @returns array with parameter name as key and and an array with type, help text and mask  as value
+	 * @returns \BackendProperty[] list of properties that need to be set
 	 */
 	public abstract function getCredentials();
 
@@ -110,12 +105,10 @@ abstract class CourseBackend
 	 * uses json to setCredentials, the json must follow the form given in
 	 * getCredentials
 	 *
-	 * @param array $data with the credentials
-	 * @param string $url address of the server
-	 * @param int $serverId ID of the server
+	 * @param array $data assoc array with data required by backend
 	 * @returns bool if the credentials were in the correct format
 	 */
-	public abstract function setCredentials($data, $url, $serverId);
+	public abstract function setCredentialsInternal($data);
 
 	/**
 	 * @return int desired caching time of results, in seconds. 0 = no caching
@@ -215,6 +208,25 @@ abstract class CourseBackend
 		return $returnValue;
 	}
 
+	public final function setCredentials($serverId, $data)
+	{
+		foreach ($this->getCredentials() as $prop) {
+			if (!isset($data[$prop->property])) {
+				$data[$prop->property] = $prop->default;
+			}
+			if (in_array($prop->type, ['string', 'bool', 'int'])) {
+				settype($data[$prop->property], $prop->type);
+			} else {
+				settype($data[$prop->property], 'string');
+			}
+		}
+		if ($this->setCredentialsInternal($data)) {
+			$this->serverId = $serverId;
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * @return false if there was no error string with error message if there was one
 	 */
@@ -296,4 +308,19 @@ abstract class CourseBackend
 		return $array;
 	}
 
+}
+
+/**
+ * Class BackendProperty describes a property a backend requires to define its functionality
+ */
+class BackendProperty {
+	public $property;
+	public $type;
+	public $default;
+	public function __construct($property, $type, $default = '')
+	{
+		$this->property = $property;
+		$this->type = $type;
+		$this->default = $default;
+	}
 }

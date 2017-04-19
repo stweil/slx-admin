@@ -106,7 +106,6 @@ class Page_LocationInfo extends Page
 	{
 		$serverid = Request::post('id', -1, 'int');
 		$servername = Request::post('name', 'unnamed', 'string');
-		$serverurl = Request::post('url', '', 'string');
 		$servertype = Request::post('type', '', 'string');
 		$backend = CourseBackend::getInstance($servertype);
 
@@ -119,24 +118,23 @@ class Page_LocationInfo extends Page
 
 		$credentialsJson = array();
 		$counter = 0;
-		foreach ($tmptypeArray as $key => $value) {
-			$credentialsJson[$key] = Request::post($counter);
+		foreach ($tmptypeArray as $cred) {
+			$credentialsJson[$cred->property] = Request::post($counter);
 			$counter++;
 		}
 		$params = array(
 			'name' => $servername,
-			'url' => $serverurl,
 			'type' => $servertype,
 			'credentials' => json_encode($credentialsJson)
 		);
 		if ($serverid === 0) {
-			Database::exec('INSERT INTO `setting_location_info` (servername, serverurl, servertype, credentials)
-					VALUES (:name, :url, :type, :credentials)', $params);
+			Database::exec('INSERT INTO `setting_location_info` (servername, servertype, credentials)
+					VALUES (:name, :type, :credentials)', $params);
 			$this->checkConnection(Database::lastInsertId());
 		} else {
 			$params['id'] = $serverid;
 			Database::exec('UPDATE `setting_location_info`
-					SET servername = :name, serverurl = :url, servertype = :type, credentials = :credentials
+					SET servername = :name, servertype = :type, credentials = :credentials
 					WHERE serverid = :id', $params);
 			$this->checkConnection($serverid);
 		}
@@ -280,7 +278,7 @@ class Page_LocationInfo extends Page
 			Util::traceError('checkConnection called with no server id');
 		}
 
-		$dbresult = Database::queryFirst("SELECT servertype, credentials, serverurl
+		$dbresult = Database::queryFirst("SELECT servertype, credentials
 				FROM `setting_location_info`
 				WHERE serverid = :serverid", array('serverid' => $serverid));
 
@@ -289,7 +287,7 @@ class Page_LocationInfo extends Page
 			LocationInfo::setServerError($serverid, 'Unknown backend type: ' . $dbresult['servertype']);
 			return;
 		}
-		$credentialsOk = $serverInstance->setCredentials(json_decode($dbresult['credentials'], true), $dbresult['serverurl'], $serverid);
+		$credentialsOk = $serverInstance->setCredentials($serverid, json_decode($dbresult['credentials'], true));
 
 		if ($credentialsOk) {
 			$connectionOk = $serverInstance->checkConnection();
@@ -439,7 +437,7 @@ class Page_LocationInfo extends Page
 	 */
 	private function ajaxServerSettings($id)
 	{
-		$dbresult = Database::queryFirst('SELECT servername, serverurl, servertype, credentials
+		$dbresult = Database::queryFirst('SELECT servername, servertype, credentials
 				FROM `setting_location_info` WHERE serverid = :id', array('id' => $id));
 
 		// Credentials stuff.
@@ -463,35 +461,34 @@ class Page_LocationInfo extends Page
 			$backend['credentials'] = array();
 
 			$counter = 0;
-			foreach ($credentials as $key => $value) {
+			foreach ($credentials as $cred) {
 				$credential['uid'] = $counter;
-				$credential['name'] = Dictionary::translateFile($s, $key);
-				$credential['type'] = $value;
-				$credential['title'] = Dictionary::translateFile($s, $key . "_title");
+				$credential['name'] = Dictionary::translateFile($s, $cred->property);
+				$credential['type'] = $cred->type;
+				$credential['title'] = Dictionary::translateFile($s, $cred->property . "_title");
 
 				if (Property::getPasswordFieldType() === 'text') {
 					$credential['mask'] = false;
 				} else {
-					if ($value == "password") {
+					if ($cred->type === "password") {
 						$credential['mask'] = true;
 					}
 				}
 
 				if ($backend['typ'] == $dbresult['servertype']) {
-					foreach ($dbcredentials as $k => $v) {
-						if ($k == $key) {
-							$credential['value'] = $v;
-							break;
-						}
+					if (isset($dbcredentials[$cred->property])) {
+						$credential['value'] = $dbcredentials[$cred->property];
+					} else {
+						$credential['value'] = $cred->default;
 					}
 				}
 
 				$selection = array();
 
-				if (is_array($value)) {
+				if (is_array($cred->type)) {
 
 					$selfirst = true;
-					foreach ($value as $opt) {
+					foreach ($cred->type as $opt) {
 						$option['option'] = $opt;
 						if (isset($credential['value'])) {
 							if ($opt == $credential['value']) {
@@ -523,7 +520,6 @@ class Page_LocationInfo extends Page
 
 		echo Render::parse('server-settings', array('id' => $id,
 			'name' => $dbresult['servername'],
-			'url' => $dbresult['serverurl'],
 			'servertype' => $dbresult['servertype'],
 			'backendList' => array_values($serverBackends)));
 	}

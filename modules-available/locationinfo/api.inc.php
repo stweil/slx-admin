@@ -238,7 +238,7 @@ function formatOpeningtime($openingtime)
  */
 function getConfig($locationID)
 {
-	$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverroomid, s.servertype, s.serverurl FROM `location_info` AS li
+	$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverroomid, s.servertype FROM `location_info` AS li
 		RIGHT JOIN `location` AS l ON l.locationid=li.locationid
 		LEFT JOIN `setting_location_info` AS s ON s.serverid=li.serverid
 		WHERE l.locationid=:locationID", array('locationID' => $locationID));
@@ -364,7 +364,7 @@ function getCalendar($idList)
 	if (!empty($idList)) {
 		// Build SQL query for multiple ids.
 		$qs = '?' . str_repeat(',?', count($idList) - 1);
-		$query = "SELECT l.locationid, l.serverid, l.serverroomid, s.serverurl, s.servertype, s.credentials
+		$query = "SELECT l.locationid, l.serverid, l.serverroomid, s.servertype, s.credentials
 				FROM `location_info` AS l
 				INNER JOIN setting_location_info AS s ON (s.serverid = l.serverid)
 				WHERE l.hidden = 0 AND l.locationid IN ($qs)
@@ -376,7 +376,6 @@ function getCalendar($idList)
 			if (!isset($serverList[$dbresult['serverid']])) {
 				$serverList[$dbresult['serverid']] = array(
 					'credentials' => json_decode($dbresult['credentials'], true),
-					'url' => $dbresult['serverurl'],
 					'type' => $dbresult['servertype'],
 					'idlist' => array()
 				);
@@ -395,7 +394,7 @@ function getCalendar($idList)
 				array('lid' => $server['locationid']));
 			continue;
 		}
-		$credentialsOk = $serverInstance->setCredentials($server['credentials'], $server['url'], $serverid);
+		$credentialsOk = $serverInstance->setCredentials($serverid, $server['credentials']);
 
 		if ($credentialsOk) {
 			$calendarFromBackend = $serverInstance->fetchSchedule($server['idlist']);
