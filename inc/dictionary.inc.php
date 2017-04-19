@@ -81,11 +81,11 @@ class Dictionary
 		return $strings[$tag];
 	}
 	
-	public static function translateFile($path, $tag)
+	public static function translateFile($path, $tag, $returnTagOnMissing = false)
 	{
 		if (!class_exists('Page') || Page::getModule() === false)
 			return false; // We have no page - return false for now, as we're most likely running in api or install mode
-		return self::translateFileModule(Page::getModule()->getIdentifier(), $path, $tag);
+		return self::translateFileModule(Page::getModule()->getIdentifier(), $path, $tag, $returnTagOnMissing);
 	}
 
 	public static function translate($tag, $returnTagOnMissing = false)
