@@ -100,6 +100,8 @@ class Database
 	public static function simpleQuery($query, $args = array(), $ignoreError = false)
 	{
 		self::init();
+		// Support passing nested arrays for IN statements, automagically refactor
+		self::handleArrayArgument($query, $args);
 		try {
 			if (!isset(self::$statements[$query])) {
 				self::$statements[$query] = self::$dbh->prepare($query);
@@ -120,6 +122,46 @@ class Database
 			Util::traceError("Database Error: \n" . self::$lastError);
 		}
 		return false;
+	}
+
+	/**
+	 * Convert nested array argument to multiple arguments.
+	 * If you have:
+	 * $query = 'SELECT * FROM tbl WHERE bcol = :bool AND col IN (:list)
+	 * $args = ( 'bool' => 1, 'list' => ('foo', 'bar') )
+	 * it results in:
+	 * $query = '...WHERE bcol = :bool AND col IN (:list_0, :list_1)
+	 * $args = ( 'bool' => 1, 'list_0' => 'foo', 'list_1' => 'bar' )
+	 *
+	 * @param string $query sql query string
+	 * @param array $args query arguments
+	 */
+	private static function handleArrayArgument(&$query, &$args)
+	{
+		foreach (array_keys($args) as $key) {
+			if (is_numeric($key) || $key === '?')
+				continue;
+			if (is_array($args[$key])) {
+				if (empty($args[$key])) {
+					// Empty list - what to do? We try to generate a query string that will not yield any result
+					$args[$key] = 'asdf' . mt_rand(0,PHP_INT_MAX) . mt_rand(0,PHP_INT_MAX)
+							. mt_rand(0,PHP_INT_MAX) . '@' . microtime(true);
+					continue;
+				}
+				$newkey = $key;
+				if ($newkey{0} !== ':') {
+					$newkey = ":$newkey";
+				}
+				$new = array();
+				foreach ($args[$key] as $subIndex => $sub) {
+					$new[] = $newkey . '_' . $subIndex;
+					$args[$newkey . '_' . $subIndex] = $sub;
+				}
+				unset($args[$key]);
+				$new = implode(',', $new);
+				$query = preg_replace('/' . $newkey . '\b/', $new, $query);
+			}
+		}
 	}
 
 	/**
