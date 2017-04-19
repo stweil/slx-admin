@@ -40,7 +40,7 @@ class CourseBackend_Davinci extends CourseBackend
 
 	public function getCacheTime()
 	{
-		return 0;
+		return 30 * 60;
 	}
 
 	public function getRefreshTime()
