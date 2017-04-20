@@ -3,11 +3,10 @@
 
 	<h4>{{lang_serverTable}}</h4>
 
-	<table class="table table-condensed table-hover">
+	<table class="table table-hover">
 		<tr>
 			<th width="1">{{lang_serverType}}</th>
 			<th>{{lang_locationName}}</th>
-			<th>{{lang_serverUrl}}</th>
 			<th width="1"></th>
 			<th width="1"></th>
 		</tr>
@@ -18,7 +17,6 @@
 			<tr>
 				<td nowrap>{{typename}}</td>
 				<td nowrap>{{servername}}</td>
-				<td nowrap>{{serverurl}}</td>
 
 				<td align="center" nowrap>
 					<button class="btn btn-sm {{^autherror}}btn-success{{/autherror}}{{#autherror}}btn-danger{{/autherror}}"
@@ -69,7 +67,10 @@
 				<a href="modules/locationinfo/frontend/doorsign.html?id={{locationid}}">{{locationname}}</a>
 			</td>
 			<td align="center">
-				<input class="hidden-toggle" type="checkbox" data-locationid="{{locationid}}" {{hidden_checked}}>
+				<div class="checkbox" style="margin:0">
+					<input class="hidden-toggle" type="checkbox" data-locationid="{{locationid}}" {{hidden_checked}}>
+					<label></label>
+				</div>
 			</td>
 			<td>
 				<a class="btn btn-sm btn-default" role="button" style="width: 100%"
@@ -127,6 +128,12 @@
 			}).fail(function () {
 				$input.replaceWith('ERROR');
 			});
+		}).parent().click(function() {
+			$this = $(this);
+			$box = $this.find('input');
+			if (!$this.is($box)) {
+				$box.click();
+			}
 		});
 
 		/**
