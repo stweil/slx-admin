@@ -12,10 +12,7 @@ function HandleParameters()
 	if ($getAction == "locationinfo") {
 		$locationIds = Request::get('id', 0, 'string');
 		$array = filterIdList($locationIds);
-		$getCoords = Request::get('coords', 0, 'string');
-		if (empty($getCoords)) {
-			$getCoords = '0';
-		}
+		$getCoords = Request::get('coords', false, 'bool');
 		echo getLocationInfo($array, $getCoords);
 	} elseif ($getAction == "openingtime") {
 		$locationIds = Request::get('id', 0, 'string');
@@ -23,7 +20,7 @@ function HandleParameters()
 		echo getOpeningTime($array);
 	} elseif ($getAction == "config") {
 		$locationId = Request::get('id', 0, 'int');
-		getConfig($locationId);
+		echo getConfig($locationId);
 	} elseif ($getAction == "pcstates") {
 		$locationIds = Request::get('id', 0, 'string');
 		$array = filterIdList($locationIds);
@@ -63,22 +60,16 @@ function filterIdList($locationIds)
  */
 function filterHiddenLocations($idArray)
 {
-	$filteredArray = array();
+	$idArray = array_flip($idArray);
 	if (!empty($idArray)) {
-		$query = "SELECT locationid, hidden FROM `locationinfo_locationconfig` WHERE locationid IN (";
-		$query .= implode(",", $idArray);
-		$query .= ")";
-
-		$dbquery = Database::simpleQuery($query);
-
+		$query = "SELECT locationid FROM `locationinfo_locationconfig` WHERE hidden <> 0 AND locationid IN (:idlist)";
+		$dbquery = Database::simpleQuery($query, array('idlist' => $idArray));
 		while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			if ($dbresult['hidden'] == false) {
-				$filteredArray[] = (int)$dbresult['locationid'];
-			}
+			unset($idArray[$dbresult['locationid']]);
 		}
 	}
 
-	return $filteredArray;
+	return array_flip($idArray);
 }
 
 // ########## <Locationinfo> ##########
@@ -91,55 +82,44 @@ function filterHiddenLocations($idArray)
  */
 function getLocationInfo($idList, $coords = false)
 {
+	if (empty($idList))
+		return '[]';
 
-	$coordinates = (string)$coords;
+		$positionCol = $coords ? 'm.position,' : '';
+	$query = "SELECT m.locationid, m.machineuuid, $positionCol m.logintime, m.lastseen, m.lastboot FROM machine m
+				WHERE m.locationid IN (:idlist)";
+	$dbquery = Database::simpleQuery($query, array('idlist' => $idList));
+
+	// Iterate over matching machines
 	$dbresult = array();
+	while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 
-	if (!empty($idList)) {
-		// Build SQL Query for multiple ids.
-		$query = "SELECT l.locationid, m.machineuuid, m.position, m.logintime, m.lastseen, m.lastboot FROM locationinfo_locationconfig AS l
-				LEFT JOIN `machine` AS m ON l.locationid = m.locationid WHERE l.hidden = 0 AND l.locationid IN (";
-
-		$query .= implode(",", $idList);
-		$query .= ")";
-
-		// Execute query.
-		$dbquery = Database::simpleQuery($query);
-
-		// Fetch db data.
-		while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-
-			// Set the id if the locationid changed.
-			if (!isset($dbresult[$dbdata['locationid']])) {
-				$dbresult[$dbdata['locationid']] = array('id' => $dbdata['locationid'], 'computer' => array());
-			}
-
-			// Left join, no data
-			if (empty($dbdata['machineuuid']))
-				continue;
-
-			// Compact the pc data in one array.
-			$pc['id'] = $dbdata['machineuuid'];
-			if ($coordinates == '1' || $coordinates == 'true') {
-				$position = json_decode($dbdata['position'], true);
+		// Set the id if the locationid changed.
+		if (!isset($dbresult[$dbdata['locationid']])) {
+			$dbresult[$dbdata['locationid']] = array('id' => $dbdata['locationid'], 'computer' => array());
+		}
+		// Compact the pc data in one array.
+		$pc = array('id' => $dbdata['machineuuid']);
+		if ($coords && !empty($dbdata['position'])) {
+			$position = json_decode($dbdata['position'], true);
+			if (isset($position['gridCol']) && isset($position['gridRow'])) {
 				$pc['x'] = $position['gridCol'];
 				$pc['y'] = $position['gridRow'];
-
-				if (isset($position['overlays'])) {
-					$pc['overlay'] = $position['overlays'];
+				if (isset($position['overlays']) && is_array($position['overlays'])) {
+					$pc['overlays'] = $position['overlays'];
 				} else {
-					$pc['overlay'] = array();
+					$pc['overlays'] = array();
 				}
 			}
-			$pc['pcState'] = LocationInfo::getPcState($dbdata);
-
-			// Add the array to the computer list.
-			$dbresult[$dbdata['locationid']]['computer'][] = $pc;
 		}
+		$pc['pcState'] = LocationInfo::getPcState($dbdata);
+
+		// Add the array to the computer list.
+		$dbresult[$dbdata['locationid']]['computer'][] = $pc;
 	}
 
 	// The array keys are only used for the isset -> Return only the values.
-	return json_encode(array_values($dbresult), true);
+	return json_encode(array_values($dbresult));
 }
 
 // ########## </Locationinfo> ###########
@@ -238,27 +218,26 @@ function formatOpeningtime($openingtime)
  */
 function getConfig($locationID)
 {
-	$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverlocationid, s.servertype FROM `locationinfo_locationconfig` AS li
-		RIGHT JOIN `location` AS l ON l.locationid=li.locationid
-		LEFT JOIN `locationinfo_coursebackend` AS s ON s.serverid=li.serverid
-		WHERE l.locationid=:locationID", array('locationID' => $locationID));
-	$config = array();
+	$dbresult = Database::queryFirst("SELECT l.locationname, li.config FROM `location` AS l
+		LEFT JOIN `locationinfo_locationconfig` AS li ON (l.locationid = li.locationid)
+		WHERE l.locationid = :locationID", array('locationID' => $locationID));
 
-	if ($dbresult['locationname'] == null) {
-		$config = array();
-	} else {
+	$config = defaultConfig();
 
-		if ($dbresult['config'] == null) {
-			defaultConfig($config);
-		} else {
-			$config = json_decode($dbresult['config'], true);
+	if ($dbresult !== false) {
+		if (!empty($dbresult['config'])) {
+			$json = json_decode($dbresult['config'], true);
+			if (is_array($json)) {
+				$config = $json + $config;
+			}
 		}
-
 		$config['room'] = $dbresult['locationname'];
-		$date = getdate();
-		$config['time'] = $date['year'] . "-" . $date['mon'] . "-" . $date['mday'] . " " . $date['hours'] . ":" . $date['minutes'] . ":" . $date['seconds'];
 	}
-	echo json_encode($config, true);
+
+	$date = getdate();
+	$config['time'] = date('Y-m-d H:i:s');
+
+	return json_encode($config);
 }
 
 /**
@@ -266,22 +245,22 @@ function getConfig($locationID)
  *
  * @return Return a default config.
  */
-function defaultConfig(&$config)
+function defaultConfig()
 {
-	$config['language'] = 'en';
-	$config['mode'] = 1;
-	$config['vertical'] = false;
-	$config['eco'] = false;
-	$config['scaledaysauto'] = true;
-	$config['daystoshow'] = 7;
-	$config['rotation'] = 0;
-	$config['scale'] = 50;
-	$config['switchtime'] = 20;
-	$config['calupdate'] = 30;
-	$config['roomupdate'] = 5;
-	$config['configupdate'] = 180;
-
-	return $config;
+	return array(
+		'language' => 'en',
+		'mode' => 1,
+		'vertical' => false,
+		'eco' => false,
+		'scaledaysauto' => true,
+		'daystoshow' => 7,
+		'rotation' => 0,
+		'scale' => 50,
+		'switchtime' => 20,
+		'calupdate' => 30,
+		'roomupdate' => 5,
+		'configupdate' => 180,
+	);
 }
 
 /**

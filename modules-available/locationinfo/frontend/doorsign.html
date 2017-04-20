@@ -1340,16 +1340,18 @@ optional:
 		function preInitRoom(room) {
 
 			$.getJSON("../../../api.php?do=locationinfo&action=locationinfo&id=" + room.id + "&coords=1", function (result) {
-				generateRoomLayoutDiv((100 - room.config.scale) + "%", room);
-				if (result[0] == null) {
 
-					return;
+				generateRoomLayoutDiv((100 - room.config.scale) + "%", room);
+				if (result && result[0] && result[0].computer) {
+					initRoom(result[0].computer, room);
+				} else {
+					initRoom([], room);
 				}
-				initRoom(result[0].computer, room);
 
 			}).error(function () {
 
 				generateRoomLayoutDiv((100 - room.config.scale) + "%", room);
+
 			})
 		}
 
@@ -1557,18 +1559,9 @@ optional:
 				cache: false,
 				timeout: 30000,
 				success: function (result) {
-					var l = result.length;
-					if (result[0] == null) {
-						console.log("Error: Backend reported null back for RoomUpdate, this might happend if the room isn't" +
-								"configurated.");
-						return;
-					}
-					for (var i = 0; i < l; i++) {
-
+					for (var i = 0; i < result.length; i++) {
 						UpdatePc(result[i].computer, rooms[result[i].id]);
 					}
-				}, error: function () {
-
 				}
 			})
 		}
