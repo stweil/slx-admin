@@ -9,30 +9,34 @@ function HandleParameters()
 {
 
 	$getAction = Request::get('action', 0, 'string');
+	$output = false;
 	if ($getAction == "locationinfo") {
 		$locationIds = Request::get('id', 0, 'string');
 		$array = filterIdList($locationIds);
 		$getCoords = Request::get('coords', false, 'bool');
-		echo getLocationInfo($array, $getCoords);
+		$output = getLocationInfo($array, $getCoords);
 	} elseif ($getAction == "openingtime") {
 		$locationIds = Request::get('id', 0, 'string');
 		$array = filterIdList($locationIds);
-		echo getOpeningTime($array);
+		$output = getOpeningTime($array);
 	} elseif ($getAction == "config") {
 		$locationId = Request::get('id', 0, 'int');
-		echo getConfig($locationId);
+		$output = getConfig($locationId);
 	} elseif ($getAction == "pcstates") {
 		$locationIds = Request::get('id', 0, 'string');
 		$array = filterIdList($locationIds);
-		echo getPcStates($array);
+		$output = getPcStates($array);
 	} elseif ($getAction == "locationtree") {
 		$locationIds = Request::get('id', 0, 'string');
 		$array = filterIdList($locationIds);
-		echo getLocationTree($array);
+		$output = getLocationTree($array);
 	} elseif ($getAction == "calendar") {
 		$locationIds = Request::get('id', 0, 'string');
 		$array = filterIdList($locationIds);
-		echo getCalendar($array);
+		$output = getCalendar($array);
+	}
+	if ($output !== false) {
+		echo json_encode($output);
 	}
 }
 
@@ -78,12 +82,12 @@ function filterHiddenLocations($idArray)
  *
  * @param $idList Array list of ids.
  * @param bool $coords Defines if coords should be included or not.
- * @return string location info, formatted as JSON
+ * @return array location info struct
  */
 function getLocationInfo($idList, $coords = false)
 {
 	if (empty($idList))
-		return '[]';
+		return [];
 
 		$positionCol = $coords ? 'm.position,' : '';
 	$query = "SELECT m.locationid, m.machineuuid, $positionCol m.logintime, m.lastseen, m.lastboot FROM machine m
@@ -119,7 +123,7 @@ function getLocationInfo($idList, $coords = false)
 	}
 
 	// The array keys are only used for the isset -> Return only the values.
-	return json_encode(array_values($dbresult));
+	return array_values($dbresult);
 }
 
 // ########## </Locationinfo> ###########
@@ -129,7 +133,7 @@ function getLocationInfo($idList, $coords = false)
  * Gets the Opening time of the given locations.
  *
  * @param $idList Array list of locations
- * @return string Opening times JSON
+ * @return array Opening times struct
  */
 function getOpeningTime($idList)
 {
@@ -141,7 +145,7 @@ function getOpeningTime($idList)
 		}
 	}
 	if (empty($allIds))
-		return '[]';
+		return [];
 	$openingTimes = array();
 	$qs = '?' . str_repeat(',?', count($allIds) - 1);
 	$res = Database::simpleQuery("SELECT locationid, openingtime FROM locationinfo_locationconfig WHERE locationid IN ($qs)",
@@ -169,7 +173,7 @@ function getOpeningTime($idList)
 			$id = $locations[$id]['parentlocationid'];
 		}
 	}
-	return json_encode($returnValue);
+	return $returnValue;
 }
 
 /**
@@ -214,7 +218,8 @@ function formatOpeningtime($openingtime)
 /**
  * Gets the config of the location.
  *
- * @param $locationID ID of the location
+ * @param int $locationID ID of the location
+ * @return array configuration struct
  */
 function getConfig($locationID)
 {
@@ -234,10 +239,9 @@ function getConfig($locationID)
 		$config['room'] = $dbresult['locationname'];
 	}
 
-	$date = getdate();
 	$config['time'] = date('Y-m-d H:i:s');
 
-	return json_encode($config);
+	return $config;
 }
 
 /**
@@ -273,7 +277,7 @@ function getPcStates($idList)
 {
 	$pcStates = array();
 
-	$locationInfoList = json_decode(getLocationInfo($idList), true);
+	$locationInfoList = getLocationInfo($idList);
 	foreach ($locationInfoList as $locationInfo) {
 		$result['id'] = $locationInfo['id'];
 		$idle = 0;
@@ -299,21 +303,21 @@ function getPcStates($idList)
 		$result['broken'] = $broken;
 		$pcStates[] = $result;
 	}
-	return json_encode($pcStates);
+	return $pcStates;
 }
 
 /**
  * Gets the location tree of the given locations.
  *
  * @param int[] $idList Array list of the locations.
- * @return string location tree data as JSON.
+ * @return array location tree data
  */
 function getLocationTree($idList)
 {
 	$locations = Location::getTree();
 
 	$ret = findLocations($locations, $idList);
-	return json_encode($ret);
+	return $ret;
 }
 
 function findLocations($locations, $idList)
@@ -338,29 +342,27 @@ function findLocations($locations, $idList)
  */
 function getCalendar($idList)
 {
-	$serverList = array();
+	if (empty($idList))
+		return [];
 
-	if (!empty($idList)) {
-		// Build SQL query for multiple ids.
-		$qs = '?' . str_repeat(',?', count($idList) - 1);
-		$query = "SELECT l.locationid, l.serverid, l.serverlocationid, s.servertype, s.credentials
+	// Build SQL query for multiple ids.
+	$query = "SELECT l.locationid, l.serverid, l.serverlocationid, s.servertype, s.credentials
 				FROM `locationinfo_locationconfig` AS l
 				INNER JOIN locationinfo_coursebackend AS s ON (s.serverid = l.serverid)
-				WHERE l.hidden = 0 AND l.locationid IN ($qs)
+				WHERE l.hidden = 0 AND l.locationid IN (:idlist)
 				ORDER BY s.servertype ASC";
+	$dbquery = Database::simpleQuery($query, array('idlist' => array_values($idList)));
 
-		$dbquery = Database::simpleQuery($query, array_values($idList));
-
-		while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			if (!isset($serverList[$dbresult['serverid']])) {
-				$serverList[$dbresult['serverid']] = array(
-					'credentials' => json_decode($dbresult['credentials'], true),
-					'type' => $dbresult['servertype'],
-					'idlist' => array()
-				);
-			}
-			$serverList[$dbresult['serverid']]['idlist'][] = $dbresult['locationid'];
+	$serverList = array();
+	while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
+		if (!isset($serverList[$dbresult['serverid']])) {
+			$serverList[$dbresult['serverid']] = array(
+				'credentials' => json_decode($dbresult['credentials'], true),
+				'type' => $dbresult['servertype'],
+				'idlist' => array()
+			);
 		}
+		$serverList[$dbresult['serverid']]['idlist'][] = $dbresult['locationid'];
 	}
 
 	$resultArray = array();
@@ -392,7 +394,7 @@ function getCalendar($idList)
 			}
 		}
 	}
-	return json_encode($resultArray);
+	return $resultArray;
 }
 
 // ########## </Calendar> ##########
