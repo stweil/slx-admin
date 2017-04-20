@@ -79,9 +79,15 @@ class Page_LocationInfo extends Page
 		$result['rotation'] = Request::post('rotation', 0, 'int');
 		$result['scale'] = Request::post('scale', 50, 'int');
 		$result['switchtime'] = Request::post('switchtime', 20, 'int');
-		$result['calupdate'] = Request::post('calupdate', 30, 'int');
+		$result['calupdate'] = Request::post('calupdate', 120, 'int');
 		$result['roomupdate'] = Request::post('roomupdate', 30, 'int');
 		$result['configupdate'] = Request::post('configupdate', 180, 'int');
+		if ($result['roomupdate'] < 30) {
+			$result['roomupdate'] = 30;
+		}
+		if ($result['calupdate'] < 120) {
+			$result['calupdate'] = 120;
+		}
 		$serverid = Request::post('serverid', 0, 'int');
 		$serverlocationid = Request::post('serverlocationid', '', 'string');
 
