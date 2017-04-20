@@ -481,12 +481,10 @@ class Page_LocationInfo extends Page
 					}
 				}
 
-				if ($backend['typ'] == $dbresult['servertype']) {
-					if (isset($dbcredentials[$cred->property])) {
-						$credential['value'] = $dbcredentials[$cred->property];
-					} else {
-						$credential['value'] = $cred->default;
-					}
+				if ($backend['typ'] == $dbresult['servertype'] && isset($dbcredentials[$cred->property])) {
+					$credential['value'] = $dbcredentials[$cred->property];
+				} else {
+					$credential['value'] = $cred->default;
 				}
 
 				$selection = array();
