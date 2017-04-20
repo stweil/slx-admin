@@ -59,7 +59,7 @@ function filterIdList($locationIds)
 /**
  * Filters the hidden locations from an array.
  *
- * @param $idArray Id list
+ * @param int[] $idArray Id list
  * @return array Filtered id list
  */
 function filterHiddenLocations($idArray)
@@ -80,7 +80,7 @@ function filterHiddenLocations($idArray)
 /**
  * Gets the location info of the given locations.
  *
- * @param $idList Array list of ids.
+ * @param int[] $idList list of ids.
  * @param bool $coords Defines if coords should be included or not.
  * @return array location info struct
  */
@@ -132,7 +132,7 @@ function getLocationInfo($idList, $coords = false)
 /**
  * Gets the Opening time of the given locations.
  *
- * @param $idList Array list of locations
+ * @param int[] $idList list of locations
  * @return array Opening times struct
  */
 function getOpeningTime($idList)
@@ -187,6 +187,7 @@ function getOpeningTime($idList)
  */
 function formatOpeningtime($openingtime)
 {
+	$result = array();
 	$weekarray = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
 	foreach ($weekarray as $d) {
 		$array = array();
@@ -247,7 +248,7 @@ function getConfig($locationID)
 /**
  * Creates and returns a default config for room that didn't saved a config yet.
  *
- * @return Return a default config.
+ * @return array Return a default config.
  */
 function defaultConfig()
 {
@@ -270,7 +271,7 @@ function defaultConfig()
 /**
  * Gets the pc states of the given locations.
  *
- * @param $idList Array list of the location ids.
+ * @param int[] $idList list of the location ids.
  * @return string PC state JSON
  */
 function getPcStates($idList)
@@ -279,28 +280,21 @@ function getPcStates($idList)
 
 	$locationInfoList = getLocationInfo($idList);
 	foreach ($locationInfoList as $locationInfo) {
-		$result['id'] = $locationInfo['id'];
-		$idle = 0;
-		$occupied = 0;
-		$off = 0;
-		$broken = 0;
+		$result = array(
+			'id' => $locationInfo['id'],
+			'idle' => 0,
+			'occupied' => 0,
+			'off' => 0,
+			'broken' => 0,
+		);
 
 		foreach ($locationInfo['computer'] as $computer) {
-			if ($computer['pcState'] == "IDLE") {
-				$idle++;
-			} elseif ($computer['pcState'] == "OCCUPIED") {
-				$occupied++;
-			} elseif ($computer['pcState'] == "OFF") {
-				$off++;
-			} elseif ($computer['pcState'] == "BROKEN") {
-				$broken++;
+			$key = strtolower($computer['pcState']);
+			if (isset($result[$key])) {
+				$result[$key]++;
 			}
 		}
 
-		$result['idle'] = $idle;
-		$result['occupied'] = $occupied;
-		$result['off'] = $off;
-		$result['broken'] = $broken;
 		$pcStates[] = $result;
 	}
 	return $pcStates;
@@ -337,7 +331,7 @@ function findLocations($locations, $idList)
 /**
  * Gets the calendar of the given ids.
  *
- * @param $idList Array list with the location ids.
+ * @param int[] $idList list with the location ids.
  * @return string Calendar JSON.
  */
 function getCalendar($idList)
