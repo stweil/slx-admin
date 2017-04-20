@@ -143,7 +143,7 @@
 
 		function init() {
 			var ids = getUrlParameter("id");
-			$.getJSON("../../../api.php?do=locationinfo&action=roomtree&id=" + ids, function (result) {
+			$.getJSON("../../../api.php?do=locationinfo&action=locationtree&id=" + ids, function (result) {
 				generateLayout(result);
 
 				setInterval(update, 1000);

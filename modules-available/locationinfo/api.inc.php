@@ -9,63 +9,63 @@ function HandleParameters()
 {
 
 	$getAction = Request::get('action', 0, 'string');
-	if ($getAction == "roominfo") {
-		$roomIDs = Request::get('id', 0, 'string');
-		$array = filterIdList($roomIDs);
+	if ($getAction == "locationinfo") {
+		$locationIds = Request::get('id', 0, 'string');
+		$array = filterIdList($locationIds);
 		$getCoords = Request::get('coords', 0, 'string');
 		if (empty($getCoords)) {
 			$getCoords = '0';
 		}
-		echo getRoomInfo($array, $getCoords);
+		echo getLocationInfo($array, $getCoords);
 	} elseif ($getAction == "openingtime") {
-		$roomIDs = Request::get('id', 0, 'string');
-		$array = filterIdList($roomIDs);
+		$locationIds = Request::get('id', 0, 'string');
+		$array = filterIdList($locationIds);
 		echo getOpeningTime($array);
 	} elseif ($getAction == "config") {
-		$getRoomID = Request::get('id', 0, 'int');
-		getConfig($getRoomID);
+		$locationId = Request::get('id', 0, 'int');
+		getConfig($locationId);
 	} elseif ($getAction == "pcstates") {
-		$roomIDs = Request::get('id', 0, 'string');
-		$array = filterIdList($roomIDs);
+		$locationIds = Request::get('id', 0, 'string');
+		$array = filterIdList($locationIds);
 		echo getPcStates($array);
-	} elseif ($getAction == "roomtree") {
-		$roomIDs = Request::get('id', 0, 'string');
-		$array = filterIdList($roomIDs);
-		echo getRoomTree($array);
+	} elseif ($getAction == "locationtree") {
+		$locationIds = Request::get('id', 0, 'string');
+		$array = filterIdList($locationIds);
+		echo getLocationTree($array);
 	} elseif ($getAction == "calendar") {
-		$roomIDs = Request::get('id', 0, 'string');
-		$array = filterIdList($roomIDs);
+		$locationIds = Request::get('id', 0, 'string');
+		$array = filterIdList($locationIds);
 		echo getCalendar($array);
 	}
 }
 
 /**
- * Filters the id list. Removes Double / non-int / hidden rooms.
+ * Filters the id list. Removes Double / non-int / hidden locations.
  *
- * @param $roomids Array of the room ids.
- * @return array The filtered array of the room ids.
+ * @param string $locationIds comma separated list of location ids
+ * @return array The filtered array of the location ids.
  */
-function filterIdList($roomids)
+function filterIdList($locationIds)
 {
-	$idList = explode(',', $roomids);
+	$idList = explode(',', $locationIds);
 	$filteredIdList = array_filter($idList, 'is_numeric');
 	$filteredIdList = array_unique($filteredIdList);
-	$filteredIdList = filterHiddenRoom($filteredIdList);
+	$filteredIdList = filterHiddenLocations($filteredIdList);
 
 	return $filteredIdList;
 }
 
 /**
- * Filters the hidden rooms from an array.
+ * Filters the hidden locations from an array.
  *
  * @param $idArray Id list
  * @return array Filtered id list
  */
-function filterHiddenRoom($idArray)
+function filterHiddenLocations($idArray)
 {
 	$filteredArray = array();
 	if (!empty($idArray)) {
-		$query = "SELECT locationid, hidden FROM `location_info` WHERE locationid IN (";
+		$query = "SELECT locationid, hidden FROM `locationinfo_locationconfig` WHERE locationid IN (";
 		$query .= implode(",", $idArray);
 		$query .= ")";
 
@@ -81,15 +81,15 @@ function filterHiddenRoom($idArray)
 	return $filteredArray;
 }
 
-// ########## <Roominfo> ##########
+// ########## <Locationinfo> ##########
 /**
- * Gets the room info of the given rooms.
+ * Gets the location info of the given locations.
  *
  * @param $idList Array list of ids.
  * @param bool $coords Defines if coords should be included or not.
- * @return string Roominfo JSON
+ * @return string location info, formatted as JSON
  */
-function getRoomInfo($idList, $coords = false)
+function getLocationInfo($idList, $coords = false)
 {
 
 	$coordinates = (string)$coords;
@@ -97,7 +97,7 @@ function getRoomInfo($idList, $coords = false)
 
 	if (!empty($idList)) {
 		// Build SQL Query for multiple ids.
-		$query = "SELECT l.locationid, m.machineuuid, m.position, m.logintime, m.lastseen, m.lastboot FROM location_info AS l
+		$query = "SELECT l.locationid, m.machineuuid, m.position, m.logintime, m.lastseen, m.lastboot FROM locationinfo_locationconfig AS l
 				LEFT JOIN `machine` AS m ON l.locationid = m.locationid WHERE l.hidden = 0 AND l.locationid IN (";
 
 		$query .= implode(",", $idList);
@@ -142,7 +142,7 @@ function getRoomInfo($idList, $coords = false)
 	return json_encode(array_values($dbresult), true);
 }
 
-// ########## </Roominfo> ###########
+// ########## </Locationinfo> ###########
 
 // ########## <Openingtime> ##########
 /**
@@ -164,7 +164,7 @@ function getOpeningTime($idList)
 		return '[]';
 	$openingTimes = array();
 	$qs = '?' . str_repeat(',?', count($allIds) - 1);
-	$res = Database::simpleQuery("SELECT locationid, openingtime FROM location_info WHERE locationid IN ($qs)",
+	$res = Database::simpleQuery("SELECT locationid, openingtime FROM locationinfo_locationconfig WHERE locationid IN ($qs)",
 		array_values($allIds));
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		$openingTimes[(int)$row['locationid']] = $row['openingtime'];
@@ -238,9 +238,9 @@ function formatOpeningtime($openingtime)
  */
 function getConfig($locationID)
 {
-	$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverroomid, s.servertype FROM `location_info` AS li
+	$dbresult = Database::queryFirst("SELECT l.locationname, li.config, li.serverlocationid, s.servertype FROM `locationinfo_locationconfig` AS li
 		RIGHT JOIN `location` AS l ON l.locationid=li.locationid
-		LEFT JOIN `setting_location_info` AS s ON s.serverid=li.serverid
+		LEFT JOIN `locationinfo_coursebackend` AS s ON s.serverid=li.serverid
 		WHERE l.locationid=:locationID", array('locationID' => $locationID));
 	$config = array();
 
@@ -294,15 +294,15 @@ function getPcStates($idList)
 {
 	$pcStates = array();
 
-	$roominfoList = json_decode(getRoomInfo($idList), true);
-	foreach ($roominfoList as $roomInfo) {
-		$result['id'] = $roomInfo['id'];
+	$locationInfoList = json_decode(getLocationInfo($idList), true);
+	foreach ($locationInfoList as $locationInfo) {
+		$result['id'] = $locationInfo['id'];
 		$idle = 0;
 		$occupied = 0;
 		$off = 0;
 		$broken = 0;
 
-		foreach ($roomInfo['computer'] as $computer) {
+		foreach ($locationInfo['computer'] as $computer) {
 			if ($computer['pcState'] == "IDLE") {
 				$idle++;
 			} elseif ($computer['pcState'] == "OCCUPIED") {
@@ -324,27 +324,27 @@ function getPcStates($idList)
 }
 
 /**
- * Gets the room tree of the given locations.
+ * Gets the location tree of the given locations.
  *
  * @param int[] $idList Array list of the locations.
- * @return string Room tree JSON.
+ * @return string location tree data as JSON.
  */
-function getRoomTree($idList)
+function getLocationTree($idList)
 {
 	$locations = Location::getTree();
 
-	$ret = findRooms($locations, $idList);
+	$ret = findLocations($locations, $idList);
 	return json_encode($ret);
 }
 
-function findRooms($locations, $idList)
+function findLocations($locations, $idList)
 {
 	$ret = array();
 	foreach ($locations as $location) {
 		if (in_array($location['locationid'], $idList)) {
 			$ret[] = $location;
 		} elseif (!empty($location['children'])) {
-			$ret = array_merge($ret, findRooms($location['children'], $idList));
+			$ret = array_merge($ret, findLocations($location['children'], $idList));
 		}
 	}
 	return $ret;
@@ -364,9 +364,9 @@ function getCalendar($idList)
 	if (!empty($idList)) {
 		// Build SQL query for multiple ids.
 		$qs = '?' . str_repeat(',?', count($idList) - 1);
-		$query = "SELECT l.locationid, l.serverid, l.serverroomid, s.servertype, s.credentials
-				FROM `location_info` AS l
-				INNER JOIN setting_location_info AS s ON (s.serverid = l.serverid)
+		$query = "SELECT l.locationid, l.serverid, l.serverlocationid, s.servertype, s.credentials
+				FROM `locationinfo_locationconfig` AS l
+				INNER JOIN locationinfo_coursebackend AS s ON (s.serverid = l.serverid)
 				WHERE l.hidden = 0 AND l.locationid IN ($qs)
 				ORDER BY s.servertype ASC";
 
@@ -390,7 +390,7 @@ function getCalendar($idList)
 		if ($serverInstance === false) {
 			EventLog::warning('Cannot fetch schedule for locationid ' . $server['locationid']
 				. ': Backend type ' . $server['type'] . ' unknown. Disabling location.');
-			Database::exec("UPDATE location_info SET serverid = 0 WHERE locationid = :lid",
+			Database::exec("UPDATE locationinfo_locationconfig SET serverid = 0 WHERE locationid = :lid",
 				array('lid' => $server['locationid']));
 			continue;
 		}

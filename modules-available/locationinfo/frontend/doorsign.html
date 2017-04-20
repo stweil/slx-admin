@@ -1339,7 +1339,7 @@ optional:
 		 */
 		function preInitRoom(room) {
 
-			$.getJSON("../../../api.php?do=locationinfo&action=roominfo&id=" + room.id + "&coords=1", function (result) {
+			$.getJSON("../../../api.php?do=locationinfo&action=locationinfo&id=" + room.id + "&coords=1", function (result) {
 				generateRoomLayoutDiv((100 - room.config.scale) + "%", room);
 				if (result[0] == null) {
 
@@ -1552,7 +1552,7 @@ optional:
 		 */
 		function queryRooms(ids) {
 			$.ajax({
-				url: "../../../api.php?do=locationinfo&action=roominfo&id=" + ids + "&coords=0",
+				url: "../../../api.php?do=locationinfo&action=locationinfo&id=" + ids + "&coords=0",
 				dataType: 'json',
 				cache: false,
 				timeout: 30000,

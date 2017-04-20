@@ -55,7 +55,7 @@ class Page_LocationInfo extends Page
 			Messages::addError('server-id-missing');
 			return;
 		}
-		Database::exec("DELETE FROM `setting_location_info` WHERE serverid=:id", array('id' => $id));
+		Database::exec("DELETE FROM `locationinfo_coursebackend` WHERE serverid=:id", array('id' => $id));
 	}
 
 	/**
@@ -83,16 +83,16 @@ class Page_LocationInfo extends Page
 		$result['roomupdate'] = Request::post('roomupdate', 30, 'int');
 		$result['configupdate'] = Request::post('configupdate', 180, 'int');
 		$serverid = Request::post('serverid', 0, 'int');
-		$serverroomid = Request::post('serverroomid', '', 'string');
+		$serverlocationid = Request::post('serverlocationid', '', 'string');
 
-		Database::exec("INSERT INTO `location_info` (locationid, serverid, serverroomid, config, lastcalendarupdate)
-				VALUES (:id, :serverid, :serverroomid, :config, 0)
+		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, serverid, serverlocationid, config, lastcalendarupdate)
+				VALUES (:id, :serverid, :serverlocationid, :config, 0)
 				ON DUPLICATE KEY UPDATE config = VALUES(config), serverid = VALUES(serverid),
-					serverroomid = VALUES(serverroomid), lastcalendarupdate = 0", array(
+					serverlocationid = VALUES(serverlocationid), lastcalendarupdate = 0", array(
 			'id' => $locationid,
 			'config' => json_encode($result),
 			'serverid' => $serverid,
-			'serverroomid' => $serverroomid,
+			'serverlocationid' => $serverlocationid,
 		));
 
 		Message::addSuccess('config-saved');
@@ -128,12 +128,12 @@ class Page_LocationInfo extends Page
 			'credentials' => json_encode($credentialsJson)
 		);
 		if ($serverid === 0) {
-			Database::exec('INSERT INTO `setting_location_info` (servername, servertype, credentials)
+			Database::exec('INSERT INTO `locationinfo_coursebackend` (servername, servertype, credentials)
 					VALUES (:name, :type, :credentials)', $params);
 			$this->checkConnection(Database::lastInsertId());
 		} else {
 			$params['id'] = $serverid;
-			Database::exec('UPDATE `setting_location_info`
+			Database::exec('UPDATE `locationinfo_coursebackend`
 					SET servername = :name, servertype = :type, credentials = :credentials
 					WHERE serverid = :id', $params);
 			$this->checkConnection($serverid);
@@ -158,7 +158,7 @@ class Page_LocationInfo extends Page
 		$deleteCounter = 0;
 
 		if (!$easyMode) {
-			$resulttmp = Database::queryFirst("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $locationid));
+			$resulttmp = Database::queryFirst("SELECT openingtime FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $locationid));
 			if ($resulttmp !== false) {
 				$resulttmp = json_decode($resulttmp['openingtime'], true);
 			}
@@ -218,7 +218,7 @@ class Page_LocationInfo extends Page
 			}
 		}
 
-		Database::exec("INSERT INTO `location_info` (locationid, openingtime)
+		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, openingtime)
 				VALUES (:id, :openingtime)
 				ON DUPLICATE KEY UPDATE openingtime = VALUES(openingtime)",
 			array('id' => $locationid, 'openingtime' => json_encode($result)));
@@ -258,7 +258,7 @@ class Page_LocationInfo extends Page
 			//}
 		}
 
-		Database::exec("INSERT INTO `location_info` (locationid, openingtime)
+		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, openingtime)
 				VALUES (:id, :openingtime)
 				ON DUPLICATE KEY UPDATE openingtime = VALUES(openingtime)",
 			array('id' => $locationid, 'openingtime' => json_encode($result)));
@@ -279,7 +279,7 @@ class Page_LocationInfo extends Page
 		}
 
 		$dbresult = Database::queryFirst("SELECT servertype, credentials
-				FROM `setting_location_info`
+				FROM `locationinfo_coursebackend`
 				WHERE serverid = :serverid", array('serverid' => $serverid));
 
 		$serverInstance = CourseBackend::getInstance($dbresult['servertype']);
@@ -322,17 +322,17 @@ class Page_LocationInfo extends Page
 			$params[] = $hidden;
 			$return[] = array('locationid' => $child, 'hidden' => $hidden);
 		}
-		Database::exec("INSERT INTO location_info (locationid, hidden)
+		Database::exec("INSERT INTO locationinfo_locationconfig (locationid, hidden)
 				VALUES $qs ON DUPLICATE KEY UPDATE hidden = VALUES(hidden)", $params);
 
 		// Handle parents - uncheck if not all children are checked
 		while ($loc['parentlocationid'] != 0) {
 			$stats = Database::queryFirst('SELECT Count(*) AS total, Sum(li.hidden > 0) AS hidecount FROM location l
-					LEFT JOIN location_info li USING (locationid)
+					LEFT JOIN locationinfo_locationconfig li USING (locationid)
 					WHERE l.parentlocationid = :parent', array('parent' => $loc['parentlocationid']));
 			$hidden = ($stats['total'] == $stats['hidecount']) ? 1 : 0;
 			$params = array('locationid' => $loc['parentlocationid'], 'hidden' => $hidden);
-			Database::exec('INSERT INTO location_info (locationid, hidden)
+			Database::exec('INSERT INTO locationinfo_locationconfig (locationid, hidden)
 					VALUES (:locationid, :hidden) ON DUPLICATE KEY UPDATE hidden = VALUES(hidden)', $params);
 			$return[] = $params;
 			$loc = $locs[$loc['parentlocationid']];
@@ -348,7 +348,7 @@ class Page_LocationInfo extends Page
 		$locations = Location::getLocations(0, 0, false, true);
 
 		// Get hidden state of all locations
-		$dbquery = Database::simpleQuery("SELECT li.locationid, li.hidden FROM `location_info` AS li");
+		$dbquery = Database::simpleQuery("SELECT li.locationid, li.hidden FROM `locationinfo_locationconfig` AS li");
 
 		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$locid = (int)$row['locationid'];
@@ -365,7 +365,7 @@ class Page_LocationInfo extends Page
 
 		// Get the Serverlist from the DB and make it mustache accessable
 		$serverlist = array();
-		$dbquery2 = Database::simpleQuery("SELECT * FROM `setting_location_info`");
+		$dbquery2 = Database::simpleQuery("SELECT * FROM `locationinfo_coursebackend`");
 		while ($row = $dbquery2->fetch(PDO::FETCH_ASSOC)) {
 			if (isset($servertypes[$row['servertype']])) {
 				$row['typename'] = $servertypes[$row['servertype']];
@@ -438,7 +438,7 @@ class Page_LocationInfo extends Page
 	private function ajaxServerSettings($id)
 	{
 		$dbresult = Database::queryFirst('SELECT servername, servertype, credentials
-				FROM `setting_location_info` WHERE serverid = :id', array('id' => $id));
+				FROM `locationinfo_coursebackend` WHERE serverid = :id', array('id' => $id));
 
 		// Credentials stuff.
 		$dbcredentials = json_decode($dbresult['credentials'], true);
@@ -531,7 +531,7 @@ class Page_LocationInfo extends Page
 	 */
 	private function ajaxTimeTable($id)
 	{
-		$row = Database::queryFirst("SELECT openingtime FROM `location_info` WHERE locationid = :id", array('id' => $id));
+		$row = Database::queryFirst("SELECT openingtime FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $id));
 		if ($row !== false) {
 			$openingtimes = json_decode($row['openingtime'], true);
 		}
@@ -589,7 +589,7 @@ class Page_LocationInfo extends Page
 	private function ajaxLoadLocationConfig($id)
 	{
 		// Get Config data from db
-		$location = Database::queryFirst("SELECT config, serverid, serverroomid FROM `location_info` WHERE locationid = :id", array('id' => $id));
+		$location = Database::queryFirst("SELECT config, serverid, serverlocationid FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $id));
 		if ($location === false) {
 			die("Invalid location id: $id");
 		}
@@ -597,7 +597,7 @@ class Page_LocationInfo extends Page
 		$config = json_decode($location['config'], true); // TODO: Validate we got an array, fill with defaults otherwise
 
 		// get Server / ID list
-		$dbq = Database::simpleQuery("SELECT serverid, servername FROM setting_location_info ORDER BY servername ASC");
+		$dbq = Database::simpleQuery("SELECT serverid, servername FROM locationinfo_coursebackend ORDER BY servername ASC");
 		$serverList = array();
 		while ($row = $dbq->fetch(PDO::FETCH_ASSOC)) {
 			if ($row['serverid'] == $location['serverid']) {
@@ -628,7 +628,7 @@ class Page_LocationInfo extends Page
 			'configupdate' => $config['configupdate'],
 			'serverlist' => $serverList,
 			'serverid' => $location['serverid'],
-			'serverroomid' => $location['serverroomid']
+			'serverlocationid' => $location['serverlocationid']
 		));
 	}
 

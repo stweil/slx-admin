@@ -146,8 +146,8 @@ abstract class CourseBackend
 		if (empty($requestedLocationIds))
 			return array();
 		$NOW = time();
-		$dbquery1 = Database::simpleQuery("SELECT locationid, calendar, serverroomid, lastcalendarupdate
-				FROM location_info WHERE locationid IN (:locations)",
+		$dbquery1 = Database::simpleQuery("SELECT locationid, calendar, serverlocationid, lastcalendarupdate
+				FROM locationinfo_locationconfig WHERE locationid IN (:locations)",
 				array('locations' => array_values($requestedLocationIds)));
 		$returnValue = [];
 		$remoteIds = [];
@@ -156,7 +156,7 @@ abstract class CourseBackend
 			if ($row['lastcalendarupdate'] + $this->getCacheTime() > $NOW) {
 				$returnValue[$row['locationid']] = json_decode($row['calendar']);
 			} else {
-				$remoteIds[$row['locationid']] = $row['serverroomid'];
+				$remoteIds[$row['locationid']] = $row['serverlocationid'];
 			}
 
 		}
@@ -166,8 +166,8 @@ abstract class CourseBackend
 		}
 		// Check if we should refresh other rooms recently requested by front ends
 		if ($this->getRefreshTime() > $this->getCacheTime()) {
-			$dbquery4 = Database::simpleQuery("SELECT locationid, serverroomid FROM location_info
-					WHERE serverid = :serverid AND serverroomid NOT IN (:skiplist)
+			$dbquery4 = Database::simpleQuery("SELECT locationid, serverlocationid FROM locationinfo_locationconfig
+					WHERE serverid = :serverid AND serverlocationid NOT IN (:skiplist)
 					AND lastcalendarupdate BETWEEN :lowerage AND :upperage
 					LIMIT " . self::MAX_ADDIDIONAL_LOCATIONS, array(
 						'serverid' => $this->serverId,
@@ -176,7 +176,7 @@ abstract class CourseBackend
 						'upperage' => $NOW - $this->getCacheTime(),
 			));
 			while ($row = $dbquery4->fetch(PDO::FETCH_ASSOC)) {
-				$remoteIds[$row['locationid']] = $row['serverroomid'];
+				$remoteIds[$row['locationid']] = $row['serverlocationid'];
 			}
 		}
 		$backendResponse = $this->fetchSchedulesInternal($remoteIds);
@@ -188,10 +188,10 @@ abstract class CourseBackend
 			// Caching requested by backend, write to DB
 			foreach ($backendResponse as $serverRoomId => $calendar) {
 				$value = json_encode($calendar);
-				Database::simpleQuery("UPDATE location_info SET calendar = :ttable, lastcalendarupdate = :now
-					WHERE serverid = :serverid AND serverroomid = :serverroomid", array(
+				Database::simpleQuery("UPDATE locationinfo_locationconfig SET calendar = :ttable, lastcalendarupdate = :now
+					WHERE serverid = :serverid AND serverlocationid = :serverlocationid", array(
 					'serverid' => $this->serverId,
-					'serverroomid' => $serverRoomId,
+					'serverlocationid' => $serverRoomId,
 					'ttable' => $value,
 					'now' => $NOW
 				));

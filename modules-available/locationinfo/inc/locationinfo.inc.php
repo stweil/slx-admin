@@ -45,7 +45,7 @@ class LocationInfo
 	public static function setServerError($serverId, $message)
 	{
 		if ($message === false || $message === null) {
-			Database::exec("UPDATE `setting_location_info` SET error = NULL
+			Database::exec("UPDATE `locationinfo_coursebackend` SET error = NULL
 					WHERE serverid = :id", array('id' => $serverId));
 		} else {
 			if (empty($message))  {
@@ -55,7 +55,7 @@ class LocationInfo
 				'timestamp' => time(),
 				'error' => (string)$message
 			));
-			Database::exec("UPDATE `setting_location_info` SET error = :error
+			Database::exec("UPDATE `locationinfo_coursebackend` SET error = :error
 					WHERE serverid = :id", array('id' => $serverId, 'error' => $error));
 		}
 	}

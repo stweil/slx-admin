@@ -36,8 +36,8 @@ class RebootQueries
 	{
 		if (empty($list))
 			return array();
-		$qs = '?' . str_repeat(',?', count($list) - 1);
-		$res = Database::simpleQuery("SELECT machineuuid, clientip, locationid FROM machine WHERE machineuuid IN ($qs)", $list);
+		$res = Database::simpleQuery("SELECT machineuuid, clientip, locationid FROM machine
+				WHERE machineuuid IN (:list)", compact('list'));
 		return $res->fetchAll(PDO::FETCH_ASSOC);
 	}
 
