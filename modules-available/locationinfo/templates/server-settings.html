@@ -1,163 +1,91 @@
-<div>
-	<form method="post" action="?do=locationinfo" id="settingsForm">
-		<input type="hidden" name="token" value="{{token}}">
-		<input type="hidden" name="action" value="updateServerSettings">
-		<input type="hidden" name="id" value="{{id}}">
-
-
-		<div class="panel panel-default">
-			<div class="panel-heading">{{lang_general}}</div>
-			<div class="panel-body">
-				<div class="list-group">
-
-					<div class="list-group-item">
-						<div class="row">
-							<div class="col-md-3">
-								<label>{{lang_locationName}}</label>
-							</div>
-							<div class="col-md-7">
-								<input required class="form-control" id="input-name-{{id}}" name="name" type="text"
-										 value="{{name}}">
-							</div>
-							<div class="col-md-2">
-								<a class="btn btn-default" id="help-name" title="{{lang_nameTooltip}}">
-									<span class="glyphicon glyphicon-question-sign"></span>
-								</a>
-							</div>
-						</div>
+<div class="panel panel-default">
+	<div class="panel-heading">{{lang_general}}</div>
+	<div class="panel-body">
+		<div class="list-group">
+			<div class="list-group-item">
+				<div class="row">
+					<div class="col-md-3">
+						<label>{{lang_entryName}}</label>
 					</div>
-
-					<div class="list-group-item">
-						<div class="row">
-							<div class="col-md-3">
-								<label>{{lang_serverType}}</label>
-							</div>
-							<div class="col-md-7">
-								<select class="form-control" id="input-type-{{id}}" name="type" value="{{typ}}"
-										  onchange="servertype_changed(this.value);">
-									{{#backendList}}
-									<option id="{{typ}}" value="{{typ}}" {{#active}}selected{{/active}}>{{display}}
-									{{/backendList}}
-								</select>
-							</div>
-							<div class="col-md-2">
-								<a class="btn btn-default" id="help-type" title="{{lang_typeTooltip}}">
-									<span class="glyphicon glyphicon-question-sign"></span>
-								</a>
-							</div>
-						</div>
+					<div class="col-md-7">
+						<input required class="form-control" name="name" type="text" value="{{name}}" id="name-input"
+								 form="form-{{currentbackend}}">
 					</div>
-
+					<div class="col-md-2">
+						<a class="btn btn-default" title="{{lang_nameTooltip}}">
+							<span class="glyphicon glyphicon-question-sign"></span>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="list-group-item">
+				<div class="row">
+					<div class="col-md-3">
+						<label>{{lang_serverType}}</label>
+					</div>
+					<div class="col-md-7">
+						<select class="form-control" onchange="servertype_changed(this.value)">
+							{{#backendList}}
+								<option value="{{backendtype}}" {{#active}}selected{{/active}}>{{display}}</option>
+							{{/backendList}}
+						</select>
+					</div>
+					<div class="col-md-2">
+						<a class="btn btn-default" id="help-type" title="{{lang_typeTooltip}}">
+							<span class="glyphicon glyphicon-question-sign"></span>
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
+	</div>
+</div>
 
-		<div class="panel panel-default" id="credentials-div">
+{{#backendList}}
+<div id="formwrapper-{{backendtype}}" {{^active}}class="collapse"{{/active}}>
+	<form method="post" action="?do=locationinfo" id="form-{{backendtype}}">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="updateServerSettings">
+		<input type="hidden" name="id" value="{{id}}">
+		<input type="hidden" name="type" value="{{backendtype}}">
+
+
+		<div class="panel panel-default">
 			<div class="panel-heading">{{lang_credentials}}</div>
 			<div class="panel-body">
-				<div class="list-group" id="credentials-list"></div>
+				<div class="list-group">
+					{{#credentials}}
+					{{{credentialsHtml}}}
+					{{/credentials}}
+				</div>
 			</div>
 		</div>
-		<div id="credentials" class="list-group"></div>
 	</form>
 </div>
+{{/backendList}}
 <script type="text/javascript">
-	var type = "{{servertype}}";
-	if (type == "") {
-		type = $('#input-type-{{id}}').val();
-	}
-
-	loadCredentials(true);
-	initalizeBootstrap();
+	var currentBackend = "{{currentbackend}}";
 
 	/**
-	 * Initialize the bootstrap elements.
-	 */
-	function initalizeBootstrap() {
-		$('#help-name').tooltip();
-		$('#help-type').tooltip();
-	}
-
-	/**
-	 * Loads the dynamic credentials forms.
+	 * Show proper form after switching backend type
 	 *
-	 * @param {bool} useValue If false the form elements will be empty. Default = true.
-	 */
-	function loadCredentials(useValue) {
-		// {{name}} name of auth {{type}} type of auth (string, int etc.) {{value}} value from the db
-		{{#backendList}}
-		if (type == "{{typ}}") {
-			{{#credentials}}
-			$('#credentials-div').fadeIn('fast');
-
-			if ("{{type}}" == "string") {
-				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label>{{name}}</label></div>\
-				<div class="col-md-7">\
-				<input required class="form-control" id="input-{{uid}}" type="text" name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
-				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
-				</div></div>');
-			} else if ("{{type}}" == "int") {
-				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label>{{name}}</label></div>\
-				<div class="col-md-7">\
-				<input required class="form-control" id="input-{{uid}}" type="number" name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
-				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
-				</div></div>');
-			} else if ("{{type}}" == "password") {
-				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label>{{name}}</label></div>\
-				<div class="col-md-7">\
-				<input required class="form-control" id="input-{{uid}}" {{#mask}}type="password"{{/mask}}{{^mask}}type="text"{{/mask}} name="{{uid}}" value="{{value}}" form="settingsForm"></div>\
-				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
-				</div></div>');
-			} else if ("{{type}}" == "bool") {
-				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label>{{name}}</label></div>\
-				<div class="col-md-7">\
-				<input class="bs-switch" id="input-{{uid}}" type="checkbox" name="{{uid}}" value="true" form="settingsForm" {{#value}}checked{{/value}}></div>\
-				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
-				</div></div>');
-				$('#input-{{uid}}').bootstrapSwitch({
-					size: "small"
-				});
-			} else if ("{{type}}" == "array") {
-				$("#credentials-list").append('<div class="list-group-item"><div class="row">\
-				<div class="col-md-3"><label>{{name}}</label></div>\
-				<div class="col-md-7">\
-				<select class="form-control" id="input-selection-{{uid}}" name="{{uid}}" form="settingsForm">\
-				{{#array}}\
-				<option value="{{option}}" {{#active}}selected{{/active}}>{{option}}</option>\
-				{{/array}}\
-				</select></div>\
-				<div class="col-md-2"><a class="btn btn-default" id="help-{{uid}}" title="{{title}}"><span class="glyphicon glyphicon-question-sign"></span></a></div>\
-				</div></div>');
-			}
-
-			$('#help-{{uid}}').tooltip();
-			if (!useValue) {
-				$('#input-{{uid}}').val("");
-			}
-			{{/credentials}}
-			{{^credentials}}
-			$('#credentials-div').hide();
-			{{/credentials}}
-		}
-		{{/backendList}}
-
-	}
-
-	/**
-	 * After the servertype switch changed, the new credentials needs to be loaded.
-	 *
-	 * @param {string} value The new type of the server which credentials needs to be loaded.
+	 * @param {string} value The new currentBackend of the server which credentials needs to be loaded.
 	 */
 	function servertype_changed(value) {
-		type = value;
-		$('#credentials-div').fadeOut('fast', function() {
-			$('#credentials-list').empty();
-			loadCredentials(false);
+		if (value === currentBackend)
+			return;
+		var newBackend = value;
+		console.log('From ' + currentBackend + ' to ' + value);
+		$('#formwrapper-' + currentBackend).fadeOut('fast', function() {
+			console.log('Fading in ' + newBackend);
+			$('#formwrapper-' + newBackend).fadeIn('fast');
+			$('#myModalSubmitButton, #name-input').attr('form', 'form-' + newBackend);
 		});
+		currentBackend = value;
 	}
+
+	$('a.btn[title]').tooltip();
+	$('#myModalSubmitButton').attr('form', 'form-' + currentBackend);
+	$('.settings-bs-switch').bootstrapSwitch({size:'small'});
 
 </script>

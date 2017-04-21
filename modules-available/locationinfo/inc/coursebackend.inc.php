@@ -323,4 +323,43 @@ class BackendProperty {
 		$this->type = $type;
 		$this->default = $default;
 	}
+
+	/**
+	 * Initialize additional fields of this class that are only required
+	 * for rendering the server configuration dialog.
+	 *
+	 * @param string $backendId target backend id
+	 * @param mixed $current current value of this property.
+	 */
+	public function initForRender($current = null) {
+		if (is_array($this->type)) {
+			$this->template = 'dropdown';
+			$this->select_list = [];
+			foreach ($this->type as $item) {
+				$this->select_list[] = [
+					'option' => $item,
+					'active' => $item == $current,
+				];
+			}
+		} elseif ($this->type === 'bool') {
+			$this->template = $this->type;
+		} else {
+			$this->template = 'generic';
+		}
+		if ($this->type === 'string') {
+			$this->inputtype = 'text';
+		} elseif ($this->type === 'int') {
+			$this->inputtype = 'number';
+		} elseif ($this->type === 'password') {
+			$this->inputtype = Property::getPasswordFieldType();
+		}
+		$this->currentvalue = $current === null ? $this->default : $current;
+	}
+	public $inputtype;
+	public $template;
+	public $title;
+	public $helptext;
+	public $currentvalue;
+	public $select_list;
+	public $credentialsHtml;
 }

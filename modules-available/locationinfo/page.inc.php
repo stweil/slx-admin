@@ -123,10 +123,8 @@ class Page_LocationInfo extends Page
 		$tmptypeArray = $backend->getCredentialDefinitions();
 
 		$credentialsJson = array();
-		$counter = 0;
 		foreach ($tmptypeArray as $cred) {
-			$credentialsJson[$cred->property] = Request::post($counter);
-			$counter++;
+			$credentialsJson[$cred->property] = Request::post('prop-' . $cred->property);
 		}
 		$params = array(
 			'name' => $servername,
@@ -443,89 +441,43 @@ class Page_LocationInfo extends Page
 	 */
 	private function ajaxServerSettings($id)
 	{
-		$dbresult = Database::queryFirst('SELECT servername, servertype, credentials
+		$oldConfig = Database::queryFirst('SELECT servername, servertype, credentials
 				FROM `locationinfo_coursebackend` WHERE serverid = :id', array('id' => $id));
 
 		// Credentials stuff.
-		$dbcredentials = json_decode($dbresult['credentials'], true);
+		if ($oldConfig !== false) {
+			$oldCredentials = json_decode($oldConfig['credentials'], true);
+		} else {
+			$oldCredentials = array();
+		}
 
 		// Get a list of all the backend types.
 		$serverBackends = array();
 		$s_list = CourseBackend::getList();
 		foreach ($s_list as $s) {
-			$backend['typ'] = $s;
 			$backendInstance = CourseBackend::getInstance($s);
-			$backend['display'] = $backendInstance->getDisplayName();
-
-			if ($backend['typ'] == $dbresult['servertype']) {
-				$backend['active'] = true;
-			} else {
-				$backend['active'] = false;
-			}
-
-			$credentials = $backendInstance->getCredentialDefinitions();
-			$backend['credentials'] = array();
-
-			$counter = 0;
-			foreach ($credentials as $cred) {
-				$credential['uid'] = $counter;
-				$credential['name'] = Dictionary::translateFile($s, $cred->property, true);
-				$credential['type'] = $cred->type;
-				$credential['title'] = Dictionary::translateFile($s, $cred->property . "_title");
-
-				if (Property::getPasswordFieldType() === 'text') {
-					$credential['mask'] = false;
+			$backend = array(
+				'backendtype' => $s,
+				'display' => $backendInstance->getDisplayName(),
+				'active' => ($oldConfig !== false && $s === $oldConfig['servertype']),
+			);
+			$backend['credentials'] = $backendInstance->getCredentialDefinitions();
+			foreach ($backend['credentials'] as $cred) {
+				if ($backend['active'] && isset($oldCredentials[$cred->property])) {
+					$cred->initForRender($oldCredentials[$cred->property]);
 				} else {
-					if ($cred->type === "password") {
-						$credential['mask'] = true;
-					}
+					$cred->initForRender();
 				}
-
-				if ($backend['typ'] == $dbresult['servertype'] && isset($dbcredentials[$cred->property])) {
-					$credential['value'] = $dbcredentials[$cred->property];
-				} else {
-					$credential['value'] = $cred->default;
-				}
-
-				$selection = array();
-
-				if (is_array($cred->type)) {
-
-					$selfirst = true;
-					foreach ($cred->type as $opt) {
-						$option['option'] = $opt;
-						if (isset($credential['value'])) {
-							if ($opt == $credential['value']) {
-								$option['active'] = true;
-							} else {
-								$option['active'] = false;
-							}
-						} else {
-							if ($selfirst) {
-								$option['active'] = true;
-								$selfirst = false;
-							} else {
-								$option['active'] = false;
-							}
-						}
-
-						$selection[] = $option;
-					}
-					$credential['type'] = "array";
-					$credential['array'] = $selection;
-				}
-
-				$backend['credentials'][] = $credential;
-
-				$counter++;
+				$cred->title = Dictionary::translateFile('backend-' . $s, $cred->property, true);
+				$cred->helptext = Dictionary::translateFile('backend-' . $s, $cred->property . "_helptext");
+				$cred->credentialsHtml = Render::parse('server-prop-' . $cred->template, (array)$cred);
 			}
 			$serverBackends[] = $backend;
 		}
-
 		echo Render::parse('server-settings', array('id' => $id,
-			'name' => $dbresult['servername'],
-			'servertype' => $dbresult['servertype'],
-			'backendList' => array_values($serverBackends)));
+			'name' => $oldConfig['servername'],
+			'currentbackend' => $oldConfig['servertype'],
+			'backendList' => $serverBackends));
 	}
 
 	/**

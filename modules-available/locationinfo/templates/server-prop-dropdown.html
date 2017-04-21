@@ -1,0 +1,19 @@
+<div class="list-group-item">
+	<div class="row">
+		<div class="col-md-3"><label for="prop-{{property}}">{{title}}</label></div>
+		<div class="col-md-7">
+			<select class="form-control" id="prop-{{property}}" name="prop-{{property}}">
+				{{#select_list}}
+					<option {{#active}}selected{{/active}}>{{option}}</option>
+				{{/select_list}}
+			</select>
+		</div>
+		<div class="col-md-2">
+			{{#helptext}}
+				<a class="btn btn-default" title="{{helptext}}">
+					<span class="glyphicon glyphicon-question-sign"></span>
+				</a>
+			{{/helptext}}
+		</div>
+	</div>
+</div>

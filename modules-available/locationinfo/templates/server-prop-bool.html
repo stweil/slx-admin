@@ -1,0 +1,16 @@
+<div class="list-group-item">
+	<div class="row">
+		<div class="col-md-3"><label for="prop-{{property}}">{{title}}</label></div>
+		<div class="col-md-7">
+			<input class="settings-bs-switch" id="prop-{{property}}" type="checkbox" name="prop-{{property}}" value="1"
+					 {{#currentvalue}}checked{{/currentvalue}}>
+		</div>
+		<div class="col-md-2">
+			{{#helptext}}
+				<a class="btn btn-default" title="{{helptext}}">
+					<span class="glyphicon glyphicon-question-sign"></span>
+				</a>
+			{{/helptext}}
+		</div>
+	</div>
+</div>

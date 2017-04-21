@@ -178,7 +178,6 @@
 	 */
 	function loadServerSettingsModal(serverid) {
 		$('#myModalHeader').text("{{lang_locationSettings}}").css("font-weight", "Bold");
-		$('#myModalSubmitButton').attr("form", "settingsForm");
 		$('#myModal .modal-dialog').css('width', '');
 		$('#myModal').modal('show');
 		$('#myModalBody').load("?do=locationinfo&action=serverSettings&id=" + serverid);
