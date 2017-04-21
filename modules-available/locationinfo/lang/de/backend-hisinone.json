@@ -1,0 +1,16 @@
+{
+    "baseUrl": "Basis-URL",
+    "baseUrl_helptext": "URL zur HisInOne-Installation",
+    "open": "Service",
+    "open_helptext": "Legt den zu verwendenden Web Service fest. OpenCourseService bietet anonymisierte Belegungspl\u00e4ne und erfordert keine Authentifizierung und ist i.d.R. bevorzugt.",
+    "password": "Passwort",
+    "password_helptext": "Das Passwort, das in HisInOne verwendet wird.",
+    "role": "Rolle",
+    "role_helptext": "Die Rolle die der Nutzername in HisInOne verwendet.",
+    "username": "Nutzername",
+    "username_helptext": "Der Nutzername, der in HisInOne verwendet wird.",
+    "verifyCert": "Zertifikat pr\u00fcfen",
+    "verifyCert_helptext": "Wenn das Zertifikat abgelaufen ist, oder von keiner bekannten CA ausgestellt wurde, wird die Verbindung abgelehnt.",
+    "verifyHostname": "Hostnamen pr\u00fcfen",
+    "verifyHostname_helptext": "Der im Zertifikat angegebene Hostname muss mit dem Hostnamen aus der URL \u00fcbereinstimmen, sonst wird die Verbindung abgelehnt."
+}

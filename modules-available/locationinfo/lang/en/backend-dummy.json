@@ -1,0 +1,14 @@
+{
+    "CB2t": "sausages",
+    "CB2t_helptext": "cb2",
+    "CheckTheBox": "CheckBox",
+    "CheckTheBox_helptext": "Check this if you are bored",
+    "integer": "A integer value",
+    "integer_helptext": "What is this for?!",
+    "option": "Option Array",
+    "option_helptext": "LALALA OPtion title bla bla",
+    "password": "Password 1",
+    "password_helptext": "Password 1 title alalala :D",
+    "username": "Username",
+    "username_helptext": "A fkn username field"
+}

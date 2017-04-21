@@ -6,9 +6,9 @@ if (Module::isAvailable('locationinfo')) {
 	$HANDLER['subsections'] = array();
 	foreach (CourseBackend::getList() as $backend) {
 		// Define subsections
-		$HANDLER['subsections'][] = $backend;
+		$HANDLER['subsections'][] = 'backend-' . $backend;
 		// Grep handlers to detect tags
-		$HANDLER['grep_' . $backend] = function($module) use ($backend) {
+		$HANDLER['grep_backend-' . $backend] = function($module) use ($backend) {
 			$b = CourseBackend::getInstance($backend);
 			if ($b === false)
 				return array();

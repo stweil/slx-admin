@@ -1,0 +1,14 @@
+{
+    "CB2t": "DBzwo",
+    "CB2t_helptext": "CBzwo Help",
+    "CheckTheBox": "CheckBox",
+    "CheckTheBox_helptext": "Die checkbox ist ein wenig nutzlos",
+    "integer": "Zahl",
+    "integer_helptext": "Ein Zahlen felde?!",
+    "option": "Irgendein Array",
+    "option_helptext": "LALALA Hilfs- Text bla bla",
+    "password": "Passwort 1",
+    "password_helptext": "Bla passwort bla bla",
+    "username": "Benutzer",
+    "username_helptext": "Das ist halt ein Username feld.."
+}
