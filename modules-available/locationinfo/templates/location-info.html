@@ -25,9 +25,9 @@
 						{{lang_locationSettings}}
 					</button>
 					<button class="btn btn-sm btn-primary server-check" {{disabled}} name="action" value="checkConnection"
-							title="{{lang_refresh_title}}" type="submit">
+							type="submit">
 						<span style="margin-right: 5px;" class="glyphicon glyphicon-refresh"></span>
-						{{lang_refresh}}
+						{{lang_checkConnection}}
 					</button>
 				</td>
 				<td align="center" nowrap>
@@ -43,10 +43,8 @@
 
 	<div>
 		<button class="btn btn-sm btn-success" id="addServerButton" onclick="addServer()">
-			<span title="{{lang_addServer_title}}">
-				<span style="margin-right: 5px;" class="glyphicon glyphicon-plus"></span>
-				{{lang_addServer}}
-			</span>
+			<span style="margin-right: 5px;" class="glyphicon glyphicon-plus"></span>
+			{{lang_addServer}}
 		</button>
 	</div>
 
