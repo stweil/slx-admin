@@ -4,6 +4,8 @@ class CourseBackend_Davinci extends CourseBackend
 {
 
 	private $location;
+	private $verifyHostname = true;
+	private $verifyCert = true;
 
 	public function setCredentialsInternal($data)
 	{
@@ -13,7 +15,8 @@ class CourseBackend_Davinci extends CourseBackend
 		}
 		$location = preg_replace('#/+(davinciis\.dll)?\W*$#i', '', $data['baseUrl']);
 		$this->location = $location . "/DAVINCIIS.dll?";
-		//Davinci doesn't have credentials
+		$this->verifyHostname = $data['verifyHostname'];
+		$this->verifyCert = $data['verifyCert'];
 		return true;
 	}
 
@@ -33,7 +36,9 @@ class CourseBackend_Davinci extends CourseBackend
 	public function getCredentialDefinitions()
 	{
 		return [
-			new BackendProperty('baseUrl', 'string')
+			new BackendProperty('baseUrl', 'string'),
+			new BackendProperty('verifyCert', 'bool', true),
+			new BackendProperty('verifyHostname', 'bool', true)
 		];
 	}
 
@@ -66,8 +71,8 @@ class CourseBackend_Davinci extends CourseBackend
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_SSL_VERIFYHOST => false,
-			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => $this->verifyHostname ? 2 : 0,
+			CURLOPT_SSL_VERIFYPEER => $this->verifyCert ? 1 : 0,
 			CURLOPT_URL => $url,
 		);
 

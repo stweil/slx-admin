@@ -182,8 +182,8 @@ class CourseBackend_HisInOne extends CourseBackend
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_SSL_VERIFYHOST => $this->verifyHostname,
-			CURLOPT_SSL_VERIFYPEER => $this->verifyCert,
+			CURLOPT_SSL_VERIFYHOST => $this->verifyHostname ? 2 : 0,
+			CURLOPT_SSL_VERIFYPEER => $this->verifyCert ? 1 : 0,
 			CURLOPT_URL => $this->location,
 			CURLOPT_POSTFIELDS => $request,
 			CURLOPT_HTTPHEADER => $header,
