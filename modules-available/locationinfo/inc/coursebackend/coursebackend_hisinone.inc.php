@@ -29,7 +29,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		$this->error = false;
 		$this->username = $data['username'] . "\t" . $data['role'];
 		$this->password = $data['password'];
-		$this->open = $data['open'];
+		$this->open = $data['open'] !== 'CourseService';
 		$url = preg_replace('#(/+qisserver(/+services\d+(/+OpenCourseService)?)?)?\W*$#i', '', $data['baseUrl']);
 		if ($this->open) {
 			$this->location = $url . "/qisserver/services2/OpenCourseService";
@@ -49,7 +49,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			new BackendProperty('username', 'string'),
 			new BackendProperty('role', 'string'),
 			new BackendProperty('password', 'password'),
-			new BackendProperty('open', 'bool', true),
+			new BackendProperty('open', ['OpenCourseService', 'CourseService'], 'OpenCourseService'),
 			new BackendProperty('verifyCert', 'bool', true),
 			new BackendProperty('verifyHostname', 'bool', true)
 		];

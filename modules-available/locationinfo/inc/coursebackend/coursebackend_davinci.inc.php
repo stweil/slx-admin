@@ -26,8 +26,8 @@ class CourseBackend_Davinci extends CourseBackend
 			$this->error = "Credentials are not set";
 		} else {
 			$data = $this->fetchRoomRaw('someroomid123');
-			if (strpos($data, 'DAVINCI SERVER') === false) {
-				$this->error = "This doesn't seem to be a DAVINCI server";
+			if ($data !== false && strpos($data, 'DAVINCI SERVER') === false) {
+				$this->error = "Unknown reply; this doesn't seem to be a DAVINCI server.";
 			}
 		}
 		return $this->error === false;
