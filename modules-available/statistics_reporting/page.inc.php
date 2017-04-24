@@ -58,7 +58,7 @@ class Page_Statistics_Reporting extends Page
 		// Get report - fetch data exactly the way it would automatically be reported
 		// so the user can know what is going on
 		if ($this->action === 'getreport') {
-			$report = RemoteReport::generateReport(strtotime('-7 days'), time('now'));
+			$report = RemoteReport::generateReport(time());
 			Header('Content-Disposition: attachment; filename=remote-report.json');
 			Header('Content-Type: application/json; charset=utf-8');
 			die(json_encode($report));

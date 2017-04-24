@@ -213,5 +213,68 @@ class Queries
 		";
 		return "(".$queryString.")";
 	}
+
+	public static function getDozmodStats($from, $to)
+	{
+		if (!Module::isAvailable('dozmod'))
+			return array('disabled' => true);
+
+		$return = array();
+		$return['vms'] = Database::queryFirst("SELECT Count(*) AS `total`, Sum(If(createtime >= $from, 1, 0)) AS `new`,
+			Sum(If(updatetime >= $from, 1, 0)) AS `updated`, Sum(If(latestversionid IS NOT NULL, 1, 0)) AS `valid`
+			FROM sat.imagebase
+			WHERE createtime <= $to");
+		$return['lectures'] = Database::queryFirst("SELECT Count(*) AS `total`, Sum(If(createtime >= $from, 1, 0)) AS `new`,
+			Sum(If(updatetime >= $from, 1, 0)) AS `updated`,
+			Sum(If((($from BETWEEN starttime AND endtime) OR ($to BETWEEN starttime AND endtime)) AND isenabled <> 0, 1, 0)) AS `valid`
+			FROM sat.lecture
+			WHERE createtime <= $to");
+		$return['users'] = Database::queryFirst("SELECT Count(*) AS `total`, Count(DISTINCT organizationid) AS `organizations`
+			FROM sat.user
+			WHERE lastlogin >= $from");
+		return $return;
+	}
+
+	public static function getAggregatedMachineStats($from)
+	{
+		$return = array();
+		$return['location'] = Database::queryAll("SELECT MD5(CONCAT(locationid, :salt)) AS `location`, Count(*) AS `count`
+			FROM machine
+			WHERE lastseen >= $from
+			GROUP BY locationid",
+			array('salt' => GetData::$salt));
+		$prev = 0;
+		$str = ' ';
+		foreach (array(0.5, 1, 1.5, 2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 40, 48, 64, 72, 80, 88, 96, 128, 192, 256) as $val) {
+			$str .= 'WHEN mbram < ' . round(($val + $prev) * 512) . " THEN '" . $prev . "' ";
+			$prev = $val;
+		}
+		$return['ram'] = Database::queryAll("SELECT CASE $str ELSE 'OVER 9000' END AS `gbram`, Count(*) AS `total`
+			FROM machine
+			WHERE lastseen >= $from
+			GROUP BY gbram");
+		foreach (array('cpumodel', 'systemmodel', 'realcores', 'kvmstate') as $key) {
+			$return[$key] = Database::queryAll("SELECT $key, Count(*) AS `total`
+				FROM machine
+				WHERE lastseen >= $from
+				GROUP BY $key");
+		}
+		return $return;
+	}
+
+	/**
+	 * @param int $from start timestamp
+	 * @param int $to end timestamp
+	 * @return int count of user active in timespan
+	 */
+	public static function getUniqueUserCount($from, $to)
+	{
+		$res = Database::queryFirst("SELECT Count(DISTINCT username) as `total`
+			FROM statistic
+			WHERE (dateline BETWEEN $from AND $to) AND typeid = '.vmchooser-session-name'
+			GROUP BY username");
+		return (int)$res['total'];
+	}
+
 }
 
