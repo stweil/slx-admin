@@ -53,6 +53,20 @@ class Database
 		return $res->fetch(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * If you need all rows for a query as plain array you can use this.
+	 * Don't use this if you want to do further processing of the data, to save some
+	 * memory.
+	 *
+	 * @return array|bool List of associative arrays representing rows, or false on error
+	 */
+	public static function queryAll($query, $args = array(), $ignoreError = false)
+	{
+		$res = self::simpleQuery($query, $args, $ignoreError);
+		if ($res === false)
+			return false;
+		return $res->fetchAll(PDO::FETCH_ASSOC);
+	}
 
 	/**
 	 * Execute the given query and return the number of rows affected.
