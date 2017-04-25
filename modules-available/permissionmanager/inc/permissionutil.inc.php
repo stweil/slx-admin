@@ -39,13 +39,14 @@ class PermissionUtil
 		$allowedLocations = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$userPermission = trim($row["permissionid"], "*");
-			if (substr($permissionid, 0, strlen($userPermission)) === $userPermission) {
-				$allowedLocations[] = $row["locationid"];
+			if (!is_null($row["locationid"]) && substr($permissionid, 0, strlen($userPermission)) === $userPermission) {
+				$allowedLocations[$row["locationid"]] = 1;
 			}
 		}
+		$allowedLocations = array_keys($allowedLocations);
 		$locations = Location::getTree();
 		if (count($allowedLocations) == 1 && $allowedLocations[0] == "0") {
-			$allowedLocations = Location::extractIds($locations);
+			$allowedLocations = array_map("intval", Location::extractIds($locations));
 		} else {
 			$allowedLocations = self::getSublocations($locations, $allowedLocations);
 		}
