@@ -46,8 +46,12 @@
     margin: 0;
 }
 
-.disabled {
+.faded {
     opacity: 0.6;
+}
+
+.unclickable {
+    pointer-events: none;
 }
 
 input[type='checkbox']:disabled {

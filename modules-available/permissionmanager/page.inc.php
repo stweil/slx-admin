@@ -75,7 +75,7 @@ class Page_PermissionManager extends Page
 				$data["roleName"] = $roleData["name"];
 				if (count($roleData["locations"]) == 1 && $roleData["locations"][0] == 0) {
 					$data["allLocChecked"] = "checked";
-					$data["selectizeClass"] = "disabled";
+					$data["selectizeClass"] = "faded unclickable";
 				} else {
 					$data["allLocChecked"] = "";
 					$data["selectizeClass"] = "";
@@ -83,7 +83,7 @@ class Page_PermissionManager extends Page
 				}
 				if (count($roleData["permissions"]) == 1 && $roleData["permissions"][0] == "*") {
 					$data["allPermChecked"] = "checked";
-					$data["permissionsClass"] = "disabled";
+					$data["permissionsClass"] = "faded unclickable";
 				} else {
 					$data["allPermChecked"] = "";
 					$data["permissionsClass"] = "";

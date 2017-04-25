@@ -30,13 +30,22 @@ class User
 	{
 		if (!self::isLoggedIn())
 			return false;
-		if (Module::get("permissionmanager")) {
-			require_once "modules/permissionmanager/inc/permissionutil.inc.php";
-			$module = Request::get("do", false);
-			$permission = $module ? $module.".".$permission : $permission;
+		if (Module::isAvailable("permissionmanager")) {
+			$module = Page::getModule();
+			$permission = $module ? $module->getIdentifier().".".$permission : $permission;
 			return PermissionUtil::userHasPermission(self::$user['userid'], $permission, $locationid);
 		}
 		return (self::$user['permissions'] & (Permission::get($permission) | Permission::get('superadmin'))) != 0;
+	}
+
+	public static function getAllowedLocations($permission)
+	{
+		if (Module::isAvailable("permissionmanager")) {
+			$module = Page::getModule();
+			$permission = $module ? $module->getIdentifier().".".$permission : $permission;
+			return PermissionUtil::getAllowedLocations(self::$user['userid'], $permission);
+		}
+		return array();
 	}
 
 	public static function load()

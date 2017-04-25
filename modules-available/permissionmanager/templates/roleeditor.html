@@ -63,9 +63,9 @@
 
 		allLocations.on('switchChange.bootstrapSwitch', function(event, state) {
 			if (state) {
-				$("#selectize-container").addClass("disabled");
+				$("#selectize-container").addClass("faded unclickable");
 			} else {
-				$("#selectize-container").removeClass("disabled");
+				$("#selectize-container").removeClass("faded unclickable");
 			}
 		});
 
@@ -78,9 +78,9 @@
 
 		allPermissions.on('switchChange.bootstrapSwitch', function(event, state) {
 			if (state) {
-				$(".permissions-container").addClass("disabled");
+				$(".permissions-container").addClass("faded unclickable");
 			} else {
-				$(".permissions-container").removeClass("disabled");
+				$(".permissions-container").removeClass("faded unclickable");
 			}
 		});
 
@@ -102,16 +102,16 @@
 			var parent = $(this).parent().parent();
 			if (parent.hasClass("panel-heading")) parent = parent.parent();
 			parent = parent.find("ul:first");
-			parent.find("ul").removeClass("disabled");
+			parent.find("ul").removeClass("faded");
 			var checkboxes = parent.find("input[type=checkbox]");
-			if (parent.hasClass("disabled")) {
+			if (parent.hasClass("faded")) {
 				checkboxes.prop("disabled", false);
 				checkboxes.prop("checked", false);
-				parent.removeClass("disabled");
+				parent.removeClass("faded");
 			} else {
 				checkboxes.prop("disabled", true);
 				checkboxes.prop("checked", true);
-				parent.addClass("disabled");
+				parent.addClass("faded");
 			}
 		});
 		
