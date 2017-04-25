@@ -1,5 +1,6 @@
 {
     "SLX_ADDONS": "Zu ladende Addons. Zur Zeit steht nur *vmware* zur Verf\u00fcgung.",
+    "SLX_AUTOSTART_UUID": "Geben Sie hier eine Veranstaltungs-ID ein. Sie finden diese im Detailfenster innerhalb der bwLehrpool-Suite. Die angegebene Veranstaltung wird nach erfolgreichem Login automatisch gestartet. \r\n\r\n*Hinweis: Diese Option ist eine tempor\u00e4re \u00dcbergangsl\u00f6sung. In sp\u00e4teren Versionen wird die Funktionalit\u00e4t einfacher erreichbar sein.*",
     "SLX_BIOS_CLOCK": "Legt fest, ob und wie die interne Uhr des Rechners im Bezug auf die Systemzeit des \/MiniLinux\/ gesetzt werden soll.\r\n*off* = Die interne Uhr des Rechners wird nicht ver\u00e4ndert.\r\n*local* = Die interne Uhr wird auf die Lokalzeit gesetzt. Bevorzugt wenn z.B. noch eine native Windows-Installation auf dem PC vorhanden ist.\r\n*utc* = Die interne Uhr wird auf die \/Koordinierte Weltzeit\/ gesetzt. Dies ist die g\u00e4ngige Einstellung in einem reinen Linux-Umfeld.",
     "SLX_DEMO_PASS": "Passwort f\u00fcr den eingebauten *demo*-Account. Leer lassen, um das Einloggen zu verbieten.\r\nDas Passwort wird wie das root-Passwort nur gehasht an den Client \u00fcbertragen.",
     "SLX_LOGOUT_TIMEOUT": "Zeit \/in Sekunden\/, die eine Benutzersitzung ohne Aktion sein darf, bevor sie beendet wird.Feld leer lassen, um die Funktion zu deaktivieren.",
