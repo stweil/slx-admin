@@ -3,9 +3,12 @@
 class PermissionUtil
 {
 	public static function userHasPermission($userid, $permissionid, $locationid) {
-		$locations = Location::getLocationRootChain($locationid);
-		if (count($locations) == 0) return false;
-		else $locations[] = 0;
+		$locations = array();
+		if (!is_null($locationid)) {
+			$locations = Location::getLocationRootChain($locationid);
+			if (count($locations) == 0) return false;
+			else $locations[] = 0;
+		}
 
 		$res = Database::simpleQuery("SELECT role_x_permission.permissionid as 'permissionid',
 													role_x_location.locid as 'locationid'
