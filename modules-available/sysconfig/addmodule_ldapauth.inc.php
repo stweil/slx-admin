@@ -194,6 +194,7 @@ class LdapAuth_HomeDir extends AddModule_Base
 				}
 			}
 			$data['shareRemapMode_' . $this->edit->getData('shareRemapMode')] = 'selected="selected"';
+			$data['shareDomain'] = $this->edit->getData('shareDomain');
 			$letter = $this->edit->getData('shareHomeDrive');
 		} else {
 			$data['shareDownloads_c'] = $data['shareMedia_c'] = $data['shareDocuments_c'] = $data['shareRemapCreate_c'] = 'checked="checked"';
