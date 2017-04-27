@@ -545,7 +545,10 @@ class Page_LocationInfo extends Page
 	private function ajaxLoadLocationConfig($id)
 	{
 		// Get Config data from db
-		$location = Database::queryFirst("SELECT config, serverid, serverlocationid FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $id));
+		$location = Database::queryFirst("SELECT lc.config, lc.serverid, lc.serverlocationid
+			FROM location l
+			LEFT JOIN `locationinfo_locationconfig` lc USING (locationid)
+			WHERE l.locationid = :id", array('id' => $id));
 		if ($location === false) {
 			die("Invalid location id: $id");
 		}
