@@ -1,7 +1,9 @@
 {
     "lang_basicConfiguration": "Basiskonfiguration",
     "lang_clientRelatedConfig": "Die Optionen auf dieser Seite beziehen sich auf das Verhalten der bwLehrpool-Clients.",
+    "lang_defaultValue": "Standard",
     "lang_editOverrideNotice": "Sie bearbeiten die Einstellungen f\u00fcr einen Unterbereich",
     "lang_enableOverride": "\u00dcberschreiben",
-    "lang_settingActive": "Einstellung aktiv"
+    "lang_inheritSource": "Geerbt von",
+    "lang_settingActive": "Einstellung aktivieren"
 }

@@ -123,9 +123,7 @@ if(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
 	}
 }
 Header('Expires: Wed, 29 Mar 2007 09:56:28 GMT');
-Header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-Header("Cache-Control: post-check=0, pre-check=0", false);
-Header("Pragma: no-cache");
+Header("Cache-Control: max-age=0");
 
 // Now determine which module to run
 Page::init();

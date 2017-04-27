@@ -124,9 +124,6 @@ class Page_BaseConfig extends Page
 				Util::redirect('?do=BaseConfig');
 			}
 		}
-		// List config options
-		$settings = array();
-		$vars = BaseConfigUtil::getVariables();
 		// Get stuff that's set in DB already
 		if ($this->targetModule === false) {
 			$fields = ', enabled';
@@ -141,19 +138,28 @@ class Page_BaseConfig extends Page
 			$where = '';
 			$params = array();
 		}
+		// List config options
+		$settings = array();
+		$vars = BaseConfigUtil::getVariables();
+		// Remember missing variables
+		$missing = $vars;
 		// Populate structure with existing config from db
-		$res = Database::simpleQuery("SELECT setting, value, displayvalue $fields FROM {$this->qry_extra['table']} "
-			. " {$where} ORDER BY setting ASC", $params);
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (!isset($vars[$row['setting']]) || !is_array($vars[$row['setting']])) {
-				$unknown[] = $row['setting'];
-				continue;
+		$this->fillSettings($vars, $settings, $missing, $this->qry_extra['table'], $fields, $where, $params, false);
+		if (isset($this->qry_extra['getfallback']) && !empty($missing)) {
+			$method = explode('::', $this->qry_extra['getfallback']);
+			$fieldValue = $this->qry_extra['field_value'];
+			$tries = 0;
+			while (++$tries < 100 && !empty($missing)) {
+				$ret = call_user_func($method, $fieldValue);
+				if ($ret === false)
+					break;
+				$fieldValue = $ret['value'];
+				$params = array('field_value' => $fieldValue);
+				$this->fillSettings($vars, $settings, $missing, $this->qry_extra['table'], $fields, $where, $params, $ret['display']);
 			}
-			$row += $vars[$row['setting']];
-			if (!isset($row['catid'])) {
-				$row['catid'] = 'unknown';
-			}
-			$settings[$row['catid']]['settings'][$row['setting']] = $row;
+		}
+		if ($this->targetModule !== false && !empty($missing)) {
+			$this->fillSettings($vars, $settings, $missing, 'setting_global', '', '', array(), 'Global');
 		}
 		// Add entries that weren't in the db (global), setup override checkbox (module specific)
 		foreach ($vars as $key => $var) {
@@ -162,10 +168,7 @@ class Page_BaseConfig extends Page
 				if (!isset($settings[$var['catid']]['settings'][$key]['enabled']) || $settings[$var['catid']]['settings'][$key]['enabled'] == 1) {
 					$settings[$var['catid']]['settings'][$key]['checked'] = 'checked';
 				}
-			} elseif (isset($settings[$var['catid']]['settings'][$key])) {
-				// Module specific - value is set in DB
-				$settings[$var['catid']]['settings'][$key]['checked'] = 'checked';
-			} else {
+			} elseif (!isset($settings[$var['catid']]['settings'][$key])) {
 				// Module specific - value is not set in DB
 				$settings[$var['catid']]['settings'][$key] = $var + array(
 					'setting' => $key
@@ -214,6 +217,32 @@ class Page_BaseConfig extends Page
 			'target_module' => $this->targetModule,
 		) + $this->qry_extra);
 		Module::isAvailable('bootstrap_switch');
+	}
+
+	private function fillSettings($vars, &$settings, &$missing, $table, $fields, $where, $params, $sourceName)
+	{
+		$res = Database::simpleQuery("SELECT setting, value, displayvalue $fields FROM $table "
+			. " {$where} ORDER BY setting ASC", $params);
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (!isset($missing[$row['setting']]))
+				continue;
+			if (!isset($vars[$row['setting']]) || !is_array($vars[$row['setting']])) {
+				$unknown[] = $row['setting'];
+				continue;
+			}
+			unset($missing[$row['setting']]);
+			if ($sourceName !== false) {
+				$row['defaultvalue'] = '';
+				$row['defaultsource'] = $sourceName;
+			} elseif ($this->targetModule !== false) {
+				$row['checked'] = 'checked';
+			}
+			$row += $vars[$row['setting']];
+			if (!isset($row['catid'])) {
+				$row['catid'] = 'unknown';
+			}
+			$settings[$row['catid']]['settings'][$row['setting']] = $row;
+		}
 	}
 
 	private function getCurrentModuleName()

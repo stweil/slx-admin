@@ -1,5 +1,6 @@
 {
 	"table": "setting_location",
 	"field": "locationid",
-	"tostring": "Location::getName"
+	"tostring": "Location::getName",
+	"getfallback": "Location::getBaseconfigParent"
 }

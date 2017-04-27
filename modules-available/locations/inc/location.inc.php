@@ -286,6 +286,22 @@ class Location
 	}
 
 	/**
+	 * @param $locationId
+	 * @return bool|array ('value' => x, 'display' => y), false if no parent or unknown id
+	 */
+	public static function getBaseconfigParent($locationId)
+	{
+		settype($locationId, 'integer');
+		$locations = Location::getLocationsAssoc();
+		if (!isset($locations[$locationId]))
+			return false;
+		$locationId = (int)$locations[$locationId]['parentlocationid'];
+		if (!isset($locations[$locationId]))
+			return false;
+		return array('value' => $locationId, 'display' => $locations[$locationId]['locationname']);
+	}
+
+	/**
 	 * @return array list of subnets as numeric array
 	 */
 	public static function getSubnets()

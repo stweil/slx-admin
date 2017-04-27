@@ -7,10 +7,9 @@ if (RemoteReport::isReportingEnabled()) {
 	while ($nextReporting <= time()) {
 		RemoteReport::writeNextReportingTimestamp();
 
-		$from = strtotime("-7 days", $nextReporting);
 		$to = $nextReporting;
 
-		$statisticsReport = json_encode(RemoteReport::generateReport($from, $to));
+		$statisticsReport = json_encode(RemoteReport::generateReport($to));
 
 		$params = array("action" => "statistics", "data" => $statisticsReport);
 
