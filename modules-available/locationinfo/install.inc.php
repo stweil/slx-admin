@@ -2,10 +2,9 @@
 
 $res = array();
 
-// TODO: serverid NULL, constraint to serverlist on delete set NULL
-$res[] = tableCreate('locationinfo_locationconfig', '
+$t1 = $res[] = tableCreate('locationinfo_locationconfig', '
 	`locationid` INT(10) UNSIGNED NOT NULL,
-	`serverid` INT(11) NOT NULL,
+	`serverid` INT(10) UNSIGNED,
 	`serverlocationid` VARCHAR(150),
 	`hidden` BOOLEAN NOT NULL DEFAULT 0,
 	`openingtime` BLOB,
@@ -15,8 +14,7 @@ $res[] = tableCreate('locationinfo_locationconfig', '
 	PRIMARY KEY (`locationid`)
 ');
 
-// TODO: KEY `servername` (`servername`)
-$res[] = tableCreate('locationinfo_coursebackend', '
+$t2 = $res[] = tableCreate('locationinfo_coursebackend', '
 	`serverid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`servername` VARCHAR(200) NOT NULL,
 	`servertype` VARCHAR(100) NOT NULL,
@@ -25,8 +23,28 @@ $res[] = tableCreate('locationinfo_coursebackend', '
 	PRIMARY KEY (`serverid`)
 ');
 
+// Update
+
+if ($t1 === UPDATE_NOOP) {
+	Database::exec("ALTER TABLE locationinfo_locationconfig CHANGE `serverid` `serverid` INT(10) UNSIGNED NULL");
+}
+if ($t1 === UPDATE_DONE || $t2 === UPDATE_DONE) {
+	Database::exec('UPDATE locationinfo_locationconfig SET serverid = NULL WHERE serverid = 0');
+	Database::exec('ALTER TABLE `locationinfo_locationconfig` ADD CONSTRAINT `locationinfo_locationconfig_ibfk_1` FOREIGN KEY ( `serverid` )
+			REFERENCES `openslx`.`locationinfo_coursebackend` (`serverid`) ON DELETE SET NULL ON UPDATE CASCADE');
+}
+if ($t1 === UPDATE_DONE) {
+	if (false === Database::exec('ALTER TABLE `locationinfo_locationconfig` ADD CONSTRAINT `locationinfo_locationconfig_ibfk_2` FOREIGN KEY ( `locationid` )
+			REFERENCES `openslx`.`location` (`locationid`) ON DELETE CASCADE ON UPDATE CASCADE')) {
+		$res[] = UPDATE_RETRY;
+	}
+}
+
 // Create response for browser
 
+if (in_array(UPDATE_RETRY, $res)) {
+	finalResponse(UPDATE_RETRY, 'Please retry: ' . Database::lastError());
+}
 if (in_array(UPDATE_DONE, $res)) {
 	finalResponse(UPDATE_DONE, 'Tables created successfully');
 }
