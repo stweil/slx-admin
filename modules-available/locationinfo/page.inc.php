@@ -70,6 +70,11 @@ class Page_LocationInfo extends Page
 			Message::addError('location.invalid-location-id', $locationid);
 			Util::redirect('?do=locationinfo');
 		}
+		$serverid = Request::post('serverid', 0, 'int');
+		if ($serverid === 0) {
+			Message::addError('main.value-invalid', 'serverid', 0);
+			Util::redirect('?do=locationinfo');
+		}
 		$result['language'] = Request::post('language', 'en', 'string');
 		$result['mode'] = Request::post('mode', 1, 'int');
 		$result['vertical'] = Request::post('vertical', false, 'bool');
@@ -88,7 +93,6 @@ class Page_LocationInfo extends Page
 		if ($result['calupdate'] < 120) {
 			$result['calupdate'] = 120;
 		}
-		$serverid = Request::post('serverid', 0, 'int');
 		$serverlocationid = Request::post('serverlocationid', '', 'string');
 
 		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, serverid, serverlocationid, config, lastcalendarupdate)
