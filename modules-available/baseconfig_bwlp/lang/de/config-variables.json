@@ -12,6 +12,7 @@
     "SLX_PROXY_MODE": "Legt fest, ob zum Zugriff aufs Internet ein Proxy-Server ben\u00f6tigt wird.\r\n*off* = keinen Proxy benutzen.\r\n*on* = Proxy immer benutzen.\r\n*auto* = Proxy nur benutzen, wenn sich der Client-PC in einem privaten Adressbereich befindet.",
     "SLX_PROXY_PORT": "Der Port des zu verwendenden Proxy Servers.",
     "SLX_PROXY_TYPE": "Art des Proxys: *socks4*, *socks5*, *http-connect* (HTTP Proxy mit Unterst\u00fctzung der CONNECT-Methode), *http-relay* (Klassischer HTTP Proxy)",
+    "SLX_PVS_DEFAULT": "Legt fest, ob der Haken zur PVS-Teilnahme im vmChooser standardm\u00e4\u00dfig gesetzt ist oder nicht.",
     "SLX_REBOOT_SCHEDULE": "Feste Uhrzeit, zu der sich die Rechner neustarten, auch wenn noch ein Benutzer aktiv ist.\r\nMehrere Zeitpunkte k\u00f6nnen durch Leerzeichen getrennt angegeben werden.",
     "SLX_REMOTE_LOG_SESSIONS": "Legt fest, ob Logins und Logouts der Benutzer an den Satelliten gemeldet werden sollen.\r\n*yes* = Mit Benutzerkennung loggen\r\n*anonymous* = Anonym loggen\r\n*no* = Nicht loggen",
     "SLX_ROOT_PASS": "Das root-Passwort des Grundsystems. Wird nur f\u00fcr Diagnosezwecke am Client ben\u00f6tigt.\r\nFeld leer lassen, um root-Logins zu verbieten.\r\n\/Hinweis\/: Das Passwort wird im Klartext in der lokalen Datenbank hinterlegt, jedoch immer gehasht an die Clients \u00fcbermittelt (SHA-512 mit Salt). Wenn Sie das Passwort auch im Satelliten nicht im Klartext speichern wollen, k\u00f6nnen Sie hier auch ein vorgehashtes Passwort eintragen (im *$6$....*-Format).",

@@ -138,5 +138,11 @@
 		"defaultvalue": "",
 		"permissions": "2",
 		"validator": "regex:\/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$\/i"
+	},
+	"SLX_PVS_DEFAULT": {
+		"catid": "vmchooser",
+		"defaultvalue": "OFF",
+		"permissions": "2",
+		"validator": "list:ON|OFF"
 	}
 }
