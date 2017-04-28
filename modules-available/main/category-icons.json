@@ -4,5 +4,6 @@
 	"settings-client":"cog",
 	"settings-server":"cog",
 	"status":"tasks",
-	"users":"user"
+	"users":"user",
+	"beta":"flash"
 }
