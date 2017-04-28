@@ -35,7 +35,8 @@ class Page_Exams extends Page
 			. "NATURAL LEFT JOIN exams_x_location exl "
 			. "NATURAL LEFT JOIN location loc "
 			. "LEFT JOIN sat.lecture l USING (lectureid) "
-			. "GROUP BY examid ");
+			. "GROUP BY examid "
+			. "ORDER BY examid ASC");
 		while ($exam = $tmp->fetch(PDO::FETCH_ASSOC)) {
 			$this->exams[] = $exam;
 		}
@@ -49,7 +50,8 @@ class Page_Exams extends Page
 			"INNER JOIN sat.user ON (user.userid = lecture.ownerid) " .
 			"NATURAL LEFT JOIN sat.lecture_x_location " .
 			"WHERE isexam <> 0 AND starttime < :rangeMax AND endtime > :rangeMin " .
-			"GROUP BY lectureid",
+			"GROUP BY lectureid " .
+			"ORDER BY starttime ASC, displayname ASC",
 			['rangeMax' => $this->rangeMax, 'rangeMin' => $this->rangeMin]);
 		while ($lecture = $tmp->fetch(PDO::FETCH_ASSOC)) {
 			$this->lectures[] = $lecture;

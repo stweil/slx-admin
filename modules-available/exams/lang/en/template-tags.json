@@ -20,7 +20,7 @@
     "lang_end_time": "Time",
     "lang_examModeDescription": "Here you can define time spans during which selected rooms will be set to exam mode. In exam mode, the client computers are more locked down than usual so it is suitable for writing electronic exams.",
     "lang_global": "Global",
-    "lang_headingAllExamLectures": "Upcoming lectures marked as exams",
+    "lang_headingAllExamLectures": "Upcoming lectures marked as exams (30 days)",
     "lang_headingGraphicalOverview": "Graphical overview",
     "lang_headingMain": "bwLehrpool exam mode",
     "lang_id": "ID",
