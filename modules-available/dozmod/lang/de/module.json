@@ -2,6 +2,7 @@
     "module_name": "bwLehrpool-Suite",
     "page_title": "Verwalten der bwLehrpool-Suite",
     "submenu_actionlog": "Aktions-Log",
+    "submenu_expiredimages": "Abgelaufene VM-Versionen",
     "submenu_mailconfig": "Email-Konfiguration",
     "submenu_runtime": "Limits und Standardwerte",
     "submenu_templates": "Textbausteine f\u00fcr E-Mails",
