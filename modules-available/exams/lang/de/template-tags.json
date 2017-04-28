@@ -29,6 +29,7 @@
     "lang_location": "Raum\/Ort",
     "lang_locationInfo": "W\u00e4hlen Sie hier die R\u00e4ume und Orte aus, die w\u00e4hrend des unten ausgew\u00e4hlten Zeitraums in den Pr\u00fcfungsmodus versetzt werden. Wenn sie hier keine Auswahl treffen, werden alle R\u00e4ume in den Pr\u00fcfungsmodus versetzt.",
     "lang_locations": "R\u00e4ume\/Orte",
+    "lang_moreThanOneDay": "Mehr als ein Tag",
     "lang_noDescription": "Keine Beschreibung",
     "lang_none": "(Keine)",
     "lang_timeFrame": "Zeitraum"

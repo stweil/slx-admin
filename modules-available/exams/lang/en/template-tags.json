@@ -29,6 +29,7 @@
     "lang_location": "Room\/Location",
     "lang_locationInfo": "Select the rooms and locations you want to enable the exam mode in. Selecting nothing at all means that all clients will boot into exam mode during the given time period.",
     "lang_locations": "Rooms\/Locations",
+    "lang_moreThanOneDay": "More than one day",
     "lang_noDescription": "No description",
     "lang_none": "(None)",
     "lang_timeFrame": "Time frame"
