@@ -488,7 +488,7 @@ optional:
 			setRoomConfigFromUrl(room.config, 'daystoshow', PARAM_INT);
 			setRoomConfigFromUrl(room.config, 'scaledaysauto', PARAM_BOOL);
 			setRoomConfigFromUrl(room.config, 'vertical', PARAM_BOOL);
-			setRoomConfigFromUrl(room.config, 'einkmode', PARAM_BOOL);
+			setRoomConfigFromUrl(room.config, 'eco', PARAM_BOOL);
 
 			setRoomConfigFromUrl(room.config, 'scale', PARAM_INT);
 			setRoomConfigFromUrl(room.config, 'rotation', PARAM_INT);
@@ -1059,7 +1059,7 @@ optional:
 				// dont show?
 				return "";
 			}
-			if (room.config.einkmode) {
+			if (room.config.eco) {
 				return hours + ":" + minutes;
 			}
 			return hours + ":" + minutes + ":" + seconds;
@@ -1650,7 +1650,7 @@ optional:
 				}
 
 				if (imgobj != null && supportSvg) {
-					if (room.config.einkmode) {
+					if (room.config.eco) {
 						img = img + "_eink";
 					}
 					imgobj.src = img + ".svg";
