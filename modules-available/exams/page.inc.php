@@ -3,9 +3,9 @@
 class Page_Exams extends Page
 {
 	var $action = false;
-	var $exams;
-	var $locations;
-	var $lectures;
+	var $exams = [];
+	var $locations = [];
+	var $lectures = [];
 	private $currentExam;
 	private $rangeMin;
 	private $rangeMax;
