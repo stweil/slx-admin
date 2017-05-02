@@ -13,18 +13,19 @@ class RemoteReport
 	 */
 	public static function setReportingEnabled($isEnabled)
 	{
-		$value = ($isEnabled === true || $isEnabled === 'on') ? 'on' : '';
-		Property::set(self::ENABLED_ID, $value, 60 * 24 * 14);
+		$value = ($isEnabled === true || $isEnabled === 'on') ? 'on' : 'off';
+		Property::set(self::ENABLED_ID, $value);
 	}
 
 	/**
 	 * Returns whether remote reporting is enabled or not.
+	 * Defaults to on.
 	 *
 	 * @return bool true if reporting is on, false if off
 	 */
 	public static function isReportingEnabled()
 	{
-		return Property::get(self::ENABLED_ID, false) === 'on';
+		return Property::get(self::ENABLED_ID, 'on') === 'on';
 	}
 
 	/**
@@ -42,9 +43,9 @@ class RemoteReport
 			// schedule for next time
 			self::writeNextReportingTimestamp();
 			$ts = Property::get(self::NEXT_SUBMIT_ID, 0);
-		} elseif ($ts < strtotime('last monday')) {
-			// Too long ago, move forward to last monday
-			$ts = strtotime('last monday');
+		} elseif ($ts < strtotime('last monday - 14 days')) {
+			// Too long ago, move forward
+			$ts = strtotime('last monday - 14 days');
 		}
 		return $ts;
 	}
