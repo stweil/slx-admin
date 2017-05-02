@@ -52,16 +52,25 @@ class Page_Statistics_Reporting extends Page
 
 		// Export - handle in doPreprocess so we don't render the menu etc.
 		if ($this->action === 'export') {
-			$this->doExport();
-			// Does not return
+			if (User::hasPermission("table.export") && User::hasPermission("table.view.$this->type")) {
+				$this->doExport();
+				// Does not return
+			} else {
+				Message::addError('main.no-permission');
+			}
 		}
 		// Get report - fetch data exactly the way it would automatically be reported
 		// so the user can know what is going on
 		if ($this->action === 'getreport') {
-			$report = RemoteReport::generateReport(strtotime('-7 days'), time('now'));
-			Header('Content-Disposition: attachment; filename=remote-report.json');
-			Header('Content-Type: application/json; charset=utf-8');
-			die(json_encode($report));
+			if(User::hasPermission("reporting.download")) {
+				$report = RemoteReport::generateReport(strtotime('-7 days'), time('now'));
+				Header('Content-Disposition: attachment; filename=remote-report.json');
+				Header('Content-Type: application/json; charset=utf-8');
+				die(json_encode($report));
+			} else {
+				Message::addError('main.no-permission');
+			}
+
 		}
 	}
 
@@ -137,8 +146,8 @@ class Page_Statistics_Reporting extends Page
 	{
 		$this->action = Request::any('action', false, 'string');
 		if ($this->action === 'setReporting') {
-			if (!User::isLoggedIn()) {
-				die("No.");
+			if (!User::hasPermission("reporting.change")) {
+				die("Permission denied.");
 			}
 			$state = Request::post('reporting', false, 'string');
 			if ($state === false) {
@@ -271,9 +280,28 @@ class Page_Statistics_Reporting extends Page
 					}
 				}
 			}
+			// only show locations which you have permission for
+			$filterLocs = User::getAllowedLocations("table.view.location");
+			foreach ($data as $key => $row) {
+				if (!in_array($row['locationId'], $filterLocs)) {
+					unset($data[$key]);
+				}
+			}
+			// correct indexing of array after deletions
+			$data = array_values($data);
 			return $data;
 		case 'client':
-			return GetData::perClient($flags);
+			$data = GetData::perClient($flags);
+			// only show clients from locations which you have permission for
+			$filterLocs = User::getAllowedLocations("table.view.location");
+			foreach ($data as $key => $row) {
+				if (!in_array($row['locationId'], $filterLocs)) {
+					unset($data[$key]);
+				}
+			}
+			// correct indexing of array after deletions
+			$data = array_values($data);
+			return $data;
 		case 'user':
 			return GetData::perUser($flags);
 		case 'vm':

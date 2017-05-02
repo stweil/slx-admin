@@ -1,0 +1,10 @@
+{
+	"table.view.total": "View total table.",
+	"table.view.location": "View location table.",
+	"table.view.client": "View client table.",
+	"table.view.user": "View user table.",
+	"table.view.vm": "View lecture table.",
+	"table.export": "Export tables as JSON/CSV/XML.",
+	"reporting.download": "Download weekly report.",
+	"reporting.change": "Change weekly reporting settings."
+}
