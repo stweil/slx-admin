@@ -134,7 +134,7 @@ optional:
 		.calendar {
 			float: left;
 			padding: 0;
-			dboxSizing: border-box;
+			box-sizing: border-box;
 			background: linear-gradient(#cccccc, white);
 
 		}
@@ -416,6 +416,55 @@ optional:
 
 		}
 
+		const PARAM_STRING = 1;
+		const PARAM_INT = 2;
+		const PARAM_BOOL = 3;
+
+		/**
+		 * Read given parameter from URL, replacing it in the config object if present.
+		 * @param config object config object
+		 * @param property string name of property in object, URL param of same name is being checked
+		 * @param paramType int one of PARAM_STRING, PARAM_INT, PARAM_BOOL
+		 * @param intScaleFactor int optional scale factor that will be applied if paramType == PARAM_INT
+		 */
+		function setRoomConfigFromUrl(config, property, paramType, intScaleFactor) {
+			var val = getUrlParameter(property);
+			if (val === true || val === false)
+				return;
+			if (paramType === PARAM_STRING) {
+				config[property] = val;
+			} else if (paramType === PARAM_INT) {
+				config[property] = parseInt(val);
+				if (intScaleFactor) {
+					config[property] *= intScaleFactor;
+				}
+			} else if (paramType === PARAM_BOOL) {
+				val = val.toLowerCase();
+				config[property] = val.length > 0 && val !== 'false' && val !== 'off' ? true : false;
+			} else {
+				console.log('Invalid paramType: ' + paramType);
+			}
+		}
+
+		/**
+		 * Put given numeric config property in range min..max (both inclusive),
+		 * if not in range, set to default.
+		 * @param config - object config object
+		 * @param property - string config property
+		 * @param min int - min allowed value (inclusive)
+		 * @param max int - max allowed value (inclusive)
+		 * @param defaultval - default value to use if out of range
+		 * @param scaleFactor int - optional scale factor to apply
+		 */
+		function putInRange(config, property, min, max, defaultval, scaleFactor) {
+			var v = config[property];
+			if (!scaleFactor) {
+				scaleFactor = 1;
+			}
+			if (!v || !isFinite(v) || isNaN(v) || v < min * scaleFactor || v > max * scaleFactor) {
+				config[property] = defaultval * scaleFactor;
+			}
+		}
 
 		/**
 		 * gets Additional Parameters from the URL, and from the
@@ -423,91 +472,38 @@ optional:
 		 * also makes sure parameters are in a given range
 		 * @param room Room Object
 		 */
-
 		function getParamerter(room) {
 
 
-			if (room.config != null) {
+			if (room.config) {
 				room.config.switchtime = room.config.switchtime * 1000;
 				room.config.calupdate = room.config.calupdate * 60 * 1000;
 				room.config.roomupdate = room.config.roomupdate * 1000;
 				room.config.configupdate = room.config.configupdate * 60 * 1000;
 			}
 
-			if (getUrlParameter("mode") != null) {
-				room.config.mode = parseInt(getUrlParameter("mode"));
-			}
-			if (getUrlParameter("calupdate") != null) {
-				room.config.calupdate = (parseInt(getUrlParameter("calupdate")) * 60 * 1000);
-			}
-			if (getUrlParameter("roomupdate") != null) {
-				room.config.roomupdate = (parseInt(getUrlParameter("roomupdate")) * 1000);
-			}
-			if (getUrlParameter("daystoshow") != null) {
-				room.config.daystoshow = parseInt(getUrlParameter("daystoshow"));
-			}
-			if (getUrlParameter("scaledaysauto") == "true") {
-				room.config.scaledaysauto = true;
-			} else if (getUrlParameter("scaledaysauto") == "false") {
-				room.config.scaledaysauto = false;
-			}
-			if (getUrlParameter("vertical") == "true") {
-				room.config.vertical = true;
-			} else if (getUrlParameter("vertical") == "false") {
-				room.config.vertical = false;
-			}
-			if (getUrlParameter("einkmode") == "true") {
-				room.config.einkmode = true;
-			} else if (getUrlParameter("einkmode") == "false") {
-				room.config.einkmode = false;
-			}
+			setRoomConfigFromUrl(room.config, 'mode', PARAM_INT);
+			setRoomConfigFromUrl(room.config, 'calupdate', PARAM_INT, 60 * 1000);
+			setRoomConfigFromUrl(room.config, 'roomupdate', PARAM_INT, 1000);
+			setRoomConfigFromUrl(room.config, 'daystoshow', PARAM_INT);
+			setRoomConfigFromUrl(room.config, 'scaledaysauto', PARAM_BOOL);
+			setRoomConfigFromUrl(room.config, 'vertical', PARAM_BOOL);
+			setRoomConfigFromUrl(room.config, 'einkmode', PARAM_BOOL);
 
-			if (getUrlParameter("scale") != null) {
-				room.config.scale = parseInt(getUrlParameter("scale"));
-			}
-			if (getUrlParameter("rotation") != null) {
-				room.config.rotation = parseInt(getUrlParameter("rotation"));
-			}
-			if (getUrlParameter("switchtime") != null) {
-				room.config.switchtime = (parseInt(getUrlParameter("switchtime")) * 1000);
-			}
-			if (getUrlParameter("configupdate") != null) {
-				room.config.configupdate = (parseInt(getUrlParameter("configupdate")) * 60 * 1000);
-			}
+			setRoomConfigFromUrl(room.config, 'scale', PARAM_INT);
+			setRoomConfigFromUrl(room.config, 'rotation', PARAM_INT);
+			setRoomConfigFromUrl(room.config, 'switchtime', PARAM_INT, 1000);
+			setRoomConfigFromUrl(room.config, 'configupdate', PARAM_INT, 60 * 1000);
 
 			// parameter validation
-			if (room.config.switchtime == null || isNaN(room.config.switchtime) || room.config.switchtime > 120 * 1000
-					|| room.config.switchtime < 1 * 1000) {
-				room.config.switchtime = 5 * 1000;
-			}
-			if (room.config.scale == null || isNaN(room.config.scale) || room.config.scale > 90 || room.config.scale < 10) {
-				room.config.scale = 50;
-			}
-			if (room.config.vertical == null) {
-				room.config.vertical = false;
-			}
-			if (room.config.daystoshow == null || isNaN(room.config.daystoshow) || room.config.daystoshow > 7
-					|| room.config.daystoshow < 1) {
-				room.config.daystoshow = 7;
-			}
-
-			if (room.config.roomupdate == null || isNaN(room.config.roomupdate) || room.config.roomupdate < 1000) {
-				room.config.roomupdate = 20 * 1000;
-			}
-			if (room.config.configupdate == null || isNaN(room.config.configupdate) || (room.config.configupdate < 1)) {
-				room.config.configupdate = 30 * 60 * 1000;
-			}
-
-			if (room.config.calupdate == null || isNaN(room.config.calupdate) || room.config.calupdate < 60 * 1000) {
-				room.config.calupdate = 30 * 60 * 1000;
-			}
-			if (room.config.mode == null || isNaN(room.config.mode) || room.config.mode > 4 || room.config.mode < 1) {
-				room.config.mode = 1;
-			}
-			if (room.config.rotation == null || isNaN(room.config.rotation) || room.config.rotation < 0
-					|| room.config.rotation > 4) {
-				room.config.rotation = 0;
-			}
+			putInRange(room.config, 'switchtime', 5, 120, 6, 1000);
+			putInRange(room.config, 'scale', 10, 90, 50);
+			putInRange(room.config, 'daystoshow', 1, 7, 7);
+			putInRange(room.config, 'roomupdate', 15, 5*60, 60, 1000);
+			putInRange(room.config, 'configupdate', 5, 60, 30, 60*1000);
+			putInRange(room.config, 'calupdate', 1, 60, 30, 60*1000);
+			putInRange(room.config, 'mode', 1, 4, 1);
+			putInRange(room.config, 'rotation', 0, 3, 0);
 
 			if (getUrlParameter("lang") != null && getUrlParameter("lang") in translation) {
 				room.config.language = getUrlParameter("lang");
@@ -844,7 +840,7 @@ optional:
 			div.className = "calendar";
 			if (room.config.vertical && room.config.mode == 1) {
 				width = 100 + "%";
-				div.float = "Top";
+				$(div).css('float', "none");
 			}
 			div.style.width = width;
 			//document.body.appendChild(div);
@@ -1321,7 +1317,7 @@ optional:
 			div.className = "roomLayoutDesign";
 			if ((room.config.vertical && room.config.mode == 1) || (room.config.mode == 3) || (room.config.mode == 4)) {
 				width = 100 + "%";
-				div.float = "Top";
+				$(div).css('float', "none");
 			}
 
 			div.style.width = width;
@@ -1709,12 +1705,14 @@ optional:
 					i;
 
 			for (i = 0; i < sURLVariables.length; i++) {
-				sParameterName = sURLVariables[i].split('=');
+				sParameterName = sURLVariables[i].split('=', 2);
 
 				if (sParameterName[0] === sParam) {
-					return sParameterName[1] === undefined ? true : sParameterName[1];
+					if (sParameterName.length === 1) return true;
+					return sParameterName[1];
 				}
 			}
+			return false;
 		};
 
 		/**
