@@ -32,6 +32,12 @@ class Page_DozMod extends Page
 			Util::redirect('?do=Main');
 		}
 
+		$this->setupSubPage();
+		if ($this->subPage !== false) {
+			$this->subPage->doPreprocess();
+			return;
+		}
+
 		/* execute actions */
 		$action = Request::post('action', false, 'string');
 
@@ -56,12 +62,6 @@ class Page_DozMod extends Page
 		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime', true));
 		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users', true));
 		Dashboard::addSubmenu('?do=dozmod&section=actionlog', Dictionary::translate('submenu_actionlog', true));
-
-		$this->setupSubPage();
-		if ($this->subPage !== false) {
-			$this->subPage->doPreprocess();
-			return;
-		}
 	}
 
 	protected function doRender()
