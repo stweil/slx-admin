@@ -79,60 +79,43 @@
 
 <h3>{{lang_advanced}}</h3>
 
-<div class="panel panel-default">
-	<div class="panel-heading">
-		{{lang_dmsdLog}}
-	</div>
-	<div class="panel-body" id="dmsd-log">
+<ul class="nav nav-tabs tabs-up">
+{{#tabs}}
+	<li>
+		<a href="#id-{{type}}_pane" class="ajax-tab" id="id-{{type}}" data-toggle="tab" role="tab">
+			{{name}}
+		</a>
+	</li>
+{{/tabs}}
+</ul>
+
+<div class="tab-content">
+{{#tabs}}
+	<div class="tab-pane" id="id-{{type}}_pane">
 		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
 	</div>
-</div>
-<div class="panel panel-default">
-	<div class="panel-heading">
-		{{lang_ldadpLog}}
-	</div>
-	<div class="panel-body" id="ldadp-log">
-		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-	</div>
-</div>
-<div class="panel panel-default">
-	<div class="panel-heading">
-		{{lang_lighttpdLog}}
-	</div>
-	<div class="panel-body" id="lighttpd-log">
-		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-	</div>
-</div>
-<div class="panel panel-default">
-	<div class="panel-heading">
-		netstat -tulpn
-	</div>
-	<div class="panel-body" id="netstat">
-		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-	</div>
-</div>
-<div class="panel panel-default">
-	<div class="panel-heading">
-		ps auxf
-	</div>
-	<div class="panel-body" id="pslist">
-		<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-	</div>
+{{/tabs}}
 </div>
 
-<script type="text/javascript">
+<div>&nbsp;</div>
+
+<script type="text/javascript"><!--
 	document.addEventListener("DOMContentLoaded", function() {
 		$('#diskstat').load('?do=SystemStatus&action=DiskStat');
 		$('#addresses').load('?do=SystemStatus&action=AddressList');
 		$('#systeminfo').load('?do=SystemStatus&action=SystemInfo');
 		$('#services').load('?do=SystemStatus&action=Services');
 		$('#dmsd-users').load('?do=SystemStatus&action=DmsdUsers');
-		setTimeout(function() {
-			$('#dmsd-log').load('?do=SystemStatus&action=DmsdLog');
-			$('#netstat').load('?do=SystemStatus&action=Netstat');
-			$('#pslist').load('?do=SystemStatus&action=PsList');
-			$('#ldadp-log').load('?do=SystemStatus&action=LdadpLog');
-			$('#lighttpd-log').load('?do=SystemStatus&action=LighttpdLog');
-		}, 300);
+		var slxDone = {};
+		$('.ajax-tab').click(function (e) {
+			e.preventDefault();
+			var $this = $(this);
+			var w = $this.attr('id');
+			if (!slxDone[w]) {
+				slxDone[w] = true;
+				var $pane = $('#' + w + '_pane');
+				$pane.load('?do=SystemStatus&action=' + w.substring(3));
+			}
+		});
 	}, false);
-</script>
+//--></script>

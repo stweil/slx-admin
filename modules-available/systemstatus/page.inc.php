@@ -29,6 +29,14 @@ class Page_SystemStatus extends Page
 		if (is_array($this->rebootTask) && isset($this->rebootTask['id'])) {
 			$data['rebootTask'] = $this->rebootTask['id'];
 		}
+		$tabs = array('DmsdLog', 'Netstat', 'PsList', 'LdadpLog', 'LighttpdLog');
+		$data['tabs'] = array();
+		foreach ($tabs as $tab) {
+			$data['tabs'][] = array(
+				'type' => $tab,
+				'name' => Dictionary::translate('tab_' . $tab)
+			);
+		}
 		Render::addTemplate('_page', $data);
 	}
 
