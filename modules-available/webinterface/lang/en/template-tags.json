@@ -18,6 +18,7 @@
     "lang_showPasswords": "Show passwords",
     "lang_suppliedSelected": "The server is currently using a certificate supplied using the \"Supply own certificate\" option.",
     "lang_unknownSelected": "Unknown or invalid certificate in use. The server war probably updated from an old version while HTTPS was already enabled. Redo the HTTPS configuration steps to get rid of this message.",
+    "lang_useHsts": "Use HSTS (increases security but might lead to problems accessing the site if you disable HTTPS later)",
     "lang_youreNotUsingHttps": "You're not using HTTPS to visit this website (or the HTTPS termination is done by a reverse proxy).",
     "lang_youreUsingHttps": "You're visiting this server through an HTTPS connection (from the server's point of view)."
 }

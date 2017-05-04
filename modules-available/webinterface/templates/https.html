@@ -78,6 +78,12 @@ MIIFfTCCA...
 					{{lang_httpsRedirect}}
 				</span>
 			</div>
+			<div class="input-group">
+				<span class="input-group-addon"><input id="usehsts" type="checkbox" name="usehsts" value="on" {{hsts_checked}}></span>
+				<span class="form-control" onclick="$('#usehsts').prop('checked', !$('#usehsts').prop('checked'))">
+					{{lang_useHsts}}
+				</span>
+			</div>
 			<br>
 
 			<div class="pull-right">

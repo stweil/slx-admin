@@ -5,6 +5,7 @@ class Page_WebInterface extends Page
 
 	const PROP_REDIRECT = 'webinterface.https-redirect';
 	const PROP_TYPE = 'webinterface.https-type';
+	const PROP_HSTS = 'webinterface.https-hsts';
 
 	protected function doPreprocess()
 	{
@@ -42,6 +43,7 @@ class Page_WebInterface extends Page
 				$task = $this->setRedirectMode();
 				break;
 		}
+		Property::set(self::PROP_HSTS, Request::post('usehsts', false, 'string') === 'on' ? 'True' : 'False');
 		if (isset($task['id'])) {
 			Session::set('https-id', $task['id']);
 			Util::redirect('?do=WebInterface&show=httpsupdate' . $off);
@@ -65,11 +67,13 @@ class Page_WebInterface extends Page
 		}
 		$type = Property::get(self::PROP_TYPE);
 		$force = Property::get(self::PROP_REDIRECT) === 'True';
+		$hsts = Property::get(self::PROP_HSTS) === 'True';
 		$https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 		$exists = file_exists('/etc/lighttpd/server.pem');
 		$data = array(
 			'httpsUsed' => $https,
-			'redirect_checked' => ($force ? 'checked' : '')
+			'redirect_checked' => ($force ? 'checked' : ''),
+			'hsts_checked' => ($hsts ? 'checked' : '')
 		);
 		// Type should be 'off', 'generated', 'supplied'
 		if ($type === 'off') {
