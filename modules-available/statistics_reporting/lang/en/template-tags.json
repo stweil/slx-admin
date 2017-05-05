@@ -10,6 +10,7 @@
     "lang_location": "Location",
     "lang_longSessions": "Sessions \u2265 60s",
     "lang_medianSessionLength": "Median Session Length",
+    "lang_reportMoreInfo": "More information...",
     "lang_reportingDescription": "Help us improve bwLehrpool by automatically sending an anonymized statistics report once a week. If you want to check what data the report contains, you can download such a report for reference below.",
     "lang_reportingLabel": "Send anonymized usage statistics",
     "lang_sessions": "Sessions",
