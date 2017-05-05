@@ -116,7 +116,7 @@ if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 
 // Set HSTS Header if client is using HTTPS
 if(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-	if (Request::any('hsts') === 'off' || Property::get('webinterface.https-hsts', 'False') !== 'True') {
+	if (Property::get('webinterface.https-hsts', 'False') !== 'True') {
 		Header('Strict-Transport-Security: max-age=0', true);
 	} else {
 		Header('Strict-Transport-Security: max-age=15768000', true);
