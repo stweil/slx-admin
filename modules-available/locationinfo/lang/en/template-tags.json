@@ -39,6 +39,7 @@
     "lang_nameTooltip": "Defines the name of the server",
     "lang_noServer": "<no server>",
     "lang_openingTime": "Opening times",
+    "lang_pleaseSelect": "Please select...",
     "lang_room": "Room",
     "lang_roomId": "Room ID",
     "lang_roomIdTooltip": "The ID of the room the server needs, for querying the calendar data",
