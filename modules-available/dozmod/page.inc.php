@@ -32,6 +32,14 @@ class Page_DozMod extends Page
 			Util::redirect('?do=Main');
 		}
 
+		/* add sub-menus */
+		Dashboard::addSubmenu('?do=dozmod&section=expiredimages', Dictionary::translate('submenu_expiredimages', true));
+		Dashboard::addSubmenu('?do=dozmod&section=mailconfig', Dictionary::translate('submenu_mailconfig', true));
+		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates', true));
+		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime', true));
+		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users', true));
+		Dashboard::addSubmenu('?do=dozmod&section=actionlog', Dictionary::translate('submenu_actionlog', true));
+
 		$this->setupSubPage();
 		if ($this->subPage !== false) {
 			$this->subPage->doPreprocess();
@@ -54,14 +62,6 @@ class Page_DozMod extends Page
 		} elseif ($action !== false) {
 			Util::traceError('Invalid action: ' . $action);
 		}
-
-		/* add sub-menus */
-		Dashboard::addSubmenu('?do=dozmod&section=expiredimages', Dictionary::translate('submenu_expiredimages', true));
-		Dashboard::addSubmenu('?do=dozmod&section=mailconfig', Dictionary::translate('submenu_mailconfig', true));
-		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates', true));
-		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime', true));
-		Dashboard::addSubmenu('?do=dozmod&section=users', Dictionary::translate('submenu_users', true));
-		Dashboard::addSubmenu('?do=dozmod&section=actionlog', Dictionary::translate('submenu_actionlog', true));
 	}
 
 	protected function doRender()
