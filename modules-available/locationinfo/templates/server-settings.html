@@ -25,6 +25,9 @@
 					</div>
 					<div class="col-md-7">
 						<select class="form-control" onchange="servertype_changed(this.value)">
+							{{#defaultBlank}}
+								<option value="" selected>{{lang_pleaseSelect}}</option>
+							{{/defaultBlank}}
 							{{#backendList}}
 								<option value="{{backendtype}}" {{#active}}selected{{/active}}>{{display}}</option>
 							{{/backendList}}
@@ -75,12 +78,15 @@
 		if (value === currentBackend)
 			return;
 		var newBackend = value;
-		console.log('From ' + currentBackend + ' to ' + value);
-		$('#formwrapper-' + currentBackend).fadeOut('fast', function() {
-			console.log('Fading in ' + newBackend);
+		var fadeIn = function() {
 			$('#formwrapper-' + newBackend).fadeIn('fast');
 			$('#myModalSubmitButton, #name-input').attr('form', 'form-' + newBackend);
-		});
+		};
+		if (currentBackend) {
+			$('#formwrapper-' + currentBackend).fadeOut('fast', fadeIn);
+		} else {
+			fadeIn();
+		}
 		currentBackend = value;
 	}
 

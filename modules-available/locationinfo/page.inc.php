@@ -481,7 +481,8 @@ class Page_LocationInfo extends Page
 		echo Render::parse('server-settings', array('id' => $id,
 			'name' => $oldConfig['servername'],
 			'currentbackend' => $oldConfig['servertype'],
-			'backendList' => $serverBackends));
+			'backendList' => $serverBackends,
+			'defaultBlank' => $oldConfig === false));
 	}
 
 	/**
