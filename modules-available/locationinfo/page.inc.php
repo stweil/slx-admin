@@ -500,15 +500,16 @@ class Page_LocationInfo extends Page
 			$openingtimes = array();
 		}
 		if ($this->isEasyMode($openingtimes)) {
-			echo Render::parse('timetable', array('id' => $id,
-				'openingtime0' => $openingtimes[0]['openingtime'],
-				'closingtime0' => $openingtimes[0]['closingtime'],
-				'openingtime1' => $openingtimes[1]['openingtime'],
-				'closingtime1' => $openingtimes[1]['closingtime'],
-				'openingtime2' => $openingtimes[2]['openingtime'],
-				'closingtime2' => $openingtimes[2]['closingtime'],
+			$data = array('id' => $id,
 				'easyMode' => true,
-				'expertMode' => false));
+				'expertMode' => false
+			);
+			foreach ($openingtimes as $idx => $ot) {
+				foreach ($ot as $k => $v) {
+					$data[$k . $idx] = $v;
+				}
+			}
+			echo Render::parse('timetable', $data);
 
 		} else {
 			$index = 0;
