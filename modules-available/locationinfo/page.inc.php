@@ -496,7 +496,7 @@ class Page_LocationInfo extends Page
 		if ($row !== false) {
 			$openingtimes = json_decode($row['openingtime'], true);
 		}
-		if (!is_array($openingtimes)) {
+		if (!isset($openingtimes) || !is_array($openingtimes)) {
 			$openingtimes = array();
 		}
 		if ($this->isEasyMode($openingtimes)) {
