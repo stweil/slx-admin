@@ -189,26 +189,28 @@ function formatOpeningtime($openingtime)
 {
 	$result = array();
 	$weekarray = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-	foreach ($weekarray as $d) {
+	foreach ($weekarray as $checkDay) {
 		$array = array();
 		foreach ($openingtime as $opt) {
-			foreach ($opt['days'] as $val) {
-				if ($val == $d) {
-					$arr = array();
-
-					$openTime = explode(':', $opt['openingtime']);
-					$arr['HourOpen'] = $openTime[0];
-					$arr['MinutesOpen'] = $openTime[1];
-
-					$closeTime = explode(':', $opt['closingtime']);
-					$arr['HourClose'] = $closeTime[0];
-					$arr['MinutesClose'] = $closeTime[1];
-
+			if (!isset($opt['days']) || !is_array($opt['days']))
+				continue;
+			$openTime = explode(':', $opt['openingtime']);
+			$closeTime = explode(':', $opt['closingtime']);
+			if (count($openTime) !== 2 || count($closeTime) !== 2)
+				continue;
+			$arr = array(
+				'HourOpen' => $openTime[0],
+				'MinutesOpen' => $openTime[1],
+				'HourClose' => $closeTime[0],
+				'MinutesClose' => $closeTime[1],
+			);
+			foreach ($opt['days'] as $calDay) {
+				if ($calDay === $checkDay) {
 					$array[] = $arr;
 				}
 			}
 			if (!empty($array)) {
-				$result[$d] = $array;
+				$result[$checkDay] = $array;
 			}
 		}
 	}
