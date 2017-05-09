@@ -2,94 +2,100 @@
 <div data-tm-id="{{rebootTask}}" data-tm-log="messages">Reboot...</div>
 {{/rebootTask}}
 
-<div class="row">
-
-	<div class="col-sm-6">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_space}}
-			</div>
-			<div class="panel-body" id="diskstat">
-				<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-sm-6">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_services}}
-			</div>
-			<div class="panel-body" id="services">
-				<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-			</div>
-		</div>
-	</div>
-
-</div>
-
-
-<div class="row">
-
-	<div class="col-md-6">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_addressConfiguration}}
-			</div>
-			<div class="panel-body" id="addresses">
-				<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-md-6">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_system}}
-			</div>
-			<div class="panel-body" id="systeminfo">
-				<span class="glyphicon glyphicon-refresh slx-rotation"></span>
-			</div>
-		</div>
-	</div>
-
-</div>
-
-<div class="row">
-
-	<div class="col-md-6">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_maintenance}}
-			</div>
-			<div class="panel-body">
-				<form class="form-adduser" action="?do=SystemStatus" method="post">
-					<input type="hidden" name="token" value="{{token}}">
-					<input type="hidden" name="action" value="reboot">
-					<div>Server Reboot</div>
-					<label><input type="checkbox" name="confirm" value="yep"> {{lang_iAmSure}}</label>
-					<button class="btn btn-warning btn-xs" type="submit">Reboot</button>
-				</form>
-				<div id="dmsd-users"></div>
-			</div>
-		</div>
-	</div>
-
-</div>
-
-<h3>{{lang_advanced}}</h3>
-
 <ul class="nav nav-tabs tabs-up">
-{{#tabs}}
-	<li>
-		<a href="#id-{{type}}_pane" class="ajax-tab" id="id-{{type}}" data-toggle="tab" role="tab">
-			{{name}}
+	<li class="active">
+		<a href="#id-default_pane" id="id-default" class="active" data-toggle="tab" role="tab">
+			{{lang_overview}}
 		</a>
 	</li>
-{{/tabs}}
+	{{#tabs}}
+		<li>
+			<a href="#id-{{type}}_pane" class="ajax-tab" id="id-{{type}}" data-toggle="tab" role="tab">
+				{{name}}
+			</a>
+		</li>
+	{{/tabs}}
 </ul>
 
 <div class="tab-content">
+
+	<div class="tab-pane active" id="id-default_pane">
+		<div class="row">
+
+			<div class="col-sm-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						{{lang_space}}
+					</div>
+					<div class="panel-body" id="diskstat">
+						<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						{{lang_services}}
+					</div>
+					<div class="panel-body" id="services">
+						<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+
+		<div class="row">
+
+			<div class="col-md-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						{{lang_addressConfiguration}}
+					</div>
+					<div class="panel-body" id="addresses">
+						<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						{{lang_system}}
+					</div>
+					<div class="panel-body" id="systeminfo">
+						<span class="glyphicon glyphicon-refresh slx-rotation"></span>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="row">
+
+			<div class="col-md-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						{{lang_maintenance}}
+					</div>
+					<div class="panel-body">
+						<form class="form-adduser" action="?do=SystemStatus" method="post">
+							<input type="hidden" name="token" value="{{token}}">
+							<input type="hidden" name="action" value="reboot">
+							<div>Server Reboot</div>
+							<label><input type="checkbox" name="confirm" value="yep"> {{lang_iAmSure}}</label>
+							<button class="btn btn-warning btn-xs" type="submit">Reboot</button>
+						</form>
+						<div id="dmsd-users"></div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
 {{#tabs}}
 	<div class="tab-pane" id="id-{{type}}_pane">
 		<span class="glyphicon glyphicon-refresh slx-rotation"></span>

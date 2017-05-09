@@ -1,6 +1,5 @@
 {
     "lang_addressConfiguration": "Adresskonfiguration",
-    "lang_advanced": "Erweitert \/ Debug",
     "lang_attention": "Achtung!",
     "lang_average": "Durchschnitt",
     "lang_capacity": "Kapazit\u00e4t",
@@ -14,6 +13,7 @@
     "lang_notDetermined": "Konnte nicht ermittelt werden",
     "lang_occupied": "Belegt",
     "lang_onlyOS": "Nur OS",
+    "lang_overview": "\u00dcbersicht",
     "lang_ramUsage": "RAM-Nutzung",
     "lang_services": "Dienste",
     "lang_space": "Speicherplatz",

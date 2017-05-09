@@ -1,6 +1,5 @@
 {
     "lang_addressConfiguration": "Address Configuration",
-    "lang_advanced": "Advanced \/ Debug",
     "lang_attention": "Attention!",
     "lang_average": "Average",
     "lang_capacity": "Capacity",
@@ -14,6 +13,7 @@
     "lang_notDetermined": "Could not be determined",
     "lang_occupied": "Occupied",
     "lang_onlyOS": "OS Only",
+    "lang_overview": "Overview",
     "lang_ramUsage": "RAM Usage",
     "lang_services": "Services",
     "lang_space": "Space",
