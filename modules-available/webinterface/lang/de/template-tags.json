@@ -4,7 +4,7 @@
     "lang_certificate": "Bitte f\u00fcgen Sie hier das Zertifikat ein. Das Zertifikat wird im Base64-codierten x509-Format erwartet (manchmal pem genannt). Es sieht in etwa wie folgt aus:",
     "lang_customCert": "Eigenes Zertifikat verwenden",
     "lang_customization": "Designanpassung",
-    "lang_customizationDesc": "Hier k\u00f6nnen Sie kleine optische Anpassungen an der Weboberfl\u00e4che vornehmen. Dies ist hilfreich, wenn Sie z.B. ein Produktiv- und ein Testsystem betreiben und verhindern m\u00f6chten, dass Sie versehentlich in der Falschen Weboberfl\u00e4che kritische Einstellungen ver\u00e4ndern.",
+    "lang_customizationDesc": "Hier k\u00f6nnen Sie kleine optische Anpassungen an der Weboberfl\u00e4che vornehmen. Dies ist hilfreich, wenn Sie z.B. ein Produktiv- und ein Testsystem betreiben und verhindern m\u00f6chten, dass Sie versehentlich in der falschen Weboberfl\u00e4che kritische Einstellungen ver\u00e4ndern.",
     "lang_generatedSelected": "Der Server verwendet zur Zeit ein automatisch generiertes, selbst signiertes Zertifikat.",
     "lang_hidePasswords": "Passw\u00f6rter maskieren",
     "lang_httpsDescription": "Hier k\u00f6nnen Sie festlegen, ob das Web-Interface auch per HTTPS erreichbar sein soll, und welches Zertifikat daf\u00fcr verwendet werden soll.",
