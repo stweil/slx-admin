@@ -21,6 +21,9 @@ class Page_WebInterface extends Page
 			case 'password':
 				$this->actionShowHidePassword();
 				break;
+			case 'customization':
+				$this->actionCustomization();
+				break;
 		}
 	}
 
@@ -54,6 +57,17 @@ class Page_WebInterface extends Page
 	private function actionShowHidePassword()
 	{
 		Property::setPasswordFieldType(Request::post('mode') === 'show' ? 'text' : 'password');
+		Util::redirect('?do=WebInterface');
+	}
+
+	private function actionCustomization()
+	{
+		$prefix = Request::post('prefix', '', 'string');
+		if (!empty($prefix) && !preg_match('/[\]\)\}\-_\s\&\$\!\/\+\*\^\>]$/', $prefix)) {
+			$prefix .= ' ';
+		}
+		Property::set('page-title-prefix', $prefix);
+		Property::set('logo-background', Request::post('bgcolor', '', 'string'));
 		Util::redirect('?do=WebInterface');
 	}
 
@@ -118,6 +132,22 @@ class Page_WebInterface extends Page
 		else
 			$data['selected_hide'] = 'checked';
 		Render::addTemplate('passwords', $data);
+		$data = array('prefix' => Property::get('page-title-prefix'));
+		$data['colors'] = array_map(function ($i) { return array('color' => $i); },
+			array('', 'red', 'green', 'blue', 'black', 'white', 'orange', 'gray', 'lime', 'magenta', 'yellow'));
+		$color = Property::get('logo-background');
+		foreach ($data['colors'] as &$c) {
+			if ($c['color'] === $color) {
+				$c['selected'] = 'selected';
+				$color = false;
+				break;
+			}
+		}
+		unset($c);
+		if ($color) {
+			$data['colors'][] = array('color' => $color, 'selected' => 'selected');
+		}
+		Render::addTemplate('customization', $data);
 	}
 
 	private function setHttpsOff()

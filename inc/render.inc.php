@@ -40,6 +40,11 @@ class Render
 		self::$mustache = new Mustache_Engine($options);
 	}
 
+	private static function cssEsc($str)
+	{
+		return str_replace(array('"', '&', '<', '>'), array('\\000022', '\\000026', '\\00003c', '\\00003e'), $str);
+	}
+
 	/**
 	 * Output the buffered, generated page
 	 */
@@ -47,12 +52,24 @@ class Render
 	{
 		Header('Content-Type: text/html; charset=utf-8');
 		$modules = array_reverse(Module::getActivated());
+		$title = Property::get('page-title-prefix', '');
+		$bgcolor = Property::get('logo-background', '');
+		if (!empty($bgcolor) || !empty($title)) {
+			self::$header .= '<style type="text/css">' . "\n";
+			if (!empty($bgcolor)) {
+				self::$header .= ".navbar-header { background-color: $bgcolor; }";
+			}
+			if (!empty($title)) {
+				self::$header .= '#navbar-sub:after { content: "' . self::cssEsc($title) . '";margin:0 }';
+			}
+			self::$header .= "\n</style>";
+		}
 		ob_start('ob_gzhandler');
 		echo
 		'<!DOCTYPE html>
 	<html>
 		<head>
-			<title>', self::$title, RENDER_DEFAULT_TITLE, '</title>
+			<title>', $title, self::$title, RENDER_DEFAULT_TITLE, '</title>
 			<meta charset="utf-8"> 
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -1,0 +1,30 @@
+<form action="?do=WebInterface" method="post">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="customization">
+	<div class="panel panel-default">
+		<div class="panel-heading">{{lang_customization}}</div>
+		<div class="panel-body">
+			<p>{{lang_customizationDesc}}</p>
+			<div>
+				<label>
+					{{lang_pageTitlePrefix}}
+					<input type="text" class="form-control" name="prefix" value="{{prefix}}">
+				</label>
+
+			</div>
+			<div>
+				<label>
+					{{lang_logoBackground}}
+					<select class="form-control" name="bgcolor">
+						{{#colors}}
+							<option style="color:{{color}}" {{selected}}>{{color}}</option>
+						{{/colors}}
+					</select>
+				</label>
+			</div>
+			<div class="pull-right">
+				<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+			</div>
+		</div>
+	</div>
+</form>
