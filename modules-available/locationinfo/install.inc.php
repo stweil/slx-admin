@@ -3,7 +3,7 @@
 $res = array();
 
 $t1 = $res[] = tableCreate('locationinfo_locationconfig', '
-	`locationid` INT(10) UNSIGNED NOT NULL,
+	`locationid` INT(11) NOT NULL,
 	`serverid` INT(10) UNSIGNED,
 	`serverlocationid` VARCHAR(150),
 	`hidden` BOOLEAN NOT NULL DEFAULT 0,
