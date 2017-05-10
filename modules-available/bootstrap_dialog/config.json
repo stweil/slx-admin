@@ -1,3 +1,9 @@
 {
-	"dependencies" : []
+	"dependencies" : [],
+	"css": {
+		"style.css": true
+	},
+	"scripts": {
+		"clientscript.js": true
+	}
 }

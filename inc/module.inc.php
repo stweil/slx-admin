@@ -142,13 +142,23 @@ class Module
 	private $activated = false;
 	private $dependencies = array();
 	private $name;
+	/**
+	 * @var array assoc list of 'filename.css' => true|false (true = always load, false = only if module is main module)
+	 */
+	private $css = array();
+	/**
+	 * @var array assoc list of 'filename.js' => true|false (true = always load, false = only if module is main module)
+	 */
+	private $scripts = array();
 
 	private function __construct($name)
 	{
 		$file = 'modules/' . $name . '/config.json';
 		$json = @json_decode(@file_get_contents($file), true);
-		if (isset($json['dependencies']) && is_array($json['dependencies'])) {
-			$this->dependencies = $json['dependencies'];
+		foreach (['dependencies', 'css', 'scripts'] as $key) {
+			if (isset($json[$key]) && is_array($json[$key])) {
+				$this->$key = $json[$key];
+			}
 		}
 		if (isset($json['category']) && is_string($json['category'])) {
 			$this->category = $json['category'];
@@ -249,6 +259,31 @@ class Module
 	public function getDir()
 	{
 		return 'modules/' . $this->name;
+	}
+
+	public function getScripts($externalOnly)
+	{
+		error_log($this->getIdentifier() . ' = ' . ($externalOnly ? 'true' : 'false'));
+		if (!$externalOnly) {
+			if (!isset($this->scripts['clientscript.js']) && file_exists($this->getDir() . '/clientscript.js')) {
+				$this->scripts['clientscript.js'] = false;
+			}
+			return array_keys($this->scripts);
+		}
+		error_log('Pre: ' . implode(', ', array_keys($this->scripts)));
+		error_log('Post: ' . implode(', ', array_keys(array_filter($this->scripts))));
+		return array_keys(array_filter($this->scripts));
+	}
+
+	public function getCss($externalOnly)
+	{
+		if (!$externalOnly) {
+			if (!isset($this->css['style.css']) && file_exists($this->getDir() . '/style.css')) {
+				$this->css['style.css'] = false;
+			}
+			return array_keys($this->css);
+		}
+		return array_keys(array_filter($this->css));
 	}
 
 }

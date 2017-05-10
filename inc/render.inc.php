@@ -51,7 +51,9 @@ class Render
 	public static function output()
 	{
 		Header('Content-Type: text/html; charset=utf-8');
+		/* @var $modules Module[] */
 		$modules = array_reverse(Module::getActivated());
+		$pageModule = Page::getModule();
 		$title = Property::get('page-title-prefix', '');
 		$bgcolor = Property::get('logo-background', '');
 		if (!empty($bgcolor) || !empty($title)) {
@@ -79,9 +81,9 @@ class Render
 	';
 		// Include any module specific styles
 		foreach ($modules as $module) {
-			$file = $module->getDir() . '/style.css';
-			if (file_exists($file)) {
-				echo '<link href="', $file, '" rel="stylesheet" media="screen">';
+			$files = $module->getCss($module != $pageModule);
+			foreach ($files as $file) {
+				echo '<link href="', $module->getDir(), '/', $file, '" rel="stylesheet" media="screen">';
 			}
 		}
 		echo '	
@@ -109,9 +111,9 @@ class Render
 		<script src="script/collapse.js"></script>
 	';
 		foreach ($modules as $module) {
-			$file = $module->getDir() . '/clientscript.js';
-			if (file_exists($file)) {
-				echo '<script src="', $file, '"></script>';
+			$files = $module->getScripts($module != $pageModule);
+			foreach ($files as $file) {
+				echo '<script src="', $module->getDir(), '/', $file, '"></script>';
 			}
 		}
 		echo

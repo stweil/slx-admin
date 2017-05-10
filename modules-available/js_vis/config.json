@@ -1,3 +1,9 @@
 {
-	"dependencies" : ["js_moment"]
+	"dependencies" : ["js_moment"],
+	"css": {
+		"style.css": true
+	},
+	"scripts": {
+		"clientscript.js": true
+	}
 }
