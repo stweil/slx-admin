@@ -72,8 +72,7 @@ class Page_LocationInfo extends Page
 		}
 		$serverid = Request::post('serverid', 0, 'int');
 		if ($serverid === 0) {
-			Message::addError('main.value-invalid', 'serverid', 0);
-			Util::redirect('?do=locationinfo');
+			$serverid = null;
 		}
 		$result['language'] = Request::post('language', 'en', 'string');
 		$result['mode'] = Request::post('mode', 1, 'int');
