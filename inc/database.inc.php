@@ -114,6 +114,9 @@ class Database
 	public static function simpleQuery($query, $args = array(), $ignoreError = false)
 	{
 		self::init();
+		if (CONFIG_DEBUG && preg_match('/^\s*SELECT/is', $query)) {
+			self::explainQuery($query, $args, $ignoreError);
+		}
 		// Support passing nested arrays for IN statements, automagically refactor
 		self::handleArrayArgument($query, $args);
 		try {
@@ -136,6 +139,51 @@ class Database
 			Util::traceError("Database Error: \n" . self::$lastError);
 		}
 		return false;
+	}
+
+	private static function explainQuery($query, $args, $ignoreError)
+	{
+		$res = self::simpleQuery('EXPLAIN ' . $query, $args, true);
+		if ($res === false)
+			return;
+		$rows = $res->fetchAll(PDO::FETCH_ASSOC);
+		if (empty($rows))
+			return;
+		$log = false;
+		$lens = array();
+		foreach (array_keys($rows[0]) as $key) {
+			$lens[$key] = strlen($key);
+		}
+		foreach ($rows as $row) {
+			if (!$log && preg_match('/filesort|temporary/i', $row['Extra'])) {
+				$log = true;
+			}
+			foreach ($row as $key => $col) {
+				$l = strlen($col);
+				if ($l > $lens[$key]) {
+					$lens[$key] = $l;
+				}
+			}
+		}
+		if (!$log)
+			return;
+		error_log('Possible slow query: ' . $query);
+		$border = $head = '';
+		foreach ($lens as $key => $len) {
+			$border .= '+' . str_repeat('-', $len + 2);
+			$head .= '| ' . str_pad($key, $len) . ' ';
+		}
+		$border .= '+';
+		$head .= '|';
+		error_log("\n" . $border . "\n" . $head . "\n" . $border);
+		foreach ($rows as $row) {
+			$line = '';
+			foreach ($lens as $key => $len) {
+				$line .= '| '. str_pad($row[$key], $len) . ' ';
+			}
+			error_log($line . "|");
+		}
+		error_log($border);
 	}
 
 	/**
