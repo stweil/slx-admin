@@ -57,10 +57,11 @@ class Render
 		if (!empty($bgcolor) || !empty($title)) {
 			self::$header .= '<style type="text/css">' . "\n";
 			if (!empty($bgcolor)) {
-				self::$header .= ".navbar-header { background-color: $bgcolor; }";
+				$fgcolor = self::readableColor($bgcolor);
+				self::$header .= ".navbar-header{background-color:$bgcolor}a.navbar-brand{color:$fgcolor!important}";
 			}
 			if (!empty($title)) {
-				self::$header .= '#navbar-sub:after { content: "' . self::cssEsc($title) . '";margin:0 }';
+				self::$header .= '#navbar-sub:after{content:"' . self::cssEsc($title) . '";margin:0}';
 			}
 			self::$header .= "\n</style>";
 		}
@@ -300,6 +301,24 @@ class Render
 	public static function setDashboard($params)
 	{
 		self::$dashboard = $params;
+	}
+
+	public static function readableColor($hex) {
+		if (strlen($hex) <= 4) {
+			$cnt = 1;
+		} else {
+			$cnt = 2;
+		}
+		if (preg_match('/^#?([a-f0-9]{'.$cnt.'})([a-f0-9]{'.$cnt.'})([a-f0-9]{'.$cnt.'})$/i', $hex, $out) != 1)
+			return '#000';
+		$chans = array();
+		$f = ($cnt === 1 ? 17 : 1);
+		for ($i = 1; $i <= 3; ++$i) {
+			$out[$i] = (hexdec($out[$i]) * $f);
+			$chans[] = $out[$i] ^ 0x80;
+		}
+		$b = (255 - (0.299 * $out[1] + 0.587 * $out[2] + 0.114 * $out[3])) * 2;
+		return sprintf("#%02x%02x%02x", ($chans[0] + $b) / 3, ($chans[1] + $b) / 3, ($chans[2] + $b) / 3);
 	}
 
 }

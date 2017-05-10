@@ -133,8 +133,8 @@ class Page_WebInterface extends Page
 			$data['selected_hide'] = 'checked';
 		Render::addTemplate('passwords', $data);
 		$data = array('prefix' => Property::get('page-title-prefix'));
-		$data['colors'] = array_map(function ($i) { return array('color' => $i); },
-			array('', 'red', 'green', 'blue', 'black', 'white', 'orange', 'gray', 'lime', 'magenta', 'yellow'));
+		$data['colors'] = array_map(function ($i) { return array('color' => $i ? '#' . $i : '', 'text' => Render::readableColor($i)); },
+			array('', 'f00', '0f0', '00f', 'ff0', 'f0f', '0ff', 'fff', '000', 'f90', '09f', '90f', 'f09', '9f0'));
 		$color = Property::get('logo-background');
 		foreach ($data['colors'] as &$c) {
 			if ($c['color'] === $color) {
