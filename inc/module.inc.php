@@ -263,15 +263,12 @@ class Module
 
 	public function getScripts($externalOnly)
 	{
-		error_log($this->getIdentifier() . ' = ' . ($externalOnly ? 'true' : 'false'));
 		if (!$externalOnly) {
 			if (!isset($this->scripts['clientscript.js']) && file_exists($this->getDir() . '/clientscript.js')) {
 				$this->scripts['clientscript.js'] = false;
 			}
 			return array_keys($this->scripts);
 		}
-		error_log('Pre: ' . implode(', ', array_keys($this->scripts)));
-		error_log('Post: ' . implode(', ', array_keys(array_filter($this->scripts))));
 		return array_keys(array_filter($this->scripts));
 	}
 
