@@ -143,6 +143,7 @@
 							</form>
 							{{#screens}}
 							<div class="small">
+								{{#hwname}}
 								<div class="pull-right btn-group btn-group-xs">
 									{{#projector}}
 									<a href="?do=statistics&amp;show=projectors" class="btn btn-default">{{lang_projector}}</a>
@@ -154,7 +155,8 @@
 											  class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> {{lang_projector}}</button>
 									{{/projector}}
 								</div>
-								{{connector}}: <b>{{hwname}}</b> {{resolution}}
+								{{/hwname}}
+								{{connector}}: <b>{{hwname}}</b> {{^hwname}}<i>{{lang_noEdid}}</i>{{/hwname}} {{resolution}}
 								<div class="clearfix"></div>
 							</div>
 							{{/screens}}
