@@ -38,6 +38,8 @@ while true; do
 	fi
 	STATUS=$(grep -m1 '^STATUS=' "$FILE" | cut -d= -f2-)
 	echo "Result: $STATUS"
+	MESSAGE=$(grep -m1 '^MESSAGE=' "$FILE" | cut -d= -f2-)
+	echo "($MESSAGE)"
 	if [ -z "$STATUS" ] || [ "$STATUS" = "UPDATE_RETRY" ]; then
 		RETRY=1
 	fi
