@@ -5,10 +5,12 @@ class RebootQueries
 
 	// Get Client+IP+CurrentVM+CurrentUser+Location to fill the table
 	public static function getMachineTable($locationId) {
+		$queryArgs = array('cutoff' => strtotime('-30 days'));
 		if ($locationId === 0) {
 			$where = 'machine.locationid IS NULL';
 		} else {
 			$where = 'machine.locationid = :locationid';
+			$queryArgs['locationid'] = $locationId;
 		}
 		$leftJoin = '';
 		$sessionField = 'machine.currentsession';
@@ -23,7 +25,7 @@ class RebootQueries
 				$sessionField, machine.currentuser, machine.locationid
 			FROM machine 
 			$leftJoin
-			WHERE " . $where, array('locationid' => $locationId));
+			WHERE $where AND machine.lastseen > :cutoff", $queryArgs);
 		$ret = $res->fetchAll(PDO::FETCH_ASSOC);
 		$NOW = time();
 		foreach ($ret as &$row) {
