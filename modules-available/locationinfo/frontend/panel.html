@@ -8,114 +8,93 @@
 		body {
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			background-color: lightgrey;
+			color: black;
 		}
 
-		.main {
-			background-color: lightgrey;
-
-		}
-
-		.child {
-			background-color: white;
-			display: inline-block;
-			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-			padding: 1vmin;
-			float: left;
-		}
-
-		.parent {
-			background-color: white;
-			display: inline-block;
-			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-			padding: 5px;
-			float: left;
-
-		}
-
-		.childWithBorder {
-			display: inline-flex;
-			padding: 0.4vmin;
-
+		#main {
+			display: flex;
+			flex-wrap: wrap;
 		}
 
 		.outermost {
-
+			font-size: 16pt;
 		}
 
-		.row {
-			float: left
+		.parent, .child {
+			padding: 5px;
+			float: left;
+			background-color: white;
+			font-size: 90%;
+			min-height: 7em;
+			flex-grow: 1;
+			align-items: stretch;
+		}
+
+		.parent .parent, .parent .child {
+			min-height: 5em;
 		}
 
 		.border {
+			flex-grow: 1;
 			display: inline-flex;
+			align-items: stretch;
 			padding: 5px;
 		}
 
-		.borderout {
-			display: inline-flex;
-			padding: 0.4vmin;
-		}
-
 		.courseFont {
-			padding: 0.5vmin;
-			font-size: 2vmin;
+			padding: 2px;
+			font-size: 90%;
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: bold;
 			overflow: hidden;
 		}
 
 		.headerFont {
-			font-size: 4vmin;
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: bold;
 			border: 0px;
-			border-bottom: 0.2vmin;
-			margin-bottom: 1vmin;
+			border-bottom: 1px;
+			margin-bottom: 1px;
 			border-color: grey;
 			border-style: solid;
-
 		}
 
-		.divPcOn, .divPcPcUsed, .divPcPcOff, .divPcPcDefect {
-			width: 4vmin;
-			height: 4vmin;
+		.pc-idle, .pc-occupied, .pc-off, .pc-broken {
+			padding: 2px 1px;
 			text-align: center;
-			font-size: 3vmin;
+			font-size: 90%;
 			font-weight: 800;
-			border-radius: 0.4vmin;
-
+			overflow: hidden;
+			transition: width 2s;
+			width: 25%;
 		}
 
-		.divPcOn {
+		.pc-idle {
 			background-color: green;
-			text-align: center;
+			border-radius: 3px 0px 0px 3px;
 		}
 
-		.divPcPcUsed {
-
+		.pc-occupied {
 			background-color: red;
 		}
 
-		.divPcPcOff {
+		.pc-off {
 			background-color: darkgrey;
 		}
 
-		.divPcPcDefect {
+		.pc-broken {
 			background-color: black;
 			color: white;
+			border-radius: 0px 3px 3px 0px;
 		}
 
-		.divAroundPcStates {
+		.pc-state-wrapper {
 			display: flex;
-			justify-content: flex-end;
-
 		}
 
 		.paperEffect {
 			margin: 0 auto;
 			background-color: #fff;
-			-webkit-box-shadow: 0 0 0.2vmin rgba(0, 0, 0, 0.4), inset 0 0 1vmin rgba(0, 0, 0, 0.1);
-			-moz-box-shadow: 0 0 0.2vmin rgba(0, 0, 0, 0.4), inset 0 0 1vmin rgba(0, 0, 0, 0.1);
 			box-shadow: 0 0 0.2vmin rgba(0, 0, 0, 0.4), inset 0 0 1vmin rgba(0, 0, 0, 0.1);
 			border-radius: 1px;
 		}
@@ -127,12 +106,6 @@
 		var rooms = {};
 		var startdate;
 		var roomidsString = "";
-		var lastPcUpdate;
-		var lastTimeTableUpdate;
-
-		// Todo change these
-		var pcStateUpdateTime = 60; // in seconds
-		var TimeTableUpdateTime = 60 * 30; //in seconds
 
 
 		$(document).ready(function () {
@@ -146,103 +119,9 @@
 			$.getJSON("../../../api.php?do=locationinfo&action=locationtree&id=" + ids, function (result) {
 				generateLayout(result);
 
-				setInterval(update, 1000);
-				arrange();
+				setTimeout(update, 1000);
 			});
 
-		}
-
-		/**
-		 * Main Fuction for aranging the divs
-		 */
-		function arrange() {
-			var height = $(window).height();
-			var width = $(window).width();
-			var childs = $(".childWithBorder");
-			var parents = [];
-			for (var i = 0; i < childs.length; i++) {
-				var parent = $(childs[i]).parent();
-				if ($.inArray(parent[0], parents) == -1) {
-					parents.push(parent[0]);
-				}
-			}
-			for (var i = 0; i < parents.length; i++) {
-				childs = $(parents[i]).children();
-
-				if (checkForLineBreak(parents[i], childs) > 0) {
-					makeItFit(parents[i], childs, childs.length / 2);
-				}
-
-			}
-
-		}
-		/**
-		 * rekursive calls itselfs and trys to find the best number off childs
-		 * which should be side by side.
-		 * @param parent Parent div
-		 * @param childs Child divs
-		 * @param breakAfter number after the divs should go in the next row
-		 */
-		function makeItFit(parent, childs, breakAfter) {
-			breakAfter = Math.abs(breakAfter);
-			var width = checkIfFit(parent, childs, breakAfter)
-			if (width > 0) {
-				$(parent).width(width + 20);
-			} else {
-				makeItFit(parent, childs, breakAfter - 1);
-			}
-		}
-
-		/**
-		 * checks if a given number off divs(side by side) would fit on the screen
-		 * @param parent Parent div
-		 * @param childs Child divs
-		 * @param breakAfter number after the divs should go in the next row
-		 * @returns -1 if it wouldn't fit else the width the div should have
-		 */
-		function checkIfFit(parent, childs, breakAfter) {
-			var parentWidth = $(parent).width();
-			var maxWidth = 0;
-			var curWidth = 0;
-			var t = 0;
-			for (var i = 0; i < childs.length; i++) {
-				var childWidth = $(childs[i]).width();
-				if ((curWidth + childWidth > parentWidth && breakAfter > 1)) {
-					return -1;
-				}
-				curWidth += childWidth;
-				t++;
-				if (t == breakAfter) {
-					maxWidth = Math.max(curWidth, maxWidth);
-					curWidth = 0;
-					t = 0;
-				}
-
-			}
-			return maxWidth
-		}
-
-		/**
-		 * return the number of Linebreaks the divs would make
-		 * @param parent Parent div
-		 * @param childs Child divs
-		 * @returns the number of Linebreaks the divs would make
-		 */
-		function checkForLineBreak(parent, childs) {
-			var linebreaks = 0;
-			var curWidth = 0;
-			var parentWidth = $(parent).width();
-			for (var i = 0; i < childs.length; i++) {
-				var childWidth = $(childs[i]).width();
-				if (curWidth + childWidth < parentWidth) {
-					curWidth += childWidth;
-				} else {
-					linebreaks++;
-
-					curWidth = childWidth;
-				}
-			}
-			return linebreaks;
 		}
 
 		function SetUpDate(d) {
@@ -254,18 +133,10 @@
 		}
 
 		function generateLayout(json) {
-			var ids = getUrlParameter("id");
-			ids = ids.split(',');
-			for (var t = 0; t < ids.length; t++) {
-
-				for (var i = 0; i < json.length; i++) {
-					if (ids[t] == json[i].locationid) {
-						var el = generateObject(json[i], ($("#main")), true);
-					}
-
-				}
+			for (var i = 0; i < json.length; i++) {
+				console.log('Outermost for ' + json[i].locationid);
+				var el = generateObject(json[i], ($("#main")), true);
 			}
-
 		}
 
 		/**
@@ -282,7 +153,7 @@
 			} else {
 				obj = generateParent(myParent, json.locationid, json.locationname, outermost);
 				for (var i = 0; i < json.children.length; i++) {
-					generateObject(json.children[i], $("#parent_" + json.locationid));
+					generateObject(json.children[i], $("#parent_" + json.locationid), false);
 				}
 			}
 			return obj;
@@ -304,37 +175,39 @@
 		}
 
 
-		var timeSteps = 10;
+		const ROOMUPDATE_MS = 2*60*1000;
+		const CALUPDATE_MS = 20*60*1000;
+
 		function update() {
-
-			if (timeSteps > 9) {
-				timeSteps = 0;
-				var calendarUpdateIds = "";
-				var rommUpdateIds = "";
-				for (var property in rooms) {
-					if (rooms[property].lastCalendarUpdate == null || rooms[property].lastCalendarUpdate + rooms[property].config.calupdates < MyDate().getTime()) {
-						calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
-						rooms[property].lastCalendarUpdate = MyDate().getTime();
-					}
-					if (rooms[property].lastRoomUpdate == null || rooms[property].lastRoomUpdate + rooms[property].config.roomupdate < MyDate().getTime()) {
-						rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
-						rooms[property].lastRoomUpdate = MyDate().getTime();
-
-					}
+			var calendarUpdateIds = "";
+			var rommUpdateIds = "";
+			var count = 0;
+			var nextUpdate = 15000;
+			for (var property in rooms) {
+				if (rooms[property].lastCalendarUpdate === null || rooms[property].lastCalendarUpdate + CALUPDATE_MS < MyDate().getTime()) {
+					calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
+					count++;
+					rooms[property].lastCalendarUpdate = MyDate().getTime();
 				}
-				if (calendarUpdateIds != "") {
-					queryCalendars(calendarUpdateIds);
+				if (rooms[property].lastRoomUpdate === null || rooms[property].lastRoomUpdate + ROOMUPDATE_MS < MyDate().getTime()) {
+					rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
+					count++;
+					rooms[property].lastRoomUpdate = MyDate().getTime();
 				}
-				if (rommUpdateIds != "") {
-					queryRooms(rommUpdateIds);
-				}
+				if (count > 7) break;
 			}
-			// TODO
+			if (calendarUpdateIds !== "") {
+				queryCalendars(calendarUpdateIds);
+				nextUpdate = 1000;
+			}
+			if (rommUpdateIds !== "") {
+				queryRooms(rommUpdateIds);
+				nextUpdate = 1000;
+			}
 			for (var property in rooms) {
 				upDateRoomState(rooms[property]);
 			}
-			timeSteps++;
-
+			setTimeout(update, nextUpdate);
 		}
 
 
@@ -379,14 +252,13 @@
 		 * @param room A room to update
 		 */
 		function upDateRoomState(room) {
-			if (room === undefined) {
-				console.log("error");
+			if (room === undefined || room.lastRoomUpdate === null) {
 				return;
 			}
 
 			var state = room.getState();
 
-			if (state.state == "ClaendarEvent") {
+			if (state.state == "CalendarEvent") {
 				updateCourseText(room.id, state.titel);
 				updateCoursTimer(room.id, GetTimeDiferenceAsString(state.end, MyDate()));
 			} else if (state.state == "Free") {
@@ -420,7 +292,7 @@
 		 *  @param name Name of the room
 		 *  @param config Config Json of the room
 		 */
-		function addRoom(id, name, config) {
+		function addRoom(id, name) {
 			var room = {
 				id: id,
 				name: name,
@@ -430,11 +302,10 @@
 				timeTilFree: null,
 				state: null,
 				openingTimes: null,
-				config: config,
 				lastCalendarUpdate: null,
 				lastRoomUpdate: null,
 				getState: function () {
-					if (this.state == null) {
+					if (!this.state) {
 						ComputeCurrentState(this);
 						return this.state;
 					}
@@ -448,14 +319,6 @@
 
 
 			};
-			if (room.config.calupdate === undefined || room.config.calupdate < 1) {
-				room.config.calupdate = 1;
-			}
-			room.config.calupdate = room.config.calupdate * 60 * 1000;
-			if (room.config.roomupdate === undefined || room.config.roomupdate < 1) {
-				room.config.roomupdate = 1;
-			}
-			room.config.roomupdate = room.config.roomupdate * 1000;
 
 			rooms[id] = room;
 
@@ -473,6 +336,10 @@
 		 * @param Room Object
 		 */
 		function ComputeCurrentState(room) {
+			if (room.lastRoomUpdate === null) {
+				room.state = {state: 'unknown'};
+				return;
+			}
 			if (!IsOpenNow(room)) {
 				room.state = {state: "closed", end: GetNextOpening(room), titel: "", next: ""};
 
@@ -495,7 +362,7 @@
 
 			// event is at the moment
 			if ((closing == null || event.start.getTime() < closing.getTime()) && event.start.getTime() < new MyDate()) {
-				room.state = {state: "ClaendarEvent", end: event.end, titel: event.title, next: ""};
+				room.state = {state: "CalendarEvent", end: event.end, titel: event.title, next: ""};
 				return;
 			}
 
@@ -653,16 +520,22 @@
 		/**
 		 * Updates the Course Text of a child
 		 * @param id of the child
-		 * @param on PC's on
-		 * @param used PC's used
+		 * @param idle PC's on
+		 * @param occupied PC's used
 		 * @param off PC's that are off
-		 * @param defect PC's that are defect
+		 * @param broken PC's that are broken
 		 */
-		function updateRoomUsage(id, on, used, off, defect) {
-			$("#div_pc_On_" + id).text(on);
-			$("#div_pc_Used_" + id).text(used);
-			$("#div_pc_Off_" + id).text(off);
-			$("#div_pc_Defect_" + id).text(defect);
+		function updateRoomUsage(id, idle, occupied, off, broken) {
+			if (idle == 0 && occupied == 0 && off == 0) {
+				$('#parent_' + id).parent().hide();
+				return;
+			}
+			$('#parent_' + id).parent().show();
+			var total = parseInt(idle) + parseInt(occupied) + parseInt(off) + parseInt(broken);
+			$("#div_pc_Idle_" + id).text(idle).width((idle / total) * 100 + '%');
+			$("#div_pc_Occupied_" + id).text(occupied).width((occupied / total) * 100 + '%');
+			$("#div_pc_Off_" + id).text(off).width((off / total) * 100 + '%');
+			$("#div_pc_Broken_" + id).text(broken).width((broken / total) * 100 + '%');
 		}
 
 		/**
@@ -682,15 +555,6 @@
 		function updateCoursTimer(id, time) {
 			$("#div_Time_" + id).text(time);
 		}
-		/**
-		 * generates a new Div
-		 * @param target Div it should be inserted
-		 * @returns generated div
-		 */
-		function generateRow(target) {
-			var text = "<div class='row' ></div>";
-			return $(target).append(text);
-		}
 
 		/**
 		 * generates a Div, used for a child node
@@ -707,20 +571,20 @@
 				c = "outermost";
 			}
 
-			var text = "<div class='childWithBorder'>" +
-					"<div class='child paperEffect " + c + "'>" +
+			var text = "<div class='border " + c + "'>" +
+					"<div class='child paperEffect' id='parent_" + id + "'>" +
 					"<div class='headerFont'>" + name + "</div>" +
-					"<div class='divAroundPcStates'>" +
-					"<div id = 'div_pc_On_" + id + "'  class='divPcOn '>" + 0 + "</div>" +
-					"<div id = 'div_pc_Used_" + id + "' class='divPcPcUsed'>" + 0 + "</div>" +
-					"<div id = 'div_pc_Off_" + id + "' class='divPcPcOff'>" + 0 + "</div>" +
-					"<div id = 'div_pc_Defect_" + id + "' class='divPcPcDefect'>" + 0 + "</div>" +
+					"<div class='pc-state-wrapper'>" +
+					"<div id = 'div_pc_Idle_" + id + "'  class='pc-idle'>?</div>" +
+					"<div id = 'div_pc_Occupied_" + id + "' class='pc-occupied'>?</div>" +
+					"<div id = 'div_pc_Off_" + id + "' class='pc-off'>?</div>" +
+					"<div id = 'div_pc_Broken_" + id + "' class='pc-broken'>?</div>" +
 					"</div>" +
 					"<div class='aroundCourse'>" +
-					"<div id = 'div_course" + id + "'class='courseFont'></div>" +
+					"<div id = 'div_course" + id + "'class='courseFont'>?</div>" +
 					"<div id = 'div_Time_" + id + "'class='courseFont'></div></div></div></div>";
 			var obj = $(target).append(text);
-			getConfig((id));
+			addRoom(id, name);
 			return obj
 
 		}
@@ -742,30 +606,9 @@
 			var text = "<div class='border " + c + "'>" +
 					"<div class='parent paperEffect'>" +
 					"<div class='headerFont'>" + name + "</div>" +
-					"<div id='parent_" + id + "'</div>" +
+					"<div id='parent_" + id + "'></div>" +
 					"</div></div>";
 			return $(target).append(text);
-		}
-
-		/**
-		 * Downloads the config of a room
-		 * @param id ID of the room
-		 */
-		function getConfig(id) {
-			$.ajax({
-				url: "../../../api.php?do=locationinfo&action=config&id=" + id,
-				dataType: 'json',
-				cache: false,
-				timeout: 30000,
-				success: function (result) {
-					if (result.room != null) {
-						delete result.time;
-						room = addRoom(id, result.room, result);
-					}
-				}, error: function () {
-					//Todo Error handling:
-				}
-			})
 		}
 
 		/**
@@ -851,8 +694,7 @@
 		}
 	</script>
 </head>
-<body class="">
-<h1>Raum Übersicht</h1>
+<body>
 <div id="main"></div>
 </body>
 </html>

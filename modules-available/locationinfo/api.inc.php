@@ -274,32 +274,32 @@ function defaultConfig()
  * Gets the pc states of the given locations.
  *
  * @param int[] $idList list of the location ids.
- * @return string PC state JSON
+ * @return array aggregated PC states
  */
 function getPcStates($idList)
 {
 	$pcStates = array();
-
-	$locationInfoList = getLocationInfo($idList);
-	foreach ($locationInfoList as $locationInfo) {
-		$result = array(
-			'id' => $locationInfo['id'],
+	foreach ($idList as $id) {
+		$pcStates[$id] = array(
+			'id' => $id,
 			'idle' => 0,
 			'occupied' => 0,
 			'off' => 0,
 			'broken' => 0,
 		);
-
+	}
+	$locationInfoList = getLocationInfo($idList);
+	foreach ($locationInfoList as $locationInfo) {
+		$id = $locationInfo['id'];
 		foreach ($locationInfo['computer'] as $computer) {
 			$key = strtolower($computer['pcState']);
-			if (isset($result[$key])) {
-				$result[$key]++;
+			if (isset($pcStates[$id][$key])) {
+				$pcStates[$id][$key]++;
 			}
 		}
-
-		$pcStates[] = $result;
 	}
-	return $pcStates;
+
+	return array_values($pcStates);
 }
 
 /**
@@ -310,6 +310,9 @@ function getPcStates($idList)
  */
 function getLocationTree($idList)
 {
+	if (in_array(0, $idList)) {
+		return array_values(Location::getTree());
+	}
 	$locations = Location::getTree();
 
 	$ret = findLocations($locations, $idList);
