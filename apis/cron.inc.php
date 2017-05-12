@@ -11,6 +11,7 @@ if (!isLocalExecution())
 	exit(0);
 
 define('CRON_KEY_STATUS', 'cron.key.status');
+define('CRON_KEY_BLOCKED', 'cron.key.blocked');
 
 // Crash report mode - used by system crontab entry
 if (($report = Request::get('crashreport', false, 'string'))) {
@@ -23,17 +24,26 @@ if (($report = Request::get('crashreport', false, 'string'))) {
 	foreach ($list as $item) {
 		Property::removeFromList(CRON_KEY_STATUS, $item);
 		$entry = explode('|', $item, 2);
-		if (count($entry) !== 2 || time() - $entry[1] > 3600)
+		if (count($entry) !== 2)
 			continue;
-		$str[] = $item[0] . ' (started ' . (time() - $entry[1]) . 's ago)';
+		$time = time() - $entry[1];
+		if ($time > 3600) // Sanity check
+			continue;
+		$str[] = $entry[0] . ' (started ' . $time . 's ago)';
+		Property::addToList(CRON_KEY_BLOCKED, $entry[0], 1800);
+	}
+	if (empty($str)) {
+		$str = 'an unknown module';
 	}
 	$message = 'Conjob failed. No reply by ' . implode(', ', $str);
 	$details = '';
 	if (is_readable($report)) {
 		$details = file_get_contents($report);
-		$message .=', see details for log';
+		if (!empty($details)) {
+			$message .=', click "details" for log';
+		}
 	}
-	EvenLog::failure($message, $details);
+	EventLog::failure($message, $details);
 	exit(0);
 }
 
@@ -57,6 +67,7 @@ function handleModule($file)
 	include_once $file;
 }
 
+$blocked = Property::getList(CRON_KEY_BLOCKED);
 foreach (Hook::load('cron') as $hook) {
 	// Check if job is still running, or should be considered crashed
 	$status = getJobStatus($hook->moduleId);
@@ -75,6 +86,10 @@ foreach (Hook::load('cron') as $hook) {
 			continue;
 		}
 	}
+	// Are we blocked
+	if (in_array($hook->moduleId, $blocked))
+		continue;
+	// Fire away
 	$value = $hook->moduleId . '|' . time();
 	Property::addToList(CRON_KEY_STATUS, $value, 1800);
 	try {
