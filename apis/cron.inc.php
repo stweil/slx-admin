@@ -12,6 +12,31 @@ if (!isLocalExecution())
 
 define('CRON_KEY_STATUS', 'cron.key.status');
 
+// Crash report mode - used by system crontab entry
+if (($report = Request::get('crashreport', false, 'string'))) {
+	$list = Property::getList(CRON_KEY_STATUS);
+	if (empty($list)) {
+		error_log('Cron crashreport triggered but no cronjob marked active.');
+		exit(0);
+	}
+	$str = array();
+	foreach ($list as $item) {
+		Property::removeFromList(CRON_KEY_STATUS, $item);
+		$entry = explode('|', $item, 2);
+		if (count($entry) !== 2 || time() - $entry[1] > 3600)
+			continue;
+		$str[] = $item[0] . ' (started ' . (time() - $entry[1]) . 's ago)';
+	}
+	$message = 'Conjob failed. No reply by ' . implode(', ', $str);
+	$details = '';
+	if (is_readable($report)) {
+		$details = file_get_contents($report);
+		$message .=', see details for log';
+	}
+	EvenLog::failure($message, $details);
+	exit(0);
+}
+
 function getJobStatus($id)
 {
 	// Re fetch from D on every call as some jobs could take longer
@@ -46,7 +71,7 @@ foreach (Hook::load('cron') as $hook) {
 		} else {
 			// Consider job crashed
 			Property::removeFromList(CRON_KEY_STATUS, $status['string']);
-			EventLog::failure('Cronjob for module ' . $hook->moduleId . ' seems to be stuck or has crashed. Check the php or web server error log.');
+			EventLog::failure('Cronjob for module ' . $hook->moduleId . ' seems to be stuck or has crashed.');
 			continue;
 		}
 	}
