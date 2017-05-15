@@ -111,15 +111,6 @@
 			},
 		});
 
-		var table = $("table").stupidtable();
-		table.on("aftertablesort", function (event, data) {
-			var th = $(this).find("th");
-			th.find(".arrow").remove();
-			var dir = $.fn.stupidtable.dir;
-			var arrow = data.direction === dir.ASC ? "up" : "down";
-			th.eq(data.column).append(' <span class="arrow glyphicon glyphicon-chevron-'+arrow+'"></span>');
-		});
-
 		$(".locationLink").click(function(e) {
 			e.preventDefault();
 			var form = $('#controlsForm');
