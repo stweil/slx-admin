@@ -30,7 +30,7 @@ if (($report = Request::get('crashreport', false, 'string'))) {
 		if ($time > 3600) // Sanity check
 			continue;
 		$str[] = $entry[0] . ' (started ' . $time . 's ago)';
-		Property::addToList(CRON_KEY_BLOCKED, $entry[0], 1800);
+		Property::addToList(CRON_KEY_BLOCKED, $entry[0], 30);
 	}
 	if (empty($str)) {
 		$str = 'an unknown module';
@@ -91,7 +91,7 @@ foreach (Hook::load('cron') as $hook) {
 		continue;
 	// Fire away
 	$value = $hook->moduleId . '|' . time();
-	Property::addToList(CRON_KEY_STATUS, $value, 1800);
+	Property::addToList(CRON_KEY_STATUS, $value, 30);
 	try {
 		handleModule($hook->file);
 	} catch (Exception $e) {
