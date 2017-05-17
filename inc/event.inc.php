@@ -20,6 +20,10 @@ class Event
 		EventLog::info('System boot...');
 		$everythingFine = true;
 
+		// Delete job entries that might have been running when system rebooted
+		Property::clearList('cron.key.status');
+		Property::clearList('cron.key.blocked');
+
 		// Tasks: fire away
 		$mountId = Trigger::mount();
 		$autoIp = Trigger::autoUpdateServerIp();

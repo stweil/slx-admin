@@ -17,7 +17,7 @@ define('CRON_KEY_BLOCKED', 'cron.key.blocked');
 if (($report = Request::get('crashreport', false, 'string'))) {
 	$list = Property::getList(CRON_KEY_STATUS);
 	if (empty($list)) {
-		error_log('Cron crashreport triggered but no cronjob marked active.');
+		error_log('Cron crash report triggered but no cronjob marked active.');
 		exit(0);
 	}
 	$str = array();
