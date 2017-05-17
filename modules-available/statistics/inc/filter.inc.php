@@ -91,7 +91,6 @@ class Filter
 			if ($lhs == 'gbram') {
 				$filters[] = new RamGbFilter($operator, $rhs);
 			} elseif ($lhs == 'state') {
-				error_log('new state filter with ' . $rhs);
 				$filters[] = new StateFilter($operator, $rhs);
 			} elseif ($lhs == 'hddgb') {
 				$filters[] = new Id44Filter($operator, $rhs);
