@@ -125,7 +125,7 @@ class Location
 		return array_values($rows);
 	}
 
-	private static function buildTree($elements, $parentId = 0)
+	public static function buildTree($elements, $parentId = 0)
 	{
 		$branch = array();
 		$sort = array();
