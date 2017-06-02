@@ -74,9 +74,16 @@ class Page_mail_templates extends Page
 			foreach ($this->templates as &$template) {
 				if (isset($data[$template['name']])) {
 					if ($this->forcmp($template['template']) !== $this->forcmp($data[$template['name']]['template'])) {
+						if (empty($template['original_template'])) {
+							$template['original_template'] = $template['template'];
+						}
 						$template['edit_version'] = $template['version'];
 					}
-					$template['original'] = $this->forcmp($template['original_template']) === $this->forcmp($data[$template['name']]['template']);
+					$template['original'] = (empty($template['original_template']) && $template['original'])
+						|| $this->forcmp($template['original_template']) === $this->forcmp($data[$template['name']]['template']);
+					if ($template['original']) {
+						$template['original_template'] = '';
+					}
 					$template['template'] = $data[$template['name']]['template'];
 				}
 			}
@@ -84,7 +91,6 @@ class Page_mail_templates extends Page
 			$data = json_encode(array('templates' => $this->templates));
 			Database::exec("UPDATE sat.configuration SET value = :value WHERE parameter = 'templates'", array('value' => $data));
 			Message::addSuccess('templates-saved');
-
 		} else {
 			Message::addError('nothing-submitted');
 		}
