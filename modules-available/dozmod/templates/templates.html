@@ -14,6 +14,12 @@
 	<div id="frame_{{name}}" class="panel panel-default">
 		<div class="panel-heading">
 			<div class="panel-title">
+				{{#conflict}}
+					<span class="glyphicon glyphicon-exclamation-sign pull-left text-danger"></span>
+				{{/conflict}}
+				{{#modified}}
+					<span class="glyphicon glyphicon-pencil pull-left"></span>
+				{{/modified}}
 				<h4>
 					<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#panel_{{name}}">
 					{{name}}
@@ -27,17 +33,6 @@
 			<div class="panel-body">
 				<div id="msgbox_{{name}}">
 				</div>
-				<!--
-				<label for="n_{{name}}">{{lang_name}}</label>
-				<div class="form-group">
-					<input id="n_{{name}}" name="templates[{{name}}][name]" value="{{name}}" class="form-control"/>
-				</div>
-
-				<label for="d_{{name}}">{{lang_description}}</label>
-				<div class="form-group">
-					<input id="d_{{name}}" name="templates[{{name}}][description]" value="{{description}}" class="form-control"/>
-				</div>
-				-->
 
 				<label for="ta_{{name}}">{{lang_template}}</label>
 				<div class="form-group">
@@ -56,6 +51,21 @@
 				<ul>
 					{{{html_availableVariables}}}
 				</ul>
+				{{#original_template}}
+					<textarea class="hidden" id="orig_{{name}}">{{original_template}}</textarea>
+					<div class="pull-right">
+						<a href="#" class="btn btn-default" onclick="$('#ta_{{name}}').val($('#orig_{{name}}').val());return false">
+							<span class="glyphicon glyphicon-refresh"></span>
+							{{lang_replaceWithOriginal}}
+						</a>
+					</div>
+				{{/original_template}}
+				<div class="small">
+					{{lang_modified}}: {{#modified}}<b>{{lang_yes}}</b>{{/modified}}{{^modified}}{{lang_no}}{{/modified}},
+					{{lang_hasNewer}}: {{#conflict}}<b>{{lang_yes}}</b>{{/conflict}}{{^conflict}}{{lang_no}}{{/conflict}},
+					{{lang_thisVersion}}: {{edit_version}},
+					{{lang_latestVersion}}: {{version}}
+				</div>
 			</div>
 		</div>
 	</div>

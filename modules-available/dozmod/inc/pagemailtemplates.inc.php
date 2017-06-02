@@ -22,7 +22,7 @@ class Page_mail_templates extends Page
 
 	private function enrichHtml() {
 		/* for each template */
-		foreach ($this->templates as $k => $t) {
+		foreach ($this->templates as &$t) {
 			$lis = "";
 			$optManVars = "";
 			$optVars = "";
@@ -36,16 +36,22 @@ class Page_mail_templates extends Page
 			}
 			/* also options for hidden inputs */
 
-			$this->templates[$k]['html_availableVariables'] = $lis;
-			$this->templates[$k]['html_mandatoryVariables'] = $optManVars;
-			$this->templates[$k]['html_optionalVariables'] 	= $optVars;
+			$t['html_availableVariables'] = $lis;
+			$t['html_mandatoryVariables'] = $optManVars;
+			$t['html_optionalVariables'] 	= $optVars;
 
 			/* also for javascript */
-			$this->templates[$k]['list_mandatoryVariables'] =
-				implode(',', $this->templates[$k]['mandatory_variables']);
+			$t['list_mandatoryVariables'] =
+				implode(',', $t['mandatory_variables']);
 
-			$this->templates[$k]['list_optionalVariables'] =
-				implode(',', $this->templates[$k]['optional_variables']);
+			$t['list_optionalVariables'] =
+				implode(',', $t['optional_variables']);
+
+			settype($t['original'], 'bool');
+			settype($t['edit_version'], 'int');
+			settype($t['version'], 'int');
+			$t['modified'] = !$t['original'];
+			$t['conflict'] = !$t['original'] && $t['edit_version'] < $t['version'];
 		}
 
 	}
@@ -55,12 +61,22 @@ class Page_mail_templates extends Page
 		Render::addTemplate('templates', ['templates' => $this->templates]);
 	}
 
-	private function handleSave() {
+	private function forcmp($string)
+	{
+		return trim(str_replace("\r\n", "\n", $string));
+	}
+
+	private function handleSave()
+	{
 		$data = Request::post('templates');
 		if (is_array($data)) {
 			$this->fetchTemplates();
 			foreach ($this->templates as &$template) {
 				if (isset($data[$template['name']])) {
+					if ($this->forcmp($template['template']) !== $this->forcmp($data[$template['name']]['template'])) {
+						$template['edit_version'] = $template['version'];
+					}
+					$template['original'] = $this->forcmp($template['original_template']) === $this->forcmp($data[$template['name']]['template']);
 					$template['template'] = $data[$template['name']]['template'];
 				}
 			}
