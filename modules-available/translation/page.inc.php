@@ -32,7 +32,7 @@ class Page_Translation extends Page
 	private $customHandler = false;
 	
 	/**
-	 * @var type Language being handled (if any in current step)
+	 * @var string Language being handled (if any in current step)
 	 */
 	private $destLang = false;
 	
@@ -836,7 +836,7 @@ class Page_Translation extends Page
 	private function buildTranslationTable($file, $requiredTags = false, $findAlreadyTranslated = false)
 	{
 		$tags = array();
-		if ($requiredTags !== false) {
+		if (is_array($requiredTags)) {
 			foreach ($requiredTags as $tagName) {
 				$tags[$tagName] = array('tag' => $tagName, 'required' => true);
 			}
