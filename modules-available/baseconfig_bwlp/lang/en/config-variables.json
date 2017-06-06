@@ -19,7 +19,7 @@
     "SLX_SCREEN_STANDBY_TIMEOUT": "Time in seconds after which the screen will enter power saving mode, if the client is not in use.",
     "SLX_SHUTDOWN_SCHEDULE": "Fixed time to turn off the computer, even if there is a user active.\r\nSeveral times can be specified, separated by spaces.",
     "SLX_SHUTDOWN_TIMEOUT": "Time in seconds after which a computer is switched off, if no user is logged on.\r\nLeave blank to disable the function.",
-    "SLX_VMCHOOSER_FORLOCATION": "Defines how lectures special to the user's location are handled in the vmchooser.\r\n*IGNORE*: Sort them alphabetically among the global lectures.\r\n*BUMP*: Put them atop the global lectures.\r\n*EXCLUSIVE*: Put them atop the global lectures and aditionally collapse the node which contains the global lectures.",
+    "SLX_VMCHOOSER_FORLOCATION": "Defines how lectures special to the user's location are handled in the vmChooser.\r\n*IGNORE*: Sort them alphabetically among the global lectures.\r\n*BUMP*: Put them atop the global lectures.\r\n*EXCLUSIVE*: Put them atop the global lectures and aditionally collapse the node which contains the global lectures.",
     "SLX_VMCHOOSER_TAB": "Defines which tab is show by default, if the user doesn't have stored a last used session on his persistent home directory.\r\n*0*: Native Linux sessions\r\n*1*: User specific lectures\r\n*2*: All lectures\r\n*AUTO*: If the computer has low system specs, show the Linux sessions, otherwise, show all lectures",
     "SLX_VMCHOOSER_TEMPLATES": "Defines how lectures that link to template VMs are treated wrt sorting.\r\n*IGNORE*: Sort among regular lectures\r\n*BUMP*: Move to top of list"
 }
