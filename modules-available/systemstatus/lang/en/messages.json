@@ -1,3 +1,4 @@
 {
-    "reboot-unconfirmed": "Confirmation prompt to reboot not confirmed"
+    "reboot-unconfirmed": "Confirmation prompt to reboot not confirmed",
+    "update-reboot-required": "Updating the following system packages requires reboot: {{0}}"
 }

@@ -59,17 +59,22 @@ class Page_SystemStatus extends Page
 	protected function ajaxDmsdUsers()
 	{
 		$ret = Download::asStringPost('http://127.0.0.1:9080/status/fileserver', false, 2, $code);
+		$args = array();
 		if ($code != 200) {
-			Header('HTTP/1.1 502 Internal Server Error');
-			die('Internal Server Wurst');
-		}
-		$data = @json_decode($ret, true);
-		if (is_array($data)) {
-			$ret = 'Uploads: ' . $data['activeUploads'] . ', Downloads: ' . $data['activeDownloads'];
+			$args['dmsd_error'] = true;
 		} else {
-			$ret = '???';
+			$data = @json_decode($ret, true);
+			if (is_array($data)) {
+				$args['uploads'] = $data['activeUploads'];
+				$args['downloads'] = $data['activeDownloads'];
+			}
 		}
-		die($ret);
+		if (file_exists('/run/reboot-required.pkgs')) {
+			$lines = file('/run/reboot-required.pkgs', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+			$lines = array_unique($lines);
+			$args['packages'] = implode(', ', $lines);
+		}
+		echo Render::parse('ajax-reboot', $args);
 	}
 
 	protected function ajaxDiskStat()

@@ -4,6 +4,8 @@
     "lang_average": "Average",
     "lang_capacity": "Capacity",
     "lang_cpuLoad": "CPU Load",
+    "lang_dmsdUnreachable": "dmsd not reachable",
+    "lang_downloads": "Downloads",
     "lang_foundStore": "Found:",
     "lang_free": "Free",
     "lang_goToStoreConf": "Go to VM store configuration",
@@ -25,6 +27,8 @@
     "lang_systemPartition": "System Partition",
     "lang_systemStoreError": "Error querying available system storage",
     "lang_total": "Total",
+    "lang_updatedPackages": "Pending updates",
+    "lang_uploads": "Uploads",
     "lang_uptimeOS": "OS Uptime",
     "lang_vmStore": "VM Store",
     "lang_vmStoreError": "Error determining available space of the VM storage. Please check the configuration."

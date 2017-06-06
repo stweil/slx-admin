@@ -4,6 +4,8 @@
     "lang_average": "Durchschnitt",
     "lang_capacity": "Kapazit\u00e4t",
     "lang_cpuLoad": "CPU-Last",
+    "lang_dmsdUnreachable": "dmsd nicht erreichbar",
+    "lang_downloads": "Downloads",
     "lang_foundStore": "Vorgefunden:",
     "lang_free": "Frei",
     "lang_goToStoreConf": "Zur VM-Store-Konfiguration wechseln",
@@ -25,6 +27,8 @@
     "lang_systemPartition": "Systempartition",
     "lang_systemStoreError": "Fehler beim Ermitteln des verf\u00fcgbaren Systemspeichers",
     "lang_total": "Gesamt",
+    "lang_updatedPackages": "Ausstehende Updates",
+    "lang_uploads": "Uploads",
     "lang_uptimeOS": "OS Uptime",
     "lang_vmStore": "VM-Speicher",
     "lang_vmStoreError": "Fehler beim Ermitteln des verf\u00fcgbaren Speicherplatzes am VM-Speicherort. Bitte \u00fcberpr\u00fcfen Sie die Konfiguration."
