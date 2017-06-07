@@ -337,7 +337,7 @@ function findLocations($locations, $idList)
  * Gets the calendar of the given ids.
  *
  * @param int[] $idList list with the location ids.
- * @return string Calendar JSON.
+ * @return array Calendar.
  */
 function getCalendar($idList)
 {

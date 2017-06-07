@@ -71,11 +71,11 @@
 
 		.pc-idle {
 			background-color: green;
-			border-radius: 3px 0px 0px 3px;
 		}
 
 		.pc-occupied {
 			background-color: red;
+			border-radius: 3px 0px 0px 3px;
 		}
 
 		.pc-off {
@@ -532,10 +532,10 @@
 			}
 			$('#parent_' + id).parent().show();
 			var total = parseInt(idle) + parseInt(occupied) + parseInt(off) + parseInt(broken);
-			$("#div_pc_Idle_" + id).text(idle).width((idle / total) * 100 + '%');
-			$("#div_pc_Occupied_" + id).text(occupied).width((occupied / total) * 100 + '%');
-			$("#div_pc_Off_" + id).text(off).width((off / total) * 100 + '%');
-			$("#div_pc_Broken_" + id).text(broken).width((broken / total) * 100 + '%');
+			$("#pc_Idle_" + id).text(idle).width((idle / total) * 100 + '%');
+			$("#pc_Occupied_" + id).text(occupied).width((occupied / total) * 100 + '%');
+			$("#pc_Off_" + id).text(off).width((off / total) * 100 + '%');
+			$("#pc_Broken_" + id).text(broken).width((broken / total) * 100 + '%');
 		}
 
 		/**
@@ -575,10 +575,10 @@
 					"<div class='child paperEffect' id='parent_" + id + "'>" +
 					"<div class='headerFont'>" + name + "</div>" +
 					"<div class='pc-state-wrapper'>" +
-					"<div id = 'div_pc_Idle_" + id + "'  class='pc-idle'>?</div>" +
-					"<div id = 'div_pc_Occupied_" + id + "' class='pc-occupied'>?</div>" +
-					"<div id = 'div_pc_Off_" + id + "' class='pc-off'>?</div>" +
-					"<div id = 'div_pc_Broken_" + id + "' class='pc-broken'>?</div>" +
+					"<div id = 'pc_Occupied_" + id + "' class='pc-occupied'>?</div>" +
+					"<div id = 'pc_Idle_" + id + "'  class='pc-idle'>?</div>" +
+					"<div id = 'pc_Off_" + id + "' class='pc-off'>?</div>" +
+					"<div id = 'pc_Broken_" + id + "' class='pc-broken'>?</div>" +
 					"</div>" +
 					"<div class='aroundCourse'>" +
 					"<div id = 'div_course" + id + "'class='courseFont'>?</div>" +
