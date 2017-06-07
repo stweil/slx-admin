@@ -404,7 +404,7 @@ class Page_Statistics extends Page
 		$res = Database::simpleQuery("SELECT mbram, Count(*) AS `count` FROM machine $join WHERE $where  GROUP BY mbram", $args);
 		$lines = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$gb = ceil($row['mbram'] / 1024);
+			$gb = (int)ceil($row['mbram'] / 1024);
 			for ($i = 1; $i < count($SIZE_RAM); ++$i) {
 				if ($SIZE_RAM[$i] < $gb) {
 					continue;
@@ -476,7 +476,7 @@ class Page_Statistics extends Page
 		$total = 0;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$total += $row['count'];
-			$gb = ceil($row['id44mb'] / 1024);
+			$gb = (int)ceil($row['id44mb'] / 1024);
 			for ($i = 1; $i < count($SIZE_ID44); ++$i) {
 				if ($SIZE_ID44[$i] < $gb) {
 					continue;
