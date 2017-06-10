@@ -5,52 +5,6 @@
 
 	<div class="row">
 		<div class="col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">{{lang_server}}</div>
-				<div class="panel-body">
-					<div class="list-group">
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label>{{lang_server}}</label>
-								</div>
-								<div class="col-sm-7">
-									<select class="form-control" name="serverid">
-										<option value="0">{{lang_noServer}}</option>
-										{{#serverlist}}
-											<option value="{{serverid}}" {{selected}}>{{servername}}</option>
-										{{/serverlist}}
-									</select>
-								</div>
-								<div class="col-sm-2">
-									<a class="btn btn-default helptext" title="{{lang_serverTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</a>
-								</div>
-							</div>
-						</div>
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label>{{lang_roomId}}</label>
-								</div>
-								<div class="col-sm-7">
-									<input class="form-control" name="serverlocationid" id="serverlocationid" value="{{serverlocationid}}">
-								</div>
-								<div class="col-sm-2">
-									<a class="btn btn-default helptext" title="{{lang_roomIdTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="col-md-6">
 			<div class="modify-inputs panel panel-default">
 				<div class="panel-heading">{{lang_display}}</div>
 				<div class="panel-body">

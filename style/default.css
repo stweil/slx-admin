@@ -467,6 +467,10 @@ nav.navbar.sidebar {
 	color: #fff;
 }
 
+.red-bg, input[type="checkbox"]:checked {
+	background:#f77;
+}
+
 /* this is based on https://github.com/flatlogic/awesome-bootstrap-checkbox
 and "fixes" the style of radio buttons and check boxes.
 it only applies if they're in a container that has the checkbox class */

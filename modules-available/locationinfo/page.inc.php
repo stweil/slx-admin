@@ -16,13 +16,13 @@ class Page_LocationInfo extends Page
 			Util::redirect('?do=Main'); // does not return
 		}
 
+		$show = Request::any('show', '', 'string');
 		$this->action = Request::post('action');
-		if ($this->action === 'updateOpeningTimeExpert') {
-			$this->updateOpeningTimeExpert();
-		} elseif ($this->action === 'updateOpeningTimeEasy') {
-			$this->updateOpeningTimeEasy();
-		} elseif ($this->action === 'updateConfig') {
-			$this->updateLocationConfig();
+		if ($this->action === 'writePanelConfig') {
+			$this->writePanelConfig();
+		} elseif ($this->action === 'writeLocationConfig') {
+			$this->writeLocationConfig();
+			$show = 'locations';
 		} elseif ($this->action === 'deleteServer') {
 			$this->deleteServer();
 		} elseif ($this->action === 'checkConnection') {
@@ -33,7 +33,10 @@ class Page_LocationInfo extends Page
 			Messages::addWarning('main.invalid-action', $this->action);
 		}
 		if (Request::isPost()) {
-			Util::redirect('?do=locationinfo');
+			if (!empty($show)) {
+				$show = '&show=' . $show;
+			}
+			Util::redirect('?do=locationinfo' . $show);
 		}
 	}
 
@@ -42,7 +45,20 @@ class Page_LocationInfo extends Page
 	 */
 	protected function doRender()
 	{
-		$this->getInfoScreenTable();
+		$show = Request::get('show', '', 'string');
+		switch ($show) {
+		case 'locations':
+			$this->showLocationsTable();
+			break;
+		case 'edit-panel':
+			$this->showConfigPanel();
+			break;
+		case '':
+			$this->showInfoScreenTable();
+			break;
+		default:
+			Message::addError('main.value-invalid', 'show', $show);
+		}
 	}
 
 	/**
@@ -58,50 +74,146 @@ class Page_LocationInfo extends Page
 		Database::exec("DELETE FROM `locationinfo_coursebackend` WHERE serverid=:id", array('id' => $id));
 	}
 
-	/**
-	 * Updated the config in the db.
-	 */
-	private function updateLocationConfig()
+	private function getTime($str)
 	{
-		$result = array();
+		$str = explode(':', $str);
+		if (count($str) !== 2) return false;
+		if ($str[0] < 0 || $str[0] > 23 || $str[1] < 0 || $str[1] > 59) return false;
+		return $str[0] * 60 + $str[1];
+	}
 
-		$locationid = Request::post('id', 0, 'int');
-		if ($locationid <= 0) {
+	private function writeLocationConfig()
+	{
+		// Check locations
+		$locationid = Request::post('locationid', false, 'int');
+		if ($locationid === false) {
+			Message::addError('main.paramter-missing', 'locationid');
+			return false;
+		}
+		if (Location::get($locationid) === false) {
 			Message::addError('location.invalid-location-id', $locationid);
-			Util::redirect('?do=locationinfo');
+			return false;
 		}
 		$serverid = Request::post('serverid', 0, 'int');
 		if ($serverid === 0) {
 			$serverid = null;
 		}
-		$result['language'] = Request::post('language', 'en', 'string');
-		$result['mode'] = Request::post('mode', 1, 'int');
-		$result['vertical'] = Request::post('vertical', false, 'bool');
-		$result['eco'] = Request::post('eco', false, 'bool');
-		$result['scaledaysauto'] = Request::post('scaledaysauto', false, 'bool');
-		$result['daystoshow'] = Request::post('daystoshow', 7, 'int');
-		$result['rotation'] = Request::post('rotation', 0, 'int');
-		$result['scale'] = Request::post('scale', 50, 'int');
-		$result['switchtime'] = Request::post('switchtime', 20, 'int');
-		$result['calupdate'] = Request::post('calupdate', 120, 'int');
-		$result['roomupdate'] = Request::post('roomupdate', 30, 'int');
-		$result['configupdate'] = Request::post('configupdate', 180, 'int');
-		if ($result['roomupdate'] < 30) {
-			$result['roomupdate'] = 30;
-		}
-		if ($result['calupdate'] < 120) {
-			$result['calupdate'] = 120;
-		}
 		$serverlocationid = Request::post('serverlocationid', '', 'string');
 
-		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, serverid, serverlocationid, config, lastcalendarupdate)
-				VALUES (:id, :serverid, :serverlocationid, :config, 0)
-				ON DUPLICATE KEY UPDATE config = VALUES(config), serverid = VALUES(serverid),
-					serverlocationid = VALUES(serverlocationid), lastcalendarupdate = 0", array(
+		// Opening times
+		$openingtimes = Request::post('openingtimes', '', 'string');
+		if ($openingtimes !== '') {
+			$openingtimes = json_decode($openingtimes, true);
+			if (!is_array($openingtimes)) {
+				$openingtimes = '';
+			} else {
+				$mangled = array();
+				foreach (array_keys($openingtimes) as $key) {
+					$entry = $openingtimes[$key];
+					if (!isset($entry['days']) || !is_array($entry['days']) || empty($entry['days'])) {
+						Message::addError('ignored-line-no-days');
+						continue;
+					}
+					$s = $this->getTime($entry['openingtime']);
+					$e = $this->getTime($entry['closingtime']);
+					if ($s === false) {
+						Message::addError('ignored-invalid-start', $entry['openingtime']);
+						continue;
+					}
+					if ($e === false) {
+						Message::addError('ignored-invalid-end', $entry['closingtime']);
+						continue;
+					}
+					if ($e <= $s) {
+						Message::addError('ignored-invalid-range', $entry['openingtime'], $entry['closingtime']);
+						continue;
+					}
+					unset($entry['tag']);
+					$mangled[] = $entry;
+				}
+				if (empty($mangled)) {
+					$openingtimes = '';
+				} else {
+					$openingtimes = json_encode($mangled);
+				}
+			}
+		}
+
+		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, serverid, serverlocationid, openingtime, lastcalendarupdate)
+				VALUES (:id, :serverid, :serverlocationid, :openingtimes, 0)
+				ON DUPLICATE KEY UPDATE serverid = VALUES(serverid), serverlocationid = VALUES(serverlocationid),
+					openingtime = VALUES(openingtime), lastcalendarupdate = 0", array(
 			'id' => $locationid,
-			'config' => json_encode($result),
 			'serverid' => $serverid,
+			'openingtimes' => $openingtimes,
 			'serverlocationid' => $serverlocationid,
+		));
+		return true;
+	}
+
+	/**
+	 * Updated the config in the db.
+	 */
+	private function writePanelConfig()
+	{
+		// UUID - existing or new
+		$paneluuid = Request::post('paneluuid', false, 'string');
+		if (($paneluuid === false || strlen($paneluuid) !== 36) && $paneluuid !== 'new') {
+			Message::addError('invalid-panel-id', $paneluuid);
+			Util::redirect('?do=locationinfo');
+		}
+		// Check locations
+		$locationids = Request::post('locationids', false, 'array');
+		if ($locationids === false) {
+			Message::addError('main.paramter-missing', 'locationids');
+			Util::redirect('?do=locationinfo');
+		}
+		$all = array_map(function ($item) { return $item['locationid']; }, Location::queryLocations());
+		$locationids = array_filter($locationids, function ($item) use ($all) { return in_array($item, $all); });
+		if (empty($locationids)) {
+			Message::addError('main.paramter-empty', 'locationids');
+			Util::redirect('?do=locationinfo');
+		}
+		if (count($locationids) > 4) {
+			$locationids = array_slice($locationids, 0, 4);
+		}
+		// Build json struct
+		$conf = array(
+			'ts' => time(),
+			'language' => Request::post('language', 'en', 'string'),
+			'mode' => Request::post('mode', 1, 'int'),
+			'vertical' => Request::post('vertical', false, 'bool'),
+			'eco' => Request::post('eco', false, 'bool'),
+			'scaledaysauto' => Request::post('scaledaysauto', false, 'bool'),
+			'daystoshow' => Request::post('daystoshow', 7, 'int'),
+			'rotation' => Request::post('rotation', 0, 'int'),
+			'scale' => Request::post('scale', 50, 'int'),
+			'switchtime' => Request::post('switchtime', 20, 'int'),
+			'calupdate' => Request::post('calupdate', 120, 'int'),
+			'roomupdate' => Request::post('roomupdate', 30, 'int'),
+			'configupdate' => Request::post('configupdate', 180, 'int'),
+		);
+		if ($conf['roomupdate'] < 30) {
+			$conf['roomupdate'] = 30;
+		}
+		if ($conf['calupdate'] < 120) {
+			$conf['calupdate'] = 120;
+		}
+
+		if ($paneluuid === 'new') {
+			$paneluuid = Util::randomUuid();
+			$query = "INSERT INTO `locationinfo_panel` (paneluuid, locationids, paneltype, panelconfig)
+				VALUES (:id, :locationids, :type, :config)";
+		} else {
+			$query = "UPDATE `locationinfo_panel`
+				SET locationids = :locationids, paneltype = :type, panelconfig = :config
+				WHERE paneluuid = :id";
+		}
+		Database::exec($query, array(
+			'id' => $paneluuid,
+			'locationids' => implode(',', $locationids),
+			'type' => 'DEFAULT', // TODO
+			'config' => json_encode($conf),
 		));
 
 		Message::addSuccess('config-saved');
@@ -148,133 +260,6 @@ class Page_LocationInfo extends Page
 	}
 
 	/**
-	 * Updates the opening time in the db from the expert mode.
-	 */
-	private function updateOpeningTimeExpert()
-	{
-		$days = Request::post('days', array(), 'array');
-		$locationid = Request::post('id', 0, 'int');
-		$openingtime = Request::post('openingtime', array(), 'array');
-		$closingtime = Request::post('closingtime', array(), 'array');
-		$easyMode = Request::post('easyMode', false, 'bool');
-		$delete = Request::post('delete', array(), 'array');
-		$dontadd = Request::post('dontadd', array(), 'array');
-		$count = 0;
-		$result = array();
-		$resulttmp = array();
-		$deleteCounter = 0;
-
-		if (!$easyMode) {
-			$resulttmp = Database::queryFirst("SELECT openingtime FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $locationid));
-			if ($resulttmp !== false) {
-				$resulttmp = json_decode($resulttmp['openingtime'], true);
-			}
-			if (!is_array($resulttmp)) {
-				$resulttmp = array();
-			}
-
-			$index = 0;
-
-			foreach ($resulttmp as $day) {
-				$skip = false;
-
-				foreach ($delete as $del) {
-					if ($del == $index) {
-						$skip = true;
-						break;
-					}
-				}
-				if ($skip) {
-					$index++;
-					$deleteCounter++;
-					continue;
-				}
-
-				$result[] = $day;
-				$index++;
-			}
-		}
-
-		if (!empty($days) && !is_array($days)) {
-			Message::addError('no-days-selected');
-			Util::redirect('?do=locationinfo');
-		} else {
-
-			$dayz = array();
-			$da = array();
-
-			foreach ($days as $d) {
-				if ($d != '-') {
-					$da[] = $d;
-				} else {
-					$dayz[$count] = $da;
-					$da = array();
-					$count++;
-				}
-			}
-
-			$optime = array();
-			for ($x = 0; $x < $count; $x++) {
-				if ($dontadd[$x] == 'dontadd') {
-					continue;
-				}
-				$optime['days'] = $dayz[$x];
-				$optime['openingtime'] = $openingtime[$x];
-				$optime['closingtime'] = $closingtime[$x];
-				$result[] = $optime;
-			}
-		}
-
-		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, openingtime)
-				VALUES (:id, :openingtime)
-				ON DUPLICATE KEY UPDATE openingtime = VALUES(openingtime)",
-			array('id' => $locationid, 'openingtime' => json_encode($result)));
-
-		if ($deleteCounter > 0) {
-			Message::addSuccess('deleted-x-entries', $deleteCounter);
-		}
-		if ($count > 0) {
-			Message::addSuccess('added-x-entries', $count);
-		}
-
-		Util::redirect('?do=locationinfo');
-	}
-
-	/**
-	 * Updates the opening time in the db from the easy mode.
-	 */
-	private function updateOpeningTimeEasy()
-	{
-		$locationid = Request::post('id', 0, 'int');
-		$openingtime = Request::post('openingtime', array(), 'array');
-		$closingtime = Request::post('closingtime', array(), 'array');
-		$result = array();
-
-		$blocks = array(
-			0 => array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
-			1 => array("Saturday"),
-			2 => array("Sunday"),
-		);
-		foreach ($blocks as $idx => $days) {
-			//if (!empty($openingtime[$idx]) && !empty($closingtime[$idx])) {
-				$result[] = array(
-					'days' => $days,
-					'openingtime' => $openingtime[$idx],
-					'closingtime' => $closingtime[$idx],
-				);
-			//}
-		}
-
-		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, openingtime)
-				VALUES (:id, :openingtime)
-				ON DUPLICATE KEY UPDATE openingtime = VALUES(openingtime)",
-			array('id' => $locationid, 'openingtime' => json_encode($result)));
-
-		Message::addSuccess('openingtime-updated');
-		Util::redirect('?do=locationinfo');
-	}
-
-	/**
 	 * Checks if the server connection to a backend is valid.
 	 *
 	 * @param int $id Server id which connection should be checked.
@@ -303,65 +288,11 @@ class Page_LocationInfo extends Page
 		LocationInfo::setServerError($serverid, $serverInstance->getError());
 	}
 
-
-	/**
-	 * Sets the new hidden value and checks childs and parents.
-	 *
-	 * @param int $id The location id which was toggled
-	 * @param bool $hidden The hidden value true / false
-	 */
-	protected function toggleHidden($id, $hidden)
-	{
-		$locs = Location::getLocationsAssoc();
-		if (!isset($locs[$id]))
-			die('Invalid location id');
-		$loc = $locs[$id];
-
-		// The JSON to return, telling the client which locationids to update in the view
-		$return = array();
-		$return[] = array('locationid' => $id, 'hidden' => $hidden);
-
-		// Update the location, plus all child locations
-		$qs = '(?,?)' . str_repeat(',(?,?)', count($loc['children']));
-		$params = array($id, $hidden);
-		foreach ($loc['children'] as $child) {
-			$params[] = $child;
-			$params[] = $hidden;
-			$return[] = array('locationid' => $child, 'hidden' => $hidden);
-		}
-		Database::exec("INSERT INTO locationinfo_locationconfig (locationid, hidden)
-				VALUES $qs ON DUPLICATE KEY UPDATE hidden = VALUES(hidden)", $params);
-
-		// Handle parents - uncheck if not all children are checked
-		while ($loc['parentlocationid'] != 0) {
-			$stats = Database::queryFirst('SELECT Count(*) AS total, Sum(li.hidden > 0) AS hidecount FROM location l
-					LEFT JOIN locationinfo_locationconfig li USING (locationid)
-					WHERE l.parentlocationid = :parent', array('parent' => $loc['parentlocationid']));
-			$hidden = ($stats['total'] == $stats['hidecount']) ? 1 : 0;
-			$params = array('locationid' => $loc['parentlocationid'], 'hidden' => $hidden);
-			Database::exec('INSERT INTO locationinfo_locationconfig (locationid, hidden)
-					VALUES (:locationid, :hidden) ON DUPLICATE KEY UPDATE hidden = VALUES(hidden)', $params);
-			$return[] = $params;
-			$loc = $locs[$loc['parentlocationid']];
-		}
-		return $return;
-	}
-
 	/**
 	 * Loads the Infoscreen page in the admin-panel and passes all needed information.
 	 */
-	protected function getInfoScreenTable()
+	private function showInfoScreenTable()
 	{
-		$locations = Location::getLocations(0, 0, false, true);
-
-		// Get hidden state of all locations
-		$dbquery = Database::simpleQuery("SELECT li.locationid, li.hidden FROM `locationinfo_locationconfig` AS li");
-
-		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			$locid = (int)$row['locationid'];
-			$locations[$locid]['hidden_checked'] = $row['hidden'] != 0 ? 'checked' : '';
-		}
-
 		// Get a list of all the backend types.
 		$servertypes = array();
 		$s_list = CourseBackend::getList();
@@ -395,9 +326,32 @@ class Page_LocationInfo extends Page
 		}
 
 		// Pass the data to the html and render it.
-		Render::addTemplate('location-info', array(
-			'list' => array_values($locations),
+		Render::addTemplate('page-servers', array(
 			'serverlist' => $serverlist,
+		));
+	}
+
+	private function showLocationsTable()
+	{
+		$locations = Location::getLocations(0, 0, false, true);
+
+		// Get hidden state of all locations
+		$dbquery = Database::simpleQuery("SELECT li.locationid, li.serverid, li.serverlocationid, li.openingtime, li.lastcalendarupdate
+			FROM `locationinfo_locationconfig` AS li");
+
+		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
+			$locid = (int)$row['locationid'];
+			$hasTable = is_array(json_decode($row['openingtime'], true));
+			$hasBackend = !empty($row['serverid']) && !empty($row['serverlocationid']);
+			$locations[$locid] += array(
+				'hasTable' => $hasTable,
+				'hasBackend' => $hasBackend,
+				'lastCalendarUpdate' => $row['lastcalendarupdate'], // TODO
+			);
+		}
+
+		Render::addTemplate('page-locations', array(
+			'list' => array_values($locations),
 		));
 	}
 
@@ -412,29 +366,11 @@ class Page_LocationInfo extends Page
 		}
 		$action = Request::any('action');
 		$id = Request::any('id', 0, 'int');
-		if ($action === 'timetable') {
-			$this->ajaxTimeTable($id);
-		} elseif ($action === 'config') {
-			$this->ajaxLoadLocationConfig($id);
+		if ($action === 'config-location') {
+			$this->ajaxConfigLocation($id);
 		} elseif ($action === 'serverSettings') {
 			$this->ajaxServerSettings($id);
-		} elseif ($action === 'hide') {
-			$this->ajaxHideLocation();
 		}
-	}
-
-	/**
-	 * Request to deny displaying the door sign for the
-	 * given location. Sends a list of all affected
-	 * locations, so the client can update its view.
-	 */
-	private function ajaxHideLocation()
-	{
-		$locationId = Request::post('locationid', 0, 'int');
-		$hidden = Request::post('hidden', 0, 'int');
-		Header('Content-Type: application/json; charset=utf-8');
-		$ret = $this->toggleHidden($locationId, $hidden);
-		echo json_encode(array('changed' => $ret));
 	}
 
 	/**
@@ -477,7 +413,7 @@ class Page_LocationInfo extends Page
 			}
 			$serverBackends[] = $backend;
 		}
-		echo Render::parse('server-settings', array('id' => $id,
+		echo Render::parse('ajax-config-server', array('id' => $id,
 			'name' => $oldConfig['servername'],
 			'currentbackend' => $oldConfig['servertype'],
 			'backendList' => $serverBackends,
@@ -489,57 +425,140 @@ class Page_LocationInfo extends Page
 	 *
 	 * @param $id id of the location
 	 */
-	private function ajaxTimeTable($id)
+	private function ajaxConfigLocation($id)
 	{
-		$row = Database::queryFirst("SELECT openingtime FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $id));
-		if ($row !== false) {
-			$openingtimes = json_decode($row['openingtime'], true);
+		$locConfig = Database::queryFirst("SELECT serverid, serverlocationid, openingtime FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $id));
+		if ($locConfig !== false) {
+			$openingtimes = json_decode($locConfig['openingtime'], true);
 		}
 		if (!isset($openingtimes) || !is_array($openingtimes)) {
 			$openingtimes = array();
 		}
-		if ($this->isEasyMode($openingtimes)) {
-			$data = array('id' => $id,
-				'easyMode' => true,
-				'expertMode' => false
-			);
-			foreach ($openingtimes as $idx => $ot) {
-				foreach ($ot as $k => $v) {
-					$data[$k . $idx] = $v;
-				}
-			}
-			echo Render::parse('timetable', $data);
 
-		} else {
-			$index = 0;
-			foreach ($openingtimes as &$entry) {
-				$entry['days'] = implode(', ', $entry['days']);
-				$entry['index'] = $index++;
+		// get Server / ID list
+		$res = Database::simpleQuery("SELECT serverid, servername FROM locationinfo_coursebackend ORDER BY servername ASC");
+		$serverList = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($row['serverid'] == $locConfig['serverid']) {
+				$row['selected'] = 'selected';
 			}
-			echo Render::parse('timetable', array('id' => $id,
-				'openingtimes' => array_values($openingtimes),
-				'easyMode' => false,
-				'expertMode' => true));
+			$serverList[] = $row;
 		}
+
+		$data = array(
+			'id' => $id,
+			'serverlist' => $serverList,
+			'serverlocationid' => $locConfig['serverlocationid'],
+		);
+		$data['expertMode'] = !$this->isSimpleMode($openingtimes);
+		// !! isSimpleMode might have changed $openingtimes, so order is important here...
+		$data['schedule_data'] = json_encode($openingtimes);
+
+		echo Render::parse('ajax-config-location', $data);
 	}
 
 	/**
-	 * Checks if easymode or expert mode is active.
+	 * Checks if simple mode or expert mode is active.
+	 * Tries to merge/compact the opening times schedule, and
+	 * will actually modify the passed array iff it can be
+	 * transformed into easy opening times.
 	 *
-	 * @param $array Array of the saved openingtimes.
-	 * @return bool True if easy mode, false if expert mode
+	 * @param array $array of the saved openingtimes.
+	 * @return bool True if simple mode, false if expert mode
 	 */
-	private function isEasyMode($array)
+	private function isSimpleMode(&$array)
 	{
 		if (empty($array))
 			return true;
-		if (count($array) === 3
-				&& $array[0]['days'] == array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
-				&& $array[1]['days'][0] == "Saturday" && $array[2]['days'][0] == "Sunday"
-		) {
-			return true;
+		// Decompose by day
+		$new = array();
+		foreach ($array as $row) {
+			$s = $this->getTime($row['openingtime']);
+			$e = $this->getTime($row['closingtime']);
+			if ($s === false || $e === false || $e <= $s)
+				continue;
+			foreach ($row['days'] as $day) {
+				$this->addDay($new, $day, $s, $e);
+			}
 		}
-		return false;
+		// Merge by timespan, but always keep saturday and sunday separate
+		$merged = array();
+		foreach ($new as $day => $ranges) {
+			foreach ($ranges as $range) {
+				if ($day === 'Saturday' || $day === 'Sunday') {
+					$add = $day;
+				} else {
+					$add = '';
+				}
+				$key = '#' . $range[0] . '#' . $range[1] . '#' . $add;
+				if (!isset($merged[$key])) {
+					$merged[$key] = array();
+				}
+				$merged[$key][$day] = true;
+			}
+		}
+		// Check if it passes as simple mode
+		if (count($merged) > 3)
+			return false;
+		foreach ($merged as $days) {
+			if (count($days) === 5) {
+				$res = array_keys($days);
+				$res = array_intersect($res, array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"));
+				if (count($res) !== 5)
+					return false;
+			} elseif (count($days) === 1) {
+				if (!isset($days['Saturday']) && !isset($days['Sunday'])) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+		// Valid simple mode, finally transform back to what we know
+		$new = array();
+		foreach ($merged as $span => $days) {
+			preg_match('/^#(\d+)#(\d+)#/', $span, $out);
+			$new[] = array(
+				'days' => array_keys($days),
+				'openingtime' => floor($out[1] / 60) . ':' . ($out[1] % 60),
+				'closingtime' => floor($out[2] / 60) . ':' . ($out[2] % 60),
+			);
+		}
+		$array = $new;
+		return true;
+	}
+
+	private function addDay(&$array, $day, $s, $e)
+	{
+		if (!isset($array[$day])) {
+			$array[$day] = array(array($s, $e));
+			return;
+		}
+		foreach (array_keys($array[$day]) as $key) {
+			$current = $array[$day][$key];
+			if ($s <= $current[0] && $e >= $current[1]) {
+				// Fully dominated
+				unset($array[$day][$key]);
+				continue; // Might partially overlap with additional ranges, keep going
+			}
+			if ($current[0] <= $s && $current[1] >= $s) {
+				// $start lies within existing range
+				if ($current[0] <= $e && $current[1] >= $e)
+					return; // Fully in existing range, do nothing
+				// $end seems to extend range we're checking against but $start lies within this range, update and keep going
+				$s = $current[0];
+				unset($array[$day][$key]);
+				continue;
+			}
+			// Last possibility: $start is before range, $end within range
+			if ($current[0] <= $e && $current[1] >= $e) {
+				// $start must lie before range start, otherwise we'd have hit the case above
+				$e = $current[1];
+				unset($array[$day][$key]);
+				continue;
+			}
+		}
+		$array[$day][] = array($s, $e);
 	}
 
 	/**
@@ -547,28 +566,19 @@ class Page_LocationInfo extends Page
 	 *
 	 * @param $id Location ID
 	 */
-	private function ajaxLoadLocationConfig($id)
+	private function showConfigPanel()
 	{
+		$id = Request::get('paneluuid', false, 'string');
 		// Get Config data from db
-		$location = Database::queryFirst("SELECT lc.config, lc.serverid, lc.serverlocationid
-			FROM location l
-			LEFT JOIN `locationinfo_locationconfig` lc USING (locationid)
-			WHERE l.locationid = :id", array('id' => $id));
-		if ($location === false) {
-			die("Invalid location id: $id");
+		$panel = Database::queryFirst("SELECT locationids, paneltype, panelconfig
+			FROM locationinfo_panel
+			WHERE paneluuid = :id", array('id' => $id));
+		if ($panel === false) {
+			die("Invalid panel id: $id");
 		}
 
-		$config = json_decode($location['config'], true); // TODO: Validate we got an array, fill with defaults otherwise
+		$config = json_decode($panel['panelconfig'], true); // TODO: Validate we got an array, fill with defaults otherwise
 
-		// get Server / ID list
-		$dbq = Database::simpleQuery("SELECT serverid, servername FROM locationinfo_coursebackend ORDER BY servername ASC");
-		$serverList = array();
-		while ($row = $dbq->fetch(PDO::FETCH_ASSOC)) {
-			if ($row['serverid'] == $location['serverid']) {
-				$row['selected'] = 'selected';
-			}
-			$serverList[] = $row;
-		}
 		$langs = Dictionary::getLanguages(true);
 		foreach ($langs as &$lang) {
 			if ($lang['cc'] === $config['language']) {
@@ -576,7 +586,7 @@ class Page_LocationInfo extends Page
 			}
 		}
 
-		echo Render::parse('config', array(
+		Render::addTemplate('page-config-panel', array(
 			'id' => $id,
 			'languages' => $langs,
 			'mode' => $config['mode'],
@@ -590,9 +600,6 @@ class Page_LocationInfo extends Page
 			'calupdate' => $config['calupdate'],
 			'roomupdate' => $config['roomupdate'],
 			'configupdate' => $config['configupdate'],
-			'serverlist' => $serverList,
-			'serverid' => $location['serverid'],
-			'serverlocationid' => $location['serverlocationid']
 		));
 	}
 

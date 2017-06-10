@@ -27,6 +27,11 @@ class Location
 		return $rows;
 	}
 
+	/**
+	 * Return row from location table for $locationId.
+	 * @param $locationId
+	 * @return array|bool row from DB, false if not found
+	 */
 	public static function get($locationId)
 	{
 		return Database::queryFirst("SELECT * FROM location WHERE locationid = :locationId", compact('locationId'));
