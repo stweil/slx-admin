@@ -100,6 +100,15 @@ class Page_LocationInfo extends Page
 		}
 		$serverlocationid = Request::post('serverlocationid', '', 'string');
 
+		$recursive = (Request::post('recursive', '', 'string') !== '');
+		if (empty($serverlocationid) && !$recursive) {
+			$insertServerId = null;
+			$ignoreServer = 1;
+		} else {
+			$insertServerId = $serverid;
+			$ignoreServer = 0;
+		}
+
 		// Opening times
 		$openingtimes = Request::post('openingtimes', '', 'string');
 		if ($openingtimes !== '') {
@@ -140,14 +149,34 @@ class Page_LocationInfo extends Page
 		}
 
 		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, serverid, serverlocationid, openingtime, lastcalendarupdate)
-				VALUES (:id, :serverid, :serverlocationid, :openingtimes, 0)
-				ON DUPLICATE KEY UPDATE serverid = VALUES(serverid), serverlocationid = VALUES(serverlocationid),
+				VALUES (:id, :insertserverid, :serverlocationid, :openingtimes, 0)
+				ON DUPLICATE KEY UPDATE serverid = IF(:ignore_server AND serverid IS NULL, NULL, :serverid), serverlocationid = VALUES(serverlocationid),
 					openingtime = VALUES(openingtime), lastcalendarupdate = 0", array(
 			'id' => $locationid,
+			'insertserverid' => $insertServerId,
 			'serverid' => $serverid,
 			'openingtimes' => $openingtimes,
 			'serverlocationid' => $serverlocationid,
+			'ignore_server' => $ignoreServer,
 		));
+
+		if (!$recursive)
+			return true;
+
+		// Recursive overwriting of serverid
+		$children = Location::getRecursiveFlat($locationid);
+		$array = array();
+		foreach ($children as $loc) {
+			$array[] = $loc['locationid'];
+		}
+		if (!empty($array)) {
+			Database::exec("UPDATE locationinfo_locationconfig
+				SET serverid = :serverid, lastcalendarupdate = IF(serverid <> :serverid, 0, lastcalendarupdate)
+				WHERE locationid IN (:locations)", array(
+					'serverid' => $serverid,
+					'locations' => $array,
+			));
+		}
 		return true;
 	}
 
@@ -336,18 +365,38 @@ class Page_LocationInfo extends Page
 		$locations = Location::getLocations(0, 0, false, true);
 
 		// Get hidden state of all locations
-		$dbquery = Database::simpleQuery("SELECT li.locationid, li.serverid, li.serverlocationid, li.openingtime, li.lastcalendarupdate
-			FROM `locationinfo_locationconfig` AS li");
+		$dbquery = Database::simpleQuery("SELECT li.locationid, li.serverid, li.serverlocationid, li.openingtime, li.lastcalendarupdate, cb.servername
+			FROM `locationinfo_locationconfig` AS li
+			LEFT JOIN `locationinfo_coursebackend` AS cb USING (serverid)");
 
 		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$locid = (int)$row['locationid'];
-			$hasTable = is_array(json_decode($row['openingtime'], true));
-			$hasBackend = !empty($row['serverid']) && !empty($row['serverlocationid']);
+			$glyph = !empty($row['openingtime']) ? 'ok' : '';
+			$backend = '';
+			if (!empty($row['serverid']) && !empty($row['serverlocationid'])) {
+				$backend = $row['servername'] . '(' . $row['serverlocationid'] . ')';
+			}
 			$locations[$locid] += array(
-				'hasTable' => $hasTable,
-				'hasBackend' => $hasBackend,
+				'openingGlyph' => $glyph,
+				'backend' => $backend,
 				'lastCalendarUpdate' => $row['lastcalendarupdate'], // TODO
 			);
+		}
+
+		$stack = array();
+		$depth = -1;
+		foreach ($locations as &$location) {
+			while ($location['depth'] <= $depth) {
+				array_pop($stack);
+				$depth--;
+			}
+			while ($location['depth'] > $depth) {
+				$depth++;
+				array_push($stack, empty($location['openingGlyph']) ? '' : 'arrow-up');
+			}
+			if ($depth > 0 && empty($location['openingGlyph'])) {
+				$location['openingGlyph'] = $stack[$depth - 1];
+			}
 		}
 
 		Render::addTemplate('page-locations', array(
@@ -430,9 +479,30 @@ class Page_LocationInfo extends Page
 		$locConfig = Database::queryFirst("SELECT serverid, serverlocationid, openingtime FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $id));
 		if ($locConfig !== false) {
 			$openingtimes = json_decode($locConfig['openingtime'], true);
+		} else {
+			$locConfig = array('serverid' => null, 'serverlocationid' => '');
 		}
 		if (!isset($openingtimes) || !is_array($openingtimes)) {
 			$openingtimes = array();
+		}
+
+		// Preset serverid from parent if none is set
+		if (is_null($locConfig['serverid'])) {
+			$chain = Location::getLocationRootChain($id);
+			if (!empty($chain)) {
+				$res = Database::simpleQuery("SELECT serverid, locationid FROM locationinfo_locationconfig
+					WHERE locationid IN (:locations) AND serverid IS NOT NULL", array('locations' => $chain));
+				$chain = array_flip($chain);
+				$best = false;
+				while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+					if ($best === false || $chain[$row['locationid']] < $chain[$best['locationid']]) {
+						$best = $row;
+					}
+				}
+				if ($best !== false) {
+					$locConfig['serverid'] = $best['serverid'];
+				}
+			}
 		}
 
 		// get Server / ID list

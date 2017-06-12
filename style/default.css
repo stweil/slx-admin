@@ -477,6 +477,8 @@ it only applies if they're in a container that has the checkbox class */
 
 .checkbox {
 	padding-left: 20px;
+	margin-top: 5px;
+	margin-bottom: 2px;
 }
 .checkbox label {
 	display: inline-block;

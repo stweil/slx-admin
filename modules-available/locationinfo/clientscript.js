@@ -113,6 +113,12 @@ function submitLocationSettings(event) {
 				'openingtime': $t.find('.i-openingtime').val(),
 				'closingtime': $t.find('.i-closingtime').val()
 			};
+			for (var i = 0; i < allDays.length; ++i) {
+				if ($t.find('.i-' + allDays[i]).is(':checked')) {
+					entry['days'].push(allDays[i]);
+				}
+			}
+			if (entry.openingtime.length === 0 && entry.closingtime.length === 0 && entry.days.length === 0) return; // Also ignore empty lines
 			s = getTime(entry.openingtime);
 			e = getTime(entry.closingtime);
 			if (s === false) {
@@ -123,16 +129,11 @@ function submitLocationSettings(event) {
 				$t.find('.i-closingtime').addClass('red-bg');
 				badFormat = true;
 			}
-			if (badFormat) return;
-			for (var i = 0; i < allDays.length; ++i) {
-				if ($t.find('.i-' + allDays[i]).is(':checked')) {
-					entry['days'].push(allDays[i]);
-				}
-			}
 			if (entry.days.length === 0) {
 				$t.find('.days-box').addClass('red-bg');
 				badFormat = true;
 			}
+			if (badFormat) return;
 			schedule.push(entry);
 		});
 	}

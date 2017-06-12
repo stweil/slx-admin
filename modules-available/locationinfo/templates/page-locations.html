@@ -3,27 +3,21 @@
 
 	<tr>
 		<th>{{lang_locationName}}</th>
-		<th width="50">{{lang_openingTime}}</th>
-		<th width="50">{{lang_locationSettings}}</th>
+		<th>{{lang_openingTime}}</th>
+		<th>{{lang_locationSettings}}</th>
 	</tr>
 
 	{{#list}}
 		<tr>
 			<td>
 				<div style="display:inline-block;width:{{depth}}em"></div>
-				<a href="#" class="loc-name" data-locationid="{{locationid}}">{{locationname}}</a>
+				<a href="#" class="loc-name {{^depth}}slx-bold{{/depth}}" data-locationid="{{locationid}}">{{locationname}}</a>
 			</td>
 			<td>
-				<a class="btn btn-sm btn-default" role="button" style="width: 100%"
-					onclick="loadTimeModal({{locationid}}, '{{locationname}}');">
-					<span style="margin-right: 5px;" class="glyphicon glyphicon-time"></span>
-				</a>
+				{{backend}}
 			</td>
 			<td>
-				<a class="btn btn-sm btn-default" role="button" style="width: 100%;"
-					onclick="loadLocationConfigModal({{locationid}}, '{{locationname}}');">
-					<span style="margin-right: 5px;" class="glyphicon glyphicon-cog"></span>
-				</a>
+				<span class="glyphicon glyphicon-{{openingGlyph}}"></span>
 			</td>
 		</tr>
 

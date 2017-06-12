@@ -130,6 +130,47 @@ class Location
 		return array_values($rows);
 	}
 
+	/**
+	 * Get nested array of all the locations and children of given locationid(s).
+	 *
+	 * @param int[]|int $idList List of location ids
+	 * @param bool $locationTree used in recursive calls, don't pass
+	 * @return array list of passed locations plus their children
+	 */
+	public static function getRecursive($idList, $locationTree = false)
+	{
+		if (!is_array($idList)) {
+			$idList = array($idList);
+		}
+		if ($locationTree === false) {
+			$locationTree = self::getTree();
+		}
+		$ret = array();
+		foreach ($locationTree as $location) {
+			if (in_array($location['locationid'], $idList)) {
+				$ret[] = $location;
+			} elseif (!empty($location['children'])) {
+				$ret = array_merge($ret, self::getRecursive($idList, $location['children']));
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * Get flat array of all the locations and children of given locationid(s).
+	 *
+	 * @param int[]|int $idList List of location ids
+	 * @return array list of passed locations plus their children
+	 */
+	public static function getRecursiveFlat($idList)
+	{
+		$ret = self::getRecursive($idList);
+		if (!empty($ret)) {
+			$ret = self::flattenTree($ret);
+		}
+		return $ret;
+	}
+
 	public static function buildTree($elements, $parentId = 0)
 	{
 		$branch = array();
