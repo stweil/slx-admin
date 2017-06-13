@@ -230,7 +230,7 @@ function getConfig($locationID)
 		LEFT JOIN `locationinfo_locationconfig` AS li ON (l.locationid = li.locationid)
 		WHERE l.locationid = :locationID", array('locationID' => $locationID));
 
-	$config = defaultConfig();
+	$config = LocationInfo::defaultPanelConfig();
 
 	if ($dbresult !== false) {
 		if (!empty($dbresult['config'])) {
@@ -245,29 +245,6 @@ function getConfig($locationID)
 	$config['time'] = date('Y-m-d H:i:s');
 
 	return $config;
-}
-
-/**
- * Creates and returns a default config for room that didn't saved a config yet.
- *
- * @return array Return a default config.
- */
-function defaultConfig()
-{
-	return array(
-		'language' => 'en',
-		'mode' => 1,
-		'vertical' => false,
-		'eco' => false,
-		'scaledaysauto' => true,
-		'daystoshow' => 7,
-		'rotation' => 0,
-		'scale' => 50,
-		'switchtime' => 20,
-		'calupdate' => 30,
-		'roomupdate' => 5,
-		'configupdate' => 180,
-	);
 }
 
 /**

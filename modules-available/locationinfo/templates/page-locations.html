@@ -1,17 +1,25 @@
-<h4>{{lang_buildingTable}}</h4>
-<table class="table table-condensed table-hover" style="margin-bottom:0">
+<h2>{{lang_locationsTable}}</h2>
 
+<p>{{lang_locationsTableHints}}</p>
+
+<table class="table table-condensed table-hover">
+	<thead>
 	<tr>
 		<th>{{lang_locationName}}</th>
-		<th>{{lang_openingTime}}</th>
-		<th>{{lang_locationSettings}}</th>
+		<th>{{lang_backend}}</th>
+		<th>{{lang_openingtimes}}</th>
 	</tr>
+	</thead>
 
+	<tbody>
 	{{#list}}
 		<tr>
 			<td>
 				<div style="display:inline-block;width:{{depth}}em"></div>
-				<a href="#" class="loc-name {{^depth}}slx-bold{{/depth}}" data-locationid="{{locationid}}">{{locationname}}</a>
+				<a href="#" class="loc-name {{^depth}}slx-bold{{/depth}}" data-locationid="{{locationid}}">
+					{{locationname}}
+					<span class="glyphicon glyphicon-edit"></span>
+				</a>
 			</td>
 			<td>
 				{{backend}}
@@ -20,8 +28,8 @@
 				<span class="glyphicon glyphicon-{{openingGlyph}}"></span>
 			</td>
 		</tr>
-
 	{{/list}}
+	</tbody>
 </table>
 
 <div class="modal fade" id="location-modal" tabindex="-1" role="dialog">

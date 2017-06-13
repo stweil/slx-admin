@@ -1,8 +1,10 @@
 {
-    "no-days-selected": "No days selected.",
-    "added-x-entries": "Entries added: {{0}}",
-    "deleted-x-entries": "Entries deleted: {{0}}",
-    "openingtime-updated": "Openingtime updated.",
+    "auth-failed": "[{{0}}] {{1}} Error: {{2}}",
     "config-saved": "Config successfully saved.",
-    "auth-failed": "[{{0}}] {{1}} Error: {{2}}"
+    "ignored-invalid-end": "Ignored entry with invalid end time",
+    "ignored-invalid-range": "Ignored entry with invalid range",
+    "ignored-invalid-start": "Ignored entry with invalid start time",
+    "ignored-line-no-days": "Ignored entry with no days selected",
+    "invalid-panel-id": "Invalid panel id '{{0}}'",
+    "invalid-server-id": "Invalid server id '{{0}}'"
 }

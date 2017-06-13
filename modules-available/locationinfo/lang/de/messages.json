@@ -1,8 +1,10 @@
 {
-    "no-days-selected": "Es wurden keine Tage ausgewählt.",
-    "added-x-entries": "Eintr\u00e4ge hinzugef\u00fcgt: {{0}}",
-    "deleted-x-entries": "Eintr\u00e4ge gelöscht: {{0}}",
-    "openingtime-updated": "Öffnungszeiten aktualisiert.",
+    "auth-failed": "[{{0}}] {{1}} Error: {{2}}",
     "config-saved": "Einstellungen erfolgreich gespeichert.",
-    "auth-failed": "[{{0}}] {{1}} Error: {{2}}"
+    "ignored-invalid-end": "Eintrag mit ung\u00fcltiger Endzeit ignoriert",
+    "ignored-invalid-range": "Eintrag mit ung\u00fcltiger Range ignoriert",
+    "ignored-invalid-start": "Eintrag mit ung\u00fcltiger Startzeit ignoriert",
+    "ignored-line-no-days": "Eintrag ohne ausgew\u00e4hlte Tage ignoriert",
+    "invalid-panel-id": "Ung\u00fcltige Panel-ID '{{0}}'",
+    "invalid-server-id": "Ung\u00fcltige Server-ID '{{0}}'"
 }

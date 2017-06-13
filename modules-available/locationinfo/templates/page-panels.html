@@ -1,0 +1,57 @@
+<h2>{{lang_panelsTable}}</h2>
+
+<p>{{lang_panelsTableHints}}</p>
+
+<table class="table table-hover">
+	<thead>
+	<tr>
+		<th>{{lang_panel}}</th>
+		<th>{{lang_panelType}}</th>
+		<th>{{lang_locations}}</th>
+		<th width="1"></th>
+		<th width="1"></th>
+	</tr>
+	</thead>
+	<tbody>
+	<form method="post" action="?do=locationinfo" onsubmit="return confirm('{{lang_areYouSure}}')">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="deletePanel">
+		{{#panels}}
+			<tr>
+				<td>
+					{{panelname}}
+				</td>
+				<td>
+					{{paneltype}}
+				</td>
+				<td>
+					{{locations}}
+				</td>
+				<td>
+					<a class="btn btn-default btn-xs" href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
+						<span class="glyphicon glyphicon-cog"></span>
+						{{lang_edit}}
+					</a>
+				</td>
+				<td>
+					<button type="submit" name="uuid" value="{{paneluuid}}" class="btn btn-danger btn-xs">
+						<span class="glyphicon glyphicon-trash"></span>
+						{{lang_delete}}
+					</button>
+				</td>
+			</tr>
+		{{/panels}}
+	</form>
+	</tbody>
+</table>
+
+<div>
+	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-default">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_defaultPanel}}
+	</a>
+	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-summary">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_summaryPanel}}
+	</a>
+</div>

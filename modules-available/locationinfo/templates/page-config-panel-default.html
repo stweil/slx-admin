@@ -1,0 +1,418 @@
+<h2>
+	{{#new}}{{lang_createPanel}}{{/new}}
+	{{^new}}{{lang_editPanel}}{{/new}}
+</h2>
+
+<p>{{lang_editDefaultPanelHints}}</p>
+
+<form method="post" action="?do=locationinfo" id="config-form">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="writePanelConfig">
+	<input type="hidden" name="uuid" value="{{uuid}}">
+
+	<div class="row">
+
+		<div class="col-md-6">
+			<div class="modify-inputs panel panel-default">
+				<div class="panel-heading">{{lang_display}}</div>
+				<div class="panel-body">
+					<div class="list-group">
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="panel-title">{{lang_displayName}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input class="form-control" name="name" id="panel-title" type="text" value="{{panelname}}">
+								</div>
+								<div class="col-sm-2">
+									<a class="btn btn-default helptext" title="{{lang_displayNameTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="language">{{lang_language}}</label>
+								</div>
+								<div class="col-sm-7">
+									<select class="form-control" name="language" id="language">
+										{{#languages}}
+											<option value="{{cc}}" id="lang-{{cc}}" {{selected}}>{{name}}</option>
+										{{/languages}}
+									</select>
+								</div>
+								<div class="col-sm-2">
+									<a class="btn btn-default helptext" title="{{lang_languageTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="mode">{{lang_mode}}</label>
+								</div>
+								<div class="col-sm-7">
+									<select class="form-control" name="mode" id="mode" onchange="modeChange()">
+										<option value="1" id="mode1">{{lang_mode1}}</option>
+										<option value="2" id="mode2">{{lang_mode2}}</option>
+										<option value="3" id="mode3">{{lang_mode3}}</option>
+										<option value="4" id="mode4">{{lang_mode4}}</option>
+									</select>
+								</div>
+								<div class="col-sm-2">
+									<a class="btn btn-default helptext" title="{{lang_modeTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="input-eco">{{lang_ecoMode}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input id="input-eco" type="checkbox" name="eco" {{eco_checked}}>
+								</div>
+								<div class="col-sm-2">
+									<a class="btn btn-default helptext" title="{{lang_ecoTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">{{lang_updateRates}}</div>
+				<div class="panel-body">
+					<div class="list-group">
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="input-calupdate">{{lang_calendar}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input class="form-control" name="calupdate" type="number" min="30" id="input-calupdate"
+											 max="1440" value="{{calupdate}}" required>
+								</div>
+								<div class="col-sm-2">
+									<a class="btn btn-default helptext" title="{{lang_calupdateTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="form-roomupdate">{{lang_room}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input class="form-control" name="roomupdate" type="number" min="15" id="form-roomupdate"
+											 max="86400" value="{{roomupdate}}" required>
+								</div>
+								<div class="col-sm-2">
+									<a class="btn btn-default helptext" title="{{lang_roomupdateTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="configupdate">{{lang_config}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input id="configupdate" class="form-control" name="configupdate" type="number" min="10"
+											 max="1440" value="{{configupdate}}" required>
+								</div>
+								<div class="col-sm-2">
+									<a class="btn btn-default helptext" title="{{lang_configupdateTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="modify-inputs">
+		<div class="row">
+			<div class="col-md-6">
+
+				<div class="panel panel-default" id="extra-div">
+					<div class="panel-heading">{{lang_mode}}</div>
+					<div class="panel-body">
+						<div class="list-group">
+
+							<div class="list-group-item m1-s m2-h m3-h m4-h">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="input-vertical">{{lang_vertical}}</label>
+									</div>
+									<div class="col-sm-7">
+										<input id="input-vertical" type="checkbox" name="vertical" {{vertical_checked}}>
+									</div>
+									<div class="col-sm-2">
+										<a class="btn btn-default helptext" title="{{lang_verticalTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</a>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item m1-s m2-s m3-h m4-s">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="scaledaysauto">{{lang_autoScale}}</label>
+									</div>
+									<div class="col-sm-7">
+										<input id="scaledaysauto" type="checkbox" name="scaledaysauto" {{scaledaysauto_checked}}>
+									</div>
+									<div class="col-sm-2">
+										<a class="btn btn-default helptext" title="{{lang_autoscaleTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</a>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item m1-s m2-s m3-h m4-s">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="daystoshow">{{lang_daysToShow}}</label>
+									</div>
+									<div class="col-sm-7">
+										<select class="form-control" id="daystoshow" name="daystoshow">
+											<option value="1">1</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="4">4</option>
+											<option value="5">5</option>
+											<option value="6">6</option>
+											<option value="7">7</option>
+										</select>
+									</div>
+									<div class="col-sm-2">
+										<a class="btn btn-default helptext" title="{{lang_daysToShowTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</a>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item m1-s m2-h m3-s m4-s">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="rotation">{{lang_rotation}}</label>
+									</div>
+									<div class="col-sm-7">
+										<select class="form-control" id="rotation" name="rotation">
+											<option value="0">{{lang_rotation0}}</option>
+											<option value="3">{{lang_rotation3}}</option>
+											<option value="2">{{lang_rotation2}}</option>
+											<option value="1">{{lang_rotation1}}</option>
+										</select>
+									</div>
+									<div class="col-sm-2">
+										<a class="btn btn-default helptext" title="{{lang_rotationTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</a>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item m1-s m2-h m3-h m4-h">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="input-scale">{{lang_scale}}</label>
+									</div>
+									<div class="col-sm-7">
+										<span><span class="range-display"></span>&thinsp;%</span>
+										<input id="input-scale" name="scale" type="range" step="1" min="10" max="90" value="{{scale}}">
+									</div>
+									<div class="col-sm-2">
+										<a class="btn btn-default helptext" title="{{lang_scaleTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</a>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item m1-h m2-h m3-h m4-s">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="input-switchtime">{{lang_switchTime}}</label>
+									</div>
+									<div class="col-sm-7">
+										<span><span class="range-display"></span>&thinsp;{{lang_sec}}</span>
+										<input id="input-switchtime" name="switchtime" type="range" step="1" min="1" max="120" value="{{switchtime}}">
+									</div>
+									<div class="col-sm-2">
+										<a class="btn btn-default helptext" title="{{lang_switchTimeTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">{{lang_locations}}</div>
+					<div class="panel-body">
+						<input type="hidden" name="locationids" value="{{locationids}}" id="locationids">
+						<p>{{lang_fourLocsHint}}</p>
+						<ul id="selected-locations" class="list-unstyled">
+
+						</ul>
+						<div class="dropdown pull-right">
+							<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+								<span class="glyphicon glyphicon-plus"></span>
+							</button>
+							<ul class="dropdown-menu" id="location-list">
+								{{#locations}}
+									<li><a href="#" data-lid="{{locationid}}">{{locationpad}} <span class="name">{{locationname}}</span></a></li>
+								{{/locations}}
+							</ul>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	<a href="?do=locationinfo&amp;show=panels" class="btn btn-default">{{lang_cancel}}</a>
+</form>
+
+<div class="modal fade" id="no-locations-message" tabindex="-1" role="dialog">
+	<div class="modal-dialog"> <!--style="min-width:600px;width:70%"-->
+
+		<div class="modal-content">
+				<div class="modal-header">{{lang_error}}</div>
+				<div class="modal-body">
+					{{lang_noLocationsWarning}}
+				</div>
+				<div class="modal-footer">
+					<a class="btn btn-primary pull-right" data-dismiss="modal">{{lang_close}}</a>
+					<div class="clearfix"></div>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+
+<script type="text/javascript"><!--
+
+document.addEventListener("DOMContentLoaded", function () {
+	var $selLocs = $('#selected-locations');
+	var $locList = $('#location-list');
+	var $locInput = $('#locationids');
+
+	// Initialize fancy tooltips
+	$('a.helptext').tooltip();
+	// Add listener to range sliders so their label can be updated
+	$('input[type="range"]').change(function () {
+		$(this).siblings().find('.range-display').text($(this).val());
+	});
+	// Set state of input controls that aren't statically initialized server side
+	$('.modify-inputs input[type="checkbox"]')
+			.bootstrapSwitch({size: 'small'})
+			.on('switchChange.bootstrapSwitch', function () {
+				if (this.name === 'scaledaysauto') {
+					$('#daystoshow').prop('disabled', this.checked);
+				}
+			});
+
+	var lids = $locInput.val().split(',');
+	$selLocs.empty();
+	for (var i = 0; i < lids.length; ++i) {
+		var $name = $locList.find('a[data-lid="' + lids[i] + '"] .name');
+		if ($name.length === 0) continue;
+		addLocation(lids[i], $name.text());
+	}
+
+	$('#daystoshow option[value="{{daystoshow}}"]').attr("selected", "selected");
+	$('#rotation option[value="{{rotation}}"]').attr("selected", "selected");
+	$('#mode option[value="{{mode}}"]').attr("selected", "selected");
+
+	$('#daystoshow').prop('disabled', document.getElementById('scaledaysauto').checked);
+
+	$('input[type="range"]').change();
+	modeChange();
+
+	// Adding/removing locations
+	$locList.find('a').click(function(ev) {
+		ev.preventDefault();
+		var $this = $(this);
+		var name = $this.find('.name').text();
+		var id = $this.data('lid');
+		addLocation(id, name);
+		serializeLocs();
+	});
+
+	$('#config-form').submit(function(ev) {
+		if ($locInput.val().length > 0)
+			return;
+		ev.preventDefault();
+		$('#no-locations-message').modal('show');
+	});
+
+	function addLocation(id, name) {
+		$selLocs.find('li[data-lid="' + id + '"]').remove();
+		var delButton = $('<button class="btn btn-danger btn-xs" type="button">').append($('<span class="glyphicon glyphicon-remove">')).click(delParent);
+		$selLocs.append($('<li>').attr('data-lid', id).text(name).prepend(delButton));
+	}
+
+	function delParent() {
+		$(this).parent().remove();
+		serializeLocs();
+	}
+
+	function serializeLocs() {
+		var res = $selLocs.find('li[data-lid]').map( function() {
+			return $(this).data('lid');
+		}).get().join(',');
+		$locInput.val(res);
+	}
+
+});
+
+/**
+ * If the mode was changed the mode settings have to be adjusted.
+ */
+function modeChange() {
+	var value = $('#mode').val();
+	$('.m' + value + '-h').hide();
+	$('.m' + value + '-s').show();
+}
+
+//--></script>

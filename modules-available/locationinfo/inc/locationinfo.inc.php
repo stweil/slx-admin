@@ -60,4 +60,27 @@ class LocationInfo
 		}
 	}
 
+	/**
+	 * Creates and returns a default config for room that didn't saved a config yet.
+	 *
+	 * @return array Return a default config.
+	 */
+	public static function defaultPanelConfig()
+	{
+		return array(
+			'language' => 'en',
+			'mode' => 1,
+			'vertical' => false,
+			'eco' => false,
+			'scaledaysauto' => true,
+			'daystoshow' => 7,
+			'rotation' => 0,
+			'scale' => 50,
+			'switchtime' => 20,
+			'calupdate' => 30,
+			'roomupdate' => 15,
+			'configupdate' => 180,
+		);
+	}
+
 }

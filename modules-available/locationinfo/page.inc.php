@@ -25,12 +25,16 @@ class Page_LocationInfo extends Page
 			$show = 'locations';
 		} elseif ($this->action === 'deleteServer') {
 			$this->deleteServer();
+		} elseif ($this->action === 'deletePanel') {
+			$this->deletePanel();
 		} elseif ($this->action === 'checkConnection') {
 			$this->checkConnection(Request::post('serverid', 0, 'int'));
+			$show = 'backends';
 		} elseif ($this->action === 'updateServerSettings') {
 			$this->updateServerSettings();
+			$show = 'backends';
 		} elseif (Request::isPost()) {
-			Messages::addWarning('main.invalid-action', $this->action);
+			Message::addWarning('main.invalid-action', $this->action);
 		}
 		if (Request::isPost()) {
 			if (!empty($show)) {
@@ -45,19 +49,24 @@ class Page_LocationInfo extends Page
 	 */
 	protected function doRender()
 	{
+		$backends = $this->loadBackends();
 		$show = Request::get('show', '', 'string');
+		Render::addTemplate('page-tabs', array('class-' . $show => 'active'));
 		switch ($show) {
 		case 'locations':
 			$this->showLocationsTable();
 			break;
+		case 'backends':
+			$this->showBackendsTable($backends);
+			break;
 		case 'edit-panel':
-			$this->showConfigPanel();
+			$this->showPanelConfig();
 			break;
 		case '':
-			$this->showInfoScreenTable();
+			$this->showPanelsTable();
 			break;
 		default:
-			Message::addError('main.value-invalid', 'show', $show);
+			Util::redirect('?do=locationinfo');
 		}
 	}
 
@@ -71,7 +80,23 @@ class Page_LocationInfo extends Page
 			Messages::addError('server-id-missing');
 			return;
 		}
-		Database::exec("DELETE FROM `locationinfo_coursebackend` WHERE serverid=:id", array('id' => $id));
+		$res = Database::exec("DELETE FROM `locationinfo_coursebackend` WHERE serverid=:id", array('id' => $id));
+		if ($res !== 1) {
+			Message::addWarning('invalid-server-id', $id);
+		}
+	}
+
+	private function deletePanel()
+	{
+		$id = Request::post('uuid', false, 'string');
+		if ($id === false) {
+			Messages::addError('main.parameter-missing', 'uuid');
+			return;
+		}
+		$res = Database::exec("DELETE FROM `locationinfo_panel` WHERE paneluuid = :id", array('id' => $id));
+		if ($res !== 1) {
+			Message::addWarning('invalid-panel-id', $id);
+		}
 	}
 
 	private function getTime($str)
@@ -87,7 +112,7 @@ class Page_LocationInfo extends Page
 		// Check locations
 		$locationid = Request::post('locationid', false, 'int');
 		if ($locationid === false) {
-			Message::addError('main.paramter-missing', 'locationid');
+			Message::addError('main.parameter-missing', 'locationid');
 			return false;
 		}
 		if (Location::get($locationid) === false) {
@@ -186,17 +211,18 @@ class Page_LocationInfo extends Page
 	private function writePanelConfig()
 	{
 		// UUID - existing or new
-		$paneluuid = Request::post('paneluuid', false, 'string');
+		$paneluuid = Request::post('uuid', false, 'string');
 		if (($paneluuid === false || strlen($paneluuid) !== 36) && $paneluuid !== 'new') {
 			Message::addError('invalid-panel-id', $paneluuid);
 			Util::redirect('?do=locationinfo');
 		}
 		// Check locations
-		$locationids = Request::post('locationids', false, 'array');
+		$locationids = Request::post('locationids', false, 'string');
 		if ($locationids === false) {
 			Message::addError('main.paramter-missing', 'locationids');
 			Util::redirect('?do=locationinfo');
 		}
+		$locationids = explode(',', $locationids);
 		$all = array_map(function ($item) { return $item['locationid']; }, Location::queryLocations());
 		$locationids = array_filter($locationids, function ($item) use ($all) { return in_array($item, $all); });
 		if (empty($locationids)) {
@@ -222,24 +248,28 @@ class Page_LocationInfo extends Page
 			'roomupdate' => Request::post('roomupdate', 30, 'int'),
 			'configupdate' => Request::post('configupdate', 180, 'int'),
 		);
-		if ($conf['roomupdate'] < 30) {
-			$conf['roomupdate'] = 30;
+		if ($conf['roomupdate'] < 15) {
+			$conf['roomupdate'] = 15;
 		}
-		if ($conf['calupdate'] < 120) {
-			$conf['calupdate'] = 120;
+		if ($conf['calupdate'] < 30) {
+			$conf['calupdate'] = 30;
+		}
+		if ($conf['configupdate'] < 10) {
+			$conf['configupdate'] = 10;
 		}
 
 		if ($paneluuid === 'new') {
 			$paneluuid = Util::randomUuid();
-			$query = "INSERT INTO `locationinfo_panel` (paneluuid, locationids, paneltype, panelconfig)
-				VALUES (:id, :locationids, :type, :config)";
+			$query = "INSERT INTO `locationinfo_panel` (paneluuid, panelname, locationids, paneltype, panelconfig)
+				VALUES (:id, :name, :locationids, :type, :config)";
 		} else {
 			$query = "UPDATE `locationinfo_panel`
-				SET locationids = :locationids, paneltype = :type, panelconfig = :config
+				SET panelname = :name, locationids = :locationids, paneltype = :type, panelconfig = :config
 				WHERE paneluuid = :id";
 		}
 		Database::exec($query, array(
 			'id' => $paneluuid,
+			'name' => Request::post('name', '-', 'string'),
 			'locationids' => implode(',', $locationids),
 			'type' => 'DEFAULT', // TODO
 			'config' => json_encode($conf),
@@ -317,10 +347,7 @@ class Page_LocationInfo extends Page
 		LocationInfo::setServerError($serverid, $serverInstance->getError());
 	}
 
-	/**
-	 * Loads the Infoscreen page in the admin-panel and passes all needed information.
-	 */
-	private function showInfoScreenTable()
+	private function loadBackends()
 	{
 		// Get a list of all the backend types.
 		$servertypes = array();
@@ -329,10 +356,9 @@ class Page_LocationInfo extends Page
 			$typeInstance = CourseBackend::getInstance($s);
 			$servertypes[$s] = $typeInstance->getDisplayName();
 		}
-
-		// Get the Serverlist from the DB and make it mustache accessable
+		// Build list of defined backends
 		$serverlist = array();
-		$dbquery2 = Database::simpleQuery("SELECT * FROM `locationinfo_coursebackend`");
+		$dbquery2 = Database::simpleQuery("SELECT * FROM `locationinfo_coursebackend` ORDER BY servername ASC");
 		while ($row = $dbquery2->fetch(PDO::FETCH_ASSOC)) {
 			if (isset($servertypes[$row['servertype']])) {
 				$row['typename'] = $servertypes[$row['servertype']];
@@ -353,7 +379,14 @@ class Page_LocationInfo extends Page
 			}
 			$serverlist[] = $row;
 		}
+		return $serverlist;
+	}
 
+	/**
+	 * Show the list of backends
+	 */
+	private function showBackendsTable($serverlist)
+	{
 		// Pass the data to the html and render it.
 		Render::addTemplate('page-servers', array(
 			'serverlist' => $serverlist,
@@ -402,6 +435,28 @@ class Page_LocationInfo extends Page
 		Render::addTemplate('page-locations', array(
 			'list' => array_values($locations),
 		));
+	}
+
+	private function showPanelsTable()
+	{
+		$res = Database::simpleQuery('SELECT p.paneluuid, p.panelname, p.locationids,
+			p.paneltype FROM locationinfo_panel p
+			ORDER BY panelname ASC');
+		$panels = array();
+		$locations = Location::getLocationsAssoc();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$lids = explode(',', $row['locationids']);
+			$locs = array_map(function($id) use ($locations) {
+				return isset($locations[$id]) ? $locations[$id]['locationname'] : $id;
+			}, $lids);
+			$row['locations'] = implode(', ', $locs);
+			$len = mb_strlen($row['panelname']);
+			if ($len < 5) {
+				$row['panelname'] .= str_repeat('…', 5 - $len);
+			}
+			$panels[] = $row;
+		}
+		Render::addTemplate('page-panels', array('panels' => $panels));
 	}
 
 	/**
@@ -632,22 +687,53 @@ class Page_LocationInfo extends Page
 	}
 
 	/**
-	 * Ajax the config of a location.
+	 * Ajax the config of a panel.
 	 *
 	 * @param $id Location ID
 	 */
-	private function showConfigPanel()
+	private function showPanelConfig()
 	{
-		$id = Request::get('paneluuid', false, 'string');
-		// Get Config data from db
-		$panel = Database::queryFirst("SELECT locationids, paneltype, panelconfig
-			FROM locationinfo_panel
-			WHERE paneluuid = :id", array('id' => $id));
-		if ($panel === false) {
-			die("Invalid panel id: $id");
+		$id = Request::get('uuid', false, 'string');
+		if ($id === false) {
+			Message::addError('main.parameter-missing', 'uuid');
+			return;
+		}
+		$config = false;
+		if ($id === 'new-default') {
+			// Creating new panel
+			$panel = array(
+				'panelname' => '',
+				'locationids' => '',
+				'paneltype' => 'DEFAULT',
+			);
+			$id = 'new';
+		} elseif ($id === 'new-summary') {
+			// Creating new panel
+			$panel = array(
+				'panelname' => '',
+				'locationids' => '',
+				'paneltype' => 'SUMMARY',
+			);
+			$id = 'new';
+		} else {
+			// Get Config data from db
+			$panel = Database::queryFirst("SELECT panelname, locationids, paneltype, panelconfig
+				FROM locationinfo_panel
+				WHERE paneluuid = :id", array('id' => $id));
+			if ($panel === false) {
+				Message::addError('invalid-panel-id', $id);
+				return;
+			}
+
+			$config = json_decode($panel['panelconfig'], true);
 		}
 
-		$config = json_decode($panel['panelconfig'], true); // TODO: Validate we got an array, fill with defaults otherwise
+		$def = LocationInfo::defaultPanelConfig($panel['paneltype']);
+		if (!is_array($config)) {
+			$config = $def;
+		} else {
+			$config += $def;
+		}
 
 		$langs = Dictionary::getLanguages(true);
 		foreach ($langs as &$lang) {
@@ -656,21 +742,38 @@ class Page_LocationInfo extends Page
 			}
 		}
 
-		Render::addTemplate('page-config-panel', array(
-			'id' => $id,
-			'languages' => $langs,
-			'mode' => $config['mode'],
-			'vertical_checked' => $config['vertical'] ? 'checked' : '',
-			'eco_checked' => $config['eco'] ? 'checked' : '',
-			'scaledaysauto_checked' => $config['scaledaysauto'] ? 'checked' : '',
-			'daystoshow' => $config['daystoshow'],
-			'rotation' => $config['rotation'],
-			'scale' => $config['scale'],
-			'switchtime' => $config['switchtime'],
-			'calupdate' => $config['calupdate'],
-			'roomupdate' => $config['roomupdate'],
-			'configupdate' => $config['configupdate'],
-		));
+		if ($panel['paneltype'] === 'DEFAULT') {
+			Render::addTemplate('page-config-panel-default', array(
+				'new' => $id === 'new',
+				'uuid' => $id,
+				'panelname' => $panel['panelname'],
+				'languages' => $langs,
+				'mode' => $config['mode'],
+				'vertical_checked' => $config['vertical'] ? 'checked' : '',
+				'eco_checked' => $config['eco'] ? 'checked' : '',
+				'scaledaysauto_checked' => $config['scaledaysauto'] ? 'checked' : '',
+				'daystoshow' => $config['daystoshow'],
+				'rotation' => $config['rotation'],
+				'scale' => $config['scale'],
+				'switchtime' => $config['switchtime'],
+				'calupdate' => $config['calupdate'],
+				'roomupdate' => $config['roomupdate'],
+				'configupdate' => $config['configupdate'],
+				'locations' => Location::getLocations(),
+				'locationids' => $panel['locationids'],
+			));
+		} else { // TODO
+			Render::addTemplate('page-config-panel-summary', array(
+				'new' => $id === 'new',
+				'uuid' => $id,
+				'panelname' => $panel['panelname'],
+				'languages' => $langs,
+				'roomupdate' => $config['roomupdate'],
+				'configupdate' => $config['configupdate'],
+				'locations' => Location::getLocations(),
+				'locationids' => $panel['locationids'],
+			));
+		}
 	}
 
 }
