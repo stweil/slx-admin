@@ -173,16 +173,17 @@ class Page_LocationInfo extends Page
 			}
 		}
 
-		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, serverid, serverlocationid, openingtime, lastcalendarupdate)
-				VALUES (:id, :insertserverid, :serverlocationid, :openingtimes, 0)
+		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, serverid, serverlocationid, openingtime, lastcalendarupdate, lastchange)
+				VALUES (:id, :insertserverid, :serverlocationid, :openingtimes, 0, :now)
 				ON DUPLICATE KEY UPDATE serverid = IF(:ignore_server AND serverid IS NULL, NULL, :serverid), serverlocationid = VALUES(serverlocationid),
-					openingtime = VALUES(openingtime), lastcalendarupdate = 0", array(
+					openingtime = VALUES(openingtime), lastcalendarupdate = 0, lastchange = VALUES(lastchange)", array(
 			'id' => $locationid,
 			'insertserverid' => $insertServerId,
 			'serverid' => $serverid,
 			'openingtimes' => $openingtimes,
 			'serverlocationid' => $serverlocationid,
 			'ignore_server' => $ignoreServer,
+			'now' => time(),
 		));
 
 		if (!$recursive)
@@ -196,10 +197,11 @@ class Page_LocationInfo extends Page
 		}
 		if (!empty($array)) {
 			Database::exec("UPDATE locationinfo_locationconfig
-				SET serverid = :serverid, lastcalendarupdate = IF(serverid <> :serverid, 0, lastcalendarupdate)
+				SET serverid = :serverid, lastcalendarupdate = IF(serverid <> :serverid, 0, lastcalendarupdate), lastchange = :now
 				WHERE locationid IN (:locations)", array(
 					'serverid' => $serverid,
 					'locations' => $array,
+					'now' => time(),
 			));
 		}
 		return true;
@@ -234,7 +236,6 @@ class Page_LocationInfo extends Page
 		}
 		// Build json struct
 		$conf = array(
-			'ts' => time(),
 			'language' => Request::post('language', 'en', 'string'),
 			'mode' => Request::post('mode', 1, 'int'),
 			'vertical' => Request::post('vertical', false, 'bool'),
@@ -260,11 +261,11 @@ class Page_LocationInfo extends Page
 
 		if ($paneluuid === 'new') {
 			$paneluuid = Util::randomUuid();
-			$query = "INSERT INTO `locationinfo_panel` (paneluuid, panelname, locationids, paneltype, panelconfig)
-				VALUES (:id, :name, :locationids, :type, :config)";
+			$query = "INSERT INTO `locationinfo_panel` (paneluuid, panelname, locationids, paneltype, panelconfig, lastchange)
+				VALUES (:id, :name, :locationids, :type, :config, :now)";
 		} else {
 			$query = "UPDATE `locationinfo_panel`
-				SET panelname = :name, locationids = :locationids, paneltype = :type, panelconfig = :config
+				SET panelname = :name, locationids = :locationids, paneltype = :type, panelconfig = :config, lastchange = :now
 				WHERE paneluuid = :id";
 		}
 		Database::exec($query, array(
@@ -273,6 +274,7 @@ class Page_LocationInfo extends Page
 			'locationids' => implode(',', $locationids),
 			'type' => 'DEFAULT', // TODO
 			'config' => json_encode($conf),
+			'now' => time(),
 		));
 
 		Message::addSuccess('config-saved');

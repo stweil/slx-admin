@@ -19,14 +19,18 @@
  * If you're after a monthly calendar plugin, check out this one :
  * http://arshaw.com/fullcalendar/
  */
-var startdate;
+var startdate = 0;
 
 function SetUpDate(d) {
-	startdate = d.getTime()-new Date().getTime();
+	startdate = d.getTime() - new Date().getTime();
 }
 
+/**
+ *
+ * @return {Date}
+ */
 function MyDate() {
-	return new Date(startdate +new Date().getTime());
+  return new Date(startdate + new Date().getTime());
 }
 
 (function($) {
@@ -39,7 +43,7 @@ function MyDate() {
 
     return {
       options: {
-        date: new MyDate(),
+        date: MyDate(),
         timeFormat: null,
         dateFormat: 'M d, Y',
         alwaysDisplayTimeMinutes: true,
@@ -341,7 +345,7 @@ function MyDate() {
        */
       today: function() {
         this._clearCalendar();
-        this._loadCalEvents(new MyDate());
+        this._loadCalEvents(MyDate());
       },
 
       /*
@@ -525,7 +529,7 @@ function MyDate() {
         this._loadCalEvents(newDate);
       },
       getCurrentFirstDay: function() {
-        return this._dateFirstDayOfWeek(this.options.date || new MyDate());
+        return this._dateFirstDayOfWeek(this.options.date || MyDate());
       },
       getCurrentLastDay: function() {
         return this._addDays(this.getCurrentFirstDay(), this.options.daysToShow - 1);
@@ -1273,7 +1277,7 @@ function MyDate() {
        */
       _drawCurrentHourLine: function() {
         var self = this;
-        var d = new MyDate(),
+        var d = MyDate(),
             options = this.options,
             businessHours = options.businessHours;
 
@@ -1958,6 +1962,7 @@ function MyDate() {
           }
 
           var $target = this.element.find('.wc-grid-timeslot-header .wc-hour-header:eq(' + slot + ')');
+          if ($target.length === 0) return;
 
           $scrollable.animate({scrollTop: 0}, 0, function() {
             var targetOffset = $target.offset().top;
@@ -2001,7 +2006,7 @@ function MyDate() {
       _isToday: function(date) {
           var clonedDate = this._cloneDate(date);
           this._clearTime(clonedDate);
-          var today = new MyDate();
+          var today = MyDate();
           this._clearTime(today);
           return today.getTime() === clonedDate.getTime();
       },

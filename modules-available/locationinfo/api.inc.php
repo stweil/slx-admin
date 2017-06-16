@@ -8,134 +8,114 @@ HandleParameters();
 function HandleParameters()
 {
 
-	$getAction = Request::get('action', 0, 'string');
+	$get = Request::get('get', 0, 'string');
+	$uuid = Request::get('uuid', false, 'string');
 	$output = false;
-	if ($getAction == "locationinfo") {
-		$locationIds = Request::get('id', 0, 'string');
-		$array = filterIdList($locationIds);
-		$getCoords = Request::get('coords', false, 'bool');
-		$output = getLocationInfo($array, $getCoords);
-	} elseif ($getAction == "openingtime") {
-		$locationIds = Request::get('id', 0, 'string');
-		$array = filterIdList($locationIds);
-		$output = getOpeningTime($array);
-	} elseif ($getAction == "config") {
-		$locationId = Request::get('id', 0, 'int');
-		$output = getConfig($locationId);
-	} elseif ($getAction == "pcstates") {
-		$locationIds = Request::get('id', 0, 'string');
-		$array = filterIdList($locationIds);
-		$output = getPcStates($array);
-	} elseif ($getAction == "locationtree") {
-		$locationIds = Request::get('id', 0, 'string');
-		$array = filterIdList($locationIds);
-		$output = getLocationTree($array);
-	} elseif ($getAction == "calendar") {
-		$locationIds = Request::get('id', 0, 'string');
-		$array = filterIdList($locationIds);
-		$output = getCalendar($array);
+	if ($get === "machines") {
+		$locationIds = getLocationsOr404($uuid);
+		$output = array();
+		appendMachineData($output, $locationIds, false);
+		$output = array_values($output);
+	} elseif ($get === "timestamp") {
+		$output = array('ts' => getLastChangeTs($uuid));
+	} elseif ($get === "config") {
+		$output = getConfig($uuid);
+	} elseif ($get === "pcstates") {
+		$locationIds = getLocationsOr404($uuid);
+		$output = getPcStates($locationIds);
+	} elseif ($get === "locationtree") {
+		$locationIds = getLocationsOr404($uuid);
+		$output = getLocationTree($locationIds);
+	} elseif ($get === "calendar") {
+		$locationIds = getLocationsOr404($uuid);
+		$output = getCalendar($locationIds);
 	}
 	if ($output !== false) {
 		echo json_encode($output);
+	} else {
+		http_response_code(404);
+		echo 'Unknown get option';
 	}
 }
 
 /**
- * Filters the id list. Removes Double / non-int / hidden locations.
- *
- * @param string $locationIds comma separated list of location ids
- * @return array The filtered array of the location ids.
+ * Return list of locationids associated with given panel.
+ * @param string $paneluuid panel
+ * @return int[] locationIds
  */
-function filterIdList($locationIds)
+function getLocationsOr404($paneluuid)
 {
-	$idList = explode(',', $locationIds);
-	$filteredIdList = array_filter($idList, 'is_numeric');
-	$filteredIdList = array_unique($filteredIdList);
-	$filteredIdList = filterHiddenLocations($filteredIdList);
-
-	return $filteredIdList;
-}
-
-/**
- * Filters the hidden locations from an array.
- *
- * @param int[] $idArray Id list
- * @return array Filtered id list
- */
-function filterHiddenLocations($idArray)
-{
-	$idArray = array_flip($idArray);
-	if (!empty($idArray)) {
-		$query = "SELECT locationid FROM `locationinfo_locationconfig` WHERE hidden <> 0 AND locationid IN (:idlist)";
-		$dbquery = Database::simpleQuery($query, array('idlist' => $idArray));
-		while ($dbresult = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-			unset($idArray[$dbresult['locationid']]);
-		}
+	$panel = Database::queryFirst('SELECT locationids FROM locationinfo_panel WHERE paneluuid = :paneluuid',
+		compact('paneluuid'));
+	if ($panel !== false) {
+		return array_map('intval', explode(',', $panel['locationids']));
 	}
-
-	return array_flip($idArray);
+	http_response_code(404);
+	die('Panel not found');
 }
 
 // ########## <Locationinfo> ##########
 /**
  * Gets the location info of the given locations.
+ * Append to passed array which is expected to
+ * map location ids to properties of that location.
+ * A new key 'machines' will be created in each
+ * entry of $array that will take all the machine data.
  *
- * @param int[] $idList list of ids.
- * @param bool $coords Defines if coords should be included or not.
- * @return array location info struct
+ * @param array $array location list to populate with machine data
+ * @param bool $withPosition Defines if coords should be included or not.
  */
-function getLocationInfo($idList, $coords = false)
+function appendMachineData(&$array, $idList = false, $withPosition = false)
 {
-	if (empty($idList))
-		return [];
+	if (empty($array) && $idList === false)
+		return;
+	if ($idList === false) {
+		$idList = array_keys($array);
+	}
 
-		$positionCol = $coords ? 'm.position,' : '';
+		$positionCol = $withPosition ? 'm.position,' : '';
 	$query = "SELECT m.locationid, m.machineuuid, $positionCol m.logintime, m.lastseen, m.lastboot FROM machine m
 				WHERE m.locationid IN (:idlist)";
 	$dbquery = Database::simpleQuery($query, array('idlist' => $idList));
 
 	// Iterate over matching machines
-	$dbresult = array();
-	while ($dbdata = $dbquery->fetch(PDO::FETCH_ASSOC)) {
-
-		// Set the id if the locationid changed.
-		if (!isset($dbresult[$dbdata['locationid']])) {
-			$dbresult[$dbdata['locationid']] = array('id' => $dbdata['locationid'], 'computer' => array());
+	while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
+		settype($row['locationid'], 'int');
+		if (!isset($array[$row['locationid']])) {
+			$array[$row['locationid']] = array('id' => $row['locationid'], 'machines' => array());
+		}
+		if (!isset($array[$row['locationid']]['machines'])) {
+			$array[$row['locationid']]['machines'] = array();
 		}
 		// Compact the pc data in one array.
-		$pc = array('id' => $dbdata['machineuuid']);
-		if ($coords && !empty($dbdata['position'])) {
-			$position = json_decode($dbdata['position'], true);
+		$pc = array('id' => $row['machineuuid']);
+		if ($withPosition && !empty($row['position'])) {
+			$position = json_decode($row['position'], true);
 			if (isset($position['gridCol']) && isset($position['gridRow'])) {
 				$pc['x'] = $position['gridCol'];
 				$pc['y'] = $position['gridRow'];
-				if (isset($position['overlays']) && is_array($position['overlays'])) {
+				if (!empty($position['overlays']) && is_array($position['overlays'])) {
 					$pc['overlays'] = $position['overlays'];
-				} else {
-					$pc['overlays'] = array();
 				}
 			}
 		}
-		$pc['pcState'] = LocationInfo::getPcState($dbdata);
+		$pc['pcState'] = LocationInfo::getPcState($row);
 
-		// Add the array to the computer list.
-		$dbresult[$dbdata['locationid']]['computer'][] = $pc;
+		// Add the array to the machines list.
+		$array[$row['locationid']]['machines'][] = $pc;
 	}
-
-	// The array keys are only used for the isset -> Return only the values.
-	return array_values($dbresult);
 }
 
 // ########## </Locationinfo> ###########
 
-// ########## <Openingtime> ##########
 /**
- * Gets the Opening time of the given locations.
+ * Returns all the passed location ids and appends
+ * all their direct and indirect parent location ids.
  *
- * @param int[] $idList list of locations
- * @return array Opening times struct
+ * @param int[] $idList location ids
+ * @return  int[] more location ids
  */
-function getOpeningTime($idList)
+function getLocationsWithParents($idList)
 {
 	$locations = Location::getLocationsAssoc();
 	$allIds = $idList;
@@ -144,36 +124,59 @@ function getOpeningTime($idList)
 			$allIds = array_merge($allIds, $locations[$id]['parents']);
 		}
 	}
+	return array_map('intval', $allIds);
+}
+
+// ########## <Openingtime> ##########
+/**
+ * Gets the Opening time of the given locations.
+ *
+ * @param int[] $idList list of locations
+ * @return int modification timestamp of most recently updated locationconfig
+ */
+function appendOpeningTimes(&$array, $idList)
+{
+	// First, lets get all the parent ids for the given locations
+	// in case we need to get inherited opening times
+	$allIds = getLocationsWithParents($idList);
 	if (empty($allIds))
-		return [];
+		return 0;
+	$latest = 0;
+	$res = Database::simpleQuery("SELECT locationid, openingtime, lastchange FROM locationinfo_locationconfig
+		WHERE locationid IN (:lids)", array('lids' => $allIds));
 	$openingTimes = array();
-	$qs = '?' . str_repeat(',?', count($allIds) - 1);
-	$res = Database::simpleQuery("SELECT locationid, openingtime FROM locationinfo_locationconfig WHERE locationid IN ($qs)",
-		array_values($allIds));
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		$openingTimes[(int)$row['locationid']] = $row['openingtime'];
+		$openingTimes[(int)$row['locationid']] = $row;
+		if (in_array($row['locationid'], $idList)) {
+			$latest = max($row['lastchange'], $latest);
+		}
 	}
-	$returnValue = array();
-	foreach ($idList as $locationid) {
-		$id = $locationid;
-		while ($id !== 0) {
-			if (!empty($openingTimes[$id])) {
-				$cal = json_decode($openingTimes[$id], true);
+	// Now we got all the calendars for locations and parents
+	// Iterate over the locations we're actually interested in
+	$locations = Location::getLocationsAssoc();
+	foreach ($idList as $locationId) {
+		// Start checking at actual location...
+		$currentId = $locationId;
+		while ($currentId !== 0) {
+			if (!empty($openingTimes[$currentId]['openingtime'])) {
+				$cal = json_decode($openingTimes[$currentId]['openingtime'], true);
 				if (is_array($cal)) {
 					$cal = formatOpeningtime($cal);
 				}
 				if (!empty($cal)) {
-					$returnValue[] = array(
-						'id' => $locationid,
-						'openingtime' => $cal,
-					);
+					// Got a valid calendar
+					if (!isset($array[$locationId])) {
+						$array[$locationId] = array('id' => $locationId);
+					}
+					$array[$locationId]['openingtime'] = $cal;
 					break;
 				}
 			}
-			$id = $locations[$id]['parentlocationid'];
+			// Keep trying with parent
+			$currentId = $locations[$currentId]['parentlocationid'];
 		}
 	}
-	return $returnValue;
+	return $latest;
 }
 
 /**
@@ -188,30 +191,22 @@ function getOpeningTime($idList)
 function formatOpeningtime($openingtime)
 {
 	$result = array();
-	$weekarray = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-	foreach ($weekarray as $checkDay) {
-		$array = array();
-		foreach ($openingtime as $opt) {
-			if (!isset($opt['days']) || !is_array($opt['days']))
-				continue;
-			$openTime = explode(':', $opt['openingtime']);
-			$closeTime = explode(':', $opt['closingtime']);
-			if (count($openTime) !== 2 || count($closeTime) !== 2)
-				continue;
-			$arr = array(
-				'HourOpen' => $openTime[0],
-				'MinutesOpen' => $openTime[1],
-				'HourClose' => $closeTime[0],
-				'MinutesClose' => $closeTime[1],
-			);
-			foreach ($opt['days'] as $calDay) {
-				if ($calDay === $checkDay) {
-					$array[] = $arr;
-				}
+	foreach ($openingtime as $entry) {
+		$openTime = explode(':', $entry['openingtime']);
+		$closeTime = explode(':', $entry['closingtime']);
+		if (count($openTime) !== 2 || count($closeTime) !== 2)
+			continue;
+		$convertedTime = array(
+			'HourOpen' => $openTime[0],
+			'MinutesOpen' => $openTime[1],
+			'HourClose' => $closeTime[0],
+			'MinutesClose' => $closeTime[1],
+		);
+		foreach ($entry['days'] as $day) {
+			if (!isset($result[$day])) {
+				$result[$day] = array();
 			}
-			if (!empty($array)) {
-				$result[$checkDay] = $array;
-			}
+			$result[$day][] = $convertedTime;
 		}
 	}
 	return $result;
@@ -224,27 +219,67 @@ function formatOpeningtime($openingtime)
  * @param int $locationID ID of the location
  * @return array configuration struct
  */
-function getConfig($locationID)
+function getConfig($paneluuid)
 {
-	$dbresult = Database::queryFirst("SELECT l.locationname, li.config FROM `location` AS l
-		LEFT JOIN `locationinfo_locationconfig` AS li ON (l.locationid = li.locationid)
-		WHERE l.locationid = :locationID", array('locationID' => $locationID));
+	$panel = Database::queryFirst('SELECT panelconfig, paneltype, locationids, lastchange FROM locationinfo_panel WHERE paneluuid = :paneluuid',
+		compact('paneluuid'));
 
-	$config = LocationInfo::defaultPanelConfig();
-
-	if ($dbresult !== false) {
-		if (!empty($dbresult['config'])) {
-			$json = json_decode($dbresult['config'], true);
-			if (is_array($json)) {
-				$config = $json + $config;
-			}
-		}
-		$config['room'] = $dbresult['locationname'];
+	if ($panel === false || empty($panel['locationids'])) {
+		http_response_code(404);
+		die('Panel not found');
 	}
 
+	$config = LocationInfo::defaultPanelConfig($panel['paneltype']);
+	$locations = Location::getLocationsAssoc();
+
+	if (!empty($panel['config'])) {
+		$json = json_decode($panel['config'], true);
+		if (is_array($json)) {
+			$config = $json + $config;
+		}
+	}
+	$config['locations'] = array();
+	$lids = array_map('intval', explode(',', $panel['locationids']));
+	foreach ($lids as $lid) {
+		$config['locations'][$lid] = array(
+			'id' => $lid,
+			'name' => isset($locations[$lid]) ? $locations[$lid]['locationname'] : 'noname00.pas',
+		);
+	}
+	appendMachineData($config['locations'], $lids, true);
+	$locChange = appendOpeningTimes($config['locations'], $lids);
+
+	$config['ts'] = max($panel['lastchange'], $locChange);
+	$config['locations'] = array_values($config['locations']);
 	$config['time'] = date('Y-m-d H:i:s');
 
 	return $config;
+}
+
+/**
+ * Get last config modification timestamp for given panel. This checks
+ * the modification of the panel config itself as well as all involved locations
+ *
+ * @param $paneluuid
+ * @return mixed
+ */
+function getLastChangeTs($paneluuid)
+{
+	$panel = Database::queryFirst('SELECT paneltype, locationids, lastchange FROM locationinfo_panel WHERE paneluuid = :paneluuid',
+		compact('paneluuid'));
+	if ($panel === false) {
+		http_response_code(404);
+		die('Panel not found');
+	}
+	$latest = $panel['lastchange'];
+	// TODO: summary
+	$lids = explode(',', $panel['locationids']);
+	$res = Database::simpleQuery('SELECT lastchange FROM locationinfo_locationconfig WHERE locationid IN (:lids)',
+		compact('lids'));
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		$latest = max($row['lastchange'], $latest);
+	}
+	return (int)$latest;
 }
 
 /**
@@ -265,11 +300,13 @@ function getPcStates($idList)
 			'broken' => 0,
 		);
 	}
-	$locationInfoList = getLocationInfo($idList);
+
+	$locationInfoList = array();
+	appendMachineData($locationInfoList, $idList);
 	foreach ($locationInfoList as $locationInfo) {
 		$id = $locationInfo['id'];
-		foreach ($locationInfo['computer'] as $computer) {
-			$key = strtolower($computer['pcState']);
+		foreach ($locationInfo['machines'] as $pc) {
+			$key = strtolower($pc['pcState']);
 			if (isset($pcStates[$id][$key])) {
 				$pcStates[$id][$key]++;
 			}
@@ -325,7 +362,7 @@ function getCalendar($idList)
 	$query = "SELECT l.locationid, l.serverid, l.serverlocationid, s.servertype, s.credentials
 				FROM `locationinfo_locationconfig` AS l
 				INNER JOIN locationinfo_coursebackend AS s ON (s.serverid = l.serverid)
-				WHERE l.hidden = 0 AND l.locationid IN (:idlist)
+				WHERE l.locationid IN (:idlist)
 				ORDER BY s.servertype ASC";
 	$dbquery = Database::simpleQuery($query, array('idlist' => array_values($idList)));
 

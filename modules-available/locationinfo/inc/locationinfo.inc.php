@@ -11,14 +11,6 @@ class LocationInfo
 	 */
 	public static function getPcState($pc)
 	{
-		/*   pcState:
-		 *  [0] =  IDLE (NOT IN USE)
-		 *  [1] = OCCUPIED (IN USE)
-		 *  [2] = OFF
-		 *  [3] = 10 days offline (BROKEN?)
-		 */
-		// TODO USE STATE NAME instead of numbers
-
 		$logintime = (int)$pc['logintime'];
 		$lastseen = (int)$pc['lastseen'];
 		$lastboot = (int)$pc['lastboot'];
@@ -65,7 +57,7 @@ class LocationInfo
 	 *
 	 * @return array Return a default config.
 	 */
-	public static function defaultPanelConfig()
+	public static function defaultPanelConfig($type)
 	{
 		return array(
 			'language' => 'en',
