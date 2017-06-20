@@ -153,7 +153,6 @@ optional:
 			padding: 0;
 			box-sizing: border-box;
 			background: linear-gradient(#cccccc, white);
-
 		}
 
 		.free-busy-busy {
@@ -238,6 +237,10 @@ optional:
 			border-radius: 0;
 		}
 
+		.wc-scrollable-grid {
+			transition: height 500ms;
+		}
+
 		.wc-scrollable-grid .wc-day-column-first {
 			border-style: solid;
 
@@ -246,7 +249,6 @@ optional:
 		[class|="wc-day"] {
 			border-color: grey;
 		}
-
 
 	</style>
 
@@ -372,9 +374,9 @@ optional:
 					addRoom(fetchedRooms[i]);
 				}
 
+				panelUuid = uuid;
 				initRooms();
 				// TODO: Check for changed config using get=timestamp and reload whole page on change
-				panelUuid = uuid;
 
 			}, error: function () {
 				fatalError('Could not fetch panel config');
@@ -478,7 +480,7 @@ optional:
 		var width = "100%";
 		var height = "100%";
 		var top, left;
-		hasMode4 = (globalConfig.mode === 4);
+		hasMode4 = false;
 		if (roomIds.length === 2 || roomIds.length === 4) {
 			width = "50%";
 		}
@@ -499,16 +501,14 @@ optional:
 				left = ((t % 2) * 50) + '%';
 			}
 
-			var $loc = $("<div>").prop('id', "location_" + rid).addClass('location-container');
+			var $loc = $("<div>").addClass('location-container');
 			$loc.css({top: top, left: left, width: width, height: height});
 			$("body").append($loc);
+
 			room.$.container = $loc;
-
 			room.$.locationName = $('<div>').addClass('col').addClass('header-font');
-
 			room.$.currentEvent = $("<span>").addClass('nowrap');
 			room.$.currentRemain = $("<span>").addClass('nowrap').addClass('timer');
-
 			room.$.seatsCounter = $('<span>').addClass('seats-counter');
 			room.$.seatsBackground = $('<div>').addClass('col col-square').append(room.$.seatsCounter);
 
@@ -516,31 +516,24 @@ optional:
 			$header.append(room.$.locationName);
 			$header.append($('<div>').addClass('col header-font center').append(room.$.currentEvent).append(' ').append(room.$.currentRemain));
 			$header.append(room.$.seatsBackground);
-
-			$loc.append($header);
 			room.$.header = $header;
+			$loc.append($header);
 
 			if (room.name !== null) {
 				room.$.locationName.text(room.name);
 			}
 
-			if (room.config.mode === 1) {
-				setUpCalendar(room.config.scale + "%", room.config.daystoshow, rooms[rid]);
-				initRoomLayout(rooms[rid]);
-
-			} else if (room.config.mode === 2) {
-				setUpCalendar("100%", room.config.daystoshow, rooms[rid]);
-
-			} else if (room.config.mode === 3) {
-				initRoomLayout(rooms[rid]);
-
-			} else if (room.config.mode === 4) {
-				setUpCalendar("100%", room.config.daystoshow, rooms[rid]);
-				initRoomLayout(rooms[rid]);
+			if (room.config.mode !== 3) {
+				setUpCalendar(room);
+			}
+			if (room.config.mode !== 2) {
+				initRoomLayout(room);
+			}
+			if (room.config.mode === 4) {
 				hasMode4 = true;
 			}
-			SetOpeningTimes(rooms[rid]);
-			UpdateRoomHeader(rooms[rid]);
+			SetOpeningTimes(room);
+			UpdateRoomHeader(room);
 
 			(function (room) {
 				setTimeout(function () {
@@ -553,40 +546,29 @@ optional:
 			generateProgressBar();
 		}
 
-		setInterval(mainUpdateLoop, 1000);
+		mainUpdateLoop();
+		setInterval(mainUpdateLoop, 10000);
+		setInterval(updateHeaders, globalConfig.eco ? 10000 : 1000);
 	}
 
-	var timeSteps = 10;
 	var lastDate = false;
 	/**
-	 * Main Update loop, this loop runs every 1 seconds and calls all
-	 * function which should be called periodically
+	 * Main Update loop, this loop runs every 10 seconds
 	 */
 	function mainUpdateLoop() {
 		var date = MyDate();
 		var now = date.getTime();
-		// check every 10 sec if rooms need new calendar data or room data
-		// groups request
 
-		if (timeSteps > 9) {
-			timeSteps = 0;
-
-			if (lastCalendarUpdate + globalConfig.calupdate < now) {
-				lastCalendarUpdate = now;
-				queryCalendars();
-			}
-			if (lastRoomUpdate + globalConfig.roomupdate < now) {
-				lastRoomUpdate = now;
-				queryRooms();
-			}
+		if (lastCalendarUpdate + globalConfig.calupdate < now) {
+			lastCalendarUpdate = now;
+			queryCalendars();
+		}
+		if (lastRoomUpdate + globalConfig.roomupdate < now) {
+			lastRoomUpdate = now;
+			queryRooms();
 		}
 
-		for (var property in rooms) {
-			if (rooms[property].state.end) {
-				// Updating All room Headers
-				UpdateRoomHeader(rooms[property]);
-			}
-		}
+		$('.calendar').weekCalendar("scrollToHour");
 
 		// reload site at midnight
 		var today = date.getDate();
@@ -597,7 +579,19 @@ optional:
 		} else {
 			lastDate = today;
 		}
-		timeSteps++;
+	}
+
+	/**
+	 * Update all location headers.
+	 * Runs ever second (normal) or every 10 seconds (eco)
+	 */
+	function updateHeaders() {
+		for (var property in rooms) {
+			if (rooms[property].state.end) {
+				// Updating All room Headers
+				UpdateRoomHeader(rooms[property]);
+			}
+		}
 
 	}
 
@@ -658,17 +652,17 @@ optional:
 
 	/**
 	 *  inilizes the Calendar for an room
-	 *  @param percent Percentages of how mucht width the Calendar div should get (only used in mode 1)
-	 *  @param daysToShow How many days the calendar should show
 	 *  @param room Room Object
 	 */
-	function setUpCalendar(percent, daysToShow, room) {
-		generateCalendarDiv(percent, room);
+	function setUpCalendar(room) {
+		var daysToShow = room.config.daystoshow;
+		generateCalendarDiv(room);
 		room.$.calendar.weekCalendar({
 			timeslotsPerHour: 1,
 			timeslotHeight: 30,
 			daysToShow: daysToShow,
 			height: function () {
+				if (room.config.mode === 1 && room.config.vertical && (!room.timetable || !room.timetable.length)) return 20;
 				var height = $(window).height();
 				if (roomIds.length === 4) {
 					height /= 2;
@@ -713,13 +707,16 @@ optional:
 	 * @param room Room Object
 	 */
 
-	function generateCalendarDiv(width, room) {
-		var $cal = $('<div>').prop('id', 'calendar_' + room.id).addClass('calendar');
-		if (room.config.vertical && room.config.mode === 1) {
-			width = 100 + "%";
+	function generateCalendarDiv(room) {
+		var width = 100;
+		if (room.config.mode === 1 && !room.config.vertical) {
+			width = room.config.scale;
+		}
+		var $cal = $('<div>').addClass('calendar');
+		if (room.config.mode === 1 && room.config.vertical) {
 			$cal.css('float', "none");
 		}
-		$cal.width(width);
+		$cal.width(width + '%');
 		room.$.container.append($cal);
 		room.$.calendar = $cal;
 	}
@@ -785,12 +782,12 @@ optional:
 			close = 24;
 		}
 		room.openTimes = close - opening;
+		scaleCalendar(room);
 		room.$.calendar.weekCalendar("option", "businessHours", {
 			start: opening,
 			end: close,
 			limitDisplay: true
 		});
-		scaleCalendar(room);
 	}
 
 	/**
@@ -879,8 +876,12 @@ optional:
 				var cal = room.$.calendar;
 				cal.weekCalendar('option', 'data', {events: json});
 				cal.weekCalendar("refresh");
-				cal.weekCalendar("option", "defaultFreeBusy", {free: false});
+				cal.weekCalendar("option", "defaultFreeBusy", {free: !room.openingTimesCalendar});
 				cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
+				cal.weekCalendar("resizeCalendar");
+				setTimeout(function() {
+					scaleRoom(room);
+				}, 550);
 			}
 			room.state = null;
 			UpdateRoomHeader(room);
@@ -955,12 +956,12 @@ optional:
 			$cal.weekCalendar("option", "data", {events: room.timetable});
 			$cal.weekCalendar('refresh');
 		}
+		$cal.weekCalendar("option", "defaultFreeBusy", {free: !room.openingTimesCalendar});
 		if (room.openingTimesCalendar) {
 			$cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
 		}
 		$cal.weekCalendar("resizeCalendar");
-		$cal.weekCalendar("scrollToHour");
-
+		$cal.weekCalendar("option", "hourLine", true);
 	}
 
 	/**
@@ -969,7 +970,7 @@ optional:
 	 * @param {Date} a
 	 * @param {Date} b
 	 * @param room Room Object
-	 * @returns time string
+	 * @returns {string} printable time
 	 */
 	function GetTimeDiferenceAsString(a, b, room) {
 		if (!a || !b) {
@@ -990,10 +991,10 @@ optional:
 			minutes = "0" + minutes;
 		}
 		if (days !== 0) {
-			// dont show?
+			// don't show?
 			return "";
 		}
-		if (room.config.eco) {
+		if (globalConfig.eco) {
 			return hours + ":" + minutes;
 		}
 		return hours + ":" + minutes + ":" + seconds;
@@ -1002,12 +1003,13 @@ optional:
 	/**
 	 * returns next closing time of a given room
 	 * @param room
-	 * @returns Date Object of next closing
+	 * @returns {Date} Object of next closing
 	 */
 	function GetNextClosing(room) {
+		if (!room.openingTimes || room.openingTimes.length === 0) return null;
 		var now = MyDate();
 		var day = now.getDay();
-		var bestdate = false;
+		var bestdate = null;
 		for (var a = 0; a < 7; a++) {
 			var tmp = room.openingTimes[(day + a) % 7];
 			if (!tmp) continue;
@@ -1034,10 +1036,10 @@ optional:
 	 * checks if a room is on a given date/time open
 	 * @param date Date Object
 	 * @param room Room object
-	 * @returns bool for open or not
+	 * @returns {Boolean} for open or not
 	 */
 	function IsOpen(date, room) {
-		if (!room.openingTimes) return false;
+		if (!room.openingTimes || room.openingTimes.length === 0) return true;
 		var tmp = room.openingTimes[date.getDay()];
 		if (!tmp) return false;
 		var openDate = new Date(date.getTime());
@@ -1056,15 +1058,15 @@ optional:
 
 
 	/**
-	 * Retruns next Opening
+	 * Returns next Opening
 	 * @param room Room Object
-	 * @returns bestdate Date Object of next opening
+	 * @returns {Date} Object of next opening
 	 */
 	function GetNextOpening(room) {
 		if (!room.openingTimes) return null;
 		var now = MyDate();
 		var day = now.getDay();
-		var bestdate = false;
+		var bestdate = null;
 		for (var dow = 0; dow < 7; dow++) {
 			var tmp = room.openingTimes[(day + dow) % 7];
 			if (!tmp) continue;
@@ -1087,7 +1089,7 @@ optional:
 
 
 	/**
-	 * Sets the free PCs number in the right corner and updates the sqare color acordingly
+	 * Sets the free PCs number in the right corner and updates the square color accordingly
 	 * @param room Room
 	 * @param seats Number of free PC's in the room
 	 */
@@ -1198,7 +1200,7 @@ optional:
 	/**
 	 * returns next event from a given json of events
 	 * @param calEvents Json which contains the calendar data.
-	 * @returns event next Carlendar Event
+	 * @returns event next Calendar Event
 	 */
 	function getNextEvent(calEvents) {
 		if (!calEvents) return null;
@@ -1227,6 +1229,7 @@ optional:
 
 	/**
 	 * Skip to next upcoming day matching the given day of week.
+	 * @return {Date}
 	 */
 	function getNextDayOfWeek(date, dayOfWeek) {
 		var resultDate = new Date(date.getTime());
@@ -1238,8 +1241,8 @@ optional:
     */
 
 
-	var picSizeX = 3.8;
-	var picSizeY = 3;
+	const picSizeX = 3.8;
+	const picSizeY = 3;
 
 	/**
 	 * Generates the RoomLayout Div
@@ -1316,19 +1319,12 @@ optional:
 	 * @param room Room Object
 	 */
 	function generateOffsetAndScale(room) {
+		var clientHeight;
 
-		var clientHeight = $(window).height();
-		if (roomIds.length === 4) {
-			clientHeight /= 2;
-		}
-
-		clientHeight -= room.$.header.height() - 5;
-
-		if (roomIds.length > 1) {
-			clientHeight -= 5;
-		}
 		if (room.config.vertical && room.config.mode === 1) {
-			clientHeight *= (1 - (room.config.scale / 100));
+			clientHeight = room.$.container.height() - (room.$.calendar.position().top + room.$.calendar.height());
+		} else {
+			clientHeight = room.$.container.height() - (room.$.header.height() + 5);
 		}
 
 		var clientWidth = room.$.layout.width();
@@ -1641,7 +1637,7 @@ optional:
 	 */
 	function generateProgressBar() {
 		if ($pbar) return;
-		$pbar = $('<div id="progressBar" class="progressbar">');
+		$pbar = $('<div class="progressbar">');
 		$('body').append($pbar);
 		SetProgressBarSpeed();
 	}
@@ -1665,6 +1661,14 @@ optional:
 		}, interval);
 	}
 
+	/**
+	 * Convert passed argument to integer if possible, return NaN otherwise.
+	 * The difference to parseInt() is that leading zeros are ignored and not
+	 * interpreted as octal representation.
+	 *
+	 * @param str string or already a number
+	 * @return {number} str converted to number, or NaN
+	 */
 	function toInt(str) {
 		var t = typeof str;
 		if (t === 'number') return str | 0;

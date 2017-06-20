@@ -231,10 +231,15 @@ function getConfig($paneluuid)
 
 	$config = LocationInfo::defaultPanelConfig($panel['paneltype']);
 	$locations = Location::getLocationsAssoc();
+	$overrides = false;
 
-	if (!empty($panel['config'])) {
-		$json = json_decode($panel['config'], true);
+	if (!empty($panel['panelconfig'])) {
+		$json = json_decode($panel['panelconfig'], true);
 		if (is_array($json)) {
+			if (isset($json['overrides']) && is_array($json['overrides'])) {
+				$overrides = $json['overrides'];
+			}
+			unset($json['overrides']);
 			$config = $json + $config;
 		}
 	}
@@ -245,6 +250,9 @@ function getConfig($paneluuid)
 			'id' => $lid,
 			'name' => isset($locations[$lid]) ? $locations[$lid]['locationname'] : 'noname00.pas',
 		);
+		if (isset($overrides[$lid]) && is_array($overrides[$lid])) {
+			$config['locations'][$lid]['overrides'] = $overrides[$lid];
+		}
 	}
 	appendMachineData($config['locations'], $lids, true);
 	$locChange = appendOpeningTimes($config['locations'], $lids);
