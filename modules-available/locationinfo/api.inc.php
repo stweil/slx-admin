@@ -100,6 +100,7 @@ function appendMachineData(&$array, $idList = false, $withPosition = false)
 			}
 		}
 		$pc['pcState'] = LocationInfo::getPcState($row);
+		//$pc['pcState'] = ['BROKEN', 'OFF', 'IDLE', 'OCCUPIED'][mt_rand(0,3)];
 
 		// Add the array to the machines list.
 		$array[$row['locationid']]['machines'][] = $pc;

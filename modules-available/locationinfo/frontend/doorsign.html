@@ -140,11 +140,11 @@ optional:
 
 		.location-container {
 			position: absolute;
-			background-color: white;
 			width: 100%;
 			height: 100%;
 			overflow: hidden;
 			border: 1px solid darkgrey;
+			background: linear-gradient(#ddd, white);
 
 		}
 
@@ -152,11 +152,10 @@ optional:
 			float: left;
 			padding: 0;
 			box-sizing: border-box;
-			background: linear-gradient(#cccccc, white);
 		}
 
 		.free-busy-busy {
-			background: grey;
+			background: rgba(0,0,0,.25);
 		}
 
 		.ui-widget-content {
@@ -172,12 +171,67 @@ optional:
 			text-shadow: none;
 		}
 
+		.BROKEN {
+			opacity: 0.4;
+		}
+
 		.pc-container {
 			position: absolute;
 			left: 0;
 			bottom: 0;
 			display: inline-block;
+			padding: 0;
+			margin: 0;
+			overflow: hidden;
+		}
 
+		.pc-container div {
+			box-sizing: border-box;
+		}
+
+		.screen-frame {
+			position: relative;
+			background: black;
+			border-radius: 15%;
+			width: 100%;
+			height: 80%;
+			padding: 10%;
+		}
+
+		.screen-inner {
+			width: 100%;
+			height: 100%;
+			transition: background 2s;
+		}
+
+		.BROKEN .screen-inner {
+			background: #000;
+		}
+
+		.OFF .screen-inner {
+			background: #0c9;
+		}
+
+		.IDLE .screen-inner {
+			background: #3e4;
+		}
+
+		.OCCUPIED .screen-inner {
+			background: #800;
+		}
+
+		.screen-foot1 {
+			margin: 0 auto;
+			width: 10%;
+			height: 10%;
+			background: black;
+		}
+
+		.screen-foot2 {
+			width: 100%;
+			height: 10%;
+			background: black;
+			border-radius: 30% 30% 0 0;
 		}
 
 		.pc-overlay-container {
@@ -225,7 +279,7 @@ optional:
 		}
 
 		.wc-today {
-			background-color: white;
+			background-color: rgba(255,255,255,.66);
 		}
 
 		.wc-time-header-cell {
@@ -239,6 +293,7 @@ optional:
 
 		.wc-scrollable-grid {
 			transition: height 500ms;
+			background: rgba(0,0,0,0);
 		}
 
 		.wc-scrollable-grid .wc-day-column-first {
@@ -270,7 +325,14 @@ optional:
 	var globalConfig = {};
 	var roomIds = [];
 	var panelUuid = false;
-	var supportSvg = typeof(SVGRect) !== "undefined";
+	var list;
+	if (typeof(SVGRect) !== "undefined") {
+		list = [".svg", ".png", ".jpg", ".gif"];
+	} else {
+		list = [".png", ".jpg", ".gif"];
+	}
+	const IMG_FORMAT_LIST = list;
+	delete list;
 	// TODO: Get languages from slx-admin
 	var translation = {
 		"en": {
@@ -1366,10 +1428,13 @@ optional:
 	function setUpRoom(room, layout) {
 		for (var i = 0; i < layout.length; i++) {
 			if (!isNaN(layout[i].y) && !isNaN(layout[i].x)) {
-				var $img = $('<img>').prop('id', "pc-img_" + room.id + "_" + layout[i].id).addClass('pc-img');
+				//var $img = $('<img>').prop('id', "pc-img_" + room.id + "_" + layout[i].id).addClass('pc-img');
 				var $overlays = $('<div>').addClass('pc-overlay-container');
-				layout[i].$div = $('<div>').addClass('pc-container');
-				layout[i].$div.append($overlays).append($img);
+				layout[i].$div = $('<div>').prop('id', "pc_" + room.id + "_" + layout[i].id).addClass('pc-container');
+				layout[i].$div.append($('<div>').addClass('screen-frame').append($('<div>').addClass('screen-inner')));
+				layout[i].$div.append($('<div>').addClass('screen-foot1'));
+				layout[i].$div.append($('<div>').addClass('screen-foot2'));
+				//layout[i].$div.append($overlays).append($img);
 				room.$.layout.append(layout[i].$div);
 
 				if (layout[i].overlay && layout[i].overlay.constructor === Array) {
@@ -1387,16 +1452,15 @@ optional:
 	 * @param overlayName name of the overlay (image name without ending)
 	 */
 	function addOverlay($container, overlayName) {
-		var a = [".svg", ".png", ".jpg"];
 		var imgname;
-		for (var i = 0; i < a.length; a++) {
-			if (imageExists("img/overlay/" + overlayName + a[i])) {
-				imgname = "img/overlay/" + overlayName + a[i];
+		for (var i = 0; i < IMG_FORMAT_LIST.length; ++i) {
+			if (imageExists("img/overlay/" + overlayName + IMG_FORMAT_LIST[i])) {
+				imgname = "img/overlay/" + overlayName + IMG_FORMAT_LIST[i];
 				break;
 			}
 
 		}
-		if (!imgname) return null; // No image found on server, do nothing
+		if (!imgname) return; // No image found on server, do nothing TODO just div with class
 		var $overlay = $("<img>");
 		$overlay.addClass('overlay').attr('src', imgname).addClass("overlay-" + overlayName);
 		$container.append($overlay);
@@ -1461,39 +1525,13 @@ optional:
 		}
 		var freePcs = 0;
 		for (var i = 0; i < update.length; i++) {
-			var $imgobj = $("#pc-img_" + room.id + "_" + update[i].id);
-
-			var img;
-			var color;
+			var $div = $("#pc_" + room.id + "_" + update[i].id);
 			// Pc free
-			if (update[i].pcState === "IDLE") {
-				img = "img/pc_free";
-				color = 'green';
+			if (update[i].pcState === "IDLE" || update[i].pcState === "OFF") {
 				freePcs++;
-				// Pc in use
-			} else if (update[i].pcState === "OCCUPIED") {
-				img = "img/pc_used";
-				color = 'red';
-				// PC off
-			} else if (update[i].pcState === "OFF") {
-				img = "img/pc_off";
-				color = 'black';
-				freePcs++;
-				// Must be defect
-			} else {
-				img = "img/pc_defect";
-				color = 'black';
 			}
 
-			if (supportSvg) {
-				if (globalConfig.eco) {
-					img = img + "_eink";
-				}
-				$imgobj.attr('src', img + ".svg");
-			} else {
-				$imgobj.css('background-color', color);
-			}
-
+			$div.removeClass('BROKEN OFF IDLE OCCUPIED'.replace(update[i].pcState, '')).addClass(update[i].pcState);
 		}
 		room.freePcs = freePcs;
 		UpdateRoomHeader(room);
