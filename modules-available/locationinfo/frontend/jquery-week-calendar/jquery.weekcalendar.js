@@ -582,10 +582,10 @@ function MyDate() {
         var options = this.options;
         if (options && $.isFunction(options.height)) {
           var calendarHeight = options.height(this.element);
-          var headerHeight = this.element.find('.wc-header').outerHeight();
-          var navHeight = this.element.find('.wc-toolbar').outerHeight();
+          var headerHeight = this.element.find('.wc-header').outerHeight(true);
+          var navHeight = this.element.find('.wc-toolbar').outerHeight(true);
           var scrollContainerHeight = Math.max(calendarHeight - navHeight - headerHeight, options.minBodyHeight);
-          var timeslotHeight = this.element.find('.wc-time-slots').outerHeight();
+          var timeslotHeight = this.element.find('.wc-time-slots').outerHeight(true);
           this.element.find('.wc-scrollable-grid').height(scrollContainerHeight);
           if (timeslotHeight <= scrollContainerHeight) {
             this.element.find('.wc-scrollbar-shim').width(0);
@@ -1961,19 +1961,16 @@ function MyDate() {
             }
           }
 
-          var $target = this.element.find('.wc-grid-timeslot-header .wc-hour-header:eq(' + slot + ')');
-          if ($target.length === 0) return;
-
-          $scrollable.animate({scrollTop: 0}, 0, function() {
-            var targetOffset = $target.offset().top;
-            var scroll = targetOffset - $scrollable.offset().top - $target.outerHeight();
-            if (animate) {
-              $scrollable.animate({scrollTop: scroll}, options.scrollToHourMillis);
-            }
-            else {
-              $scrollable.animate({scrollTop: scroll}, 0);
-            }
-          });
+          //scroll to the hour plus some padding so that hour is in middle of viewport
+          var hourHeaderHeight = this.element.find(".wc-grid-timeslot-header .wc-hour-header").outerHeight();
+          var calHeight = this.element.find(".wc-scrollable-grid").outerHeight();
+          var scroll = (hourHeaderHeight * slot) - calHeight/3;
+          if (animate) {
+            $scrollable.animate({scrollTop: scroll}, options.scrollToHourMillis);
+          }
+          else {
+            $scrollable.animate({scrollTop: scroll}, 0);
+          }
       },
 
       /*
@@ -2720,7 +2717,7 @@ function MyDate() {
           this.options[key] = value;
           return this;
         },
-      isWithin: function(dateTime) {return Math.floor(dateTime.getTime() / 1000) >= Math.floor(this.getStart().getTime() / 1000) && Math.floor(dateTime.getTime() / 1000) <= Math.floor(this.getEnd().getTime() / 1000)},
+      isWithin: function(dateTime) {return Math.floor(dateTime.getTime() / 1000) >= Math.floor(this.getStart().getTime() / 1000) && Math.floor(dateTime.getTime() / 1000) < Math.floor(this.getEnd().getTime() / 1000)},
       isValid: function() {return this.getStart().getTime() < this.getEnd().getTime()}
     };
 
