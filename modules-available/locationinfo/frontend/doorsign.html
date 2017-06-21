@@ -663,7 +663,7 @@ optional:
 	 */
 	function addRoom(roomData) {
 		var mergedConfig = {};
-		if (roomData.config && typeof(roomData.config.constructor) === 'object') {
+		if (roomData.config && typeof(roomData.config) === 'object') {
 			mergedConfig = roomData.config;
 			sanitizeConfig(mergedConfig);
 		}
@@ -1460,9 +1460,13 @@ optional:
 			}
 
 		}
-		if (!imgname) return; // No image found on server, do nothing TODO just div with class
-		var $overlay = $("<img>");
-		$overlay.addClass('overlay').attr('src', imgname).addClass("overlay-" + overlayName);
+		var $overlay;
+		if (!imgname) {
+			$overlay = $('<div>');
+		} else {
+			$overlay = $("<img>").attr('src', imgname);
+		}
+		$overlay.addClass('overlay').addClass("overlay-" + overlayName);
 		$container.append($overlay);
 	}
 

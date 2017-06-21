@@ -252,7 +252,7 @@ function getConfig($paneluuid)
 			'name' => isset($locations[$lid]) ? $locations[$lid]['locationname'] : 'noname00.pas',
 		);
 		if (isset($overrides[$lid]) && is_array($overrides[$lid])) {
-			$config['locations'][$lid]['overrides'] = $overrides[$lid];
+			$config['locations'][$lid]['config'] = $overrides[$lid];
 		}
 	}
 	appendMachineData($config['locations'], $lids, true);
