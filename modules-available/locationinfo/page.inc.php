@@ -247,16 +247,12 @@ class Page_LocationInfo extends Page
 			'switchtime' => Request::post('switchtime', 20, 'int'),
 			'calupdate' => Request::post('calupdate', 120, 'int'),
 			'roomupdate' => Request::post('roomupdate', 30, 'int'),
-			'configupdate' => Request::post('configupdate', 180, 'int'),
 		);
 		if ($conf['roomupdate'] < 15) {
 			$conf['roomupdate'] = 15;
 		}
 		if ($conf['calupdate'] < 30) {
 			$conf['calupdate'] = 30;
-		}
-		if ($conf['configupdate'] < 10) {
-			$conf['configupdate'] = 10;
 		}
 
 		if ($paneluuid === 'new') {
@@ -760,7 +756,6 @@ class Page_LocationInfo extends Page
 				'switchtime' => $config['switchtime'],
 				'calupdate' => $config['calupdate'],
 				'roomupdate' => $config['roomupdate'],
-				'configupdate' => $config['configupdate'],
 				'locations' => Location::getLocations(),
 				'locationids' => $panel['locationids'],
 			));
@@ -771,7 +766,6 @@ class Page_LocationInfo extends Page
 				'panelname' => $panel['panelname'],
 				'languages' => $langs,
 				'roomupdate' => $config['roomupdate'],
-				'configupdate' => $config['configupdate'],
 				'locations' => Location::getLocations(),
 				'locationids' => $panel['locationids'],
 			));
