@@ -33,7 +33,6 @@ optional:
 	<style type='text/css'>
 
 		body {
-			font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
 			margin: 0;
 			padding: 0;
 			width: 100%;
@@ -42,6 +41,10 @@ optional:
 			overflow: hidden;
 			position: absolute;
 			display: table;
+		}
+
+		body, .wc-container {
+			font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
 		}
 
 		.row {
@@ -64,24 +67,34 @@ optional:
 		}
 
 		.col-square {
+			width: 46pt;
 			width: 4vw;
+			height: 46pt;
 			height: 4vw;
+			font-size: 35pt;
 			font-size: 2.5vw;
 			flex: 0 0 auto;
 			text-align: center;
-			padding: 5px 0 0 0;
+			padding: 0;
+			overflow: visible;
 		}
 
 		.count-1 .col-square {
+			width: 93pt;
 			width: 8vw;
+			height: 93pt;
 			height: 8vw;
+			font-size: 85pt;
 			font-size: 6vw;
 		}
 
 		.count-2 .col-square {
+			width: 70pt;
 			width: 6vw;
+			height: 70pt;
 			height: 6vw;
-			font-size: 4.5vw;
+			font-size: 66pt;
+			font-size: 5vw;
 		}
 
 		.progressbar {
@@ -94,6 +107,7 @@ optional:
 		}
 
 		.header-font {
+			font-size: 41pt;
 			font-size: 3vw;
 			font-weight: bold;
 		}
@@ -108,23 +122,25 @@ optional:
 		}
 
 		.count-2 .header-font {
+			font-size: 25pt;
 			font-size: 1.8vw;
 		}
 
 		.count-3 .header-font {
+			font-size: 16pt;
 			font-size: 1.2vw;
 		}
 
 		.count-1 .header-font {
+			font-size: 20pt;
 			font-size: 1.5vw;
 		}
 
 		.seats-counter {
 			color: white;
 			margin: auto;
-			padding: 0;
 			font-weight: bold;
-			overflow: visible;
+			padding: 0;
 			height: 100%;
 			text-shadow: #000 2px 2px;
 		}
@@ -145,7 +161,7 @@ optional:
 			overflow: hidden;
 			border: 1px solid darkgrey;
 			background: linear-gradient(#ddd, white);
-
+			box-sizing: border-box;
 		}
 
 		.calendar {
@@ -155,7 +171,7 @@ optional:
 		}
 
 		.free-busy-busy {
-			background: rgba(0,0,0,.25);
+			background: rgba(0, 0, 0, .25);
 		}
 
 		.ui-widget-content {
@@ -163,7 +179,7 @@ optional:
 		}
 
 		.wc-header {
-			background-color: #404040;
+			background-color: #444;
 			font-weight: bold;
 		}
 
@@ -192,16 +208,21 @@ optional:
 		.screen-frame {
 			position: relative;
 			background: black;
-			border-radius: 15%;
+			border-radius: 11%;
 			width: 100%;
-			height: 80%;
-			padding: 10%;
+			height: 83%;
+			padding: 6%;
 		}
 
 		.screen-inner {
 			width: 100%;
 			height: 100%;
 			transition: background 2s;
+			border-radius: 5%;
+			padding-top: 4px;
+			overflow: hidden;
+			text-align: center;
+			color: #fff;
 		}
 
 		.BROKEN .screen-inner {
@@ -209,27 +230,39 @@ optional:
 		}
 
 		.OFF .screen-inner {
-			background: #0c9;
+			background: #332;
 		}
 
+		/*
+		.OFF .screen-inner:after {
+			content: "\01F4A4";
+		}
+		*/
+
 		.IDLE .screen-inner {
-			background: #3e4;
+			background: #250;
 		}
 
 		.OCCUPIED .screen-inner {
-			background: #800;
+			background: #d23;
+		}
+
+		.OCCUPIED .screen-inner:after {
+			content: '\01F464';
+			font-weight: bold;
 		}
 
 		.screen-foot1 {
 			margin: 0 auto;
 			width: 10%;
-			height: 10%;
+			height: 7%;
 			background: black;
 		}
 
 		.screen-foot2 {
-			width: 100%;
-			height: 10%;
+			margin: 0 auto;
+			width: 80%;
+			height: 7%;
 			background: black;
 			border-radius: 30% 30% 0 0;
 		}
@@ -253,6 +286,7 @@ optional:
 		}
 
 		.overlay {
+			display: inline-block;
 			position: relative;
 			width: 50%;
 			height: 50%;
@@ -274,12 +308,8 @@ optional:
 			color: black;
 		}
 
-		.wc-container {
-			font-weight: bold;
-		}
-
 		.wc-today {
-			background-color: rgba(255,255,255,.66);
+			background-color: rgba(255, 255, 255, .66);
 		}
 
 		.wc-time-header-cell {
@@ -293,16 +323,7 @@ optional:
 
 		.wc-scrollable-grid {
 			transition: height 500ms;
-			background: rgba(0,0,0,0);
-		}
-
-		.wc-scrollable-grid .wc-day-column-first {
-			border-style: solid;
-
-		}
-
-		[class|="wc-day"] {
-			border-color: grey;
+			background: rgba(0, 0, 0, 0);
 		}
 
 	</style>
@@ -315,8 +336,7 @@ optional:
 <body>
 </body>
 
-<script type='text/javascript'>
-
+<script type="text/javascript">
 	var rooms = {};
 	var lastRoomUpdate = 0;
 	var lastCalendarUpdate = 0;
@@ -325,14 +345,13 @@ optional:
 	var globalConfig = {};
 	var roomIds = [];
 	var panelUuid = false;
-	var list;
-	if (typeof(SVGRect) !== "undefined") {
-		list = [".svg", ".png", ".jpg", ".gif"];
-	} else {
-		list = [".png", ".jpg", ".gif"];
-	}
-	const IMG_FORMAT_LIST = list;
-	delete list;
+	const IMG_FORMAT_LIST = (function() {
+		if (typeof(SVGRect) !== "undefined") {
+			return [".svg", ".png", ".jpg", ".gif"];
+		}
+		return [".png", ".jpg", ".gif"];
+	})();
+
 	// TODO: Get languages from slx-admin
 	var translation = {
 		"en": {
@@ -624,10 +643,11 @@ optional:
 		if (lastCalendarUpdate + globalConfig.calupdate < now) {
 			lastCalendarUpdate = now;
 			queryCalendars();
-		}
-		if (lastRoomUpdate + globalConfig.roomupdate < now) {
+		} else if (lastRoomUpdate + globalConfig.roomupdate < now) {
 			lastRoomUpdate = now;
 			queryRooms();
+		} else {
+			queryPanelChange();
 		}
 
 		$('.calendar').weekCalendar("scrollToHour");
@@ -1492,6 +1512,30 @@ optional:
 	}
 
 	/**
+	 * Checks whether the panel has been edited and reloads
+	 * the entire page if so.
+	 */
+	function queryPanelChange() {
+		$.ajax({
+			url: "../../../api.php?do=locationinfo&get=timestamp&uuid=" + panelUuid,
+			dataType: 'json',
+			cache: false,
+			timeout: 5000,
+			success: function (result) {
+				if (!result || !result.ts) {
+					console.log('Warning: get=timestamp didnt return json with ts field');
+					return;
+				}
+				if (globalConfig.ts && globalConfig.ts !== result.ts) {
+					// Change
+					window.location.reload(true);
+				}
+				globalConfig.ts = result.ts;
+			}
+		})
+	}
+
+	/**
 	 * Queries Pc states
 	 */
 	function queryRooms() {
@@ -1565,6 +1609,7 @@ optional:
 		if (!room.$.layout.is(':visible')) return;
 		room.resizeRoom = false;
 		generateOffsetAndScale(room);
+		room.$.layout.css('font-size', Math.floor(room.scale) + 'pt');
 		for (var i = 0; i < room.layout.length; i++) {
 			var pcWidth = (picSizeX * room.scale) + "px";
 			var pcHeight = (picSizeY * room.scale) + "px";

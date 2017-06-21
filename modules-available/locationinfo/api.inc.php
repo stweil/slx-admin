@@ -11,13 +11,13 @@ function HandleParameters()
 	$get = Request::get('get', 0, 'string');
 	$uuid = Request::get('uuid', false, 'string');
 	$output = false;
-	if ($get === "machines") {
+	if ($get === "timestamp") {
+		$output = array('ts' => getLastChangeTs($uuid));
+	} elseif ($get === "machines") {
 		$locationIds = getLocationsOr404($uuid);
 		$output = array();
 		appendMachineData($output, $locationIds, false);
 		$output = array_values($output);
-	} elseif ($get === "timestamp") {
-		$output = array('ts' => getLastChangeTs($uuid));
 	} elseif ($get === "config") {
 		$output = getConfig($uuid);
 	} elseif ($get === "pcstates") {
@@ -31,6 +31,7 @@ function HandleParameters()
 		$output = getCalendar($locationIds);
 	}
 	if ($output !== false) {
+		Header('Content-Type: application/json; charset=utf-8');
 		echo json_encode($output);
 	} else {
 		http_response_code(404);
@@ -100,7 +101,7 @@ function appendMachineData(&$array, $idList = false, $withPosition = false)
 			}
 		}
 		$pc['pcState'] = LocationInfo::getPcState($row);
-		//$pc['pcState'] = ['BROKEN', 'OFF', 'IDLE', 'OCCUPIED'][mt_rand(0,3)];
+		//$pc['pcState'] = ['BROKEN', 'OFF', 'IDLE', 'OCCUPIED'][mt_rand(0,3)]; // XXX
 
 		// Add the array to the machines list.
 		$array[$row['locationid']]['machines'][] = $pc;
@@ -132,8 +133,8 @@ function getLocationsWithParents($idList)
 /**
  * Gets the Opening time of the given locations.
  *
+ * @param array $array list of locations, indexed by locationId
  * @param int[] $idList list of locations
- * @return int modification timestamp of most recently updated locationconfig
  */
 function appendOpeningTimes(&$array, $idList)
 {
@@ -141,16 +142,12 @@ function appendOpeningTimes(&$array, $idList)
 	// in case we need to get inherited opening times
 	$allIds = getLocationsWithParents($idList);
 	if (empty($allIds))
-		return 0;
-	$latest = 0;
-	$res = Database::simpleQuery("SELECT locationid, openingtime, lastchange FROM locationinfo_locationconfig
+		return;
+	$res = Database::simpleQuery("SELECT locationid, openingtime FROM locationinfo_locationconfig
 		WHERE locationid IN (:lids)", array('lids' => $allIds));
 	$openingTimes = array();
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		$openingTimes[(int)$row['locationid']] = $row;
-		if (in_array($row['locationid'], $idList)) {
-			$latest = max($row['lastchange'], $latest);
-		}
 	}
 	// Now we got all the calendars for locations and parents
 	// Iterate over the locations we're actually interested in
@@ -177,7 +174,7 @@ function appendOpeningTimes(&$array, $idList)
 			$currentId = $locations[$currentId]['parentlocationid'];
 		}
 	}
-	return $latest;
+	return;
 }
 
 /**
@@ -256,9 +253,9 @@ function getConfig($paneluuid)
 		}
 	}
 	appendMachineData($config['locations'], $lids, true);
-	$locChange = appendOpeningTimes($config['locations'], $lids);
+	appendOpeningTimes($config['locations'], $lids);
 
-	$config['ts'] = max($panel['lastchange'], $locChange);
+	$config['ts'] = (int)$panel['lastchange'];
 	$config['locations'] = array_values($config['locations']);
 	$config['time'] = date('Y-m-d H:i:s');
 
@@ -266,29 +263,30 @@ function getConfig($paneluuid)
 }
 
 /**
- * Get last config modification timestamp for given panel. This checks
- * the modification of the panel config itself as well as all involved locations
+ * Get last config modification timestamp for given panel.
+ * This was planned to be smart and check the involved locations,
+ * even going up the location tree if the opening time schedule
+ * is inherited, but this would still be incomplete by design, as
+ * it wouldn't react to the linked room plan being considered
+ * for changes, or added/removed PCs etc. So rather than giving
+ * an incomplete "clever" design for detecting changes, we only
+ * consider direct editing of the panel now. So the advice would
+ * simply be "if you want the panel to reload automatically, hit
+ * the edit button and click save". Might even add a shortcut
+ * reload-button to the list of panels at some point.
  *
- * @param $paneluuid
- * @return mixed
+ * @param string $paneluuid panels uuid
+ * @return int UNIX_TIMESTAMP
  */
 function getLastChangeTs($paneluuid)
 {
-	$panel = Database::queryFirst('SELECT paneltype, locationids, lastchange FROM locationinfo_panel WHERE paneluuid = :paneluuid',
+	$panel = Database::queryFirst('SELECT lastchange FROM locationinfo_panel WHERE paneluuid = :paneluuid',
 		compact('paneluuid'));
 	if ($panel === false) {
 		http_response_code(404);
 		die('Panel not found');
 	}
-	$latest = $panel['lastchange'];
-	// TODO: summary
-	$lids = explode(',', $panel['locationids']);
-	$res = Database::simpleQuery('SELECT lastchange FROM locationinfo_locationconfig WHERE locationid IN (:lids)',
-		compact('lids'));
-	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-		$latest = max($row['lastchange'], $latest);
-	}
-	return (int)$latest;
+	return (int)$panel['lastchange'];
 }
 
 /**
