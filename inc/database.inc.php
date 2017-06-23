@@ -45,7 +45,7 @@ class Database
 	 *
 	 * @return array|boolean Associative array representing row, or false if no row matches the query
 	 */
-	public static function queryFirst($query, $args = array(), $ignoreError = false)
+	public static function queryFirst($query, $args = array(), $ignoreError = null)
 	{
 		$res = self::simpleQuery($query, $args, $ignoreError);
 		if ($res === false)
@@ -60,7 +60,7 @@ class Database
 	 *
 	 * @return array|bool List of associative arrays representing rows, or false on error
 	 */
-	public static function queryAll($query, $args = array(), $ignoreError = false)
+	public static function queryAll($query, $args = array(), $ignoreError = null)
 	{
 		$res = self::simpleQuery($query, $args, $ignoreError);
 		if ($res === false)
@@ -77,7 +77,7 @@ class Database
 	 * @param boolean $ignoreError Ignore query errors and just return false
 	 * @return int|boolean Number of rows affected, or false on error
 	 */
-	public static function exec($query, $args = array(), $ignoreError = false)
+	public static function exec($query, $args = array(), $ignoreError = null)
 	{
 		$res = self::simpleQuery($query, $args, $ignoreError);
 		if ($res === false)
@@ -109,13 +109,13 @@ class Database
 	 * query again with different params, do not rely on the first PDOStatement
 	 * still being valid. If you need to do something fancy, use Database::prepare
 	 *
-	 * @return \PDOStatement The query result object
+	 * @return \PDOStatement|false The query result object
 	 */
-	public static function simpleQuery($query, $args = array(), $ignoreError = false)
+	public static function simpleQuery($query, $args = array(), $ignoreError = null)
 	{
 		self::init();
 		if (CONFIG_DEBUG && preg_match('/^\s*SELECT/is', $query)) {
-			self::explainQuery($query, $args, $ignoreError);
+			self::explainQuery($query, $args);
 		}
 		// Support passing nested arrays for IN statements, automagically refactor
 		self::handleArrayArgument($query, $args);
@@ -127,21 +127,21 @@ class Database
 			}
 			if (self::$statements[$query]->execute($args) === false) {
 				self::$lastError = implode("\n", self::$statements[$query]->errorInfo());
-				if ($ignoreError || self::$returnErrors)
+				if ($ignoreError === true || ($ignoreError === null && self::$returnErrors))
 					return false;
 				Util::traceError("Database Error: \n" . self::$lastError);
 			}
 			return self::$statements[$query];
 		} catch (Exception $e) {
 			self::$lastError = '(' . $e->getCode() . ') ' . $e->getMessage();
-			if ($ignoreError || self::$returnErrors)
+			if ($ignoreError === true || ($ignoreError === null && self::$returnErrors))
 				return false;
 			Util::traceError("Database Error: \n" . self::$lastError);
 		}
 		return false;
 	}
 
-	private static function explainQuery($query, $args, $ignoreError)
+	private static function explainQuery($query, $args)
 	{
 		$res = self::simpleQuery('EXPLAIN ' . $query, $args, true);
 		if ($res === false)
