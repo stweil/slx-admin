@@ -214,6 +214,12 @@ input[readonly] {
 	border-width: 1px 0px;
 }
 
+.slx-smallcol {
+	width: 1px;
+	overflow: visible;
+	white-space: nowrap;
+}
+
 .slx-visible-rows > div.row + div.row {
 	border-top: none;
 }
