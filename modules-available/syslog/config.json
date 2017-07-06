@@ -1,3 +1,4 @@
 {
-	"category":"main.status"
+	"category":"main.status",
+	"dependencies":["js_selectize"]
 }
