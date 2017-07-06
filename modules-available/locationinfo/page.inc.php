@@ -440,6 +440,10 @@ class Page_LocationInfo extends Page
 		$res = Database::simpleQuery('SELECT p.paneluuid, p.panelname, p.locationids,
 			p.paneltype FROM locationinfo_panel p
 			ORDER BY panelname ASC');
+		$hasRunmode = Module::isAvailable('runmode');
+		if ($hasRunmode) {
+			$runmodes = RunMode::getForModule(Page::getModule(), true);
+		}
 		$panels = array();
 		$locations = Location::getLocationsAssoc();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -452,9 +456,12 @@ class Page_LocationInfo extends Page
 			if ($len < 5) {
 				$row['panelname'] .= str_repeat('…', 5 - $len);
 			}
+			if ($hasRunmode && isset($runmodes[$row['paneluuid']])) {
+				$row['assignedMachineCount'] = count($runmodes[$row['paneluuid']]);
+			}
 			$panels[] = $row;
 		}
-		Render::addTemplate('page-panels', array('panels' => $panels));
+		Render::addTemplate('page-panels', compact('panels', 'hasRunmode'));
 	}
 
 	/**

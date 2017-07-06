@@ -8,8 +8,11 @@
 		<th>{{lang_panel}}</th>
 		<th>{{lang_panelType}}</th>
 		<th>{{lang_locations}}</th>
-		<th width="1"></th>
-		<th width="1"></th>
+		{{#hasRunmode}}
+			<th class="slx-smallcol">{{lang_runmodeTHead}}</th>
+		{{/hasRunmode}}
+		<th class="slx-smallcol"></th>
+		<th class="slx-smallcol"></th>
 	</tr>
 	</thead>
 	<tbody>
@@ -27,6 +30,14 @@
 				<td>
 					{{locations}}
 				</td>
+				{{#hasRunmode}}
+					<td>
+						<a class="btn btn-default btn-xs" href="?do=runmode&amp;module=locationinfo&amp;modeid={{paneluuid}}">
+							<span class="glyphicon glyphicon-edit"></span>
+						</a>
+						{{assignedMachineCount}}
+					</td>
+				{{/hasRunmode}}
 				<td>
 					<a class="btn btn-default btn-xs" href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
 						<span class="glyphicon glyphicon-cog"></span>

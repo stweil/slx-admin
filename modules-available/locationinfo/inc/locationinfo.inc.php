@@ -75,4 +75,15 @@ class LocationInfo
 		);
 	}
 
+	/**
+	 * @param string $uuid panel uuid
+	 * @return bool|string panel name if exists, false otherwise
+	 */
+	public static function getPanelName($uuid)
+	{
+		$ret = Database::queryFirst('SELECT panelname FROM locationinfo_panel WHERE paneluuid = :uuid', compact('uuid'));
+		if ($ret === false) return false;
+		return $ret['panelname'];
+	}
+
 }
