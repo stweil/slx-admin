@@ -14,7 +14,7 @@ var placedMachines = [];
 function makeCombinedField(machineArray)
 {
    machineArray.forEach(function (v,i,a){
-      machineArray[i].combined = (v.machineuuid + " " + v.hostname + " " + v.clientip + " " + v.macaddr).toLocaleLowerCase();
+      machineArray[i].combined = (v.machineuuid + " " + v.hostname + " " + v.clientip + " " + v.macaddr + " " + v.macaddr.replace(/-/g, ':')).toLocaleLowerCase();
    });
    return machineArray;
 }
@@ -46,6 +46,10 @@ function renderMachineEntry(item, escape) {
             + '          </table>'
             + '    </div>'
             + '</div>';
+}
+
+function renderMachineSelected(item, escape) {
+   return '<div>' + escape(item.hostname) + '</div>';
 }
 
 var queryCache = {};
@@ -113,7 +117,7 @@ function initSelectize() {
             searchField: "combined",
             openOnFocus: false,
             create: false,
-            render : { option : renderMachineEntry, item: renderMachineEntry},
+            render : { option : renderMachineEntry, item: renderMachineSelected},
             load: loadMachines,
             maxItems: 1,
             sortField: 'hostname',
@@ -130,7 +134,7 @@ function initSelectize() {
             searchField: "combined",
             openOnFocus:  true,
             create: false,
-            render : { option : renderMachineEntry, item: renderMachineEntry},
+            render : { option : renderMachineEntry, item: renderMachineSelected},
             maxItems: 1,
             sortField: 'hostname',
             sortDirection: 'asc',
