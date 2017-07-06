@@ -1,0 +1,4 @@
+{
+	"dependencies": [ "statistics", "js_selectize" ],
+	"permission":"0"
+}
