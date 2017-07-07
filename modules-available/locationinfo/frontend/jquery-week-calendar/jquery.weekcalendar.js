@@ -43,7 +43,7 @@ function MyDate() {
 
     return {
       options: {
-        date: MyDate(),
+        date: MyDate,
         timeFormat: null,
         dateFormat: 'M d, Y',
         alwaysDisplayTimeMinutes: true,
@@ -1441,6 +1441,7 @@ function MyDate() {
         $.each(eventsToRender, function(i, calEvent) {
           // render a multi day event as various event :
           // thanks to http://github.com/fbeauchamp/jquery-week-calendar
+          if (!calEvent || !calEvent.start || !calEvent.end) return;
           var initialStart = new Date(calEvent.start);
           var initialEnd = new Date(calEvent.end);
           var maxHour = self.options.businessHours.limitDisplay ? self.options.businessHours.end : 24;
@@ -2023,9 +2024,6 @@ function MyDate() {
        * Clean specific event
        */
       _cleanEvent: function(event) {
-          if (event.date) {
-            event.start = event.date;
-          }
           event.start = this._cleanDate(event.start);
           event.end = this._cleanDate(event.end);
           if (!event.end) {
@@ -2205,10 +2203,13 @@ function MyDate() {
             }
 
             // this is a human readable date
-            return Date.parse(d) || new Date(d);
+            if (d[d.length - 1] !== 'Z') d += 'Z';
+            var o = new Date(d);
+            o.setTime(o.getTime() + (o.getTimezoneOffset() * 60 * 1000));
+            return o;
           }
 
-          if (typeof d == 'number') {
+          if (typeof d === 'number') {
             return new Date(d);
           }
 
@@ -2223,12 +2224,12 @@ function MyDate() {
         var returnStr = '';
         for (var i = 0; i < format.length; i++) {
           var curChar = format.charAt(i);
-          if (i != 0 && format.charAt(i - 1) == '\\') {
+          if (i !== 0 && format.charAt(i - 1) === '\\') {
             returnStr += curChar;
           }
           else if (this._replaceChars[curChar]) {
             returnStr += this._replaceChars[curChar](date, this);
-          } else if (curChar != '\\') {
+          } else if (curChar !== '\\') {
             returnStr += curChar;
           }
         }

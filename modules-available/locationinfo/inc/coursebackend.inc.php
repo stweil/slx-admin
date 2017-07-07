@@ -179,7 +179,9 @@ abstract class CourseBackend
 				$remoteIds[$row['locationid']] = $row['serverlocationid'];
 			}
 		}
+		error_log('Fetching ' . $this->serverId);
 		$backendResponse = $this->fetchSchedulesInternal($remoteIds);
+		error_log('Reply: ' . print_r($backendResponse, true));
 		if ($backendResponse === false) {
 			return false;
 		}

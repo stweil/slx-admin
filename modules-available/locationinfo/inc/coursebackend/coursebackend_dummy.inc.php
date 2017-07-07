@@ -94,16 +94,31 @@ class CourseBackend_Dummy extends CourseBackend
 	{
 		$a = array();
 		foreach ($roomId as $id) {
-			$x['id'] = $id;
-			$calendar['title'] = "test exam";
-			$calendar['start'] = "2017-3-08 13:00:00";
-			$calendar['end'] = "2017-3-08 16:00:00";
-			$calarray = array();
-			$calarray[] = $calendar;
-			$x['calendar'] = $calarray;
-			$a[$id] = $calarray;
+			$x = array();
+			$time = strtotime('today');
+			$end = strtotime('+7 days', $time);
+			srand(crc32($id) ^ $time);
+			$last = $time;
+			do {
+				do {
+					$time += rand(4, 10) * 900;
+					$h = date('G', $time);
+				} while ($h < 7 || $h > 19);
+				$today = strtotime('today', $time);
+				if ($today !== $last) {
+					srand(crc32($id) ^ $today);
+					$last = $today;
+				}
+				$dur = rand(2,6) * 1800;
+				$x[] = array(
+					'title' => 'Test ' . rand(1000,9999),
+					'start' => date('Y-m-d\TH:i:s', $time),
+					'end' => date('Y-m-d\TH:i:s', $time + $dur),
+				);
+				$time += $dur;
+			} while ($time < $end);
+			$a[$id] = $x;
 		}
-
 
 		return $a;
 	}

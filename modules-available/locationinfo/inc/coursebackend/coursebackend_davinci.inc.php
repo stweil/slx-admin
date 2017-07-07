@@ -122,8 +122,8 @@ class CourseBackend_Davinci extends CourseBackend
 				$subject = isset($lesson['Subject']) ? $lesson['Subject'] : '???';
 				$timetable[] = array(
 					'title' => $subject,
-					'start' => $date . " " . $start . ':00',
-					'end' => $date . " " . $end . ':00'
+					'start' => $date . "T" . $start . ':00',
+					'end' => $date . "T" . $end . ':00'
 				);
 			}
 			$schedules[$roomId] = $timetable;

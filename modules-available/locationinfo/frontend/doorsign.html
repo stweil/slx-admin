@@ -58,6 +58,14 @@ optional:
 			justify-content: space-between;
 		}
 
+		.pull-left {
+			float: left;
+		}
+
+		.clearfix {
+			clear: both;
+		}
+
 		.col {
 			padding: 0 4px;
 			color: white;
@@ -67,6 +75,8 @@ optional:
 		}
 
 		.col-square {
+			order: 1000;
+			float: right;
 			width: 46pt;
 			width: 4vw;
 			height: 46pt;
@@ -147,6 +157,7 @@ optional:
 
 		.center {
 			text-align: center;
+			margin: auto;
 		}
 
 		.room-layout {
@@ -439,7 +450,15 @@ optional:
 					return;
 				}
 
-				var time = new Date(result.time);
+				var time = false;
+				var p = result.time.split('-');
+				if (p.length === 6) {
+					time = new Date(p[0], p[1], p[2], p[3], p[4], p[5]);
+					console.log(time);
+				}
+				if (time === false || isNaN(time.getTime()) || time.getYear() < 2010) {
+					time = new Date(result.time);
+				}
 				if (isNaN(time.getTime()) || time.getYear() < 2010) {
 					time = new Date();
 				}
@@ -587,7 +606,7 @@ optional:
 			$("body").append($loc);
 
 			room.$.container = $loc;
-			room.$.locationName = $('<div>').addClass('col').addClass('header-font');
+			room.$.locationName = $('<div>').addClass('col').addClass('header-font').addClass('pull-left');
 			room.$.currentEvent = $("<span>").addClass('nowrap');
 			room.$.currentRemain = $("<span>").addClass('nowrap').addClass('timer');
 			room.$.seatsCounter = $('<span>').addClass('seats-counter');
@@ -595,10 +614,11 @@ optional:
 
 			var $header = $('<div>').addClass('row').addClass('count-' + roomIds.length);
 			$header.append(room.$.locationName);
-			$header.append($('<div>').addClass('col header-font center').append(room.$.currentEvent).append(' ').append(room.$.currentRemain));
 			$header.append(room.$.seatsBackground);
+			$header.append($('<div>').addClass('col header-font center').append(room.$.currentEvent).append(' ').append(room.$.currentRemain));
 			room.$.header = $header;
 			$loc.append($header);
+			$header.append('<div class="clearfix">');
 
 			if (room.name !== null) {
 				room.$.locationName.text(room.name);
@@ -940,6 +960,9 @@ optional:
 		if (!json || json.constructor !== Array) {
 			console.log("Error: Calendar data was empty or malformed.");
 			return;
+		}
+		if (json.length === 0) {
+			console.log("Notice: Calendar already empty from server");
 		}
 		var now = MyDate().getTime();
 		json = json.filter(function (el) {

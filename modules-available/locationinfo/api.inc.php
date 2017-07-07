@@ -257,7 +257,7 @@ function getConfig($paneluuid)
 
 	$config['ts'] = (int)$panel['lastchange'];
 	$config['locations'] = array_values($config['locations']);
-	$config['time'] = date('Y-m-d H:i:s');
+	$config['time'] = date('Y-n-j-G-') . (int)date('i') . '-' . (int)(date('s'));
 
 	return $config;
 }

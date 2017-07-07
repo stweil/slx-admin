@@ -283,8 +283,8 @@ class CourseBackend_HisInOne extends CourseBackend
 					$endTime = $this->getArrayPath($plannedDate, '/hisendtime')[0];
 					$tTables[$eventRoomId][] = array(
 						'title' => $name[0],
-						'start' => $eventDate . " " . $startTime,
-						'end' => $eventDate . " " . $endTime
+						'start' => $eventDate . "T" . $startTime,
+						'end' => $eventDate . "T" . $endTime
 					);
 				}
 			}
