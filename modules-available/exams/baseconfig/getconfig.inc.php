@@ -1,16 +1,17 @@
 <?php
 
-if (isset($configVars["SLX_LOCATIONS"])) {
-	$locationIds = explode(' ', $configVars["SLX_LOCATIONS"]);
+$locations = ConfigHolder::get('SLX_LOCATIONS');
+if ($locations === false) {
+	$locationIds = [];
 } else {
-	$locationIds = array();
+	$locationIds = explode(' ', $locations);
 }
 if (Exams::isInExamMode($locationIds, $lectureId, $autoLogin)) {
-	$configVars['SLX_EXAM'] = 'yes';
+	ConfigHolder::add('SLX_EXAM', 'yes', 100000);
 	if (strlen($lectureId) > 0) {
-		$configVars['SLX_EXAM_START'] = $lectureId;
+		ConfigHolder::add('SLX_EXAM_START', $lectureId, 100000);
 	}
 	if (strlen($autoLogin) > 0) {
-		$configVars['SLX_AUTOLOGIN'] = $autoLogin;
+		ConfigHolder::add('SLX_AUTOLOGIN', $autoLogin, 100000);
 	}
 }

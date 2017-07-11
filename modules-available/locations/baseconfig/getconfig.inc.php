@@ -17,7 +17,7 @@ $matchingLocations = array();
 if ($locationId !== false) {
 	// Get all parents
 	$matchingLocations = Location::getLocationRootChain($locationId);
-	$configVars["SLX_LOCATIONS"] = implode(' ', $matchingLocations);
+	ConfigHolder::add("SLX_LOCATIONS", implode(' ', $matchingLocations), 100);
 }
 
 // Query location specific settings (from bottom to top)
@@ -31,14 +31,15 @@ if (!empty($matchingLocations)) {
 	}
 	// $matchingLocations contains the location ids sorted from closest to furthest, so we use it to make sure the order
 	// in which they override is correct (closest setting wins, e.g. room setting beats department setting)
+	$prio = count($matchingLocations) + 1;
 	foreach ($matchingLocations as $lid) {
 		if (!isset($tmp[$lid]))
 			continue;
+		ConfigHolder::setContext('location-' . $lid);
 		foreach ($tmp[$lid] as $setting => $value) {
-			if (!isset($configVars[$setting])) {
-				$configVars[$setting] = $value;
-			}
+			ConfigHolder::add($setting, $value, $prio);
 		}
+		$prio -= 1;
 	}
 	unset($tmp);
 }
