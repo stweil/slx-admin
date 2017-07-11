@@ -12,45 +12,52 @@ if ($uuid !== false && strlen($uuid) !== 36) {
 
 class ConfigHolder
 {
-	private $config = [];
+	private static $config = [];
 
-	private $context = '';
+	private static $context = '';
 
-	public function setContext($name)
+	public static function setContext($name)
 	{
-		$this->context = $name;
+		self::$context = $name;
 	}
 
-	public function addArray($array, $prio = 0)
+	public static function addArray($array, $prio = 0)
 	{
 		foreach ($array as $key => $value) {
-			$this->add($key, $value, $prio);
+			self::add($key, $value, $prio);
 		}
 	}
 
-	public function add($key, $value, $prio = 0)
+	public static function add($key, $value, $prio = 0)
 	{
-		if (!isset($this->config[$key])) {
-			$this->config[$key] = [];
+		if (!isset(self::$config[$key])) {
+			self::$config[$key] = [];
 		}
 		$new = [
 			'prio' => $prio,
 			'value' => $value,
-			'context' => $this->context,
+			'context' => self::$context,
 		];
-		if (empty($this->config[$key]) || $this->config[$key][0]['prio'] > $prio) {
+		if (empty(self::$config[$key]) || self::$config[$key][0]['prio'] > $prio) {
 			// Existing is higher, append new one
-			array_push($this->config[$key], $new);
+			array_push(self::$config[$key], $new);
 		} else {
 			// New one has highest prio or matches existing, put in front
-			array_unshift($this->config[$key], $new);
+			array_unshift(self::$config[$key], $new);
 		}
 	}
 
-	public function getConfig()
+	public static function get($key)
+	{
+		if (!isset(self::$config[$key]))
+			return false;
+		return self::$config[$key][0]['value'];
+	}
+
+	public static function getConfig()
 	{
 		$ret = [];
-		foreach ($this->config as $key => $list) {
+		foreach (self::$config as $key => $list) {
 			if ($list[0]['value'] === false)
 				continue;
 			$ret[$key] = $list[0]['value'];
@@ -58,9 +65,9 @@ class ConfigHolder
 		return $ret;
 	}
 
-	public function outputConfig()
+	public static function outputConfig()
 	{
-		foreach ($this->config as $key => $list) {
+		foreach (self::$config as $key => $list) {
 			echo '##', $key, "\n";
 			foreach ($list as $pos => $item) {
 				echo '# (', $item['context'], ':', $item['prio'], ')';
@@ -78,8 +85,6 @@ class ConfigHolder
 	}
 
 }
-
-$CONFIG = new ConfigHolder();
 
 /**
  * Escape given string so it is a valid string in sh that can be surrounded
@@ -102,10 +107,9 @@ function escape($string)
 
 function handleModule($file, $ip, $uuid) // Pass ip and uuid instead of global to make them read only
 {
-	global $CONFIG;
 	$configVars = [];
 	include_once $file;
-	$CONFIG->addArray($configVars, 1);
+	ConfigHolder::addArray($configVars, 0);
 }
 
 // Handle any hooks by other modules first
@@ -119,11 +123,11 @@ foreach (glob('modules/*/baseconfig/getconfig.inc.php') as $file) {
 	foreach ($mod->getDependencies() as $dep) {
 		$depFile = 'modules/' . $dep . '/baseconfig/getconfig.inc.php';
 		if (file_exists($depFile) && Module::isAvailable($dep)) {
-			$CONFIG->setContext($dep);
+			ConfigHolder::setContext($dep);
 			handleModule($depFile, $ip, $uuid);
 		}
 	}
-	$CONFIG->setContext($out[1]);
+	ConfigHolder::setContext($out[1]);
 	handleModule($file, $ip, $uuid);
 }
 
@@ -131,23 +135,23 @@ foreach (glob('modules/*/baseconfig/getconfig.inc.php') as $file) {
 $defaults = BaseConfigUtil::getVariables();
 
 // Dump global config from DB
-$CONFIG->setContext('<global>');
+ConfigHolder::setContext('<global>');
 $res = Database::simpleQuery('SELECT setting, value, enabled FROM setting_global');
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 	if (!isset($defaults[$row['setting']]))
 		continue; // Setting is not defined in any <module>/baseconfig/settings.json
 	if ($row['enabled'] != 1) {
 		// Setting is disabled
-		$CONFIG->add($row['setting'], false, 0);
+		ConfigHolder::add($row['setting'], false, -1);
 	} else {
-		$CONFIG->add($row['setting'], $row['value'], 0);
+		ConfigHolder::add($row['setting'], $row['value'], -1);
 	}
 }
 
 // Fallback to default values from json files
-$CONFIG->setContext('<default>');
+ConfigHolder::setContext('<default>');
 foreach ($defaults as $setting => $value) {
-	$CONFIG->add($setting, $value['defaultvalue'], -1000);
+	ConfigHolder::add($setting, $value['defaultvalue'], -1000);
 }
 
 // All done, now output
@@ -155,7 +159,7 @@ foreach ($defaults as $setting => $value) {
 if (Request::any('save') === 'true') {
 	// output AND save to disk: Generate contents
 	$lines = '';
-	foreach ($CONFIG->getConfig() as $setting => $value) {
+	foreach (ConfigHolder::getConfig() as $setting => $value) {
 		$lines .= $setting . "='" . escape($value) . "'\n";
 	}
 	// Save to all the locations
@@ -174,7 +178,7 @@ if (Request::any('save') === 'true') {
 	echo $lines;
 } else {
 	// Only output to client
-	$CONFIG->outputConfig();
+	ConfigHolder::outputConfig();
 }
 
 // For quick testing or custom extensions: Include external file that should do nothing
