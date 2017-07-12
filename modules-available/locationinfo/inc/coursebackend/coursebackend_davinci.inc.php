@@ -61,10 +61,8 @@ class CourseBackend_Davinci extends CourseBackend
 	 * @param $roomId string name of the room
 	 * @return array|bool if successful the arrayrepresentation of the timetable
 	 */
-	private function fetchRoomRaw($roomId)
+	private function fetchRoomRaw($roomId, $startDate, $endDate)
 	{
-		$startDate = new DateTime('today 0:00');
-		$endDate = new DateTime('+7 days 0:00');
 		$url = $this->location . "content=xml&type=room&name=" . urlencode($roomId)
 			. "&startdate=" . $startDate->format('d.m.Y') . "&enddate=" . $endDate->format('d.m.Y');
 		$ch = curl_init();
@@ -92,9 +90,13 @@ class CourseBackend_Davinci extends CourseBackend
 
 	public function fetchSchedulesInternal($requestedRoomIds)
 	{
+		$startDate = new DateTime('today 0:00');
+		$endDate = new DateTime('+7 days 0:00');
+		$lower = (int)$startDate->format('Ymd');
+		$upper = (int)$endDate->format('Ymd');
 		$schedules = [];
 		foreach ($requestedRoomIds as $roomId) {
-			$return = $this->fetchRoomRaw($roomId);
+			$return = $this->fetchRoomRaw($roomId, $startDate, $endDate);
 			if ($return === false) {
 				continue;
 			}
@@ -113,6 +115,9 @@ class CourseBackend_Davinci extends CourseBackend
 					$this->error = 'Lesson is missing Date, Start or Finish';
 					continue;
 				}
+				$c = (int)$lesson['Date'];
+				if ($c < $lower || $c > $upper)
+					continue;
 				$date = $lesson['Date'];
 				$date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6, 2);
 				$start = $lesson['Start'];
