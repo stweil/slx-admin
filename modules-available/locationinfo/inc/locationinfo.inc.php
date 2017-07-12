@@ -86,4 +86,12 @@ class LocationInfo
 		return $ret['panelname'];
 	}
 
+	public static function configHook($machineUuid, $panelUuid)
+	{
+		// TODO Panel type
+		ConfigHolder::add('SLX_BROWSER_URL', 'http://' . $_SERVER['SERVER_ADDR'] . '/panel/' . $panelUuid);
+		ConfigHolder::add('SLX_ADDONS', '', 1000);
+		ConfigHolder::add('SLX_LOGOUT_TIMEOUT', 1000);
+	}
+
 }

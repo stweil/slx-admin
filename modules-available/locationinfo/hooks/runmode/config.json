@@ -1,4 +1,7 @@
 {
 	"getModeName": "LocationInfo::getPanelName",
-	"isClient": false
+	"isClient": false,
+	"configHook": "LocationInfo::configHook",
+	"noSysconfig": true,
+	"systemdDefaultTarget": "multi-user"
 }

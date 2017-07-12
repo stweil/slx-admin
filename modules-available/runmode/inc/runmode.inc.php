@@ -11,7 +11,7 @@ class RunMode
 	 * @param string $module name of module
 	 * @return RunModeModuleConfig|false
 	 */
-	private static function getModuleConfig($module)
+	public static function getModuleConfig($module)
 	{
 		if (isset(self::$moduleConfigs[$module]))
 			return self::$moduleConfigs[$module];
@@ -155,9 +155,17 @@ class RunModeModuleConfig
 	 */
 	public $getModeName = false;
 	/**
+	 * @var string Name of function that is called to add additional config entries
+	 */
+	public $configHook = false;
+	/**
 	 * @var bool Consider this a normal client that should e.g. be shown in client statistics by default
 	 */
 	public $isClient = false;
+	/**
+	 * @var bool If true, config.tgz should not be downloaded by the client
+	 */
+	public $noSysconfig = false;
 
 	public function __construct($file)
 	{
@@ -168,7 +176,9 @@ class RunModeModuleConfig
 		$this->loadType($data, 'systemdDisableTargets', 'array');
 		$this->loadType($data, 'systemdEnableTargets', 'array');
 		$this->loadType($data, 'getModeName', 'string');
-		$this->loadType($data, 'isClient', 'string');
+		$this->loadType($data, 'configHook', 'string');
+		$this->loadType($data, 'isClient', 'boolean');
+		$this->loadType($data, 'noSysconfig', 'boolean');
 	}
 
 	private function loadType($data, $key, $type)
