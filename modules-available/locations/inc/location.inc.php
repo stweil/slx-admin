@@ -236,7 +236,7 @@ class Location
 
 	/**
 	 * Get location id for given machine (by uuid)
-	 * @param $uuid machine uuid
+	 * @param string $uuid machine uuid
 	 * @return bool|int locationid, false if no match
 	 */
 	public static function getFromMachineUuid($uuid)
@@ -277,8 +277,8 @@ class Location
 	 * client. We can't trust the UUID too much as it is provided by the
 	 * client, so if it seems too fishy, the UUID will be ignored.
 	 *
-	 * @param $ip IP address of client
-	 * @param $uuid System-UUID of client
+	 * @param string $ip IP address of client
+	 * @param string $uuid System-UUID of client
 	 * @return int|bool location id, or false if none matches
 	 */
 	public static function getFromIpAndUuid($ip, $uuid)
@@ -295,8 +295,8 @@ class Location
 				// location determined by the uuid
 				$uuidLocations = self::getLocationRootChain($uuidLoc);
 				$ipLocations = self::getLocationRootChain($ipLoc);
-				if (in_array($uuidLoc, $ipLocations)
-					|| (in_array($ipLoc, $uuidLocations) && count($ipLocations) + 1 >= count($uuidLocations))
+				if (in_array($uuidLoc, $ipLocations) // UUID loc is further up, OK
+					|| (in_array($ipLoc, $uuidLocations) && count($ipLocations) + 1 >= count($uuidLocations)) // UUID is max one level deeper than IP loc, accept as well
 				) {
 					// Close enough, allow
 					$locationId = $uuidLoc;
@@ -453,7 +453,7 @@ class Location
 	 * If two+ subnets match and have the same depth and size, a
 	 * random one will be returned.
 	 *
-	 * @param $ip IP to look up
+	 * @param string $ip IP to look up
 	 * @return bool|int locationid ip matches, false = no match
 	 */
 	public static function mapIpToLocation($ip)
