@@ -43,7 +43,7 @@ function MyDate() {
 
     return {
       options: {
-        date: MyDate,
+        date: MyDate(),
         timeFormat: null,
         dateFormat: 'M d, Y',
         alwaysDisplayTimeMinutes: true,
@@ -331,7 +331,7 @@ function MyDate() {
         this._resizeCalendar();
       },
       scrollToHour:function(){
-          this._scrollToHour(this._getCurrentScrollHour(), false);
+          this._scrollToHour(MyDate().getHours(), false);
       },
       /*
        * Clear all events currently loaded into the calendar
@@ -2515,6 +2515,7 @@ function MyDate() {
             var freebusys = [freebusys];
           }
           $.each(freebusys, function(i, freebusy) {
+            if (!freebusy) return;
             freeBusyToReturn.push(new FreeBusy(self._cleanFreeBusy(freebusy)));
           });
           return freeBusyToReturn;

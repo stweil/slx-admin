@@ -72,17 +72,21 @@ optional:
 			overflow: hidden;
 			flex: 1 1 auto;
 			text-overflow: ellipsis;
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
 		}
 
 		.col-square {
 			order: 1000;
 			float: right;
-			width: 46pt;
-			width: 4vw;
-			height: 46pt;
-			height: 4vw;
-			font-size: 35pt;
-			font-size: 2.5vw;
+			width: 70pt;
+			width: 6vw;
+			height: 70pt;
+			height: 6vw;
+			font-size: 56pt;
+			font-size: 4.25vw;
 			flex: 0 0 auto;
 			text-align: center;
 			padding: 0;
@@ -98,13 +102,13 @@ optional:
 			font-size: 6vw;
 		}
 
-		.count-2 .col-square {
-			width: 70pt;
-			width: 6vw;
-			height: 70pt;
-			height: 6vw;
-			font-size: 66pt;
-			font-size: 5vw;
+		.count-3 .col-square {
+			width: 46pt;
+			width: 4vw;
+			height: 46pt;
+			height: 4vw;
+			font-size: 35pt;
+			font-size: 2.5vw;
 		}
 
 		.progressbar {
@@ -117,9 +121,10 @@ optional:
 		}
 
 		.header-font {
-			font-size: 41pt;
-			font-size: 3vw;
+			font-size: 25pt;
+			font-size: 1.8vw;
 			font-weight: bold;
+			padding: 10px;
 		}
 
 		.nowrap {
@@ -131,19 +136,14 @@ optional:
 			color: #ddd;
 		}
 
-		.count-2 .header-font {
-			font-size: 25pt;
-			font-size: 1.8vw;
-		}
-
 		.count-3 .header-font {
 			font-size: 16pt;
 			font-size: 1.2vw;
 		}
 
 		.count-1 .header-font {
-			font-size: 20pt;
-			font-size: 1.5vw;
+			font-size: 30pt;
+			font-size: 2.25vw;
 		}
 
 		.seats-counter {
@@ -151,13 +151,11 @@ optional:
 			margin: auto;
 			font-weight: bold;
 			padding: 0;
-			height: 100%;
 			text-shadow: #000 2px 2px;
 		}
 
 		.center {
 			text-align: center;
-			margin: auto;
 		}
 
 		.room-layout {
@@ -337,6 +335,11 @@ optional:
 			background: rgba(0, 0, 0, 0);
 		}
 
+		.wc-grid-timeslot-header,
+		.wc-header .wc-time-column-header {
+			width: 50px;
+		}
+
 	</style>
 
 	<script type='text/javascript' src='../../../script/jquery.js'></script>
@@ -395,7 +398,13 @@ optional:
 	};
 
 	$(document).ready(function () {
-		var uuid = getUrlParameter("uuid");
+		var uuid;
+		uuid = window.location.pathname.match( /[a-z0-9\-]{36}/gi );
+		if (uuid === null) {
+			uuid = getUrlParameter("uuid");
+		} else {
+			uuid = uuid[0];
+		}
 		if (!uuid) {
 			console.log('No panel uuid given');
 			$("body").empty().append($('<h1>').text('No panel UUID given.'));
@@ -579,13 +588,16 @@ optional:
 
 		var width = "100%";
 		var height = "100%";
+		var columns = 1;
 		var top, left;
 		hasMode4 = false;
 		if (roomIds.length === 2 || roomIds.length === 4) {
 			width = "50%";
+			columns = 2;
 		}
 		if (roomIds.length === 3) {
 			width = "33%";
+			columns = 3;
 		}
 		if (roomIds.length === 4) {
 			height = "50%";
@@ -612,7 +624,7 @@ optional:
 			room.$.seatsCounter = $('<span>').addClass('seats-counter');
 			room.$.seatsBackground = $('<div>').addClass('col col-square').append(room.$.seatsCounter);
 
-			var $header = $('<div>').addClass('row').addClass('count-' + roomIds.length);
+			var $header = $('<div>').addClass('row').addClass('count-' + columns);
 			$header.append(room.$.locationName);
 			$header.append(room.$.seatsBackground);
 			$header.append($('<div>').addClass('col header-font center').append(room.$.currentEvent).append(' ').append(room.$.currentRemain));
@@ -1198,11 +1210,11 @@ optional:
 	 * @param room Room
 	 * @param seats Number of free PC's in the room
 	 */
-	function SetFreeSeats(room, seats) {
-		room.$.seatsCounter.text(seats >= 0 ? seats : '');
-		if (seats > 0) {
-			room.$.seatsBackground.css('background-color', '#00dd10');
-		} else if (seats === -1) {
+	function SetFreeSeats(room) {
+		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '');
+		if (room.freePcs > 0 && room.state && room.state.free) {
+			room.$.seatsBackground.css('background-color', '#250');
+		} else if (room.freePcs === -1) {
 			room.$.seatsBackground.css('background-color', 'red');
 		} else {
 			room.$.seatsBackground.css('background-color', 'red');
@@ -1243,7 +1255,7 @@ optional:
 			room.$.currentRemain.text(newTime);
 		}
 		if (room.lastFreeSeats !== seats) {
-			SetFreeSeats(room, room.freePcs);
+			SetFreeSeats(room);
 			room.lastFreeSeats = seats;
 		}
 	}
@@ -1265,13 +1277,13 @@ optional:
 
 		// no event and no closing
 		if (!closing && !event) {
-			room.state = {state: "FreeNoEnd", end: "", title: "", next: ""};
+			room.state = {state: "FreeNoEnd", end: "", title: "", next: "", free: true};
 			return;
 		}
 
 		// no event so closing is next
 		if (!event) {
-			room.state = {state: "Free", end: closing, title: "", next: "closing"};
+			room.state = {state: "Free", end: closing, title: "", next: "closing", free: true};
 			return;
 		}
 
