@@ -24,7 +24,7 @@
  * This has to be called by an update module at some point to signal the result
  * of its execution.
  *
- * @param $status one of the UPDATE_* status codes
+ * @param string $status one of the UPDATE_* status codes
  * @param string $message Human readable description of the status (optional)
  */
 function finalResponse($status, $message = '')
