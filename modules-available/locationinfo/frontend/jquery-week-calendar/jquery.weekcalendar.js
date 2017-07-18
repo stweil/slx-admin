@@ -1494,12 +1494,15 @@ function MyDate() {
 
         options.calendarAfterLoad(self.element);
 
-        _hourLineTimeout && clearInterval(_hourLineTimeout);
+        if (self._hourLineTimeout) {
+          clearInterval(self._hourLineTimeout);
+			  self._hourLineTimeout = false;
+        }
 
         if (options.hourLine) {
           self._drawCurrentHourLine();
 
-          _hourLineTimeout = setInterval(function() {
+			  self._hourLineTimeout = setInterval(function() {
             self._drawCurrentHourLine();
           }, 60 * 1000); // redraw the line each minute
         }
