@@ -7,7 +7,6 @@ required:
     uuid: [integer] panel id, see in admin panel
 
 optional:
-    lang:[en,de] set the language
     mode:[1,2,3,4] sets the displaying
         1: Calendar & Room
         2: only Calendar
@@ -23,12 +22,12 @@ optional:
     scaledaysauto: [true] if true it finds automatically the daystoshow parameter depending on display size
 
 -->
-<html lang="de">
+<html lang="{{language}}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
 <head>
 	<title>DoorSign</title>
-	<link rel='stylesheet' type='text/css' href='../../js_jqueryui/style.css'/>
-	<link rel='stylesheet' type='text/css' href='jquery-week-calendar/jquery.weekcalendar.css'/>
+	<link rel='stylesheet' type='text/css' href='{{dirprefix}}modules/js_jqueryui/style.css'/>
+	<link rel='stylesheet' type='text/css' href='{{dirprefix}}modules/js_weekcalendar/style.css'/>
 
 	<style type='text/css'>
 
@@ -340,14 +339,38 @@ optional:
 			width: 50px;
 		}
 
+		#i18n {
+			display: none;
+		}
+
 	</style>
 
-	<script type='text/javascript' src='../../../script/jquery.js'></script>
-	<script type='text/javascript' src='../../js_jqueryui/clientscript.js'></script>
-	<script type='text/javascript' src="jquery-week-calendar/jquery.weekcalendar.js"></script>
+	<script type='text/javascript' src='{{dirprefix}}script/jquery.js'></script>
+	<script type='text/javascript' src='{{dirprefix}}modules/js_jqueryui/clientscript.js'></script>
+	<script type='text/javascript' src="{{dirprefix}}modules/js_weekcalendar/clientscript.js"></script>
 
 </head>
 <body>
+<div id="i18n">
+	<span data-tag="room">{{lang_room}}</span>
+	<span data-tag="closed">{{lang_closed}}</span>
+	<span data-tag="free">{{lang_free}}</span>
+	<span data-tag="shortSun">{{lang_shortSun}}</span>
+	<span data-tag="shortMon">{{lang_shortMon}}</span>
+	<span data-tag="shortTue">{{lang_shortTue}}</span>
+	<span data-tag="shortWed">{{lang_shortWed}}</span>
+	<span data-tag="shortThu">{{lang_shortThu}}</span>
+	<span data-tag="shortFri">{{lang_shortFri}}</span>
+	<span data-tag="shortSat">{{lang_shortSat}}</span>
+	<span data-tag="longSun">{{lang_longSun}}</span>
+	<span data-tag="longMon">{{lang_longMon}}</span>
+	<span data-tag="longTue">{{lang_longTue}}</span>
+	<span data-tag="longWed">{{lang_longWed}}</span>
+	<span data-tag="longThu">{{lang_longThu}}</span>
+	<span data-tag="longFri">{{lang_longFri}}</span>
+	<span data-tag="longSat">{{lang_longSat}}</span>
+	<span data-tag="to">{{lang_to}}</span>
+</div>
 </body>
 
 <script type="text/javascript">
@@ -358,7 +381,7 @@ optional:
 	var hasMode4 = false;
 	var globalConfig = {};
 	var roomIds = [];
-	var panelUuid = false;
+	var panelUuid = '{{{uuid}}}';
 	const IMG_FORMAT_LIST = (function() {
 		if (typeof(SVGRect) !== "undefined") {
 			return [".svg", ".png", ".jpg", ".gif"];
@@ -366,51 +389,8 @@ optional:
 		return [".png", ".jpg", ".gif"];
 	})();
 
-	// TODO: Get languages from slx-admin
-	var translation = {
-		"en": {
-			"room": "Room",
-			"closed": "Closed",
-			"free": "Free",
-			"shortDays": ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-			"longDays": ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-			"to": "to"
-
-		},
-		"de": {
-			"room": "Raum",
-			"closed": "Geschlossen",
-			"free": "Frei",
-			"shortDays": ["Son", "Mon", "Die", "Mit", "Don", "Frei", "Sam"],
-			"longDays": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
-			"to": "bis"
-		},
-		"pt": {
-			"room": "Quarto",
-			"closed": "Fechado",
-			"free": "Livre",
-			"shortDays": ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Se', 'Sáb'],
-			"longDays": ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira',
-				'Sexta-feira', 'Sábado'],
-			"to": "para"
-
-		}
-	};
-
 	$(document).ready(function () {
-		var uuid;
-		uuid = window.location.pathname.match( /[a-z0-9\-]{36}/gi );
-		if (uuid === null) {
-			uuid = getUrlParameter("uuid");
-		} else {
-			uuid = uuid[0];
-		}
-		if (!uuid) {
-			console.log('No panel uuid given');
-			$("body").empty().append($('<h1>').text('No panel UUID given.'));
-			return;
-		}
-		getConfig(uuid);
+		applyConfig({{{config}}});
 	});
 
 	/**
@@ -427,70 +407,49 @@ optional:
 		}, 60000);
 	}
 
+	function applyConfig(result) {
+		if (!result.locations || result.locations.constructor !== Array) {
+			fatalError("Requested panel doesn't contain locations / not array");
+			return;
+		}
 
-	/**
-	 * Downloads the config of a room, also reloads the page if the config hase changed over time
-	 * @param uuid ID of the room
-	 */
+		var fetchedRooms = result.locations.filter(function (x) {
+			// filter out if no numeric id, or id already present, or already got 4 locations
+			if (typeof(x.id) !== 'number' || x.id <= 0 || roomIds.indexOf(x.id) !== -1 || roomIds.length >= 4)
+				return false;
+			roomIds.push(x.id);
+			return true;
+		});
 
-	function getConfig(uuid) {
-		$.ajax({
-			url: "../../../api.php?do=locationinfo&get=config&uuid=" + uuid,
-			dataType: 'json',
-			cache: false,
-			timeout: 30000,
-			success: function (result) {
+		if (roomIds.length === 0) {
+			fatalError("List of location ids is empty");
+			return;
+		}
 
-				if (!result.locations || result.locations.constructor !== Array) {
-					fatalError("Requested panel doesn't contain locations / not array");
-					return;
-				}
+		var time = false;
+		var p = result.time.split('-');
+		if (p.length === 6) {
+			time = new Date(p[0], p[1], p[2], p[3], p[4], p[5]);
+			console.log(time);
+		}
+		if (time === false || isNaN(time.getTime()) || time.getYear() < 2010) {
+			time = new Date(result.time);
+		}
+		if (isNaN(time.getTime()) || time.getYear() < 2010) {
+			time = new Date();
+		}
+		SetUpDate(time);
+		delete result.time;
+		delete result.locations;
 
-				var fetchedRooms = result.locations.filter(function (x) {
-					// filter out if no numeric id, or id already present, or already got 4 locations
-					if (typeof(x.id) !== 'number' || x.id <= 0 || roomIds.indexOf(x.id) !== -1 || roomIds.length >= 4)
-						return false;
-					roomIds.push(x.id);
-					return true;
-				});
+		globalConfig = result;
+		sanitizeGlobalConfig();
+		lastRoomUpdate = MyDate().getTime();
 
-				if (roomIds.length === 0) {
-					fatalError("List of location ids is empty");
-					return;
-				}
-
-				var time = false;
-				var p = result.time.split('-');
-				if (p.length === 6) {
-					time = new Date(p[0], p[1], p[2], p[3], p[4], p[5]);
-					console.log(time);
-				}
-				if (time === false || isNaN(time.getTime()) || time.getYear() < 2010) {
-					time = new Date(result.time);
-				}
-				if (isNaN(time.getTime()) || time.getYear() < 2010) {
-					time = new Date();
-				}
-				SetUpDate(time);
-				delete result.time;
-				delete result.locations;
-
-				globalConfig = result;
-				sanitizeGlobalConfig();
-				lastRoomUpdate = MyDate().getTime();
-
-				for (var i = 0; i < fetchedRooms.length; ++i) {
-					addRoom(fetchedRooms[i]);
-				}
-
-				panelUuid = uuid;
-				initRooms();
-				// TODO: Check for changed config using get=timestamp and reload whole page on change
-
-			}, error: function () {
-				fatalError('Could not fetch panel config');
-			}
-		})
+		for (var i = 0; i < fetchedRooms.length; ++i) {
+			addRoom(fetchedRooms[i]);
+		}
+		initRooms();
 	}
 
 	const PARAM_STRING = 1;
@@ -550,7 +509,6 @@ optional:
 	 */
 	function sanitizeGlobalConfig() {
 		sanitizeConfig(globalConfig);
-		$('html').attr('lang', globalConfig.language);
 	}
 
 	function sanitizeConfig(config) {
@@ -566,6 +524,7 @@ optional:
 		setRoomConfigFromUrl(config, 'scaledaysauto', PARAM_BOOL);
 		setRoomConfigFromUrl(config, 'vertical', PARAM_BOOL);
 		setRoomConfigFromUrl(config, 'eco', PARAM_BOOL);
+		setRoomConfigFromUrl(config, 'prettytime', PARAM_BOOL);
 
 		setRoomConfigFromUrl(config, 'scale', PARAM_INT);
 		setRoomConfigFromUrl(config, 'rotation', PARAM_INT);
@@ -805,10 +764,10 @@ optional:
 			readonly: true,
 			showHeader: false,
 			hourLine: true,
-			shortDays: t("shortDays", room.config.language),
-			longDays: t("longDays", room.config.language),
+			shortDays: [t("shortSun"), t("shortMon"), t("shortTue"), t("shortWed"), t("shortThu"), t("shortFri"), t("shortSat")],
+			longDays: [t("longSun"), t("longMon"), t("longTue"), t("longWed"), t("longThu"), t("longFri"), t("longSat")],
 			buttons: false,
-			timeSeparator: " " + t("to", room.config.language) + " ",
+			timeSeparator: " - ",
 			startOnFirstDayOfWeek: false,
 			displayFreeBusys: true,
 			defaultFreeBusy: {free: false}
@@ -817,7 +776,6 @@ optional:
 
 	/**
 	 * Generates the Calendar Div, depending on it's width
-	 * @param width width of the Calendar Div
 	 * @param room Room Object
 	 */
 
@@ -937,7 +895,7 @@ optional:
 	 */
 	function queryCalendars() {
 		if (!panelUuid) return;
-		var url = "../../../api.php?do=locationinfo&get=calendar&uuid=" + panelUuid;
+		var url = "{{dirprefix}}api.php?do=locationinfo&get=calendar&uuid=" + panelUuid;
 		$.ajax({
 			url: url,
 			dataType: 'json',
@@ -996,6 +954,7 @@ optional:
 				cal.weekCalendar("option", "defaultFreeBusy", {free: !room.openingTimesCalendar});
 				cal.weekCalendar("updateFreeBusy", room.openingTimesCalendar);
 				cal.weekCalendar("resizeCalendar");
+				cal.weekCalendar("option", "hourLine", true);
 				setTimeout(function() {
 					scaleRoom(room);
 				}, 550);
@@ -1086,33 +1045,39 @@ optional:
 	 * computes the time difference between 2 Date objects
 	 * @param {Date} a
 	 * @param {Date} b
-	 * @param room Room Object
 	 * @returns {string} printable time
 	 */
-	function GetTimeDiferenceAsString(a, b, room) {
+	function GetTimeDiferenceAsString(a, b) {
 		if (!a || !b) {
 			return "";
 		}
 		var milliseconds = a.getTime() - b.getTime();
+		var days = Math.floor((milliseconds / (1000 * 60 * 60 * 24)) % 31);
+		if (days !== 0) {
+			// don't show?
+			return "";
+		}
 		var seconds = Math.floor((milliseconds / 1000) % 60);
 		milliseconds -= seconds * 1000;
 		var minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
 		milliseconds -= minutes * 1000 * 60;
 		var hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
 
-		var days = Math.floor((milliseconds / (1000 * 60 * 60 * 24)) % 31);
-		if (seconds < 10) {
-			seconds = "0" + seconds;
+		if (globalConfig.prettytime) {
+			var str = '';
+			if (hours > 0) {
+				str += hours + 'muh';
+			}
 		}
+
 		if (minutes < 10) {
 			minutes = "0" + minutes;
 		}
-		if (days !== 0) {
-			// don't show?
-			return "";
-		}
 		if (globalConfig.eco) {
 			return hours + ":" + minutes;
+		}
+		if (seconds < 10) {
+			seconds = "0" + seconds;
 		}
 		return hours + ":" + minutes + ":" + seconds;
 	}
@@ -1213,7 +1178,7 @@ optional:
 	function SetFreeSeats(room) {
 		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '');
 		if (room.freePcs > 0 && room.state && room.state.free) {
-			room.$.seatsBackground.css('background-color', '#250');
+				room.$.seatsBackground.css('background-color', '#250');
 		} else if (room.freePcs === -1) {
 			room.$.seatsBackground.css('background-color', 'red');
 		} else {
@@ -1234,19 +1199,19 @@ optional:
 		var newText = false, newTime = false;
 		var seats = room.freePcs;
 		if (tmp.state === 'closed' || tmp.state === 'CalendarEvent' || tmp.state === 'Free') {
-			newTime = GetTimeDiferenceAsString(tmp.end, MyDate(), room);
+			newTime = GetTimeDiferenceAsString(tmp.end, MyDate());
 		} else if (!same) {
 			newTime = '';
 		}
 		if (tmp.state === "closed") {
-			if (!same) newText = t("closed", globalConfig.language);
+			if (!same) newText = t("closed");
 		} else if (tmp.state === "CalendarEvent") {
 			if (!same) newText = tmp.title;
 			seats = -1;
 		} else if (tmp.state === "Free") {
-			if (!same) newText = t("free", room.config.language);
+			if (!same) newText = t("free");
 		} else if (tmp.state === "FreeNoEnd") {
-			if (!same) newText = t("free", room.config.language);
+			if (!same) newText = t("free");
 		}
 		if (newText !== false) {
 			room.$.currentEvent.text(newText);
@@ -1300,15 +1265,15 @@ optional:
 
 		// no closing so event is next
 		if (!closing) {
-			room.state = {state: "Free", end: event.start, title: "", next: "event"};
+			room.state = {state: "Free", end: event.start, title: "", next: "event", free: true};
 			return;
 		}
 
 		// event sooner then closing
 		if (event.start.getTime() < closing) {
-			room.state = {state: "Free", end: event.start, title: "", next: "event"};
+			room.state = {state: "Free", end: event.start, title: "", next: "event", free: true};
 		} else {
-			room.state = {state: "Free", end: closing, title: "", next: "closing"};
+			room.state = {state: "Free", end: closing, title: "", next: "closing", free: true};
 		}
 
 	}
@@ -1552,7 +1517,7 @@ optional:
 	 */
 	function queryPanelChange() {
 		$.ajax({
-			url: "../../../api.php?do=locationinfo&get=timestamp&uuid=" + panelUuid,
+			url: "{{dirprefix}}api.php?do=locationinfo&get=timestamp&uuid=" + panelUuid,
 			dataType: 'json',
 			cache: false,
 			timeout: 5000,
@@ -1575,7 +1540,7 @@ optional:
 	 */
 	function queryRooms() {
 		$.ajax({
-			url: "../../../api.php?do=locationinfo&get=machines&uuid=" + panelUuid,
+			url: "{{dirprefix}}api.php?do=locationinfo&get=machines&uuid=" + panelUuid,
 			dataType: 'json',
 			cache: false,
 			timeout: 30000,
@@ -1641,7 +1606,7 @@ optional:
 	 * @param room Room object
 	 */
 	function scaleRoom(room) {
-		if (!room.$.layout.is(':visible')) return;
+		if (!room.$.layout || !room.$.layout.is(':visible')) return;
 		room.resizeRoom = false;
 		generateOffsetAndScale(room);
 		room.$.layout.css('font-size', Math.floor(room.scale) + 'pt');
@@ -1707,19 +1672,15 @@ optional:
 	/**
 	 * Function for translation
 	 * @param toTranslate key which we wan't to translate
-	 * @param lang languages in which should be translated
 	 * @returns r translated string
 	 */
-	function t(toTranslate, lang) {
-
-		var r;
-		if (!lang || !translation[lang] || !translation[lang][toTranslate]) {
-			r = translation['en'][toTranslate] || 'missing';
-		} else {
-			r = translation[lang][toTranslate];
-		}
-		return r;
+	function t(toTranslate) {
+		if (tCache[toTranslate])
+			return tCache[toTranslate];
+		var r = $('#i18n').find('[data-tag="' + toTranslate + '"]');
+		return tCache[toTranslate] = (r.length === 0 ? toTranslate : r.text());
 	}
+	var tCache = {};
 
 	function resizeIfRequired(room) {
 		if (room.resizeCalendar) {

@@ -91,5 +91,22 @@
     "lang_typeTooltip": "Legt fest um welchen Server-Typ es sich handelt",
     "lang_updateRates": "Aktualisierungsintervall",
     "lang_vertical": "Vertikaler Modus",
-    "lang_verticalTooltip": "Legt fest, ob Kalender und Raum \u00fcbereinander angezeigt werden sollen"
+    "lang_verticalTooltip": "Legt fest, ob Kalender und Raum \u00fcbereinander angezeigt werden sollen",
+    "lang_closed": "Geschlossen",
+    "lang_free": "Frei",
+    "lang_shortSun": "So",
+    "lang_shortMon": "Mo",
+    "lang_shortTue": "Di",
+    "lang_shortWed": "Mi",
+    "lang_shortThu": "Do",
+    "lang_shortFri": "Fr",
+    "lang_shortSat": "Sa",
+    "lang_longSun": "Sonntag",
+    "lang_longMon": "Montag",
+    "lang_longTue": "Dienstag",
+    "lang_longWed": "Mittwoch",
+    "lang_longThu": "Donnerstag",
+    "lang_longFri": "Freitag",
+    "lang_longSat": "Samstag",
+    "lang_to": "bis"
 }

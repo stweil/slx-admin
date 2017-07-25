@@ -22,13 +22,15 @@
 		{{#panels}}
 			<tr>
 				<td>
-					<a href="modules/locationinfo/frontend/doorsign.html?uuid={{paneluuid}}" target="_blank">{{panelname}}</a>
+					<a href="/panel/{{paneluuid}}" target="_blank">{{panelname}}</a>
 				</td>
 				<td>
 					{{paneltype}}
 				</td>
 				<td>
+					{{#locationurl}}<a href="{{locationurl}}" target="_blank">{{/locationurl}}
 					{{locations}}
+					{{#locationurl}}</a>{{/locationurl}}
 				</td>
 				{{#hasRunmode}}
 					<td>
@@ -64,5 +66,9 @@
 	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-summary">
 		<span class="glyphicon glyphicon-plus"></span>
 		{{lang_summaryPanel}}
+	</a>
+	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-url">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_urlPanel}}
 	</a>
 </div>

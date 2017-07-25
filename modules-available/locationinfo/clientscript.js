@@ -36,7 +36,7 @@ const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturd
  * Adds a new opening time to the table in expert mode.
  */
 function newOpeningTime(vals) {
-	var $row = $('#expert-template div.row').clone();
+	var $row = $('#expert-template').find('div.row').clone();
 	if (vals['days'] && Array.isArray(vals['days'])) {
 		for (var i = 0; i < allDays.length; ++i) {
 			$row.find('.i-' + allDays[i]).attr('checked', vals['days'].indexOf(allDays[i]) !== -1);

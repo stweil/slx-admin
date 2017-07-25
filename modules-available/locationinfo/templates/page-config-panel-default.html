@@ -8,6 +8,7 @@
 <form method="post" action="?do=locationinfo" id="config-form">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="writePanelConfig">
+	<input type="hidden" name="ptype" value="DEFAULT">
 	<input type="hidden" name="uuid" value="{{uuid}}">
 
 	<div class="row">
@@ -85,6 +86,22 @@
 								</div>
 								<div class="col-sm-2">
 									<a class="btn btn-default helptext" title="{{lang_ecoTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+						
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="input-prettytime">{{lang_prettytime}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input id="input-prettytime" type="checkbox" name="prettytime" {{prettytime_checked}}>
+								</div>
+								<div class="col-sm-2">
+									<a class="btn btn-default helptext" title="{{lang_prettytimeTooltip}}">
 										<span class="glyphicon glyphicon-question-sign"></span>
 									</a>
 								</div>

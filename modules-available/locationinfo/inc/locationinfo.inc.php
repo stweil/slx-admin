@@ -64,6 +64,7 @@ class LocationInfo
 			'mode' => 1,
 			'vertical' => false,
 			'eco' => false,
+			'prettytime' => true,
 			'scaledaysauto' => true,
 			'daystoshow' => 7,
 			'rotation' => 0,
@@ -88,10 +89,21 @@ class LocationInfo
 
 	public static function configHook($machineUuid, $panelUuid)
 	{
-		// TODO Panel type
+		$row = Database::queryFirst('SELECT paneltype, panelconfig FROM locationinfo_panel WHERE paneluuid = :uuid',
+				array('uuid' => $panelUuid));
+		if ($row === false) {
+			// TODO: Invalid panel - what should we do?
+		} elseif ($row['paneltype'] === 'URL') {
+			// Check if we should set the insecure SSL mode (accept invalid/self signed certs etc.)
+			$data = json_decode($row['panelconfig'], true);
+			if ($data && $data['insecure-ssl']) {
+				ConfigHolder::add('SLX_BROWSER_INSECURE', '1');
+			}
+		}
 		ConfigHolder::add('SLX_BROWSER_URL', 'http://' . $_SERVER['SERVER_ADDR'] . '/panel/' . $panelUuid);
 		ConfigHolder::add('SLX_ADDONS', '', 1000);
-		ConfigHolder::add('SLX_LOGOUT_TIMEOUT', 1000);
+		ConfigHolder::add('SLX_LOGOUT_TIMEOUT', '', 1000);
+		ConfigHolder::add('SLX_SCREEN_STANDBY_TIMEOUT', '', 1000);
 	}
 
 }

@@ -87,5 +87,22 @@
     "lang_typeTooltip": "Defines on which type of server you want to connect to",
     "lang_updateRates": "Update rates",
     "lang_vertical": "Vertical mode",
-    "lang_verticalTooltip": "Defines whether the room and calendar are shown above each other"
+    "lang_verticalTooltip": "Defines whether the room and calendar are shown above each other",
+    "lang_closed": "Closed",
+    "lang_free": "Free",
+    "lang_shortSun": "Sun",
+    "lang_shortMon": "Mon",
+    "lang_shortTue": "Tue",
+    "lang_shortWed": "Wed",
+    "lang_shortThu": "Thu",
+    "lang_shortFri": "Fri",
+    "lang_shortSat": "Sat",
+    "lang_longSun": "Sunday",
+    "lang_longMon": "Monday",
+    "lang_longTue": "Tuesday",
+    "lang_longWed": "Wednesday",
+    "lang_longThu": "Thursday",
+    "lang_longFri": "Friday",
+    "lang_longSat": "Saturday",
+    "lang_to": "to"
 }

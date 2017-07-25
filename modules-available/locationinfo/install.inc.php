@@ -26,7 +26,7 @@ $t3 = $res[] = tableCreate('locationinfo_panel', "
 	`paneluuid` char(36) CHARACTER SET ascii NOT NULL,
 	`panelname` varchar(30) NOT NULL,
 	`locationids` varchar(20) CHARACTER SET ascii NOT NULL,
-	`paneltype` enum('DEFAULT','SUMMARY') NOT NULL,
+	`paneltype` enum('DEFAULT','SUMMARY', 'URL') NOT NULL,
 	`panelconfig` blob NOT NULL,
 	`lastchange` int(10) UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY (`paneluuid`),
@@ -65,6 +65,11 @@ if ($t1 === UPDATE_DONE) {
 			REFERENCES `openslx`.`location` (`locationid`) ON DELETE CASCADE ON UPDATE CASCADE')) {
 		$res[] = UPDATE_RETRY;
 	}
+}
+
+if ($t3 === UPDATE_NOOP) {
+	Database::exec("ALTER TABLE `locationinfo_panel` CHANGE `paneltype`
+		`paneltype` ENUM('DEFAULT', 'SUMMARY', 'URL') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
 }
 
 // Create response for browser

@@ -10,13 +10,16 @@ class Page_LocationInfo extends Page
 	 */
 	protected function doPreprocess()
 	{
+		$show = Request::any('show', '', 'string');
+		if ($show === 'panel') {
+			$this->showPanel();
+			exit(0);
+		}
 		User::load();
 		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main'); // does not return
 		}
-
-		$show = Request::any('show', '', 'string');
 		$this->action = Request::post('action');
 		if ($this->action === 'writePanelConfig') {
 			$this->writePanelConfig();
@@ -49,6 +52,7 @@ class Page_LocationInfo extends Page
 	 */
 	protected function doRender()
 	{
+		// Do this here so we always see backend errors
 		$backends = $this->loadBackends();
 		$show = Request::get('show', '', 'string');
 		Render::addTemplate('page-tabs', array('class-' . $show => 'active'));
@@ -77,7 +81,7 @@ class Page_LocationInfo extends Page
 	{
 		$id = Request::post('serverid', false, 'int');
 		if ($id === false) {
-			Messages::addError('server-id-missing');
+			Message::addError('server-id-missing');
 			return;
 		}
 		$res = Database::exec("DELETE FROM `locationinfo_coursebackend` WHERE serverid=:id", array('id' => $id));
@@ -90,7 +94,7 @@ class Page_LocationInfo extends Page
 	{
 		$id = Request::post('uuid', false, 'string');
 		if ($id === false) {
-			Messages::addError('main.parameter-missing', 'uuid');
+			Message::addError('main.parameter-missing', 'uuid');
 			return;
 		}
 		$res = Database::exec("DELETE FROM `locationinfo_panel` WHERE paneluuid = :id", array('id' => $id));
@@ -208,6 +212,31 @@ class Page_LocationInfo extends Page
 	}
 
 	/**
+	 * Get all location ids from the locationids parameter, which is comma separated, then split
+	 * and remove any ids that don't exist. The cleaned list will be returned
+	 * @param bool $failIfEmpty Show error and redirect to main page if parameter is missing or list is empty
+	 * @return array list of locations from parameter
+	 */
+	private function getLocationIdsFromRequest($failIfEmpty)
+	{
+		$locationids = Request::post('locationids', false, 'string');
+		if ($locationids === false) {
+			if (!$failIfEmpty)
+				return array();
+			Message::addError('main.paramter-missing', 'locationids');
+			Util::redirect('?do=locationinfo');
+		}
+		$locationids = explode(',', $locationids);
+		$all = array_map(function ($item) { return $item['locationid']; }, Location::queryLocations());
+		$locationids = array_filter($locationids, function ($item) use ($all) { return in_array($item, $all); });
+		if ($failIfEmpty && empty($locationids)) {
+			Message::addError('main.paramter-empty', 'locationids');
+			Util::redirect('?do=locationinfo');
+		}
+		return $locationids;
+	}
+
+	/**
 	 * Updated the config in the db.
 	 */
 	private function writePanelConfig()
@@ -218,19 +247,43 @@ class Page_LocationInfo extends Page
 			Message::addError('invalid-panel-id', $paneluuid);
 			Util::redirect('?do=locationinfo');
 		}
+		// Check panel type
+		$paneltype = Request::post('ptype', false, 'string');
+
+		if ($paneltype === 'DEFAULT') {
+			$params = $this->preparePanelConfigDefault();
+		} elseif ($paneltype === 'URL') {
+			$params = $this->preparePanelConfigUrl();
+		} else {
+			Message::addError('invalid-panel-type', $paneltype);
+			Util::redirect('?do=locationinfo');
+		}
+
+		if ($paneluuid === 'new') {
+			$paneluuid = Util::randomUuid();
+			$query = "INSERT INTO `locationinfo_panel` (paneluuid, panelname, locationids, paneltype, panelconfig, lastchange)
+				VALUES (:id, :name, :locationids, :type, :config, :now)";
+		} else {
+			$query = "UPDATE `locationinfo_panel`
+				SET panelname = :name, locationids = :locationids, paneltype = :type, panelconfig = :config, lastchange = :now
+				WHERE paneluuid = :id";
+		}
+		$params['id'] = $paneluuid;
+		$params['name'] = Request::post('name', '-', 'string');
+		$params['type'] = $paneltype;
+		$params['now'] = time();
+		$params['config'] = json_encode($params['config']);
+		$params['locationids'] = implode(',', $params['locationids']);
+		Database::exec($query, $params);
+
+		Message::addSuccess('config-saved');
+		Util::redirect('?do=locationinfo');
+	}
+
+	private function preparePanelConfigDefault()
+	{
 		// Check locations
-		$locationids = Request::post('locationids', false, 'string');
-		if ($locationids === false) {
-			Message::addError('main.paramter-missing', 'locationids');
-			Util::redirect('?do=locationinfo');
-		}
-		$locationids = explode(',', $locationids);
-		$all = array_map(function ($item) { return $item['locationid']; }, Location::queryLocations());
-		$locationids = array_filter($locationids, function ($item) use ($all) { return in_array($item, $all); });
-		if (empty($locationids)) {
-			Message::addError('main.paramter-empty', 'locationids');
-			Util::redirect('?do=locationinfo');
-		}
+		$locationids = self::getLocationIdsFromRequest(true);
 		if (count($locationids) > 4) {
 			$locationids = array_slice($locationids, 0, 4);
 		}
@@ -240,6 +293,7 @@ class Page_LocationInfo extends Page
 			'mode' => Request::post('mode', 1, 'int'),
 			'vertical' => Request::post('vertical', false, 'bool'),
 			'eco' => Request::post('eco', false, 'bool'),
+			'prettytime' => Request::post('prettytime', false, 'bool'),
 			'scaledaysauto' => Request::post('scaledaysauto', false, 'bool'),
 			'daystoshow' => Request::post('daystoshow', 7, 'int'),
 			'rotation' => Request::post('rotation', 0, 'int'),
@@ -254,27 +308,16 @@ class Page_LocationInfo extends Page
 		if ($conf['calupdate'] < 30) {
 			$conf['calupdate'] = 30;
 		}
+		return array('config' => $conf, 'locationids' => $locationids);
+	}
 
-		if ($paneluuid === 'new') {
-			$paneluuid = Util::randomUuid();
-			$query = "INSERT INTO `locationinfo_panel` (paneluuid, panelname, locationids, paneltype, panelconfig, lastchange)
-				VALUES (:id, :name, :locationids, :type, :config, :now)";
-		} else {
-			$query = "UPDATE `locationinfo_panel`
-				SET panelname = :name, locationids = :locationids, paneltype = :type, panelconfig = :config, lastchange = :now
-				WHERE paneluuid = :id";
-		}
-		Database::exec($query, array(
-			'id' => $paneluuid,
-			'name' => Request::post('name', '-', 'string'),
-			'locationids' => implode(',', $locationids),
-			'type' => 'DEFAULT', // TODO
-			'config' => json_encode($conf),
-			'now' => time(),
-		));
-
-		Message::addSuccess('config-saved');
-		Util::redirect('?do=locationinfo');
+	private function preparePanelConfigUrl()
+	{
+		$conf = array(
+			'url' => Request::post('url', 'https://www.bwlehrpool.de/', 'string'),
+			'insecure-ssl' => Request::post('insecure-ssl', 0, 'int'),
+		);
+		return array('config' => $conf, 'locationids' => []);
 	}
 
 	/**
@@ -402,6 +445,8 @@ class Page_LocationInfo extends Page
 
 		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$locid = (int)$row['locationid'];
+			if (!isset($locations[$locid]))
+				continue;
 			$glyph = !empty($row['openingtime']) ? 'ok' : '';
 			$backend = '';
 			if (!empty($row['serverid']) && !empty($row['serverlocationid'])) {
@@ -437,7 +482,7 @@ class Page_LocationInfo extends Page
 
 	private function showPanelsTable()
 	{
-		$res = Database::simpleQuery('SELECT p.paneluuid, p.panelname, p.locationids,
+		$res = Database::simpleQuery('SELECT p.paneluuid, p.panelname, p.locationids, p.panelconfig,
 			p.paneltype FROM locationinfo_panel p
 			ORDER BY panelname ASC');
 		$hasRunmode = Module::isAvailable('runmode');
@@ -447,11 +492,16 @@ class Page_LocationInfo extends Page
 		$panels = array();
 		$locations = Location::getLocationsAssoc();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$lids = explode(',', $row['locationids']);
-			$locs = array_map(function($id) use ($locations) {
-				return isset($locations[$id]) ? $locations[$id]['locationname'] : $id;
-			}, $lids);
-			$row['locations'] = implode(', ', $locs);
+			if ($row['paneltype'] === 'URL') {
+				$url = json_decode($row['panelconfig'], true)['url'];
+				$row['locations'] = $row['locationurl'] = $url;
+			} else {
+				$lids = explode(',', $row['locationids']);
+				$locs = array_map(function ($id) use ($locations) {
+					return isset($locations[$id]) ? $locations[$id]['locationname'] : $id;
+				}, $lids);
+				$row['locations'] = implode(', ', $locs);
+			}
 			$len = mb_strlen($row['panelname']);
 			if ($len < 5) {
 				$row['panelname'] .= str_repeat('…', 5 - $len);
@@ -720,6 +770,13 @@ class Page_LocationInfo extends Page
 				'paneltype' => 'SUMMARY',
 			);
 			$id = 'new';
+		} elseif ($id === 'new-url') {
+			// Creating new panel
+			$panel = array(
+				'panelname' => '',
+				'paneltype' => 'URL',
+			);
+			$id = 'new';
 		} else {
 			// Get Config data from db
 			$panel = Database::queryFirst("SELECT panelname, locationids, paneltype, panelconfig
@@ -756,6 +813,7 @@ class Page_LocationInfo extends Page
 				'mode' => $config['mode'],
 				'vertical_checked' => $config['vertical'] ? 'checked' : '',
 				'eco_checked' => $config['eco'] ? 'checked' : '',
+				'prettytime_checked' => $config['prettytime'] ? 'checked' : '',
 				'scaledaysauto_checked' => $config['scaledaysauto'] ? 'checked' : '',
 				'daystoshow' => $config['daystoshow'],
 				'rotation' => $config['rotation'],
@@ -765,6 +823,14 @@ class Page_LocationInfo extends Page
 				'roomupdate' => $config['roomupdate'],
 				'locations' => Location::getLocations(),
 				'locationids' => $panel['locationids'],
+			));
+		} elseif ($panel['paneltype'] === 'URL') {
+			Render::addTemplate('page-config-panel-url', array(
+				'new' => $id === 'new',
+				'uuid' => $id,
+				'panelname' => $panel['panelname'],
+				'url' => $config['url'],
+				'ssl_checked' => $config['insecure-ssl'] ? 'checked' : '',
 			));
 		} else { // TODO
 			Render::addTemplate('page-config-panel-summary', array(
@@ -777,6 +843,38 @@ class Page_LocationInfo extends Page
 				'locationids' => $panel['locationids'],
 			));
 		}
+	}
+
+	private function showPanel()
+	{
+		$uuid = Request::get('uuid', false, 'string');
+		if ($uuid === false) {
+			http_response_code(400);
+			die('Missing parameter uuid');
+		}
+		$type = InfoPanel::getConfig($uuid, $config);
+		if ($type === false) {
+			http_response_code(404);
+			die('Panel with given uuid not found');
+		}
+
+		if ($type === 'URL') {
+			Util::redirect($config['url']);
+		}
+
+		$data = array(
+			'uuid' => $uuid,
+			'config' => json_encode($config),
+			'language' => $config['language'],
+		);
+
+		preg_match('#^(.*)/#', $_SERVER['PHP_SELF'], $script);
+		preg_match('#^([^?]+)/#', $_SERVER['REQUEST_URI'], $request);
+		if ($script[1] !== $request[1]) {
+			$data['dirprefix'] = $script[1] . '/';
+		}
+
+		echo Render::parse('frontend-default', $data);
 	}
 
 }
