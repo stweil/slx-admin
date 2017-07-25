@@ -88,14 +88,15 @@ class Page_Roomplanner extends Page
 
 		if ($this->action === 'getmachines') {
 			$query = Request::get('query', false, 'string');
+			$aquery = preg_replace('/[^\x01-\x7f]+/', '%', $query);
 
 			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
 				. 'FROM machine '
-				. 'WHERE machineuuid LIKE :query '
-				. ' OR macaddr  	 LIKE :query '
-				. ' OR clientip    LIKE :query '
+				. 'WHERE machineuuid LIKE :aquery '
+				. ' OR macaddr  	 LIKE :aquery '
+				. ' OR clientip    LIKE :aquery '
 				. ' OR hostname	 LIKE :query '
-				. ' LIMIT 100', ['query' => "%$query%"]);
+				. ' LIMIT 100', ['query' => "%$query%", 'aquery' => "%$aquery%"]);
 
 			$returnObject = ['machines' => []];
 
