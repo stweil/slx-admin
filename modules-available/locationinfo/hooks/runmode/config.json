@@ -3,5 +3,5 @@
 	"isClient": false,
 	"configHook": "LocationInfo::configHook",
 	"noSysconfig": true,
-	"systemdDefaultTarget": "multi-user"
+	"systemdDefaultTarget": "kiosk-mode"
 }
