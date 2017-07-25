@@ -179,9 +179,7 @@ abstract class CourseBackend
 				$remoteIds[$row['locationid']] = $row['serverlocationid'];
 			}
 		}
-		error_log('Fetching ' . $this->serverId);
 		$backendResponse = $this->fetchSchedulesInternal($remoteIds);
-		error_log('Reply: ' . print_r($backendResponse, true));
 		if ($backendResponse === false) {
 			return false;
 		}
@@ -250,6 +248,19 @@ abstract class CourseBackend
 			// Convert 'path/syntax/foo/wanteditem' to array for further processing and recursive calls
 			$path = explode('/', $path);
 		}
+		if (isset($array[0])) {
+			// The currently handled element of the path exists multiple times on the current level, so it is
+			// wrapped in a plain array - recurse into each one of them and merge the results
+			$return = [];
+			foreach ($array as $item) {
+				$test = $this->getArrayPath($item, $path);
+				If (is_array($test)) {
+					$return = array_merge($return, $test);
+				}
+
+			}
+			return $return;
+		}
 		do {
 			// Get next element from array, loop to ignore empty elements (so double slashes in the path are allowed)
 			$element = array_shift($path);
@@ -276,20 +287,7 @@ abstract class CourseBackend
 			// children - error
 			return false;
 		}
-		if (isset($array[$element][0])) {
-			// The currently handled element of the path exists multiple times on the current level, so it is
-			// wrapped in a plain array - recurse into each one of them and merge the results
-			$return = [];
-			foreach ($array[$element] as $item) {
-				$test = $this->getArrayPath($item, $path);
-				If (gettype($test) == "array") {
-					$return = array_merge($return, $test);
-				}
-
-			}
-			return $return;
-		}
-		// Unique non-leaf node - simple recursion
+		// Non-leaf node - simple recursion
 		return $this->getArrayPath($array[$element], $path);
 	}
 

@@ -117,11 +117,11 @@ class CourseBackend_HisInOne extends CourseBackend
 			return false;
 		}
 		if (!isset($response2['soapenvBody'])) {
-			$this->error = 'findUnit(' . $roomId . '): Backend reply is missing element soapenvBody';
+			$this->error = 'Backend reply is missing element soapenvBody';
 			return false;
 		}
 		if (isset($response2['soapenvBody']['soapenvFault'])) {
-			$this->error = $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
+			$this->error = 'SOAP-Fault (' . $response2['soapenvBody']['soapenvFault']['faultcode'] . ") " . $response2['soapenvBody']['soapenvFault']['faultstring'];
 			return false;
 		}
 		// We only need to check if the connection is working (URL ok, credentials ok, ..) so bail out early
@@ -129,15 +129,26 @@ class CourseBackend_HisInOne extends CourseBackend
 			return array();
 		}
 		if ($this->open) {
-			$path = '/soapenvBody/hisfindUnitResponse/hisunits/hisunit/hisid';
+			$path = '/soapenvBody/hisfindUnitResponse/hisunits';
+			$subpath = '/hisunit/hisid';
 		} else {
-			$path = '/soapenvBody/hisfindUnitResponse/hisunitIds/hisid';
+			$path = '/soapenvBody/hisfindUnitResponse/hisunitIds';
+			$subpath = '/hisid';
 		}
-		$id = $this->getArrayPath($response2, $path);
-		if ($id === false) {
+		$idSubDoc = $this->getArrayPath($response2, $path);
+		if ($idSubDoc === false) {
 			$this->error = 'Cannot find ' . $path;
+			//@file_put_contents('/tmp/findUnit-1.' . $roomId . '.' . microtime(true), print_r($response2, true));
+			return false;
 		}
-		return $id;
+		if (empty($idSubDoc))
+			return $idSubDoc;
+		$idList = $this->getArrayPath($idSubDoc, $subpath);
+		if ($idList === false) {
+			$this->error = 'Cannot find ' . $subpath . ' after ' . $path;
+			@file_put_contents('/tmp/findUnit-2.' . $roomId . '.' . microtime(true), print_r($idSubDoc, true));
+		}
+		return $idList;
 	}
 
 	/**
@@ -231,8 +242,10 @@ class CourseBackend_HisInOne extends CourseBackend
 		foreach ($requestedRoomIds as $roomId) {
 			$roomEventIds = $this->findUnit($roomId);
 			if ($roomEventIds === false) {
-				error_log($this->error);
-				$this->error = false;
+				if ($this->error !== false) {
+					error_log('Cannot findUnit(' . $roomId . '): ' . $this->error);
+					$this->error = false;
+				}
 				// TODO: Error gets swallowed
 				continue;
 			}
@@ -248,7 +261,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		foreach ($eventIds as $eventId) {
 			$event = $this->readUnit(intval($eventId));
 			if ($event === false) {
-				error_log($this->error);
+				error_log('Cannot readUnit(' . $eventId . '): ' . $this->error);
 				$this->error = false;
 				// TODO: Error gets swallowed
 				continue;
@@ -256,6 +269,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			$eventDetails = array_merge($eventDetails, $event);
 		}
 		$currentWeek = $this->getCurrentWeekDates();
+		$name = false;
 		foreach ($eventDetails as $event) {
 			foreach (array('/hisdefaulttext',
 							'/hisshorttext',
@@ -273,7 +287,9 @@ class CourseBackend_HisInOne extends CourseBackend
 				'/hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
 			if ($unitPlannedDates === false) {
 				$this->error = 'Cannot find ./hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate';
-				return false;
+				error_log('Cannot find ./hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
+				error_log(print_r($event, true));
+				continue;
 			}
 			foreach ($unitPlannedDates as $plannedDate) {
 				$eventRoomId = $this->getArrayPath($plannedDate, '/hisroomId')[0];
@@ -326,11 +342,11 @@ class CourseBackend_HisInOne extends CourseBackend
 		if ($response2 === false)
 			return false;
 		if (!isset($response2['soapenvBody'])) {
-			$this->error = 'findUnit(' . $unit . '): Backend reply is missing element soapenvBody';
+			$this->error = 'Backend reply is missing element soapenvBody';
 			return false;
 		}
 		if (isset($response2['soapenvBody']['soapenvFault'])) {
-			$this->error = 'SOAP-Fault' . $response2['soapenvBody']['soapenvFault']['faultcode'] . " " . $response2['soapenvBody']['soapenvFault']['faultstring'];
+			$this->error = 'SOAP-Fault (' . $response2['soapenvBody']['soapenvFault']['faultcode'] . ") " . $response2['soapenvBody']['soapenvFault']['faultstring'];
 			return false;
 		}
 		return $this->getArrayPath($response2, '/soapenvBody/hisreadUnitResponse/hisunit');
