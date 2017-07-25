@@ -21,6 +21,7 @@ class Download
 		curl_setopt($ch, CURLOPT_MAXREDIRS, 6);
 		$tmpfile = tempnam('/tmp/', 'bwlp-');
 		$head = fopen($tmpfile, 'w+b');
+		unlink($tmpfile);
 		if ($head === false)
 			Util::traceError("Could not open temporary head file $tmpfile for writing.");
 		curl_setopt($ch, CURLOPT_WRITEHEADER, $head);
