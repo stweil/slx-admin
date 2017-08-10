@@ -2,14 +2,15 @@
 
 $res = array();
 
-$res[] = tableCreate('runmode', '
+$res[] = tableCreate('runmode', "
 	`machineuuid` char(36) CHARACTER SET ascii NOT NULL,
 	`module` varchar(30) CHARACTER SET ascii NOT NULL,
 	`modeid` varchar(60) CHARACTER SET ascii NOT NULL,
 	`modedata` blob DEFAULT NULL,
+	`isclient` bool DEFAULT '1',
 	PRIMARY KEY (`machineuuid`),
 	KEY `module` (`module`,`modeid`)
-');
+");
 
 if (!tableExists('machine')) {
 	// Cannot add constraint yet
@@ -24,6 +25,15 @@ if (!tableExists('machine')) {
 		if ($alter === false)
 			finalResponse(UPDATE_FAILED, 'Cannot add machineuuid constraint to runmode table: ' . Database::lastError());
 		$res[] = UPDATE_DONE;
+	}
+}
+
+if (!tableHasColumn('runmode', 'isclient')) {
+	$ret = Database::exec("ALTER TABLE runmode ADD COLUMN isclient bool DEFAULT '1'");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Could not add lastchange field');
+	} elseif ($ret > 0) {
+		$ret[] = UPDATE_DONE;
 	}
 }
 

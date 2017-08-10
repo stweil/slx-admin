@@ -9,7 +9,7 @@ class RunMode
 	 * Get runmode config for a specific module
 	 *
 	 * @param string $module name of module
-	 * @return RunModeModuleConfig|false
+	 * @return \RunModeModuleConfig|false config, false if moudles doesn't support run modes
 	 */
 	public static function getModuleConfig($module)
 	{
@@ -23,7 +23,15 @@ class RunMode
 		return (self::$moduleConfigs[$module] = new RunModeModuleConfig($file));
 	}
 
-	public static function setRunMode($machineuuid, $moduleId, $modeId, $modeData)
+	/**
+	 * @param string $machineuuid
+	 * @param string $moduleId
+	 * @param string|null $modeId an ID specific to the module to further specify the run mode, NULL to delete the run mode entry
+	 * @param string|null $modeData optional, additional data for the run mode
+	 * @param bool|null $isClient whether to count the machine as a client (in statistics etc.) NULL for looking at module's general runmode config
+	 * @return bool whether it was set
+	 */
+	public static function setRunMode($machineuuid, $moduleId, $modeId, $modeData, $isClient)
 	{
 		// - Check if module provides runmode config at all
 		$config = self::getModuleConfig($moduleId);
@@ -37,13 +45,18 @@ class RunMode
 		if (is_null($modeId)) {
 			Database::exec('DELETE FROM runmode WHERE machineuuid = :machineuuid', compact('machineuuid'));
 		} else {
-			Database::exec('INSERT INTO runmode (machineuuid, module, modeid, modedata)'
-				. ' VALUES (:uuid, :module, :modeid, :modedata)'
-				. ' ON DUPLICATE KEY UPDATE module = VALUES(module), modeid = VALUES(modeid), modedata = VALUES(modedata)', array(
+			if ($isClient === null) {
+				$isClient = $config->isClient;
+			}
+			Database::exec('INSERT INTO runmode (machineuuid, module, modeid, modedata, isclient)'
+				. ' VALUES (:uuid, :module, :modeid, :modedata, :isclient)'
+				. ' ON DUPLICATE KEY'
+				. ' UPDATE module = VALUES(module), modeid = VALUES(modeid), modedata = VALUES(modedata), isclient = VALUES(isclient)', array(
 					'uuid' => $machineuuid,
 					'module' => $moduleId,
 					'modeid' => $modeId,
 					'modedata' => $modeData,
+					'isclient' => ($isClient ? 1 : 0),
 			));
 		}
 		return true;
