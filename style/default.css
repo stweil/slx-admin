@@ -493,6 +493,7 @@ it only applies if they're in a container that has the checkbox class */
 	padding-left: 5px;
 }
 .checkbox label::before {
+	top: 1px;
 	content: "";
 	display: inline-block;
 	position: absolute;
@@ -513,7 +514,7 @@ it only applies if they're in a container that has the checkbox class */
 	width: 16px;
 	height: 16px;
 	left: 0;
-	top: 0;
+	top: 1px;
 	margin-left: -20px;
 	padding-left: 3px;
 	padding-top: 1px;
@@ -524,7 +525,9 @@ it only applies if they're in a container that has the checkbox class */
 .checkbox input[type="radio"] {
 	opacity: 0;
 	z-index: 1;
-	top: -6px;
+	top: -3px;
+	width: 17px;
+	height: 17px;
 }
 
 
