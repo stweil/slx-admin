@@ -25,7 +25,9 @@ class CourseBackend_Davinci extends CourseBackend
 		if (empty($this->location)) {
 			$this->error = "Credentials are not set";
 		} else {
-			$data = $this->fetchRoomRaw('someroomid123');
+			$startDate = new DateTime('today 0:00');
+			$endDate = new DateTime('+7 days 0:00');
+			$data = $this->fetchRoomRaw('someroomid123', $startDate, $endDate);
 			if ($data !== false && strpos($data, 'DAVINCI SERVER') === false) {
 				$this->error = "Unknown reply; this doesn't seem to be a DAVINCI server.";
 			}
@@ -58,7 +60,9 @@ class CourseBackend_Davinci extends CourseBackend
 	}
 
 	/**
-	 * @param $roomId string name of the room
+	 * @param string $roomId unique name of the room, as used by davinci
+	 * @param \DateTime $startDate start date to fetch
+	 * @param \DateTime $endDate end date of range to fetch
 	 * @return array|bool if successful the arrayrepresentation of the timetable
 	 */
 	private function fetchRoomRaw($roomId, $startDate, $endDate)

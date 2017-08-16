@@ -19,7 +19,8 @@ $t2 = $res[] = tableCreate('locationinfo_coursebackend', '
 	`servertype` VARCHAR(100) NOT NULL,
 	`credentials` BLOB,
 	`error` VARCHAR(500),
-	PRIMARY KEY (`serverid`)
+	PRIMARY KEY (`serverid`),
+	KEY `servername` (`servername`)
 ');
 
 $t3 = $res[] = tableCreate('locationinfo_panel', "
@@ -71,6 +72,9 @@ if ($t3 === UPDATE_NOOP) {
 	Database::exec("ALTER TABLE `locationinfo_panel` CHANGE `paneltype`
 		`paneltype` ENUM('DEFAULT', 'SUMMARY', 'URL') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
 }
+
+// 2017-07-26 Add servername key
+Database::exec("ALTER TABLE `locationinfo_coursebackend` ADD KEY `servername` (`servername`)");
 
 // Create response for browser
 
