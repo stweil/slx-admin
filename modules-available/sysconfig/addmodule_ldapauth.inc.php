@@ -9,12 +9,15 @@ class LdapAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		$LDAPAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'ssl', 'certificate');
+		$LDAPAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'ssl', 'fixnumeric', 'certificate');
 		$data = array();
 		if ($this->edit !== false) {
 			moduleToArray($this->edit, $data, $LDAPAUTH_COMMON_FIELDS);
 			$data['title'] = $this->edit->title();
 			$data['edit'] = $this->edit->id();
+		}
+		if ($data['fixnumeric'] === false) {
+			$data['fixnumeric'] = 's';
 		}
 		postToArray($data, $LDAPAUTH_COMMON_FIELDS, true);
 		if (preg_match('/^(.*)\:(636|389)$/', $data['server'], $out)) {
@@ -72,6 +75,7 @@ class LdapAuth_CheckConnection extends AddModule_Base
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl'),
+			'fixnumeric' => Request::post('fixnumeric'),
 			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id']
 		);
@@ -142,6 +146,7 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 				'bindpw' => Request::post('bindpw'),
 				'home' => Request::post('home'),
 				'ssl' => Request::post('ssl') === 'on',
+				'fixnumeric' => Request::post('fixnumeric'),
 				'fingerprint' => Request::post('fingerprint'),
 				'certificate' => Request::post('certificate', ''),
 				'prev' => 'LdapAuth_Start',
@@ -181,6 +186,7 @@ class LdapAuth_HomeDir extends AddModule_Base
 			'home' => Request::post('home'),
 			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
+			'fixnumeric' => Request::post('fixnumeric'),
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => Request::post('originalbinddn'),
@@ -243,6 +249,7 @@ class LdapAuth_Finish extends AddModule_Base
 		$module->setData('home', Request::post('home'));
 		$module->setData('certificate', Request::post('certificate'));
 		$module->setData('ssl', $ssl);
+		$module->setData('fixnumeric', Request::post('fixnumeric', '', 'string'));
 		foreach (LdapAuth_HomeDir::getAttributes() as $key) {
 			$value = Request::post($key);
 			if (is_numeric($value)) {

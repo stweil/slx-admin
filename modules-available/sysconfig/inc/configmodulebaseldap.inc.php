@@ -6,7 +6,7 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 	const VERSION = 2;
 
 	private static $REQUIRED_FIELDS = array('server', 'searchbase');
-	private static $OPTIONAL_FIELDS = array('binddn', 'bindpw', 'home', 'ssl', 'fingerprint', 'certificate', 'homeattr',
+	private static $OPTIONAL_FIELDS = array('binddn', 'bindpw', 'home', 'ssl', 'fixnumeric', 'fingerprint', 'certificate', 'homeattr',
 		'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia',
 		'shareOther', 'shareHomeDrive', 'shareDomain', 'credentialPassthrough');
 
@@ -38,6 +38,9 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 		}
 		if (!isset($config['shareHomeDrive'])) {
 			$config['shareHomeDrive'] = 'H:';
+		}
+		if (!isset($config['fixnumeric'])) {
+			$config['fixnumeric'] = 's';
 		}
 		$this->preTaskmanagerHook($config);
 		return Taskmanager::submit('CreateLdapConfig', $config);
