@@ -1,0 +1,7 @@
+{
+    "require": {
+        "php-ews/php-ews": "dev-master"
+    },
+	"minimum-stability": "dev",
+	"prefer-stable" : true
+}
