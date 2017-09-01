@@ -14,11 +14,12 @@
 	<input name="ssl" value="on" type="hidden">
 	<input type="hidden" name="certificate" value="{{certificate}}">
 	{{/ssl}}
+	<input name="fixnumeric" value="{{fixnumeric}}" type="hidden">
 	<input name="fingerprint" value="{{fingerprint}}" type="hidden">
 
 	<div class="slx-bold">{{lang_credentialPassing}}</div>
 	<div class="checkbox">
-		<input type="checkbox" class="form-control" id="inputcredentialPassthrough" name="credentialPassthrough">
+		<input type="checkbox" class="form-control" id="inputcredentialPassthrough" name="credentialPassthrough" {{credentialPassthrough_c}}>
 		<label for="inputcredentialPassthrough">{{lang_credentialPassing}}</label>
 	</div>
 	<div><i>{{lang_credPassingNotes}}</i></div>
@@ -42,7 +43,7 @@
 	<div class="form-group row">
 		<label for="inputshareDomain" class="control-label col-xs-4">{{lang_shareDomainLabel}}</label>
 		<div class="col-xs-8">
-			<input type="text" class="form-control" id="inputshareDomain" name="shareDomain">
+			<input type="text" class="form-control" id="inputshareDomain" name="shareDomain" value="{{shareDomain}}">
 			<p><i>{{lang_shareDomainNote}}</i></p>
 		</div>
 	</div>

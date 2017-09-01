@@ -13,12 +13,15 @@ class AdAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'certificate');
+		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'certificate');
 		$data = array();
 		if ($this->edit !== false) {
 			moduleToArray($this->edit, $data, $ADAUTH_COMMON_FIELDS);
 			$data['title'] = $this->edit->title();
 			$data['edit'] = $this->edit->id();
+		}
+		if ($data['fixnumeric'] === false) {
+			$data['fixnumeric'] = 's';
 		}
 		postToArray($data, $ADAUTH_COMMON_FIELDS, true);
 		$obdn = Request::post('originalbinddn');
@@ -92,6 +95,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'home' => Request::post('home'),
 			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl'),
+			'fixnumeric' => Request::post('fixnumeric'),
 			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id']
 		);
@@ -190,6 +194,7 @@ class AdAuth_SelfSearch extends AddModule_Base
 			'home' => Request::post('home'),
 			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
+			'fixnumeric' => Request::post('fixnumeric'),
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => $this->originalBindDn,
@@ -265,6 +270,7 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 				'home' => Request::post('home'),
 				'homeattr' => Request::post('homeattr'),
 				'ssl' => Request::post('ssl') === 'on',
+				'fixnumeric' => Request::post('fixnumeric'),
 				'fingerprint' => Request::post('fingerprint'),
 				'certificate' => Request::post('certificate', ''),
 				'originalbinddn' => Request::post('originalbinddn'),
@@ -335,6 +341,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 				'home' => Request::post('home'),
 				'homeattr' => Request::post('homeattr'),
 				'ssl' => Request::post('ssl') === 'on',
+				'fixnumeric' => Request::post('fixnumeric'),
 				'fingerprint' => Request::post('fingerprint'),
 				'certificate' => Request::post('certificate', ''),
 				'originalbinddn' => Request::post('originalbinddn'),
@@ -397,6 +404,7 @@ class AdAuth_HomeDir extends AddModule_Base
 			'home' => Request::post('home'),
 			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
+			'fixnumeric' => Request::post('fixnumeric'),
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => Request::post('originalbinddn'),
@@ -410,6 +418,7 @@ class AdAuth_HomeDir extends AddModule_Base
 				}
 			}
 			$data['shareRemapMode_' . $this->edit->getData('shareRemapMode')] = 'selected="selected"';
+			$data['shareDomain'] = $this->edit->getData('shareDomain');
 			$letter = $this->edit->getData('shareHomeDrive');
 		} else {
 			$data['shareDownloads_c'] = $data['shareMedia_c'] = $data['shareDocuments_c'] = $data['shareRemapCreate_c'] = 'checked="checked"';
@@ -457,6 +466,7 @@ class AdAuth_Finish extends AddModule_Base
 		$module->setData('homeattr', Request::post('homeattr'));
 		$module->setData('certificate', Request::post('certificate'));
 		$module->setData('ssl', $ssl);
+		$module->setData('fixnumeric', Request::post('fixnumeric', '', 'string'));
 		foreach (AdAuth_HomeDir::getAttributes() as $key) {
 			$value = Request::post($key);
 			if (is_numeric($value)) {

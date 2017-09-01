@@ -1,4 +1,13 @@
 <?php
+
+if (Request::any('action') === 'rebuild' && isLocalExecution()) {
+	if (Module::isAvailable('sysconfig')) {
+		SSHKey::getPublicKey();
+		ConfigTgz::rebuildAllConfigs();
+		echo "OK";
+	}
+	exit(0);
+}
 /*
 	Needed POST-Parameters:
 		'token' -- for authentification
@@ -15,7 +24,8 @@ foreach ($ips as $client) {
 	$clients[] = array("ip" => $client);
 }
 
-if (Request::post('token') == Property::get("rebootcontrol_APIPOSTKEY")) {
+$apikey = Property::get("rebootcontrol_APIPOSTKEY", 'not-set');
+if (!empty($apikey) && Request::post('token') === $apikey) {
 	if (Request::isPost()) {
 		if (Request::post('action') == 'shutdown') {
 			$shutdown = true;

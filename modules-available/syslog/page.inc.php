@@ -15,6 +15,12 @@ class Page_SysLog extends Page
 
 	protected function doRender()
 	{
+		$cutoff = strtotime('-1 month');
+		$res = Database::simpleQuery("SELECT logtypeid, Count(*) AS counter FROM clientlog WHERE dateline > $cutoff GROUP BY logtypeid ORDER BY counter ASC");
+		$types = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$types[$row['logtypeid']] = $row;
+		}
 		if (isset($_GET['filter'])) {
 			$filter = $_GET['filter'];
 			$not = isset($_GET['not']) ? 'NOT' : '';
@@ -35,6 +41,9 @@ class Page_SysLog extends Page
 				$filterItem = preg_replace('/[^a-z0-9_\-]/', '', trim($filterItem));
 				if (empty($filterItem) || in_array($filterItem, $whereClause)) continue;
 				$whereClause[] = "'$filterItem'";
+				if (!isset($types[$filterItem])) {
+					$types[$filterItem] = ['logtypeid' => $filterItem, 'counter' => ''];
+				}
 			}
 			if (!empty($whereClause)) $whereClause = ' WHERE logtypeid ' . $not . ' IN (' . implode(', ', $whereClause) . ')';
 		}
@@ -67,7 +76,8 @@ class Page_SysLog extends Page
 		$paginate->render('page-syslog', array(
 			'filter'   => $filter,
 			'not'      => $not,
-			'list'     => $lines
+			'list'     => $lines,
+			'types'    => json_encode(array_values($types)),
 		));
 	}
 	

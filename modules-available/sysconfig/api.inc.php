@@ -57,12 +57,7 @@ while ($r = $res->fetch(PDO::FETCH_ASSOC)) {
 
 if ($row === false) {
 	// TODO Not found in DB
-	deliverEmpty("No config.tgz for location $locationId found");
-}
-
-if (!file_exists($row['filepath'])) {
-	// TODO Does not exist
-	deliverEmpty();
+	deliverEmpty("No config.tgz for location $locationId found (src $ip)");
 }
 
 Header('Content-Type: application/gzip');

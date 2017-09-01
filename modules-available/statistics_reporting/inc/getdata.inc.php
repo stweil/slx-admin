@@ -29,6 +29,7 @@ class GetData
 			$data["medianSessionLength_s"] = self::formatSeconds($data["medianSessionLength"]);
 			$data["totalOffTime_s"] = self::formatSeconds($data["totalOffTime"]);
 		}
+		$data['uniqueUsers'] = Queries::getUniqueUserCount(self::$from, self::$to);
 
 		return $data;
 	}

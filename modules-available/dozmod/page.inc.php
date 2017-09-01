@@ -33,6 +33,7 @@ class Page_DozMod extends Page
 		}
 
 		/* add sub-menus */
+		Dashboard::addSubmenu('?do=dozmod&section=expiredimages', Dictionary::translate('submenu_expiredimages', true));
 		Dashboard::addSubmenu('?do=dozmod&section=mailconfig', Dictionary::translate('submenu_mailconfig', true));
 		Dashboard::addSubmenu('?do=dozmod&section=templates', Dictionary::translate('submenu_templates', true));
 		Dashboard::addSubmenu('?do=dozmod&section=runtimeconfig', Dictionary::translate('submenu_runtime', true));
@@ -46,35 +47,49 @@ class Page_DozMod extends Page
 		}
 
 		/* execute actions */
-		$action = Request::post('action');
+		$action = Request::post('action', false, 'string');
 
 		if ($action === 'mail') {
 			$this->mailHandler();
-		}
-		if ($action === 'runtime') {
+		} elseif ($action === 'runtime') {
 			$this->runtimeHandler();
-		}
-		if ($action === 'delimages') {
+		} elseif ($action === 'delimages') {
 			$result = $this->handleDeleteImages();
 			if (!empty($result)) {
 				Message::addInfo('delete-images', $result);
 			}
 			Util::redirect('?do=DozMod');
+		} elseif ($action !== false) {
+			Util::traceError('Invalid action: ' . $action);
 		}
 	}
 
 	protected function doRender()
 	{
-		$this->listDeletePendingImages();
-
 		/* different pages for different sections */
 		if ($this->subPage !== false) {
 			$this->subPage->doRender();
 			return;
 		}
 
-		$section = Request::get('section', 'mailconfig', 'string');
+		$section = Request::get('section', false, 'string');
 
+		if ($section === false || $section === 'expiredimages') {
+			$expiredImages = $this->loadExpiredImages();
+			if ($section === false && empty($expiredImages)) {
+				$section = 'mailconfig';
+			} else {
+				$section = 'expiredimages';
+			}
+		}
+
+		if ($section === 'expiredimages') {
+			if (empty($expiredImages)) {
+				Message::addSuccess('no-expired-images');
+			} else {
+				Render::addTemplate('images-delete', array('images' => $expiredImages));
+			}
+		}
 		if ($section === 'mailconfig') {
 			// Mail config
 			$mailConf = Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'mailconfig'));
@@ -140,7 +155,7 @@ class Page_DozMod extends Page
 		Render::addTemplate('blockstats', $data);
 	}
 
-	private function listDeletePendingImages()
+	private function loadExpiredImages()
 	{
 		$res = Database::simpleQuery("SELECT b.displayname,"
 				. " own.firstname, own.lastname, own.email,"
@@ -168,9 +183,7 @@ class Page_DozMod extends Page
 			$row['filesize'] = Util::readableFileSize($row['filesize']);
 			$rows[] = $row;
 		}
-		if (empty($rows))
-			return;
-		Render::addTemplate('images-delete', array('images' => $rows));
+		return $rows;
 	}
 
 	private function cleanMailArray()

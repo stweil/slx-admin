@@ -105,6 +105,17 @@ class Property
 		));
 	}
 
+	/**
+	 * Delete entire list with given key.
+	 *
+	 * @param string $key Key of list
+	 * @return int number of items removed
+	 */
+	public static function clearList($key)
+	{
+		return Database::exec("DELETE FROM property_list WHERE name = :key", compact('key'));
+	}
+
 	/*
 	 * Legacy getters/setters
 	 */

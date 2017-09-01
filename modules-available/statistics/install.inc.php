@@ -27,7 +27,7 @@ $res[] = tableCreate('statistic', "
 $res[] = $machineCreate = tableCreate('machine', "
   `machineuuid` char(36) CHARACTER SET ascii NOT NULL,
   `fixedlocationid` int(11) DEFAULT NULL           COMMENT 'Manually set location (e.g. roomplanner)',
-  `subnetlocationid` int(11) DEFAULT NULL          COMMENT 'Automatically determined location (e.g. from subnet match),
+  `subnetlocationid` int(11) DEFAULT NULL          COMMENT 'Automatically determined location (e.g. from subnet match)',
   `locationid` int(11) DEFAULT NULL                COMMENT 'Will be automatically set to fixedlocationid if not null, subnetlocationid otherwise',
   `macaddr` char(17) CHARACTER SET ascii NOT NULL,
   `clientip` varchar(45) CHARACTER SET ascii NOT NULL,

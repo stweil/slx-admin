@@ -40,19 +40,39 @@ class Render
 		self::$mustache = new Mustache_Engine($options);
 	}
 
+	private static function cssEsc($str)
+	{
+		return str_replace(array('"', '&', '<', '>'), array('\\000022', '\\000026', '\\00003c', '\\00003e'), $str);
+	}
+
 	/**
 	 * Output the buffered, generated page
 	 */
 	public static function output()
 	{
 		Header('Content-Type: text/html; charset=utf-8');
+		/* @var $modules Module[] */
 		$modules = array_reverse(Module::getActivated());
+		$pageModule = Page::getModule();
+		$title = Property::get('page-title-prefix', '');
+		$bgcolor = Property::get('logo-background', '');
+		if (!empty($bgcolor) || !empty($title)) {
+			self::$header .= '<style type="text/css">' . "\n";
+			if (!empty($bgcolor)) {
+				$fgcolor = self::readableColor($bgcolor);
+				self::$header .= ".navbar-header{background-color:$bgcolor}a.navbar-brand{color:$fgcolor!important}";
+			}
+			if (!empty($title)) {
+				self::$header .= '#navbar-sub:after{content:"' . self::cssEsc($title) . '";margin:0}';
+			}
+			self::$header .= "\n</style>";
+		}
 		ob_start('ob_gzhandler');
 		echo
 		'<!DOCTYPE html>
 	<html>
 		<head>
-			<title>', self::$title, RENDER_DEFAULT_TITLE, '</title>
+			<title>', $title, self::$title, RENDER_DEFAULT_TITLE, '</title>
 			<meta charset="utf-8"> 
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,9 +81,9 @@ class Render
 	';
 		// Include any module specific styles
 		foreach ($modules as $module) {
-			$file = $module->getDir() . '/style.css';
-			if (file_exists($file)) {
-				echo '<link href="', $file, '" rel="stylesheet" media="screen">';
+			$files = $module->getCss($module != $pageModule);
+			foreach ($files as $file) {
+				echo '<link href="', $module->getDir(), '/', $file, '" rel="stylesheet" media="screen">';
 			}
 		}
 		echo '	
@@ -91,9 +111,9 @@ class Render
 		<script src="script/collapse.js"></script>
 	';
 		foreach ($modules as $module) {
-			$file = $module->getDir() . '/clientscript.js';
-			if (file_exists($file)) {
-				echo '<script src="', $file, '"></script>';
+			$files = $module->getScripts($module != $pageModule);
+			foreach ($files as $file) {
+				echo '<script src="', $module->getDir(), '/', $file, '"></script>';
 			}
 		}
 		echo
@@ -283,6 +303,24 @@ class Render
 	public static function setDashboard($params)
 	{
 		self::$dashboard = $params;
+	}
+
+	public static function readableColor($hex) {
+		if (strlen($hex) <= 4) {
+			$cnt = 1;
+		} else {
+			$cnt = 2;
+		}
+		if (preg_match('/^#?([a-f0-9]{'.$cnt.'})([a-f0-9]{'.$cnt.'})([a-f0-9]{'.$cnt.'})$/i', $hex, $out) != 1)
+			return '#000';
+		$chans = array();
+		$f = ($cnt === 1 ? 17 : 1);
+		for ($i = 1; $i <= 3; ++$i) {
+			$out[$i] = (hexdec($out[$i]) * $f);
+			$chans[] = $out[$i] ^ 0x80;
+		}
+		$b = (255 - (0.299 * $out[1] + 0.587 * $out[2] + 0.114 * $out[3])) * 2;
+		return sprintf("#%02x%02x%02x", ($chans[0] + $b) / 3, ($chans[1] + $b) / 3, ($chans[2] + $b) / 3);
 	}
 
 }

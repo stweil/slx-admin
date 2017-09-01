@@ -1,0 +1,44 @@
+<h2>
+	{{lang_specialMachinesForMode}}:
+	<a href="?do={{module}}">{{modulename}}</a>
+</h2>
+
+<form method="post" action="?do=runmode" onclick="return confirm('{{lang_confirmDelete}}')">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="delete-machine">
+	<table class="table">
+		<tr>
+			<th>{{lang_machine}}</th>
+			<th>{{lang_mode}}</th>
+			<th class="slx-smallcol">{{lang_isclient}}</th>
+			<th class="slx-smallcol">{{lang_delete}}</th>
+		</tr>
+		{{#list}}
+			<tr>
+				<td>
+					<div class="slx-bold" title="{{clientip}}"><a
+							href="?do=statistics&amp;uuid={{machineuuid}}">{{hostname}}</a></div>
+					<div class="small">{{machineuuid}}</div>
+				</td>
+				<td>
+					{{#mode_name}}
+						<div>{{mode_name}}</div>
+						<div class="small">{{modeid}}</div>
+					{{/mode_name}}
+					{{^mode_name}}
+						<div>{{modeid}}</div>
+					{{/mode_name}}
+				</td>
+				<td class="text-center">
+					{{#isclient}}
+						<span class="glyphicon glyphicon-check text-success"></span>
+					{{/isclient}}
+				</td>
+				<td class="text-center">
+					<button class="btn btn-danger btn-sm" name="machineuuid" value="{{machineuuid}}"><span
+							class="glyphicon glyphicon-remove"></span></button>
+				</td>
+			</tr>
+		{{/list}}
+	</table>
+</form>

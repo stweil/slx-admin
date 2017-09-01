@@ -1,3 +1,4 @@
 {
-	"category":"main.content"
+	"category":"main.beta",
+	"dependencies": ["js_jqueryui", "bootstrap_timepicker", "locations", "bootstrap_switch"]
 }

@@ -17,7 +17,10 @@
 			</td>
 			<td width="30%" class="text-nowrap">
 				{{starttime_s}} &ensp; {{endtime_s}}
-				<div class="small">{{duration_s}}</div>
+				<div class="small">
+					{{lang_duration}}: {{duration_s}}
+					{{^duration_s}}{{lang_moreThanOneDay}}{{/duration_s}}
+				</div>
 			</td>
 			<td width="20%">
 				<div class="pull-right text-nowrap">

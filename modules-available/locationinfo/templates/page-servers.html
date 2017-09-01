@@ -1,0 +1,116 @@
+<h2>{{lang_serverTable}}</h2>
+
+<p>{{lang_serverTableHints}}</p>
+
+<table class="table table-hover">
+	<thead>
+	<tr>
+		<th width="1">{{lang_serverType}}</th>
+		<th>{{lang_locationName}}</th>
+		<th width="1"></th>
+		<th width="1"></th>
+	</tr>
+	</thead>
+	<tbody>
+	{{#serverlist}}
+	<form method="post" action="?do=locationinfo">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="serverid" value="{{serverid}}">
+		<tr>
+			<td nowrap>{{typename}}</td>
+			<td nowrap>{{servername}}</td>
+
+			<td align="center" nowrap>
+				<button class="btn btn-xs {{^autherror}}btn-default{{/autherror}}{{#autherror}}btn-danger{{/autherror}}"
+						data-server-edit="{{serverid}}" {{disabled}} type="button">
+					<span class="glyphicon glyphicon-cog"></span>
+					{{lang_edit}}
+				</button>
+				<button class="btn btn-xs btn-primary server-check" {{disabled}} name="action" value="checkConnection"
+						type="submit">
+					<span class="glyphicon glyphicon-refresh"></span>
+					{{lang_checkConnection}}
+				</button>
+			</td>
+			<td align="center" nowrap>
+				<button class="btn btn-xs btn-danger server-delete" type="submit" name="action" value="deleteServer">
+					<span class="glyphicon glyphicon-trash"></span>
+					{{lang_delete}}
+				</button>
+			</td>
+		</tr>
+	</form>
+	{{/serverlist}}
+	</tbody>
+</table>
+
+<div>
+	<button class="btn btn-sm btn-success" id="addServerButton" onclick="addServer()">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_addServer}}
+	</button>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+
+		<div class="modal-content">
+			<div class="modal-header" id="myModalHeader"></div>
+			<div class="modal-body" id="myModalBody"></div>
+			<div class="modal-footer">
+				<button type="submit" id="myModalSubmitButton" class="btn btn-primary" form="">{{lang_save}}</button>
+
+				<a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<script type="text/javascript"><!--
+
+	document.addEventListener("DOMContentLoaded", function () {
+
+		/**
+		 * Confirm deleting a server.
+		 */
+		$('.server-delete').click(function(ev) {
+			var del = confirm("{{lang_deleteConfirmation}}");
+			if (!del) ev.preventDefault();
+		});
+
+		/**
+		 * Animate refresh icon while page is loading
+		 */
+		$('.server-check').click(function() {
+			$(this).find('.glyphicon').addClass('slx-rotation');
+		});
+
+		$('button[data-server-edit]').click(function() {
+			var id = $(this).data('server-edit');
+			loadServerSettingsModal(id);
+		});
+
+	});
+
+	/**
+	 * Loads the settings modal of a server.
+	 *
+	 * @param serverid The id of the server.
+	 */
+	function loadServerSettingsModal(serverid) {
+		$('#myModalHeader').text("{{lang_locationSettings}}").css("font-weight", "Bold");
+		$('#myModal .modal-dialog').css('width', '');
+		$('#myModal').modal('show');
+		$('#myModalBody').load("?do=locationinfo&action=serverSettings&id=" + serverid);
+	}
+
+	// ########### Server Table ###########
+
+	/**
+	 * Loads a new / empty server settings modal.
+	 */
+	function addServer() {
+		loadServerSettingsModal(0);
+	}
+//--></script>

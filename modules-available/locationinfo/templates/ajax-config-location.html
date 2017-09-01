@@ -1,0 +1,192 @@
+<input type="hidden" name="locationid" value="{{id}}">
+<div id="settings-outer">
+	<h3>{{lang_openingTime}}</h3>
+	{{^expertMode}}
+	<div id="simple-mode">
+
+		<div align="right">
+			<a href="#" class="btn btn-default btn-sm" id="btn-show-expert">{{lang_expertMode}}</a>
+		</div>
+		<div class="clearfix"></div>
+
+		<table class="table table-condensed" style="margin-bottom:0">
+			<tr>
+				<th>{{lang_day}}</th>
+				<th>{{lang_openingTime}}</th>
+				<th>{{lang_closingTime}}</th>
+			</tr>
+
+			<tr class="tablerow">
+				<td>{{lang_monTilFr}}</td>
+				<td>
+					<div class="input-group bootstrap-timepicker">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-time"></span>
+						</span>
+						<input type="text" class="form-control timepicker2" id="week-open" pattern="[0-9]{1,2}:[0-9]{2}">
+					</div>
+				</td>
+				<td>
+					<div class="input-group bootstrap-timepicker">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-time"></span>
+						</span>
+						<input type="text" class="form-control timepicker2" id="week-close" pattern="[0-9]{1,2}:[0-9]{2}">
+					</div>
+				</td>
+			</tr>
+			<tr class="tablerow">
+				<td>{{lang_saturday}}</td>
+				<td>
+					<div class="input-group bootstrap-timepicker">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-time"></span>
+						</span>
+						<input type="text" class="form-control timepicker2" id="saturday-open" pattern="[0-9]{1,2}:[0-9]{2}">
+					</div>
+				</td>
+				<td>
+					<div class="input-group bootstrap-timepicker">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-time"></span>
+						</span>
+						<input type="text" class="form-control timepicker2" id="saturday-close" pattern="[0-9]{1,2}:[0-9]{2}">
+					</div>
+				</td>
+			</tr>
+			<tr class="tablerow">
+				<td>{{lang_sunday}}</td>
+				<td>
+					<div class="input-group bootstrap-timepicker">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-time"></span>
+						</span>
+						<input type="text" class="form-control timepicker2" id="sunday-open" pattern="[0-9]{1,2}:[0-9]{2}">
+					</div>
+				</td>
+				<td>
+					<div class="input-group bootstrap-timepicker">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-time"></span>
+						</span>
+						<input type="text" class="form-control timepicker2" id="sunday-close" pattern="[0-9]{1,2}:[0-9]{2}">
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	{{/expertMode}}
+
+	<div id="expert-mode" style="{{^expertMode}}display:none{{/expertMode}}">
+		<div class="pull-right">
+			<a class="btn btn-success btn-sm" id="new-openingtime">
+				<span class="glyphicon glyphicon-plus-sign"></span>
+				{{lang_openingTime}}
+			</a>
+		</div>
+		<div class="clearfix"></div>
+		<div id="expert-table">
+			<div class="row">
+				<div class="col-xs-9">{{lang_day}}</div>
+				<div class="col-xs-3 text-right">{{lang_delete}}</div>
+				<div class="col-sm-6">{{lang_openingTime}}</div>
+				<div class="col-sm-6">{{lang_closingTime}}</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<h3>{{lang_remoteSchedule}}</h3>
+<div class="row">
+	<div class="col-sm-3">
+		{{lang_server}}
+	</div>
+	<div class="col-sm-7">
+		<select class="form-control" name="serverid">
+			<option value="0">{{lang_noServer}}</option>
+			{{#serverlist}}
+				<option value="{{serverid}}" {{selected}}>{{servername}}</option>
+			{{/serverlist}}
+		</select>
+	</div>
+	<div class="col-sm-2">
+		<a class="btn btn-default helptext" title="{{lang_serverTooltip}}">
+			<span class="glyphicon glyphicon-question-sign"></span>
+		</a>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm-3"></div>
+	<div class="col-sm-7">
+		<div class="checkbox">
+			<input type="checkbox" name="recursive" id="recursive-check">
+			<label for="recursive-check">{{lang_recursiveServerSet}}</label>
+		</div>
+	</div>
+	<div class="col-sm-2">
+		<a class="btn btn-default helptext" title="{{lang_recursiveSetTooltip}}">
+			<span class="glyphicon glyphicon-question-sign"></span>
+		</a>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm-3">
+		{{lang_roomId}}
+	</div>
+	<div class="col-sm-7">
+		<input class="form-control" name="serverlocationid" id="serverlocationid" value="{{serverlocationid}}">
+	</div>
+	<div class="col-sm-2">
+		<a class="btn btn-default helptext" title="{{lang_roomIdTooltip}}">
+			<span class="glyphicon glyphicon-question-sign"></span>
+		</a>
+	</div>
+</div>
+
+<script type="application/javascript"><!--
+	(function() {
+
+		var scheduleData = {{{schedule_data}}};
+
+		{{#expertMode}}
+			for (var i = 0; i < scheduleData.length; ++i) {
+				newOpeningTime(scheduleData[i]);
+			}
+		{{/expertMode}}
+		{{^expertMode}}
+			for (var i = 0; i < scheduleData.length; ++i) {
+				if (scheduleData[i].days.length === 5) {
+					$('#week-open').val(scheduleData[i]['openingtime']);
+					$('#week-close').val(scheduleData[i]['closingtime']);
+				} else if (scheduleData[i].days.length === 1 && scheduleData[i].days[0] === 'Saturday') {
+					$('#saturday-open').val(scheduleData[i]['openingtime']);
+					$('#saturday-close').val(scheduleData[i]['closingtime']);
+				} else if (scheduleData[i].days.length === 1 && scheduleData[i].days[0] === 'Sunday') {
+					$('#sunday-open').val(scheduleData[i]['openingtime']);
+					$('#sunday-close').val(scheduleData[i]['closingtime']);
+				}
+			}
+		{{/expertMode}}
+
+		setTimepicker($('#settings-outer').find('.timepicker2'));
+
+		$('a.helptext').tooltip();
+
+		$('#new-openingtime').click(function (e) {
+			e.preventDefault();
+			setTimepicker(newOpeningTime({}).find('.timepicker2'));
+		})
+
+		$('#btn-show-expert').click(function (e) {
+			e.preventDefault();
+			scheduleData = simpleToExpert();
+			for (var i = 0; i < scheduleData.length; ++i) {
+				setTimepicker(newOpeningTime(scheduleData[i]).find('.timepicker2'));
+			}
+			$('#simple-mode').remove();
+			$('#expert-mode').show();
+		});
+
+	})();
+
+//--></script>

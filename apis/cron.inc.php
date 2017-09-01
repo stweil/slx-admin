@@ -11,6 +11,41 @@ if (!isLocalExecution())
 	exit(0);
 
 define('CRON_KEY_STATUS', 'cron.key.status');
+define('CRON_KEY_BLOCKED', 'cron.key.blocked');
+
+// Crash report mode - used by system crontab entry
+if (($report = Request::get('crashreport', false, 'string'))) {
+	$list = Property::getList(CRON_KEY_STATUS);
+	if (empty($list)) {
+		error_log('Cron crash report triggered but no cronjob marked active.');
+		exit(0);
+	}
+	$str = array();
+	foreach ($list as $item) {
+		Property::removeFromList(CRON_KEY_STATUS, $item);
+		$entry = explode('|', $item, 2);
+		if (count($entry) !== 2)
+			continue;
+		$time = time() - $entry[1];
+		if ($time > 3600) // Sanity check
+			continue;
+		$str[] = $entry[0] . ' (started ' . $time . 's ago)';
+		Property::addToList(CRON_KEY_BLOCKED, $entry[0], 30);
+	}
+	if (empty($str)) {
+		$str = 'an unknown module';
+	}
+	$message = 'Conjob failed. No reply by ' . implode(', ', $str);
+	$details = '';
+	if (is_readable($report)) {
+		$details = file_get_contents($report);
+		if (!empty($details)) {
+			$message .=', click "details" for log';
+		}
+	}
+	EventLog::failure($message, $details);
+	exit(0);
+}
 
 function getJobStatus($id)
 {
@@ -32,6 +67,7 @@ function handleModule($file)
 	include_once $file;
 }
 
+$blocked = Property::getList(CRON_KEY_BLOCKED);
 foreach (Hook::load('cron') as $hook) {
 	// Check if job is still running, or should be considered crashed
 	$status = getJobStatus($hook->moduleId);
@@ -46,12 +82,16 @@ foreach (Hook::load('cron') as $hook) {
 		} else {
 			// Consider job crashed
 			Property::removeFromList(CRON_KEY_STATUS, $status['string']);
-			EventLog::failure('Cronjob for module ' . $hook->moduleId . ' seems to be stuck or has crashed. Check the php or web server error log.');
+			EventLog::failure('Cronjob for module ' . $hook->moduleId . ' seems to be stuck or has crashed.');
 			continue;
 		}
 	}
+	// Are we blocked
+	if (in_array($hook->moduleId, $blocked))
+		continue;
+	// Fire away
 	$value = $hook->moduleId . '|' . time();
-	Property::addToList(CRON_KEY_STATUS, $value, 1800);
+	Property::addToList(CRON_KEY_STATUS, $value, 30);
 	try {
 		handleModule($hook->file);
 	} catch (Exception $e) {

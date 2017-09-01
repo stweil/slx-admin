@@ -5,10 +5,12 @@ class RebootQueries
 
 	// Get Client+IP+CurrentVM+CurrentUser+Location to fill the table
 	public static function getMachineTable($locationId) {
+		$queryArgs = array('cutoff' => strtotime('-30 days'));
 		if ($locationId === 0) {
 			$where = 'machine.locationid IS NULL';
 		} else {
 			$where = 'machine.locationid = :locationid';
+			$queryArgs['locationid'] = $locationId;
 		}
 		$leftJoin = '';
 		$sessionField = 'machine.currentsession';
@@ -19,12 +21,25 @@ class RebootQueries
 		}
 		$res = Database::simpleQuery("
 			SELECT machine.machineuuid, machine.hostname, machine.clientip,
-				IF(machine.lastboot = 0 OR UNIX_TIMESTAMP() - machine.lastseen >= 600, 0, 1) AS status,
+				machine.lastboot, machine.lastseen, machine.logintime,
 				$sessionField, machine.currentuser, machine.locationid
 			FROM machine 
 			$leftJoin
-			WHERE " . $where, array('locationid' => $locationId));
-		return $res->fetchAll(PDO::FETCH_ASSOC);
+			WHERE $where AND machine.lastseen > :cutoff", $queryArgs);
+		$ret = $res->fetchAll(PDO::FETCH_ASSOC);
+		$NOW = time();
+		foreach ($ret as &$row) {
+			if ($row['lastboot'] == 0 || $NOW - $row['lastseen'] > 600) {
+				$row['status'] = 0;
+			} else {
+				$row['status'] = 1;
+			}
+			if ($row['status'] === 0 || $row['logintime'] == 0) {
+				$row['currentuser'] = '';
+				$row['currentsession'] = '';
+			}
+		}
+		return $ret;
 	}
 
 	/**
@@ -36,8 +51,8 @@ class RebootQueries
 	{
 		if (empty($list))
 			return array();
-		$qs = '?' . str_repeat(',?', count($list) - 1);
-		$res = Database::simpleQuery("SELECT machineuuid, clientip, locationid FROM machine WHERE machineuuid IN ($qs)", $list);
+		$res = Database::simpleQuery("SELECT machineuuid, clientip, locationid FROM machine
+				WHERE machineuuid IN (:list)", compact('list'));
 		return $res->fetchAll(PDO::FETCH_ASSOC);
 	}
 

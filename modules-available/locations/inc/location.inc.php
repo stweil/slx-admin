@@ -27,6 +27,11 @@ class Location
 		return $rows;
 	}
 
+	/**
+	 * Return row from location table for $locationId.
+	 * @param $locationId
+	 * @return array|bool row from DB, false if not found
+	 */
 	public static function get($locationId)
 	{
 		return Database::queryFirst("SELECT * FROM location WHERE locationid = :locationId", compact('locationId'));
@@ -61,12 +66,18 @@ class Location
 				'locationid' => (int)$node['locationid'],
 				'parentlocationid' => (int)$node['parentlocationid'],
 				'parents' => $parents,
+				'children' => empty($node['children']) ? array() : array_map(function ($item) { return $item['locationid']; }, $node['children']),
 				'locationname' => $node['locationname'],
 				'depth' => $depth,
 				'isleaf' => true,
 			);
 			if (!empty($node['children'])) {
-				$output += self::flattenTreeAssoc($node['children'], array_merge($parents, array((int)$node['locationid'])), $depth + 1);
+				$childNodes = self::flattenTreeAssoc($node['children'], array_merge($parents, array((int)$node['locationid'])), $depth + 1);
+				$output[(int)$node['locationid']]['children'] = array_merge($output[(int)$node['locationid']]['children'],
+					array_reduce($childNodes, function ($carry, $item) {
+						return array_merge($carry, $item['children']);
+					}, array()));
+				$output += $childNodes;
 			}
 		}
 		foreach ($output as &$entry) {
@@ -117,6 +128,47 @@ class Location
 		if ($keepArrayKeys)
 			return $rows;
 		return array_values($rows);
+	}
+
+	/**
+	 * Get nested array of all the locations and children of given locationid(s).
+	 *
+	 * @param int[]|int $idList List of location ids
+	 * @param bool $locationTree used in recursive calls, don't pass
+	 * @return array list of passed locations plus their children
+	 */
+	public static function getRecursive($idList, $locationTree = false)
+	{
+		if (!is_array($idList)) {
+			$idList = array($idList);
+		}
+		if ($locationTree === false) {
+			$locationTree = self::getTree();
+		}
+		$ret = array();
+		foreach ($locationTree as $location) {
+			if (in_array($location['locationid'], $idList)) {
+				$ret[] = $location;
+			} elseif (!empty($location['children'])) {
+				$ret = array_merge($ret, self::getRecursive($idList, $location['children']));
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * Get flat array of all the locations and children of given locationid(s).
+	 *
+	 * @param int[]|int $idList List of location ids
+	 * @return array list of passed locations plus their children
+	 */
+	public static function getRecursiveFlat($idList)
+	{
+		$ret = self::getRecursive($idList);
+		if (!empty($ret)) {
+			$ret = self::flattenTree($ret);
+		}
+		return $ret;
 	}
 
 	public static function buildTree($elements, $parentId = 0)
@@ -184,7 +236,7 @@ class Location
 
 	/**
 	 * Get location id for given machine (by uuid)
-	 * @param $uuid machine uuid
+	 * @param string $uuid machine uuid
 	 * @return bool|int locationid, false if no match
 	 */
 	public static function getFromMachineUuid($uuid)
@@ -225,8 +277,8 @@ class Location
 	 * client. We can't trust the UUID too much as it is provided by the
 	 * client, so if it seems too fishy, the UUID will be ignored.
 	 *
-	 * @param $ip IP address of client
-	 * @param $uuid System-UUID of client
+	 * @param string $ip IP address of client
+	 * @param string $uuid System-UUID of client
 	 * @return int|bool location id, or false if none matches
 	 */
 	public static function getFromIpAndUuid($ip, $uuid)
@@ -243,8 +295,8 @@ class Location
 				// location determined by the uuid
 				$uuidLocations = self::getLocationRootChain($uuidLoc);
 				$ipLocations = self::getLocationRootChain($ipLoc);
-				if (in_array($uuidLoc, $ipLocations)
-					|| (in_array($ipLoc, $uuidLocations) && count($ipLocations) + 1 >= count($uuidLocations))
+				if (in_array($uuidLoc, $ipLocations) // UUID loc is further up, OK
+					|| (in_array($ipLoc, $uuidLocations) && count($ipLocations) + 1 >= count($uuidLocations)) // UUID is max one level deeper than IP loc, accept as well
 				) {
 					// Close enough, allow
 					$locationId = $uuidLoc;
@@ -277,6 +329,22 @@ class Location
 			$find = (int)$locations[$find]['parentlocationid'];
 		}
 		return $matchingLocations;
+	}
+
+	/**
+	 * @param $locationId
+	 * @return bool|array ('value' => x, 'display' => y), false if no parent or unknown id
+	 */
+	public static function getBaseconfigParent($locationId)
+	{
+		settype($locationId, 'integer');
+		$locations = Location::getLocationsAssoc();
+		if (!isset($locations[$locationId]))
+			return false;
+		$locationId = (int)$locations[$locationId]['parentlocationid'];
+		if (!isset($locations[$locationId]))
+			return false;
+		return array('value' => $locationId, 'display' => $locations[$locationId]['locationname']);
 	}
 
 	/**
@@ -385,7 +453,7 @@ class Location
 	 * If two+ subnets match and have the same depth and size, a
 	 * random one will be returned.
 	 *
-	 * @param $ip IP to look up
+	 * @param string $ip IP to look up
 	 * @return bool|int locationid ip matches, false = no match
 	 */
 	public static function mapIpToLocation($ip)

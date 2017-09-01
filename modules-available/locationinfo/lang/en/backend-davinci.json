@@ -1,0 +1,8 @@
+{
+    "baseUrl": "Base URL",
+    "baseUrl_helptext": "URL to Davinci installation",
+    "verifyCert": "Verify certificate",
+    "verifyCert_helptext": "If the certificate expired or was not signed by a known CA, the connection will be aborted.",
+    "verifyHostname": "Verify host name",
+    "verifyHostname_helptext": "The certificate's host name must match the host name given in the URL, otherwise the connection will be aborted."
+}

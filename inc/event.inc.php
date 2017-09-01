@@ -20,12 +20,17 @@ class Event
 		EventLog::info('System boot...');
 		$everythingFine = true;
 
+		// Delete job entries that might have been running when system rebooted
+		Property::clearList('cron.key.status');
+		Property::clearList('cron.key.blocked');
+
 		// Tasks: fire away
+		$mountStatus = false;
 		$mountId = Trigger::mount();
 		$autoIp = Trigger::autoUpdateServerIp();
 		$ldadpId = Trigger::ldadp();
 		$ipxeId = Trigger::ipxe();
-		
+
 		Taskmanager::submit('DozmodLauncher', array(
 			'operation' => 'start'
 		));
@@ -36,11 +41,8 @@ class Event
 			EventLog::info('No VM store type defined.');
 			$everythingFine = false;
 		} else {
-			$res = Taskmanager::waitComplete($mountId, 5000);
-			if (Taskmanager::isFailed($res)) {
-				EventLog::failure('Mounting VM store failed', $res['data']['messages']);
-				$everythingFine = false;
-			}
+			$mountStatus = Taskmanager::waitComplete($mountId, 5000);
+
 		}
 		// LDAP AD Proxy
 		if ($ldadpId === false) {
@@ -68,6 +70,22 @@ class Event
 				EventLog::failure('Update PXE Menu failed', $res['data']['error']);
 				$everythingFine = false;
 			}
+		}
+
+		if ($mountStatus !== false && !Taskmanager::isFinished($mountStatus)) {
+			$mountStatus = Taskmanager::waitComplete($mountStatus, 5000);
+		}
+		if (Taskmanager::isFailed($mountStatus)) {
+			// One more time, network could've been down before
+			sleep(10);
+			$mountId = Trigger::mount();
+			$mountStatus = Taskmanager::waitComplete($mountId, 10000);
+		}
+		if ($mountId !== false && Taskmanager::isFailed($mountStatus)) {
+			EventLog::failure('Mounting VM store failed', $mountStatus['data']['messages']);
+			$everythingFine = false;
+		} elseif ($mountId !== false && !Taskmanager::isFinished($mountStatus)) {
+			// TODO: Still running - create callback
 		}
 
 		// Just so we know booting is done (and we don't expect any more errors from booting up)

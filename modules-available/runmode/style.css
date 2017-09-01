@@ -1,0 +1,36 @@
+/* select popup */
+.machine-entry {
+    width: 99%;
+    width: calc(100% - 5px);
+    border: 1px solid #999;
+    border-radius: 5px;
+    margin: 2px;
+    padding: 2px 4px;
+}
+
+/* in case it is already in the sketchboard */
+.machine-entry.used {
+    color: #666;
+}
+
+.machine-entry table {
+    font-size: 12px;
+    margin-bottom: -5px;
+    width: 100%;
+}
+.machine-entry table tr {
+    border-top: 1px solid #bbb;
+}
+
+.machine-entry-header {
+    font-weight: bolder;
+    font-size: 18px;
+}
+
+.used .mode {
+    color: #f00;
+}
+
+.selectize-dropdown-content {
+    max-height : 600px;
+}

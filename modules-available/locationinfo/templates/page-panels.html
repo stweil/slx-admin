@@ -1,0 +1,74 @@
+<h2>{{lang_panelsTable}}</h2>
+
+<p>{{lang_panelsTableHints}}</p>
+
+<table class="table table-hover">
+	<thead>
+	<tr>
+		<th>{{lang_panel}}</th>
+		<th>{{lang_panelType}}</th>
+		<th>{{lang_locations}}</th>
+		{{#hasRunmode}}
+			<th class="slx-smallcol">{{lang_runmodeTHead}}</th>
+		{{/hasRunmode}}
+		<th class="slx-smallcol"></th>
+		<th class="slx-smallcol"></th>
+	</tr>
+	</thead>
+	<tbody>
+	<form method="post" action="?do=locationinfo" onsubmit="return confirm('{{lang_areYouSure}}')">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="action" value="deletePanel">
+		{{#panels}}
+			<tr>
+				<td>
+					<a href="/panel/{{paneluuid}}" target="_blank">{{panelname}}</a>
+				</td>
+				<td>
+					{{paneltype}}
+				</td>
+				<td>
+					{{#locationurl}}<a href="{{locationurl}}" target="_blank">{{/locationurl}}
+					{{locations}}
+					{{#locationurl}}</a>{{/locationurl}}
+				</td>
+				{{#hasRunmode}}
+					<td>
+						<a class="btn btn-default btn-xs" href="?do=runmode&amp;module=locationinfo&amp;modeid={{paneluuid}}&amp;redirect=?do=locationinfo">
+							<span class="glyphicon glyphicon-edit"></span>
+						</a>
+						{{assignedMachineCount}}
+					</td>
+				{{/hasRunmode}}
+				<td>
+					<a class="btn btn-default btn-xs" href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
+						<span class="glyphicon glyphicon-cog"></span>
+						{{lang_edit}}
+					</a>
+				</td>
+				<td>
+					<button type="submit" name="uuid" value="{{paneluuid}}" class="btn btn-danger btn-xs">
+						<span class="glyphicon glyphicon-trash"></span>
+						{{lang_delete}}
+					</button>
+				</td>
+			</tr>
+		{{/panels}}
+	</form>
+	</tbody>
+</table>
+
+<div>
+	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-default">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_defaultPanel}}
+	</a>
+	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-summary">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_summaryPanel}}
+	</a>
+	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-url">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_urlPanel}}
+	</a>
+</div>

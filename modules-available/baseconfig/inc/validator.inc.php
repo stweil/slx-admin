@@ -28,7 +28,7 @@ class Validator
 			case 'list':
 				return self::validateList($data[1], $displayValue);
 			case 'function':
-				return self::$data[1]($displayValue);
+				return call_user_func(array('self', $data[1]), $displayValue);
 			case 'multilist':
 				return self::validateMultiList($data[1], $displayValue);
 			case 'multiinput':

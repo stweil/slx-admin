@@ -1,3 +1,4 @@
 {
-    "reboot-unconfirmed": "Sicherheitsabfrage zum Reboot nicht best\u00e4tigt"
+    "reboot-unconfirmed": "Sicherheitsabfrage zum Reboot nicht best\u00e4tigt",
+    "update-reboot-required": "Das Update der folgenden Pakete erfordert einen Reboot des Servers: {{0}}"
 }

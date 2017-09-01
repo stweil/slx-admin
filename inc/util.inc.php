@@ -12,7 +12,7 @@ class Util
 	 */
 	public static function traceError($message)
 	{
-		if ((defined('API') && API) || (defined('AJAX') && AJAX)) {
+		if ((defined('API') && API) || (defined('AJAX') && AJAX) || php_sapi_name() === 'cli') {
 			error_log('API ERROR: ' . $message);
 			error_log(self::formatBacktracePlain(debug_backtrace()));
 		}
@@ -432,6 +432,34 @@ SADFACE;
 			$bytes .= chr(mt_rand(0, 255));
 		}
 		return $bytes;
+	}
+
+	/**
+	 * @return string a random UUID, v4.
+	 */
+	public static function randomUuid()
+	{
+		$b = unpack('h8a/h4b/h12c', self::randomBytes(12));
+		return sprintf('%08s-%04s-%04x-%04x-%012s',
+
+			// 32 bits for "time_low"
+			$b['a'],
+
+			// 16 bits for "time_mid"
+			$b['b'],
+
+			// 16 bits for "time_hi_and_version",
+			// four most significant bits holds version number 4
+			mt_rand(0, 0x0fff) | 0x4000,
+
+			// 16 bits, 8 bits for "clk_seq_hi_res",
+			// 8 bits for "clk_seq_low",
+			// two most significant bits holds zero and one for variant DCE1.1
+			mt_rand(0, 0x3fff) | 0x8000,
+
+			// 48 bits for "node"
+			$b['c']
+		);
 	}
 
 }

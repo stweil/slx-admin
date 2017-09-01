@@ -1,0 +1,10 @@
+{
+    "auth-failed": "[{{0}}] {{1}} Error: {{2}}",
+    "config-saved": "Config successfully saved.",
+    "ignored-invalid-end": "Ignored entry with invalid end time",
+    "ignored-invalid-range": "Ignored entry with invalid range",
+    "ignored-invalid-start": "Ignored entry with invalid start time",
+    "ignored-line-no-days": "Ignored entry with no days selected",
+    "invalid-panel-id": "Invalid panel id '{{0}}'",
+    "invalid-server-id": "Invalid server id '{{0}}'"
+}

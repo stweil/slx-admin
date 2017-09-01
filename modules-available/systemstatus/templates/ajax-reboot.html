@@ -1,0 +1,14 @@
+<div>
+	{{^dmsd_error}}
+		{{lang_uploads}}: {{uploads}},
+		{{lang_downloads}}: {{downloads}}
+	{{/dmsd_error}}
+	{{#dmsd_error}}
+		<div class="alert alert-warning">{{lang_dmsdUnreachable}}</div>
+	{{/dmsd_error}}
+</div>
+<div>
+	{{#packages}}
+		{{lang_updatedPackages}}: {{packages}}
+	{{/packages}}
+</div>

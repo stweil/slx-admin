@@ -40,10 +40,10 @@
 						<td>{{clientip}}</td>
 						<td class="statusColumn">
 							{{#status}}
-							{{lang_on}}
+								<span class="text-success">{{lang_on}}</span>
 							{{/status}}
 							{{^status}}
-							{{lang_off}}
+								<span class="text-danger">{{lang_off}}</span>
 							{{/status}}
 						</td>
 						<td>{{#status}}{{currentsession}}{{/status}}</td>

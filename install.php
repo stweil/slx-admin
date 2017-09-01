@@ -24,7 +24,7 @@
  * This has to be called by an update module at some point to signal the result
  * of its execution.
  *
- * @param $status one of the UPDATE_* status codes
+ * @param string $status one of the UPDATE_* status codes
  * @param string $message Human readable description of the status (optional)
  */
 function finalResponse($status, $message = '')
@@ -89,6 +89,47 @@ function tableRename($old, $new) {
 	return $res;
 }
 
+
+/**
+ * Get all constraints from given table+column to another table+column.
+ *
+ * @param string $table source table, being constrained
+ * @param string $column source column
+ * @param string $refTable referenced table, dictating the constraints
+ * @param string $refColumn referenced column
+ * @return false|string[] list of constraints matching the request, false on error
+ */
+function tableGetContraints($table, $column, $refTable, $refColumn)
+{
+	$db = 'openslx';
+	if (defined('CONFIG_SQL_DB')) {
+		$db = CONFIG_SQL_DB;
+	} elseif (defined('CONFIG_SQL_DSN')) {
+		if (preg_match('/dbname\s*=\s*([^;\s]+)\s*(;|$)/i', CONFIG_SQL_DSN, $out)) {
+			$db = $out[1];
+			define('CONFIG_SQL_DB', $db);
+		}
+	}
+	$res = Database::simpleQuery('SELECT `CONSTRAINT_NAME` FROM information_schema.KEY_COLUMN_USAGE'
+		. ' WHERE `TABLE_SCHEMA` = :db AND `TABLE_NAME` = :table AND `COLUMN_NAME` = :column'
+		. ' AND `REFERENCED_TABLE_NAME` = :refTable AND `REFERENCED_COLUMN_NAME` = :refColumn',
+		compact('db', 'table', 'column', 'refTable', 'refColumn'));
+	if ($res === false)
+		return false;
+	return $res->fetchAll(PDO::FETCH_COLUMN, 0);
+}
+
+/**
+ * Drop constraint from a table.
+ *
+ * @param string $table table name
+ * @param string $constraint constraint name
+ * @return bool success indicator
+ */
+function tableDeleteConstraint($table, $constraint)
+{
+	return Database::exec("ALTER TABLE `$table` DROP FOREIGN KEY `$constraint`") !== false;
+}
 
 function tableCreate($table, $structure, $fatalOnError = true)
 {

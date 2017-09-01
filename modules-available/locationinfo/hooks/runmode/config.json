@@ -1,0 +1,7 @@
+{
+	"getModeName": "LocationInfo::getPanelName",
+	"isClient": false,
+	"configHook": "LocationInfo::configHook",
+	"noSysconfig": true,
+	"systemdDefaultTarget": "kiosk-mode"
+}

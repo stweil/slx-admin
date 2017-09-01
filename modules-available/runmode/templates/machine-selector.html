@@ -1,0 +1,128 @@
+<h1>{{lang_assignRunmodeToMachine}}</h1>
+<h2>{{moduleName}} // {{modeName}}</h2>
+<p>{{lang_assignMachineIntroText}}</p>
+
+<div class="hidden">
+	{{#machines}}
+		<div id="qex-{{machineuuid}}">{{hostname}}</div>
+	{{/machines}}
+</div>
+
+<h4>{{lang_addNewMachines}}</h4>
+<form method="post" action="?do=runmode">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="save-mode">
+	<input type="hidden" name="module" value="{{module}}" id="i-module">
+	<input type="hidden" name="modeid" value="{{modeid}}" id="i-modeid">
+	<input type="hidden" name="redirect" value="{{redirect}}">
+	<select id="machine-sel" name="machines[]" multiple>
+	</select>
+	<div class="buttonbar">
+		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	</div>
+</form>
+
+<script type="application/javascript"><!--
+
+const MODULE = document.getElementById('i-module').value;
+const MODE_ID = document.getElementById('i-modeid').value;
+
+function makeCombinedField(machineArray) {
+	machineArray.forEach(function (v, i, a) {
+		machineArray[i].combined = (v.machineuuid + " " + v.hostname + " " + v.clientip + " " + v.macaddr + " " + v.macaddr.replace(/-/g, ':')).toLocaleLowerCase();
+		machineArray[i].isUsed = v.module && v.module.length && (v.module !== MODULE || v.modeid !== MODE_ID);
+	});
+	return machineArray;
+}
+
+var queryCache = {};
+
+
+function filterCache(key, query) {
+	return queryCache[key].filter(function (el) {
+		return -1 !== el.combined.indexOf(query);
+	});
+}
+
+function loadMachines(query, callback) {
+	if (query.length < 2) {
+		callback();
+		return;
+	}
+	query = query.toLocaleLowerCase();
+	// See if we have a previous query in our cache that is a superset for this one
+	for (var k in queryCache) {
+		if (query.indexOf(k) !== -1) {
+			callback(filterCache(k, query));
+			return;
+		}
+	}
+	$.ajax({
+		url: '?do=runmode&action=getmachines&query=' + encodeURIComponent(query),
+		type: 'GET',
+		dataType: 'json',
+		error: function () {
+			callback();
+		},
+		success: function (json) {
+			var machines = makeCombinedField(json.machines);
+			// Server cuts off at 100, so only cache if it contains less entries, as
+			// the new, more specific query could return previously removed results.
+			if (machines.length < 100) {
+				queryCache[query] = machines;
+			}
+			callback(machines);
+		}
+	});
+}
+
+function renderMachineOption(item, escape) {
+	var extraClass = '';
+	var usedRow = '';
+	if (item.isUsed) {
+		usedRow = '<tr class="mode"><td>Mode:</td><td>' + escape(item.module + ' // ' + item.modeid) + '</td></tr>';
+		extraClass = 'used';
+	}
+	item.hostname || (item.hostname = item.clientip);
+	return '<div class="machine-entry ' + extraClass +'">'
+			+ ' <div class="machine-body">'
+			+ '    <div class="machine-entry-header"> ' + escape(item.hostname) + '</div>'
+			+ '          <table>'
+			+               '<tr><td>UUID:</td> <td>' +  escape(item.machineuuid) + '</td></tr>'
+			+               '<tr><td>MAC: </td> <td>' +  escape(item.macaddr) + '</td></tr>'
+			+               '<tr><td>IP:  </td> <td>' +  escape(item.clientip)    + '</td></tr>'
+			+ usedRow
+			+ '          </table>'
+			+ '    </div>'
+			+ '</div>';
+}
+
+function renderMachineSelected(item, escape) {
+	item.hostname || (item.hostname = item.clientip);
+	var extra = '';
+	if (item.isUsed) {
+		extra = '<span class="glyphicon glyphicon-warning-sign text-danger"></span> '
+	}
+	return '<div>' + extra + escape(item.hostname) + '<div class="small">' + escape(item.clientip + ' - ' + item.macaddr) + '</div>'
+			+ '</div>';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+	var old = {{{machines}}} || [];
+	var $box = $('#machine-sel').selectize({
+		options: old,
+		items: old.map(function(x) { return x.machineuuid; }),
+		plugins: ["remove_button"],
+		valueField: 'machineuuid',
+		searchField: "combined",
+		openOnFocus: false,
+		create: false,
+		render: {option: renderMachineOption, item: renderMachineSelected},
+		load: loadMachines,
+		maxItems: null,
+		sortField: 'hostname',
+		sortDirection: 'asc'
+	});
+});
+
+//--></script>

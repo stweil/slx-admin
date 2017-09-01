@@ -45,7 +45,7 @@ class Database
 	 *
 	 * @return array|boolean Associative array representing row, or false if no row matches the query
 	 */
-	public static function queryFirst($query, $args = array(), $ignoreError = false)
+	public static function queryFirst($query, $args = array(), $ignoreError = null)
 	{
 		$res = self::simpleQuery($query, $args, $ignoreError);
 		if ($res === false)
@@ -53,6 +53,20 @@ class Database
 		return $res->fetch(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * If you need all rows for a query as plain array you can use this.
+	 * Don't use this if you want to do further processing of the data, to save some
+	 * memory.
+	 *
+	 * @return array|bool List of associative arrays representing rows, or false on error
+	 */
+	public static function queryAll($query, $args = array(), $ignoreError = null)
+	{
+		$res = self::simpleQuery($query, $args, $ignoreError);
+		if ($res === false)
+			return false;
+		return $res->fetchAll(PDO::FETCH_ASSOC);
+	}
 
 	/**
 	 * Execute the given query and return the number of rows affected.
@@ -63,7 +77,7 @@ class Database
 	 * @param boolean $ignoreError Ignore query errors and just return false
 	 * @return int|boolean Number of rows affected, or false on error
 	 */
-	public static function exec($query, $args = array(), $ignoreError = false)
+	public static function exec($query, $args = array(), $ignoreError = null)
 	{
 		$res = self::simpleQuery($query, $args, $ignoreError);
 		if ($res === false)
@@ -95,11 +109,16 @@ class Database
 	 * query again with different params, do not rely on the first PDOStatement
 	 * still being valid. If you need to do something fancy, use Database::prepare
 	 *
-	 * @return \PDOStatement The query result object
+	 * @return \PDOStatement|false The query result object
 	 */
-	public static function simpleQuery($query, $args = array(), $ignoreError = false)
+	public static function simpleQuery($query, $args = array(), $ignoreError = null)
 	{
 		self::init();
+		if (CONFIG_DEBUG && preg_match('/^\s*SELECT/is', $query)) {
+			self::explainQuery($query, $args);
+		}
+		// Support passing nested arrays for IN statements, automagically refactor
+		self::handleArrayArgument($query, $args);
 		try {
 			if (!isset(self::$statements[$query])) {
 				self::$statements[$query] = self::$dbh->prepare($query);
@@ -108,18 +127,103 @@ class Database
 			}
 			if (self::$statements[$query]->execute($args) === false) {
 				self::$lastError = implode("\n", self::$statements[$query]->errorInfo());
-				if ($ignoreError || self::$returnErrors)
+				if ($ignoreError === true || ($ignoreError === null && self::$returnErrors))
 					return false;
 				Util::traceError("Database Error: \n" . self::$lastError);
 			}
 			return self::$statements[$query];
 		} catch (Exception $e) {
 			self::$lastError = '(' . $e->getCode() . ') ' . $e->getMessage();
-			if ($ignoreError || self::$returnErrors)
+			if ($ignoreError === true || ($ignoreError === null && self::$returnErrors))
 				return false;
 			Util::traceError("Database Error: \n" . self::$lastError);
 		}
 		return false;
+	}
+
+	private static function explainQuery($query, $args)
+	{
+		$res = self::simpleQuery('EXPLAIN ' . $query, $args, true);
+		if ($res === false)
+			return;
+		$rows = $res->fetchAll(PDO::FETCH_ASSOC);
+		if (empty($rows))
+			return;
+		$log = false;
+		$lens = array();
+		foreach (array_keys($rows[0]) as $key) {
+			$lens[$key] = strlen($key);
+		}
+		foreach ($rows as $row) {
+			if (!$log && preg_match('/filesort|temporary/i', $row['Extra'])) {
+				$log = true;
+			}
+			foreach ($row as $key => $col) {
+				$l = strlen($col);
+				if ($l > $lens[$key]) {
+					$lens[$key] = $l;
+				}
+			}
+		}
+		if (!$log)
+			return;
+		error_log('Possible slow query: ' . $query);
+		$border = $head = '';
+		foreach ($lens as $key => $len) {
+			$border .= '+' . str_repeat('-', $len + 2);
+			$head .= '| ' . str_pad($key, $len) . ' ';
+		}
+		$border .= '+';
+		$head .= '|';
+		error_log("\n" . $border . "\n" . $head . "\n" . $border);
+		foreach ($rows as $row) {
+			$line = '';
+			foreach ($lens as $key => $len) {
+				$line .= '| '. str_pad($row[$key], $len) . ' ';
+			}
+			error_log($line . "|");
+		}
+		error_log($border);
+	}
+
+	/**
+	 * Convert nested array argument to multiple arguments.
+	 * If you have:
+	 * $query = 'SELECT * FROM tbl WHERE bcol = :bool AND col IN (:list)
+	 * $args = ( 'bool' => 1, 'list' => ('foo', 'bar') )
+	 * it results in:
+	 * $query = '...WHERE bcol = :bool AND col IN (:list_0, :list_1)
+	 * $args = ( 'bool' => 1, 'list_0' => 'foo', 'list_1' => 'bar' )
+	 *
+	 * @param string $query sql query string
+	 * @param array $args query arguments
+	 */
+	private static function handleArrayArgument(&$query, &$args)
+	{
+		foreach (array_keys($args) as $key) {
+			if (is_numeric($key) || $key === '?')
+				continue;
+			if (is_array($args[$key])) {
+				if (empty($args[$key])) {
+					// Empty list - what to do? We try to generate a query string that will not yield any result
+					$args[$key] = 'asdf' . mt_rand(0,PHP_INT_MAX) . mt_rand(0,PHP_INT_MAX)
+							. mt_rand(0,PHP_INT_MAX) . '@' . microtime(true);
+					continue;
+				}
+				$newkey = $key;
+				if ($newkey{0} !== ':') {
+					$newkey = ":$newkey";
+				}
+				$new = array();
+				foreach ($args[$key] as $subIndex => $sub) {
+					$new[] = $newkey . '_' . $subIndex;
+					$args[$newkey . '_' . $subIndex] = $sub;
+				}
+				unset($args[$key]);
+				$new = implode(',', $new);
+				$query = preg_replace('/' . $newkey . '\b/', $new, $query);
+			}
+		}
 	}
 
 	/**

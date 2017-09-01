@@ -1,0 +1,16 @@
+<div class="list-group-item">
+	<div class="row">
+		<div class="col-md-3"><label for="prop-{{property}}">{{title}}</label></div>
+		<div class="col-md-7">
+			<input class="form-control" id="prop-{{property}}" type="{{inputtype}}" name="prop-{{property}}"
+					 value="{{currentvalue}}">
+		</div>
+		<div class="col-md-2">
+			{{#helptext}}
+				<a class="btn btn-default" title="{{helptext}}">
+					<span class="glyphicon glyphicon-question-sign"></span>
+				</a>
+			{{/helptext}}
+		</div>
+	</div>
+</div>

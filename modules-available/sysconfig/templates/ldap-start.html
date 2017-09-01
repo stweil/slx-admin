@@ -52,6 +52,15 @@
 	<br>
 	<div>
 		<label>
+			<input type="checkbox" name="fixnumeric" {{#fixnumeric}}checked{{/fixnumeric}}> {{lang_fixNumeric}}
+		</label>
+		<div>
+			<i>{{lang_fixNumericDescription}}</i>
+		</div>
+	</div>
+	<br>
+	<div>
+		<label>
 			<input type="checkbox" name="ssl" onchange="$('#cert-box').css('display', this.checked ? '' : 'none')" {{#ssl}}checked{{/ssl}}> {{lang_ssl}}
 		</label>
 	</div>

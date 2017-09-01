@@ -1,3 +1,8 @@
 {
-    "module_name": "System-Status"
+    "module_name": "System-Status",
+    "tab_DmsdLog": "bwLehrpool-Suite Server Log",
+    "tab_LdadpLog": "LDAP\/AD",
+    "tab_LighttpdLog": "lighttpd Log",
+    "tab_Netstat": "netstat -tulpn",
+    "tab_PsList": "ps auxf"
 }

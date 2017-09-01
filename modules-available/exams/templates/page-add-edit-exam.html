@@ -110,7 +110,7 @@
 	<input type="hidden" name="action" value="save">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="examid" value="{{exam.examid}}">
-	<button class="btn btn-success">{{lang_save}}</button>
+	<button class="btn btn-success" type="submit">{{lang_save}}</button>
 </form>
 
 <script type="application/javascript"><!--
@@ -205,6 +205,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	end_date.change(startEndChanged);
 	end_time.change(startEndChanged);
 	$('#lecturelist').change(updateLectureInfo);
+
+	$('#tolleform').submit(function(ev) {
+		if ($('#locations option:selected').length === 0 && $('#locations option').length > 1) {
+			if (!confirm('{{lang_comfirmGlobalExam}}')) {
+				ev.preventDefault();
+			}
+		}
+	});
 
 }, false);
 // --></script>

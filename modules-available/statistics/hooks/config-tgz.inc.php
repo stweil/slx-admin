@@ -7,26 +7,28 @@ $res = Database::simpleQuery('SELECT h.hwname FROM statistic_hw h'
 	'screen' => DeviceType::SCREEN,
 ));
 
-$content = '';
-while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-	$content .= $row['hwname'] . "=beamer\n";
-}
+if ($res !== false) { // CHeck this in case we're running on old DB during update
+	$content = '';
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		$content .= $row['hwname'] . "=beamer\n";
+	}
 
-if (!empty($content)) {
-	$tmpfile = '/tmp/bwlp-' . md5($content) . '.tar';
-	if (!is_file($tmpfile) || !is_readable($tmpfile) || filemtime($tmpfile) + 86400 < time()) {
-		if (file_exists($tmpfile)) {
-			unlink($tmpfile);
-		}
-		try {
-			$a = new PharData($tmpfile);
-			$a->addFromString("/opt/openslx/beamergui/beamer.conf", $content);
+	if (!empty($content)) {
+		$tmpfile = '/tmp/bwlp-' . md5($content) . '.tar';
+		if (!is_file($tmpfile) || !is_readable($tmpfile) || filemtime($tmpfile) + 86400 < time()) {
+			if (file_exists($tmpfile)) {
+				unlink($tmpfile);
+			}
+			try {
+				$a = new PharData($tmpfile);
+				$a->addFromString("/opt/openslx/beamergui/beamer.conf", $content);
+				$file = $tmpfile;
+			} catch (Exception $e) {
+				EventLog::failure('Could not include beamer.conf in config.tgz', (string)$e);
+				unlink($tmpfile);
+			}
+		} elseif (is_file($tmpfile) && is_readable($tmpfile)) {
 			$file = $tmpfile;
-		} catch (Exception $e) {
-			EventLog::failure('Could not include beamer.conf in config.tgz', (string)$e);
-			unlink($tmpfile);
 		}
-	} elseif (is_file($tmpfile) && is_readable($tmpfile)) {
-		$file = $tmpfile;
 	}
 }

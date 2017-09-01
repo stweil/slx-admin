@@ -61,9 +61,8 @@
 		<br>
 		<div class="btn-group">
 			{{#roomplanner}}
-			<a class="btn btn-default" href="?do=roomplanner&amp;locationid={{locationid}}"
-							  target="_blank"
-				>
+			<a class="btn btn-default" href="?do=roomplanner&amp;locationid={{locationid}}" target="_blank"
+						onclick="window.open(this.href, '_blank', 'toolbar=0,scrollbars,resizable');return false">
 				<span class="glyphicon glyphicon-move"></span>{{lang_editRoomplan}}
 			</a>
 			{{/roomplanner}}

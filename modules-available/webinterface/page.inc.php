@@ -5,6 +5,7 @@ class Page_WebInterface extends Page
 
 	const PROP_REDIRECT = 'webinterface.https-redirect';
 	const PROP_TYPE = 'webinterface.https-type';
+	const PROP_HSTS = 'webinterface.https-hsts';
 
 	protected function doPreprocess()
 	{
@@ -20,17 +21,18 @@ class Page_WebInterface extends Page
 			case 'password':
 				$this->actionShowHidePassword();
 				break;
+			case 'customization':
+				$this->actionCustomization();
+				break;
 		}
 	}
 
 	private function actionConfigureHttps()
 	{
-		$task = false;
-		$off = '';
-		switch (Request::post('mode')) {
+		$mode = Request::post('mode');
+		switch ($mode) {
 			case 'off':
 				$task = $this->setHttpsOff();
-				$off = '&hsts=off';
 				break;
 			case 'random':
 				$task = $this->setHttpsRandomCert();
@@ -42,9 +44,12 @@ class Page_WebInterface extends Page
 				$task = $this->setRedirectMode();
 				break;
 		}
+		if ($mode !== 'off') {
+			Property::set(self::PROP_HSTS, Request::post('usehsts', false, 'string') === 'on' ? 'True' : 'False');
+		}
 		if (isset($task['id'])) {
 			Session::set('https-id', $task['id']);
-			Util::redirect('?do=WebInterface&show=httpsupdate' . $off);
+			Util::redirect('?do=WebInterface&show=httpsupdate');
 		}
 		Util::redirect('?do=WebInterface');
 	}
@@ -52,6 +57,17 @@ class Page_WebInterface extends Page
 	private function actionShowHidePassword()
 	{
 		Property::setPasswordFieldType(Request::post('mode') === 'show' ? 'text' : 'password');
+		Util::redirect('?do=WebInterface');
+	}
+
+	private function actionCustomization()
+	{
+		$prefix = Request::post('prefix', '', 'string');
+		if (!empty($prefix) && !preg_match('/[\]\)\}\-_\s\&\$\!\/\+\*\^\>]$/', $prefix)) {
+			$prefix .= ' ';
+		}
+		Property::set('page-title-prefix', $prefix);
+		Property::set('logo-background', Request::post('bgcolor', '', 'string'));
 		Util::redirect('?do=WebInterface');
 	}
 
@@ -65,11 +81,13 @@ class Page_WebInterface extends Page
 		}
 		$type = Property::get(self::PROP_TYPE);
 		$force = Property::get(self::PROP_REDIRECT) === 'True';
+		$hsts = Property::get(self::PROP_HSTS) === 'True';
 		$https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 		$exists = file_exists('/etc/lighttpd/server.pem');
 		$data = array(
 			'httpsUsed' => $https,
-			'redirect_checked' => ($force ? 'checked' : '')
+			'redirect_checked' => ($force ? 'checked' : ''),
+			'hsts_checked' => ($hsts ? 'checked' : '')
 		);
 		// Type should be 'off', 'generated', 'supplied'
 		if ($type === 'off') {
@@ -114,12 +132,30 @@ class Page_WebInterface extends Page
 		else
 			$data['selected_hide'] = 'checked';
 		Render::addTemplate('passwords', $data);
+		$data = array('prefix' => Property::get('page-title-prefix'));
+		$data['colors'] = array_map(function ($i) { return array('color' => $i ? '#' . $i : '', 'text' => Render::readableColor($i)); },
+			array('', 'f00', '0f0', '00f', 'ff0', 'f0f', '0ff', 'fff', '000', 'f90', '09f', '90f', 'f09', '9f0'));
+		$color = Property::get('logo-background');
+		foreach ($data['colors'] as &$c) {
+			if ($c['color'] === $color) {
+				$c['selected'] = 'selected';
+				$color = false;
+				break;
+			}
+		}
+		unset($c);
+		if ($color) {
+			$data['colors'][] = array('color' => $color, 'selected' => 'selected');
+		}
+		Render::addTemplate('customization', $data);
 	}
 
 	private function setHttpsOff()
 	{
 		Property::set(self::PROP_TYPE, 'off');
+		Property::set(self::PROP_HSTS, 'off');
 		Header('Strict-Transport-Security: max-age=0', true);
+		Session::deleteCookie();
 		return Taskmanager::submit('LighttpdHttps', array());
 	}
 

@@ -214,6 +214,12 @@ input[readonly] {
 	border-width: 1px 0px;
 }
 
+.slx-smallcol {
+	width: 1px;
+	overflow: visible;
+	white-space: nowrap;
+}
+
 .slx-visible-rows > div.row + div.row {
 	border-top: none;
 }
@@ -467,12 +473,18 @@ nav.navbar.sidebar {
 	color: #fff;
 }
 
+.red-bg, input[type="checkbox"]:checked {
+	background:#f77;
+}
+
 /* this is based on https://github.com/flatlogic/awesome-bootstrap-checkbox
 and "fixes" the style of radio buttons and check boxes.
 it only applies if they're in a container that has the checkbox class */
 
 .checkbox {
 	padding-left: 20px;
+	margin-top: 5px;
+	margin-bottom: 2px;
 }
 .checkbox label {
 	display: inline-block;
@@ -481,6 +493,7 @@ it only applies if they're in a container that has the checkbox class */
 	padding-left: 5px;
 }
 .checkbox label::before {
+	top: 1px;
 	content: "";
 	display: inline-block;
 	position: absolute;
@@ -501,7 +514,7 @@ it only applies if they're in a container that has the checkbox class */
 	width: 16px;
 	height: 16px;
 	left: 0;
-	top: 0;
+	top: 1px;
 	margin-left: -20px;
 	padding-left: 3px;
 	padding-top: 1px;
@@ -512,7 +525,9 @@ it only applies if they're in a container that has the checkbox class */
 .checkbox input[type="radio"] {
 	opacity: 0;
 	z-index: 1;
-	top: -6px;
+	top: -3px;
+	width: 17px;
+	height: 17px;
 }
 
 

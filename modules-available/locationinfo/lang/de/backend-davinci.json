@@ -1,0 +1,8 @@
+{
+    "baseUrl": "Basis-URL",
+    "baseUrl_helptext": "URL zur Davinci-Installation",
+    "verifyCert": "Zertifikat pr\u00fcfen",
+    "verifyCert_helptext": "Wenn das Zertifikat abgelaufen ist, oder von keiner bekannten CA ausgestellt wurde, wird die Verbindung abgelehnt.",
+    "verifyHostname": "Hostnamen pr\u00fcfen",
+    "verifyHostname_helptext": "Der im Zertifikat angegebene Hostname muss mit dem Hostnamen aus der URL \u00fcbereinstimmen, sonst wird die Verbindung abgelehnt."
+}

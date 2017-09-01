@@ -116,16 +116,14 @@ if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 
 // Set HSTS Header if client is using HTTPS
 if(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-	if (Request::any('hsts') === 'off') {
+	if (Property::get('webinterface.https-hsts', 'False') !== 'True') {
 		Header('Strict-Transport-Security: max-age=0', true);
 	} else {
 		Header('Strict-Transport-Security: max-age=15768000', true);
 	}
 }
 Header('Expires: Wed, 29 Mar 2007 09:56:28 GMT');
-Header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-Header("Cache-Control: post-check=0, pre-check=0", false);
-Header("Pragma: no-cache");
+Header("Cache-Control: max-age=0");
 
 // Now determine which module to run
 Page::init();

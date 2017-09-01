@@ -1,0 +1,81 @@
+<h2>
+	{{#new}}{{lang_createPanel}}{{/new}}
+	{{^new}}{{lang_editPanel}}{{/new}}
+</h2>
+
+<p>{{lang_editUrlPanelHints}}</p>
+
+<form method="post" action="?do=locationinfo" id="config-form">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="writePanelConfig">
+	<input type="hidden" name="ptype" value="URL">
+	<input type="hidden" name="uuid" value="{{uuid}}">
+
+	<div class="panel panel-default">
+		<div class="panel-heading">{{lang_display}}</div>
+		<div class="panel-body">
+			<div class="list-group">
+
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-sm-3">
+							<label for="panel-title">{{lang_displayName}}</label>
+						</div>
+						<div class="col-sm-7">
+							<input class="form-control" name="name" id="panel-title" type="text" value="{{panelname}}">
+						</div>
+						<div class="col-sm-2">
+							<a class="btn btn-default helptext" title="{{lang_displayNameTooltip}}">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-sm-3">
+							<label for="panel-url">{{lang_url}}</label>
+						</div>
+						<div class="col-sm-7">
+							<input class="form-control" name="url" id="panel-url" type="text" value="{{url}}"
+									 placeholder="http://www.bwlehrpool.de/" pattern=".*://.*" required>
+						</div>
+						<div class="col-sm-2">
+							<a class="btn btn-default helptext" title="{{lang_urlTooltip}}">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-sm-3">
+							<label for="input-ssl">{{lang_insecureSsl}}</label>
+						</div>
+						<div class="col-sm-7">
+							<input id="input-ssl" type="checkbox" name="insecure-ssl" {{ssl_checked}} value="1">
+						</div>
+						<div class="col-sm-2">
+							<a class="btn btn-default helptext" title="{{lang_ignoreSslTooltip}}">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	<a href="?do=locationinfo&amp;show=panels" class="btn btn-default">{{lang_cancel}}</a>
+</form>
+
+<script type="text/javascript"><!--
+
+document.addEventListener("DOMContentLoaded", function () {
+
+});
+
+//--></script>
