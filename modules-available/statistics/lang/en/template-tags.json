@@ -69,6 +69,7 @@
     "lang_showList": "Show list",
     "lang_showVisualization": "Show visualization",
     "lang_sockets": "Sockets",
+    "lang_subnet": "Subnet",
     "lang_tempPart": "Temp. partition",
     "lang_tempPartStats": "Temporary partition",
     "lang_thoseAreProjectors": "These model names will always be treated as beamers, even if the device's EDID data says otherwise.",
