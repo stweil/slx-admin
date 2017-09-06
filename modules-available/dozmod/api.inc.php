@@ -17,7 +17,7 @@ if (!Module::isAvailable('locations')) {
 
 define('LIST_URL', CONFIG_DOZMOD_URL . '/vmchooser/list');
 define('VMX_URL', CONFIG_DOZMOD_URL . '/vmchooser/lecture');
-$availableRessources = ['list', 'vmx', 'test', 'netrules', 'runscript'];
+$availableRessources = ['list', 'vmx', 'test', 'netrules', 'runscript', 'netshares'];
 
 /* BEGIN: A simple caching mechanism ---------------------------- */
 
@@ -234,7 +234,19 @@ function outputNetrules($lecture_uuid)
 		die($value);
 	}
 }
-
+function outputNetshares($lecture_uuid)
+{
+	$key = 'netshares_' . $lecture_uuid;
+	if (cache_has($key)) {
+		cache_get_passthru($key);
+	} else {
+		$value = _getVmData($lecture_uuid, 'netshares');
+		if ($value === false)
+			return false;
+		cache_put($key, $value);
+		die($value);
+	}
+}
 function outputRunscript($lecture_uuid)
 {
 	$key = 'runscript_' . $lecture_uuid;
@@ -308,6 +320,13 @@ if ($resource === 'vmx') {
 if ($resource === 'netrules') {
 	$lecture = readLectureParam();
 	outputNetrules($lecture);
+	// no return on success
+	fatalDozmodUnreachable();
+}
+
+if ($resource === 'netshares') {
+	$lecture = readLectureParam();
+	outputNetshares($lecture);
 	// no return on success
 	fatalDozmodUnreachable();
 }
