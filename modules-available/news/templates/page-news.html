@@ -17,9 +17,9 @@
 				<label for="news-content-id">{{lang_content}}</label>
 				<textarea name="news-content" id ="news-content-id" class="form-control summernote" rows="5" cols="30"  placeholder="">{{latestContent}}</textarea>
 			</div>
-			<p>{{lang_latestUpdate}}: {{latestDate}}</p>
-			<button class="btn btn-primary btn-sm sn-btn" name="news-type" value="news" type="submit">{{lang_save}}</button>
+			<button class="btn btn-primary btn-sm sn-btn pull-right" name="news-type" value="news" type="submit">{{lang_save}}</button>
 			<input type="hidden" name="token" value="{{token}}">
+			<p>{{lang_latestUpdate}}: {{latestDate}}</p>
 		</form>
 		<br/>
 		<div class="panel panel-default">
@@ -29,12 +29,12 @@
 			<div class="panel-body">
 				<div class="table-responsive">
 					<form method="post" action="?do=News&amp;action=delete">
-						<table class="table table-stripped table-condensed">
+						<table class="table table-stripped table-condensed stupidtable">
 							<thead>
 								<tr>
-									<th>{{lang_date}}</th>
-									<th>{{lang_title}}</th>
-									<th>{{lang_content}}</th>
+									<th data-sort="date">{{lang_date}}</th>
+									<th data-sort="string">{{lang_title}}</th>
+									<th data-sort="string">{{lang_content}}</th>
 									<th></th>
 								</tr>
 							</thead>
@@ -59,14 +59,16 @@
 		</div>
 	</div>
 	<div role="tabpanel" class="tab-pane {{#editHelp}}active{{/editHelp}}" id="help">
-		<form action="?do=News&amp;action=save" method="post">
+		<form class="bottom-margin-50" action="?do=News&amp;action=save" method="post">
 			<div class="form-group">
 				<label for="news-content-id">{{lang_content}}</label>
 				<textarea name="help-content" id="help-content-id" class="form-control summernote" style="min-height:400px"  placeholder="">{{latestHelp}}</textarea>
 			</div>
-			<button class="btn btn-primary btn-sm sn-btn" name="news-type" value="help" type="submit">{{lang_save}}</button>
+			<button class="btn btn-primary btn-sm sn-btn pull-right" name="news-type" value="help" type="submit">{{lang_save}}</button>
 			<input type="hidden" name="token" value="{{token}}">
+			<p> </p>
 		</form>
+		<br/>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				{{lang_oldHelp}}
@@ -74,11 +76,11 @@
 			<div class="panel-body">
 				<div class="table-responsive">
 					<form method="post" action="?do=News&amp;action=delete&editHelp=true">
-						<table class="table table-stripped table-condensed">
+						<table class="table table-stripped table-condensed stupidtable">
 							<thead>
 								<tr>
-									<th>{{lang_date}}</th>
-									<th>{{lang_content}}</th>
+									<th data-sort="date">{{lang_date}}</th>
+									<th data-sort="string">{{lang_content}}</th>
 									<th></th>
 								</tr>
 							</thead>
