@@ -63,7 +63,7 @@ class Page_Statistics_Reporting extends Page
 		// so the user can know what is going on
 		if ($this->action === 'getreport') {
 			if(User::hasPermission("reporting.download")) {
-				$report = RemoteReport::generateReport(strtotime('-7 days'), time('now'));
+				$report = RemoteReport::generateReport(time());
 				Header('Content-Disposition: attachment; filename=remote-report.json');
 				Header('Content-Type: application/json; charset=utf-8');
 				die(json_encode($report));

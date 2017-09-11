@@ -1,8 +1,8 @@
 {{#exam.examid}}
-<h1>{{lang_editExam}}</h1>
+<h1>{{lang_headingEditExam}}</h1>
 {{/exam.examid}}
 {{^exam.examid}}
-<h1>{{lang_addExam}}</h1>
+<h1>{{lang_headingAddExam}}</h1>
 {{/exam.examid}}
 {{#exam.displayname}}
 <div class="alert alert-info">{{lang_addingBasedOnLecture}}:<br><b>{{exam.displayname}}</b></div>
@@ -110,7 +110,11 @@
 	<input type="hidden" name="action" value="save">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="examid" value="{{exam.examid}}">
-	<button class="btn btn-success" type="submit">{{lang_save}}</button>
+	<div class="text-right" style="margin-bottom: 20px">
+		<button type="submit" id="saveButton" class="btn btn-primary" style="margin-right: 10px"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+		<button type="button" id="cancelButton" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span> {{lang_cancel}}</button>
+	</div>
+
 </form>
 
 <script type="application/javascript"><!--
@@ -212,6 +216,10 @@ document.addEventListener("DOMContentLoaded", function () {
 				ev.preventDefault();
 			}
 		}
+	});
+
+	$("#cancelButton").click(function () {
+		window.location.replace("?do=exams");
 	});
 
 }, false);

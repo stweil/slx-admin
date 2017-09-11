@@ -153,7 +153,7 @@ class Page_Exams extends Page
 					$exam['btnClass'] = 'btn-success';
 					$exam['liesInPast'] = true;
 				} else {
-					$exam['btnClass'] = 'btn-default';
+					$exam['btnClass'] = 'btn-danger';
 				}
 				$exam['starttime_s'] = date('Y-m-d H:i', $exam['starttime']);
 				$exam['endtime_s'] = date('Y-m-d H:i', $exam['endtime']);
