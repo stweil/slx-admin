@@ -1,7 +1,7 @@
 {
     "lang_automatic": "Auto",
     "lang_description": "Here you can configure how the satellite server has to access the internet.",
-    "lang_internetAccess": "Internet access",
+    "lang_internetAccess": "Internet Access",
     "lang_manual": "Manual",
     "lang_manualProxyConfig": "If you want to configure a proxy server manually, please supply the credentials here.",
     "lang_no": "None",
