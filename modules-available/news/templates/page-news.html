@@ -32,7 +32,7 @@
 						<table class="table table-stripped table-condensed stupidtable">
 							<thead>
 								<tr>
-									<th data-sort="date">{{lang_date}}</th>
+									<th data-sort="int">{{lang_date}}</th>
 									<th data-sort="string">{{lang_title}}</th>
 									<th data-sort="string">{{lang_content}}</th>
 									<th></th>
@@ -41,7 +41,7 @@
 							<tbody>
 								{{#list}}
 								<tr {{#active}}class="active"{{/active}}>
-									<td class="text-left text-nowrap">{{date}}</td>
+									<td class="text-left text-nowrap" data-sort-value={{dateline}}>{{date}}</td>
 									<td><table class="slx-ellipsis"><tr><td>{{title}}</td></tr></table></td>
 									<td><table class="slx-ellipsis"><tr><td>{{content}}</td></tr></table></td>
 									<td class="text-nowrap">
@@ -79,7 +79,7 @@
 						<table class="table table-stripped table-condensed stupidtable">
 							<thead>
 								<tr>
-									<th data-sort="date">{{lang_date}}</th>
+									<th data-sort="int">{{lang_date}}</th>
 									<th data-sort="string">{{lang_content}}</th>
 									<th></th>
 								</tr>
@@ -87,7 +87,7 @@
 							<tbody>
 								{{#listHelp}}
 								<tr {{#active}}class="active"{{/active}}>
-									<td class="text-left text-nowrap">{{date}}</td>
+									<td class="text-left text-nowrap" data-sort-value={{dateline}}>{{date}}</td>
 									<td><table class="slx-ellipsis"><tr><td>{{content}}</td></tr></table></td>
 									<td class="text-nowrap">
 										<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show"><span class="glyphicon glyphicon-share-alt"></span> {{lang_show}}</a>
