@@ -1,52 +1,57 @@
-<h2>{{lang_headingAllExamLectures}}</h2>
-
-<div class="slx-space">
-	<table class="table stupidtable">
-		<thead>
-			<tr>
-				<th data-sort="string">{{lang_lectureName}}</th>
-				<th data-sort="int">{{lang_timeFrame}}</th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			{{#pending_lectures}}
-			<tr class="{{class}}">
-				<td>
-					{{displayname}}
-					<div class="small">
-						<a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a>
-					</div>
-				</td>
-				<td data-sort-value={{starttime}} width="30%" class="text-nowrap">
-					{{starttime_s}} &ensp; {{endtime_s}}
-					<div class="small">
-						{{lang_duration}}: {{duration_s}}
-						{{^duration_s}}{{lang_moreThanOneDay}}{{/duration_s}}
-					</div>
-				</td>
-				<td width="20%">
-					<div class="pull-right text-nowrap">
-						<a class="btn btn-sm btn-default" role="button" onclick="slxShow({{starttime}}, {{endtime}})"><span class="glyphicon glyphicon-eye-open"></span></a>
-						<a href="?do=exams&amp;action=add&amp;lectureid={{lectureid}}" class="btn btn-sm btn-default" role="button">
-							<span class="glyphicon glyphicon-plus-sign"></span>
-							<span class="hidden-sm">{{lang_addExam}}</span>
-						</a>
-					</div>
-				</td>
-			</tr>
-			{{/pending_lectures}}
-		</tbody>
-		<tfoot>
-			{{#decollapse}}
-			<tr class="slx-decollapse">
-				<td colspan="3">
-					<span class="btn-group btn-group-justified">
-						<span class="btn btn-default btn-sm"><span class="glyphicon glyphicon-menu-down"></span></span>
-					</span>
-				</td>
-			</tr>
-			{{/decollapse}}
-		</tfoot>
-	</table>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_headingAllExamLectures}}
+	</div>
+	<div class="panel-body">
+		<div class="slx-space">
+			<table class="table stupidtable">
+				<thead>
+					<tr>
+						<th data-sort="string">{{lang_lectureName}}</th>
+						<th data-sort="int">{{lang_timeFrame}}</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#pending_lectures}}
+					<tr class="{{class}}">
+						<td>
+							{{displayname}}
+							<div class="small">
+								<a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a>
+							</div>
+						</td>
+						<td data-sort-value={{starttime}} width="30%" class="text-nowrap">
+							{{starttime_s}} &ensp; {{endtime_s}}
+							<div class="small">
+								{{lang_duration}}: {{duration_s}}
+								{{^duration_s}}{{lang_moreThanOneDay}}{{/duration_s}}
+							</div>
+						</td>
+						<td width="20%">
+							<div class="pull-right text-nowrap">
+								<a class="btn btn-sm btn-default" role="button" onclick="slxShow({{starttime}}, {{endtime}})"><span class="glyphicon glyphicon-eye-open"></span></a>
+								<a href="?do=exams&amp;action=add&amp;lectureid={{lectureid}}" class="btn btn-sm btn-success" role="button">
+									<span class="glyphicon glyphicon-plus-sign"></span>
+									<span class="hidden-sm">{{lang_addExam}}</span>
+								</a>
+							</div>
+						</td>
+					</tr>
+					{{/pending_lectures}}
+				</tbody>
+				<tfoot>
+					{{#decollapse}}
+					<tr class="slx-decollapse">
+						<td colspan="3">
+							<span class="btn-group btn-group-justified">
+								<span class="btn btn-default btn-sm"><span class="glyphicon glyphicon-menu-down"></span></span>
+							</span>
+						</td>
+					</tr>
+					{{/decollapse}}
+				</tfoot>
+			</table>
+		</div>
+	</div>
 </div>

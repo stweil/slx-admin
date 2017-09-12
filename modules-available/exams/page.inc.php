@@ -150,7 +150,7 @@ class Page_Exams extends Page
 			foreach ($this->exams as $exam) {
 				if ($exam['endtime'] < $now) {
 					$exam['rowClass'] = 'text-muted';
-					$exam['btnClass'] = 'btn-success';
+					$exam['btnClass'] = 'btn-default';
 					$exam['liesInPast'] = true;
 				} else {
 					$exam['btnClass'] = 'btn-danger';

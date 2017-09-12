@@ -1,59 +1,64 @@
-<h2>{{lang_allExamPeriods}}</h2>
 
-<div class="slx-space">
-	<table class="table stupidtable">
-		<thead>
-			<tr>
-				<th data-sort="int">{{lang_id}}</th>
-				<th data-sort="string">{{lang_locations}}</th>
-				<th data-sort="int">{{lang_begin}}</th>
-				<th data-sort="int">{{lang_end}}</th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			{{#exams}}
-			<tr class="{{rowClass}}">
-				<td>{{examid}}</td>
-				<td>
-					{{locationnames}}
-					{{^locationnames}}
-					<i>{{lang_global}}</i>
-					{{/locationnames}}
-					{{#lecturename}}
-					<div>
-						<b>{{lang_autostart}}</b>: {{lecturename}}
-					</div>
-					{{/lecturename}}
-					<div class="small">
-						{{description}}
-						{{^description}}
-						<i>{{lang_noDescription}}</i>
-						{{/description}}
-					</div>
-				</td>
-				<td class="text-nowrap" data-sort-value={{starttime}}>{{starttime_s}}</td>
-				<td class="text-nowrap" data-sort-value={{endtime}}>{{endtime_s}}</td>
-				<td class="text-nowrap text-right">
-					<form method="POST" action="?do=exams&action=delete" {{^liesInPast}}onsubmit="return confirm('{{lang_deleteConfirmation}}');"{{/liesInPast}} >
-						{{^liesInPast}}
-						<a onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></a>
-						{{/liesInPast}}
-						<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
-						<input type="hidden" name="token" value="{{token}}">
-						<input type="hidden" name="examid" value="{{examid}}">
-						<button class="btn {{btnClass}} btn-sm">{{lang_delete}}</button>
-					</form>
-				</td>
-			</tr>
-			{{/exams}}
-		</tbody>
-	</table>
-</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_allExamPeriods}}
+	</div>
+	<div class="panel-body">
+		<div class="slx-space">
+			<table class="table stupidtable">
+				<thead>
+					<tr>
+						<th data-sort="int">{{lang_id}}</th>
+						<th data-sort="string">{{lang_locations}}</th>
+						<th data-sort="int">{{lang_begin}}</th>
+						<th data-sort="int">{{lang_end}}</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#exams}}
+					<tr class="{{rowClass}}">
+						<td>{{examid}}</td>
+						<td>
+							{{locationnames}}
+							{{^locationnames}}
+							<i>{{lang_global}}</i>
+							{{/locationnames}}
+							{{#lecturename}}
+							<div>
+								<b>{{lang_autostart}}</b>: {{lecturename}}
+							</div>
+							{{/lecturename}}
+							<div class="small">
+								{{description}}
+								{{^description}}
+								<i>{{lang_noDescription}}</i>
+								{{/description}}
+							</div>
+						</td>
+						<td class="text-nowrap" data-sort-value={{starttime}}>{{starttime_s}}</td>
+						<td class="text-nowrap" data-sort-value={{endtime}}>{{endtime_s}}</td>
+						<td class="text-nowrap text-right">
+							<form method="POST" action="?do=exams&action=delete" {{^liesInPast}}onsubmit="return confirm('{{lang_deleteConfirmation}}');"{{/liesInPast}} >
+								{{^liesInPast}}
+								<a onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></a>
+								{{/liesInPast}}
+								<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
+								<input type="hidden" name="token" value="{{token}}">
+								<input type="hidden" name="examid" value="{{examid}}">
+								<button class="btn {{btnClass}} btn-sm">{{lang_delete}}</button>
+							</form>
+						</td>
+					</tr>
+					{{/exams}}
+				</tbody>
+			</table>
+		</div>
 
-<div class="text-right" style="margin-bottom: 20px">
-	<div class="btn-group" role="group">
-		<a href="?do=exams&action=add" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign"></span> {{lang_addExam}}</a>
+		<div class="text-right">
+			<div class="btn-group" role="group">
+				<a href="?do=exams&action=add" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign"></span> {{lang_addExam}}</a>
+			</div>
+		</div>
 	</div>
 </div>
-
