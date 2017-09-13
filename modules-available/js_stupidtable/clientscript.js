@@ -97,7 +97,8 @@
 			var column = [];
 			var sortFns = $table.data('sortFns');
 			var sortMethod = sortFns[datatype];
-			var trs = $table.children("tbody").children("tr");
+			var collapsedCount = $table.children("tbody").children("tr.collapse").length;
+			var trs = $table.children("tbody").children("tr:not(.slx-decollapse)");
 
 			// Extract the data for the column that needs to be sorted and pair it up
 			// with the TR itself into a tuple. This way sorting the values will
@@ -124,7 +125,19 @@
 			// Replace the content of tbody with the sorted rows. Strangely
 			// enough, .append accomplishes this for us.
 			trs = $.map(column, function(kv) { return kv[1]; });
-			$table.children("tbody").append(trs);
+
+			if (collapsedCount > 0) {
+				var showCount = trs.length - collapsedCount;
+				for (var i = 0; i < trs.length; i++) {
+					if (i < showCount) {
+						$(trs[i]).removeClass("collapse");
+					} else {
+						$(trs[i]).addClass("collapse");
+					}
+				}
+			}
+
+			$table.children("tbody").prepend(trs);
 
 			// Reset siblings
 			$table.find("th").data("sort-dir", null).removeClass("sorting-desc sorting-asc");
