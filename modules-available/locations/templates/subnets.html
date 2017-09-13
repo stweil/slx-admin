@@ -1,6 +1,7 @@
 <div>
-	<div class="pull-right">
-		<a href="?do=Locations&amp;action=showlocations">{{lang_thisListByLocation}}</a>
+	<div class="btn-group pull-right">
+		<a href="?do=Locations&amp;action=showlocations" class="btn btn-default"><span class="glyphicon glyphicon-home"></span> {{lang_thisListByLocation}}</a>
+		<a href="?do=Locations&amp;action=showsubnets" class="btn btn-primary"><span class="glyphicon glyphicon-list-alt"></span> {{lang_thisListBySubnet}}</a>
 	</div>
 	<h1>{{lang_listOfSubnets}}</h1>
 	<form method="post" action="?do=Locations">
@@ -28,8 +29,8 @@
 				</tr>
 			{{/list}}
 		</table>
-		<div>
-			<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+		<div class="text-right">
+			<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 		</div>
 	</form>
 </div>

@@ -8,9 +8,9 @@
 			<button type="submit" class="btn btn-primary">Save</button>
 		</div>
 		<div class="row">
-			<div class="col-sm-6">
+			<div class="col-sm-5">
 				<div class="input-group">
-					<span class="input-group-addon slx-ga2">{{lang_name}}</span>
+					<span class="input-group-addon slx-ga">{{lang_name}}</span>
 					<input class="form-control" type="text" name="locationname" value="{{locationname}}" pattern=".*\S.*">
 				</div>
 			</div>
@@ -24,13 +24,9 @@
 					</select>
 				</div>
 			</div>
-		</div>
-		<div>
-			<div class="pull-right">
-				<label><input type="checkbox" name="recursive" value="on"> {{lang_deleteChildLocations}}</label>
-				<button type="submit" class="btn btn-sm btn-danger" name="deletelocation" value="{{locationid}}" onclick="return slxConfirm()">{{lang_deleteLocation}}</button>
+			<div class="col-sm-1 text-center">
+				<button type="button" class="btn btn-sm btn-danger"  data-toggle="modal" data-target="#deleteLocationModal{{locationid}}"><span class="glyphicon glyphicon-trash"></span></button>
 			</div>
-			<div class="clearfix"></div>
 		</div>
 		<br>
 		<div class="slx-bold">{{lang_assignedSubnets}}</div>
@@ -40,47 +36,81 @@
 				<th>#</th>
 				<th>{{lang_startAddress}}</th>
 				<th>{{lang_endAddress}}</th>
-				<th title="{{lang_deleteSubnet}}"><span class="glyphicon glyphicon-trash"></span></th>
+				<th title="{{lang_deleteSubnet}}" class="text-center"><span class="glyphicon glyphicon-trash"></span></th>
 			</tr>
 			{{#list}}
 				<tr class="cidrmagic">
 					<td>{{subnetid}}</td>
 					<td><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
 					<td><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
-					<td class="danger" align="center"><input type="checkbox" name="deletesubnet[{{subnetid}}]" value="on"></td>
+					<td class="danger">
+						<div class="checkbox text-center" style="margin-left: 9px">
+							<input type="checkbox" name="deletesubnet[{{subnetid}}]" value="on">
+							<label class="text-left"></label>
+						</div>
+					</td>
 				</tr>
 			{{/list}}
 			<tr id="loc-sub-{{locationid}}">
 				<td colspan="4">
-					<button class="btn btn-success btn-sm" type="button" onclick="slxAddSubnetRow(this, {{locationid}})" title="{{lang_addNewSubnet}}">
+					<button class="btn btn-success btn-sm pull-right" type="button" onclick="slxAddSubnetRow(this, {{locationid}})" title="{{lang_addNewSubnet}}">
 						<span class="glyphicon glyphicon-plus-sign"></span> {{lang_subnet}}
 					</button>
 				</td>
 			</tr>
 		</table>
-		<br>
-		<div class="btn-group">
-			{{#roomplanner}}
-			<a class="btn btn-default" href="?do=roomplanner&amp;locationid={{locationid}}" target="_blank"
-						onclick="window.open(this.href, '_blank', 'toolbar=0,scrollbars,resizable');return false">
-				<span class="glyphicon glyphicon-move"></span>{{lang_editRoomplan}}
-			</a>
-			{{/roomplanner}}
-
-		</div>
-		<div class="pull-right">
-			<button type="submit" class="btn btn-primary">{{lang_save}}</button>
-		</div>
 		<div class="slx-bold">{{lang_locationInfo}}</div>
-		{{#haveDozmod}}
-		<div>
-			<span class="slx-ga2">{{lang_referencingLectures}}:</span> {{lectures}}
+
+		<div class="row">
+			<div class="col-md-4">
+				{{#haveDozmod}}
+				<div>
+					<span class="slx-ga2">{{lang_referencingLectures}}:</span> {{lectures}}
+				</div>
+				{{/haveDozmod}}
+				{{#haveStatistics}}
+				<div>
+					<span class="slx-ga2">{{lang_matchingMachines}}:</span> <a href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}">{{machines}} / {{machines_online}} / {{machines_used}} ({{used_percent}}%)</a>
+				</div>
+				{{/haveStatistics}}
+			</div>
+			<div class="col-md-4 text-center">
+				<div class="btn-group">
+					{{#roomplanner}}
+					<a class="btn btn-default" href="?do=roomplanner&amp;locationid={{locationid}}" target="_blank"
+						onclick="window.open(this.href, '_blank', 'toolbar=0,scrollbars,resizable');return false">
+						<span class="glyphicon glyphicon-move"></span> {{lang_editRoomplan}}
+					</a>
+					{{/roomplanner}}
+				</div>
+
+			</div>
+			<div class="col-md-4 text-right">
+				<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+			</div>
 		</div>
-		{{/haveDozmod}}
-		{{#haveStatistics}}
-		<div>
-			<span class="slx-ga2">{{lang_matchingMachines}}:</span> <a href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}">{{machines}} / {{machines_online}} / {{machines_used}} ({{used_percent}}%)</a>
+
+		<div class ="modal fade" id="deleteLocationModal{{locationid}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel2">{{lang_deleteLocation}}</h4>
+					</div>
+					<div class="modal-body">
+						{{lang_areYouSureNoUndo}}
+						<div class="checkbox">
+							<input type="checkbox" name="recursive" value="on">
+							<label>{{lang_deleteChildLocations}}</label>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+						<button type="submit" class="btn btn-sm btn-danger" name="deletelocation" value="{{locationid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_deleteLocation}}</button>
+					</div>
+				</div>
+			</div>
 		</div>
-		{{/haveStatistics}}
+
 	</form>
 </div>

@@ -28,7 +28,7 @@
     "lang_startAddress": "Startadresse",
     "lang_subnet": "IP-Bereich",
     "lang_sysConfig": "Lokalisierung",
-    "lang_thisListByLocation": "Zur Ortsansicht",
-    "lang_thisListBySubnet": "Nach Subnetzen auflisten",
+    "lang_thisListByLocation": "Orte",
+    "lang_thisListBySubnet": "Subnetze",
     "lang_unassignedMachines": "Rechner, die in keinen definierten Ort fallen"
 }

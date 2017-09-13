@@ -7,10 +7,10 @@
     "lang_deleteLocation": "Delete location",
     "lang_deleteSubnet": "Delete range",
     "lang_editConfigVariables": "Config vars",
-    "lang_editRoomplan": "edit roomplan",
+    "lang_editRoomplan": "Edit roomplan",
     "lang_endAddress": "End address",
     "lang_listOfSubnets": "List of subnets",
-    "lang_location": "Ort",
+    "lang_location": "Location",
     "lang_locationInfo": "Location details",
     "lang_locationName": "Name",
     "lang_locationOtherOverlap": "Warning! These locations have overlapping address ranges",
@@ -28,7 +28,7 @@
     "lang_startAddress": "Start address",
     "lang_subnet": "IP range",
     "lang_sysConfig": "Localization\/Integration",
-    "lang_thisListByLocation": "List by location",
-    "lang_thisListBySubnet": "List by subnet",
+    "lang_thisListByLocation": "Locations",
+    "lang_thisListBySubnet": "Subnets",
     "lang_unassignedMachines": "Machines not matching any location"
 }
