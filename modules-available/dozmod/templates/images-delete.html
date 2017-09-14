@@ -34,7 +34,7 @@
 							<td class="text-left text-nowrap" data-sort-value="{{createtime}}" >{{version}}</td>
 							<td class="text-left text-nowrap"><a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a></td>
 							<td class="text-left text-nowrap"><span class="glyphicon {{hasNewerClass}}"></span></td>
-							<td class="text-right text-nowrap" data-sort-value="{{rawfilesize}}">{{filesize}}</td>
+							<td class="text-left text-nowrap" data-sort-value="{{rawfilesize}}">{{filesize}}</td>
 							<td>
 								<div class="checkbox">
 									<input type="checkbox" id="images[{{imageversionid}}]" class="del-check" name="images[{{imageversionid}}]" {{checked}}>
@@ -45,7 +45,7 @@
 						{{/images}}
 					</tbody>
 				</table>
-				<button id="delbtn" class="btn btn-danger pull-right" type="submit" name="button" value="save">{{lang_delButton}}</button>
+				<button id="delbtn" class="btn btn-danger pull-right" type="submit" name="button" value="save"><span class="glyphicon glyphicon-trash"></span> {{lang_delButton}}</button>
 			</form>
 			<pre style="display:none" id="deloutput"></pre>
 		</div>

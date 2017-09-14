@@ -5,7 +5,7 @@
 		{{lang_runtimeConfig}}
 	</div>
 	<div class="panel-body">
-		<h3>{{lang_defaultPermissions}}</h3>
+		<legend>{{lang_defaultPermissions}}</legend>
 		<p><i>{{lang_descriptionPermissionConfig}}</i></p>
 		<form action="?do=DozMod" method="post" id="runtimeconf" role="form">
 			<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="position:absolute;top:-2000px" tabindex="-1">
@@ -13,7 +13,7 @@
 
 
 			<fieldset class="form-group">
-				<legend>{{lang_defaultLecturePermissions}}</legend>
+				<h4>{{lang_defaultLecturePermissions}}</h4>
 
 				<input type="hidden" 	name="defaultLecturePermissions[edit]" value="0"/>
 				<input type="hidden" 	name="defaultLecturePermissions[admin]" value="0"/>
@@ -34,7 +34,7 @@
 			</fieldset>
 
 			<fieldset class="form-group">
-				<legend>{{lang_defaultImagePermissions}}</legend>
+				<h4>{{lang_defaultImagePermissions}}</h4>
 				<input type="hidden" 	name="defaultImagePermissions[edit]" value="0"/>
 				<input type="hidden" 	name="defaultImagePermissions[admin]" value="0"/>
 				<input type="hidden" 	name="defaultImagePermissions[download]" value="0"/>
@@ -67,7 +67,7 @@
 			</fieldset>
 
 			<fieldset>
-				<h3>{{lang_runtimeConfigLimits}}</h3>
+				<legend>{{lang_runtimeConfigLimits}}</legend>
 				<p><i>{{lang_descriptionRuntimeLimits}}</i></p>
 				<table class="table-input-group">
 					<tr class="input-group">
@@ -90,9 +90,9 @@
 					</tr>
 				</table>
 			</fieldset>
-
+			<br/>
 			<fieldset>
-				<h3>{{lang_miscOptions}}</h3>
+				<legend>{{lang_miscOptions}}</legend>
 				<div class="checkbox">
 					<input type="hidden" 	name="allowLoginByDefault" value="0">
 					<input type="checkbox"  name="allowLoginByDefault" value="1" {{allowLoginByDefault}} id ="allowLoginByDefault" class="form-control">
@@ -107,7 +107,7 @@
 			<input type="hidden" name="token" value="{{token}}">
 			<input type="hidden" name="action" value="runtime">
 			<div class="text-right">
-				<button class="btn btn-primary" type="submit" name="button" value="save">{{lang_save}}</button>
+				<button class="btn btn-primary" type="submit" name="button" value="save"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 			</div>
 		</form>
 	</div>
