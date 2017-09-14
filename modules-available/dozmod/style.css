@@ -35,3 +35,15 @@
 .table-input-group tr.input-group td:last-child input {
   border-radius: 0px 4px 4px 0px;
 }
+
+.input-group-addon {
+  min-width:200px;
+}
+
+.table > tbody > tr > td {
+  vertical-align: middle;
+}
+
+.table > tbody > tr > td > div {
+  display: inline-block;
+}

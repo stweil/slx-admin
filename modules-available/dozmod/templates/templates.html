@@ -1,91 +1,98 @@
-<h1>{{lang_mailTemplates}}</h1>
+<h1>{{lang_bwlehrpoolsuite}}</h1>
 
-<p><i>{{lang_templatePageDescription}}</i></p>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_mailTemplates}}
+	</div>
+	<div class="panel-body">
 
-<form id="templateForm" role="form" method="POST" action="?do=dozmod&amp;section=templates">
-	<input type="hidden" name="token" value="{{token}}">
-	<input type="hidden" name="action" value="save">
+		<p><i>{{lang_templatePageDescription}}</i></p>
+
+		<form id="templateForm" role="form" method="POST" action="?do=dozmod&amp;section=templates">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="save">
 
 
-	<div class="panel-group" id="accordion">
+			<div class="panel-group" id="accordion">
 
-	{{#templates}}
+			{{#templates}}
 
-	<div id="frame_{{name}}" class="panel panel-default">
-		<div class="panel-heading">
-			<div class="panel-title">
-				{{#conflict}}
-					<span class="glyphicon glyphicon-exclamation-sign pull-left text-danger"></span>
-				{{/conflict}}
-				{{#modified}}
-					<span class="glyphicon glyphicon-pencil pull-left"></span>
-				{{/modified}}
-				<h4>
-					<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#panel_{{name}}">
-					{{name}}
-					</a>
-				</h4>
-				<small>{{description}}</small>
+			<div id="frame_{{name}}" class="panel panel-default">
+				<div class="panel-heading">
+					<div class="panel-title">
+						{{#conflict}}
+							<span class="glyphicon glyphicon-exclamation-sign pull-left text-danger"></span>
+						{{/conflict}}
+						{{#modified}}
+							<span class="glyphicon glyphicon-pencil pull-left"></span>
+						{{/modified}}
+						<h4>
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#panel_{{name}}">
+							{{name}}
+							</a>
+						</h4>
+						<small>{{description}}</small>
 
-			</div>
-		</div>
-		<div id="panel_{{name}}" class="panel-collapse collapse">
-			<div class="panel-body">
-				<div id="msgbox_{{name}}">
-				</div>
-
-				<label for="ta_{{name}}">{{lang_template}}</label>
-				<div class="form-group">
-					<textarea data-mandatory="{{list_mandatoryVariables}}" name="templates[{{name}}][template]"
-								 data-setting="{{name}}" id="ta_{{name}}"
-								 class="form-control templateEditor" style="min-height:200px">{{template}}</textarea>
-				</div>
-
-				<h4>{{lang_placeholders}}</h4>
-				<select name="templates[{{name}}][mandatory_variables]" multiple="multiple" class="hidden">
-					{{{html_mandatoryVariables}}}
-				</select>
-				<select name="templates[{{name}}][optional_variables]" multiple="multiple" class="hidden">
-					{{{html_optionalVariables}}}
-				</select>
-				<ul>
-					{{{html_availableVariables}}}
-				</ul>
-				{{#original_template}}
-					<textarea class="hidden" id="orig_{{name}}">{{original_template}}</textarea>
-					<div class="pull-right">
-						<a href="#" class="btn btn-default" onclick="$('#ta_{{name}}').val($('#orig_{{name}}').val());return false">
-							<span class="glyphicon glyphicon-refresh"></span>
-							{{lang_replaceWithOriginal}}
-						</a>
 					</div>
-				{{/original_template}}
-				<div class="small">
-					{{lang_modified}}: {{#modified}}<b>{{lang_yes}}</b>{{/modified}}{{^modified}}{{lang_no}}{{/modified}},
-					{{lang_hasNewer}}: {{#conflict}}<b>{{lang_yes}}</b>{{/conflict}}{{^conflict}}{{lang_no}}{{/conflict}},
-					{{lang_thisVersion}}: {{edit_version}},
-					{{lang_latestVersion}}: {{version}}
+				</div>
+				<div id="panel_{{name}}" class="panel-collapse collapse">
+					<div class="panel-body">
+						<div id="msgbox_{{name}}">
+						</div>
+
+						<label for="ta_{{name}}">{{lang_template}}</label>
+						<div class="form-group">
+							<textarea data-mandatory="{{list_mandatoryVariables}}" name="templates[{{name}}][template]"
+										 data-setting="{{name}}" id="ta_{{name}}"
+										 class="form-control templateEditor" style="min-height:200px">{{template}}</textarea>
+						</div>
+
+						<h4>{{lang_placeholders}}</h4>
+						<select name="templates[{{name}}][mandatory_variables]" multiple="multiple" class="hidden">
+							{{{html_mandatoryVariables}}}
+						</select>
+						<select name="templates[{{name}}][optional_variables]" multiple="multiple" class="hidden">
+							{{{html_optionalVariables}}}
+						</select>
+						<ul>
+							{{{html_availableVariables}}}
+						</ul>
+						{{#original_template}}
+							<textarea class="hidden" id="orig_{{name}}">{{original_template}}</textarea>
+							<div class="pull-right">
+								<a href="#" class="btn btn-default" onclick="$('#ta_{{name}}').val($('#orig_{{name}}').val());return false">
+									<span class="glyphicon glyphicon-refresh"></span>
+									{{lang_replaceWithOriginal}}
+								</a>
+							</div>
+						{{/original_template}}
+						<div class="small">
+							{{lang_modified}}: {{#modified}}<b>{{lang_yes}}</b>{{/modified}}{{^modified}}{{lang_no}}{{/modified}},
+							{{lang_hasNewer}}: {{#conflict}}<b>{{lang_yes}}</b>{{/conflict}}{{^conflict}}{{lang_no}}{{/conflict}},
+							{{lang_thisVersion}}: {{edit_version}},
+							{{lang_latestVersion}}: {{version}}
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
-	</div>
 
 
-	{{/templates}}
-	</div>
+			{{/templates}}
+			</div>
 
-	<div class="pull-left">
-		<button type="submit" onclick="return validateForm()" class="btn btn-primary">{{lang_save}}</button>
+			<button type="submit" onclick="return validateForm()" class="btn btn-primary pull-right">{{lang_save}}</button>
+		</form>
+		<form method="POST" action="?do=dozmod&amp;section=templates">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="reset">
+			<div>
+				<button type="submit" onclick="return confirm('{{lang_reallyResetTemplates}}')" class="btn btn-danger">{{lang_loadDefaults}}</button>
+			</div>
+		</form>
+		<div class="clearfix"></div>
 	</div>
-</form>
-<form method="POST" action="?do=dozmod&amp;section=templates">
-	<input type="hidden" name="token" value="{{token}}">
-	<input type="hidden" name="action" value="reset">
-	<div>
-		<button type="submit" onclick="return confirm('{{lang_reallyResetTemplates}}')" class="btn btn-danger">{{lang_loadDefaults}}</button>
-	</div>
-</form>
-<div class="clearfix"></div>
+</div>
+
 <script type="application/javascript"><!--
 
 

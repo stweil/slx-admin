@@ -1,15 +1,13 @@
-<h2>{{lang_organizationList}}</h2>
-
 <div class="panel panel-default">
 	<div class="panel-heading">
 		{{lang_organizationListHeader}}
 	</div>
 	<div class="panel-body">
 		<div class="table-responsive">
-			<table class="table table-stripped table-condensed">
+			<table class="table table-stripped table-condensed stupidtable">
 				<thead>
 					<tr>
-						<th>{{lang_organization}}</th>
+						<th data-sort="string">{{lang_organization}}</th>
 						<th><span class="glyphicon glyphicon-ok" title="{{lang_canLoginOrganization}}"></span></th>
 					</tr>
 				</thead>
@@ -17,8 +15,11 @@
 					{{#organizations}}
 					<tr>
 						<td class="text-left text-nowrap">{{displayname}}</td>
-						<td class="text-nowrap">
-							<input onclick="seto('setorglogin', this, '{{organizationid}}')" type="checkbox" {{{canlogin}}}>
+						<td>
+							<div class="checkbox">
+								<input onclick="seto('setorglogin', this, '{{organizationid}}')" type="checkbox" {{{canlogin}}}>
+								<label></label>
+							</div>
 						</td>
 					</tr>
 					{{/organizations}}
@@ -32,6 +33,7 @@
 
 function seto(action, el, orgid) {
 	var box = $(el);
+	box = box.parent();
 	var v = el.checked ? '1' : '0';
 	var old = el.checked == true;
 	box.css('display', 'none');

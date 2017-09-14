@@ -1,24 +1,25 @@
-<h2>{{lang_mailConfigHeadline}}</h2>
+<h1>{{lang_bwlehrpoolsuite}}</h1>
 
 <div class="panel panel-default">
 	<div class="panel-heading">
 		{{lang_mailConfig}}
 	</div>
 	<div class="panel-body">
+
 		<p>{{lang_mailDescription}}</p>
 		<form action="?do=DozMod" method="post" id="mailconf">
 			<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="position:absolute;top:-2000px" tabindex="-1">
 			<input type="password" name="password_fake" id="password_fake" value="" style="position:absolute;top:-2000px" tabindex="-1">
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="host-id">{{lang_host}} *</label>
+				<label class="input-group-addon" for="host-id">{{lang_host}} *</label>
 				<input type="text" name="host" id ="host-id" class="form-control" placeholder="smtp.example.com" value="{{host}}">
 			</div>
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="port-id">{{lang_port}} *</label>
+				<label class="input-group-addon" for="port-id">{{lang_port}} *</label>
 				<input type="text" name="port" id ="port-id" class="form-control" placeholder="465" value="{{port}}">
 			</div>
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="ssl-id">{{lang_ssl}} *</label>
+				<label class="input-group-addon" for="ssl-id">{{lang_ssl}} *</label>
 				<select class="form-control" name="ssl" id="ssl-id">
 					<option value="NONE" {{set_NONE}}>{{lang_sslNone}}</option>
 					<option value="IMPLICIT" {{set_IMPLICIT}}>{{lang_sslImplicit}}</option>
@@ -26,40 +27,42 @@
 				</select>
 			</div>
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="senderAddress-id">{{lang_senderAddress}} *</label>
+				<label class="input-group-addon" for="senderAddress-id">{{lang_senderAddress}} *</label>
 				<input type="text" name="senderAddress" id ="senderAddress-id" class="form-control" placeholder="smtp-username@hs-example.com" value="{{senderAddress}}">
 			</div>
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="serverName-id">{{lang_senderName}}</label>
+				<label class="input-group-addon" for="serverName-id">{{lang_senderName}}</label>
 				<input type="text" name="serverName" id ="serverName-id" class="form-control" placeholder="bwLehrpool HS Example" value="{{serverName}}">
 			</div>
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="replyTo-id">{{lang_replyTo}}</label>
+				<label class="input-group-addon" for="replyTo-id">{{lang_replyTo}}</label>
 				<input type="text" name="replyTo" id ="replyTo-id" class="form-control" placeholder="helpdesk@hs-example.com" value="{{replyTo}}">
 			</div>
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="username-id">{{lang_username}}</label>
-				<input type="text" name="username" id ="username-id" class="form-control" placeholder="smtp-username" value="{{username}}">
+				<label class="input-group-addon" for="username-id">{{lang_username}}</label>
+				<input type="text" name="username" id ="username-id" class="form-control" placeholder="{{lang_usernameplaceholder}}" value="{{username}}">
 			</div>
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="password-id">{{lang_password}}</label>
-				<input type="{{password_type}}" name="password" id ="password-id" class="form-control" placeholder="geheim" value="{{password}}">
+				<label class="input-group-addon" for="password-id">{{lang_password}}</label>
+				<input type="{{password_type}}" name="password" id ="password-id" class="form-control" placeholder="{{lang_passwordplaceholder}}" value="{{password}}">
 			</div>
 			<p>{{lang_asteriskRequired}}</p>
 			<br>
 			<p>{{lang_testConfiguration}}</p>
 			<div class="input-group">
-				<label class="input-group-addon slx-ga2" for="test-id">{{lang_testRecipient}}</label>
+				<label class="input-group-addon" for="test-id">{{lang_testRecipient}}</label>
 				<input type="text" name="recipient" id ="test-id" class="form-control" placeholder="test@example.com" value="">
 			</div>
 			<br>
-			<button class="btn btn-primary btn-sm" type="button" id="test-button" name="button" value="test" onclick="slxTestConfig()">{{lang_test}}</button>
-			<span id="test-spin" style="display:none"><span class="glyphicon glyphicon-refresh slx-rotation"></span></span>
-			<pre id="test-output" style="display:none"></pre>
-			<button class="btn btn-primary btn-sm" type="submit" name="button" value="save">{{lang_save}}</button>
-			<br>
-			<input type="hidden" name="token" value="{{token}}">
-			<input type="hidden" name="action" value="mail">
+			<div class="text-right">
+				<button class="btn btn-warning btn-sm" type="button" id="test-button" name="button" value="test" onclick="slxTestConfig()">{{lang_test}}</button>
+				<span id="test-spin" style="display:none"><span class="glyphicon glyphicon-refresh slx-rotation"></span></span>
+				<pre id="test-output" style="display:none"></pre>
+				<button class="btn btn-primary btn-sm" type="submit" name="button" value="save">{{lang_save}}</button>
+				<br>
+				<input type="hidden" name="token" value="{{token}}">
+				<input type="hidden" name="action" value="mail">
+			</div>
 		</form>
 	</div>
 </div>

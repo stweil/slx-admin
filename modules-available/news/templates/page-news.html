@@ -17,9 +17,16 @@
 				<label for="news-content-id">{{lang_content}}</label>
 				<textarea name="news-content" id ="news-content-id" class="form-control summernote" rows="5" cols="30"  placeholder="">{{latestContent}}</textarea>
 			</div>
-			<button class="btn btn-primary btn-sm sn-btn pull-right" name="news-type" value="news" type="submit">{{lang_save}}</button>
-			<input type="hidden" name="token" value="{{token}}">
-			<p>{{lang_latestUpdate}}: {{latestDate}}</p>
+			<div class="row">
+				<div class="text-left col-md-6">
+					<p>{{lang_latestUpdate}}: {{latestDate}}</p>
+				</div>
+				<div class="text-right col-md-6">
+					<button class="btn btn-primary sn-btn" name="news-type" value="news" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+					<input type="hidden" name="token" value="{{token}}">
+				</div>
+			</div>
+
 		</form>
 		<br/>
 		<div class="panel panel-default">
@@ -59,15 +66,16 @@
 		</div>
 	</div>
 	<div role="tabpanel" class="tab-pane {{#editHelp}}active{{/editHelp}}" id="help">
-		<form class="bottom-margin-50" action="?do=News&amp;action=save" method="post">
+		<form action="?do=News&amp;action=save" method="post">
 			<div class="form-group">
 				<br/>
 				<label for="news-content-id">{{lang_content}}</label>
 				<textarea name="help-content" id="help-content-id" class="form-control summernote" style="min-height:400px"  placeholder="">{{latestHelp}}</textarea>
 			</div>
-			<button class="btn btn-primary btn-sm sn-btn pull-right" name="news-type" value="help" type="submit">{{lang_save}}</button>
-			<input type="hidden" name="token" value="{{token}}">
-			<p> </p>
+			<div class="text-right">
+				<button class="btn btn-primary sn-btn" name="news-type" value="help" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+				<input type="hidden" name="token" value="{{token}}">
+			</div>
 		</form>
 		<br/>
 		<div class="panel panel-default">

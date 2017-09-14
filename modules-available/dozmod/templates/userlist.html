@@ -1,4 +1,4 @@
-<h2 id="users">{{lang_userList}}</h2>
+<h1>{{lang_bwlehrpoolsuite}}</h1>
 
 <div class="panel panel-default">
 	<div class="panel-heading">
@@ -7,13 +7,13 @@
 	<div class="panel-body">
 		<p>{{lang_userListDescription}}</p>
 		<div class="table-responsive">
-			<table class="table table-stripped table-condensed">
+			<table class="table table-stripped table-condensed stupidtable">
 				<thead>
 					<tr>
-						<th>{{lang_user}}</th>
-						<th>{{lang_organization}}</th>
-						<th>{{lang_lastLogin}}</th>
-						<th>{{lang_email}}</th>
+						<th data-sort="string">{{lang_user}}</th>
+						<th data-sort="string">{{lang_organization}}</th>
+						<th data-sort="int">{{lang_lastLogin}}</th>
+						<th data-sort="string">{{lang_email}}</th>
 						<th><span class="glyphicon glyphicon-envelope" title="{{lang_emailNotifications}}"></span></th>
 						<th><span class="glyphicon glyphicon-king" title="{{lang_superUser}}"></span></th>
 						<th><span class="glyphicon glyphicon-ok" title="{{lang_canLoginUser}}"></span></th>
@@ -26,9 +26,24 @@
 						<td class="text-left text-nowrap">{{orgname}}</td>
 						<td class="text-left text-nowrap">{{lastlogin}}</td>
 						<td class="text-left text-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>
-						<td><input onclick="setu('setmail', this, '{{userid}}')" type="checkbox" {{{emailnotifications}}}></td>
-						<td><input onclick="setu('setsu', this, '{{userid}}')" type="checkbox" {{{issuperuser}}}></td>
-						<td><input onclick="setu('setlogin', this, '{{userid}}')" type="checkbox" {{{canlogin}}}></td>
+						<td>
+							<div class="checkbox">
+								<input onclick="setu('setmail', this, '{{userid}}')" type="checkbox" {{{emailnotifications}}}>
+								<label></label>
+							</div>
+						</td>
+						<td>
+							<div class="checkbox">
+								<input onclick="setu('setsu', this, '{{userid}}')" type="checkbox" {{{issuperuser}}}>
+								<label></label>
+							</div>
+						</td>
+						<td>
+							<div class="checkbox">
+								<input onclick="setu('setlogin', this, '{{userid}}')" type="checkbox" {{{canlogin}}}>
+								<label></label>
+							</div>
+						</td>
 					</tr>
 					{{/users}}
 				</tbody>
@@ -41,6 +56,7 @@
 
 function setu(action, el, uid) {
 	var box = $(el);
+	box = box.parent();
 	var v = el.checked ? '1' : '0';
 	var old = el.checked == true;
 	box.css('display', 'none');

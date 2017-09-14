@@ -180,6 +180,7 @@ class Page_DozMod extends Page
 				$row['name_extra_class'] = 'slx-strike';
 			}
 			$row['version'] = date('d.m.Y H:i:s', $row['createtime']);
+			$row['rawfilesize'] = $row['filesize'];
 			$row['filesize'] = Util::readableFileSize($row['filesize']);
 			$rows[] = $row;
 		}

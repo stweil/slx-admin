@@ -1,8 +1,8 @@
-<h2>{{lang_heading}}</h2>
+<h1>{{lang_bwlehrpoolsuite}}</h1>
 
 <div class="panel panel-default">
 	<div class="panel-heading">
-		{{lang_subHeading}}
+		{{lang_heading}}
 	</div>
 	<div class="panel-body">
 		<p>{{lang_description_delete_images}}</p>
@@ -10,17 +10,20 @@
 			<form id="delform" method="post" action="?do=DozMod" onsubmit="return slxPostdel()">
 				<input type="hidden" name="token" value="{{token}}">
 				<input type="hidden" name="action" value="delimages">
-				<table class="table table-stripped table-condensed">
+				<table class="table table-stripped table-condensed stupidtable">
 					<thead>
 						<tr>
-							<th>{{lang_image}}</th>
-							<th>{{lang_version}}</th>
-							<th>{{lang_owner}}</th>
+							<th data-sort="string">{{lang_image}}</th>
+							<th data-sort="int">{{lang_version}}</th>
+							<th data-sort="string">{{lang_owner}}</th>
 							<th><span class="glyphicon glyphicon-upload" title="{{lang_hasNewer}}"></span></th>
-							<th>{{lang_size}}</th>
+							<th data-sort="int">{{lang_size}}</th>
 							<th>
-								<input id="del-all" type="checkbox" onclick="slxChangeAll()">
-								<span class="glyphicon glyphicon-trash" title="{{lang_delete}}"></span>
+								<div class="checkbox">
+									<input id="del-all" type="checkbox" onclick="slxChangeAll()">
+									<label for="del-all"></label>
+									<span class="glyphicon glyphicon-trash" title="{{lang_delete}}"></span>
+								</div>
 							</th>
 						</tr>
 					</thead>
@@ -28,16 +31,21 @@
 						{{#images}}
 						<tr>
 							<td class="text-left text-nowrap {{name_extra_class}}">{{displayname}}<br><span class="small">{{imageversionid}}</span></td>
-							<td class="text-left text-nowrap">{{version}}</td>
+							<td class="text-left text-nowrap" data-sort-value="{{createtime}}" >{{version}}</td>
 							<td class="text-left text-nowrap"><a href="mailto:{{email}}">{{lastname}}, {{firstname}}</a></td>
 							<td class="text-left text-nowrap"><span class="glyphicon {{hasNewerClass}}"></span></td>
-							<td class="text-right text-nowrap">{{filesize}}</td>
-							<td><input class="del-check" name="images[{{imageversionid}}]" type="checkbox" {{checked}}></td>
+							<td class="text-right text-nowrap" data-sort-value="{{rawfilesize}}">{{filesize}}</td>
+							<td>
+								<div class="checkbox">
+									<input type="checkbox" id="images[{{imageversionid}}]" class="del-check" name="images[{{imageversionid}}]" {{checked}}>
+									<label for="images[{{imageversionid}}]"></label>
+								</div>
+							</td>
 						</tr>
 						{{/images}}
 					</tbody>
 				</table>
-				<button id="delbtn" class="btn btn-danger" type="submit" name="button" value="save">{{lang_delButton}}</button>
+				<button id="delbtn" class="btn btn-danger pull-right" type="submit" name="button" value="save">{{lang_delButton}}</button>
 			</form>
 			<pre style="display:none" id="deloutput"></pre>
 		</div>
