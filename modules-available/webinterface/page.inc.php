@@ -73,6 +73,7 @@ class Page_WebInterface extends Page
 
 	protected function doRender()
 	{
+		Render::addTemplate("heading");
 		//
 		// HTTPS
 		//

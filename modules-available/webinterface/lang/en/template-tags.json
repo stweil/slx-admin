@@ -12,6 +12,7 @@
     "lang_httpsSettings": "HTTPS settings",
     "lang_installAndRestart": "Installing certificate and restarting web server",
     "lang_logoBackground": "Logo background color",
+    "lang_moduleHeading": "Web Interface",
     "lang_noHttps": "Disable HTTPS, delete current certificate",
     "lang_offSelected": "HTTPS is currently disabled.",
     "lang_pageTitlePrefix": "Page title prefix",

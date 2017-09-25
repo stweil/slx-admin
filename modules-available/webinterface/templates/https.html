@@ -28,7 +28,12 @@
 			{{#httpsEnabled}}
 			<div class="input-group" onclick="$('#moff').prop('checked', true);
 					$('#wcustom').hide()">
-				<span class="input-group-addon"><input id="moff" type="radio" name="mode" value="off"></span>
+				<span class="input-group-addon">
+					<div class="radio" style="margin: 0; line-height: normal; text-align: left">
+						<input id="moff" type="radio" name="mode" value="off">
+						<label style="padding: 0"></label>
+					</div>
+				</span>
 				<span class="form-control">
 					{{lang_noHttps}}
 				</span>
@@ -36,14 +41,24 @@
 			{{/httpsEnabled}}
 			<div class="input-group" onclick="$('#mrandom').prop('checked', true);
 					$('#wcustom').hide()">
-				<span class="input-group-addon"><input id="mrandom" type="radio" name="mode" value="random"></span>
+				<span class="input-group-addon">
+					<div class="radio" style="margin: 0; line-height: normal; text-align: left">
+						<input id="mrandom" type="radio" name="mode" value="random">
+						<label style="padding: 0"></label>
+					</div>
+				</span>
 				<span class="form-control">
 					{{lang_randomCert}}
 				</span>
 			</div>
 			<div class="input-group" onclick="$('#mcustom').prop('checked', true);
 					$('#wcustom').show()">
-				<span class="input-group-addon"><input id="mcustom" type="radio" name="mode" value="custom"></span>
+				<span class="input-group-addon">
+					<div class="radio" style="margin: 0; line-height: normal; text-align: left">
+						<input id="mcustom" type="radio" name="mode" value="custom">
+						<label style="padding: 0"></label>
+					</div>
+				</span>
 				<span class="form-control">
 					{{lang_customCert}}
 				</span>
@@ -73,13 +88,23 @@ MIIFfTCCA...
 
 			<br>
 			<div class="input-group">
-				<span class="input-group-addon"><input id="httpsredirect" type="checkbox" name="httpsredirect" value="on" {{redirect_checked}}></span>
+				<span class="input-group-addon">
+					<div class="checkbox" style="margin: 0; line-height: normal; text-align: left">
+						<input id="httpsredirect" type="checkbox" name="httpsredirect" value="on" {{redirect_checked}}>
+						<label style="padding: 0"></label>
+					</div>
+				</span>
 				<span class="form-control" onclick="$('#httpsredirect').prop('checked', !$('#httpsredirect').prop('checked'))">
 					{{lang_httpsRedirect}}
 				</span>
 			</div>
 			<div class="input-group">
-				<span class="input-group-addon"><input id="usehsts" type="checkbox" name="usehsts" value="on" {{hsts_checked}}></span>
+				<span class="input-group-addon">
+					<div class="checkbox" style="margin: 0; line-height: normal; text-align: left">
+						<input id="usehsts" type="checkbox" name="usehsts" value="on" {{hsts_checked}}>
+						<label style="padding: 0"></label>
+					</div>
+				</span>
 				<span class="form-control" onclick="$('#usehsts').prop('checked', !$('#usehsts').prop('checked'))">
 					{{lang_useHsts}}
 				</span>
@@ -87,7 +112,7 @@ MIIFfTCCA...
 			<br>
 
 			<div class="pull-right">
-				<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+				<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 			</div>
 		</div>
 	</div>

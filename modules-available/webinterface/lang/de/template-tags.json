@@ -12,6 +12,7 @@
     "lang_httpsSettings": "HTTPS-Konfiguration",
     "lang_installAndRestart": "Zertifikat installieren und Webserver neustarten",
     "lang_logoBackground": "Hintergrundfarbe des Logos",
+    "lang_moduleHeading": "Web-Schnittstelle",
     "lang_noHttps": "HTTPS wieder deaktivieren, aktuelles Zertifikat l\u00f6schen",
     "lang_offSelected": "HTTPS ist derzeit deaktiviert.",
     "lang_pageTitlePrefix": "Pr\u00e4fix f\u00fcr den Seitentitel",
