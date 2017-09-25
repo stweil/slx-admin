@@ -44,7 +44,7 @@ class Page_ServerSetup extends Page
 
 	protected function doRender()
 	{
-
+		Render::addTemplate("heading");
 		$taskid = Request::any('taskid');
 		if ($taskid !== false && Taskmanager::isTask($taskid)) {
 			Render::addTemplate('ipxe_update', array('taskid' => $taskid));

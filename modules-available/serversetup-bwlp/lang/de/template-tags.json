@@ -21,6 +21,7 @@
     "lang_menuCustomHint3": "und w\u00e4hlen Sie als Standard-Bootverhalten ebenfalls custom.",
     "lang_menuDisplayTime": "Anzeigedauer des Men\u00fcs",
     "lang_menuGeneration": "Erzeugen des Bootmen\u00fcs",
+    "lang_moduleHeading": "iPXE / Boot Menu",
     "lang_seconds": "Sekunden",
     "lang_set": "Setzen",
     "lang_usbImage": "USB-Image",
