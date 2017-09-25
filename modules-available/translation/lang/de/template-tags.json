@@ -1,5 +1,6 @@
 {
     "lang_createTag": "Tag erstellen",
+    "lang_clear": "Läutern",
     "lang_global": "Global",
     "lang_globalTooltip": "Dieser Tag ist global verf\u00fcgbar und braucht normalerweise nicht explizit f\u00fcr dieses Modul \u00fcbersetzt zu werden",
     "lang_menuCategories": "Men\u00fckategorien",
@@ -7,6 +8,7 @@
     "lang_missing": "Fehlend",
     "lang_missingDeps": "Fehlende Abh\u00e4ngigkeiten",
     "lang_module": "Modul",
+    "lang_modullist": "Liste der Module",
     "lang_otherStrings": "Andere Texte",
     "lang_sample": "Beispiel",
     "lang_status": "Status",
@@ -16,7 +18,7 @@
     "lang_templateHint": "Hinweis: Gelbe Linien zeigen an, dass eine \u00dcbersetzung fehlt, rote Linien, dass ein Tag nicht von dem jeweiligen Template verwendet wird.",
     "lang_templates": "Templates",
     "lang_translation": "\u00dcbersetzung",
-    "lang_translationHeading": "Verwalten der \u00dcbersetzungen",
+    "lang_translationHeading": "Verwaltung der \u00dcbersetzungen",
     "lang_unused": "Ungenutzt",
     "lang_unusedUnreliableHint": "Die Erkennung ungenutzter Tags bezieht nur aktivierte Module mit ein. Es k\u00f6nnte sein, dass ein ungenutzt gemeldeter Tag in einem nicht aktivierten Modul verwendet wird."
 }

@@ -1,5 +1,6 @@
 {
     "lang_createTag": "Create Tag",
+    "lang_clear": "Clear",
     "lang_global": "Global",
     "lang_globalTooltip": "This tag is global; usually there is no need to translate it explicitly for this module",
     "lang_menuCategories": "Menu categories",
@@ -7,6 +8,7 @@
     "lang_missing": "Missing",
     "lang_missingDeps": "Missing dependencies",
     "lang_module": "Module",
+    "lang_modullist": "List of Modules",
     "lang_otherStrings": "Other strings",
     "lang_sample": "Sample",
     "lang_status": "Status",
@@ -16,7 +18,7 @@
     "lang_templateHint": "Hint: Yellow lines indicate a translation is missing and red lines indicate a tag is not being used by the template.",
     "lang_templates": "Templates",
     "lang_translation": "Translation",
-    "lang_translationHeading": "Manage translations",
+    "lang_translationHeading": "Translation Management",
     "lang_unused": "Unused",
     "lang_unusedUnreliableHint": "Detection of unused tags only includes currently activated modules. It's possible that a tag marked \"unused\" is actually refered to in a module not activated."
 }

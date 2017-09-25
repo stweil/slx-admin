@@ -1,25 +1,30 @@
 <h1>{{lang_translationHeading}}</h1>
 
 <div class="panel panel-default">
-	<table class="table">
-		<thead>
-			<tr>
-				<th>{{lang_module}}</th>
-				<th>{{lang_status}}</th>
-			<tr>
-		</thead>
-		<tbody>
-			{{#table}}
+	<div class="panel-heading">
+		{{lang_modullist}}
+	</div>
+	<div class="panel-body">
+		<table class="table">
+			<thead>
 				<tr>
-					<td>
-						{{#depfail}}
-						<div class="pull-right"><span class="red glyphicon glyphicon-exclamation-sign" title="{{lang_missingDeps}}"></span></div>
-						{{/depfail}}
-						<a href="?do=Translation&amp;module={{module}}">{{module}}</a>
-					</td>
-					<td>{{{status}}}</td>
-				</tr>
-			{{/table}}
-		</tbody>
-	</table>
+					<th>{{lang_module}}</th>
+					<th>{{lang_status}}</th>
+				<tr>
+			</thead>
+			<tbody>
+				{{#table}}
+					<tr>
+						<td>
+							{{#depfail}}
+							<div class="pull-right"><span class="red glyphicon glyphicon-exclamation-sign" title="{{lang_missingDeps}}"></span></div>
+							{{/depfail}}
+							<a href="?do=Translation&amp;module={{module}}">{{module}}</a>
+						</td>
+						<td>{{{status}}}</td>
+					</tr>
+				{{/table}}
+			</tbody>
+		</table>
+	</div>
 </div>
