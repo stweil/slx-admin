@@ -8,7 +8,7 @@
     "lang_readOnly": "Read-only Access",
     "lang_readWrite": "Read\/Write Access",
     "lang_username": "Username",
-    "lang_vmLocation": "VM Location",
+    "lang_vmLocation": "VM Storage Location",
     "lang_vmLocationChoose": "Please choose where the images of virtual machines will be stored.",
     "lang_vmLocationConfiguration": "VM location is configured",
     "lang_vmLocationHelp1": "For test purposes, the VMs can be stored directly on the Satellite server. However, if you operate the delivered satellite vmdk please remember that you have only about 100GB of memory.",
