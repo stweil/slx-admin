@@ -10,32 +10,32 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="edit" value="{{edit}}">
 	<div class="input-group">
-		<span class="input-group-addon slx-ga">{{lang_moduleTitle}}</span>
+		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_moduleTitle}}</span>
 		<input tabindex="1" name="title" value="{{title}}" type="text" class="form-control">
 	</div>
 	<div class="input-group">
-		<span class="input-group-addon slx-ga">Server *</span>
+		<span style="min-width:150px;" class="input-group-addon slx-ga">Server *</span>
 		<input tabindex="2" name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
 	<div class="input-group">
-		<span class="input-group-addon slx-ga">{{lang_bindDN}}</span>
+		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_bindDN}}</span>
 		<input tabindex="3" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="CN=bwlp,OU=Benutzer,DC=domain,DC=hs-beispiel,DC=de">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
 	<div class="input-group">
-		<span class="input-group-addon slx-ga">{{lang_password}}</span>
+		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_password}}</span>
 		<input tabindex="4" name="bindpw" value="{{bindpw}}" type="{{password_type}}" class="form-control" placeholder="{{lang_password}}">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
-	<div class="input-group">
-		<span class="input-group-addon slx-ga">{{lang_searchBase}} *</span>
+	<div style="min-width:150px;" class="input-group">
+		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_searchBase}} *</span>
 		<input tabindex="5" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="ou=users,dc=hochschule,dc=de">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -43,7 +43,7 @@
 	</div>
 	<br>
 	<div class="input-group">
-		<span class="input-group-addon slx-ga">Home</span>
+		<span style="min-width:150px;" class="input-group-addon slx-ga">Home</span>
 		<input tabindex="6" name="home" value="{{home}}" type="text" class="form-control" placeholder="\\server.example.com\%s">
 		<span class="input-group-btn">
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-home"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -51,23 +51,27 @@
 	</div>
 	<br>
 	<div>
-		<label>
-			<input type="checkbox" name="fixnumeric" {{#fixnumeric}}checked{{/fixnumeric}}> {{lang_fixNumeric}}
-		</label>
+		<div class="checkbox">
+			<input type="checkbox" name="fixnumeric" {{#fixnumeric}}checked{{/fixnumeric}}>
+			<label><b>{{lang_fixNumeric}}</b></label>
+		</div>
 		<div>
 			<i>{{lang_fixNumericDescription}}</i>
 		</div>
 	</div>
 	<br>
 	<div>
-		<label>
-			<input type="checkbox" name="ssl" onchange="$('#cert-box').css('display', this.checked ? '' : 'none')" {{#ssl}}checked{{/ssl}}> {{lang_ssl}}
-		</label>
+		<div class="checkbox">
+			<input type="checkbox" name="ssl" onchange="$('#cert-box').css('display', this.checked ? '' : 'none')" {{#ssl}}checked{{/ssl}}>
+			<label><b>{{lang_ssl}}</b></label>
+		</div>
+		<div>
+			<i>{{lang_sslDescription}}</i>
+		</div>
 	</div>
-	<i>{{lang_sslDescription}}</i>
 	<br>
 
-
+	<hr>
 
 	<div class="btn-group">
 		<a class="btn btn-default" href="?do=SysConfig&action=addmodule">{{lang_back}}</a>

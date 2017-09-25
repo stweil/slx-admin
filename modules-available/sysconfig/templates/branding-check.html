@@ -13,6 +13,7 @@
 </div>
 <div class="clearfix"></div>
 <div>{{error}}</div>
+<br/>
 <div>
 	<form role="form" enctype="multipart/form-data" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{step}}">
 		<input type="hidden" name="token" value="{{token}}">
@@ -25,7 +26,7 @@
 			<a class="btn btn-default" href="?do=SysConfig&action=addmodule&step=Branding_Start">{{lang_cancel}}</a>
 		</div>
 		<div class="btn-group pull-right">
-			<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+			<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 		</div>
 	</form>
 </div>

@@ -6,11 +6,13 @@
 		<input type="text" name="title" value="{{title}}" class="form-control" autofocus="autofocus">
 	</div>
 	<div class="form-group">
-		<label>
+		<div class="checkbox">
 			<input type="checkbox" name="allowPasswordLogin" value="yes" {{#apl}}checked{{/apl}}>
-			{{lang_allowPass}}
-		</label>
-		<p><i>{{lang_allowPassInfo}}</i></p>
+			<label><b>{{lang_allowPass}}</b></label>
+		</div>
+		<div>
+			<i>{{lang_allowPassInfo}}</i>
+		</div>
 	</div>
 	<div class="form-group">
 		<label for="root-key">{{lang_rootKey}}</label>
@@ -26,7 +28,7 @@
 		<a class="btn btn-default" href="?do=SysConfig&action=addmodule">{{lang_back}}</a>
 	</div>
 	<div class="btn-group pull-right">
-		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+		<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 	</div>
 </form>
 

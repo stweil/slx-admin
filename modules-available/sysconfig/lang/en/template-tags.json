@@ -37,7 +37,7 @@
     "lang_determiningHomeDirectory": "Trying to determine home directory attribute...",
     "lang_dnLookup": "Looking up bind dn",
     "lang_download": "Download",
-    "lang_downloadLong": "Download module \"as is\".",
+    "lang_downloadLong": "Download module \"as it is\".",
     "lang_driveLetterNote": "IMPORTANT: Pick a drive letter for the home directory that will be free in the Virtual Machines. Otherwise, a random letter will be assigned.",
     "lang_editLong": "Edit module or configuration.",
     "lang_editingLocationInfo": "You're setting the configuration for a specific location, not the global one",

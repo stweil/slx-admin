@@ -18,7 +18,10 @@
 						<input type="radio" name="module[{{groupid}}]" value="{{moduleid}}" id="module{{moduleid}}" {{#active}}checked{{/active}}>
 						{{/unique}}
 						{{^unique}}
-						<input type="checkbox" name="module[{{moduleid}}]" value="{{moduleid}}" id="module{{moduleid}}" {{#active}}checked{{/active}}>
+						<div class="checkbox">
+							<input type="checkbox" name="module[{{moduleid}}]" value="{{moduleid}}" id="module{{moduleid}}" {{#active}}checked{{/active}}>
+							<label></label>
+						</div>
 						{{/unique}}
 					</span>
 					<label class="form-control" for="module{{moduleid}}">{{title}}</label>

@@ -6,8 +6,10 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="config">
 	<input type="hidden" name="activate" value="{{configid}}">
-	<div class="btn-group">
-		<button type="submit" class="btn btn-primary">{{lang_activateGlobally}}</button>
-		<a href="?do=SysConfig" class="btn btn-default">{{lang_backToSysconfig}}</a>
+	<div class="text-right">
+		<div class="btn-group">
+			<a href="?do=SysConfig" class="btn btn-default">{{lang_backToSysconfig}}</a>
+			<button type="submit" class="btn btn-primary">{{lang_activateGlobally}}</button>
+		</div>
 	</div>
 </form>

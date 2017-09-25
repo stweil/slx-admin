@@ -100,7 +100,7 @@
 			</form>
 		</div>
 		{{^locationid}}
-		<div class="panel-footer">
+		<div class="panel-footer text-right">
 			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">{{lang_newConfiguration}}</a>
 		</div>
 		{{/locationid}}
@@ -109,11 +109,13 @@
 	<div class="modal fade" id="help-config" tabindex="-1" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<div class="modal-header">{{lang_systemConfiguration}}</div>
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title"><b>{{lang_systemConfiguration}}</b></h4>
+				</div>
 				<div class="modal-body">
 					{{lang_helpSystemConfiguration}}
 				</div>
-				<div class="modal-footer"><a class="btn btn-primary" data-dismiss="modal">{{lang_close}}</a></div>
 			</div>
 		</div>
 	</div>

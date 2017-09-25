@@ -11,7 +11,7 @@
 <div id="supplied-cert-invalid" style="display:none" class="alert alert-danger">{{lang_userCertInvalid}}</div>
 <div id="trying-fingerprint" style="display:none" class="alert alert-warning">{{lang_tryingFingerprint}}</div>
 <br>
-<div class="pull-left">
+<div class="text-left">
 	<form role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{prev}}">
 		<input type="hidden" name="token" value="{{token}}">
 		<input type="hidden" name="edit" value="{{edit}}">
@@ -30,7 +30,7 @@
 		<button type="submit" class="btn btn-primary">&laquo; {{lang_back}}</button>
 	</form>
 </div>
-<div class="pull-right">
+<div class="text-right">
 	<form id="nextform" role="form" method="post" action="?do=SysConfig&amp;action=addmodule&amp;step={{next}}">
 		<input type="hidden" name="token" value="{{token}}">
 		<input type="hidden" name="edit" value="{{edit}}">

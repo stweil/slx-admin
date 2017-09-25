@@ -135,6 +135,9 @@ class Page_SysConfig extends Page
 	 */
 	protected function doRender()
 	{
+
+		Render::addTemplate('sysconfig_heading');
+
 		$action = Request::any('action', 'list');
 		switch ($action) {
 		case 'addmodule':
