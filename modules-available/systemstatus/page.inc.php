@@ -15,10 +15,6 @@ class Page_SystemStatus extends Page
 		}
 
 		if (Request::post('action') === 'reboot') {
-			if (Request::post('confirm') !== 'yep') {
-				Message::addError('reboot-unconfirmed');
-				Util::redirect('?do=SystemStatus');
-			}
 			$this->rebootTask = Taskmanager::submit('Reboot');
 		}
 	}
