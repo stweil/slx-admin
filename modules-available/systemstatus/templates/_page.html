@@ -1,3 +1,5 @@
+<h1>{{lang_moduleHeading}}</h1>
+
 {{#rebootTask}}
 <div data-tm-id="{{rebootTask}}" data-tm-log="messages">Reboot...</div>
 {{/rebootTask}}
@@ -84,9 +86,23 @@
 						<form class="form-adduser" action="?do=SystemStatus" method="post">
 							<input type="hidden" name="token" value="{{token}}">
 							<input type="hidden" name="action" value="reboot">
-							<div>Server Reboot</div>
-							<label><input type="checkbox" name="confirm" value="yep"> {{lang_iAmSure}}</label>
-							<button class="btn btn-warning btn-xs" type="submit">Reboot</button>
+							<button class="btn btn-warning" type="button" data-toggle="modal" data-target="#rebootServerModal"><span class="glyphicon glyphicon-repeat"></span> {{lang_serverReboot}}</button>
+
+
+							<div class ="modal fade" id="rebootServerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+								<div class="modal-dialog" style="width: 400px" role="document">
+									<div class="modal-content">
+										<div class="modal-body">
+											{{lang_areYouSureNoUndo}}
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+											<button type="submit" class="btn btn-sm btn-warning" name="deletelocation" value="{{locationid}}"><span class="glyphicon glyphicon-repeat"></span> {{lang_serverReboot}}</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
 						</form>
 						<div id="dmsd-users"></div>
 					</div>
