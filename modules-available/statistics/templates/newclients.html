@@ -4,32 +4,36 @@
 			{{lang_newMachines}}
 		</div>
 		<div class="panel-body">
-			<table class="table table-condensed table-striped">
-				<tr>
-					<th>{{lang_machine}}</th>
-					<th class="text-right"></th>
-					<th>64Bit</th>
-					<th class="text-right">RAM</th>
-					<th class="text-right">HDD</th>
-				</tr>
-				{{#rows}}
-				<tr class="{{collapse}}">
-					<td class="text-nowrap"><a href="?do=Statistics&amp;uuid={{machineuuid}}">{{hostname}}</a></td>
-					<td class="text-right">{{firstseen}}</td>
-					<td class="{{kvmclass}}">{{kvmicon}}</td>
-					<td class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
-					<td class="text-right {{hddclass}}">{{gbtmp}}&thinsp;GiB</td>
-				</tr>
-				{{/rows}}
-				<tr class="slx-decollapse">
-					<td colspan="5">
-						<span class="btn-group btn-group-justified">
-							<span class="btn btn-default btn-sm">
-								<span class="glyphicon glyphicon-menu-down"></span>
+			<table class="stupidtable table table-condensed table-striped">
+				<thead>
+					<tr>
+						<th data-sort="string">{{lang_machine}}</th>
+						<th data-sort="int" class="text-right" style="min-width: 80px;">{{lang_firstSeen}}</th>
+						<th data-sort="string" class="text-center">64Bit</th>
+						<th data-sort="int" class="text-right">RAM</th>
+						<th data-sort="int" class="text-right">HDD</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#rows}}
+					<tr class="{{collapse}}">
+						<td data-sort-value="{{hostname}}" class="text-nowrap"><a href="?do=Statistics&amp;uuid={{machineuuid}}">{{hostname}}</a></td>
+						<td data-sort-value="{{firstseen_int}}" class="text-right">{{firstseen}}</td>
+						<td class="text-center {{kvmclass}}">{{kvmicon}}</td>
+						<td data-sort-value="{{gbram}}" class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
+						<td data-sort-value="{{gbtmp}}" class="text-right {{hddclass}}">{{gbtmp}}&thinsp;GiB</td>
+					</tr>
+					{{/rows}}
+					<tr class="slx-decollapse">
+						<td colspan="5">
+							<span class="btn-group btn-group-justified">
+								<span class="btn btn-default btn-sm">
+									<span class="glyphicon glyphicon-menu-down"></span>
+								</span>
 							</span>
-						</span>
-					</td>
-				</tr>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 		</div>
 	</div>

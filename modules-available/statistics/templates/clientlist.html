@@ -1,94 +1,81 @@
 
+<table class="stupidtable table table-condensed table-striped">
 
-
-<h1>{{lang_clientList}} ({{rowCount}})</h1>
-
-<table class="table table-condensed table-striped">
-	<tr>
-		<th>{{lang_machine}}</th>
-		<th>{{lang_address}}
-			<div class="btn-group pull-right">
-				<button class="btn btn-default btn-xs" id="sortButton-clientip"></button>
-			</div>
-
-		</th>
-		<th class="text-right">{{lang_lastSeen}}
-			<div class="btn-group pull-right">
-				<button class="btn btn-default btn-xs" id="sortButton-lastseen"></button>
+	<thead>
+		<tr>
+			<td></td>
+			<td></td>
+			<td class="text-right">
 				<button class="btn btn-default btn-xs" onclick="popupFilter('lastseen')">
 					<span id="btn_filter_lastseen" class="glyphicon glyphicon-filter"></span>
 				</button>
-			</div>
-		</th>
-		<th>
-			{{lang_kvmSupport}}
-			<div class="btn-group pull-right">
-			<button class="btn btn-default btn-xs" id="sortButton-kvmstate"></button>
-			<button class="btn btn-default btn-xs" onclick="popupFilter('kvmstate')">
-				<span id="btn_filter_kvmstate" class="glyphicon glyphicon-filter"></span>
-			</button>
-			</div>
-		</th>
-		<th class="text-right">
-			{{lang_gbRam}}
-			<div class="btn-group pull-right">
-				<button class="btn btn-default btn-xs" id="sortButton-gbram"></button>
+			</td>
+			<td>
+				<button class="btn btn-default btn-xs" onclick="popupFilter('kvmstate')">
+					<span id="btn_filter_kvmstate" class="glyphicon glyphicon-filter"></span>
+				</button>
+			</td>
+			<td class="text-right">
 				<button class="btn btn-default btn-xs" onclick="popupFilter('gbram')">
 					<span id="btn_filter_gbram" class="glyphicon glyphicon-filter"></span>
 				</button>
-			</div>
-		</th>
-		<th class="text-right">
-			{{lang_tmpGb}}
-			<div class="btn-group pull-right">
-			<button class="btn btn-default btn-xs" id="sortButton-hddgb"></button>
-			<button class="btn btn-default btn-xs" onclick="popupFilter('hddgb')">
-				<span id="btn_filter_hddgb" class="glyphicon glyphicon-filter"></span>
-			</button>
-			</div>
-		</th>
-		<th>{{lang_cpuModel}}
-			<div class="btn-group pull-right">
-			<button class="btn btn-default btn-xs" id="sortButton-realcores"></button>
-			<button class="btn btn-default btn-xs" onclick="popupFilter('realcores')">
-				<span id="btn_filter_cpu" class="glyphicon glyphicon-filter"></span>
-			</button>
-			</div>
-		</th>
-	</tr>
-	{{#rows}}
-	<tr>
-		<td class="text-nowrap">
-			{{#hasnotes}}<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>{{/hasnotes}}
-			{{#state_off}}
-			<span class="glyphicon glyphicon-off" title="{{lang_machineOff}}"></span>
-			{{/state_off}}
-			{{#state_idle}}
-			<span class="glyphicon glyphicon-ok green" title="{{lang_machineIdle}}"></span>
-			{{/state_idle}}
-			{{#state_occupied}}
-			<span class="glyphicon glyphicon-user red" title="{{lang_machineOccupied}}"></span>
-			{{/state_occupied}}
-			<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
-			<div class="small">{{machineuuid}}</div>
-		</td>
-		<td><b><a href="?do=Statistics&amp;show=list&amp;filters=subnet={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
-		<td class="text-right">{{lastseen}}</td>
-		<td class="{{kvmclass}}">{{kvmstate}}</td>
-		<td class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
-		<td class="text-right {{hddclass}}">
-			{{gbtmp}}&thinsp;GiB
-			{{#badsectors}}<div>
-				<span class="glyphicon glyphicon-exclamation-sign"></span>
-				{{badsectors}}
-			</div>{{/badsectors}}
-			{{#nohdd}}<div>
-				<span class="glyphicon glyphicon-hdd red"></span>
-			</div>{{/nohdd}}
-		</td>
-		<td>{{lang_realCores}}: {{realcores}}<div class="small">{{cpumodel}}</div></td>
-	</tr>
-	{{/rows}}
+			</td>
+			<td class="text-right">
+				<button class="btn btn-default btn-xs" onclick="popupFilter('hddgb')">
+					<span id="btn_filter_hddgb" class="glyphicon glyphicon-filter"></span>
+				</button>
+			</td>
+			<td>
+				<button class="btn btn-default btn-xs" onclick="popupFilter('realcores')">
+					<span id="btn_filter_cpu" class="glyphicon glyphicon-filter"></span>
+				</button>
+			</td>
+		</tr>
+		<tr>
+			<th data-sort="string">{{lang_machine}}</th>
+			<th data-sort="ipv4">{{lang_address}}</th>
+			<th data-sort="int" class="text-right">{{lang_lastSeen}}</th>
+			<th data-sort="string">{{lang_kvmSupport}}</th>
+			<th data-sort="int" class="text-right">{{lang_gbRam}}</th>
+			<th data-sort="int" class="text-right">{{lang_tmpGb}}</th>
+			<th data-sort="int">{{lang_cpuModel}}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#rows}}
+		<tr>
+			<td data-sort-value="{{hostname}}" class="text-nowrap">
+				{{#hasnotes}}<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>{{/hasnotes}}
+				{{#state_off}}
+				<span class="glyphicon glyphicon-off" title="{{lang_machineOff}}"></span>
+				{{/state_off}}
+				{{#state_idle}}
+				<span class="glyphicon glyphicon-ok green" title="{{lang_machineIdle}}"></span>
+				{{/state_idle}}
+				{{#state_occupied}}
+				<span class="glyphicon glyphicon-user red" title="{{lang_machineOccupied}}"></span>
+				{{/state_occupied}}
+				<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
+				<div class="small">{{machineuuid}}</div>
+			</td>
+			<td data-sort-value="{{clientip}}"><b><a href="?do=Statistics&amp;show=list&amp;filters=subnet={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
+			<td data-sort-value="{{lastseen_int}}" class="text-right">{{lastseen}}</td>
+			<td class="{{kvmclass}}">{{kvmstate}}</td>
+			<td data-sort-value="{{gbram}}" class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
+			<td data-sort-value="{{gbtmp}}" class="text-right {{hddclass}}">
+				{{gbtmp}}&thinsp;GiB
+				{{#badsectors}}<div>
+					<span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" title="{{lang_reallocatedSectors}}" data-placement="left"></span>
+					{{badsectors}}
+				</div>{{/badsectors}}
+				{{#nohdd}}<div>
+					<span class="glyphicon glyphicon-hdd red"></span>
+				</div>{{/nohdd}}
+			</td>
+			<td data-sort-value="{{realcores}}">{{lang_realCores}}: {{realcores}}<div class="small">{{cpumodel}}</div></td>
+		</tr>
+		{{/rows}}
+	</tbody>
 </table>
 
 <script type="application/javascript"><!--
@@ -102,6 +89,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
 		$sortBtn.attr('onclick', 'toggleButton(\'' + v + '\');');
+	});
+
+	$('[data-toggle="tooltip"]').tooltip({
+		container: 'body',
+		trigger : 'hover'
 	});
 });
 

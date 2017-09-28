@@ -533,6 +533,7 @@ class Page_Statistics extends Page
 			if (empty($row['hostname'])) {
 				$row['hostname'] = $row['clientip'];
 			}
+			$row['firstseen_int'] = $row['firstseen'];
 			$row['firstseen'] = date('d.m. H:i', $row['firstseen']);
 			$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1); // Trial and error until we got "expected" rounding..
 			$row['gbtmp'] = round($row['id44mb'] / 1024);
@@ -574,6 +575,7 @@ class Page_Statistics extends Page
 				$row['state_occupied'] = true;
 			}
 			//$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
+			$row['lastseen_int'] = $row['lastseen'];
 			$row['lastseen'] = date('d.m. H:i', $row['lastseen']);
 			//$row['lastboot'] = date('d.m. H:i', $row['lastboot']);
 			$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1); // Trial and error until we got "expected" rounding..

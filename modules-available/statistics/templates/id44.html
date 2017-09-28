@@ -6,28 +6,32 @@
 		<div class="panel-body">
 			<div class="row">
 				<div class="col-sm-6">
-					<table class="filter-col table table-condensed table-striped" data-filter-col="hddgb">
-						<tr>
-							<th>{{lang_partitionSize}}</th>
-							<th class="text-right">{{lang_machineCount}}</th>
-						</tr>
-						{{#rows}}
-						<tr id="tmpid{{gb}}" class="{{class}} {{collapse}}">
-							<td class="text-left text-nowrap">
-								<a class="filter-val" data-filter-val="{{gb}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~hddgb={{gb}}">{{gb}}&thinsp;GiB</a>
-							</td>
-							<td class="text-right">{{count}}</td>
-						</tr>
-						{{/rows}}
-						<tr class="slx-decollapse">
-							<td colspan="2">
-								<span class="btn-group btn-group-justified">
-									<span class="btn btn-default btn-sm">
-										<span class="glyphicon glyphicon-menu-down"></span>
+					<table class="stupidtable filter-col table table-condensed table-striped" data-filter-col="hddgb">
+						<thead>
+							<tr>
+								<th data-sort="int">{{lang_partitionSize}}</th>
+								<th data-sort="int" class="text-right">{{lang_machineCount}}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{#rows}}
+							<tr id="tmpid{{gb}}" class="{{class}} {{collapse}}">
+								<td data-sort-value="{{gb}}" class="text-left text-nowrap">
+									<a class="filter-val" data-filter-val="{{gb}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~hddgb={{gb}}">{{gb}}&thinsp;GiB</a>
+								</td>
+								<td class="text-right">{{count}}</td>
+							</tr>
+							{{/rows}}
+							<tr class="slx-decollapse">
+								<td colspan="2">
+									<span class="btn-group btn-group-justified">
+										<span class="btn btn-default btn-sm">
+											<span class="glyphicon glyphicon-menu-down"></span>
+										</span>
 									</span>
-								</span>
-							</td>
-						</tr>
+								</td>
+							</tr>
+						</tbody>
 					</table>
 				</div>
 				<div class="col-sm-6">

@@ -6,19 +6,23 @@
 		<div class="panel-body">
 			<div class="row">
 				<div class="col-sm-6">
-					<table class="filter-col table table-condensed table-striped" data-filter-col="kvmstate">
-						<tr>
-							<th>{{lang_kvmState}}</th>
-							<th class="text-right">{{lang_machineCount}}</th>
-						</tr>
-						{{#rows}}
-						<tr id="kvm{{kvmstate}}">
-							<td class="text-left text-nowrap">
-								<a class="filter-val" data-filter-val="{{kvmstate}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~kvmstate={{kvmstate}}">{{kvmstate}}</a>
-							</td>
-							<td class="text-right">{{count}}</td>
-						</tr>
-						{{/rows}}
+					<table class="stupidtable filter-col table table-condensed table-striped" data-filter-col="kvmstate">
+						<thead>
+							<tr>
+								<th data-sort="string">{{lang_kvmState}}</th>
+								<th data-sort="int" class="text-right">{{lang_machineCount}}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{#rows}}
+							<tr id="kvm{{kvmstate}}">
+								<td data-sort-value="{{kvmstate}}" class="text-left text-nowrap">
+									<a class="filter-val" data-filter-val="{{kvmstate}}" href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~kvmstate={{kvmstate}}">{{kvmstate}}</a>
+								</td>
+								<td class="text-right">{{count}}</td>
+							</tr>
+							{{/rows}}
+						</tbody>
 					</table>
 				</div>
 				<div class="col-sm-6">

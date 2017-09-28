@@ -1,45 +1,44 @@
-<div id="modal-add-filter" class="modal modal-sm fade" role="dialog"
-	  style="position:absolute; min-width:600px; min-height: 400px;margin:auto">
-	<div class="modal-content">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-					class="sr-only">Close</span></button>
-			{{lang_add_filter}}
+<div id="modal-add-filter" class="modal fade" role="dialog" style="position: absolute">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>{{lang_add_filter}}</b>
+			</div>
+			<form class="form-inline center" onsubmit="$('#add-btn').click(); return false">
+				<div class="modal-body">
+					<div class="form-group">
+						<select id="columnSelect" name="column" class="form-control col-4-xs"> </select>
+					</div>
+					<div class="form-group">
+						<select id="operatorSelect" name="operator" class="form-control col-4-xs"> </select>
+					</div>
+					<div class="form-group">
+						<input name="argument" id="argumentInput" class="form-control col-4-xs"> </input>
+						<select name="argument" id="argumentSelect" class="form-control col-4-xs"> </select>
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button id="add-btn" type="button" class="btn btn-success" onclick="addFilterFromForm()">
+						<span class="glyphicon glyphicon-plus"></span>
+						{{lang_add}}
+					</button>
+				</div>
+			</form>
 		</div>
-		<form class="modal-body form-inline center" onsubmit="$('#add-btn').click(); return false">
-			<div class="form-group">
-				<select id="columnSelect" name="column" class="form-control col-4-xs"> </select>
-			</div>
-			<div class="form-group">
-				<select id="operatorSelect" name="operator" class="form-control col-4-xs"> </select>
-			</div>
-			<div class="form-group">
-				<input name="argument" id="argumentInput" class="form-control col-4-xs"> </input>
-				<select name="argument" id="argumentSelect" class="form-control col-4-xs"> </select>
-			</div>
-			<button id="add-btn" type="button" class="btn btn-primary" onclick="addFilterFromForm()">
-				<span class="glyphicon glyphicon-plus"></span>
-				{{lang_add}}
-			</button>
-		</form>
 	</div>
 </div>
 
 
-<div style="height:120px" class="col-xs-12">
+
+<div class="col-md-12">
 	<!-- use GET here, to avoid the "resend form?" confirmation, and anyway this is stateless, so GET makes more sense -->
 	<form id="queryForm" method="GET" action="?do=Statistics" class="" role="form">
-		<input type="hidden" name="do" value="statistics">
 		<input type="hidden" name="show" value="{{show}}">
-		<label for="filterInput">{{lang_labelFilter}}</label>
-		<input type="text" name="filters" class="" id="filterInput"/>
-		<input type="hidden" name="sortColumn" id="sortColumn" value="{{sortColumn}}"/>
-		<input type="hidden" name="sortDirection" id="sortDirection" value="{{sortDirection}}"/>
+		<button type="submit" hidden></button>
 
-		<button type="button" class="btn btn-success pull-left" onclick="popupFilter(null)">
-			<span class="glyphicon glyphicon-plus"></span>
-			{{lang_add_filter}}
-		</button>
+
 		<div class="btn-group pull-right">
 			<button class="btn {{statButtonClass}}" type="submit" name="show" value="stat">
 				<span class="glyphicon glyphicon-stats"></span>
@@ -50,10 +49,31 @@
 				{{lang_showList}}
 			</button>
 		</div>
+		<h1>{{lang_moduleHeading}}</h1>
+
+		<br/>
+
+		<input type="hidden" name="do" value="statistics">
+		<input type="hidden" name="sortColumn" id="sortColumn" value="{{sortColumn}}"/>
+		<input type="hidden" name="sortDirection" id="sortDirection" value="{{sortDirection}}"/>
+
+		<label for="filterInput">{{lang_labelFilter}}</label>
+		<div class="row">
+			<div class="col-md-10">
+				<input type="text" name="filters" class="" id="filterInput"/>
+			</div>
+			<div class="col-md-2">
+				<button type="button" class="btn btn-success pull-right" onclick="popupFilter(null)">
+					<span class="glyphicon glyphicon-plus"></span>
+					{{lang_add_filter}}
+				</button>
+			</div>
+		</div>
+
+		<br/>
 	</form>
-	<br/>
-	<br/>
 </div>
+
 <script type="application/javascript"><!--
 
 var filterSelectize;
@@ -111,6 +131,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			// if (initComplete && !$('#filterInput').is(':focus')) {
 			// reload();
 			// }
+		},
+		onItemRemove: function(value) {
+			refresh();
 		}
 	})[0].selectize;
 	/* add query */
