@@ -6,27 +6,33 @@ class Page_InternetAccess extends Page
 	protected function doPreprocess()
 	{
 		User::load();
-		if (!User::hasPermission('superadmin')) {
-			Message::addError('main.no-permission');
-			Util::redirect('?do=Main');
-		}
-		if (isset($_POST['PROXY_CONF'])) {
-			$data = array();
-			foreach (array('PROXY_CONF', 'PROXY_ADDR', 'PROXY_PORT', 'PROXY_USERNAME', 'PROXY_PASSWORD') as $key) {
-				$data[$key] = Request::post($key, '');
-			}
-			if (!FileUtil::arrayToFile(CONFIG_PROXY_CONF, $data)) {
-				Message::addError('main.error-write', CONFIG_PROXY_CONF);
-				Util::redirect();
+
+		$action = Request::any('action', 'show');
+
+		if ($action == 'save') {
+			if (User::hasPermission("configuration.save")) {
+				if (isset($_POST['PROXY_CONF'])) {
+					$data = array();
+					foreach (array('PROXY_CONF', 'PROXY_ADDR', 'PROXY_PORT', 'PROXY_USERNAME', 'PROXY_PASSWORD') as $key) {
+						$data[$key] = Request::post($key, '');
+					}
+					if (!FileUtil::arrayToFile(CONFIG_PROXY_CONF, $data)) {
+						Message::addError('main.error-write', CONFIG_PROXY_CONF);
+						Util::redirect();
+					} else {
+						Message::addSuccess('settings-updated');
+						Taskmanager::release(Taskmanager::submit('ReloadProxy'));
+						$taskids = array();
+						Trigger::stopDaemons(NULL, $taskids);
+						$taskids = array();
+						Trigger::startDaemons(NULL, $taskids);
+						Session::set('ia-restart', $taskids);
+						Util::redirect('?do=InternetAccess&show=update');
+					}
+				}
 			} else {
-				Message::addSuccess('settings-updated');
-				Taskmanager::release(Taskmanager::submit('ReloadProxy'));
-				$taskids = array();
-				Trigger::stopDaemons(NULL, $taskids);
-				$taskids = array();
-				Trigger::startDaemons(NULL, $taskids);
-				Session::set('ia-restart', $taskids);
-				Util::redirect('?do=InternetAccess&show=update');
+				Message::addError('main.no-permission');
+				Util::redirect('?do=internetaccess');
 			}
 		}
 	}
