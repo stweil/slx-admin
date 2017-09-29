@@ -1,6 +1,8 @@
 {
+    "lang_areYouSureNoUndo": "Sind Sie sicher? Diese Aktion kann nicht r\u00fcckg\u00e4ngig gemacht werden.",
     "lang_confirm": "Wollen Sie die Einstellungen unter \/srv\/openslx\/www\/boot\/config speichern?",
     "lang_create": "Anlegen",
+    "lang_discardChanges": "Änderungen verwerfen",
     "lang_explanationText": "Hier k\u00f6nnen Sie bestimmen, welche Partitionen auf dem Client angelegt werden.",
     "lang_helpId": "Partitions-ID",
     "lang_helpMountPoint": "Muss ein Absolutes Verzeichnis im Zieldateisystem sein, z.B. \/mnt\/shares\/data",

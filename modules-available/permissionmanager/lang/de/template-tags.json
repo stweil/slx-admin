@@ -19,5 +19,7 @@
     "lang_selected": "ausgewählte",
     "lang_Permissions": "Rechte",
     "lang_selectizePlaceholder": "Nach Rollen filtern...",
-    "lang_searchPlaceholder": "Nach Rollen suchen..."
+    "lang_searchPlaceholder": "Nach Rollen suchen...",
+    "lang_moduleName": "Rechtemanager",
+    "lang_roleEditor": "Rollen Editor"
 }

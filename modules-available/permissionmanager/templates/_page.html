@@ -1,20 +1,27 @@
-<form id="switchForm" method="GET" action="?do=permissionmanager">
-	<input type="hidden" name="do" value="permissionmanager">
+<div class="col-md-12" style="margin-bottom: 0px;">
+	<div class='page-header'>
+		<div class='pull-right'>
+			<form id="switchForm" method="GET" action="?do=permissionmanager">
+				<input type="hidden" name="do" value="permissionmanager">
 
-	<div class="btn-group">
-		<button class="btn {{rolesButtonClass}}" type="submit" name="show" value="roles">
-			<span class="glyphicon glyphicon-education"></span>
-			{{lang_Roles}}
-		</button>
+				<div class="btn-group">
+					<button class="btn {{rolesButtonClass}}" type="submit" name="show" value="roles">
+						<span class="glyphicon glyphicon-education"></span>
+						{{lang_Roles}}
+					</button>
 
-		<button class="btn {{usersButtonClass}}" type="submit" name="show" value="users">
-			<span class="glyphicon glyphicon-user"></span>
-			{{lang_Users}}
-		</button>
+					<button class="btn {{usersButtonClass}}" type="submit" name="show" value="users">
+						<span class="glyphicon glyphicon-user"></span>
+						{{lang_Users}}
+					</button>
 
-		<button class="btn {{locationsButtonClass}}" type="submit" name="show" value="locations">
-			<span class="glyphicon glyphicon-home"></span>
-			{{lang_Locations}}
-		</button>
+					<button class="btn {{locationsButtonClass}}" type="submit" name="show" value="locations">
+						<span class="glyphicon glyphicon-home"></span>
+						{{lang_Locations}}
+					</button>
+				</div>
+			</form>
+		</div>
+		<h1>{{lang_moduleName}}</h1>
 	</div>
-</form>
+</div>

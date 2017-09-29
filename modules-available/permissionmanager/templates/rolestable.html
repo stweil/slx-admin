@@ -16,8 +16,8 @@
 				<thead>
 					<tr>
 						<th data-sort="string">{{lang_Roles}}</th>
-						<th>{{lang_Edit}}</th>
-						<th>{{lang_Delete}}</th>
+						<th class="text-center">{{lang_Edit}}</th>
+						<th class="text-center">{{lang_Delete}}</th>
 					</tr>
 				</thead>
 
@@ -25,11 +25,11 @@
 				{{#roles}}
 					<tr class="rolesRow">
 						<td class="rolesData">{{roleName}}</td>
-						<td>
-							<a href="?do=permissionmanager&show=roleEditor&roleid={{roleId}}">{{lang_Edit}}</a>
+						<td class="text-center">
+							<a class="btn btn-xs btn-info" href="?do=permissionmanager&show=roleEditor&roleid={{roleId}}"><span class="glyphicon glyphicon-edit"></span></a>
 						</td>
-						<td>
-							<a href="#deleteModal" data-toggle="modal" data-target="#deleteModal" onclick="deleteRole('{{roleId}}')">{{lang_Delete}}</a>
+						<td class="text-center">
+							<a class="btn btn-xs btn-danger" href="#deleteModal" data-toggle="modal" data-target="#deleteModal" onclick="deleteRole('{{roleId}}')"><span class="glyphicon glyphicon-trash"></span></a>
 						</td>
 					</tr>
 				{{/roles}}

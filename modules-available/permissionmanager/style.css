@@ -4,9 +4,8 @@
 }
 
 #saveButton {
-    margin-right: 10px;
+    margin-left: 10px;
 }
-
 
 #roleName {
     width: 200px;
@@ -38,7 +37,7 @@
     background-image: none;
 }
 
-.panel, .row {
+.panel{
     margin-bottom: 20px;
 }
 

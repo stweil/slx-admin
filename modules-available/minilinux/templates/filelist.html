@@ -1,9 +1,6 @@
 	{{#systems}}
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h4>{{title}}</h4>
-		</div>
-		<div class="panel-body" id="download-{{id}}">
+	<h1>{{title}}</h1>
+		<div id="download-{{id}}">
 			<div class="input-group pull-right" style="max-width: 400px">
 				<span class="input-group-addon slx-ga">{{lang_desiredVersion}}</span>
 				<select id="versionbox" class="form-control" onchange="loadSystemList($('#versionbox').val())">
