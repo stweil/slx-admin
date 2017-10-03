@@ -1,3 +1,14 @@
 table.locations tbody td:nth-of-type(even) {
     background-color: rgba(0, 0, 0, 0.025);
 }
+
+.not-allowed {
+    pointer-events: none;
+    cursor: default;
+    color: inherit;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}

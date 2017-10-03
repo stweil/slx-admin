@@ -12,7 +12,7 @@ class Page_Locations extends Page
 	protected function doPreprocess()
 	{
 		User::load();
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
@@ -47,6 +47,12 @@ class Page_Locations extends Page
 				Message::addError('main.value-invalid', 'locationid', $loc);
 				continue;
 			}
+
+			$oldLoc = Database::queryFirst("SELECT locationid FROM subnet WHERE subnetid = :subnetid", array("subnetid" => $subnetid))["locationid"];
+			if (($loc == $oldLoc && !User::hasPermission("subnet.edit", $loc)) ||
+				 ($loc != $oldLoc && (!User::hasPermission("subnet.delete", $oldLoc) || !User::hasPermission("subnet.add", $loc))))
+				continue;
+
 			$range = $this->rangeToLongVerbose($start, $end);
 			if ($range === false)
 				continue;
@@ -57,7 +63,7 @@ class Page_Locations extends Page
 		}
 		AutoLocation::rebuildAll();
 		Message::addSuccess('subnets-updated', $count);
-		Util::redirect('?do=Locations');
+		Util::redirect('?do=Locations&action=showsubnets');
 	}
 
 	private function addLocations()
@@ -75,6 +81,8 @@ class Page_Locations extends Page
 			if (empty($name))
 				continue;
 			$parent = isset($parents[$idx]) ? (int)$parents[$idx] : 0;
+			if (!User::hasPermission("location.add", $parent))
+				continue;
 			if ($parent !== 0) {
 				$ok = false;
 				foreach ($locs as $loc) {
@@ -115,15 +123,25 @@ class Page_Locations extends Page
 		$change = false;
 		// Delete location?
 		if ($locationId === $del) {
+			if (!User::hasPermission("location.delete", $locationId)) {
+				Message::addError('main.no-permission', 'locationid', $locationId);
+				Util::redirect('?do=Locations');
+			}
 			$this->deleteLocation($location);
 			$change = true;
 		}
 		// Update subnets
 		$change |= $this->updateLocationSubnets();
-		// Insert subnets
-		$change |= $this->addNewLocationSubnets($location);
-		// Update location!
-		$change |= $this->updateLocationData($location);
+
+		if (User::hasPermission("subnet.add", $locationId)) {
+			// Insert subnets
+			$change |= $this->addNewLocationSubnets($location);
+		}
+		if (User::hasPermission("location.edit", $locationId)) {
+			// Update location!
+			$change |= $this->updateLocationData($location);
+		}
+
 		if ($change) {
 			// In case subnets or tree layout changed, recalc this
 			AutoLocation::rebuildAll();
@@ -195,9 +213,12 @@ class Page_Locations extends Page
 	private function updateLocationSubnets()
 	{
 		$change = false;
+
+		$locationId = Request::post('locationid', false, 'integer');
+
 		// Deletion first
 		$dels = Request::post('deletesubnet', false);
-		if (is_array($dels)) {
+		if (is_array($dels) && User::hasPermission("subnet.delete", $locationId)) {
 			$count = 0;
 			$stmt = Database::prepare('DELETE FROM subnet WHERE subnetid = :id');
 			foreach ($dels as $key => $value) {
@@ -212,6 +233,9 @@ class Page_Locations extends Page
 				$change = true;
 			}
 		}
+		if (!User::hasPermission("subnet.edit", $locationId))
+			return $change;
+
 		// Now actual updates
 		$starts = Request::post('startaddr', false);
 		$ends = Request::post('endaddr', false);
@@ -291,15 +315,28 @@ class Page_Locations extends Page
 			Util::redirect('?do=Locations&action=showlocations');
 		}
 		if ($getAction === 'showsubnets') {
-			$res = Database::simpleQuery("SELECT subnetid, startaddr, endaddr, locationid FROM subnet");
+			$res = Database::simpleQuery("SELECT subnetid, startaddr, endaddr, locationid FROM subnet
+													WHERE locationid IN (:locations)",
+													array("locations" => User::getAllowedLocations("location.view")));
 			$rows = array();
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				$row['startaddr'] = long2ip($row['startaddr']);
 				$row['endaddr'] = long2ip($row['endaddr']);
 				$row['locations'] = Location::getLocations($row['locationid']);
+
+				$allowedLocs = User::getAllowedLocations("subnet.add");
+				foreach ($row['locations'] as &$loc) {
+					if (!(in_array($loc["locationid"], $allowedLocs) || $loc["locationid"] == $row['locationid'])) {
+						$loc["disabled"] = "disabled";
+					}
+				}
+
+				$row['editThisSubnetAllowed'] = User::hasPermission("subnet.edit", $row['locationid']);
+				$row['deleteThisSubnetAllowed'] = User::hasPermission("subnet.delete", $row['locationid']);
 				$rows[] = $row;
 			}
-			Render::addTemplate('subnets', array('list' => $rows));
+
+			Render::addTemplate('subnets', array('list' => $rows, 'editSubnetAllowed' => User::hasPermission("subnet.edit")));
 		} elseif ($getAction === 'showlocations') {
 			$this->showLocationList();
 		}
@@ -388,6 +425,32 @@ class Page_Locations extends Page
 				}
 			}
 		}
+
+		$allowedLocs = User::getAllowedLocations("location.view");
+		$withParents = array();
+		foreach ($allowedLocs as $loc) {
+			$withParents = array_merge($withParents, Location::getLocationRootChain($loc));
+		}
+
+		foreach ($locs as $key => $loc) {
+			if (!in_array($loc["locationid"], $withParents)) {
+				unset($locs[$key]);
+			} elseif (!in_array($loc["locationid"], $allowedLocs)) {
+				$id = $locs[$key]["locationid"];
+				$name = $locs[$key]["locationname"];
+				$depth = $locs[$key]["depth"];
+				$locs[$key] = array("locationid" => $id, "locationname" => $name, "depth" => $depth, "linkClass" => "not-allowed");
+			}
+		}
+
+		$addAllowedLocs = User::getAllowedLocations("location.add");
+		$addAllowedList = Location::getLocations(0, 0, True);
+		foreach ($addAllowedList as &$loc) {
+			if (!in_array($loc["locationid"], $addAllowedLocs)) {
+				$loc["disabled"] = "disabled";
+			}
+		}
+
 		// Output
 		Render::addTemplate('locations', array(
 			'list' => array_values($locs),
@@ -400,6 +463,8 @@ class Page_Locations extends Page
 			'haveOverlapOther' => !empty($overlapOther),
 			'unassignedCount' => $unassigned,
 			'defaultConfig' => $defaultConfig,
+			'addAllowed' => User::hasPermission("location.add"),
+			'addAllowedList' => array_values($addAllowedList)
 		));
 	}
 
@@ -422,6 +487,11 @@ class Page_Locations extends Page
 	private function ajaxShowLocation()
 	{
 		$locationId = Request::any('locationid', 0, 'integer');
+
+		if (!User::hasPermission("location.view", $locationId)) {
+			die('Permission denied');
+		}
+
 		$loc = Database::queryFirst('SELECT locationid, parentlocationid, locationname FROM location WHERE locationid = :lid',
 			array('lid' => $locationId));
 		if ($loc === false) {
@@ -442,6 +512,14 @@ class Page_Locations extends Page
 			'roomplanner' => Module::get('roomplanner') !== false && Location::isLeaf($locationId),
 			'parents' => Location::getLocations($loc['parentlocationid'], $locationId, true)
 		);
+
+		$allowedLocs = User::getAllowedLocations("location.edit");
+		foreach ($data['parents'] as &$parent) {
+			if (!(in_array($parent["locationid"], $allowedLocs) || $parent["locationid"] == $loc['parentlocationid'])) {
+				$parent["disabled"] = "disabled";
+			}
+		}
+
 		if (Module::get('dozmod') !== false) {
 			$lectures = Database::queryFirst('SELECT Count(*) AS cnt FROM sat.lecture l '
 				. ' INNER JOIN sat.lecture_x_location ll ON (l.lectureid = ll.lectureid AND ll.locationid = :lid)',
@@ -474,6 +552,12 @@ class Page_Locations extends Page
 
 		$data['havebaseconfig'] = Module::get('baseconfig') !== false;
 		$data['havesysconfig'] = Module::get('sysconfig') !== false;
+		$data['editAllowed'] = User::hasPermission("location.edit", $locationId);
+		$data['deleteAllowed'] = User::hasPermission("location.delete", $locationId);
+		$data['editSubnetAllowed'] = User::hasPermission("subnet.edit", $locationId);
+		$data['deleteSubnetAllowed'] = User::hasPermission("subnet.delete", $locationId);
+		$data['addSubnetAllowed'] = User::hasPermission("subnet.add", $locationId);
+		$data['saveButton'] = $data['editAllowed'] || $data['editSubnetAllowed'] || $data['deleteSubnetAllowed'] || $data['addSubnetAllowed'];
 
 		// echo '<pre>';
 		// var_dump($data);

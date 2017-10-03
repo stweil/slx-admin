@@ -45,7 +45,7 @@ class PermissionUtil
 		}
 		$allowedLocations = array_keys($allowedLocations);
 		$locations = Location::getTree();
-		if (count($allowedLocations) == 1 && $allowedLocations[0] == "0") {
+		if (in_array("0", $allowedLocations)) {
 			$allowedLocations = array_map("intval", Location::extractIds($locations));
 		} else {
 			$allowedLocations = self::getSublocations($locations, $allowedLocations);
