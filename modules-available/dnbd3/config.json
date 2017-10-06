@@ -1,0 +1,4 @@
+{
+	"category":"main.settings-server",
+	"dependencies":["runmode"]
+}

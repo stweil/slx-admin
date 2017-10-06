@@ -1,0 +1,51 @@
+<form method="post">
+	<input type="hidden" name="token" value="{{token}}">
+	<button name="re" value="bla">Refresh</button>
+</form>
+
+<table class="table">
+	<tr>
+		<th>{{lang_proxyServerTHead}}</th>
+		<th class="text-right">{{lang_lastSeen}}</th>
+		<th class="text-right">{{lang_uptime}}</th>
+		<th class="text-right">{{lang_txTotal}}</th>
+		<th class="text-right">{{lang_rxTotal}}</th>
+		<th class="text-right">{{lang_clientCount}}</th>
+	</tr>
+	{{#list}}
+	<tr>
+		<td>
+			{{#uptime}}
+				<span class="glyphicon glyphicon-ok text-success"></span>
+			{{/uptime}}
+			{{^uptime}}
+				<span class="glyphicon glyphicon-off"></span>
+			{{/uptime}}
+			{{fixedip}}
+			{{#machineuuid}}
+				<a href="?do=Statistics&uuid={{machineuuid}}">{{hostname}} ({{clientip}})</a>
+			{{/machineuuid}}
+		</td>
+		<td data-sort="int" data-sort-default="desc" data-sort-value="{{lastseen}}" class="text-right">
+			{{lastseen_s}}
+		</td>
+		<td data-sort="int" data-sort-default="desc" data-sort-value="{{uptime}}" class="text-right">
+			{{uptime_s}}
+		</td>
+		<td data-sort="int" data-sort-default="desc" data-sort-value="{{totalup}}" class="text-right">
+			{{totalup_s}}
+		</td>
+		<td data-sort="int" data-sort-default="desc" data-sort-value="{{totaldown}}" class="text-right">
+			{{totaldown_s}}
+		</td>
+		<td data-sort="int" data-sort-default="desc" class="text-right">
+			{{#uptime}}
+				<a href="?do=dnbd3&amp;show=clients&amp;server={{serverid}}">{{clientcount}}</a>
+			{{/uptime}}
+			{{^uptime}}
+				-
+			{{/uptime}}
+		</td>
+	</tr>
+	{{/list}}
+</table>
