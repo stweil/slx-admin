@@ -14,6 +14,10 @@ class Dnbd3Rpc {
 	 */
 	public static function query($stats, $clients, $images, $server, $port = 5003)
 	{
+		// Special case - local server
+		if ($server === '<self>') {
+			$server = '127.0.0.1';
+		}
 		$url = 'http://' . $server . ':' . $port . '/query?';
 		if ($stats) {
 			$url .= 'q=stats&';

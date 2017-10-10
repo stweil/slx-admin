@@ -1,51 +1,118 @@
+<h1>{{lang_dnbd3Management}}</h1>
+<p><i>{{lang_dnbd3IntroText}}</i></p>
+
 <form method="post">
 	<input type="hidden" name="token" value="{{token}}">
-	<button name="re" value="bla">Refresh</button>
+	<h2>
+		{{lang_serverList}}
+		<button type="submit" class="btn btn-default" name="action" value="refresh"><span class="glyphicon glyphicon-refresh"></span></button>
+	</h2>
+</form>
+<form method="post" action="?do=dnbd3">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="delserver">
+	<table class="table">
+		<tr>
+			<th>{{lang_proxyServerTHead}}</th>
+			<th class="text-right">{{lang_clientCount}}</th>
+			<th class="text-right">{{lang_lastSeen}}</th>
+			<th class="text-right">{{lang_uptime}}</th>
+			<th class="text-right">{{lang_txTotal}}</th>
+			<th class="text-right">{{lang_rxTotal}}</th>
+			<th class="text-right">{{lang_locations}}</th>
+			<th>&nbsp;</th>
+		</tr>
+		{{#list}}
+		<tr>
+			<td class="{{#self}}slx-bold{{/self}}">
+				{{#uptime}}
+					<span class="glyphicon glyphicon-ok text-success"></span>
+				{{/uptime}}
+				{{^uptime}}
+					<span class="glyphicon glyphicon-off"></span>
+				{{/uptime}}
+				{{fixedip}}
+				{{#machineuuid}}
+					<a href="?do=Statistics&uuid={{machineuuid}}">{{clientip}}</a>
+					<div class="small">{{hostname}}</div>
+				{{/machineuuid}}
+			</td>
+			<td data-sort="int" data-sort-default="desc" class="text-right">
+				{{#uptime}}
+					<a href="?do=dnbd3&amp;show=clients&amp;server={{serverid}}">{{clientcount}}</a>
+				{{/uptime}}
+				{{^uptime}}
+					-
+				{{/uptime}}
+			</td>
+			<td data-sort="int" data-sort-default="desc" data-sort-value="{{lastseen}}" class="text-right text-nowrap">
+				{{lastseen_s}}
+			</td>
+			<td data-sort="int" data-sort-default="desc" data-sort-value="{{uptime}}" class="text-right text-nowrap">
+				{{uptime_s}}
+			</td>
+			<td data-sort="int" data-sort-default="desc" data-sort-value="{{totalup}}" class="text-right text-nowrap">
+				{{totalup_s}}
+			</td>
+			<td data-sort="int" data-sort-default="desc" data-sort-value="{{totaldown}}" class="text-right text-nowrap">
+				{{totaldown_s}}
+			</td>
+			<td class="text-right text-nowrap">
+				{{^self}}
+					{{^locations}}
+						<i>{{lang_global}}</i>
+					{{/locations}}
+					{{#locations}}
+						{{locations}}
+					{{/locations}}
+					<a href="?do=dnbd3&amp;show=locations&amp;server={{serverid}}" class="btn btn-default btn-xs">
+						<span class="glyphicon glyphicon-map-marker"></span>
+					</a>
+				{{/self}}
+			</td>
+			<td>
+				{{^self}}
+					<button class="btn btn-danger btn-xs" name="serverid" value="{{serverid}}"><span class="glyphicon glyphicon-trash"></span></button>
+				{{/self}}
+			</td>
+		</tr>
+		{{/list}}
+	</table>
 </form>
 
-<table class="table">
-	<tr>
-		<th>{{lang_proxyServerTHead}}</th>
-		<th class="text-right">{{lang_lastSeen}}</th>
-		<th class="text-right">{{lang_uptime}}</th>
-		<th class="text-right">{{lang_txTotal}}</th>
-		<th class="text-right">{{lang_rxTotal}}</th>
-		<th class="text-right">{{lang_clientCount}}</th>
-	</tr>
-	{{#list}}
-	<tr>
-		<td>
-			{{#uptime}}
-				<span class="glyphicon glyphicon-ok text-success"></span>
-			{{/uptime}}
-			{{^uptime}}
-				<span class="glyphicon glyphicon-off"></span>
-			{{/uptime}}
-			{{fixedip}}
-			{{#machineuuid}}
-				<a href="?do=Statistics&uuid={{machineuuid}}">{{hostname}} ({{clientip}})</a>
-			{{/machineuuid}}
-		</td>
-		<td data-sort="int" data-sort-default="desc" data-sort-value="{{lastseen}}" class="text-right">
-			{{lastseen_s}}
-		</td>
-		<td data-sort="int" data-sort-default="desc" data-sort-value="{{uptime}}" class="text-right">
-			{{uptime_s}}
-		</td>
-		<td data-sort="int" data-sort-default="desc" data-sort-value="{{totalup}}" class="text-right">
-			{{totalup_s}}
-		</td>
-		<td data-sort="int" data-sort-default="desc" data-sort-value="{{totaldown}}" class="text-right">
-			{{totaldown_s}}
-		</td>
-		<td data-sort="int" data-sort-default="desc" class="text-right">
-			{{#uptime}}
-				<a href="?do=dnbd3&amp;show=clients&amp;server={{serverid}}">{{clientcount}}</a>
-			{{/uptime}}
-			{{^uptime}}
-				-
-			{{/uptime}}
-		</td>
-	</tr>
-	{{/list}}
-</table>
+<div class="buttonbar pull-right">
+	<button type="button" class="btn btn-success" data-toggle="modal" data-target="#add-modal">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_addExternalServer}}
+	</button>
+	<a class="btn btn-success" href="?do=runmode&amp;module=dnbd3&amp;modeid=proxy&amp;redirect=?do=dnbd3">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_addManagedProxy}}
+	</a>
+</div>
+
+<div id="add-modal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><b>{{lang_addServer}}</b></h4>
+			</div>
+			<div class="modal-body">
+				<p>{{lang_enterIpOfServer}}</p>
+				<form method="post">
+					<input type="hidden" name="token" value="{{token}}">
+					<input type="text" class="form-control" name="newip">
+					<br>
+					<button type="submit" class="btn btn-default btn-success pull-right" name="action" value="addserver">{{lang_save}}</button>
+				</form>
+				<div class="clearfix"></div>
+			</div>
+			<div class="modal-footer">
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="clearfix"></div>

@@ -1,12 +1,20 @@
-<table class="table">
-	{{#clients}}
+<div class="col-md-6">
+	<h2>{{lang_clientList}}</h2>
+
+	<table class="table table-condensed">
 		<tr>
-			<td>
-				{{address}}
-			</td>
-			<td class="text-right">
-				{{bytesSent_s}}
-			</td>
+			<th>{{lang_client}}</th>
+			<th class="text-right">{{lang_bytesSent}}</th>
 		</tr>
-	{{/clients}}
-</table>
+		{{#clients}}
+			<tr>
+				<td>
+					{{address}}
+				</td>
+				<td data-sort="int" data-sort-value="{{bytesSent}}" class="text-right">
+					{{bytesSent_s}}
+				</td>
+			</tr>
+		{{/clients}}
+	</table>
+</div>

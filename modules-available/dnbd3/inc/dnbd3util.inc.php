@@ -5,6 +5,7 @@ class Dnbd3Util {
 	public static function updateServerStatus()
 	{
 		$dynClients = RunMode::getForMode('dnbd3', 'proxy', false, true);
+		$satServerIp = Property::getServerIp();
 		$servers = array();
 		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastup, s.lastdown, m.clientip
 			FROM dnbd3_server s
@@ -17,7 +18,7 @@ class Dnbd3Util {
 			} else {
 				continue; // Huh?
 			}
-			if (!is_null($row['machineuuid'])) {
+			if (!is_null($row['machineuuid']) || $row['clientip'] === $satServerIp) {
 				unset($dynClients[$row['machineuuid']]);
 			}
 			$server = array(
@@ -32,6 +33,10 @@ class Dnbd3Util {
 				array('machineuuid' => $client['machineuuid']));
 			// Missing from $servers now but we'll handle them in the next run, so don't bother
 		}
+		// Same for this server - we use the special fixedip '<self>' for it and need to prevent we don't have the
+		// IP address of the server itself in the list.
+		Database::exec('DELETE FROM dnbd3_server WHERE fixedip = :serverip', array('serverip' => $satServerIp));
+		Database::exec("INSERT IGNORE INTO dnbd3_server (fixedip) VALUES ('<self>')");
 		// Now query them all
 		$NOW = time();
 		foreach ($servers as $server) {
@@ -58,5 +63,94 @@ class Dnbd3Util {
 			));
 		}
 	}
+
+	/**
+	 * A client is booting that has runmode dnbd3 proxy - set config vars accordingly.
+	 *
+	 * @param string $machineUuid
+	 * @param string $mode always 'proxy'
+	 * @param string $modeData
+	 */
+	public static function runmodeConfigHook($machineUuid, $mode, $modeData)
+	{
+		// Get all directly assigned locations
+		$res = Database::simpleQuery('SELECT locationid FROM dnbd3_server
+				INNER JOIN dnbd3_server_x_location USING (serverid)
+				WHERE machineuuid = :uuid',
+			array('uuid' => $machineUuid));
+		$assignedLocs = $res->fetchAll(PDO::FETCH_ASSOC);
+		if (!empty($assignedLocs)) {
+			// Get all sub-locations too
+			$recursiveLocs = $assignedLocs;
+			$locations = Location::getLocationsAssoc();
+			foreach ($assignedLocs as $l) {
+				if (isset($locations[$l])) {
+					$recursiveLocs = array_merge($recursiveLocs, $locations[$l]['children']);
+				}
+			}
+			$res = Database::simpleQuery('SELECT startaddr, endaddr FROM subnet WHERE locationid IN (:locs)',
+				array('locs' => $recursiveLocs));
+			// Got subnets, build whitelist
+			$opt = '';
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$opt .= ' ' . self::range2Cidr($row['startaddr'], $row['endaddr']);
+			}
+			if (!empty($opt)) {
+				ConfigHolder::add('SLX_DNBD3_WHITELIST', $opt, 1000);
+			}
+		}
+		// Send list of other proxy servers
+		$res = Database::simpleQuery('SELECT s.fixedip, m.clientip, sxl.locationid FROM dnbd3_server s
+				LEFT JOIN machine m USING (machineuuid)
+				LEFT JOIN dnbd3_server_x_location sxl USING (serverid)
+				WHERE s.machineuuid <> :uuid OR s.machineuuid IS NULL', array('uuid' => $machineUuid));
+		$public = array();
+		$private = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$ip = $row['clientip'] ? $row['clientip'] : $row['fixedip'];
+			if ($ip === '<self>') {
+				continue;
+			}
+			if (is_null($row['locationid'])) {
+				if (!array_key_exists($ip, $private)) {
+					$public[$ip] = $ip;
+				}
+			} else {
+				$private[$ip] = $ip;
+			}
+		}
+		if (!empty($public)) {
+			ConfigHolder::add('SLX_DNBD3_PUBLIC', implode(' ', $public));
+		}
+		if (!empty($private)) {
+			ConfigHolder::add('SLX_DNBD3_PRIVATE', implode(' ', $private));
+		}
+		ConfigHolder::add('SLX_ADDONS', '', 1000);
+	}
+
+	/**
+	 * Get smallest subnet in CIDR notation that covers the given range.
+	 * The subnet denoted by the CIDR notation might actually be larger
+	 * than the range described by $start and $end.
+	 *
+	 * @param int $start start address
+	 * @param int $end end address
+	 * @return string CIDR notation
+	 */
+	private static function range2Cidr($start, $end)
+	{
+		$bin = decbin($start ^ $end);
+		if ($bin === '0')
+			return $start;
+		$mask = 32 - strlen($bin);
+		return $start . '/' . $mask;
+	}
+
+}
+
+class Dnbd3ProxyConfig
+{
+
+	public $a;
 
 }
