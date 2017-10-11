@@ -37,6 +37,10 @@ class Dnbd3Util {
 		// IP address of the server itself in the list.
 		Database::exec('DELETE FROM dnbd3_server WHERE fixedip = :serverip', array('serverip' => $satServerIp));
 		Database::exec("INSERT IGNORE INTO dnbd3_server (fixedip) VALUES ('<self>')");
+		// Delete orphaned entires with machineuuid from dnbd3_server where we don't have a runmode entry
+		Database::exec('DELETE s FROM dnbd3_server s
+				LEFT JOIN runmode r USING (machineuuid)
+				WHERE s.machineuuid IS NOT NULL AND r.module IS NULL');
 		// Now query them all
 		$NOW = time();
 		foreach ($servers as $server) {
@@ -78,7 +82,10 @@ class Dnbd3Util {
 				INNER JOIN dnbd3_server_x_location USING (serverid)
 				WHERE machineuuid = :uuid',
 			array('uuid' => $machineUuid));
-		$assignedLocs = $res->fetchAll(PDO::FETCH_ASSOC);
+		$assignedLocs = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$assignedLocs[] = $row['locationid'];
+		}
 		if (!empty($assignedLocs)) {
 			// Get all sub-locations too
 			$recursiveLocs = $assignedLocs;
@@ -89,8 +96,9 @@ class Dnbd3Util {
 				}
 			}
 			$res = Database::simpleQuery('SELECT startaddr, endaddr FROM subnet WHERE locationid IN (:locs)',
-				array('locs' => $recursiveLocs));
+				array('locs' => array_values($recursiveLocs)));
 			// Got subnets, build whitelist
+			// TODO: Coalesce overlapping ranges
 			$opt = '';
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				$opt .= ' ' . self::range2Cidr($row['startaddr'], $row['endaddr']);
@@ -126,6 +134,10 @@ class Dnbd3Util {
 			ConfigHolder::add('SLX_DNBD3_PRIVATE', implode(' ', $private));
 		}
 		ConfigHolder::add('SLX_ADDONS', '', 1000);
+		ConfigHolder::add('SLX_SHUTDOWN_TIMEOUT', '', 1000);
+		ConfigHolder::add('SLX_SHUTDOWN_SCHEDULE', '', 1000);
+		ConfigHolder::add('SLX_REBOOT_TIMEOUT', '', 1000);
+		ConfigHolder::add('SLX_REBOOT_SCHEDULE', '', 1000);
 	}
 
 	/**
@@ -139,18 +151,11 @@ class Dnbd3Util {
 	 */
 	private static function range2Cidr($start, $end)
 	{
-		$bin = decbin($start ^ $end);
+		$bin = decbin((int)$start ^ (int)$end);
 		if ($bin === '0')
-			return $start;
+			return long2ip($start);
 		$mask = 32 - strlen($bin);
-		return $start . '/' . $mask;
+		return long2ip($start) . '/' . $mask;
 	}
-
-}
-
-class Dnbd3ProxyConfig
-{
-
-	public $a;
 
 }
