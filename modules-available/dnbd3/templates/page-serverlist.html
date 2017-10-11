@@ -72,7 +72,9 @@
 			</td>
 			<td>
 				{{^self}}
-					<button class="btn btn-danger btn-xs" name="serverid" value="{{serverid}}"><span class="glyphicon glyphicon-trash"></span></button>
+					<button class="btn btn-danger btn-xs" name="server" value="{{serverid}}" onclick="return confirm('{{lang_wantToDelete}}')">
+						<span class="glyphicon glyphicon-trash"></span>
+					</button>
 				{{/self}}
 			</td>
 		</tr>
@@ -101,12 +103,22 @@
 			</div>
 			<div class="modal-body">
 				<p>{{lang_enterIpOfServer}}</p>
-				<form method="post">
+				<form id="addform" method="post" action="?do=dnbd3">
 					<input type="hidden" name="token" value="{{token}}">
-					<input type="text" class="form-control" name="newip">
+					<input type="text" class="form-control" name="newip" id="newip">
 					<br>
-					<button type="submit" class="btn btn-default btn-success pull-right" name="action" value="addserver">{{lang_save}}</button>
+					<div class="buttonbar pull-right">
+						<button id="testbtn" type="submit" class="btn btn-warning">
+							<span class="glyphicon glyphicon-question-sign"></span>
+							{{lang_test}}
+						</button>
+						<button id="savebtn" type="submit" class="btn btn-success" name="action" value="addserver" disabled>
+							<span class="glyphicon glyphicon-floppy-disk"></span>
+							{{lang_save}}
+						</button>
+					</div>
 				</form>
+				<div id="addtest" class="text-danger"></div>
 				<div class="clearfix"></div>
 			</div>
 			<div class="modal-footer">
@@ -116,3 +128,67 @@
 </div>
 
 <div class="clearfix"></div>
+
+<script type="application/javascript"><!--
+document.addEventListener('DOMContentLoaded', function () {
+	var slxWorking = false;
+	const $form = $('#addform');
+	const $inputs = $form.find(':input');
+	const $result =$('#addtest');
+	const $ip = $('#newip');
+	const $save = $('#savebtn');
+
+	const changeFunc = function() {
+		console.log('sadf');
+		$save.prop('disabled', true);
+	};
+	$ip.change(changeFunc).keypress(changeFunc);
+
+	$form.submit(function (event) {
+		if (!$save.prop('disabled')) return;
+		event.preventDefault();
+		runTest();
+	});
+
+	$('#testbtn').click(function (event) {
+		event.preventDefault();
+		runTest();
+	});
+
+	function runTest() {
+		if (slxWorking === false) {
+			var ip = $ip.val();
+			var form = $('#addform');
+			slxWorking = Math.random();
+			var workCopy = slxWorking;
+			$inputs.prop('disabled', true);
+			$result.empty().removeClass('text-danger').text('...working...');
+			var resetFunc = function(ok) {
+				if (slxWorking === workCopy) {
+					slxWorking = false;
+					$inputs.prop('disabled', false);
+					if (!ok) $result.empty().addClass('text-danger').text('Timeout.');
+				}
+			};
+			setTimeout(resetFunc, 3000);
+			$.post('?do=dnbd3', {action:'servertest', ip:ip, token:TOKEN}, function (data) {
+				if (workCopy !== slxWorking) return;
+				resetFunc(true);
+				if (!data || data.fatal) {
+					$save.prop('disabled', true);
+				}
+				if (data && data.error) {
+					$result.empty().addClass('text-danger').text(data.error);
+				} else {
+					$result.empty().removeClass('text-danger').text('OK, Uptime: ' + data.uptime + ', Clients: ' + data.clientCount);
+				}
+			}, 'json').fail(function(oh, what) {
+				resetFunc(true);
+				console.log(what);
+				$result.empty().addClass('text-danger').text('Fail ' + what);
+			});
+		}
+	}
+});
+
+//--></script>

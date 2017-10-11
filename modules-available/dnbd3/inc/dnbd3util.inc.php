@@ -18,8 +18,13 @@ class Dnbd3Util {
 			} else {
 				continue; // Huh?
 			}
-			if (!is_null($row['machineuuid']) || $row['clientip'] === $satServerIp) {
+			if (!is_null($row['machineuuid'])) {
 				unset($dynClients[$row['machineuuid']]);
+				if ($row['clientip'] === $satServerIp) {
+					// Lolwut, sat server is openslx client configured for proxy mode!? baleeted.
+					RunMode::setRunMode($row['machineuuid'], 'dnbd3', null, null, null);
+					continue;
+				}
 			}
 			$server = array(
 				'serverid' => $row['serverid'],
