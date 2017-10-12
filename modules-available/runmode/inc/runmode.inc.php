@@ -93,7 +93,8 @@ class RunMode
 	 * @param string $modeId
 	 * @param bool $detailed whether to return meta data about machine, not just machineuuid
 	 * @param bool $assoc use machineuuid as array key
-	 * @return array <key=machineuuid>, value={'machineuuid', 'modedata', <'hostname', 'clientip', 'macaddr', 'locationid'>}
+	 * @return array <key=machineuuid>, value={'machineuuid', 'modedata',
+	 * 		<'hostname', 'clientip', 'macaddr', 'locationid', 'lastseen'>}
 	 */
 	public static function getForMode($module, $modeId, $detailed = false, $assoc = false)
 	{
@@ -101,7 +102,7 @@ class RunMode
 			$module = $module->getIdentifier();
 		}
 		if ($detailed) {
-			$sel = ', m.hostname, m.clientip, m.macaddr, m.locationid';
+			$sel = ', m.hostname, m.clientip, m.macaddr, m.locationid, m.lastseen';
 			$join = 'INNER JOIN machine m USING (machineuuid)';
 		} else {
 			$join = $sel = '';
