@@ -1,128 +1,252 @@
 <h1>{{lang_dnbd3Management}}</h1>
 <p><i>{{lang_dnbd3IntroText}}</i></p>
 
-<form method="post">
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_dnbd3Status}}:
+		<b>
+			{{#enabled}}{{lang_enabled}}{{/enabled}}
+			{{^enabled}}{{lang_disabled}} (NFS/CIFS){{/enabled}}
+		</b>
+		– <a href="#" data-toggle="collapse" data-target="#toggle-div">{{lang_changeDnbd3Status}}</a>
+	</div>
+	<div class="panel-collapse collapse" id="toggle-div">
+		<div class="panel-body">
+			<form method="post" action="?do=dnbd3">
+				<input type="hidden" name="token" value="{{token}}">
+				<div class="checkbox">
+					<input id="enable-dnbd3" type="checkbox" name="enabled" {{checked_s}}>
+					<label for="enable-dnbd3">{{lang_enableDnbd3}}</label>
+				</div>
+				<button type="submit" name="action" value="toggle-usage" class="btn btn-success">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<form method="post" onsubmit="$('#refbtn').prop('disabled', true).find('span').addClass('slx-rotation')" action="?do=dnbd3">
 	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="refresh">
 	<h2>
 		{{lang_serverList}}
-		<button type="submit" class="btn btn-default" name="action" value="refresh"><span class="glyphicon glyphicon-refresh"></span></button>
+		<button id="refbtn" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button>
 	</h2>
 </form>
+
 <form method="post" action="?do=dnbd3">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="delserver">
 	<table class="table">
-		<tr>
-			<th>{{lang_proxyServerTHead}}</th>
-			<th class="text-right">{{lang_clientCount}}</th>
-			<th class="text-right">{{lang_lastSeen}}</th>
-			<th class="text-right">{{lang_uptime}}</th>
-			<th class="text-right">{{lang_txTotal}}</th>
-			<th class="text-right">{{lang_rxTotal}}</th>
-			<th class="text-right">{{lang_locations}}</th>
-			<th>&nbsp;</th>
-		</tr>
-		{{#list}}
-		<tr>
-			<td class="{{#self}}slx-bold{{/self}}">
-				{{#uptime}}
-					<span class="glyphicon glyphicon-ok text-success"></span>
-				{{/uptime}}
-				{{^uptime}}
-					<span class="glyphicon glyphicon-off"></span>
-				{{/uptime}}
-				{{fixedip}}
-				{{#machineuuid}}
-					<a href="?do=Statistics&uuid={{machineuuid}}">{{clientip}}</a>
-					<div class="small">{{hostname}}</div>
-				{{/machineuuid}}
-			</td>
-			<td data-sort="int" data-sort-default="desc" class="text-right">
-				{{#uptime}}
-					<a href="?do=dnbd3&amp;show=clients&amp;server={{serverid}}">{{clientcount}}</a>
-				{{/uptime}}
-				{{^uptime}}
-					-
-				{{/uptime}}
-			</td>
-			<td data-sort="int" data-sort-default="desc" data-sort-value="{{lastseen}}" class="text-right text-nowrap">
-				{{lastseen_s}}
-			</td>
-			<td data-sort="int" data-sort-default="desc" data-sort-value="{{uptime}}" class="text-right text-nowrap">
-				{{uptime_s}}
-			</td>
-			<td data-sort="int" data-sort-default="desc" data-sort-value="{{totalup}}" class="text-right text-nowrap">
-				{{totalup_s}}
-			</td>
-			<td data-sort="int" data-sort-default="desc" data-sort-value="{{totaldown}}" class="text-right text-nowrap">
-				{{totaldown_s}}
-			</td>
-			<td class="text-right text-nowrap">
-				{{^self}}
-					{{^locations}}
-						<i>{{lang_global}}</i>
-					{{/locations}}
-					{{#locations}}
-						{{locations}}
-					{{/locations}}
-					<a href="?do=dnbd3&amp;show=locations&amp;server={{serverid}}" class="btn btn-default btn-xs">
-						<span class="glyphicon glyphicon-map-marker"></span>
-					</a>
-				{{/self}}
-			</td>
-			<td>
-				{{^self}}
-					<button class="btn btn-danger btn-xs" name="server" value="{{serverid}}" onclick="return confirm('{{lang_wantToDelete}}')">
-						<span class="glyphicon glyphicon-trash"></span>
-					</button>
-				{{/self}}
-			</td>
-		</tr>
-		{{/list}}
+		<thead>
+			<tr>
+				<th></th>
+				<th></th>
+				<th>{{lang_proxyServerTHead}}</th>
+				<th class="text-right">{{lang_storageSize}}</th>
+				<th class="text-right">{{lang_clientCount}}</th>
+				<th class="text-right">{{lang_lastSeen}}</th>
+				<th class="text-right">{{lang_uptime}}</th>
+				<th class="text-right">{{lang_txTotal}}</th>
+				<th class="text-right">{{lang_rxTotal}}</th>
+				<th class="text-right">{{lang_locations}}</th>
+				<th></th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{{#list}}
+				<tr>
+					<td>
+						{{#slxOk}}
+							<span class="glyphicon glyphicon-ok text-success"></span>
+						{{/slxOk}}
+						{{#slxDown}}
+							<span class="glyphicon glyphicon-off"></span>
+						{{/slxDown}}
+					</td>
+					<td>
+						{{#uptime}}
+							<span class="glyphicon glyphicon-ok text-success"></span>
+						{{/uptime}}
+						{{^uptime}}
+							<span class="glyphicon glyphicon-remove text-danger"></span>
+						{{/uptime}}
+					</td>
+					<td class="{{#self}}slx-bold{{/self}}">
+						{{fixedip}}
+						{{#machineuuid}}
+							<a href="?do=Statistics&uuid={{machineuuid}}">{{clientip}}</a>
+							<div class="small">{{hostname}}</div>
+						{{/machineuuid}}
+					</td>
+					<td data-sort="int" data-sort-default="desc" data-sort-value="{{disktotal}}">
+						<div style="border:1px solid #ddd;background:linear-gradient(to right, #f85 {{diskUsePercent}}%, transparent {{diskUsePercent}}%)"
+							  class="text-center text-nowrap"
+							  title="{{lang_diskFree}}: {{diskfree_s}}">
+							{{disktotal_s}}
+						</div>
+					</td>
+					<td data-sort="int" data-sort-default="desc" class="text-right">
+						{{#uptime}}
+							<a href="?do=dnbd3&amp;show=clients&amp;server={{serverid}}">{{clientcount}}</a>
+						{{/uptime}}
+						{{^uptime}}
+							-
+						{{/uptime}}
+					</td>
+					<td data-sort="int" data-sort-default="desc" data-sort-value="{{dnbd3lastseen}}" class="text-right text-nowrap">
+						{{dnbd3lastseen_s}}
+					</td>
+					<td data-sort="int" data-sort-default="desc" data-sort-value="{{uptime}}" class="text-right text-nowrap">
+						{{uptime_s}}
+					</td>
+					<td data-sort="int" data-sort-default="desc" data-sort-value="{{totalup}}" class="text-right text-nowrap">
+						{{totalup_s}}
+					</td>
+					<td data-sort="int" data-sort-default="desc" data-sort-value="{{totaldown}}" class="text-right text-nowrap">
+						{{totaldown_s}}
+					</td>
+					<td class="text-right text-nowrap">
+						{{^self}}
+							{{^locations}}
+								<i>{{lang_global}}</i>
+							{{/locations}}
+							{{#locations}}
+								{{locations}}
+							{{/locations}}
+							<a href="?do=dnbd3&amp;show=locations&amp;server={{serverid}}" class="btn btn-default btn-xs">
+								<span class="glyphicon glyphicon-map-marker"></span>
+							</a>
+						{{/self}}
+					</td>
+					<td class="text-right">
+						{{#machineuuid}}
+							<button class="btn btn-default btn-xs edit-btn" type="button" data-id="{{serverid}}"
+									  data-toggle="modal" data-target="#server-edit-modal">
+								<span class="glyphicon glyphicon-cog"></span>
+							</button>
+						{{/machineuuid}}
+						{{^self}}
+							<button class="btn btn-danger btn-xs" name="server" value="{{serverid}}" onclick="return confirm('{{lang_wantToDelete}}')">
+								<span class="glyphicon glyphicon-trash"></span>
+							</button>
+						{{/self}}
+					</td>
+				</tr>
+			{{/list}}
+		</tbody>
 	</table>
 </form>
 
-<div class="buttonbar pull-right">
-	<button type="button" class="btn btn-success" data-toggle="modal" data-target="#add-modal">
-		<span class="glyphicon glyphicon-plus"></span>
-		{{lang_addExternalServer}}
-	</button>
-	<a class="btn btn-success" href="?do=runmode&amp;module=dnbd3&amp;modeid=proxy&amp;redirect=?do=dnbd3">
-		<span class="glyphicon glyphicon-plus"></span>
-		{{lang_addManagedProxy}}
-	</a>
+<div class="btn-toolbar pull-right">
+	<div class="btn-group">
+		<button type="button" class="btn btn-success" data-toggle="modal" data-target="#add-modal">
+			<span class="glyphicon glyphicon-plus"></span>
+			{{lang_externalServerAdd}}
+		</button>
+		<button type="button" class="btn btn-default" data-toggle="modal" data-target="#help-external">
+			<span class="glyphicon glyphicon-question-sign"></span>
+		</button>
+	</div>
+	<div class="btn-group">
+		<a class="btn btn-success" href="?do=runmode&amp;module=dnbd3&amp;modeid=proxy&amp;redirect=?do=dnbd3">
+			<span class="glyphicon glyphicon-plus"></span>
+			{{lang_managedServerAdd}}
+		</a>
+		<button type="button" class="btn btn-default" data-toggle="modal" data-target="#help-automatic">
+			<span class="glyphicon glyphicon-question-sign"></span>
+		</button>
+	</div>
+</div>
+
+<div id="help-external" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><b>{{lang_externalServer}}</b></h4>
+			</div>
+			<div class="modal-body">
+				{{lang_externalServerHelp}}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary pull-right" data-dismiss="modal">
+					{{lang_close}}
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="help-automatic" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><b>{{lang_managedServer}}</b></h4>
+			</div>
+			<div class="modal-body">
+				{{lang_managedServerHelp}}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary pull-right" data-dismiss="modal">
+					{{lang_close}}
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="server-edit-modal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><b>{{lang_editProxyHeading}}</b></h4>
+			</div>
+			<div class="modal-body" id="server-edit-body">
+				.
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary pull-right" data-dismiss="modal">
+					{{lang_close}}
+				</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div id="add-modal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
-
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4 class="modal-title"><b>{{lang_addServer}}</b></h4>
 			</div>
-			<div class="modal-body">
-				<p>{{lang_enterIpOfServer}}</p>
-				<form id="addform" method="post" action="?do=dnbd3">
+			<form id="addform" method="post" action="?do=dnbd3">
+				<div class="modal-body">
+					<p>{{lang_enterIpOfServer}}</p>
+
 					<input type="hidden" name="token" value="{{token}}">
 					<input type="text" class="form-control" name="newip" id="newip">
-					<br>
-					<div class="buttonbar pull-right">
-						<button id="testbtn" type="submit" class="btn btn-warning">
+					<div id="addtest" class="text-danger"></div>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-toolbar pull-right">
+						<button id="testbtn" type="submit" class="btn btn-warning" name="action" value="addserver">
 							<span class="glyphicon glyphicon-question-sign"></span>
 							{{lang_test}}
 						</button>
-						<button id="savebtn" type="submit" class="btn btn-success" name="action" value="addserver" disabled>
+						<button id="savebtn" type="submit" class="btn btn-primary" name="action" value="addserver" disabled>
 							<span class="glyphicon glyphicon-floppy-disk"></span>
 							{{lang_save}}
 						</button>
 					</div>
-				</form>
-				<div id="addtest" class="text-danger"></div>
-				<div class="clearfix"></div>
-			</div>
-			<div class="modal-footer">
-			</div>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -132,6 +256,7 @@
 <script type="application/javascript"><!--
 document.addEventListener('DOMContentLoaded', function () {
 	var slxWorking = false;
+	var testedIp;
 	const $form = $('#addform');
 	const $inputs = $form.find(':input');
 	const $result =$('#addtest');
@@ -139,17 +264,23 @@ document.addEventListener('DOMContentLoaded', function () {
 	const $save = $('#savebtn');
 
 	const changeFunc = function() {
-		$save.prop('disabled', true);
+		$save.prop('disabled', $ip.val() !== testedIp);
 	};
-	$ip.change(changeFunc).keypress(changeFunc);
+	$ip.change(changeFunc).keypress(function () { setTimeout(changeFunc, 1); });
 
 	$form.submit(function (event) {
+		console.log('pre-sub');
+		console.log($save.prop('disabled'));
 		if (!$save.prop('disabled')) return;
+		console.log('post-sub');
 		event.preventDefault();
 		runTest();
 	});
 
 	$('#testbtn').click(function (event) {
+		console.log('pre-focus');
+		if ($ip.is(':focus')) return;
+		console.log('post-focus');
 		event.preventDefault();
 		runTest();
 	});
@@ -170,6 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				}
 			};
 			setTimeout(resetFunc, 3000);
+			testedIp = ip;
 			$.post('?do=dnbd3', {action:'servertest', ip:ip, token:TOKEN}, function (data) {
 				if (workCopy !== slxWorking) return;
 				resetFunc(true);
@@ -183,11 +315,15 @@ document.addEventListener('DOMContentLoaded', function () {
 				}
 			}, 'json').fail(function(oh, what) {
 				resetFunc(true);
-				console.log(what);
 				$result.empty().addClass('text-danger').text('Fail ' + what);
 			});
 		}
 	}
+
+	$('.edit-btn').click(function() {
+		var id = $(this).data('id');
+		$('#server-edit-body').text('loading').load('?do=dnbd3&action=editserver&server=' + id);
+	});
 });
 
 //--></script>

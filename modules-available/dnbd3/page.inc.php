@@ -20,10 +20,18 @@ class Page_Dnbd3 extends Page
 			$this->addServer();
 		} elseif ($action === 'savelocations') {
 			$this->saveServerLocations();
+		} elseif ($action === 'toggle-usage') {
+			$this->toggleUsage();
 		}
 		if (Request::isPost()) {
 			Util::redirect('?do=dnbd3');
 		}
+	}
+
+	private function toggleUsage()
+	{
+		$enabled = Request::post('enabled', false, 'bool');
+		Dnbd3::setEnabled($enabled);
 	}
 
 	private function saveServerLocations()
@@ -103,8 +111,8 @@ class Page_Dnbd3 extends Page
 	private function showServerList()
 	{
 		$dynClients = RunMode::getForMode(Page::getModule(), 'proxy', true, true);
-		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastseen,
-			s.uptime, s.totalup, s.totaldown, s.clientcount, Count(sxl.locationid) AS locations
+		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastseen AS dnbd3lastseen,
+			s.uptime, s.totalup, s.totaldown, s.clientcount, s.disktotal, s.diskfree, Count(sxl.locationid) AS locations
 			FROM dnbd3_server s
 			LEFT JOIN dnbd3_server_x_location sxl USING (serverid)
 			GROUP BY s.serverid');
@@ -117,33 +125,54 @@ class Page_Dnbd3 extends Page
 				unset($dynClients[$server['machineuuid']]);
 			}
 			if ($server['uptime'] != 0) {
-				$server['uptime'] += ($NOW - $server['lastseen']);
+				$server['uptime'] += ($NOW - $server['dnbd3lastseen']);
 			}
-			$server['lastseen_s'] = $server['lastseen'] ? date('d.m.Y H:i', $server['lastseen']) : '-';
+			$server['dnbd3lastseen_s'] = $server['dnbd3lastseen'] ? date('d.m.Y H:i', $server['dnbd3lastseen']) : '-';
 			$server['uptime_s'] = $server['uptime'] ? floor($server['uptime'] / 86400) . 'd ' . gmdate('H:i', $server['uptime']) : '-';
 			$server['totalup_s'] = Util::readableFileSize($server['totalup']);
 			$server['totaldown_s'] = Util::readableFileSize($server['totaldown']);
+			if ($server['disktotal'] > 0) {
+				$server['disktotal_s'] = Util::readableFileSize($server['disktotal']);
+				$server['diskfree_s'] = Util::readableFileSize($server['diskfree']);
+				$server['diskUsePercent'] = floor(100 - 100 * $server['diskfree'] / $server['disktotal']);
+			} else {
+				$server['disktotal_s'] = '?';
+				$server['diskfree_s'] = '?';
+				$server['diskUsePercent'] = 0;
+			}
 			$server['self'] = ($server['fixedip'] === '<self>');
-			$servers[] = $server;
+			if (isset($server['clientip']) && !is_null($server['clientip'])) {
+				if ($NOW - $server['lastseen'] > 360) {
+					$server['slxDown'] = true;
+				} else {
+					$server['slxOk'] = true;
+				}
+			}
 			if ($server['self']) {
 				$sort[] = '---';
 			} else {
 				$sort[] = $server['fixedip'] . '.' . $server['machineuuid'];
 			}
+			$servers[] = $server;
 		}
 		foreach ($dynClients as $server) {
 			$servers[] = $server;
 			$sort[] = '-' . $server['machineuuid'];
+			Database::exec('INSERT INTO dnbd3_server (machineuuid) VALUES (:uuid)', array('uuid' => $server['machineuuid']));
 		}
 		array_multisort($sort, SORT_ASC, $servers);
-		Render::addTemplate('page-serverlist', array('list' => $servers));
+		Render::addTemplate('page-serverlist', array(
+			'list' => $servers,
+			'enabled' => Dnbd3::isEnabled(),
+			'checked_s' => Dnbd3::isEnabled() ? 'checked' : '',
+		));
 	}
 
 	private function showClientList()
 	{
 		$server = $this->getServerById();
 		Render::addTemplate('page-header-servername', $server);
-		$data = Dnbd3Rpc::query(false, true, false, $server['ip']);
+		$data = Dnbd3Rpc::query($server['ip'], 5003,false, true, false, false);
 		if ($data === false || !isset($data['clients'])) {
 			Message::addError('server-unreachable');
 			return;
@@ -226,7 +255,7 @@ class Page_Dnbd3 extends Page
 			$serverId = Request::any('server', false, 'int');
 		}
 		if ($serverId === false) {
-			Message::addError('parameter-missing', 'server');
+			Message::addError('main.parameter-missing', 'server');
 			Util::redirect('?do=dnbd3');
 		}
 		$server = Database::queryFirst('SELECT s.serverid, s.machineuuid, s.fixedip, m.clientip, m.hostname
@@ -253,7 +282,7 @@ class Page_Dnbd3 extends Page
 
 	protected function doAjax()
 	{
-		$action = Request::post('action', false, 'string');
+		$action = Request::any('action', false, 'string');
 		if ($action === 'servertest') {
 			Header('Content-Type: application/json; charset=utf-8');
 			$ip = Request::post('ip', false, 'string');
@@ -272,7 +301,7 @@ class Page_Dnbd3 extends Page
 			if ($res !== false)
 				die('{"error": "Server with this IP already exists", "fatal": true}');
 			// Query
-			$reply = Dnbd3Rpc::query(true, false, false, $ip);
+			$reply = Dnbd3Rpc::query($ip, 5003,true, false, false, true);
 			if ($reply === false)
 				die('{"error": "Could not reach server"}');
 			if (!is_array($reply))
@@ -280,6 +309,16 @@ class Page_Dnbd3 extends Page
 			if (!isset($reply['uptime']) || !isset($reply['clientCount']))
 				die('{"error": "Reply does not suggest this is a dnbd3 server"}');
 			echo json_encode($reply);
+		} elseif ($action === 'editserver') {
+			$server = $this->getServerById();
+			if (isset($server['machineuuid'])) {
+				echo 'Not automatic server.';
+			} else {
+				//RunMode::getForModule()
+				echo Render::parse('fragment-server-settings', $server);
+			}
+		} else {
+			die($action . '???');
 		}
 	}
 

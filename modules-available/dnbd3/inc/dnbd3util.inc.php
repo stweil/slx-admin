@@ -49,7 +49,7 @@ class Dnbd3Util {
 		// Now query them all
 		$NOW = time();
 		foreach ($servers as $server) {
-			$data = Dnbd3Rpc::query(true, false, false, $server['addr']);
+			$data = Dnbd3Rpc::query($server['addr'], 5003, true, false, false, true);
 			if (!is_array($data) || !isset($data['runId'])) {
 				Database::exec('UPDATE dnbd3_server SET uptime = 0, clientcount = 0 WHERE serverid = :serverid',
 					array('serverid' => $server['serverid']));
@@ -60,7 +60,7 @@ class Dnbd3Util {
 			Database::exec('UPDATE dnbd3_server SET runid = :runid, lastseen = :now, uptime = :uptime,
 				totalup = totalup + If(runid = :runid AND uptime <= :uptime, If(lastup < :up, :up - lastup, 0), If(:uptime < 1800, :up, 0)),
 				totaldown = totaldown + If(runid = :runid AND uptime <= :uptime, If(lastdown < :down, :down - lastdown, 0), If(:uptime < 1800, :up, 0)),
-				lastup = :up, lastdown = :down, clientcount = :clientcount
+				lastup = :up, lastdown = :down, clientcount = :clientcount, disktotal = :disktotal, diskfree = :diskfree
 				WHERE serverid = :serverid', array(
 					'runid' => $data['runId'],
 					'now' => $NOW,
@@ -68,7 +68,9 @@ class Dnbd3Util {
 					'up' => $data['bytesSent'],
 					'down' => $data['bytesReceived'],
 					'clientcount' => $data['clientCount'],
-					'serverid' => $server['serverid']
+					'serverid' => $server['serverid'],
+					'disktotal' => $data['spaceTotal'],
+					'diskfree' => $data['spaceFree'],
 			));
 		}
 	}

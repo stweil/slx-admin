@@ -5,14 +5,15 @@ class Dnbd3Rpc {
 	/**
 	 * Query given DNBD3 server for status information.
 	 *
+	 * @param string $server server address
+	 * @param int $port server port
 	 * @param bool $stats include general stats
 	 * @param bool $clients include client list
 	 * @param bool $images include image list
-	 * @param string $server server address
-	 * @param int $port server port
+	 * @param bool $diskSpace include disk space stats
 	 * @return false|array the queried data as an array, or false on error
 	 */
-	public static function query($stats, $clients, $images, $server, $port = 5003)
+	public static function query($server, $port, $stats, $clients, $images, $diskSpace)
 	{
 		// Special case - local server
 		if ($server === '<self>') {
@@ -27,6 +28,9 @@ class Dnbd3Rpc {
 		}
 		if ($images) {
 			$url .= 'q=images&';
+		}
+		if ($diskSpace) {
+			$url .= 'q=space&';
 		}
 		$str = Download::asString($url, 3, $code);
 		if ($str === false || $code !== 200)
