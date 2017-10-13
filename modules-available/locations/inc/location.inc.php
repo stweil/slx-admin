@@ -352,7 +352,8 @@ class Location
 	 */
 	public static function getSubnets()
 	{
-		$res = Database::simpleQuery("SELECT startaddr, endaddr, locationid FROM subnet");
+		$res = Database::simpleQuery("SELECT startaddr, endaddr, locationid FROM subnet WHERE locationid IN (:locations)",
+													array("locations" => User::getAllowedLocations("subnetlist.view")));
 		$subnets = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			settype($row['locationid'], 'int');

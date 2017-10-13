@@ -8,24 +8,26 @@
 			<button type="submit" class="btn btn-primary">Save</button>
 		</div>
 		<div class="row">
-			<div class="col-sm-5">
-				<div class="input-group">
-					<span class="input-group-addon slx-ga">{{lang_name}}</span>
-					<input class="form-control" type="text" name="locationname" value="{{locationname}}" pattern=".*\S.*">
+			<div class="{{^editAllowed}}disabled{{/editAllowed}}">
+				<div class="col-sm-5">
+					<div class="input-group">
+						<span class="input-group-addon slx-ga">{{lang_name}}</span>
+						<input class="form-control" type="text" name="locationname" value="{{locationname}}" pattern=".*\S.*">
+					</div>
 				</div>
-			</div>
-			<div class="col-sm-6">
-				<div class="input-group">
-					<span class="input-group-addon slx-ga2">{{lang_parentLocation}}</span>
-					<select class="form-control" name="parentlocationid">
-						{{#parents}}
-						<option value="{{locationid}}" {{#selected}}selected="selected"{{/selected}}>{{locationpad}} {{locationname}}</option>
-						{{/parents}}
-					</select>
+				<div class="col-sm-6">
+					<div class="input-group">
+						<span class="input-group-addon slx-ga2">{{lang_parentLocation}}</span>
+						<select class="form-control" name="parentlocationid">
+							{{#parents}}
+							<option {{disabled}} value="{{locationid}}" {{#selected}}selected="selected"{{/selected}}>{{locationpad}} {{locationname}}</option>
+							{{/parents}}
+						</select>
+					</div>
 				</div>
 			</div>
 			<div class="col-sm-1 text-center">
-				<button type="button" class="btn btn-sm btn-danger"  data-toggle="modal" data-target="#deleteLocationModal{{locationid}}"><span class="glyphicon glyphicon-trash"></span></button>
+				<button {{^deleteAllowed}}disabled{{/deleteAllowed}} type="button" class="btn btn-sm btn-danger"  data-toggle="modal" data-target="#deleteLocationModal{{locationid}}"><span class="glyphicon glyphicon-trash"></span></button>
 			</div>
 		</div>
 		<br>
@@ -41,11 +43,11 @@
 			{{#list}}
 				<tr class="cidrmagic">
 					<td>{{subnetid}}</td>
-					<td><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
-					<td><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
+					<td class="{{^editSubnetAllowed}}disabled{{/editSubnetAllowed}}"><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
+					<td class="{{^editSubnetAllowed}}disabled{{/editSubnetAllowed}}"><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"></td>
 					<td class="danger">
 						<div class="checkbox text-center" style="margin-left: 9px">
-							<input type="checkbox" name="deletesubnet[{{subnetid}}]" value="on">
+							<input {{^deleteSubnetAllowed}}disabled{{/deleteSubnetAllowed}} type="checkbox" name="deletesubnet[{{subnetid}}]" value="on">
 							<label class="text-left"></label>
 						</div>
 					</td>
@@ -53,7 +55,7 @@
 			{{/list}}
 			<tr id="loc-sub-{{locationid}}">
 				<td colspan="4">
-					<button class="btn btn-success btn-sm pull-right" type="button" onclick="slxAddSubnetRow(this, {{locationid}})" title="{{lang_addNewSubnet}}">
+					<button {{^addSubnetAllowed}}disabled{{/addSubnetAllowed}} class="btn btn-success btn-sm pull-right" type="button" onclick="slxAddSubnetRow(this, {{locationid}})" title="{{lang_addNewSubnet}}">
 						<span class="glyphicon glyphicon-plus"></span> {{lang_subnet}}
 					</button>
 				</td>
@@ -86,7 +88,7 @@
 
 			</div>
 			<div class="col-md-4 text-right">
-				<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+				<button {{^saveButton}}disabled{{/saveButton}} type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 			</div>
 		</div>
 

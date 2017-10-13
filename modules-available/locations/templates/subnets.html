@@ -17,12 +17,12 @@
 			{{#list}}
 				<tr class="cidrmagic">
 					<td>{{subnetid}}</td>
-					<td><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}"></td>
-					<td><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}"></td>
-					<td>
+					<td class="{{^editThisSubnetAllowed}}disabled{{/editThisSubnetAllowed}}"><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}"></td>
+					<td class="{{^editThisSubnetAllowed}}disabled{{/editThisSubnetAllowed}}"><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}"></td>
+					<td class="{{^deleteThisSubnetAllowed}}disabled{{/deleteThisSubnetAllowed}}">
 						<select class="form-control" name="location[{{subnetid}}]">
 							{{#locations}}
-							<option value="{{locationid}}" {{#selected}}selected="selected"{{/selected}}>{{locationpad}} {{locationname}}</option>
+							<option {{disabled}} value="{{locationid}}" {{#selected}}selected="selected"{{/selected}}>{{locationpad}} {{locationname}}</option>
 							{{/locations}}
 						</select>
 					</td>
@@ -30,7 +30,7 @@
 			{{/list}}
 		</table>
 		<div class="text-right" style="margin-bottom: 20px">
-			<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+			<button {{^editSubnetAllowed}}disabled{{/editSubnetAllowed}} type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 		</div>
 	</form>
 </div>
