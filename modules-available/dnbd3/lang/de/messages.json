@@ -1,5 +1,6 @@
 {
     "invalid-ipv4": "{{0}} ist keine g\u00fcltige IPv4-Adresse",
+    "not-automatic-server": "{{0}} wird nicht \u00fcber den Satelliten verwaltet",
     "server-added": "Server {{0}} hinzugef\u00fcgt",
     "server-already-exists": "Server {{0}} existiert bereits",
     "server-deleted": "Server {{0}} gel\u00f6scht",

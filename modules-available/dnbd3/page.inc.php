@@ -18,6 +18,8 @@ class Page_Dnbd3 extends Page
 			$this->deleteServer();
 		} elseif ($action === 'addserver') {
 			$this->addServer();
+		} elseif ($action === 'editserver') {
+			$this->editServer();
 		} elseif ($action === 'savelocations') {
 			$this->saveServerLocations();
 		} elseif ($action === 'toggle-usage') {
@@ -26,6 +28,19 @@ class Page_Dnbd3 extends Page
 		if (Request::isPost()) {
 			Util::redirect('?do=dnbd3');
 		}
+	}
+
+	private function editServer()
+	{
+		$server = $this->getServerById();
+		if (!isset($server['machineuuid'])) {
+			Message::addError('not-automatic-server', $server['ip']);
+			return;
+		}
+		$bgr = Request::post('bgr', false, 'bool');
+		$firewall = Request::post('firewall', false, 'bool');
+		RunMode::setRunMode($server['machineuuid'], 'dnbd3', 'proxy',
+			json_encode(compact('bgr', 'firewall')));
 	}
 
 	private function toggleUsage()
@@ -284,42 +299,60 @@ class Page_Dnbd3 extends Page
 	{
 		$action = Request::any('action', false, 'string');
 		if ($action === 'servertest') {
-			Header('Content-Type: application/json; charset=utf-8');
-			$ip = Request::post('ip', false, 'string');
-			if ($ip === false)
-				die('{"error": "Missing parameter", "fatal": true}');
-			$ip = ip2long(trim($ip));
-			if ($ip !== false) {
-				$ip = long2ip($ip);
-			}
-			if ($ip === false)
-				die('{"error": "Supports IPv4 only", "fatal": true}');
-			// Dup?
-			$res = Database::queryFirst('SELECT serverid FROM dnbd3_server s
-					LEFT JOIN machine m USING (machineuuid)
-					WHERE s.fixedip = :ip OR m.clientip = :ip', compact('ip'));
-			if ($res !== false)
-				die('{"error": "Server with this IP already exists", "fatal": true}');
-			// Query
-			$reply = Dnbd3Rpc::query($ip, 5003,true, false, false, true);
-			if ($reply === false)
-				die('{"error": "Could not reach server"}');
-			if (!is_array($reply))
-				die('{"error": "No JSON received from server"}');
-			if (!isset($reply['uptime']) || !isset($reply['clientCount']))
-				die('{"error": "Reply does not suggest this is a dnbd3 server"}');
-			echo json_encode($reply);
+			$this->ajaxServerTest();
 		} elseif ($action === 'editserver') {
-			$server = $this->getServerById();
-			if (isset($server['machineuuid'])) {
-				echo 'Not automatic server.';
-			} else {
-				//RunMode::getForModule()
-				echo Render::parse('fragment-server-settings', $server);
-			}
+			$this->ajaxEditServer();
 		} else {
 			die($action . '???');
 		}
+	}
+
+	private function ajaxServerTest()
+	{
+		Header('Content-Type: application/json; charset=utf-8');
+		$ip = Request::post('ip', false, 'string');
+		if ($ip === false)
+			die('{"error": "Missing parameter", "fatal": true}');
+		$ip = ip2long(trim($ip));
+		if ($ip !== false) {
+			$ip = long2ip($ip);
+		}
+		if ($ip === false)
+			die('{"error": "Supports IPv4 only", "fatal": true}');
+		// Dup?
+		$res = Database::queryFirst('SELECT serverid FROM dnbd3_server s
+					LEFT JOIN machine m USING (machineuuid)
+					WHERE s.fixedip = :ip OR m.clientip = :ip', compact('ip'));
+		if ($res !== false)
+			die('{"error": "Server with this IP already exists", "fatal": true}');
+		// Query
+		$reply = Dnbd3Rpc::query($ip, 5003,true, false, false, true);
+		if ($reply === false)
+			die('{"error": "Could not reach server"}');
+		if (!is_array($reply))
+			die('{"error": "No JSON received from server"}');
+		if (!isset($reply['uptime']) || !isset($reply['clientCount']))
+			die('{"error": "Reply does not suggest this is a dnbd3 server"}');
+		echo json_encode($reply);
+	}
+
+	private function ajaxEditServer()
+	{
+		$server = $this->getServerById();
+		if (!isset($server['machineuuid'])) {
+			echo 'Not automatic server.';
+			return;
+		}
+		$rm = RunMode::getForMode(Page::getModule(), 'proxy', false, true);
+		if (!isset($rm[$server['machineuuid']])) {
+			echo 'Error: RunMode entry missing.';
+			return;
+		}
+		$modeData = json_decode($rm[$server['machineuuid']]['modedata'], true);
+		if (is_array($modeData)) {
+			$server += $modeData;
+		}
+		echo Render::parse('fragment-server-settings', $server);
 	}
 
 }

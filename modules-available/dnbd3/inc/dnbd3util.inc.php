@@ -38,7 +38,7 @@ class Dnbd3Util {
 				array('machineuuid' => $client['machineuuid']));
 			// Missing from $servers now but we'll handle them in the next run, so don't bother
 		}
-		// Same for this server - we use the special fixedip '<self>' for it and need to prevent we don't have the
+		// Same for this server - we use the special fixedip '<self>' for it and need to make surecx we don't have the
 		// IP address of the server itself in the list.
 		Database::exec('DELETE FROM dnbd3_server WHERE fixedip = :serverip', array('serverip' => $satServerIp));
 		Database::exec("INSERT IGNORE INTO dnbd3_server (fixedip) VALUES ('<self>')");
@@ -93,7 +93,8 @@ class Dnbd3Util {
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$assignedLocs[] = $row['locationid'];
 		}
-		if (!empty($assignedLocs)) {
+		$modeData = (array)json_decode($modeData, true);
+		if (!empty($assignedLocs) && isset($modeData['firewall']) && $modeData['firewall']) {
 			// Get all sub-locations too
 			$recursiveLocs = $assignedLocs;
 			$locations = Location::getLocationsAssoc();
@@ -139,6 +140,10 @@ class Dnbd3Util {
 		}
 		if (!empty($private)) {
 			ConfigHolder::add('SLX_DNBD3_PRIVATE', implode(' ', $private));
+		}
+		if (isset($modeData['bgr']) && $modeData['bgr']) {
+			// Background replication
+			ConfigHolder::add('SLX_DNBD3_BGR', '1');
 		}
 		ConfigHolder::add('SLX_ADDONS', '', 1000);
 		ConfigHolder::add('SLX_SHUTDOWN_TIMEOUT', '', 1000);
