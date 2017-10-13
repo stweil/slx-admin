@@ -4,18 +4,18 @@
 	</div>
 	<div class="panel-body">
 		<div class="table-responsive">
-			<table class="table table-stripped table-condensed stupidtable">
+			<table class="table table-stripped table-condensed table-hover stupidtable">
 				<thead>
 					<tr>
-						<th data-sort="string">{{lang_organization}}</th>
-						<th><span class="glyphicon glyphicon-ok" title="{{lang_canLoginOrganization}}"></span></th>
+						<th width="95%" data-sort="string">{{lang_organization}}</th>
+						<th width="5%"><span class="glyphicon glyphicon-ok" title="{{lang_canLoginOrganization}}"></span></th>
 					</tr>
 				</thead>
 				<tbody>
 					{{#organizations}}
 					<tr>
-						<td class="text-left text-nowrap">{{displayname}}</td>
-						<td>
+						<td width="95%" class="text-left text-nowrap">{{displayname}}</td>
+						<td width="5%">
 							<div class="checkbox">
 								<input onclick="seto('setorglogin', this, '{{organizationid}}')" type="checkbox" {{{canlogin}}}>
 								<label></label>
