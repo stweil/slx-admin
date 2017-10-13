@@ -253,11 +253,11 @@ class Page_Statistics extends Page
 		);
 
 		if ($show === 'list') {
-			$data['listButtonClass'] = 'btn-primary';
-			$data['statButtonClass'] = 'btn-default';
+			$data['listButtonClass'] = 'active';
+			$data['statButtonClass'] = '';
 		} else {
-			$data['listButtonClass'] = 'btn-default';
-			$data['statButtonClass'] = 'btn-primary';
+			$data['listButtonClass'] = '';
+			$data['statButtonClass'] = 'active';
 		}
 
 

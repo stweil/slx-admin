@@ -30,6 +30,7 @@
 	</div>
 </div>
 
+<a href="#top" class="btn btn-default to-top-btn"><span class="glyphicon glyphicon-menu-up"></span></a>
 
 
 <div class="col-md-12">
@@ -40,11 +41,11 @@
 
 
 		<div class="btn-group pull-right">
-			<button class="btn {{statButtonClass}}" type="submit" name="show" value="stat">
+			<button class="btn btn-default {{statButtonClass}}" type="submit" name="show" value="stat">
 				<span class="glyphicon glyphicon-stats"></span>
 				{{lang_showVisualization}}
 			</button>
-			<button class="btn {{listButtonClass}}" type="submit" name="show" value="list">
+			<button class="btn btn-default {{listButtonClass}}" type="submit" name="show" value="list">
 				<span class="glyphicon glyphicon-list"></span>
 				{{lang_showList}}
 			</button>
@@ -59,14 +60,16 @@
 
 		<label for="filterInput">{{lang_labelFilter}}</label>
 		<div class="row">
-			<div class="col-md-10">
-				<input type="text" name="filters" class="" id="filterInput"/>
-			</div>
-			<div class="col-md-2">
-				<button type="button" class="btn btn-success pull-right" onclick="popupFilter(null)">
-					<span class="glyphicon glyphicon-plus"></span>
-					{{lang_add_filter}}
-				</button>
+			<div class="col-md-12">
+				<div style="display: table">
+					<input type="text" name="filters" class="" id="filterInput"/>
+					<span style="display: table-cell; width: 1%; padding-left: 10px">
+						<button type="button" class="btn btn-success pull-right" onclick="popupFilter(null)">
+							<span class="glyphicon glyphicon-plus"></span>
+							{{lang_add_filter}}
+						</button>
+					</span>
+				</div>
 			</div>
 		</div>
 
