@@ -1,4 +1,5 @@
 <div class="page-header">
+	<button type="button" id="settingsButton" class="btn btn-default pull-right" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span> {{lang_settings}}</button>
 	<h1>{{lang_rebootControl}}</h1>
 </div>
 
@@ -14,7 +15,6 @@
 						{{/locations}}
 					</select>
 				</label>
-			<button type="button" id="settingsButton" class="btn btn-default pull-right" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></button>
 			<button type="button" id="selectAllButton" class="btn btn-primary pull-right" onclick="selectAllRows()"><span class="glyphicon glyphicon-check"></span> {{lang_selectall}}</button>
 			<button type="button" id="unselectAllButton" class="btn btn-default pull-right" onclick="unselectAllRows()" style="display: none;"><span class="glyphicon glyphicon-unchecked"></span> {{lang_unselectall}}</button>
 			<button type="button" id="rebootButton" class="btn btn-warning pull-right" data-toggle="modal" data-target="#rebootModal" disabled><span class="glyphicon glyphicon-repeat"></span> {{lang_rebootButton}}</button>
@@ -79,7 +79,7 @@
 				</div>
 				<div class="modal-body">
 					<span id="pubKeyTitle">{{lang_pubKey}}</span>
-					<button class="btn btn-s btn-warning pull-right" onclick="generateNewKeypair()" type="button">{{lang_genNew}}</button>
+					<button class="btn btn-s btn-warning pull-right" onclick="generateNewKeypair()" type="button"><span class="glyphicon glyphicon-refresh"></span> {{lang_genNew}}</button>
 					<pre id="pubKey">{{pubKey}}</pre>
 				</div>
 				<div class="modal-footer">

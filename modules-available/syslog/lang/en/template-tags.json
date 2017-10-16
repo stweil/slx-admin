@@ -6,5 +6,6 @@
     "lang_filter": "Filter",
     "lang_go": "Go",
     "lang_not": "not",
-    "lang_when": "When"
+    "lang_when": "When",
+    "lang_applyFilter": "Apply Filter"
 }
