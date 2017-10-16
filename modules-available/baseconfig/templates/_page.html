@@ -65,7 +65,8 @@
 	</div>
 	{{/categories}}
 	<div class="text-right">
-		<button class="btn btn-warning" type="reset"><span class="glyphicon glyphicon-refresh"></span> {{lang_discardChanges}}</button>
+		<button class="btn btn-warning" type="button" onclick="window.location.hash = '#bottom'; window.location.reload(true);"><span class="glyphicon glyphicon-refresh"></span> {{lang_discardChanges}}</button>
+		<a name="bottom"></a>
 		{{^override}}
 		<a class="btn btn-default" href="api.php?do=baseconfig&amp;user={{userid}}"><span class="glyphicon glyphicon-download-alt"></span> Download</a>
 		{{/override}}
