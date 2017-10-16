@@ -8,101 +8,115 @@
 <div class="alert alert-info">{{lang_addingBasedOnLecture}}:<br><b>{{exam.displayname}}</b></div>
 {{/exam.displayname}}
 
+
 <form class="form" method="POST" action="?do=exams" id="tolleform">
-	<div class="form-group">
-		<div>
-			<label for="locations">{{lang_location}}</label>
-			<p><i>{{lang_locationInfo}}</i></p>
-		</div>
-		<select id="locations" multiple name="locations[]">
-			{{#locations}}
-			<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
-			{{/locations}}
-		</select>
-	</div>
-
-	<div class="row form-group">
-		<div class="col-xs-6">
-			<label for="starttime_date">{{lang_begin_date}}</label>
-			<div class="input-group">
-				<span class="input-group-addon">
-					<span class="glyphicon glyphicon-calendar"></span>
-				</span>
-				<input required class="form-control datepicker" name="starttime_date" id="starttime_date"
-						 value="{{exam.starttime_date}}">
-			</div>
-		</div>
-		<div class="col-xs-6">
-			<label for="starttime_time">{{lang_begin_time}}</label>
-			<div class="input-group bootstrap-timepicker timepicker">
-				<span class="input-group-addon">
-					<span class="glyphicon glyphicon-time"></span>
-				</span>
-				<input required type="text" class="form-control timepicker2" name="starttime_time" id="starttime_time"
-						 value="{{exam.starttime_time}}"
-						 pattern="[0-9]{1,2}:[0-9]{2}">
-			</div>
-		</div>
-	</div>
-
-	<div class="row form-group">
-		<div class="col-xs-6">
-			<label for="endtime_date">{{lang_end_date}}</label>
-			<div class="input-group">
-				<span class="input-group-addon">
-					<span class="glyphicon glyphicon-calendar"></span>
-				</span>
-				<input required class="form-control datepicker" name="endtime_date" id="endtime_date"
-						 value="{{exam.endtime_date}}">
-			</div>
-		</div>
-		<div class="col-xs-6">
-			<label for="endtime_time">{{lang_end_time}}</label>
-			<div class="input-group bootstrap-timepicker timepicker">
-				<span class="input-group-addon">
-					<span class="glyphicon glyphicon-time"></span>
-				</span>
-				<input required type="text" class="form-control timepicker2" name="endtime_time" id="endtime_time"
-						 value="{{exam.endtime_time}}"
-						 pattern="[0-9]{1,2}:[0-9]{2}">
-			</div>
-		</div>
-	</div>
-
-	<div class="panel">
+	<div class="panel panel-default">
+		<div class="panel-heading"><label for="locations">{{lang_location}}</label></div>
 		<div class="panel-body">
-			{{lang_duration}}: <span id="exam-duration">-</span>
-		</div>
-	</div>
-
-	<div class="row form-group">
-		<div class="form-group col-xs-12">
-			<label for="description">{{lang_autoStartLecture}}</label>
-			<p><i>{{lang_autoStartInfo}}</i></p>
-			<div class="input-group">
-				<span class="input-group-addon">
-					<span class="glyphicon glyphicon-pencil"></span>
-				</span>
-				<select class="form-control" id="lecturelist" name="lectureid">
-					<option value="">{{lang_none}}</option>
-					{{#lectures}}
-					<option data-from="{{starttime}}" data-to="{{endtime}}" value="{{lectureid}}" {{selected}} >{{displayname}}</option>
-					{{/lectures}}
+			<div class="form-group">
+				<div>
+					<p><i>{{lang_locationInfo}}</i></p>
+				</div>
+				<select id="locations" multiple name="locations[]">
+					{{#locations}}
+					<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
+					{{/locations}}
 				</select>
 			</div>
 		</div>
-		<div class="form-group col-xs-12">
-			<div class="checkbox"><input id="autologin" type="checkbox" name="autologin" value="demo" class="form-control" {{#exam.autologin}}checked{{/exam.autologin}}><label for="autologin">{{lang_autoLogin}}</label></div>
-			<p><i>{{lang_autoLoginInfo}}</i></p>
-		</div>
-		<div class="col-xs-12" id="lecture-info">
-			-
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading"><b>{{lang_dateTime}}</b></div>
+		<div class="panel-body">
+			<div class="row form-group">
+				<div class="col-xs-6">
+					<label for="starttime_date">{{lang_begin_date}}</label>
+					<div class="input-group">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-calendar"></span>
+						</span>
+						<input required class="form-control datepicker" name="starttime_date" id="starttime_date"
+								 value="{{exam.starttime_date}}">
+					</div>
+				</div>
+				<div class="col-xs-6">
+					<label for="starttime_time">{{lang_begin_time}}</label>
+					<div class="input-group bootstrap-timepicker timepicker">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-time"></span>
+						</span>
+						<input required type="text" class="form-control timepicker2" name="starttime_time" id="starttime_time"
+								 value="{{exam.starttime_time}}"
+								 pattern="[0-9]{1,2}:[0-9]{2}">
+					</div>
+				</div>
+			</div>
+
+			<div class="row form-group">
+				<div class="col-xs-6">
+					<label for="endtime_date">{{lang_end_date}}</label>
+					<div class="input-group">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-calendar"></span>
+						</span>
+						<input required class="form-control datepicker" name="endtime_date" id="endtime_date"
+								 value="{{exam.endtime_date}}">
+					</div>
+				</div>
+				<div class="col-xs-6">
+					<label for="endtime_time">{{lang_end_time}}</label>
+					<div class="input-group bootstrap-timepicker timepicker">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-time"></span>
+						</span>
+						<input required type="text" class="form-control timepicker2" name="endtime_time" id="endtime_time"
+								 value="{{exam.endtime_time}}"
+								 pattern="[0-9]{1,2}:[0-9]{2}">
+					</div>
+				</div>
+			</div>
+
+			<div class="panel">
+				<div class="panel-body">
+					{{lang_duration}}: <span id="exam-duration">-</span>
+				</div>
+			</div>
 		</div>
 	</div>
 
-	<div class="row form-group">
-		<div class="form-group col-xs-12">
-			<label for="description">{{lang_description}}</label>
+	<div class="panel panel-default">
+		<div class="panel-heading"><label for="lecturelist">{{lang_autoStartLecture}}</label></div>
+		<div class="panel-body">
+			<div class="row form-group">
+				<div class="form-group col-xs-12">
+					<p><i>{{lang_autoStartInfo}}</i></p>
+					<div class="input-group">
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-pencil"></span>
+						</span>
+						<select class="form-control" id="lecturelist" name="lectureid">
+							<option value="">{{lang_none}}</option>
+							{{#lectures}}
+							<option data-from="{{starttime}}" data-to="{{endtime}}" value="{{lectureid}}" {{selected}} >{{displayname}}</option>
+							{{/lectures}}
+						</select>
+					</div>
+				</div>
+				<div class="form-group col-xs-12">
+					<div class="checkbox"><input id="autologin" type="checkbox" name="autologin" value="demo" class="form-control" {{#exam.autologin}}checked{{/exam.autologin}}><label for="autologin">{{lang_autoLogin}}</label></div>
+					<p><i>{{lang_autoLoginInfo}}</i></p>
+				</div>
+				<div class="col-xs-12" id="lecture-info">
+					-
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading"><label for="description">{{lang_description}}</label></div>
+		<div class="panel-body">
 			<textarea class="form-control" type="textarea" name="description" id="description">{{exam.description}}</textarea>
 		</div>
 	</div>
@@ -111,13 +125,38 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="examid" value="{{exam.examid}}">
 	<div class="text-right" style="margin-bottom: 20px">
-		<button type="button" id="cancelButton" class="btn btn-default">{{lang_cancel}}</button>
-		<button type="submit" id="saveButton" class="btn btn-primary" style="margin-right: 10px"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+		<button type="button" id="cancelButton" class="btn btn-default"< style="margin-right: 10px">{{lang_cancel}}</button>
+		<button type="button" onclick="checkGlobalExam()" id="saveButton" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+	</div>
+
+	<div class ="modal fade" id="confirmGlobalModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" style="width: 400px" role="document">
+			<div class="modal-content">
+				<div class="modal-body">
+					{{lang_comfirmGlobalExam}}
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+				</div>
+			</div>
+		</div>
 	</div>
 
 </form>
 
+
+
 <script type="application/javascript"><!--
+
+function checkGlobalExam() {
+	if ($('#locations option:selected').length === 0 && $('#locations option').length > 1) {
+		$("#confirmGlobalModal").modal();
+	} else {
+		$('#tolleform').submit();
+	}
+}
+
 document.addEventListener("DOMContentLoaded", function () {
 	var filename = "modules/bootstrap_datepicker/lang/bootstrap-datepicker." + LANG + ".js";
 	moment.locale(LANG);
@@ -193,7 +232,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 		});
 		updateLectureInfo();
-	}
+	};
 
 	var updateLectureInfo = function() {
 		var sel = $('#lecturelist option:selected');
@@ -202,21 +241,13 @@ document.addEventListener("DOMContentLoaded", function () {
 		} else {
 			$('#lecture-info').text('{{lang_lectureOutOfRange}} (' + slxMoment(sel.data('from') * 1000).format('YYYY-MM-DD H:mm') + ' - ' + slxMoment(sel.data('to') * 1000).format('YYYY-MM-DD H:mm') + ')');
 		}
-	}
+	};
 
 	start_date.change(startEndChanged);
 	start_time.change(startEndChanged);
 	end_date.change(startEndChanged);
 	end_time.change(startEndChanged);
 	$('#lecturelist').change(updateLectureInfo);
-
-	$('#tolleform').submit(function(ev) {
-		if ($('#locations option:selected').length === 0 && $('#locations option').length > 1) {
-			if (!confirm('{{lang_comfirmGlobalExam}}')) {
-				ev.preventDefault();
-			}
-		}
-	});
 
 	$("#cancelButton").click(function () {
 		window.location.replace("?do=exams");
