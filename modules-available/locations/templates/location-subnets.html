@@ -9,7 +9,7 @@
 		</div>
 		<div class="row">
 			<div class="{{^editAllowed}}disabled{{/editAllowed}}">
-				<div class="col-sm-5">
+				<div class="col-sm-6">
 					<div class="input-group">
 						<span class="input-group-addon slx-ga">{{lang_name}}</span>
 						<input class="form-control" type="text" name="locationname" value="{{locationname}}" pattern=".*\S.*">
@@ -25,9 +25,6 @@
 						</select>
 					</div>
 				</div>
-			</div>
-			<div class="col-sm-1 text-center">
-				<button {{^deleteAllowed}}disabled{{/deleteAllowed}} type="button" class="btn btn-sm btn-danger"  data-toggle="modal" data-target="#deleteLocationModal{{locationid}}"><span class="glyphicon glyphicon-trash"></span></button>
 			</div>
 		</div>
 		<br>
@@ -88,6 +85,7 @@
 
 			</div>
 			<div class="col-md-4 text-right">
+				<button style="margin-right: 10px" {{^deleteAllowed}}disabled{{/deleteAllowed}} type="button" class="btn btn-danger"  data-toggle="modal" data-target="#deleteLocationModal{{locationid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_deleteLocation}}</button>
 				<button {{^saveButton}}disabled{{/saveButton}} type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 			</div>
 		</div>
