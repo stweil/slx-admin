@@ -2,36 +2,24 @@
 	<input type="hidden" name="do" value="statistics_reporting">
 
 	<div class="page-header">
-		<div class="form-inline pull-right">
-			<div class="input-group">
-				<select class="form-control" name="format">
-					<option value="json">JSON</option>
-					<option value="csv">CSV (Excel)</option>
-					<option value="xml">XML</option>
-				</select>
-				<div class="input-group-btn">
-					<button type="submit" class="btn btn-default" name="action" value="export">{{lang_export}}</button>
-				</div>
-			</div>
-			<button id="button-settings" type="button" class="btn btn-{{settingsButtonClass}}" data-toggle="modal" data-target="#modal-settings"><span class="glyphicon glyphicon-cog"></span> Settings</button>
-		</div>
+		<button id="button-settings" type="button" class="btn btn-{{settingsButtonClass}} pull-right" data-toggle="modal" data-target="#modal-settings"><span class="glyphicon glyphicon-cog"></span> Settings</button>
 		<h1>{{lang_moduleName}}</h1>
 	</div>
 
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<strong class="text-capitalize">{{lang_displaySelection}}</strong>
+			{{lang_displaySelection}}
 		</div>
 		<div class="panel-body">
 			<div class="row top-row">
-				<div class="col-md-4">
+				<div class="col-md-2">
 					<select name="type" id="select-table" class="form-control">
 						{{#tables}}
 						<option value="{{value}}" {{selected}}>{{name}}</option>
 						{{/tables}}
 					</select>
 				</div>
-				<div class="col-md-3">
+				<div class="col-md-2">
 					<select name="cutoff" id="select-cutoff" class="form-control">
 						{{#days}}
 						<option value="{{days}}" {{selected}}>{{days}} {{lang_days}}</option>
@@ -47,8 +35,21 @@
 					</div>
 				</div>
 				<div class="col-md-1">
-					<button type="submit" class="btn btn-primary">{{lang_apply}}</button>
+						<button type="submit" class="btn btn-primary">{{lang_show}}</button>
 				</div>
+				<div class="col-md-3">
+					<div class="input-group">
+						<select class="form-control" name="format">
+							<option value="json">JSON</option>
+							<option value="csv">CSV (Excel)</option>
+							<option value="xml">XML</option>
+						</select>
+						<div class="input-group-btn">
+							<button type="submit" class="btn btn-default" name="action" value="export">{{lang_export}}</button>
+						</div>
+					</div>
+				</div>
+
 			</div>
 
 		</div>
@@ -56,7 +57,7 @@
 
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<strong class="text-capitalize">{{lang_displayColumns}}</strong>
+			{{lang_displayColumns}}
 		</div>
 		<div class="panel-body">
 			<div class="row top-row">
