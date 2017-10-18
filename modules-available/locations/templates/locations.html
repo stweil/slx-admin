@@ -157,6 +157,7 @@ function slxOpenLocation(e, lid) {
 			existing.show();
 			$(e).closest('tr').addClass('active slx-bold');
 			slxLastLocation = existing;
+			scollIntoView(existing);
 		}
 		return;
 	}
@@ -166,8 +167,22 @@ function slxOpenLocation(e, lid) {
 	$(e).closest('tr').addClass('active slx-bold').after(tr);
 	td.load('?do=Locations&action=showlocation&locationid=' + lid, function() {
 		slxAttachCidr();
+		scollIntoView(tr);
 	});
 	slxLastLocation = tr;
+}
+
+function scollIntoView(el) {
+	var offset = $(el).offset();
+	var win = $(window);
+	var h = $(el).height();
+	if (offset.top +  h > win.scrollTop() + win.height()) {
+		offset.top -= win.height();
+		offset.top += h;
+		$('html, body').animate({
+			scrollTop: offset.top
+		});
+	}
 }
 
 function slxAddSubnetRow(e, lid) {
@@ -188,6 +203,15 @@ function removeNewSubnetRow(r) {
 
 function slxConfirm() {
 	return confirm('{{lang_areYouSureNoUndo}}');
+}
+
+function deleteSubnetWarning(locid) {
+	var form = $("#locationForm"+locid);
+	if (form.find("input[type=checkbox]:checked").length > 0) {
+		$("#saveWarningModal"+locid).modal();
+	} else {
+		form.submit();
+	}
 }
 	// -->
 </script>

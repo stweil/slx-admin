@@ -1,6 +1,6 @@
 <div class="slx-well">
 	<div class="slx-bold">{{lang_locationSettings}}</div>
-	<form method="post" action="?do=Locations">
+	<form id="locationForm{{locationid}}" method="post" action="?do=Locations">
 		<input type="hidden" name="token" value="{{token}}">
 		<input type="hidden" name="action" value="updatelocation">
 		<input type="hidden" name="locationid" value="{{locationid}}">
@@ -86,7 +86,7 @@
 			</div>
 			<div class="col-md-4 text-right">
 				<button style="margin-right: 10px" {{^deleteAllowed}}disabled{{/deleteAllowed}} type="button" class="btn btn-danger"  data-toggle="modal" data-target="#deleteLocationModal{{locationid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_deleteLocation}}</button>
-				<button {{^saveButton}}disabled{{/saveButton}} type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+				<button onclick="deleteSubnetWarning('{{locationid}}')" {{^saveButton}}disabled{{/saveButton}} type="button" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 			</div>
 		</div>
 
@@ -102,7 +102,21 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-						<button type="submit" class="btn btn-sm btn-danger" name="deletelocation" value="{{locationid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_deleteLocation}}</button>
+						<button type="submit" class="btn btn-danger" name="deletelocation" value="{{locationid}}"><span class="glyphicon glyphicon-trash"></span> {{lang_deleteLocation}}</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="saveWarningModal{{locationid}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" style="width: 400px" role="document">
+				<div class="modal-content">
+					<div class="modal-body">
+						{{lang_deleteSubnetWarning}}
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+						<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 					</div>
 				</div>
 			</div>

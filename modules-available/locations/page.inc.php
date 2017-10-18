@@ -316,7 +316,7 @@ class Page_Locations extends Page
 		}
 		if ($getAction === 'showsubnets') {
 			$res = Database::simpleQuery("SELECT subnetid, startaddr, endaddr, locationid FROM subnet
-													WHERE locationid IN (:locations)",
+													WHERE locationid IN (:locations) ORDER BY startaddr ASC",
 													array("locations" => User::getAllowedLocations("location.view")));
 			$rows = array();
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {

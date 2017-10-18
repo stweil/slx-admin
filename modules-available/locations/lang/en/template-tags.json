@@ -6,6 +6,7 @@
     "lang_deleteChildLocations": "Delete child locations aswell",
     "lang_deleteLocation": "Delete location",
     "lang_deleteSubnet": "Delete range",
+    "lang_deleteSubnetWarning": "All subnets marked for deletion will be deleted. This cannot be undone!",
     "lang_editConfigVariables": "Config vars",
     "lang_editRoomplan": "Edit roomplan",
     "lang_endAddress": "End address",
