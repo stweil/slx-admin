@@ -7,6 +7,11 @@ class Page_InternetAccess extends Page
 	{
 		User::load();
 
+		if (!User::isLoggedIn()) {
+			Message::addError('main.no-permission');
+			Util::redirect('?do=Main');
+		}
+
 		$action = Request::any('action', 'show');
 
 		if ($action == 'save') {
