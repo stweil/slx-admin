@@ -31,6 +31,10 @@ class Page_News extends Page
 
         // load user, we will need it later
         User::load();
+        if (!User::isLoggedIn()) {
+        		Message::addError('main.no-permission');
+        		Util::redirect('?do=Main');
+		  }
 
         // check which action we need to do
         $action = Request::any('action', 'show');
