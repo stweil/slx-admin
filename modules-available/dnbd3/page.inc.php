@@ -40,13 +40,14 @@ class Page_Dnbd3 extends Page
 		$bgr = Request::post('bgr', false, 'bool');
 		$firewall = Request::post('firewall', false, 'bool');
 		RunMode::setRunMode($server['machineuuid'], 'dnbd3', 'proxy',
-			json_encode(compact('bgr', 'firewall')));
+			json_encode(compact('bgr', 'firewall')), false);
 	}
 
 	private function toggleUsage()
 	{
 		$enabled = Request::post('enabled', false, 'bool');
-		Dnbd3::setEnabled($enabled);
+		$task = Dnbd3::setEnabled($enabled);
+		Taskmanager::waitComplete($task, 5000);
 	}
 
 	private function saveServerLocations()
@@ -127,7 +128,8 @@ class Page_Dnbd3 extends Page
 	{
 		$dynClients = RunMode::getForMode(Page::getModule(), 'proxy', true, true);
 		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastseen AS dnbd3lastseen,
-			s.uptime, s.totalup, s.totaldown, s.clientcount, s.disktotal, s.diskfree, Count(sxl.locationid) AS locations
+			s.uptime, s.totalup, s.totaldown, s.clientcount, s.disktotal, s.diskfree, Count(sxl.locationid) AS locations,
+			s.errormsg
 			FROM dnbd3_server s
 			LEFT JOIN dnbd3_server_x_location sxl USING (serverid)
 			GROUP BY s.serverid');
@@ -188,7 +190,7 @@ class Page_Dnbd3 extends Page
 		$server = $this->getServerById();
 		Render::addTemplate('page-header-servername', $server);
 		$data = Dnbd3Rpc::query($server['ip'], 5003,false, true, false, false);
-		if ($data === false || !isset($data['clients'])) {
+		if (!is_array($data) || !isset($data['clients'])) {
 			Message::addError('server-unreachable');
 			return;
 		}
@@ -297,6 +299,9 @@ class Page_Dnbd3 extends Page
 
 	protected function doAjax()
 	{
+		User::load();
+		if (!User::isLoggedIn())
+			die('No');
 		$action = Request::any('action', false, 'string');
 		if ($action === 'servertest') {
 			$this->ajaxServerTest();
@@ -327,11 +332,13 @@ class Page_Dnbd3 extends Page
 			die('{"error": "Server with this IP already exists", "fatal": true}');
 		// Query
 		$reply = Dnbd3Rpc::query($ip, 5003,true, false, false, true);
-		if ($reply === false)
+		if ($reply === Dnbd3Rpc::QUERY_UNREACHABLE)
 			die('{"error": "Could not reach server"}');
-		if (!is_array($reply))
+		if ($reply === Dnbd3Rpc::QUERY_NOT_200)
+			die('{"error": "Server did not reply with 200 OK"}');
+		if ($reply === Dnbd3Rpc::QUERY_NOT_JSON)
 			die('{"error": "No JSON received from server"}');
-		if (!isset($reply['uptime']) || !isset($reply['clientCount']))
+		if (!is_array($reply) || !isset($reply['uptime']) || !isset($reply['clientCount']))
 			die('{"error": "Reply does not suggest this is a dnbd3 server"}');
 		echo json_encode($reply);
 	}
@@ -348,10 +355,8 @@ class Page_Dnbd3 extends Page
 			echo 'Error: RunMode entry missing.';
 			return;
 		}
-		$modeData = json_decode($rm[$server['machineuuid']]['modedata'], true);
-		if (is_array($modeData)) {
-			$server += $modeData;
-		}
+		$modeData = (array)json_decode($rm[$server['machineuuid']]['modedata'], true);
+		$server += $modeData + Dnbd3Util::defaultRunmodeConfig();
 		echo Render::parse('fragment-server-settings', $server);
 	}
 

@@ -1,5 +1,7 @@
 {
+    "dnbd3-proxy-unreachable": "DNBD3-Proxy {{0}} ist offline seit {{2}}. ({{1}})",
     "invalid-ipv4": "{{0}} ist keine g\u00fcltige IPv4-Adresse",
+    "main-dnbd3-unreachable": "Zentraler DNBD3-Server des Satelliten ist offline seit {{1}}. ({{0}})",
     "not-automatic-server": "{{0}} wird nicht \u00fcber den Satelliten verwaltet",
     "server-added": "Server {{0}} hinzugef\u00fcgt",
     "server-already-exists": "Server {{0}} existiert bereits",

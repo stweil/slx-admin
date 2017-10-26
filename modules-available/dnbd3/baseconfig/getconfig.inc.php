@@ -36,11 +36,12 @@ while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 	}
 	$old = isset($servers[$ip]) ? $servers[$ip] : $defPrio;
 	if (is_null($row['locationid']) || !isset($locationsAssoc[$row['locationid']])) {
-		$servers[$ip] = min($defPrio, $old);
+		$servers[$ip] = min($defPrio, $old) . '.' . mt_rand();
 	} else {
-		$servers[$ip] = min($locationsAssoc[$row['locationid']], $old);
+		$servers[$ip] = min($locationsAssoc[$row['locationid']], $old) . '.' . mt_rand();
 	}
 }
 
 asort($servers, SORT_NUMERIC | SORT_ASC);
 ConfigHolder::add('SLX_DNBD3_SERVERS', implode(' ', array_keys($servers)));
+ConfigHolder::add('SLX_VM_DNBD3', 'yes');

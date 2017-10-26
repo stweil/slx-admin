@@ -49,10 +49,26 @@ class Dnbd3Util {
 		// Now query them all
 		$NOW = time();
 		foreach ($servers as $server) {
-			$data = Dnbd3Rpc::query($server['addr'], 5003, true, false, false, true);
-			if (!is_array($data) || !isset($data['runId'])) {
-				Database::exec('UPDATE dnbd3_server SET uptime = 0, clientcount = 0 WHERE serverid = :serverid',
-					array('serverid' => $server['serverid']));
+			$port = 5003;
+			$data = Dnbd3Rpc::query($server['addr'], $port, true, false, false, true);
+			if ($data === Dnbd3Rpc::QUERY_UNREACHABLE) {
+				$error = 'No (HTTP) reply on port ' . $port;
+			} elseif ($data === Dnbd3Rpc::QUERY_NOT_200) {
+				$error = 'No HTTP 200 OK on port ' . $port;
+			} elseif ($data === Dnbd3Rpc::QUERY_NOT_JSON) {
+				$error = 'Reply to status query is not JSON';
+			} elseif (!is_array($data) || !isset($data['runId'])) {
+				if (is_array($data) && isset($data['errorMsg'])) {
+					$error = 'DNBD3: ' . $data['errorMsg'];
+				} else {
+					$error = 'Reply to status query has unexpected format';
+				}
+			} else {
+				$error = false;
+			}
+			if ($error !== false) {
+				Database::exec('UPDATE dnbd3_server SET uptime = 0, clientcount = 0, errormsg = :errormsg WHERE serverid = :serverid',
+					array('serverid' => $server['serverid'], 'errormsg' => $error));
 				continue;
 			}
 			// Seems up - since we only get absolute rx/tx values from the server, we have to prevent update race conditions
@@ -60,7 +76,7 @@ class Dnbd3Util {
 			Database::exec('UPDATE dnbd3_server SET runid = :runid, lastseen = :now, uptime = :uptime,
 				totalup = totalup + If(runid = :runid AND uptime <= :uptime, If(lastup < :up, :up - lastup, 0), If(:uptime < 1800, :up, 0)),
 				totaldown = totaldown + If(runid = :runid AND uptime <= :uptime, If(lastdown < :down, :down - lastdown, 0), If(:uptime < 1800, :up, 0)),
-				lastup = :up, lastdown = :down, clientcount = :clientcount, disktotal = :disktotal, diskfree = :diskfree
+				lastup = :up, lastdown = :down, clientcount = :clientcount, disktotal = :disktotal, diskfree = :diskfree, errormsg = NULL
 				WHERE serverid = :serverid', array(
 					'runid' => $data['runId'],
 					'now' => $NOW,
@@ -93,7 +109,7 @@ class Dnbd3Util {
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$assignedLocs[] = $row['locationid'];
 		}
-		$modeData = (array)json_decode($modeData, true);
+		$modeData = (array)json_decode($modeData, true) + self::defaultRunmodeConfig();
 		if (!empty($assignedLocs) && isset($modeData['firewall']) && $modeData['firewall']) {
 			// Get all sub-locations too
 			$recursiveLocs = $assignedLocs;
@@ -122,6 +138,8 @@ class Dnbd3Util {
 				WHERE s.machineuuid <> :uuid OR s.machineuuid IS NULL', array('uuid' => $machineUuid));
 		$public = array();
 		$private = array();
+		$self = Property::getServerIp();
+		$public[$self] = $self;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$ip = $row['clientip'] ? $row['clientip'] : $row['fixedip'];
 			if ($ip === '<self>') {
@@ -132,13 +150,16 @@ class Dnbd3Util {
 					$public[$ip] = $ip;
 				}
 			} else {
+				unset($public[$ip]);
 				$private[$ip] = $ip;
 			}
 		}
 		if (!empty($public)) {
+			shuffle($public);
 			ConfigHolder::add('SLX_DNBD3_PUBLIC', implode(' ', $public));
 		}
 		if (!empty($private)) {
+			shuffle($private);
 			ConfigHolder::add('SLX_DNBD3_PRIVATE', implode(' ', $private));
 		}
 		if (isset($modeData['bgr']) && $modeData['bgr']) {
@@ -168,6 +189,14 @@ class Dnbd3Util {
 			return long2ip($start);
 		$mask = 32 - strlen($bin);
 		return long2ip($start) . '/' . $mask;
+	}
+
+	public static function defaultRunmodeConfig()
+	{
+		return array(
+			'bgr' => true,
+			'firewall' => false
+		);
 	}
 
 }

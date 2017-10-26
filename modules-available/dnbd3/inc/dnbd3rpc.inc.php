@@ -2,6 +2,10 @@
 
 class Dnbd3Rpc {
 
+	const QUERY_UNREACHABLE = 1;
+	const QUERY_NOT_200 = 2;
+	const QUERY_NOT_JSON = 3;
+
 	/**
 	 * Query given DNBD3 server for status information.
 	 *
@@ -11,7 +15,7 @@ class Dnbd3Rpc {
 	 * @param bool $clients include client list
 	 * @param bool $images include image list
 	 * @param bool $diskSpace include disk space stats
-	 * @return false|array the queried data as an array, or false on error
+	 * @return int|array the queried data as an array, or false on error
 	 */
 	public static function query($server, $port, $stats, $clients, $images, $diskSpace)
 	{
@@ -33,9 +37,14 @@ class Dnbd3Rpc {
 			$url .= 'q=space&';
 		}
 		$str = Download::asString($url, 3, $code);
-		if ($str === false || $code !== 200)
-			return false;
-		return json_decode($str, true);
+		if ($str === false)
+			return self::QUERY_UNREACHABLE;
+		if ($code !== 200)
+			return self::QUERY_NOT_200;
+		$ret = json_decode($str, true);
+		if (!is_array($ret))
+			return self::QUERY_NOT_JSON;
+		return $ret;
 	}
 
 }

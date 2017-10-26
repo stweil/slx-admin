@@ -43,7 +43,6 @@
 		<thead>
 			<tr>
 				<th></th>
-				<th></th>
 				<th>{{lang_proxyServerTHead}}</th>
 				<th class="text-right">{{lang_storageSize}}</th>
 				<th class="text-right">{{lang_clientCount}}</th>
@@ -59,15 +58,13 @@
 		<tbody>
 			{{#list}}
 				<tr>
-					<td>
+					<td class="text-right">
 						{{#slxOk}}
 							<span class="glyphicon glyphicon-ok text-success"></span>
 						{{/slxOk}}
 						{{#slxDown}}
 							<span class="glyphicon glyphicon-off"></span>
 						{{/slxDown}}
-					</td>
-					<td>
 						{{#uptime}}
 							<span class="glyphicon glyphicon-ok text-success"></span>
 						{{/uptime}}
@@ -88,6 +85,11 @@
 							  title="{{lang_diskFree}}: {{diskfree_s}}">
 							{{disktotal_s}}
 						</div>
+						{{#errormsg}}
+						<div class="small text-nowrap text-danger" style="margin-right:-500px">
+							{{errormsg}}
+						</div>
+						{{/errormsg}}
 					</td>
 					<td data-sort="int" data-sort-default="desc" class="text-right">
 						{{#uptime}}
