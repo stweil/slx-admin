@@ -16,11 +16,22 @@ class Page_dozmod_users extends Page
 
 	protected function doAjax()
 	{
+		User::load();
+
 		$action = Request::post('action', '', 'string');
 		if ($action === 'setmail' || $action === 'setsu' || $action == 'setlogin') {
-			$this->setUserOption($action);
+			if (User::hasPermission("users.".$action)) {
+				$this->setUserOption($action);
+			} else {
+				die("No permission.");
+			}
+
 		} elseif ($action === 'setorglogin') {
-			$this->setOrgOption($action);
+			if (User::hasPermission("users.orglogin")) {
+				$this->setOrgOption($action);
+			} else {
+				die("No permission.");
+			}
 		} else {
 			die('No such action');
 		}

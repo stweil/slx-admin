@@ -27,7 +27,7 @@ class Page_DozMod extends Page
 	{
 		User::load();
 
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
@@ -50,15 +50,30 @@ class Page_DozMod extends Page
 		$action = Request::post('action', false, 'string');
 
 		if ($action === 'mail') {
-			$this->mailHandler();
-		} elseif ($action === 'runtime') {
-			$this->runtimeHandler();
-		} elseif ($action === 'delimages') {
-			$result = $this->handleDeleteImages();
-			if (!empty($result)) {
-				Message::addInfo('delete-images', $result);
+			if (User::hasPermission("mail.save")) {
+				$this->mailHandler();
+			} else {
+				Message::addError('main.no-permission');
+				Util::redirect('?do=dozmod&section=mailconfig');
 			}
-			Util::redirect('?do=DozMod');
+		} elseif ($action === 'runtime') {
+			if (User::hasPermission("runtimeconfig.save")) {
+				$this->runtimeHandler();
+			} else {
+				Message::addError('main.no-permission');
+				Util::redirect('?do=dozmod&section=runtimeconfig');
+			}
+		} elseif ($action === 'delimages') {
+			if (User::hasPermission("images.delete")) {
+				$result = $this->handleDeleteImages();
+				if (!empty($result)) {
+					Message::addInfo('delete-images', $result);
+				}
+				Util::redirect('?do=DozMod');
+			} else {
+				Message::addError('main.no-permission');
+				Util::redirect('?do=dozmod');
+			}
 		} elseif ($action !== false) {
 			Util::traceError('Invalid action: ' . $action);
 		}
@@ -204,8 +219,6 @@ class Page_DozMod extends Page
 	protected function doAjax()
 	{
 		User::load();
-		if (!User::hasPermission('superadmin'))
-			return;
 
 		$this->setupSubPage();
 		if ($this->subPage !== false) {
@@ -214,10 +227,19 @@ class Page_DozMod extends Page
 		}
 
 		$action = Request::post('action');
+
 		if ($action === 'mail') {
-			$this->handleTestMail();
+			if (User::hasPermission("mail.testmail")) {
+				$this->handleTestMail();
+			} else {
+				die('No permission');
+			}
 		} elseif ($action === 'delimages') {
-			die($this->handleDeleteImages());
+			if (User::hasPermission("images.delete")) {
+				die($this->handleDeleteImages());
+			} else {
+				die('No permission');
+			}
 		} elseif ($action === 'getblockinfo') {
 			$this->ajaxGetBlockInfo();
 		}

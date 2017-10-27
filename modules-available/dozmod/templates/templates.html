@@ -84,14 +84,35 @@
 		</form>
 		<form method="POST" action="?do=dozmod&amp;section=templates">
 			<input type="hidden" name="token" value="{{token}}">
-			<input type="hidden" name="action" value="reset">
 			<div>
-				<button type="submit" onclick="return confirm('{{lang_reallyResetTemplates}}')" class="btn btn-danger">{{lang_loadDefaults}}</button>
+				<button type="button" data-toggle="modal" data-target="#resetTemplatesModal" class="btn btn-danger">{{lang_loadDefaults}}</button>
 			</div>
+
+			<div id="resetTemplatesModal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title"></h4>
+						</div>
+						<div class="modal-body">
+							<p>{{lang_reallyResetTemplates}}</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+							<button type="submit" name="action" value ="reset" class="btn btn-primary">{{lang_reset}}</button>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
 		</form>
 		<div class="clearfix"></div>
 	</div>
 </div>
+
+
 
 <script type="application/javascript"><!--
 

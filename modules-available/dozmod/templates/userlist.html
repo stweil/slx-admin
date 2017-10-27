@@ -64,7 +64,19 @@ function setu(action, el, uid) {
 
 		if (data !== '1' && data !== '0') {
 			el.checked = !old;
-			box.parent().css('background-color', 'red !important');
+			box.parent().css('background-color', '');
+			/* show success notification */
+			$notification = $('<span></span>')
+				.addClass('glyphicon glyphicon-remove')
+				.css('color', 'red')
+				.css('width', '0px')
+				.css('position', 'relative')
+				.css('right', '20px')
+				.hide();
+			box.before($notification);
+			$notification.fadeIn('fast', function () {
+				$notification.fadeOut('slow', function () { $notification.remove() });
+			});
 		} else {
 			el.checked = (data == 1);
 			box.parent().css('background-color', '');

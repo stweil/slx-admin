@@ -7,13 +7,25 @@ class Page_mail_templates extends Page
 
 	protected function doPreprocess()
 	{
+		User::load();
+
 		$action = Request::post('action', 'show', 'string');
 		if ($action === 'show') {
 			$this->fetchTemplates();
 		} elseif ($action === 'save') {
-			$this->handleSave();
+			if (User::hasPermission("templates.save")) {
+				$this->handleSave();
+			} else {
+				Message::addError('main.no-permission');
+				Util::redirect('?do=dozmod&section=templates');
+			}
 		} elseif ($action === 'reset') {
-			$this->handleReset();
+			if(User::hasPermission("templates.reset")) {
+				$this->handleReset();
+			} else {
+				Message::addError('main.no-permission');
+				Util::redirect('?do=dozmod&section=templates');
+			}
 		} else {
 			Message::addError('main.invalid-action', $action);
 			Util::redirect('?do=dozmod&section=templates');
