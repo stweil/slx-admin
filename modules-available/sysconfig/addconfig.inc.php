@@ -21,7 +21,7 @@ abstract class AddConfig_Base
 
 	/**
 	 * 
-	 * @param type $step
+	 * @param string $step
 	 * @return \AddConfig_Base
 	 */
 	public static function setStep($step)
@@ -161,10 +161,11 @@ class AddConfig_Start extends AddConfig_Base
 		} else {
 			$title = '';
 		}
+		$dummy = 0;
 		foreach ($modGroups as &$mod) {
 			if (!empty($mod['modules']) && $mod['unique']) {
 				array_unshift($mod['modules'], array(
-					'moduleid' => 0,
+					'moduleid' => 'x' . (++$dummy),
 					'title' => Dictionary::translate('lang_noModuleFromThisGroup'),
 				));
 			}
