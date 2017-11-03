@@ -2,7 +2,7 @@
 
 $res = array();
 
-$res[] = tableCreate('clientlog', "
+$res[] = $tc = tableCreate('clientlog', "
 	`logid` int(10) unsigned NOT NULL AUTO_INCREMENT,
 	`dateline` int(10) unsigned NOT NULL,
 	`logtypeid` varchar(30) NOT NULL,
@@ -14,7 +14,7 @@ $res[] = tableCreate('clientlog', "
 	KEY `dateline` (`dateline`),
 	KEY `logtypeid` (`logtypeid`,`dateline`),
 	KEY `clientip` (`clientip`,`dateline`),
-	KEY `machineuuid` (`machineuuid`,`dateline`)
+	KEY `machineuuid` (`machineuuid`,`logid`)
 ");
 
 // Update path
@@ -27,6 +27,12 @@ if (!tableHasColumn('clientlog', 'machineuuid')) {
 		finalResponse(UPDATE_FAILED, 'Adding machineuuid to clientlog failed: ' . Database::lastError());
 	}
 	$res[] = UPDATE_DONE;
+}
+
+// 2017-11-03: Create proper index for query in statistics module
+if ($tc !== UPDATE_DONE) {
+	Database::exec("ALTER TABLE `openslx`.`clientlog` DROP INDEX `machineuuid` ,
+			ADD INDEX `machineuuid` ( `machineuuid` , `logid` )");
 }
 
 // Create response for browser
