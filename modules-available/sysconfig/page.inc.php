@@ -194,7 +194,7 @@ class Page_SysConfig extends Page
 		$res = Database::simpleQuery("SELECT c.configid, c.title, c.filepath, c.status,"
 			. "   GROUP_CONCAT(DISTINCT cl.locationid) AS loclist, GROUP_CONCAT(cxm.moduleid) AS modlist"
 			. " FROM configtgz c"
-			. " INNER JOIN configtgz_x_module cxm USING (configid)"
+			. " LEFT JOIN configtgz_x_module cxm USING (configid)"
 			. " LEFT JOIN configtgz_location cl ON (c.configid = cl.configid)"
 			. " GROUP BY configid"
 			. " ORDER BY title ASC");
