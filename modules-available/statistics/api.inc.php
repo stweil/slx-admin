@@ -31,14 +31,17 @@ if ($type{0} === '~') {
 			$uuid = $override;
 		}
 	}
+	// External mode of operation?
+	$mode = Request::post('mode', false, 'string');
 	$NOW = time();
-	$old = Database::queryFirst('SELECT clientip, logintime, lastseen FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
+	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 	if ($old !== false) {
 		settype($old['logintime'], 'integer');
 		settype($old['lastseen'], 'integer');
+		settype($old['lastboot'], 'integer');
 	}
 	// Handle event type
-	if ($type === '~poweron') {
+	if ($mode === false && $type === '~poweron') {
 		// Poweron & hw stats
 		$uptime = Request::post('uptime', '', 'integer');
 		if (strlen($macaddr) > 17) die("Invalid MAC.\n");
@@ -138,42 +141,54 @@ if ($type{0} === '~') {
 	} else if ($type === '~runstate') {
 		// Usage (occupied/free)
 		$sessionLength = 0;
-		$used = Request::post('used', 0, 'integer');
 		if ($old === false) die("Unknown machine.\n");
 		if ($old['clientip'] !== $ip) {
 			EventLog::warning("[runstate] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
 			die("Address changed.\n");
 		}
-		// Figure out what's happening
-		if ($used === 0) {
-			// Is not in use
-			if ($old['logintime'] !== 0) {
-				// Was in use, is free now
-				// 1) Log last session length
-				if ($NOW - $old['lastseen'] > 610) {
-					// Old session timed out - might be caused by hard reboot
-					$sessionLength = $old['lastseen'] - $old['logintime'];
-				} else {
-					$sessionLength = $NOW - $old['logintime'];
-				}
-			}
-			Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(), logintime = 0 WHERE machineuuid = :uuid', array('uuid' => $uuid));
+		$used = Request::post('used', 0, 'integer');
+		if ($old['lastboot'] === 0 && $NOW - $old['lastseen'] > 300) {
+			$strUpdateBoottime = ' lastboot = UNIX_TIMESTAMP(), ';
 		} else {
-			// Machine is in use
-			if ($old['logintime'] !== 0 && $NOW - $old['lastseen'] > 610) {
-				// Old session timed out - might be caused by hard reboot
-				$sessionLength = $old['lastseen'] - $old['logintime'];
+			$strUpdateBoottime = '';
+		}
+		// 1) Log last session length if we didn't see the machine for a while
+		if ($NOW - $old['lastseen'] > 610 && $old['lastseen'] !== 0) {
+			// Old session timed out - might be caused by hard reboot
+			if ($old['logintime'] !== 0) {
+				if ($old['lastseen'] > $old['logintime']) {
+					$sessionLength = $old['lastseen'] - $old['logintime'];
+				}
+				$old['logintime'] = 0;
 			}
+			$old['lastboot'] = 0;
+		}
+		// Figure out what's happening - state changes
+		if ($used === 0 && $old['logintime'] !== 0) {
+			// Is not in use, was in use before
+			$sessionLength = $NOW - $old['logintime'];
+			Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(),'
+				. $strUpdateBoottime
+				. ' logintime = 0, currentuser = NULL WHERE machineuuid = :uuid', array('uuid' => $uuid));
+		} elseif ($used === 1 && $old['logintime'] === 0) {
+			// Machine is in use, was free before
 			if ($sessionLength !== 0 || $old['logintime'] === 0) {
 				// This event is a start of a new session, rather than an update
-				Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(), logintime = UNIX_TIMESTAMP() WHERE machineuuid = :uuid', array('uuid' => $uuid));
-			} else {
-				// Nothing changed, simple lastseen update
-				Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP() WHERE machineuuid = :uuid', array('uuid' => $uuid));
+				Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(),'
+					. $strUpdateBoottime
+					. ' logintime = UNIX_TIMESTAMP(), currentuser = :user WHERE machineuuid = :uuid', array(
+					'uuid' => $uuid,
+					'user' => Request::post('user', null, 'string'),
+				));
 			}
+		} else {
+			// Nothing changed, simple lastseen update
+			Database::exec('UPDATE machine SET '
+				. $strUpdateBoottime
+				. ' lastseen = UNIX_TIMESTAMP() WHERE machineuuid = :uuid', array('uuid' => $uuid));
 		}
 		// 9) Log last session length if applicable
-		if ($sessionLength > 0 && $sessionLength < 86400*2 && $old['logintime'] !== 0) {
+		if ($mode === false && $sessionLength > 0 && $sessionLength < 86400*2 && $old['logintime'] !== 0) {
 			Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
 				. " VALUES (:start, '~session-length', :uuid, :clientip, '', :length)", array(
 				'start'     =>  $old['logintime'],
@@ -188,7 +203,7 @@ if ($type{0} === '~') {
 			EventLog::warning("[poweroff] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
 			die("Address changed.\n");
 		}
-		if ($old['logintime'] !== 0) {
+		if ($mode === false && $old['logintime'] !== 0) {
 			$sessionLength = $old['lastseen'] - $old['logintime'];
 			if ($sessionLength > 0 && $sessionLength < 86400*2) {
 				Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
@@ -201,7 +216,7 @@ if ($type{0} === '~') {
 			}
 		}
 		Database::exec('UPDATE machine SET logintime = 0, lastseen = UNIX_TIMESTAMP(), lastboot = 0 WHERE machineuuid = :uuid', array('uuid' => $uuid));
-	} elseif ($type === '~screens') {
+	} elseif ($mode === false && $type === '~screens') {
 		$screens = Request::post('screen', false, 'array');
 		if (is_array($screens)) {
 			// `devicetype`, `devicename`, `subid`, `machineuuid`
@@ -273,7 +288,7 @@ if ($type{0} === '~') {
 			}
 		}
 	} else {
-		die("INVALID ACTION '$type'");
+		die("INVALID ACTION '$type'\n");
 	}
 	die("OK. (RESULT=0)\n");
 }
