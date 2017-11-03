@@ -126,13 +126,20 @@
 					</td>
 					<td class="text-right">
 						{{#machineuuid}}
+							{{#rebootcontrol}}
+								<button class="btn btn-warning btn-xs reboot-btn" type="button" data-id="{{serverid}}"
+										  data-toggle="modal" data-target="#server-reboot-modal" title="{{lang_reboot}}">
+									<span class="glyphicon glyphicon-repeat"></span>
+								</button>
+							{{/rebootcontrol}}
 							<button class="btn btn-default btn-xs edit-btn" type="button" data-id="{{serverid}}"
-									  data-toggle="modal" data-target="#server-edit-modal">
+									  data-toggle="modal" data-target="#server-edit-modal" title="{{lang_settings}}">
 								<span class="glyphicon glyphicon-cog"></span>
 							</button>
 						{{/machineuuid}}
 						{{^self}}
-							<button class="btn btn-danger btn-xs" name="server" value="{{serverid}}" onclick="return confirm('{{lang_wantToDelete}}')">
+							<button class="btn btn-danger btn-xs" name="server" value="{{serverid}}"
+									  onclick="return confirm('{{lang_wantToDelete}}')" title="{{lang_delete}}">
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>
 						{{/self}}
@@ -222,6 +229,28 @@
 					</button>
 				</div>
 			</form>
+		</div>
+	</div>
+</div>
+
+<div id="server-reboot-modal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><b>{{lang_rebootProxyHeading}}</b></h4>
+			</div>
+			<div class="modal-body">
+				<p>{{lang_rebootServerText}}</p>
+				<p id="reboot-status"></p>
+			</div>
+			<div class="modal-footer text-right">
+				<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_close}}</button>
+				<button id="btn-exec-reboot" type="button" class="btn btn-primary">
+					<span class="glyphicon glyphicon-repeat"></span>
+					{{lang_reboot}}
+				</button>
+			</div>
 		</div>
 	</div>
 </div>
@@ -330,6 +359,41 @@ document.addEventListener('DOMContentLoaded', function () {
 	$('.edit-btn').click(function() {
 		var id = $(this).data('id');
 		$('#server-edit-body').text('loading').load('?do=dnbd3&action=editserver&server=' + id);
+	});
+
+	var rebootServerId = 0;
+	$('.reboot-btn').click(function() {
+		rebootServerId = $(this).data('id');
+		$('#btn-exec-reboot').prop('disabled', false);
+		$('#reboot-status').empty();
+	});
+	$('#btn-exec-reboot').click(function() {
+		$(this).prop('disabled', true);
+		var $t = $('#reboot-status');
+		if (rebootServerId === 0) {
+			$t.text('No ID!?');
+			return;
+		}
+		$t.html('<span class="glyphicon glyphicon-refresh slx-rotation"></span>');
+		var sid = rebootServerId;
+		var query = function() {
+			$.ajax({
+				"data": {"token": TOKEN, "action": "reboot", "server": sid},
+				"method": "POST",
+				"dataType": "text",
+				"url": "?do=dnbd3"
+			}).done(function (data) {
+				$t.text(data);
+				if (data.indexOf('REBOOTING') !== -1 || data.indexOf('CONNECTING') !== -1) {
+					setTimeout(query, 5000);
+					$t.append($('<span class="glyphicon glyphicon-refresh slx-rotation"></span>'));
+				}
+			}).fail(function () {
+				$.text('Failed');
+			});
+		};
+		query();
+		rebootServerId = 0;
 	});
 });
 

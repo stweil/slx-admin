@@ -182,6 +182,7 @@ class Page_Dnbd3 extends Page
 			'list' => $servers,
 			'enabled' => Dnbd3::isEnabled(),
 			'checked_s' => Dnbd3::isEnabled() ? 'checked' : '',
+			'rebootcontrol' => Module::isAvailable('rebootcontrol', false)
 		));
 	}
 
@@ -272,6 +273,8 @@ class Page_Dnbd3 extends Page
 			$serverId = Request::any('server', false, 'int');
 		}
 		if ($serverId === false) {
+			if (AJAX)
+				die('Missing parameter');
 			Message::addError('main.parameter-missing', 'server');
 			Util::redirect('?do=dnbd3');
 		}
@@ -280,6 +283,8 @@ class Page_Dnbd3 extends Page
 			LEFT JOIN machine m USING (machineuuid)
 			WHERE s.serverid = :serverId', compact('serverId'));
 		if ($server === false) {
+			if (AJAX)
+				die('Invalid server id');
 			Message::addError('server-non-existent', 'server');
 			Util::redirect('?do=dnbd3');
 		}
@@ -307,6 +312,8 @@ class Page_Dnbd3 extends Page
 			$this->ajaxServerTest();
 		} elseif ($action === 'editserver') {
 			$this->ajaxEditServer();
+		} elseif ($action === 'reboot') {
+			$this->ajaxReboot();
 		} else {
 			die($action . '???');
 		}
@@ -358,6 +365,31 @@ class Page_Dnbd3 extends Page
 		$modeData = (array)json_decode($rm[$server['machineuuid']]['modedata'], true);
 		$server += $modeData + Dnbd3Util::defaultRunmodeConfig();
 		echo Render::parse('fragment-server-settings', $server);
+	}
+
+	private function ajaxReboot()
+	{
+		$server = $this->getServerById();
+		if (!isset($server['machineuuid'])) {
+			die('Not automatic server.');
+		}
+		if (!Module::isAvailable('rebootcontrol')) {
+			die('No rebootcontrol');
+		}
+		$uuid = $server['machineuuid'];
+		$task = RebootControl::reboot([ $uuid ]);
+		if ($task === false) {
+			die('Taskmanager unreachable');
+		}
+		$task = Taskmanager::waitComplete($task, 2000);
+		if (is_array($task) && isset($task['data']) && isset($task['data']['clientStatus']) && isset($task['data']['clientStatus'][$uuid])) {
+			$status = $task['data']['clientStatus'][$uuid];
+			if (!empty($task['data']['error'])) {
+				$status .= "\n --- \n" . $task['data']['error'];
+			}
+			die($status);
+		}
+		die('Unknown :-(');
 	}
 
 }
