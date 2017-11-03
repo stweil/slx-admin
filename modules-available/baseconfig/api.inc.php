@@ -75,7 +75,7 @@ class ConfigHolder
 					if ($pos == 0) {
 						echo " <disabled>\n";
 					} else {
-						echo ': ', str_replace(array("\r", "\n"), array('\r', '\n'), $item['value']), "\n";
+						echo " <overridden>\n";
 					}
 					continue;
 				}
