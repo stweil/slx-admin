@@ -14,9 +14,6 @@ $foofoo = function($machineUuid) {
 	if ($config->systemdDefaultTarget !== false) {
 		ConfigHolder::add('SLX_SYSTEMD_TARGET', $config->systemdDefaultTarget, 10000);
 	}
-	if ($config->noSysconfig) {
-		ConfigHolder::add('SLX_NO_CONFIG_TGZ', '1', 10000);
-	}
 	// Disable exam mode - not sure if this is generally a good idea; for now, all modes we can think of would
 	// not make sense that way so do this for now
 	if (ConfigHolder::get('SLX_EXAM') !== false) {

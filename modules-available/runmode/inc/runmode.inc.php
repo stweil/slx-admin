@@ -63,6 +63,27 @@ class RunMode
 	}
 
 	/**
+	 * @param string $machineuuid
+	 * @param bool $detailed whether to return meta data about machine, not just machineuuid
+	 * @param bool $assoc use machineuuid as array key
+	 * @return false|array {'machineuuid', 'isclient', 'module', 'modeid', 'modedata',
+	 * 		<'hostname', 'clientip', 'macaddr', 'locationid', 'lastseen'>}
+	 */
+	public static function getRunMode($machineuuid, $detailed = false)
+	{
+		if ($detailed) {
+			$sel = ', m.hostname, m.clientip, m.macaddr, m.locationid, m.lastseen';
+		} else {
+			$sel = '';
+		}
+		return Database::queryFirst(
+			"SELECT m.machineuuid, r.isclient, r.module, r.modeid, r.modedata $sel
+				FROM machine m INNER JOIN runmode r USING (machineuuid)
+				WHERE m.machineuuid = :machineuuid LIMIT 1",
+			compact('machineuuid'));
+	}
+
+	/**
 	 * @param string|\Module $module
 	 * @param bool true = wrap in array where key is modeid
 	 * @return array key=machineuuid, value={'machineuuid', 'modeid', 'modedata'}
