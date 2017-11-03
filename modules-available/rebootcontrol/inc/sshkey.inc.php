@@ -3,7 +3,7 @@
 class SSHKey
 {
 
-	public static function getPrivateKey() {
+	public static function getPrivateKey(&$regen = false) {
 		$privKey = Property::get("rebootcontrol-private-key");
 		if (!$privKey) {
 			$rsaKey = openssl_pkey_new(array(
@@ -11,6 +11,10 @@ class SSHKey
 				'private_key_type' => OPENSSL_KEYTYPE_RSA));
 			openssl_pkey_export( openssl_pkey_get_private($rsaKey), $privKey);
 			Property::set("rebootcontrol-private-key", $privKey);
+			if (Module::isAvailable('sysconfig')) {
+				ConfigTgz::rebuildAllConfigs();
+			}
+			$regen = true;
 		}
 		return $privKey;
 	}
