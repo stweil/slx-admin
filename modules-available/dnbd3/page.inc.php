@@ -46,7 +46,9 @@ class Page_Dnbd3 extends Page
 	private function toggleUsage()
 	{
 		$enabled = Request::post('enabled', false, 'bool');
+		$nfs = Request::post('with-nfs', false, 'bool');
 		$task = Dnbd3::setEnabled($enabled);
+		Dnbd3::setNfsFallback($nfs);
 		Taskmanager::waitComplete($task, 5000);
 	}
 
@@ -113,8 +115,8 @@ class Page_Dnbd3 extends Page
 	protected function doRender()
 	{
 		$show = Request::get('show', false, 'string');
-		if ($show === 'clients') {
-			$this->showClientList();
+		if ($show === 'proxy') {
+			$this->showProxyDetails();
 		} elseif ($show === 'locations') {
 			$this->showServerLocationEdit();
 		} elseif ($show === false) {
@@ -181,28 +183,48 @@ class Page_Dnbd3 extends Page
 		Render::addTemplate('page-serverlist', array(
 			'list' => $servers,
 			'enabled' => Dnbd3::isEnabled(),
-			'checked_s' => Dnbd3::isEnabled() ? 'checked' : '',
+			'enabled_checked_s' => Dnbd3::isEnabled() ? 'checked' : '',
+			'nfs_checked_s' => Dnbd3::hasNfsFallback() ? 'checked' : '',
 			'rebootcontrol' => Module::isAvailable('rebootcontrol', false)
 		));
 	}
 
-	private function showClientList()
+	private function showProxyDetails()
 	{
 		$server = $this->getServerById();
-		Render::addTemplate('page-header-servername', $server);
-		$data = Dnbd3Rpc::query($server['ip'], 5003,false, true, false, false);
-		if (!is_array($data) || !isset($data['clients'])) {
+		Render::addTemplate('page-proxy-header', $server);
+		$stats = Dnbd3Rpc::query($server['ip'], 5003,true, true, false, true);
+		if (!is_array($stats) || !isset($stats['runId'])) {
 			Message::addError('server-unreachable');
 			return;
 		}
+		$stats['bytesSent_s'] = Util::readableFileSize($stats['bytesSent']);
+		$stats['bytesReceived_s'] = Util::readableFileSize($stats['bytesReceived']);
+		$stats['uptime_s'] = floor($stats['uptime'] / 86400) . 'd ' . gmdate('H:i:s', $stats['uptime']);
+		Render::addTemplate('page-proxy-stats', $stats);
+		$images = Dnbd3Rpc::query($server['ip'], 5003,false, false, true);
+		$confAlts = Dnbd3Rpc::query($server['ip'], 5003,false, false, false, false, true, true);
 		$ips = array();
 		$sort = array();
-		foreach ($data['clients'] as &$c) {
+		foreach ($stats['clients'] as &$c) {
 			$c['bytesSent_s'] = Util::readableFileSize($c['bytesSent']);
 			$sort[] = $c['bytesSent'];
 			$ips[] = preg_replace('/:\d+$/', '', $c['address']);
 		}
-		array_multisort($sort, SORT_DESC, $data['clients']);
+		array_multisort($sort, SORT_DESC, $stats['clients']);
+		Render::openTag('div', ['class' => 'row']);
+		// Config
+		if (is_string($confAlts['config'])) {
+			Render::addTemplate('page-proxy-config', $confAlts);
+		}
+		if (is_array($confAlts['altservers'])) {
+			foreach ($confAlts['altservers'] as &$as) {
+				$as['rtt'] = round(array_sum($as['rtt']) / count($as['rtt']) / 1000, 2);
+			}
+			unset($as);
+			Render::addTemplate('page-proxy-altservers', $confAlts);
+		}
+		Render::closeTag('div');
 		Render::openTag('div', ['class' => 'row']);
 		// Count locations
 		$res = Database::simpleQuery('SELECT locationid, Count(*) AS cnt FROM machine WHERE clientip IN (:ips) GROUP BY locationid', compact('ips'));
@@ -234,9 +256,9 @@ class Page_Dnbd3 extends Page
 		}
 		if ($showLocs) {
 			$locCount = array_filter($locCount, function ($v) { return isset($v['keep']); });
-			Render::addTemplate('page-client-loclist', array('list' => array_values($locCount)));
+			Render::addTemplate('page-proxy-loclist', array('list' => array_values($locCount)));
 		}
-		Render::addTemplate('page-clientlist', $data);
+		Render::addTemplate('page-proxy-clients', $stats);
 		Render::closeTag('div');
 	}
 

@@ -3,6 +3,7 @@
 class Dnbd3 {
 
 	const PROP_ENABLED = 'dnbd3.enabled';
+	const PROP_NFS_FALLBACK = 'dnbd3.nfs-fallback';
 
 	public static function isEnabled()
 	{
@@ -17,6 +18,16 @@ class Dnbd3 {
 			'service' => 'dnbd3-server'
 		));
 		return $task;
+	}
+
+	public static function hasNfsFallback()
+	{
+		return Property::get(self::PROP_NFS_FALLBACK, 0) ? true : false;
+	}
+
+	public static function setNfsFallback($bool)
+	{
+		Property::set(self::PROP_NFS_FALLBACK, $bool ? 1 : 0);
 	}
 
 	public static function getLocalStatus()

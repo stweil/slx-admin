@@ -2,6 +2,12 @@
 
 if (!Dnbd3::isEnabled()) return;
 
+if (!Dnbd3::hasNfsFallback()) {
+	ConfigHolder::add("SLX_VM_NFS", false, 1000);
+	ConfigHolder::add("SLX_VM_NFS_USER", false, 1000);
+	ConfigHolder::add("SLX_VM_NFS_PASSWD", false, 1000);
+}
+
 // Locations from closest to furthest (order)
 $locations = ConfigHolder::get('SLX_LOCATIONS');
 if ($locations === false) {

@@ -15,8 +15,12 @@
 			<form method="post" action="?do=dnbd3">
 				<input type="hidden" name="token" value="{{token}}">
 				<div class="checkbox">
-					<input id="enable-dnbd3" type="checkbox" name="enabled" {{checked_s}}>
+					<input id="enable-dnbd3" type="checkbox" name="enabled" {{enabled_checked_s}}>
 					<label for="enable-dnbd3">{{lang_enableDnbd3}}</label>
+				</div>
+				<div class="checkbox">
+					<input id="allow-nfs" type="checkbox" name="with-nfs" {{nfs_checked_s}}>
+					<label for="allow-nfs">{{lang_allowNfsFallback}}</label>
 				</div>
 				<button type="submit" name="action" value="toggle-usage" class="btn btn-success">
 					<span class="glyphicon glyphicon-floppy-disk"></span>
@@ -58,7 +62,7 @@
 		<tbody>
 			{{#list}}
 				<tr>
-					<td class="text-right">
+					<td class="text-right text-nowrap">
 						{{#slxOk}}
 							<span class="glyphicon glyphicon-ok text-success"></span>
 						{{/slxOk}}
@@ -73,11 +77,16 @@
 						{{/uptime}}
 					</td>
 					<td class="{{#self}}slx-bold{{/self}}">
-						{{fixedip}}
 						{{#machineuuid}}
-							<a href="?do=Statistics&uuid={{machineuuid}}">{{clientip}}</a>
-							<div class="small">{{hostname}}</div>
+							<a class="pull-right btn btn-default btn-xs" href="?do=Statistics&uuid={{machineuuid}}">
+								<span class="glyphicon glyphicon-eye-open"></span>
+							</a>
 						{{/machineuuid}}
+						<a href="?do=dnbd3&amp;show=proxy&amp;server={{serverid}}">
+							{{fixedip}}
+							<span class="small">{{clientip}}</span>
+						</a>
+						<div class="small">{{hostname}}</div>
 					</td>
 					<td data-sort="int" data-sort-default="desc" data-sort-value="{{disktotal}}">
 						<div style="border:1px solid #ddd;background:linear-gradient(to right, #f85 {{diskUsePercent}}%, transparent {{diskUsePercent}}%)"
@@ -92,12 +101,7 @@
 						{{/errormsg}}
 					</td>
 					<td data-sort="int" data-sort-default="desc" class="text-right">
-						{{#uptime}}
-							<a href="?do=dnbd3&amp;show=clients&amp;server={{serverid}}">{{clientcount}}</a>
-						{{/uptime}}
-						{{^uptime}}
-							-
-						{{/uptime}}
+						{{clientcount}}
 					</td>
 					<td data-sort="int" data-sort-default="desc" data-sort-value="{{dnbd3lastseen}}" class="text-right text-nowrap">
 						{{dnbd3lastseen_s}}
@@ -124,7 +128,7 @@
 							</a>
 						{{/self}}
 					</td>
-					<td class="text-right">
+					<td class="text-right text-nowrap">
 						{{#machineuuid}}
 							{{#rebootcontrol}}
 								<button class="btn btn-warning btn-xs reboot-btn" type="button" data-id="{{serverid}}"
@@ -241,7 +245,7 @@
 				<h4 class="modal-title"><b>{{lang_rebootProxyHeading}}</b></h4>
 			</div>
 			<div class="modal-body">
-				<p>{{lang_rebootServerText}}</p>
+				<p>{{lang_rebootProxyText}}</p>
 				<p id="reboot-status"></p>
 			</div>
 			<div class="modal-footer text-right">

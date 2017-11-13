@@ -15,9 +15,11 @@ class Dnbd3Rpc {
 	 * @param bool $clients include client list
 	 * @param bool $images include image list
 	 * @param bool $diskSpace include disk space stats
+	 * @param bool $config get config
+	 * @param bool $altservers list of alt servers with status
 	 * @return int|array the queried data as an array, or false on error
 	 */
-	public static function query($server, $port, $stats, $clients, $images, $diskSpace)
+	public static function query($server, $port, $stats, $clients, $images, $diskSpace = false, $config = false, $altservers = false)
 	{
 		// Special case - local server
 		if ($server === '<self>') {
@@ -35,6 +37,12 @@ class Dnbd3Rpc {
 		}
 		if ($diskSpace) {
 			$url .= 'q=space&';
+		}
+		if ($config) {
+			$url .= 'q=config&';
+		}
+		if ($altservers) {
+			$url .= 'q=altservers&';
 		}
 		$str = Download::asString($url, 3, $code);
 		if ($str === false)
