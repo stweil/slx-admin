@@ -479,20 +479,24 @@ nav.navbar.sidebar {
 
 /* this is based on https://github.com/flatlogic/awesome-bootstrap-checkbox
 and "fixes" the style of radio buttons and check boxes.
-it only applies if they're in a container that has the checkbox class */
+it only applies if they're in a container that has the checkbox/radio class */
 
-.checkbox {
+.checkbox,
+.radio {
 	padding-left: 20px;
 	margin-top: 5px;
 	margin-bottom: 2px;
 }
-.checkbox label {
+.checkbox label,
+.radio label {
 	display: inline-block;
 	vertical-align: middle;
 	position: relative;
 	padding-left: 5px;
+	margin-right: 20px;
 }
-.checkbox label::before {
+.checkbox label::before,
+.radio label::before {
 	top: 1px;
 	content: "";
 	display: inline-block;
@@ -508,7 +512,11 @@ it only applies if they're in a container that has the checkbox class */
 	-o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
 	transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
 }
-.checkbox label::after {
+.radio label::before {
+	border-radius: 8px;
+}
+.checkbox label::after,
+.radio label::after {
 	display: inline-block;
 	position: absolute;
 	width: 16px;
@@ -522,7 +530,7 @@ it only applies if they're in a container that has the checkbox class */
 	color: #555555;
 }
 .checkbox input[type="checkbox"],
-.checkbox input[type="radio"] {
+.radio input[type="radio"] {
 	opacity: 0;
 	z-index: 1;
 	top: -3px;
@@ -532,15 +540,19 @@ it only applies if they're in a container that has the checkbox class */
 
 
 .checkbox input[type="checkbox"]:focus + label::before,
-.checkbox input[type="radio"]:focus + label::before {
+.radio input[type="radio"]:focus + label::before {
 	outline: thin dotted;
 	outline: 5px auto -webkit-focus-ring-color;
 	outline-offset: -2px;
 }
 .checkbox input[type="checkbox"]:checked + label::after,
-.checkbox input[type="radio"]:checked + label::after {
+.radio input[type="radio"]:checked + label::after {
 	font-family: "Glyphicons Halflings";
 	content: "\E013";
+}
+
+.radio input[type="radio"]:checked + label::after {
+	content: "\002a";
 }
 
 /* Hack to get ellipsis in containers without absolute width */
