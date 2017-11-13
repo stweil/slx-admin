@@ -3,29 +3,36 @@
 class Download
 {
 
+	private static $curlHandle = false;
+
 	/**
 	 * Common initialization for download and downloadToFile
 	 * Return file handle to header file
 	 */
 	private static function initCurl($url, $timeout, &$head)
 	{
-		$ch = curl_init();
-		if ($ch === false)
-			Util::traceError('Could not initialize cURL');
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, ceil($timeout / 2));
-		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-		curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-		curl_setopt($ch, CURLOPT_MAXREDIRS, 6);
+		if (self::$curlHandle === false) {
+			self::$curlHandle = curl_init();
+			if (self::$curlHandle === false) {
+				Util::traceError('Could not initialize cURL');
+			}
+			curl_setopt(self::$curlHandle, CURLOPT_CONNECTTIMEOUT, ceil($timeout / 2));
+			curl_setopt(self::$curlHandle, CURLOPT_TIMEOUT, $timeout);
+			curl_setopt(self::$curlHandle, CURLOPT_FOLLOWLOCATION, true);
+			curl_setopt(self::$curlHandle, CURLOPT_AUTOREFERER, true);
+			curl_setopt(self::$curlHandle, CURLOPT_BINARYTRANSFER, true);
+			curl_setopt(self::$curlHandle, CURLOPT_MAXREDIRS, 6);
+		}
+
+		curl_setopt(self::$curlHandle, CURLOPT_URL, $url);
+
 		$tmpfile = tempnam('/tmp/', 'bwlp-');
 		$head = fopen($tmpfile, 'w+b');
 		unlink($tmpfile);
 		if ($head === false)
 			Util::traceError("Could not open temporary head file $tmpfile for writing.");
-		curl_setopt($ch, CURLOPT_WRITEHEADER, $head);
-		return $ch;
+		curl_setopt(self::$curlHandle, CURLOPT_WRITEHEADER, $head);
+		return self::$curlHandle;
 	}
 
 	/**
@@ -55,7 +62,6 @@ class Download
 		} else {
 			$code = 999;
 		}
-		curl_close($ch);
 		return $data;
 	}
 
@@ -89,7 +95,6 @@ class Download
 		} else {
 			$code = 999;
 		}
-		curl_close($ch);
 		return $data;
 	}
 
@@ -111,7 +116,6 @@ class Download
 		curl_setopt($ch, CURLOPT_FILE, $fh);
 		$res = curl_exec($ch);
 		$head = self::getContents($head);
-		curl_close($ch);
 		fclose($fh);
 		if ($res === false) {
 			@unlink($target);
