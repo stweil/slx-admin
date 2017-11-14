@@ -149,10 +149,12 @@ function getListForLocations($locationIds, $raw)
 	$key = 'lectures_' . cache_hash($locationIds);
 	$examMode = Request::get('exams', 'normal-mode', 'string') !== 'normal-mode';
 	$clientServerMismatch = false;
-	if ($raw && Module::isAvailable('exams')) {
+	if (Module::isAvailable('exams')) {
 		// If we have the exam mode module, we can enforce a server side check and make sure it agrees with the client
 		$serverExamMode = Exams::isInExamMode($locationIds);
-		$clientServerMismatch = ($serverExamMode !== $examMode);
+		if ($raw) {
+			$clientServerMismatch = ($serverExamMode !== $examMode);
+		}
 		$examMode = $serverExamMode;
 	}
 	// Only enforce exam mode validity check if the client requests the raw xml data
@@ -276,7 +278,7 @@ if (substr($ip, 0, 7) === '::ffff:') {
 
 
 /* lookup location id(s) */
-$location_ids = Location::getFromIp($ip);
+$location_ids = Location::getFromIp($ip, true);
 $location_ids = Location::getLocationRootChain($location_ids);
 
 if ($resource === 'list') {

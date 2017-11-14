@@ -255,16 +255,25 @@ class Location
 	 * Ignores any manually assigned locationid (fixedlocationid).
 	 *
 	 * @param string $ip IP address of client
+	 * @param bool $honorRoomPlanner consider a fixed location assigned manually by roomplanner
 	 * @return bool|int locationid, or false if no match
 	 */
-	public static function getFromIp($ip)
+	public static function getFromIp($ip, $honorRoomPlanner = false)
 	{
 		if (Module::get('statistics') !== false) {
 			// Shortcut - try to use subnetlocationid in machine table
-			$ret = Database::queryFirst("SELECT subnetlocationid FROM machine WHERE clientip = :ip", compact('ip'));
+			if ($honorRoomPlanner) {
+				$ret = Database::queryFirst("SELECT locationid AS loc FROM machine
+						WHERE clientip = :ip
+						ORDER BY lastseen DESC LIMIT 1", compact('ip'));
+			} else {
+				$ret = Database::queryFirst("SELECT subnetlocationid AS loc FROM machine
+						WHERE clientip = :ip
+						ORDER BY lastseen DESC LIMIT 1", compact('ip'));
+			}
 			if ($ret !== false) {
-				if ($ret['subnetlocationid'] > 0) {
-					return (int)$ret['subnetlocationid'];
+				if ($ret['loc'] > 0) {
+					return (int)$ret['loc'];
 				}
 				return false;
 			}
