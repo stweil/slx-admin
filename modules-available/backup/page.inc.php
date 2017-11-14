@@ -3,6 +3,8 @@
 class Page_Backup extends Page
 {
 
+	const LAST_BACKUP_PROP = 'backup.last-time';
+
 	private $action = false;
 	private $templateData = array();
 
@@ -26,7 +28,13 @@ class Page_Backup extends Page
 		if ($this->action === 'restore') {
 			Render::addTemplate('restore', $this->templateData);
 		} else {
-			Render::addTemplate('_page');
+			$lastBackup = (int)Property::get(self::LAST_BACKUP_PROP, 0);
+			if ($lastBackup === 0) {
+				$lastBackup = false;
+			} else {
+				$lastBackup = date('d.m.Y', $lastBackup);
+			}
+			Render::addTemplate('_page', ['last_backup' => $lastBackup]);
 		}
 	}
 
@@ -64,6 +72,7 @@ class Page_Backup extends Page
 		}
 		@fclose($fh);
 		@unlink($task['data']['backupFile']);
+		Property::set(self::LAST_BACKUP_PROP, time());
 		die();
 	}
 

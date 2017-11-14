@@ -8,6 +8,11 @@
 		<div class="panel-body">
 			<p>{{lang_backupDescription}}</p>
 			<button class="btn btn-primary" type="submit">{{lang_download}}</button>
+			<div class="text-right">
+				{{lang_lastBackup}}:
+				{{^last_backup}}{{lang_unknown}}{{/last_backup}}
+				{{last_backup}}
+			</div>
 		</div>
 	</div>
 </form>

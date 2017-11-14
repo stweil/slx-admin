@@ -1,5 +1,7 @@
 {
     "backup-failed": "Erstellen des Backups fehlgeschlagen",
+    "last-time": "Das letzte Backup wurde am {{0}} gemacht. Es wird empfohlen, regelm\u00e4\u00dfig ein Backup des Servers herunterzuladen.",
+    "last-time-unknown": "Es wird empfohlen, regelm\u00e4\u00dfig ein Backup des Servers herunterzuladen.",
     "missing-file": "Es wurde keine Datei ausgew\u00e4hlt!",
     "restore-done": "Wiederherstellung abgeschlossen",
     "upload-failed": "Upload schlug fehl: {{0}}"

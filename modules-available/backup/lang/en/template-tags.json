@@ -5,6 +5,7 @@
     "lang_browseForFile": "Browse",
     "lang_download": "Download",
     "lang_dozmodExplanation": "This restores all the virtual machine and lecture meta data created using the \"Dozentenmodul\". Please make sure the VM-storage configured still contains all the VM-Images associated with the virtual machines. If the location of the storage changed, make sure the relative pathes on the share are still the same, otherwise the virtual machines won't be usable.",
+    "lang_lastBackup": "Last backup",
     "lang_reboot": "System reboot",
     "lang_restore": "Upload",
     "lang_restoreConfig": "Restore config",
@@ -15,5 +16,6 @@
     "lang_selectFile": "Please select a backup archive",
     "lang_stopping": "Stopping",
     "lang_systemExplanation": "Restore basic configuration like authentication method, passwords, vm storage location, proxy config, etc. WARNING: If you restore a configuration backup that was made before WS15\/16 (backup format version <10), the system configuration will be restored regardless of this check mark.",
+    "lang_unknown": "Unknown",
     "lang_waitReboot": "Waiting for reboot."
 }
