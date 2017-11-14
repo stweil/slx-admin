@@ -331,7 +331,7 @@ class Page_LocationInfo extends Page
 		$backend = CourseBackend::getInstance($servertype);
 
 		if ($backend === false) {
-			Messages::addError('invalid-backend-type', $servertype);
+			Message::addError('invalid-backend-type', $servertype);
 			Util::redirect('?do=locationinfo');
 		}
 
@@ -582,7 +582,7 @@ class Page_LocationInfo extends Page
 	/**
 	 * Ajax the time table
 	 *
-	 * @param $id id of the location
+	 * @param int $id id of the location
 	 */
 	private function ajaxConfigLocation($id)
 	{
