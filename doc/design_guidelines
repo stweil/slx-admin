@@ -1,0 +1,33 @@
+Design Guidelines
+=================
+
+Buttons generell rechts wenn möglich.
+
+Reihenfolge von links nach rechts: erst Nebenfunktion (cancel etc) dann Hauptfunktion ganz rechts (save etc)
+
+Einzelne Buttons: normale Größe, glyphicon (außer bei Nebenfunktion), Text
+
+mehrere Buttons mit selber gleicher Funktion (zB. in Tabelle): btn-sm, nur glyphicon ohne Text
+
+Button Farben:
+    Aktionen mit irreversiblen Folgen (zB. Delete) = Rot 
+    Hauptfunktion (zB. Save) = Blau
+    Hinzufügen = Grün
+    Sonderfunktionen (zB. send test mail) = Gelb
+    Nebenfunktion (zB. cancel) = Weiß
+    
+Tabellen sortierbar machen mit Stupidtable-Plugin (wenn sinnvoll)
+
+Checkboxen und Radio Buttons im Bootstrap Style
+
+Titel des Moduls immer ganz oben
+
+Modals mit Aktion haben cancel Button (“cancel | save”)
+
+Info-Modals ohne Aktion haben keine Buttons unten und stattdessen nur ein x oben rechts
+
+Modals statt confirm()
+
+Unterüberschriften in Panels für schönere Gliederung
+
+Speichern erst mit Klick auf Save Button
