@@ -30,6 +30,7 @@
 
 .table-input-group tr.input-group input.form-control {
   width: auto;
+  min-width: 95px;
 }
 
 .table-input-group tr.input-group td:last-child input {

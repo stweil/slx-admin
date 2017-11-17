@@ -44,6 +44,7 @@
     "lang_mailTemplates": "E-Mail Templates",
     "lang_maxImageValidity": "G\u00fcltigkeitsdauer neuer VM-Versionen (Tage)",
     "lang_maxLectureVisibility": "Sp\u00e4testes Enddatum einer Veranstaltung (Tage in der Zukunft)",
+    "lang_maxLocationsPerLecture": "Max. explizite Orte pro Veranstaltung",
     "lang_maxTransfers": "Maximale Zahl gleichzeitiger Up-\/Downloads pro Benutzer",
     "lang_miscOptions": "Verschiedene Einstellungen",
     "lang_modified": "Modifiziert",

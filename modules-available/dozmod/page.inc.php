@@ -330,6 +330,7 @@ class Page_DozMod extends Page
 				'int' => [
 					'maxImageValidityDays' => array('min' => 7, 'max' => 999),
 					'maxLectureValidityDays' => array('min' => 7, 'max' => 999),
+					'maxLocationsPerLecture' => array('min' => 0, 'max' => 999),
 					'maxTransfers' => array('min' => 1, 'max' => 10),
 				],
 				'bool' => [
