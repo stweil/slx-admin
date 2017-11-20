@@ -920,7 +920,7 @@ class Page_Statistics extends Page
 				}
 			}
 			Render::addTemplate('syslog', array(
-				'clientip' => $client['clientip'],
+				'machineuuid' => $client['machineuuid'],
 				'list' => $log,
 			));
 		}

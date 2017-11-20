@@ -21,12 +21,13 @@ class Page_SysLog extends Page
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$types[$row['logtypeid']] = $row;
 		}
-		if (isset($_GET['filter'])) {
-			$filter = $_GET['filter'];
-			$not = isset($_GET['not']) ? 'NOT' : '';
-		} elseif (isset($_POST['filter'])) {
-			$filter = $_POST['filter'];
-			$not = isset($_POST['not']) ? 'NOT' : '';
+		if (Request::get('filter') !== false) {
+			$filter = Request::get('filter');
+			$not = Request::get('not') ? 'NOT' : '';
+		} elseif (Request::post('filter') !== false) {
+			$filter = Request::post('filter');
+			$not = Request::post('not') ? 'NOT' : '';
+
 			Session::set('log_filter', $filter);
 			Session::set('log_not', $not);
 			Session::save();
@@ -48,14 +49,13 @@ class Page_SysLog extends Page
 			if (!empty($whereClause)) $whereClause = ' WHERE logtypeid ' . $not . ' IN (' . implode(', ', $whereClause) . ')';
 		}
 		if (!isset($whereClause) || empty($whereClause)) $whereClause = '';
-		if (Request::get('ip')) {
+		if (Request::get('machineuuid')) {
 			if (empty($whereClause))
 				$whereClause .= ' WHERE ';
 			else
 				$whereClause .= ' AND ';
-			$whereClause .= "clientip LIKE '" . preg_replace('/[^0-9\.\:]/', '', Request::get('ip')) . "%'";
+			$whereClause .= "machineuuid='" . Request::get('machineuuid') . "'";
 		}
-
 		$today = date('d.m.Y');
 		$yesterday = date('d.m.Y', time() - 86400);
 		$lines = array();
@@ -78,9 +78,10 @@ class Page_SysLog extends Page
 			'not'      => $not,
 			'list'     => $lines,
 			'types'    => json_encode(array_values($types)),
+			'machineuuid' => Request::get('machineuuid'),
 		));
 	}
-	
+
 	private function eventToIconName($event)
 	{
 		switch ($event) {
