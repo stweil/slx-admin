@@ -22,7 +22,7 @@
 					<p>{{lang_latestUpdate}}: {{latestDate}}</p>
 				</div>
 				<div class="text-right col-md-6">
-					<button class="btn btn-primary sn-btn" name="news-type" value="news" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+					<button {{^allowedNewsSave}}disabled{{/allowedNewsSave}} class="btn btn-primary sn-btn" name="news-type" value="news" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 					<input type="hidden" name="token" value="{{token}}">
 				</div>
 			</div>
@@ -57,7 +57,7 @@
 									</td>
 									<td class="text-center">
 										<input type="hidden" name="news-type" value="news">
-										<button class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
+										<button {{^allowedNewsDelete}}disabled{{/allowedNewsDelete}} class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
 									</td>
 								</tr>
 								{{/list}}
@@ -77,7 +77,7 @@
 				<textarea name="help-content" id="help-content-id" class="form-control summernote" style="min-height:400px"  placeholder="">{{latestHelp}}</textarea>
 			</div>
 			<div class="text-right">
-				<button class="btn btn-primary sn-btn" name="news-type" value="help" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+				<button {{^allowedHelpSave}}disabled{{/allowedHelpSave}} class="btn btn-primary sn-btn" name="news-type" value="help" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 				<input type="hidden" name="token" value="{{token}}">
 			</div>
 		</form>
@@ -108,7 +108,7 @@
 									</td>
 									<td class="text-center">
 										<input type="hidden" name="news-type" value="help">
-										<button class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
+										<button {{^allowedHelpDelete}}disabled{{/allowedHelpDelete}} class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
 									</td>
 								</tr>
 								{{/listHelp}}
