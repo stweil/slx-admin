@@ -29,11 +29,9 @@ class PermissionUtil
 
 	public static function getAllowedLocations($userid, $permissionid) {
 
-		$res = Database::simpleQuery("SELECT role_x_permission.permissionid, rxl.locationid
-												FROM user_x_role
+		$res = Database::simpleQuery("SELECT permissionid, COALESCE(locationid, 0) AS locationid FROM user_x_role
 												INNER JOIN role_x_permission ON user_x_role.roleid = role_x_permission.roleid
-												LEFT JOIN (SELECT roleid, COALESCE(locationid, 0) AS locationid FROM role_x_location) rxl
-												ON role_x_permission.roleid = rxl.roleid
+												INNER JOIN role_x_location ON role_x_permission.roleid = role_x_location.roleid
 												WHERE user_x_role.userid = :userid", array("userid" => $userid));
 
 		$allowedLocations = array();
