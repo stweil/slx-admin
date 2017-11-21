@@ -3,9 +3,9 @@
 	<div class="col-md-4">
 		<select multiple name="roles[]" id="select-role">
 			<option value>{{lang_selectizePlaceholder}}</option>
-			{{#roles}}
-			<option value="{{roleId}}">{{roleName}}</option>
-			{{/roles}}
+			{{#allroles}}
+			<option value="{{roleid}}">{{rolename}}</option>
+			{{/allroles}}
 		</select>
 	</div>
 </div>
@@ -23,10 +23,10 @@
 			<tbody>
 			{{#location}}
 				<tr data-selectizeCount='0'>
-					<td>{{locname}}</td>
+					<td>{{locationpad}} {{locationname}}</td>
 					<td>
 						{{#roles}}
-						<span class="label label-default customSpanMargin roleId-{{roleId}}">{{roleName}}</span>
+						<span class="label label-default customSpanMargin roleid-{{roleid}}">{{rolename}}</span>
 						{{/roles}}
 					</td>
 				</tr>

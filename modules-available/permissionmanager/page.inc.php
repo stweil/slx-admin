@@ -29,10 +29,10 @@ class Page_PermissionManager extends Page
 			PermissionDbUpdate::deleteRole($id);
 		} elseif ($action === 'saveRole') {
 			$roleID = Request::post("roleid", false);
-			$roleName = Request::post("roleName");
-			$locations = Request::post("allLocations", "off") == "on" ? array(0) : Request::post("locations");
+			$rolename = Request::post("rolename");
+			$locations = Request::post("allLocations", "off") == "on" ? array(NULL) : Request::post("locations");
 			$permissions = Request::post("allPermissions", "off") == "on" ? array("*") : Request::post("permissions");;
-			PermissionDbUpdate::saveRole($roleName, $locations, $permissions, $roleID);
+			PermissionDbUpdate::saveRole($rolename, $locations, $permissions, $roleID);
 		}
 	}
 
@@ -61,7 +61,7 @@ class Page_PermissionManager extends Page
 				$data = array("user" => GetPermissionData::getUserData(), "roles" => GetPermissionData::getRoles());
 				Render::addTemplate('userstable', $data);
 			} elseif ($show === "locations") {
-				$data = array("location" => GetPermissionData::getLocationData(), "roles" => GetPermissionData::getRoles());
+				$data = array("location" => GetPermissionData::getLocationData(), "allroles" => GetPermissionData::getRoles());
 				Render::addTemplate('locationstable', $data);
 			}
 		} elseif ($show === "roleEditor") {
@@ -72,7 +72,7 @@ class Page_PermissionManager extends Page
 			if ($roleID) {
 				$roleData = GetPermissionData::getRoleData($roleID);
 				$data["roleid"] = $roleID;
-				$data["roleName"] = $roleData["name"];
+				$data["rolename"] = $roleData["rolename"];
 				if (count($roleData["locations"]) == 1 && $roleData["locations"][0] == 0) {
 					$data["allLocChecked"] = "checked";
 					$data["selectizeClass"] = "faded unclickable";
@@ -93,7 +93,7 @@ class Page_PermissionManager extends Page
 
 			$permissions = PermissionUtil::getPermissions();
 
-			$data["locations"] = GetPermissionData::getLocations($selectedLocations);
+			$data["locations"] = Location::getLocations($selectedLocations);
 			$data["moduleNames"] = array();
 			foreach (array_keys($permissions) as $moduleid) {
 				$data["moduleNames"][] = array("id" => $moduleid, "name" => Module::get($moduleid)->getDisplayName());
@@ -107,21 +107,11 @@ class Page_PermissionManager extends Page
 	// Menu: Selected table is shown in blue (btn-primary)
 	private function setButtonColors($show) {
 		if ($show === 'roles') {
-			$buttonColors['rolesButtonClass'] = 'btn-primary';
-			$buttonColors['usersButtonClass'] = 'btn-default';
-			$buttonColors['locationsButtonClass'] = 'btn-default';
+			$buttonColors['rolesButtonClass'] = 'active';
 		} elseif ($show === 'users') {
-			$buttonColors['rolesButtonClass'] = 'btn-default';
-			$buttonColors['usersButtonClass'] = 'btn-primary';
-			$buttonColors['locationsButtonClass'] = 'btn-default';
+			$buttonColors['usersButtonClass'] = 'active';
 		} elseif ($show === 'locations') {
-			$buttonColors['rolesButtonClass'] = 'btn-default';
-			$buttonColors['usersButtonClass'] = 'btn-default';
-			$buttonColors['locationsButtonClass'] = 'btn-primary';
-		}  else {
-			$buttonColors['rolesButtonClass'] = 'btn-default';
-			$buttonColors['usersButtonClass'] = 'btn-default';
-			$buttonColors['locationsButtonClass'] = 'btn-default';
+			$buttonColors['locationsButtonClass'] = 'active';
 		}
 
 		return $buttonColors;

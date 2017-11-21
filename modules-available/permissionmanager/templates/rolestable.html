@@ -24,12 +24,12 @@
 				<tbody>
 				{{#roles}}
 					<tr class="rolesRow">
-						<td class="rolesData">{{roleName}}</td>
+						<td class="rolesData">{{rolename}}</td>
 						<td class="text-center">
-							<a class="btn btn-xs btn-info" href="?do=permissionmanager&show=roleEditor&roleid={{roleId}}"><span class="glyphicon glyphicon-edit"></span></a>
+							<a class="btn btn-xs btn-info" href="?do=permissionmanager&show=roleEditor&roleid={{roleid}}"><span class="glyphicon glyphicon-edit"></span></a>
 						</td>
 						<td class="text-center">
-							<a class="btn btn-xs btn-danger" href="#deleteModal" data-toggle="modal" data-target="#deleteModal" onclick="deleteRole('{{roleId}}')"><span class="glyphicon glyphicon-trash"></span></a>
+							<a class="btn btn-xs btn-danger" href="#deleteModal" data-toggle="modal" data-target="#deleteModal" onclick="deleteRole('{{roleid}}')"><span class="glyphicon glyphicon-trash"></span></a>
 						</td>
 					</tr>
 				{{/roles}}
@@ -66,8 +66,8 @@
 		window.location.href = "?do=permissionmanager&show=roleEditor"
 	}
 
-	function deleteRole($roleId) {
-		$(".modal-footer #deleteId").val($roleId);
+	function deleteRole($roleid) {
+		$(".modal-footer #deleteId").val($roleid);
 	}
 
 	function searchFieldFunction() {

@@ -11,7 +11,7 @@ class PermissionUtil
 		}
 
 		$res = Database::simpleQuery("SELECT role_x_permission.permissionid as 'permissionid',
-													role_x_location.locid as 'locationid'
+													role_x_location.locationid as 'locationid'
 												FROM user_x_role
 												INNER JOIN role_x_permission ON user_x_role.roleid = role_x_permission.roleid
 												LEFT JOIN role_x_location ON role_x_permission.roleid = role_x_location.roleid
@@ -29,11 +29,11 @@ class PermissionUtil
 
 	public static function getAllowedLocations($userid, $permissionid) {
 
-		$res = Database::simpleQuery("SELECT role_x_permission.permissionid as 'permissionid',
-													role_x_location.locid as 'locationid'
+		$res = Database::simpleQuery("SELECT role_x_permission.permissionid, rxl.locationid
 												FROM user_x_role
 												INNER JOIN role_x_permission ON user_x_role.roleid = role_x_permission.roleid
-												LEFT JOIN role_x_location ON role_x_permission.roleid = role_x_location.roleid
+												LEFT JOIN (SELECT roleid, COALESCE(locationid, 0) AS locationid FROM role_x_location) rxl
+												ON role_x_permission.roleid = rxl.roleid
 												WHERE user_x_role.userid = :userid", array("userid" => $userid));
 
 		$allowedLocations = array();
@@ -53,7 +53,7 @@ class PermissionUtil
 		return $allowedLocations;
 	}
 
-	private static function getSublocations($tree, $locations) {
+	public static function getSublocations($tree, $locations) {
 		$result = array_flip($locations);
 		foreach ($tree as $location) {
 			if (array_key_exists("children", $location)) {

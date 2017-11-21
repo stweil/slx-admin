@@ -10,7 +10,7 @@
 			<select multiple name="roles[]" id="select-role">
 				<option value>{{lang_selectizePlaceholder}}</option>
 				{{#roles}}
-				<option value="{{roleId}}">{{roleName}}</option>
+				<option value="{{roleid}}">{{rolename}}</option>
 				{{/roles}}
 			</select>
 		</div>
@@ -33,7 +33,7 @@
 						<td>{{username}}</td>
 						<td>
 							{{#roles}}
-							<span class="label label-default customSpanMargin roleId-{{roleId}}">{{roleName}}</span>
+							<span class="label label-default customSpanMargin roleid-{{roleid}}">{{rolename}}</span>
 							{{/roles}}
 						</td>
 						<td data-sort-value="0">
@@ -71,11 +71,11 @@
 								<tbody>
 								{{#roles}}
 									<tr>
-										<td>{{roleName}}</td>
+										<td>{{rolename}}</td>
 										<td data-sort-value="0">
 											<div class="checkbox">
-												<input id="add{{roleId}}" type="checkbox" name="roles[]" value='{{roleId}}'>
-												<label for="add{{roleId}}"></label>
+												<input id="add{{roleid}}" type="checkbox" name="roles[]" value='{{roleid}}'>
+												<label for="add{{roleid}}"></label>
 											</div>
 										</td>
 									</tr>
@@ -114,11 +114,11 @@
 								<tbody>
 								{{#roles}}
 									<tr>
-										<td>{{roleName}}</td>
+										<td>{{rolename}}</td>
 										<td data-sort-value="0">
 											<div class="checkbox">
-												<input id="remove{{roleId}}" type="checkbox" name="roles[]" value='{{roleId}}'>
-												<label for="remove{{roleId}}"></label>
+												<input id="remove{{roleid}}" type="checkbox" name="roles[]" value='{{roleid}}'>
+												<label for="remove{{roleid}}"></label>
 											</div>
 										</td>
 									</tr>

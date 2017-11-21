@@ -6,7 +6,7 @@
 	<div class="row">
 		<div class="col-md-12" style="margin-bottom: 20px;">
 			<b>{{lang_Name}}:</b>
-			<input name="roleName" value="{{roleName}}" type="text" id="roleName" class="form-control">
+			<input name="rolename" value="{{rolename}}" type="text" id="rolename" class="form-control">
 			<button type="submit" id="saveButton" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_Save}}</button>
 			<button type="button" id="cancelButton" class="btn btn-default pull-right">{{lang_Cancel}}</button>
 		</div>
@@ -20,7 +20,7 @@
 			<select multiple name="locations[]" id="select-location">
 				<option value></option>
 				{{#locations}}
-				<option value="{{locid}}" {{selected}}>{{locName}}</option>
+				<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
 				{{/locations}}
 			</select>
 		</div>
@@ -121,7 +121,7 @@
 		});
 
 		$('form').submit(function () {
-			var name = $.trim($('#roleName').val());
+			var name = $.trim($('#rolename').val());
 			if (name  === '') {
 				alert('{{lang_emptyNameWarning}}');
 				return false;

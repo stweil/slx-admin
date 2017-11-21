@@ -8,8 +8,8 @@ class GetPermissionData {
 		$userdata= array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$userdata[$row['userid'].' '.$row['login']][] = array(
-				'roleId' => $row['roleId'],
-				'roleName' => $row['roleName']
+				'roleid' => $row['roleid'],
+				'rolename' => $row['rolename']
 			);
 		}
 		$data = array();
@@ -26,60 +26,51 @@ class GetPermissionData {
 
 	// get LocationIDs, Location Names, Roles of each Location
 	public static function getLocationData() {
-		$res = self::queryLocationData();
-		$locdata = array();
+		$res = Database::simpleQuery("SELECT role.roleid as roleid, rolename, GROUP_CONCAT(locationid) as locationids FROM role
+ 												LEFT JOIN (SELECT roleid, COALESCE(locationid, 0) AS locationid FROM role_x_location) rxl
+ 												ON role.roleid = rxl.roleid GROUP BY roleid ORDER BY rolename ASC");
+		$locations = Location::getLocations(0, 0, false, true);
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$locdata[$row['locid'].' '.$row['locname']][] = array(
-				'roleId' => $row['roleId'],
-				'roleName' => $row['roleName']
-			);
+			$locationids = explode(",", $row['locationids']);
+			if (in_array("0", $locationids)) {
+				$locationids = array_map("intval", Location::extractIds(Location::getTree()));
+			} else {
+				$locationids = PermissionUtil::getSublocations(Location::getTree(), $locationids);
+			}
+			foreach ($locationids as $locationid) {
+				$locations[$locationid]['roles'][] = array(
+					'roleid' => $row['roleid'],
+					'rolename' => $row['rolename']
+				);
+			}
 		}
-		$data = array();
-		foreach($locdata AS $loc => $roles) {
-			$loc = explode(" ", $loc, 2);
-			$data[] = array(
-				'locid' => $loc[0],
-				'locname' => $loc[1],
-				'roles' => $roles
-			);
-		}
-		return $data;
+		return array_values($locations);
 	}
 
 	// get all roles from database (id and name)
 	public static function getRoles() {
-		$res = Database::simpleQuery("SELECT id, name FROM role ORDER BY name ASC");
+		$res = Database::simpleQuery("SELECT roleid, rolename FROM role ORDER BY rolename ASC");
 		$data = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$data[] = array(
-				'roleId' => $row['id'],
-				'roleName' => $row['name']
+				'roleid' => $row['roleid'],
+				'rolename' => $row['rolename']
 			);
 		}
 		return $data;
 	}
 
-	public static function getLocations($selected) {
-		$res = Database::simplequery("SELECT locationid, locationname FROM location");
-		$data = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$data[] = array('locid' => $row['locationid'], 'locName' => $row['locationname'],
-				'selected' => in_array($row['locationid'], $selected) ? "selected" : "");
-		}
-		return $data;
-	}
-
-	public static function getRoleData($roleId) {
-		$query = "SELECT id, name FROM role WHERE id = :roleId";
-		$data = Database::queryFirst($query, array("roleId" => $roleId));
-		$query = "SELECT roleid, locid FROM role_x_location WHERE roleid = :roleId";
-		$res = Database::simpleQuery($query, array("roleId" => $roleId));
+	public static function getRoleData($roleid) {
+		$query = "SELECT roleid, rolename FROM role WHERE roleid = :roleid";
+		$data = Database::queryFirst($query, array("roleid" => $roleid));
+		$query = "SELECT roleid, locationid FROM role_x_location WHERE roleid = :roleid";
+		$res = Database::simpleQuery($query, array("roleid" => $roleid));
 		$data["locations"] = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$data["locations"][] = $row['locid'];
+			$data["locations"][] = $row['locationid'];
 		}
-		$query = "SELECT roleid, permissionid FROM role_x_permission WHERE roleid = :roleId";
-		$res = Database::simpleQuery($query, array("roleId" => $roleId));
+		$query = "SELECT roleid, permissionid FROM role_x_permission WHERE roleid = :roleid";
+		$res = Database::simpleQuery($query, array("roleid" => $roleid));
 		$data["permissions"] = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$data["permissions"][] = $row['permissionid'];
@@ -89,21 +80,10 @@ class GetPermissionData {
 
 	// UserID, User Login Name, Roles of each User
 	private static function queryUserData() {
-		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, role.name AS roleName, role.id AS roleId
+		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, role.rolename AS rolename, role.roleid AS roleid
 												FROM user
 													LEFT JOIN user_x_role ON user.userid = user_x_role.userid
-													LEFT JOIN role ON user_x_role.roleid = role.id
-												");
-		return $res;
-	}
-
-	// LocationID, Location Name, Roles of each Location
-	private static function queryLocationData() {
-		$res = Database::simpleQuery("SELECT location.locationid AS locid, location.locationname AS locname, role.name AS roleName, role.id AS roleId
-												FROM location
-													LEFT JOIN role_x_location ON location.locationid = role_x_location.locid
-													LEFT JOIN role ON role_x_location.roleid = role.id
-												ORDER BY location.locationname
+													LEFT JOIN role ON user_x_role.roleid = role.roleid
 												");
 		return $res;
 	}

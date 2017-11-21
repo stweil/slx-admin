@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
 				$('.dataTable tbody').find('tr').hide();
 			}
 			// Find all rows which shall be shown and increase their counter by 1
-			$(".roleId-" + value).closest("tr").each(function () {
+			$(".roleid-" + value).closest("tr").each(function () {
 				$(this).data("selectizeCount", $(this).data("selectizeCount") + 1);
 				$(this).show();
 			});
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
 				$('.dataTable tbody').find('tr').show();
 			} else {
 				// Find all rows which have the delete role, decrease their counter by 1
-				$(".roleId-" + value).closest("tr").each(function () {
+				$(".roleid-" + value).closest("tr").each(function () {
 					$(this).data("selectizeCount", $(this).data("selectizeCount") - 1);
 					// If counter is 0, hide the row (no filter given to show the row anymore)
 					if ($(this).data("selectizeCount") === 0) {
