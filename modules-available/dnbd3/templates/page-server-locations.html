@@ -1,0 +1,96 @@
+<h1>{{lang_manageAccessTo}} {{ip}}</h1>
+
+<p><i>{{lang_proxyLocationText}}</i></p>
+
+<form method="post" action="?do=dnbd3">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="server" value="{{serverid}}">
+
+	<div class="buttonbar text-right">
+		<button type="submit" class="btn btn-primary" name="action" value="savelocations">
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+			{{lang_save}}
+		</button>
+	</div>
+
+	<div class="row">
+		<div class="col-md-6">
+			<h3>{{lang_allowedSubnets}}</h3>
+			<div id="subnet-list">
+
+			</div>
+		</div>
+		<div class="col-md-6">
+			<h3>{{lang_locations}}</h3>
+			{{#locations}}
+				<div class="checkbox">
+					{{#depth}}
+						<div style="display:inline-block;width:{{depth}}em"></div>
+					{{/depth}}
+					<input id="cb-{{locationid}}" class="loc-check" type="checkbox" name="location[]" value="{{locationid}}" {{checked_s}}>
+					<label for="cb-{{locationid}}">{{locationname}}</label>
+				</div>
+			{{/locations}}
+		</div>
+	</div>
+
+	<div class="buttonbar text-right">
+		<button type="submit" class="btn btn-success" name="action" value="savelocations">
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+			{{lang_save}}
+		</button>
+	</div>
+</form>
+
+<script type="application/javascript"><!--
+document.addEventListener('DOMContentLoaded', function() {
+
+	const locData = {{{jsonLocations}}};
+	const $snList = $('#subnet-list');
+
+	function updateLocations() {
+		var allLocs = [];
+		$('.loc-check:checked').each(function () {
+			var lid = parseInt(this.value);
+			var locs = getAllLocs(lid);
+			for (var i = 0; i < locs.length; ++i) {
+				if (allLocs.indexOf(locs[i]) === -1) allLocs.push(locs[i]);
+			}
+		});
+		var subnets = [];
+		$snList.empty();
+		for (var i = 0; i < allLocs.length; ++i) {
+			var loc = locData['l'+allLocs[i]];
+			if (!loc || !loc.subnets) continue;
+			for (var j = 0; j < loc.subnets.length; ++j) {
+				var line = long2ip(loc.subnets[j].startaddr) + ' - ' + long2ip(loc.subnets[j].endaddr);
+				if (subnets.indexOf(line) === -1) {
+					subnets.push(line);
+					$snList.append($('<div>').text(line));
+				}
+			}
+		}
+		if (subnets.length === 0) {
+			$snList.text('{{lang_global}}');
+		}
+	}
+
+	function getAllLocs(lid) {
+		var e = locData['l'+lid];
+		if (!e || !e.children) return [];
+		var ret = e.children;
+		ret.push(lid);
+		return ret;
+	}
+
+	function long2ip(ip) {
+		//  discuss at: http://locutus.io/php/long2ip/
+		// original by: Waldo Malqui Silva (http://waldo.malqui.info)
+		if (!isFinite(ip)) return false;
+		return [ip >>> 24, ip >>> 16 & 0xFF, ip >>> 8 & 0xFF, ip & 0xFF].join('.');
+	}
+
+	$('.loc-check').change(updateLocations);
+	updateLocations();
+});
+//--></script>

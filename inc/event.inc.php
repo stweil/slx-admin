@@ -31,10 +31,6 @@ class Event
 		$ldadpId = Trigger::ldadp();
 		$ipxeId = Trigger::ipxe();
 
-		Taskmanager::submit('DozmodLauncher', array(
-			'operation' => 'start'
-		));
-
 		// Check status of all tasks
 		// Mount vm store
 		if ($mountId === false) {

@@ -2,8 +2,10 @@
 
 if (Request::any('action') === 'rebuild' && isLocalExecution()) {
 	if (Module::isAvailable('sysconfig')) {
-		SSHKey::getPublicKey();
-		ConfigTgz::rebuildAllConfigs();
+		SSHKey::getPrivateKey($regen);
+		if (!$regen) {
+			ConfigTgz::rebuildAllConfigs();
+		}
 		echo "OK";
 	}
 	exit(0);

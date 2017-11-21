@@ -1,0 +1,14 @@
+<input type="hidden" name="server" value="{{serverid}}">
+
+<div class="checkbox">
+	<input type="checkbox" name="bgr" id="bgr" {{#bgr}}checked{{/bgr}}>
+	<label for="bgr">{{lang_backgroundReplication}}</label>
+</div>
+<i>{{lang_backgroundReplicationInfo}}</i>
+<br>
+<div class="checkbox">
+	<input type="checkbox" name="firewall" id="firewall" {{#firewall}}checked{{/firewall}}>
+	<label for="firewall">{{lang_firewalled}}</label>
+</div>
+<i>{{lang_firewallInfo}}</i>
+<br>

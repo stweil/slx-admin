@@ -63,8 +63,30 @@ class RunMode
 	}
 
 	/**
+	 * @param string $machineuuid
+	 * @param bool $detailed whether to return meta data about machine, not just machineuuid
+	 * @param bool $assoc use machineuuid as array key
+	 * @return false|array {'machineuuid', 'isclient', 'module', 'modeid', 'modedata',
+	 * 		<'hostname', 'clientip', 'macaddr', 'locationid', 'lastseen'>}
+	 */
+	public static function getRunMode($machineuuid, $detailed = false)
+	{
+		if ($detailed) {
+			$sel = ', m.hostname, m.clientip, m.macaddr, m.locationid, m.lastseen';
+		} else {
+			$sel = '';
+		}
+		return Database::queryFirst(
+			"SELECT m.machineuuid, r.isclient, r.module, r.modeid, r.modedata $sel
+				FROM machine m INNER JOIN runmode r USING (machineuuid)
+				WHERE m.machineuuid = :machineuuid LIMIT 1",
+			compact('machineuuid'));
+	}
+
+	/**
 	 * @param string|\Module $module
-	 * @return array
+	 * @param bool true = wrap in array where key is modeid
+	 * @return array key=machineuuid, value={'machineuuid', 'modeid', 'modedata'}
 	 */
 	public static function getForModule($module, $groupByModeId = false)
 	{
@@ -91,15 +113,17 @@ class RunMode
 	 * @param string|\Module $module
 	 * @param string $modeId
 	 * @param bool $detailed whether to return meta data about machine, not just machineuuid
-	 * @return array
+	 * @param bool $assoc use machineuuid as array key
+	 * @return array <key=machineuuid>, value={'machineuuid', 'modedata',
+	 * 		<'hostname', 'clientip', 'macaddr', 'locationid', 'lastseen'>}
 	 */
-	public static function getForMode($module, $modeId, $detailed = false)
+	public static function getForMode($module, $modeId, $detailed = false, $assoc = false)
 	{
 		if (is_object($module)) {
 			$module = $module->getIdentifier();
 		}
 		if ($detailed) {
-			$sel = ', m.hostname, m.clientip, m.macaddr, m.locationid';
+			$sel = ', m.hostname, m.clientip, m.macaddr, m.locationid, m.lastseen';
 			$join = 'INNER JOIN machine m USING (machineuuid)';
 		} else {
 			$join = $sel = '';
@@ -114,7 +138,11 @@ class RunMode
 			if ($detailed && empty($row['hostname'])) {
 				$row['hostname'] = $row['clientip'];
 			}
-			$ret[] = $row;
+			if ($assoc) {
+				$ret[$row['machineuuid']] = $row;
+			} else {
+				$ret[] = $row;
+			}
 		}
 		return $ret;
 	}

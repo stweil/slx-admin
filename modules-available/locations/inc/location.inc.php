@@ -66,7 +66,7 @@ class Location
 				'locationid' => (int)$node['locationid'],
 				'parentlocationid' => (int)$node['parentlocationid'],
 				'parents' => $parents,
-				'children' => empty($node['children']) ? array() : array_map(function ($item) { return $item['locationid']; }, $node['children']),
+				'children' => empty($node['children']) ? array() : array_map(function ($item) { return (int)$item['locationid']; }, $node['children']),
 				'locationname' => $node['locationname'],
 				'depth' => $depth,
 				'isleaf' => true,
@@ -255,16 +255,25 @@ class Location
 	 * Ignores any manually assigned locationid (fixedlocationid).
 	 *
 	 * @param string $ip IP address of client
+	 * @param bool $honorRoomPlanner consider a fixed location assigned manually by roomplanner
 	 * @return bool|int locationid, or false if no match
 	 */
-	public static function getFromIp($ip)
+	public static function getFromIp($ip, $honorRoomPlanner = false)
 	{
 		if (Module::get('statistics') !== false) {
 			// Shortcut - try to use subnetlocationid in machine table
-			$ret = Database::queryFirst("SELECT subnetlocationid FROM machine WHERE clientip = :ip", compact('ip'));
+			if ($honorRoomPlanner) {
+				$ret = Database::queryFirst("SELECT locationid AS loc FROM machine
+						WHERE clientip = :ip
+						ORDER BY lastseen DESC LIMIT 1", compact('ip'));
+			} else {
+				$ret = Database::queryFirst("SELECT subnetlocationid AS loc FROM machine
+						WHERE clientip = :ip
+						ORDER BY lastseen DESC LIMIT 1", compact('ip'));
+			}
 			if ($ret !== false) {
-				if ($ret['subnetlocationid'] > 0) {
-					return (int)$ret['subnetlocationid'];
+				if ($ret['loc'] > 0) {
+					return (int)$ret['loc'];
 				}
 				return false;
 			}
@@ -285,29 +294,28 @@ class Location
 	{
 		$locationId = false;
 		$ipLoc = self::getFromIp($ip);
-		if ($ipLoc !== false && $uuid !== false) {
-			// Machine ip maps to a location, and we have a client supplied uuid
-			$uuidLoc = self::getFromMachineUuid($uuid);
-			if ($uuidLoc === $ipLoc) {
-				$locationId = $uuidLoc;
-			} else if ($uuidLoc !== false) {
-				// Validate that the location the IP maps to is in the chain we get using the
-				// location determined by the uuid
-				$uuidLocations = self::getLocationRootChain($uuidLoc);
-				$ipLocations = self::getLocationRootChain($ipLoc);
-				if (in_array($uuidLoc, $ipLocations) // UUID loc is further up, OK
-					|| (in_array($ipLoc, $uuidLocations) && count($ipLocations) + 1 >= count($uuidLocations)) // UUID is max one level deeper than IP loc, accept as well
-				) {
-					// Close enough, allow
+		if ($ipLoc !== false) {
+			// Set locationId to ipLoc for now, it will be overwritten later if another case applies.
+			$locationId = $ipLoc;
+			if ($uuid !== false) {
+				// Machine ip maps to a location, and we have a client supplied uuid (which might not be known if the client boots for the first time)
+				$uuidLoc = self::getFromMachineUuid($uuid);
+				if ($uuidLoc === $ipLoc) {
 					$locationId = $uuidLoc;
-				} else {
+				} else if ($uuidLoc !== false) {
+					// Validate that the location the IP maps to is in the chain we get using the
+					// location determined by the uuid
+					$uuidLocations = self::getLocationRootChain($uuidLoc);
+					$ipLocations = self::getLocationRootChain($ipLoc);
+					if (in_array($uuidLoc, $ipLocations) // UUID loc is further up, OK
+						|| (in_array($ipLoc, $uuidLocations) && count($ipLocations) + 1 >= count($uuidLocations)) // UUID is max one level deeper than IP loc, accept as well
+					) {
+						// Close enough, allow
+						$locationId = $uuidLoc;
+					}
 					// UUID and IP disagree too much, play safe and ignore the UUID
-					$locationId = $ipLoc;
 				}
 			}
-		} else if ($ipLoc !== false) {
-			// No uuid, but ip maps to location; use that
-			$locationId = $ipLoc;
 		}
 		return $locationId;
 	}

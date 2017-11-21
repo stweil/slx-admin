@@ -45,6 +45,7 @@
     "lang_mailTemplates": "E-Mail Templates",
     "lang_maxImageValidity": "New VM validity (days)",
     "lang_maxLectureVisibility": "Max time lecture end date may lie in the future (days)",
+    "lang_maxLocationsPerLecture": "Max. explicit locations per lecture",
     "lang_maxTransfers": "Max concurrent transfers per user",
     "lang_miscOptions": "Misc options",
     "lang_modified": "modified",

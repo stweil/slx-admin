@@ -23,6 +23,12 @@
 		"permissions": "2",
 		"validator": ""
 	},
+	"SLX_NET_SEARCH": {
+		"catid": "networking",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": ""
+	},
 	"SLX_NTP_SERVER": {
 		"catid": "timesync",
 		"defaultvalue": "0.de.pool.ntp.org 1.de.pool.ntp.org",

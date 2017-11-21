@@ -17,7 +17,7 @@ if (!Module::isAvailable('locations')) {
 
 define('LIST_URL', CONFIG_DOZMOD_URL . '/vmchooser/list');
 define('VMX_URL', CONFIG_DOZMOD_URL . '/vmchooser/lecture');
-$availableRessources = ['list', 'vmx', 'test', 'netrules', 'runscript'];
+$availableRessources = ['list', 'vmx', 'test', 'netrules', 'runscript', 'netshares'];
 
 /* BEGIN: A simple caching mechanism ---------------------------- */
 
@@ -45,7 +45,8 @@ function cache_has($key)
 	if ($mtime === false) {
 		return false; // cache miss
 	}
-	if (time() - $mtime > CONFIG_DOZMOD_EXPIRE) {
+	$now = time();
+	if ($now < $mtime || $now - $mtime > CONFIG_DOZMOD_EXPIRE) {
 		return false;
 	} else {
 		return true;
@@ -94,7 +95,9 @@ function xmlToLectureIds($responseXML)
 
 	$uuids = [];
 	foreach ($xml->eintrag as $e) {
-		$uuids[] = strval($e->uuid['param'][0]);
+		if (isset($e->uuid) && isset($e->uuid['param']) && isset($e->uuid['param'][0])) {
+			$uuids[] = strval($e->uuid['param'][0]);
+		}
 	}
 	return $uuids;
 }
@@ -149,11 +152,13 @@ function getListForLocations($locationIds, $raw)
 	if (Module::isAvailable('exams')) {
 		// If we have the exam mode module, we can enforce a server side check and make sure it agrees with the client
 		$serverExamMode = Exams::isInExamMode($locationIds);
-		$clientServerMismatch = ($serverExamMode !== $examMode);
+		if ($raw) {
+			$clientServerMismatch = ($serverExamMode !== $examMode);
+		}
 		$examMode = $serverExamMode;
 	}
 	// Only enforce exam mode validity check if the client requests the raw xml data
-	if ($raw && $clientServerMismatch) {
+	if ($clientServerMismatch) {
 		sendExamModeMismatch(); // does not return
 	}
 	// Proceed normally from here on
@@ -175,7 +180,7 @@ function getListForLocations($locationIds, $raw)
 		$url .= '&exams';
 	}
 	$value = Download::asString($url, 60, $code);
-	if ($value === false)
+	if ($value === false || $code < 200 || $code > 299)
 		return false;
 	cache_put($rawKey, $value);
 	$list = xmlToLectureIds($value);
@@ -203,67 +208,45 @@ function _getVmData($lecture_uuid, $subResource = false)
 		$url .= '/' . $subResource;
 	}
 	$response = Download::asString($url, 60, $code);
+	if ($code < 200 || $code > 299)
+		return (int)$code;
 	return $response;
 }
 
-/** Caching wrapper around _getVMX() **/
-function outputVMX($lecture_uuid)
+/** Caching wrapper around _getVmData() **/
+function outputResource($lecture_uuid, $resource)
 {
-	$key = 'vmx_' . $lecture_uuid;
+	$key = $resource . '_' . $lecture_uuid;
 	if (cache_has($key)) {
 		cache_get_passthru($key);
 	} else {
-		$value = _getVmData($lecture_uuid);
+		$value = _getVmData($lecture_uuid, $resource);
 		if ($value === false)
 			return false;
+		if (is_int($value)) {
+			http_response_code($value);
+			exit;
+		}
 		cache_put($key, $value);
 		die($value);
 	}
-}
-
-function outputNetrules($lecture_uuid)
-{
-	$key = 'netrules_' . $lecture_uuid;
-	if (cache_has($key)) {
-		cache_get_passthru($key);
-	} else {
-		$value = _getVmData($lecture_uuid, 'netrules');
-		if ($value === false)
-			return false;
-		cache_put($key, $value);
-		die($value);
-	}
-}
-
-function outputRunscript($lecture_uuid)
-{
-	$key = 'runscript_' . $lecture_uuid;
-	if (cache_has($key)) {
-		cache_get_passthru($key);
-	} else {
-		$value = _getVmData($lecture_uuid, 'runscript');
-		if ($value === false)
-			return false;
-		cache_put($key, $value);
-		die($value);
-	}
+	return false;
 }
 
 function fatalDozmodUnreachable()
 {
 	Header('HTTP/1.1 504 Gateway Timeout');
-	die('Resource not available');
+	die('DMSD currently not available');
 }
 
-function readLectureParam()
+function readLectureParam($locationIds)
 {
-	global $location_ids;
 	$lecture = Request::get('lecture', false, 'string');
 	if ($lecture === false) {
 		Header('HTTP/1.1 400 Bad Request');
 		die('Missing lecture UUID');
 	}
-	$lectures = getLectureUuidsForLocations($location_ids);
+	$lectures = getLectureUuidsForLocations($locationIds);
 	if ($lectures === false) {
 		fatalDozmodUnreachable();
 	}
@@ -295,33 +278,16 @@ if (substr($ip, 0, 7) === '::ffff:') {
 
 
 /* lookup location id(s) */
-$location_ids = Location::getFromIp($ip);
+$location_ids = Location::getFromIp($ip, true);
 $location_ids = Location::getLocationRootChain($location_ids);
-
-if ($resource === 'vmx') {
-	$lecture = readLectureParam();
-	outputVMX($lecture);
-	// outputVMX does not return on success
-	fatalDozmodUnreachable();
-}
-
-if ($resource === 'netrules') {
-	$lecture = readLectureParam();
-	outputNetrules($lecture);
-	// no return on success
-	fatalDozmodUnreachable();
-}
-
-if ($resource === 'runscript') {
-	$lecture = readLectureParam();
-	outputRunscript($lecture);
-	// no return on success
-	fatalDozmodUnreachable();
-}
 
 if ($resource === 'list') {
 	outputLectureXmlForLocation($location_ids);
 	// Won't return on success...
+	fatalDozmodUnreachable();
+} else {
+	$lecture = readLectureParam($location_ids);
+	outputResource($lecture, $resource);
 	fatalDozmodUnreachable();
 }
 

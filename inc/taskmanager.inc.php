@@ -96,7 +96,7 @@ class Taskmanager
 	/**
 	 * Wait for the given task's completion.
 	 *
-	 * @param type $task task to wait for
+	 * @param array $task task to wait for
 	 * @param int $timeout maximum time in ms to wait for completion of task
 	 * @return array result/status of task, or false if it couldn't be queried
 	 */

@@ -45,14 +45,7 @@ class Page_RebootControl extends Page
 			// TODO: we could also check if the locationid is equal or a sublocation of the $locationId from above
 			// (this would be more of a sanity check though, or does the UI allow selecting machines from different locations)
 
-			$task = Taskmanager::submit("RemoteReboot", array(
-				"clients" => $list,
-				"shutdown" => $shutdown,
-				"minutes" => $minutes,
-				"locationId" => $locationId,
-				"sshkey" => $privKey,
-				"port" => 22, // TODO: Get from ssh config
-			));
+			$task = RebootControl::execute($list, $shutdown, $minutes, $locationId);
 
 			Util::redirect("?do=rebootcontrol&taskid=".$task["id"]);
 		}

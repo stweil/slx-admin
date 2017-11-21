@@ -12,7 +12,7 @@ class ConfigTgz
 	{
 		;
 	}
-	
+
 	public function id()
 	{
 		return $this->configId;
@@ -101,22 +101,9 @@ class ConfigTgz
 			if (!empty($module['filepath']) && file_exists($module['filepath']))
 				$files[] = $module['filepath'];
 		}
-		// Get stuff other modules want to inject
-		$handler = function($hook) {
-			include $hook->file;
-			return isset($file) ? $file : false;
-		};
-		foreach (Hook::load('config-tgz') as $hook) {
-			$file = $handler($hook);
-			if ($file !== false) {
-				$files[] = $file;
-			}
-		}
-		// Hand over to tm
-		$task = Taskmanager::submit('RecompressArchive', array(
-			'inputFiles' => $files,
-			'outputFile' => $this->file
-		));
+
+		$task = self::recompress($files, $this->file);
+
 		// Wait for completion
 		if ($timeoutMs > 0 && !Taskmanager::isFailed($task) && !Taskmanager::isFinished($task))
 			$task = Taskmanager::waitComplete($task, $timeoutMs);
@@ -199,6 +186,32 @@ class ConfigTgz
 	 */
 
 	/**
+	 * @param string[] $files source files to include
+	 * @param string $destFile where to store final result
+	 * @return false|array taskmanager task
+	 */
+	private static function recompress($files, $destFile)
+	{
+		// Get stuff other modules want to inject
+		$handler = function($hook) {
+			include $hook->file;
+			return isset($file) ? $file : false;
+		};
+		foreach (Hook::load('config-tgz') as $hook) {
+			$file = $handler($hook);
+			if ($file !== false) {
+				$files[] = $file;
+			}
+		}
+
+		// Hand over to tm
+		return Taskmanager::submit('RecompressArchive', array(
+			'inputFiles' => $files,
+			'outputFile' =>$destFile
+		));
+	}
+
+	/**
 	 * Marks all modules as outdated and triggers generate()
 	 * on each one. This mostly makes sense to call if a global module
 	 * that is injected via a hook has changed.
@@ -215,6 +228,8 @@ class ConfigTgz
 				$module->generate();
 			}
 		}
+		// Build the global "empty" config that just includes global hooks
+		self::recompress([], SysConfig::GLOBAL_MINIMAL_CONFIG);
 	}
 
 	public static function insert($title, $moduleIds)

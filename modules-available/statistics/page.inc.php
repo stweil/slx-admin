@@ -308,6 +308,14 @@ class Page_Statistics extends Page
 		}
 	}
 
+	private function redirectFirst($where, $join, $args)
+	{
+		$res = Database::queryFirst("SELECT machineuuid FROM machine $join WHERE ($where) LIMIT 1", $args);
+		if ($res !== false) {
+			Util::redirect('?do=statistics&uuid=' . $res['machineuuid']);
+		}
+	}
+
 	/**
 	 * @param \FilterSet $filterSet
 	 */
@@ -316,6 +324,10 @@ class Page_Statistics extends Page
 		$filterSet->makeFragments($where, $join, $sort, $args);
 
 		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE ($where)", $args);
+		// If we only have one machine, redirect to machine details
+		if ($known['val'] == 1) {
+			$this->redirectFirst($where, $join, $args);
+		}
 		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastboot <> 0 AND ($where)", $args);
 		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastboot <> 0 AND logintime <> 0 AND ($where)", $args);
 		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE badsectors >= 10 AND ($where)", $args);
@@ -566,7 +578,13 @@ class Page_Statistics extends Page
 			. " $join WHERE $where $sort", $args);
 		$rows = array();
 		$NOW = time();
+		$singleMachine = 'none';
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($singleMachine === 'none') {
+				$singleMachine = $row['machineuuid'];
+			} else {
+				$singleMachine = false;
+			}
 			if ($row['lastboot'] == 0) {
 				$row['state_off'] = true;
 			} elseif ($row['logintime'] == 0) {
@@ -597,6 +615,9 @@ class Page_Statistics extends Page
 				}
 			}
 			$rows[] = $row;
+		}
+		if ($singleMachine !== false && $singleMachine !== 'none') {
+			Util::redirect('?do=statistics&uuid=' . $singleMachine);
 		}
 		Render::addTemplate('clientlist', array(
 			'rowCount' => count($rows),

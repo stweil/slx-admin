@@ -33,7 +33,7 @@ if (!tableHasColumn('runmode', 'isclient')) {
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Could not add lastchange field');
 	} elseif ($ret > 0) {
-		$ret[] = UPDATE_DONE;
+		$res[] = UPDATE_DONE;
 	}
 }
 

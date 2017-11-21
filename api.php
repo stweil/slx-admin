@@ -25,9 +25,9 @@ function isLocalExecution()
 }
 
 if (!empty($_REQUEST['do'])) {
-	$module = preg_replace('/[^a-z]/', '', $_REQUEST['do']);
+	$module = preg_replace('/[^a-z0-9]/', '', $_REQUEST['do']);
 } elseif (!empty($argv[1])) {
-	$module = preg_replace('/[^a-z]/', '', $argv[1]);
+	$module = preg_replace('/[^a-z0-9]/', '', $argv[1]);
 	$argc = count($argv) - 1;
 	for ($i = 2; $i < $argc; ++$i) {
 		if (substr($argv[$i], 0, 2) === '--') {

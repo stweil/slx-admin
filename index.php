@@ -70,7 +70,7 @@ abstract class Page
 	public static function init()
 	{
 		$name = empty($_REQUEST['do']) ? 'Main' : $_REQUEST['do'];
-		$name = preg_replace('/[^A-Za-z_]/', '', $name);
+		$name = preg_replace('/[^A-Za-z0-9_]/', '', $name);
 		$name = strtolower($name);
 		Module::init();
 		self::$module = Module::get($name);

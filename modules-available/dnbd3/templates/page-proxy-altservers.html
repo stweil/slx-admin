@@ -1,0 +1,36 @@
+<div class="col-md-6">
+	<h2>{{lang_altservers}}</h2>
+	<table class="table table-condensed">
+		<tr>
+			<th>{{lang_proxyServerTHead}}</th>
+			<th>{{lang_numFails}}</th>
+			<th class="text-right">{{lang_latency}}</th>
+			<th>{{lang_flags}}</th>
+			<th>{{lang_comment}}</th>
+		</tr>
+		{{#altservers}}
+			<tr>
+				<td class="text-nowrap">{{host}}</td>
+				<td>
+					{{^isClientOnly}}
+						{{numFails}}
+					{{/isClientOnly}}
+				</td>
+				<td class="text-right text-nowrap">
+					{{^isClientOnly}}
+						{{rtt}}&thinsp;ms
+					{{/isClientOnly}}
+				</td>
+				<td>
+					{{#isClientOnly}}
+						[CO]
+					{{/isClientOnly}}
+					{{#isPrivate}}
+						[PO]
+					{{/isPrivate}}
+				</td>
+				<td><table class="slx-ellipsis"><tr><td>{{comment}}</td></tr></table></td>
+			</tr>
+		{{/altservers}}
+	</table>
+</div>

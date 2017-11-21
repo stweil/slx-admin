@@ -1,5 +1,7 @@
 {
     "backup-failed": "Backup failed!",
+    "last-time": "Last backup was downloaded on {{0}}. It's recommended to download a server backup regularly.",
+    "last-time-unknown": "It's recommended to download a server backup regularly.",
     "missing-file": "There was no file selected!",
     "restore-done": "Restore done",
     "upload-failed": "Upload failed: {{0}}"

@@ -29,12 +29,14 @@ class Module
 	 * @param string $moduleId module to check
 	 * @return bool true if module is available and activated
 	 */
-	public static function isAvailable($moduleId)
+	public static function isAvailable($moduleId, $activate = true)
 	{
 		$module = self::get($moduleId);
 		if ($module === false)
 			return false;
-		$module->activate();
+		if ($activate) {
+			$module->activate();
+		}
 		return !$module->hasMissingDependencies();
 	}
 	
@@ -56,7 +58,7 @@ class Module
 			$mod->depsChecked = true;
 			foreach ($mod->dependencies as $dep) {
 				if (!self::resolveDepsByName($dep)) {
-					error_log("Disabling module {$mod->name}: Dependency $dep failed.");
+					trigger_error("Disabling module {$mod->name}: Dependency $dep failed.", E_USER_WARNING);
 					$mod->depsMissing = true;
 					return false;
 				}
@@ -75,9 +77,9 @@ class Module
 		foreach (self::$modules as $module) {
 			if (self::resolveDeps($module)) {
 				$ret[] = $module;
-			}
-			if ($sortById) {
-				$sort[] = $module->name;
+				if ($sortById) {
+					$sort[] = $module->name;
+				}
 			}
 		}
 		if ($sortById) {

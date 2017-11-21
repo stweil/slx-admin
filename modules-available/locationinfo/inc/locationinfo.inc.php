@@ -104,6 +104,7 @@ class LocationInfo
 		ConfigHolder::add('SLX_ADDONS', '', 1000);
 		ConfigHolder::add('SLX_LOGOUT_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SCREEN_STANDBY_TIMEOUT', '', 1000);
+		ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
 	}
 
 }

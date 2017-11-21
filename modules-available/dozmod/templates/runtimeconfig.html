@@ -41,26 +41,26 @@
 				<input type="hidden" 	name="defaultImagePermissions[link]" value="0"/>
 
 				<div class="checkbox">
-					<input type="checkbox"  name="defaultImagePermissions[admin]" value="1" {{defaultImagePermissions.admin}} id ="image_admin" class="form-control">
-					<label class="" for="image_admin">
+					<input type="checkbox"  name="defaultImagePermissions[admin]" value="1" {{defaultImagePermissions.admin}} id="image_admin" class="form-control">
+					<label for="image_admin">
 						{{lang_defaultImagePermissionAdmin}}
 					</label>
 				</div>
 				<div class="checkbox">
-						<input type="checkbox" name="defaultImagePermissions[edit]" value="1" {{defaultImagePermissions.edit}} id ="image_edit" class="form-control">
-					<label>
+						<input type="checkbox" name="defaultImagePermissions[edit]" value="1" {{defaultImagePermissions.edit}} id="image_edit" class="form-control">
+					<label for="image_edit">
 						{{lang_defaultImagePermissionEdit}}
 					</label>
 				</div>
 				<div class="checkbox">
-					<input type="checkbox"  name="defaultImagePermissions[download]" value="1" {{defaultImagePermissions.download}} id ="image_download" class="form-control">
-					<label>
+					<input type="checkbox"  name="defaultImagePermissions[download]" value="1" {{defaultImagePermissions.download}} id="image_download" class="form-control">
+					<label for="image_download">
 						{{lang_defaultImagePermissionDownload}}
 					</label>
 				</div>
 				<div class="checkbox">
-					<input type="checkbox"  name="defaultImagePermissions[link]" value="1" {{defaultImagePermissions.link}} id ="image_link" class="form-control">
-					<label>
+					<input type="checkbox"  name="defaultImagePermissions[link]" value="1" {{defaultImagePermissions.link}} id="image_link" class="form-control">
+					<label for="image_link">
 						{{lang_defaultImagePermissionLink}}
 					</label>
 				</div>
@@ -71,21 +71,27 @@
 				<p><i>{{lang_descriptionRuntimeLimits}}</i></p>
 				<table class="table-input-group">
 					<tr class="input-group">
-						<td class="input-group-addon" for="max_image_validity">{{lang_maxImageValidity}}</td>
+						<td class="input-group-addon">{{lang_maxImageValidity}}</td>
 						<td>
-							<input name="maxImageValidityDays" id="max_image_validity" class="form-control" type="number" value="{{maxImageValidityDays}}" min="7" max="999" pattern="^\d+$">
+							<input name="maxImageValidityDays" class="form-control" type="number" value="{{maxImageValidityDays}}" min="7" max="999" pattern="^\d+$">
 						</td>
 					</tr>
 					<tr class="input-group">
-						<td class="input-group-addon" for="max_lecture_validity">{{lang_maxLectureVisibility}}</td>
+						<td class="input-group-addon">{{lang_maxLectureVisibility}}</td>
 						<td>
-							<input name="maxLectureValidityDays" id="max_lecture_validity" class="form-control" type="number" value="{{maxLectureValidityDays}}" min="1" max="999" pattern="^\d+$">
+							<input name="maxLectureValidityDays" class="form-control" type="number" value="{{maxLectureValidityDays}}" min="1" max="999" pattern="^\d+$">
 						</td>
 					</tr>
 					<tr class="input-group">
-						<td class="input-group-addon" for="max_transfers">{{lang_maxTransfers}}</td>
+						<td class="input-group-addon">{{lang_maxLocationsPerLecture}}</td>
 						<td>
-							<input name="maxTransfers" id="max_transfers" class="form-control" type="number" value="{{maxTransfers}}" min="1" max="10" pattern="^\d+$">
+							<input name="maxLocationsPerLecture" class="form-control" type="number" value="{{maxLocationsPerLecture}}" min="0" max="999" pattern="^\d+$">
+						</td>
+					</tr>
+					<tr class="input-group">
+						<td class="input-group-addon">{{lang_maxTransfers}}</td>
+						<td>
+							<input name="maxTransfers" class="form-control" type="number" value="{{maxTransfers}}" min="1" max="10" pattern="^\d+$">
 						</td>
 					</tr>
 				</table>
@@ -95,8 +101,8 @@
 				<legend>{{lang_miscOptions}}</legend>
 				<div class="checkbox">
 					<input type="hidden" 	name="allowLoginByDefault" value="0">
-					<input type="checkbox"  name="allowLoginByDefault" value="1" {{allowLoginByDefault}} id ="allowLoginByDefault" class="form-control">
-					<label>
+					<input type="checkbox"  name="allowLoginByDefault" value="1" {{allowLoginByDefault}} id="allowLoginByDefault" class="form-control">
+					<label for="allowLoginByDefault">
 						{{lang_allowLoginByDefault}}
 					</label>
 					<p><i>{{lang_allowLoginDescription}}</i></p>
