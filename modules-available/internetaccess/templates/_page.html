@@ -33,6 +33,6 @@
 	</div>
 	<br/>
 	<div class="text-right">
-		<button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+		<button {{^allowedSave}}disabled{{/allowedSave}} class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 	</div>
 </form>
