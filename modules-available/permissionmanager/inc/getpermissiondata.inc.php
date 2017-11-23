@@ -26,9 +26,8 @@ class GetPermissionData {
 
 	// get LocationIDs, Location Names, Roles of each Location
 	public static function getLocationData() {
-		$res = Database::simpleQuery("SELECT role.roleid as roleid, rolename, GROUP_CONCAT(locationid) as locationids FROM role
- 												LEFT JOIN (SELECT roleid, COALESCE(locationid, 0) AS locationid FROM role_x_location) rxl
- 												ON role.roleid = rxl.roleid GROUP BY roleid ORDER BY rolename ASC");
+		$res = Database::simpleQuery("SELECT role.roleid as roleid, rolename, GROUP_CONCAT(COALESCE(locationid, 0)) AS locationids FROM role
+ 												INNER JOIN role_x_location ON role.roleid = role_x_location.roleid GROUP BY roleid ORDER BY rolename ASC");
 		$locations = Location::getLocations(0, 0, false, true);
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$locationids = explode(",", $row['locationids']);
