@@ -54,7 +54,9 @@ class Page_SysLog extends Page
 				$whereClause .= ' WHERE ';
 			else
 				$whereClause .= ' AND ';
-			$whereClause .= "machineuuid='" . Request::get('machineuuid') . "'";
+
+			   $muid = Request::get('machineuid', '', string);
+				$whereClause .= "machineuuid='" . $muid . "'";
 		}
 		$today = date('d.m.Y');
 		$yesterday = date('d.m.Y', time() - 86400);
