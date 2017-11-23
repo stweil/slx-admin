@@ -106,6 +106,12 @@ class Page_Statistics extends Page
 				'op' => Page_Statistics::$op_nominal,
 				'type' => 'string',
 				'column' => true
+			],
+			'state' => [
+				'op' => Page_Statistics::$op_nominal,
+				'type' => 'enum',
+				'column' => true,
+				'values' => ['occupied', 'on']
 			]
 		];
 		if (Module::isAvailable('locations')) {
@@ -211,7 +217,6 @@ class Page_Statistics extends Page
 		$sortColumn = Request::any('sortColumn');
 		$sortDirection = Request::any('sortDirection');
 		$filters = Filter::parseQuery($this->query);
-
 		$filterSet = new FilterSet($filters);
 		$filterSet->setSort($sortColumn, $sortDirection);
 
