@@ -1,10 +1,13 @@
 {
     "SLX_ADDONS": "Addons to load. Currently, only *vmware* is available.",
+    "SLX_AUTOLOGIN": "Skip login screen and directly show vmChooser (or start the lecture specified in SLX_AUTOSTART_UUID).",
     "SLX_AUTOSTART_UUID": "ID of a lecture which is automatically started. The lecture-ID is found in the detail window of a lecture in the bwLehrpool-Suite. \r\n\r\n*This solution is only temporary. In later versions this feature will probably be moved to another section*",
     "SLX_BIOS_CLOCK": "Specifies whether and how the internal clock of the computer should be set in relation to the system time of the \/MiniLinux\/.\r\n*off* = The internal clock of the computer is not changed.\r\n*local* = The internal clock is set to local time. Preferably if, for example, there is still a native Windows installation available on the PC.\r\n*utc* = The internal clock is set to the \/Coordinated Universal Time\/. This is the most common setup in a pure Linux environment.",
+    "SLX_BRIDGE_OTHER_NICS": "If enabled, additional network cards installed in the Client will be bridged to the VM. ",
     "SLX_DEMO_PASS": "Password for the *demo* account. Leave empty to disallow logging in as the demo user.\r\nLike the root password, the demo user's password will be sent to the client in its hashed form.",
     "SLX_LOGOUT_TIMEOUT": "Time \/in seconds\/, in which a user session may remain without action before it is terminated.Leave field blank to disable the function.",
     "SLX_NET_DOMAIN": "DNS domain in which the client integrate, provided the DHCP server does not specifies such.",
+    "SLX_NET_SEARCH": "Space separated list of DNS search domains to use in case the DHCP server doesn't supply any.",
     "SLX_NTP_SERVER": "Address of the NTP time server. Multiple servers can be specified separated by spaces.The servers are queried in sequence until a responding server is found.",
     "SLX_PRINT_USER_PREFIX": "Prefix to add to the user name in the authentication dialog of PrinterGUI.\r\nIf your print server belongs to a Windows domain and requires the domain name prefixed, set this field to *domainname\\*. Note the trailing backslash, it will not be inserted automatically. If your print server just wants the plain user name, this field should be left blank.",
     "SLX_PROXY_BLACKLIST": "Address or addresses ranges in which the proxy server is not used (for example the address range of the device). Valid entries are individual IP addresses and IP ranges in CIDR notation (for example 1.2.0.0\/16). Multiple selections can be separated by spaces.",
@@ -19,7 +22,9 @@
     "SLX_SCREEN_STANDBY_TIMEOUT": "Time in seconds after which the screen will enter power saving mode, if the client is not in use.",
     "SLX_SHUTDOWN_SCHEDULE": "Fixed time to turn off the computer, even if there is a user active.\r\nSeveral times can be specified, separated by spaces.",
     "SLX_SHUTDOWN_TIMEOUT": "Time in seconds after which a computer is switched off, if no user is logged on.\r\nLeave blank to disable the function.",
+    "SLX_SYSTEM_STANDBY_TIMEOUT": "Timeout in seconds after which the computer enters stand-by mode if no user is logged on.\r\nLeave blank to disable.\r\n\r\nNote that some hardware might not properly support stand-by and crash or freeze on wakeup. It's recommended to only enable this feature for rooms where it's known that the hardware supports stand-by mode. You can manually trigger stand-by mode on a client by logging in as root and executing *systemctl suspend*.",
     "SLX_VMCHOOSER_FORLOCATION": "Defines how lectures special to the user's location are handled in the vmChooser.\r\n*IGNORE*: Sort them alphabetically among the global lectures.\r\n*BUMP*: Put them atop the global lectures.\r\n*EXCLUSIVE*: Put them atop the global lectures and aditionally collapse the node which contains the global lectures.",
     "SLX_VMCHOOSER_TAB": "Defines which tab is show by default, if the user doesn't have stored a last used session on his persistent home directory.\r\n*0*: Native Linux sessions\r\n*1*: User specific lectures\r\n*2*: All lectures\r\n*AUTO*: If the computer has low system specs, show the Linux sessions, otherwise, show all lectures",
-    "SLX_VMCHOOSER_TEMPLATES": "Defines how lectures that link to template VMs are treated wrt sorting.\r\n*IGNORE*: Sort among regular lectures\r\n*BUMP*: Move to top of list"
+    "SLX_VMCHOOSER_TEMPLATES": "Defines how lectures that link to template VMs are treated wrt sorting.\r\n*IGNORE*: Sort among regular lectures\r\n*BUMP*: Move to top of list",
+    "SLX_VMCHOOSER_TIMEOUT": "Timeout in seconds after which the session will be closed if the user doesn't make any selection in vmChooser. Mouse or keyboard activity resets this timeout."
 }
