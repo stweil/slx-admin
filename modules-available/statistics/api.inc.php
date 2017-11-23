@@ -16,7 +16,7 @@ if ($type{0} === '~') {
 	$uuid = Request::post('uuid', '', 'string');
 	if (strlen($uuid) !== 36) die("Invalid UUID.\n");
 	$macaddr = Request::post('macaddr', '', 'string');
-	if (!empty($macaddr) && substr($uuid, 0, 16) === '000000000000000-') {
+	if (!empty($macaddr) && substr($uuid, 0, 16) === '000000000000001-') {
 		// Override uuid if the mac is known and unique
 		$res = Database::simpleQuery('SELECT machineuuid FROM machine WHERE macaddr = :macaddr AND machineuuid <> :uuid', compact('macaddr', 'uuid'));
 		$override = false;
