@@ -34,7 +34,7 @@ if ($type{0} === '~') {
 	// External mode of operation?
 	$mode = Request::post('mode', false, 'string');
 	$NOW = time();
-	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
+	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot, mbram, cpumodel FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 	if ($old !== false) {
 		settype($old['logintime'], 'integer');
 		settype($old['lastseen'], 'integer');
@@ -93,6 +93,23 @@ if ($type{0} === '~') {
 				}
 			}
 		}
+		$new = array(
+			'uuid'       => $uuid,
+			'macaddr'    => $macaddr,
+			'clientip'   => $ip,
+			'firstseen'  => $NOW,
+			'lastseen'   => $NOW,
+			'lastboot'   => $NOW - $uptime,
+			'realcores'  => $realcores,
+			'mbram'      => $mbram,
+			'kvmstate'   => $kvmstate,
+			'cpumodel'   => $cpumodel,
+			'systemmodel'=> $systemmodel,
+			'id44mb'     => $id44mb,
+			'badsectors' => $badsectors,
+			'data'       => $data,
+			'hostname'   => $hostname,
+		);
 		// Create/update machine entry
 		Database::exec('INSERT INTO machine '
 			. '(machineuuid, macaddr, clientip, firstseen, lastseen, logintime, position, lastboot, realcores, mbram,'
@@ -113,27 +130,16 @@ if ($type{0} === '~') {
 			. ' id44mb = VALUES(id44mb),'
 			. ' badsectors = VALUES(badsectors),'
 			. ' data = VALUES(data),'
-			. " hostname = If(VALUES(hostname) = '', hostname, VALUES(hostname))", array(
-			'uuid'       => $uuid,
-			'macaddr'    => $macaddr,
-			'clientip'   => $ip,
-			'firstseen'  => $NOW,
-			'lastseen'   => $NOW,
-			'lastboot'   => $NOW - $uptime,
-			'realcores'  => $realcores,
-			'mbram'      => $mbram,
-			'kvmstate'   => $kvmstate,
-			'cpumodel'   => $cpumodel,
-			'systemmodel'=> $systemmodel,
-			'id44mb'     => $id44mb,
-			'badsectors' => $badsectors,
-			'data'       => $data,
-			'hostname'   => $hostname,
-		));
+			. " hostname = If(VALUES(hostname) = '', hostname, VALUES(hostname))", $new);
 
 		if (($old === false || $old['clientip'] !== $ip) && Module::isAvailable('locations')) {
 			// New, or ip changed (dynamic pool?), update subnetlicationid
 			Location::updateMapIpToLocation($uuid, $ip);
+		}
+
+		// Check for suspicious hardware changes
+		if ($old !== false) {
+			checkHardwareChange($old, $new);
 		}
 
 		// Write statistics data
@@ -332,6 +338,24 @@ if ($type{0} === '.') {
 		// and username embedded in message
 		if (preg_match('#^\[([^\]]+)\]\s*(.*)$#m', $description, $out)) {
 			writeStatisticLog($type, $out[1], $out[2]);
+		}
+	}
+}
+
+/**
+ * @param array $old row from DB with client's old data
+ * @param array $new new data to be written
+ */
+function checkHardwareChange($old, $new)
+{
+	if ($new['mbram'] !== 0) {
+		if ($new['mbram'] + 1000 < $old['mbram']) {
+			$ram1 = round($old['mbram'] / 512) / 2;
+			$ram2 = round($new['mbram'] / 512) / 2;
+			EventLog::warning('Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): RAM decreased from {$ram1}GB to {$ram2}GB");
+		}
+		if (!empty($old['cpumodel']) && !empty($new['cpumodel']) && $new['cpumodel'] !== $old['cpumodel']) {
+			EventLog::warning('Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): CPU changed from '{$old['cpumodel']}' to '{$new['cpumodel']}'");
 		}
 	}
 }
