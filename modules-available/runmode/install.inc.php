@@ -12,21 +12,8 @@ $res[] = tableCreate('runmode', "
 	KEY `module` (`module`,`modeid`)
 ");
 
-if (!tableExists('machine')) {
-	// Cannot add constraint yet
-	$res[] = UPDATE_RETRY;
-} else {
-	$c = tableGetContraints('runmode', 'machineuuid', 'machine', 'machineuuid');
-	if ($c === false)
-		finalResponse(UPDATE_FAILED, 'Cannot get constraints of runmode table: ' . Database::lastError());
-	if (empty($c)) {
-		$alter = Database::exec('ALTER TABLE runmode ADD FOREIGN KEY (machineuuid) REFERENCES machine (machineuuid)
-			ON DELETE CASCADE ON UPDATE CASCADE');
-		if ($alter === false)
-			finalResponse(UPDATE_FAILED, 'Cannot add machineuuid constraint to runmode table: ' . Database::lastError());
-		$res[] = UPDATE_DONE;
-	}
-}
+$res[] = tableAddConstraint('runmode', 'machineuuid', 'machine', 'machineuuid',
+		'ON DELETE CASCADE ON UPDATE CASCADE');
 
 if (!tableHasColumn('runmode', 'isclient')) {
 	$ret = Database::exec("ALTER TABLE runmode ADD COLUMN isclient bool DEFAULT '1'");
@@ -38,9 +25,4 @@ if (!tableHasColumn('runmode', 'isclient')) {
 }
 
 // Create response for browser
-
-if (in_array(UPDATE_DONE, $res)) {
-	finalResponse(UPDATE_DONE, 'Tables created successfully');
-}
-
-finalResponse(UPDATE_NOOP, 'Everything already up to date');
+responseFromArray($res);
