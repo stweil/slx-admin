@@ -140,10 +140,15 @@ function tableGetContraints($table, $column, $refTable, $refColumn)
  */
 function tableAddConstraint($table, $column, $refTable, $refColumn, $actions)
 {
+	$test = tableExists($refTable) && tableHasColumn($refTable, $refColumn);
+	if ($test === false) {
+		// Most likely, destination table does not exist yet or isn't up to date
+		return UPDATE_RETRY;
+	}
 	$test = tableGetConstraints($table, $column, $refTable, $refColumn);
 	if ($test === false) {
-		// Most likely, destination table does not exist yep
-		return UPDATE_RETRY;
+		// Should never happen!?
+		finalResponse(UPDATE_FAILED, 'DB: Cannot query constraints: ' . Database::lastError());
 	}
 	if (!empty($test)) {
 		// Already exists
@@ -154,7 +159,7 @@ function tableAddConstraint($table, $column, $refTable, $refColumn, $actions)
 			REFERENCES `$refTable` (`$refColumn`)
 			$actions");
 	if ($ret === false) {
-		finalResponse(UPDATE_FAILED, 'DB-Error: ' . Database::lastError());
+		finalResponse(UPDATE_FAILED, 'DB: Cannot add constraint: ' . Database::lastError());
 	}
 	return UPDATE_DONE;
 }
