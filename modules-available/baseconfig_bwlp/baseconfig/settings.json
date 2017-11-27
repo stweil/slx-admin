@@ -127,6 +127,12 @@
 		"permissions": "2",
 		"validator": "regex:\/^\\d*$\/"
 	},
+	"SLX_WAKEUP_SCHEDULE": {
+		"catid": "power",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "regex:\/^(\\s*\\d{1,2}:\\d{1,2})*\\s*$\/"
+	},
 	"SLX_VMCHOOSER_TAB": {
 		"catid": "vmchooser",
 		"defaultvalue": "AUTO",
