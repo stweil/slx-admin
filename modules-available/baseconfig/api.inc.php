@@ -172,12 +172,14 @@ if (Request::any('save') === 'true') {
 			} else {
 				echo "# Error saving config to $path\n";
 			}
+			echo "SLX_NOW='", time(), "'\n";
 		}
 	}
 	// Output to browser
 	echo $lines;
 } else {
 	// Only output to client
+	ConfigHolder::add('SLX_NOW', time(), PHP_INT_MAX);
 	ConfigHolder::outputConfig();
 }
 
