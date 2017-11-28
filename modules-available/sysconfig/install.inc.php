@@ -47,17 +47,6 @@ if (in_array(UPDATE_DONE, $res)) {
 	$res[] = tableAddConstraint('configtgz_location', 'configid', 'configtgz', 'configid',
 		'ON DELETE CASCADE ON UPDATE CASCADE');
 }
-// To location
-if (tableExists('location')) {
-	// Cleanup from when we didn't have the constraint
-	Database::exec("DELETE c FROM configtgz_location c
-			LEFT JOIN location l USING (locationid)
-			WHERE l.locationid IS NULL");
-	$res[] = tableAddConstraint('configtgz_location', 'locationid', 'location', 'locationid',
-			'ON UPDATE CASCADE ON DELETE CASCADE');
-} elseif (Module::get('locations') !== false) {
-	$res[] = UPDATE_RETRY;
-}
 
 // Update path
 
