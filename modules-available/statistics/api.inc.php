@@ -34,7 +34,7 @@ if ($type{0} === '~') {
 	// External mode of operation?
 	$mode = Request::post('mode', false, 'string');
 	$NOW = time();
-	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot, mbram, cpumodel FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
+	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot, state, mbram, cpumodel FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 	if ($old !== false) {
 		settype($old['logintime'], 'integer');
 		settype($old['lastseen'], 'integer');
@@ -43,7 +43,7 @@ if ($type{0} === '~') {
 	// Handle event type
 	if ($mode === false && $type === '~poweron') {
 		// Poweron & hw stats
-		$uptime = Request::post('uptime', '', 'integer');
+		$uptime = Request::post('uptime', 0, 'integer');
 		if (strlen($macaddr) > 17) die("Invalid MAC.\n");
 		if ($uptime < 0 || $uptime > 4000000) die("Implausible uptime.\n");
 		$realcores = Request::post('realcores', 0, 'integer');
@@ -64,6 +64,66 @@ if ($type{0} === '~') {
 			$hostname = '';
 		}
 		$data = Request::post('data', '', 'string');
+		// Prepare insert/update to machine table
+		$new = array(
+			'uuid'       => $uuid,
+			'macaddr'    => $macaddr,
+			'clientip'   => $ip,
+			'lastseen'   => $NOW,
+			'lastboot'   => $NOW - $uptime,
+			'realcores'  => $realcores,
+			'mbram'      => $mbram,
+			'kvmstate'   => $kvmstate,
+			'cpumodel'   => $cpumodel,
+			'systemmodel'=> $systemmodel,
+			'id44mb'     => $id44mb,
+			'badsectors' => $badsectors,
+			'data'       => $data,
+			'hostname'   => $hostname,
+			'state'      => 'IDLE',
+		);
+		// Create/update machine entry
+		if ($old === false) {
+			$new['firstseen'] = $NOW;
+			$new['hostname']   = $hostname;
+			$res = Database::exec('INSERT INTO machine '
+				. '(machineuuid, macaddr, clientip, firstseen, lastseen, logintime, position, lastboot, realcores, mbram,'
+				. ' kvmstate, cpumodel, systemmodel, id44mb, badsectors, data, hostname, state) VALUES '
+				. "(:uuid, :macaddr, :clientip, :firstseen, :lastseen, 0, '', :lastboot, :realcores, :mbram,"
+				. ' :kvmstate, :cpumodel, :systemmodel, :id44mb, :badsectors, :data, :hostname, :state)', $new, true);
+			if ($res === false) {
+				die("Concurrent insert, ignored. (RESULT=0)\n");
+			}
+		} else {
+			// Update
+			$moresql = ($uptime < 180 ? ' logintime = 0, currentuser = NULL, currentsession = NULL,' : '');
+			if (!empty($hostname)) {
+				$new['hostname']   = $hostname;
+				$moresql .= ' hostname = :hostname,';
+			}
+			$new['oldstate'] = $old['state'];
+			$new['oldlastseen'] = $old['lastseen'];
+			$res = Database::exec('UPDATE machine SET '
+				. ' macaddr = :macaddr,'
+				. ' clientip = :clientip,'
+				. ' lastseen = :lastseen,'
+				. ' lastboot = :lastboot,'
+				. $moresql
+				. ' realcores = :realcores,'
+				. ' mbram = :mbram,'
+				. ' kvmstate = :kvmstate,'
+				. ' cpumodel = :cpumodel,'
+				. ' systemmodel = :systemmodel,'
+				. ' id44mb = :id44mb,'
+				. ' badsectors = :badsectors,'
+				. ' data = :data,'
+				. ' state = :state    '
+				. " WHERE machineuuid = :uuid AND state = :oldstate AND lastseen = :oldlastseen", $new);
+			if ($res === 0) {
+				die("Concurrent update, ignored. (RESULT=0)\n");
+			}
+		}
+		// Maybe log old crashed session
 		if ($uptime < 120) {
 			// See if we have a lingering session, create statistic entry if so
 			if ($old !== false && $old['logintime'] !== 0) {
@@ -93,44 +153,6 @@ if ($type{0} === '~') {
 				}
 			}
 		}
-		$new = array(
-			'uuid'       => $uuid,
-			'macaddr'    => $macaddr,
-			'clientip'   => $ip,
-			'firstseen'  => $NOW,
-			'lastseen'   => $NOW,
-			'lastboot'   => $NOW - $uptime,
-			'realcores'  => $realcores,
-			'mbram'      => $mbram,
-			'kvmstate'   => $kvmstate,
-			'cpumodel'   => $cpumodel,
-			'systemmodel'=> $systemmodel,
-			'id44mb'     => $id44mb,
-			'badsectors' => $badsectors,
-			'data'       => $data,
-			'hostname'   => $hostname,
-		);
-		// Create/update machine entry
-		Database::exec('INSERT INTO machine '
-			. '(machineuuid, macaddr, clientip, firstseen, lastseen, logintime, position, lastboot, realcores, mbram,'
-			. ' kvmstate, cpumodel, systemmodel, id44mb, badsectors, data, hostname) VALUES '
-			. "(:uuid, :macaddr, :clientip, :firstseen, :lastseen, 0, '', :lastboot, :realcores, :mbram,"
-			. ' :kvmstate, :cpumodel, :systemmodel, :id44mb, :badsectors, :data, :hostname)'
-			. ' ON DUPLICATE KEY UPDATE'
-			. ' macaddr = VALUES(macaddr),'
-			. ' clientip = VALUES(clientip),'
-			. ' lastseen = VALUES(lastseen),'
-			. ($uptime < 180 ? ' logintime = 0, currentuser = NULL, currentsession = NULL,' : '')
-			. ' lastboot = VALUES(lastboot),'
-			. ' realcores = VALUES(realcores),'
-			. ' mbram = VALUES(mbram),'
-			. ' kvmstate = VALUES(kvmstate),'
-			. ' cpumodel = VALUES(cpumodel),'
-			. ' systemmodel = VALUES(systemmodel),'
-			. ' id44mb = VALUES(id44mb),'
-			. ' badsectors = VALUES(badsectors),'
-			. ' data = VALUES(data),'
-			. " hostname = If(VALUES(hostname) = '', hostname, VALUES(hostname))", $new);
 
 		if (($old === false || $old['clientip'] !== $ip) && Module::isAvailable('locations')) {
 			// New, or ip changed (dynamic pool?), update subnetlicationid
@@ -153,7 +175,7 @@ if ($type{0} === '~') {
 			die("Address changed.\n");
 		}
 		$used = Request::post('used', 0, 'integer');
-		if ($old['lastboot'] === 0 && $NOW - $old['lastseen'] > 300) {
+		if ($old['state'] === 'OFFLINE' && $NOW - $old['lastseen'] > 600) {
 			$strUpdateBoottime = ' lastboot = UNIX_TIMESTAMP(), ';
 		} else {
 			$strUpdateBoottime = '';
@@ -167,31 +189,42 @@ if ($type{0} === '~') {
 				}
 				$old['logintime'] = 0;
 			}
-			$old['lastboot'] = 0;
 		}
 		// Figure out what's happening - state changes
-		if ($used === 0 && $old['logintime'] !== 0) {
+		$params = array(
+			'uuid' => $uuid,
+			'oldlastseen' => $old['lastseen'],
+			'oldstate' => $old['state'],
+		);
+		if ($used === 0 && $old['state'] !== 'IDLE') {
 			// Is not in use, was in use before
 			$sessionLength = $NOW - $old['logintime'];
-			Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(),'
+			$res = Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(),'
 				. $strUpdateBoottime
-				. ' logintime = 0, currentuser = NULL WHERE machineuuid = :uuid', array('uuid' => $uuid));
-		} elseif ($used === 1 && $old['logintime'] === 0) {
+				. " logintime = 0, currentuser = NULL, state = 'IDLE' "
+				. " WHERE machineuuid = :uuid AND lastseen = :oldlastseen AND state = :oldstate",
+				$params);
+		} elseif ($used === 1 && $old['state'] !== 'OCCUPIED') {
 			// Machine is in use, was free before
 			if ($sessionLength !== 0 || $old['logintime'] === 0) {
 				// This event is a start of a new session, rather than an update
-				Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(),'
+				$params['user'] = Request::post('user', null, 'string');
+				$res = Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(),'
 					. $strUpdateBoottime
-					. ' logintime = UNIX_TIMESTAMP(), currentuser = :user WHERE machineuuid = :uuid', array(
-					'uuid' => $uuid,
-					'user' => Request::post('user', null, 'string'),
-				));
+					. " logintime = UNIX_TIMESTAMP(), currentuser = :user, state = 'OCCUPIED' "
+					. " WHERE machineuuid = :uuid AND lastseen = :oldlastseen AND state = :oldstate", $params);
+			} else {
+				$res = 0;
 			}
 		} else {
 			// Nothing changed, simple lastseen update
-			Database::exec('UPDATE machine SET '
+			$res = Database::exec('UPDATE machine SET '
 				. $strUpdateBoottime
-				. ' lastseen = UNIX_TIMESTAMP() WHERE machineuuid = :uuid', array('uuid' => $uuid));
+				. ' lastseen = UNIX_TIMESTAMP() WHERE machineuuid = :uuid AND lastseen = :oldlastseen AND state = :oldstate', $params);
+		}
+		// Did we update, or was there a concurrent update?
+		if ($res === 0) {
+			die("Concurrent update, ignored. (RESULT=0)\n");
 		}
 		// 9) Log last session length if applicable
 		if ($mode === false && $sessionLength > 0 && $sessionLength < 86400*2 && $old['logintime'] !== 0) {
@@ -221,8 +254,11 @@ if ($type{0} === '~') {
 				));
 			}
 		}
-		Database::exec('UPDATE machine SET logintime = 0, lastseen = UNIX_TIMESTAMP(), lastboot = 0 WHERE machineuuid = :uuid', array('uuid' => $uuid));
+		Database::exec("UPDATE machine SET logintime = 0, lastseen = UNIX_TIMESTAMP(), state = 'OFFLINE'
+			WHERE machineuuid = :uuid AND state = :oldstate AND lastseen = :oldlastseen",
+			array('uuid' => $uuid, 'oldlastseen' => $old['lastseen'], 'oldstate' => $old['state']));
 	} elseif ($mode === false && $type === '~screens') {
+		if ($old === false) die("Unknown machine.\n");
 		$screens = Request::post('screen', false, 'array');
 		if (is_array($screens)) {
 			// `devicetype`, `devicename`, `subid`, `machineuuid`
@@ -293,6 +329,47 @@ if ($type{0} === '~') {
 
 			}
 		}
+	} else if ($type === '~suspend') {
+		// Client entering suspend
+		if ($old === false) die("Unknown machine.\n");
+		if ($old['clientip'] !== $ip) {
+			EventLog::warning("[suspend] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
+			die("Address changed.\n");
+		}
+		if ($NOW - $old['lastseen'] < 610 && $old['state'] !== 'OFFLINE') {
+			Database::exec("UPDATE machine SET lastseen = UNIX_TIMESTAMP(), state = 'STANDBY'
+				WHERE machineuuid = :uuid AND state = :oldstate AND lastseen = :oldlastseen",
+				array('uuid' => $uuid, 'oldlastseen' => $old['lastseen'], 'oldstate' => $old['state']));
+		} else {
+			EventLog::info("[suspend] Client $uuid reported switch to standby when it wasn't powered on first. Was: " . $old['state']);
+		}
+	} else if ($type === '~resume') {
+		// Waking up from suspend
+		if ($old === false) die("Unknown machine.\n");
+		if ($old['clientip'] !== $ip) {
+			EventLog::info("[resume] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip), allowed on resume.");
+		}
+		if ($old['state'] === 'STANDBY') {
+			$res = Database::exec("UPDATE machine SET state = 'IDLE', clientip = :ip, lastseen = UNIX_TIMESTAMP()
+				WHERE machineuuid = :uuid AND state = :oldstate AND lastseen = :oldlastseen",
+				array('uuid' => $uuid, 'ip' => $ip, 'oldlastseen' => $old['lastseen'], 'oldstate' => $old['state']));
+			// Write standby period length to statistic table
+			if ($mode === false && $res > 0 && $old['lastseen'] !== 0) {
+				$lastSeen = $old['lastseen'];
+				$duration = $NOW - $lastSeen;
+				if ($duration > 500 && $duration < 86400 * 14) {
+					Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
+						. " VALUES (:suspend, '~suspend-length', :uuid, :clientip, '', :length)", array(
+						'suspend' => $lastSeen,
+						'uuid'     => $uuid,
+						'clientip' => $ip,
+						'length'   => $duration
+					));
+				}
+			}
+		} else {
+			EventLog::info("[resume] Client $uuid reported wakeup from standby when it wasn't logged as being in standby. Was: " . $old['state']);
+		}
 	} else {
 		die("INVALID ACTION '$type'\n");
 	}
@@ -320,6 +397,7 @@ function writeStatisticLog($type, $username, $data)
 		'data' => $data,
 	));
 }
+
 
 // For backwards compat, we require the . prefix
 if ($type{0} === '.') {
@@ -352,10 +430,10 @@ function checkHardwareChange($old, $new)
 		if ($new['mbram'] + 1000 < $old['mbram']) {
 			$ram1 = round($old['mbram'] / 512) / 2;
 			$ram2 = round($new['mbram'] / 512) / 2;
-			EventLog::warning('Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): RAM decreased from {$ram1}GB to {$ram2}GB");
+			EventLog::warning('[poweron] Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): RAM decreased from {$ram1}GB to {$ram2}GB");
 		}
 		if (!empty($old['cpumodel']) && !empty($new['cpumodel']) && $new['cpumodel'] !== $old['cpumodel']) {
-			EventLog::warning('Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): CPU changed from '{$old['cpumodel']}' to '{$new['cpumodel']}'");
+			EventLog::warning('[poweron] Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): CPU changed from '{$old['cpumodel']}' to '{$new['cpumodel']}'");
 		}
 	}
 }

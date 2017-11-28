@@ -196,8 +196,6 @@ class Page_Statistics extends Page
 		} elseif ($action === 'addprojector' || $action === 'delprojector') {
 			$this->handleProjector($action);
 		}
-		// Fix online state of machines that crashed -- TODO: Make cronjob for this
-		Database::exec("UPDATE machine SET lastboot = 0 WHERE lastseen < UNIX_TIMESTAMP() - 610");
 	}
 
 	protected function doRender()
@@ -333,8 +331,8 @@ class Page_Statistics extends Page
 		if ($known['val'] == 1) {
 			$this->redirectFirst($where, $join, $args);
 		}
-		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastboot <> 0 AND ($where)", $args);
-		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastboot <> 0 AND logintime <> 0 AND ($where)", $args);
+		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE state IN ('IDLE', 'OCCUPIED') AND ($where)", $args);
+		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE state = 'OCCUPIED' AND ($where)", $args);
 		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE badsectors >= 10 AND ($where)", $args);
 		if ($on['val'] != 0) {
 			$usedpercent = round($used['val'] / $on['val'] * 100);
@@ -576,8 +574,8 @@ class Page_Statistics extends Page
 		if ($filterSet->isNoId44Filter()) {
 			$xtra = ', data';
 		}
-		$res = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, firstseen, lastseen,'
-			. ' logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes,'
+		$res = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, lastseen,'
+			. ' logintime, state, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes,'
 			. ' badsectors ' . $xtra . ' FROM machine'
 			. " $join WHERE $where $sort", $args);
 		$rows = array();
@@ -589,13 +587,7 @@ class Page_Statistics extends Page
 			} else {
 				$singleMachine = false;
 			}
-			if ($row['lastboot'] == 0) {
-				$row['state_off'] = true;
-			} elseif ($row['logintime'] == 0) {
-				$row['state_idle'] = true;
-			} else {
-				$row['state_occupied'] = true;
-			}
+			$row['state_' . $row['state']] = true;
 			//$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
 			$row['lastseen'] = date('d.m. H:i', $row['lastseen']);
 			//$row['lastboot'] = date('d.m. H:i', $row['lastboot']);
@@ -728,7 +720,7 @@ class Page_Statistics extends Page
 
 	private function showMachine($uuid)
 	{
-		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,'
+		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot, state,'
 			. ' mbram, kvmstate, cpumodel, id44mb, data, hostname, currentuser, currentsession, notes FROM machine WHERE machineuuid = :uuid',
 			array('uuid' => $uuid));
 		// Hack: Get raw collected data
@@ -738,12 +730,8 @@ class Page_Statistics extends Page
 		}
 		// Mangle fields
 		$NOW = time();
-		if ($client['lastboot'] == 0) {
-			$client['state_off'] = true;
-		} elseif ($client['logintime'] == 0) {
-			$client['state_idle'] = true;
-		} else {
-			$client['state_occupied'] = true;
+		$client['state_' . $client['state']] = true;
+		if ($client['state'] === 'OCCUPIED') {
 			$this->fillSessionInfo($client);
 		}
 		$client['firstseen_s'] = date('d.m.Y H:i', $client['firstseen']);
@@ -753,7 +741,7 @@ class Page_Statistics extends Page
 		} else {
 			$uptime = $NOW - $client['lastboot'];
 			$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']);
-			if (!isset($client['state_off']) || !$client['state_off']) {
+			if ($client['state'] === 'IDLE' || $client['state'] === 'OCCUPIED') {
 				$client['lastboot_s'] .= ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
 			}
 		}

@@ -186,15 +186,13 @@ class StateFilter extends Filter
 
 	public function whereClause(&$args, &$joins)
 	{
+		$map = [ 'on' => ['IDLE', 'OCCUPIED'], 'off' => ['OFFLINE'], 'idle' => ['IDLE'], 'occupied' => ['OCCUPIED'], 'standby' => ['STANDBY'] ];
 		$neg = $this->operator == '!=' ? 'NOT ' : '';
-		if ($this->argument === 'on') {
-			return " $neg (lastseen + 600 > UNIX_TIMESTAMP() ) ";
-		} elseif ($this->argument === 'off') {
-			return " $neg (lastseen + 600 < UNIX_TIMESTAMP() ) ";
-		} elseif ($this->argument === 'idle') {
-			return " $neg (lastseen + 600 > UNIX_TIMESTAMP() AND logintime = 0 ) ";
-		} elseif ($this->argument === 'occupied') {
-			return " $neg (lastseen + 600 > UNIX_TIMESTAMP() AND logintime <> 0 ) ";
+		if (array_key_exists($this->argument, $map)) {
+			global $unique_key;
+			$key = $this->column . '_arg' . ($unique_key++);
+			$args[$key] = $map[$this->argument];
+			return " machine.state $neg IN ( :$key ) ";
 		} else {
 			Message::addError('invalid-filter-argument', 'state', $this->argument);
 			return ' 1';
@@ -216,8 +214,10 @@ class LocationFilter extends Filter
 			$neg = $this->operator === '=' ? '' : 'NOT';
 			return "machine.locationid IS $neg NULL";
 		} else {
-			$args['lid'] = $this->argument;
-			return "machine.locationid {$this->operator} :lid";
+			global $unique_key;
+			$key = $this->column . '_arg' . ($unique_key++);
+			$args[$key] = $this->argument;
+			return "machine.locationid {$this->operator} :$key";
 		}
 	}
 }

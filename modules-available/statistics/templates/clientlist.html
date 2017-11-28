@@ -60,15 +60,18 @@
 	<tr>
 		<td class="text-nowrap">
 			{{#hasnotes}}<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>{{/hasnotes}}
-			{{#state_off}}
+			{{#state_OFFLINE}}
 			<span class="glyphicon glyphicon-off" title="{{lang_machineOff}}"></span>
-			{{/state_off}}
-			{{#state_idle}}
+			{{/state_OFFLINE}}
+			{{#state_IDLE}}
 			<span class="glyphicon glyphicon-ok green" title="{{lang_machineIdle}}"></span>
-			{{/state_idle}}
-			{{#state_occupied}}
+			{{/state_IDLE}}
+			{{#state_OCCUPIED}}
 			<span class="glyphicon glyphicon-user red" title="{{lang_machineOccupied}}"></span>
-			{{/state_occupied}}
+			{{/state_OCCUPIED}}
+			{{#state_STANDBY}}
+			<span class="glyphicon glyphicon-off green" title="{{lang_machineStandby}}"></span>
+			{{/state_STANDBY}}
 			<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
 			<div class="small">{{machineuuid}}</div>
 		</td>

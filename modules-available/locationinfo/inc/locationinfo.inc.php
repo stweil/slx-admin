@@ -6,7 +6,7 @@ class LocationInfo
 	/**
 	 * Gets the pc data and returns it's state.
 	 *
-	 * @param array $pc The pc data from the db. Array('logintime' =>, 'lastseen' =>, 'lastboot' =>)
+	 * @param array $pc The pc data from the db. Array('state' => xx, 'lastseen' => xxx)
 	 * @return int pc state
 	 */
 	public static function getPcState($pc)
@@ -16,16 +16,10 @@ class LocationInfo
 		$lastboot = (int)$pc['lastboot'];
 		$NOW = time();
 
-		if ($NOW - $lastseen > 14 * 86400) {
+		if ($pc['state'] === 'OFFLINE' && $NOW - $lastseen > 21 * 86400) {
 			return "BROKEN";
-		} elseif (($NOW - $lastseen > 610) || $lastboot === 0) {
-			return "OFF";
-		} elseif ($logintime === 0) {
-			return "IDLE";
-		} elseif ($logintime > 0) {
-			return "OCCUPIED";
 		}
-		return -1;
+		return $pc['state'];
 	}
 
 	/**

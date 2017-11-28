@@ -81,7 +81,7 @@ class InfoPanel
 		}
 
 		$positionCol = $withPosition ? 'm.position,' : '';
-		$query = "SELECT m.locationid, m.machineuuid, $positionCol m.logintime, m.lastseen, m.lastboot FROM machine m
+		$query = "SELECT m.locationid, m.machineuuid, $positionCol m.logintime, m.lastseen, m.lastboot, m.state FROM machine m
 				WHERE m.locationid IN (:idlist)";
 		$dbquery = Database::simpleQuery($query, array('idlist' => $idList));
 
@@ -107,7 +107,7 @@ class InfoPanel
 				}
 			}
 			$pc['pcState'] = LocationInfo::getPcState($row);
-			//$pc['pcState'] = ['BROKEN', 'OFF', 'IDLE', 'OCCUPIED'][mt_rand(0,3)]; // XXX
+			//$pc['pcState'] = ['BROKEN', 'OFFLINE', 'IDLE', 'OCCUPIED', 'STANDBY'][mt_rand(0,4)]; // XXX
 
 			// Add the array to the machines list.
 			$array[$row['locationid']]['machines'][] = $pc;
