@@ -1,0 +1,10 @@
+{
+    "lang_addNewMachines": "Clients",
+    "lang_assignMachineIntroText": "Definieren Sie hier Clients, die in einem speziellen Betriebsmodus gestartet werden sollen",
+    "lang_assignRunmodeToMachine": "Betriebsmodus",
+    "lang_confirmDelete": "Wollen Sie den Betriebsmodus f\u00fcr diesen Client entfernen?",
+    "lang_isclient": "Pool-Client",
+    "lang_machine": "Client",
+    "lang_mode": "Modus",
+    "lang_specialMachinesForMode": "Betriebsmodus"
+}

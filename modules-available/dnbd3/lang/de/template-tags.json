@@ -1,5 +1,6 @@
 {
     "lang_addServer": "Server hinzuf\u00fcgen",
+    "lang_allowNfsFallback": "NFS-Fallback aktivieren",
     "lang_allowedSubnets": "Zum Zugriff freigegebene Subnets",
     "lang_altservers": "Uplinks",
     "lang_backgroundReplication": "Replikation im Hintergrund",
