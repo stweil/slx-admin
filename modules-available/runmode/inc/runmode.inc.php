@@ -29,36 +29,36 @@ class RunMode
 	 * @param string|null $modeId an ID specific to the module to further specify the run mode, NULL to delete the run mode entry
 	 * @param string|null $modeData optional, additional data for the run mode
 	 * @param bool|null $isClient whether to count the machine as a client (in statistics etc.) NULL for looking at module's general runmode config
-	 * @return bool whether it was set
+	 * @return bool whether it was set/deleted
 	 */
-	public static function setRunMode($machineuuid, $moduleId, $modeId, $modeData, $isClient)
+	public static function setRunMode($machineuuid, $moduleId, $modeId, $modeData = null, $isClient = null)
 	{
-		// - Check if module provides runmode config at all
-		$config = self::getModuleConfig($moduleId);
-		if ($config === false)
-			return false;
 		// - Check if machine exists
 		$machine = Statistics::getMachine($machineuuid, Machine::NO_DATA);
 		if ($machine === false)
 			return false;
-		// - Add/replace entry in runmode table
-		if (is_null($modeId)) {
-			Database::exec('DELETE FROM runmode WHERE machineuuid = :machineuuid', compact('machineuuid'));
-		} else {
-			if ($isClient === null) {
-				$isClient = $config->isClient;
-			}
-			Database::exec('INSERT INTO runmode (machineuuid, module, modeid, modedata, isclient)'
-				. ' VALUES (:uuid, :module, :modeid, :modedata, :isclient)'
-				. ' ON DUPLICATE KEY'
-				. ' UPDATE module = VALUES(module), modeid = VALUES(modeid), modedata = VALUES(modedata), isclient = VALUES(isclient)', array(
-					'uuid' => $machineuuid,
-					'module' => $moduleId,
-					'modeid' => $modeId,
-					'modedata' => $modeData,
-					'isclient' => ($isClient ? 1 : 0),
-			));
+		// - Delete entry if mode is null
+		if ($modeId === null) {
+			return Database::exec('DELETE FROM runmode WHERE machineuuid = :machineuuid', compact('machineuuid')) > 0;
 		}
+		// - Add/replace entry in runmode table
+		// - Check if module provides runmode config at all
+		$config = self::getModuleConfig($moduleId);
+		if ($config === false)
+			return false;
+		if ($isClient === null) {
+			$isClient = $config->isClient;
+		}
+		Database::exec('INSERT INTO runmode (machineuuid, module, modeid, modedata, isclient)'
+			. ' VALUES (:uuid, :module, :modeid, :modedata, :isclient)'
+			. ' ON DUPLICATE KEY'
+			. ' UPDATE module = VALUES(module), modeid = VALUES(modeid), modedata = VALUES(modedata), isclient = VALUES(isclient)', array(
+				'uuid' => $machineuuid,
+				'module' => $moduleId,
+				'modeid' => $modeId,
+				'modedata' => $modeData,
+				'isclient' => ($isClient ? 1 : 0),
+		));
 		return true;
 	}
 

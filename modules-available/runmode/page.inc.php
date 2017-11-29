@@ -48,7 +48,13 @@ class Page_RunMode extends Page
 		} elseif ($action === 'delete-machine') {
 			$machineuuid = Request::post('machineuuid', false, 'string');
 			if ($machineuuid === false) {
-
+				Message::addError('machine-not-found', $machineuuid);
+			} else {
+				if (RunMode::setRunMode($machineuuid, null, null)) {
+					Message::addSuccess('machine-removed', $machineuuid);
+				} else {
+					Message::addWarning('machine-not-runmode', $machineuuid);
+				}
 			}
 		}
 	}

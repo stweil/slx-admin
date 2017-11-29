@@ -3,7 +3,7 @@
 	<a href="?do={{module}}">{{modulename}}</a>
 </h2>
 
-<form method="post" action="?do=runmode" onclick="return confirm('{{lang_confirmDelete}}')">
+<form method="post" action="?do=runmode" onsubmit="return confirm('{{lang_confirmDelete}}')">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="delete-machine">
 	<table class="table">
