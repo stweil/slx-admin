@@ -107,8 +107,7 @@ class Render
 		<script src="script/jquery.js"></script>
 		<script src="script/bootstrap.min.js"></script>
 		<script src="script/taskmanager.js"></script>
-		<script src="script/fileselect.js"></script>
-		<script src="script/collapse.js"></script>
+		<script src="script/slx-fixes.js"></script>
 	';
 		foreach ($modules as $module) {
 			$files = $module->getScripts($module != $pageModule);
@@ -213,7 +212,7 @@ class Render
 	 */
 	public static function parse($template, $params = false, $module = false)
 	{
-		if ($module === false) {
+		if ($module === false && class_exists('Page')) {
 			$module = Page::getModule()->getIdentifier();
 		}
 		// Load html snippet
