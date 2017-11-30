@@ -88,8 +88,9 @@ function getPcStates($idList)
 			'id' => $id,
 			'idle' => 0,
 			'occupied' => 0,
-			'off' => 0,
+			'offline' => 0,
 			'broken' => 0,
+			'standby' => 0,
 		);
 	}
 

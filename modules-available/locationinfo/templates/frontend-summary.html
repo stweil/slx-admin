@@ -60,7 +60,7 @@
 			border-style: solid;
 		}
 
-		.pc-idle, .pc-occupied, .pc-off, .pc-broken {
+		.pc-idle, .pc-occupied, .pc-offline, .pc-broken, .pc-standby {
 			padding: 2px 1px;
 			text-align: center;
 			font-size: 90%;
@@ -79,9 +79,14 @@
 			border-radius: 3px 0px 0px 3px;
 		}
 
-		.pc-off {
+		.pc-offline {
 			background-color: darkgrey;
 		}
+
+		.pc-standby {
+			background-color: darkgreen;
+		}
+
 
 		.pc-broken {
 			background-color: black;
@@ -294,7 +299,7 @@
 		function updatePcStates(json) {
 			var l = json.length;
 			for (var i = 0; i < l; i++) {
-				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].off, json[i].broken)
+				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].offline, json[i].broken, json[i].standby)
 			}
 
 		}
@@ -534,20 +539,21 @@
 		 * @param id of the child
 		 * @param idle PC's on
 		 * @param occupied PC's used
-		 * @param off PC's that are off
+		 * @param offline PC's that are off
 		 * @param broken PC's that are broken
 		 */
-		function updateRoomUsage(id, idle, occupied, off, broken) {
-			if (idle == 0 && occupied == 0 && off == 0 && broken == 0) {
+		function updateRoomUsage(id, idle, occupied, offline, broken, standby) {
+			if (idle == 0 && occupied == 0 && offline == 0 && broken == 0 && standby == 0) {
 				$('#parent_' + id).parent().hide();
 				return;
 			}
 			$('#parent_' + id).parent().show();
-			var total = parseInt(idle) + parseInt(occupied) + parseInt(off) + parseInt(broken);
+			var total = parseInt(idle) + parseInt(occupied) + parseInt(offline) + parseInt(broken) + parseInt(standby);
 			$("#pc_Idle_" + id).text(idle).width((idle / total) * 100 + '%');
 			$("#pc_Occupied_" + id).text(occupied).width((occupied / total) * 100 + '%');
-			$("#pc_Off_" + id).text(off).width((off / total) * 100 + '%');
+			$("#pc_Offline_" + id).text(offline).width((offline / total) * 100 + '%');
 			$("#pc_Broken_" + id).text(broken).width((broken / total) * 100 + '%');
+			$("#pc_Standby_" + id).text(standby).width((standby / total) * 100 + '%');
 		}
 
 		/**
@@ -589,7 +595,8 @@
 					"<div class='pc-state-wrapper'>" +
 					"<div id = 'pc_Occupied_" + id + "' class='pc-occupied'>?</div>" +
 					"<div id = 'pc_Idle_" + id + "'  class='pc-idle'>?</div>" +
-					"<div id = 'pc_Off_" + id + "' class='pc-off'>?</div>" +
+					"<div id = 'pc_Standby_" + id + "'  class='pc-standby'>?</div>" +
+					"<div id = 'pc_Offline_" + id + "' class='pc-offline'>?</div>" +
 					"<div id = 'pc_Broken_" + id + "' class='pc-broken'>?</div>" +
 					"</div>" +
 					"<div class='aroundCourse'>" +
@@ -597,8 +604,7 @@
 					"<div id = 'div_Time_" + id + "'class='courseFont'></div></div></div></div>";
 			var obj = $(target).append(text);
 			addRoom(id, name);
-			return obj
-
+			return obj;
 		}
 
 		/**
