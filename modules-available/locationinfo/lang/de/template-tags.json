@@ -24,6 +24,7 @@
     "lang_ecoMode": "E-Ink Modus",
     "lang_ecoTooltip": "Anstelle der Farb-basierten PC-Status Bilder, werden Symbol-basierte PC Bilder verwendet",
     "lang_editDefaultPanelHints": "Hier k\u00f6nnen Sie ein Panel (z.B. digitales T\u00fcrschild) in Aussehen und Funktionsweise definieren. Um im Kalender \u00d6ffnungszeiten anzeigen zu k\u00f6nnen, m\u00fcssen Sie im Tab \"Raum-\/Ortsbezogene Einstellungen\" f\u00fcr den ausgew\u00e4hlten Raum entsprechend \u00d6ffnungszeiten eintragen. Damit im Kalender Veranstaltungen und andere Termine angezeigt werden k\u00f6nnen, muss ein funktionierendes Backend konfiguriert und den ausgew\u00e4hlten R\u00e4umen zugewiesen worden sein.",
+    "lang_editSummaryPanelHints": "Hier k\u00f6nnen Sie ein Summary-Panel definieren. Das Panel zeigt eine Übersicht der in den R\u00e4umen enthalten PCs.",
     "lang_editPanel": "Panel bearbeiten",
     "lang_entryName": "Name",
     "lang_error": "Fehler",

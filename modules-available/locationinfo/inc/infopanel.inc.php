@@ -20,6 +20,7 @@ class InfoPanel
 		}
 
 		if ($panel['paneltype'] === 'URL') {
+			// Shortcut for URL redirect
 			$config = json_decode($panel['panelconfig'], true);
 			return $panel['paneltype'];
 		}
@@ -31,6 +32,7 @@ class InfoPanel
 		if (!empty($panel['panelconfig'])) {
 			$json = json_decode($panel['panelconfig'], true);
 			if (is_array($json)) {
+				// Put location-specific overrides in separate variable for later use
 				if (isset($json['overrides']) && is_array($json['overrides'])) {
 					$overrides = $json['overrides'];
 				}
@@ -48,6 +50,7 @@ class InfoPanel
 				'id' => $lid,
 				'name' => isset($locations[$lid]) ? $locations[$lid]['locationname'] : 'noname00.pas',
 			);
+			// Now apply any overrides from above
 			if (isset($overrides[$lid]) && is_array($overrides[$lid])) {
 				$config['locations'][$lid]['config'] = $overrides[$lid];
 			}

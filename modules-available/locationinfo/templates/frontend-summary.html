@@ -2,7 +2,8 @@
 <html lang="de">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
 <head>
-	<script type='text/javascript' src='../../../script/jquery.js'></script>
+	<script type='text/javascript' src='{{dirprefix}}script/jquery.js'></script>
+
 
 	<style type='text/css'>
 		body {
@@ -106,7 +107,7 @@
 		var rooms = {};
 		var startdate;
 		var roomidsString = "";
-
+		var config = {{{config}}};
 
 		$(document).ready(function () {
 			//temp
@@ -115,13 +116,17 @@
 		});
 
 		function init() {
-			var ids = getUrlParameter("id");
+			// var ids = getUrlParameter("id");
+
+			/*
 			$.getJSON("../../../api.php?do=locationinfo&action=locationtree&id=" + ids, function (result) {
 				generateLayout(result);
 
 				setTimeout(update, 1000);
 			});
-
+			*/
+			generateLayout(config.tree);
+			update();
 		}
 
 		function SetUpDate(d) {
@@ -140,7 +145,7 @@
 		}
 
 		/**
-		 * generates the divs, decidecs if parent or child
+		 * generates the divs, decides if parent or child
 		 * @param json Room tree json
 		 * @param myParent parent div
 		 * @param outermost if the object is a root node
@@ -183,13 +188,16 @@
 			var rommUpdateIds = "";
 			var count = 0;
 			var nextUpdate = 15000;
+			// TODO: Only query a few rooms is not possible with the new api stuff ...
 			for (var property in rooms) {
 				if (rooms[property].lastCalendarUpdate === null || rooms[property].lastCalendarUpdate + CALUPDATE_MS < MyDate().getTime()) {
+					// TODO: NOT NECESSARY ANYMORE?!
 					calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
 					count++;
 					rooms[property].lastCalendarUpdate = MyDate().getTime();
 				}
 				if (rooms[property].lastRoomUpdate === null || rooms[property].lastRoomUpdate + ROOMUPDATE_MS < MyDate().getTime()) {
+					// TODO: NOT NECESSARY ANYMORE?!
 					rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
 					count++;
 					rooms[property].lastRoomUpdate = MyDate().getTime();
@@ -197,11 +205,11 @@
 				if (count > 7) break;
 			}
 			if (calendarUpdateIds !== "") {
-				queryCalendars(calendarUpdateIds);
+				queryCalendars();
 				nextUpdate = 1000;
 			}
 			if (rommUpdateIds !== "") {
-				queryRooms(rommUpdateIds);
+				queryRooms();
 				nextUpdate = 1000;
 			}
 			for (var property in rooms) {
@@ -214,6 +222,9 @@
 		function UpdateTimeTables(json) {
 			var l = json.length;
 			for (var i = 0; i < l; i++) {
+				if (rooms[json[i].id] == null) {
+					continue;
+				}
 				rooms[json[i].id].timetable = json[i].calendar;
 				for (var property in rooms[json[i].id].timetable) {
 					rooms[json[i].id].timetable[property].start = new Date(rooms[json[i].id].timetable[property].start);
@@ -225,11 +236,11 @@
 
 		/**
 		 * Querys Pc states
-		 * @param ids Room ID's which should be queried. Format for e.g.: "20,5,6"
+		 * Room are queried with the {{uuid}} of the panel.
 		 */
-		function queryRooms(ids) {
+		function queryRooms() {
 			$.ajax({
-				url: "../../../api.php?do=locationinfo&action=pcstates&id=" + ids,
+				url: "{{dirprefix}}api.php?do=locationinfo&get=pcstates&uuid={{uuid}}",
 				dataType: 'json',
 				cache: false,
 				timeout: 30000,
@@ -241,6 +252,7 @@
 						return;
 					}
 					updatePcStates(result);
+
 				}, error: function () {
 
 				}
@@ -526,7 +538,7 @@
 		 * @param broken PC's that are broken
 		 */
 		function updateRoomUsage(id, idle, occupied, off, broken) {
-			if (idle == 0 && occupied == 0 && off == 0) {
+			if (idle == 0 && occupied == 0 && off == 0 && broken == 0) {
 				$('#parent_' + id).parent().hide();
 				return;
 			}
@@ -634,10 +646,11 @@
 
 		/**
 		 * querys the Calendar data
-		 * @param ids ID'S of rooms to query as string, for e.g.: "5,17,8" or "5"
+		 * Calender is queried with the {{uuid}} of the panel.
+		 * api.inc.php / page.inc.php is getting the ids with the panel uuid.
 		 */
-		function queryCalendars(ids) {
-			var url = "../../../api.php?do=locationinfo&action=calendar&id=" + ids;
+		function queryCalendars() {
+			var url = "{{dirprefix}}api.php?do=locationinfo&get=calendar&uuid={{uuid}}";
 
 			// Todo reimplement Frontend methode if needed
 			/*
@@ -652,8 +665,6 @@
 				timeout: 30000,
 				success: function (result) {
 					UpdateTimeTables(result);
-
-
 				}, error: function () {
 
 				}
