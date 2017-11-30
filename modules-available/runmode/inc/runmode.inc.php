@@ -36,6 +36,9 @@ class RunMode
 	 */
 	public static function setRunMode($machineuuid, $moduleId, $modeId, $modeData = null, $isClient = null)
 	{
+		if (is_object($moduleId)) {
+			$moduleId = $moduleId->getIdentifier();
+		}
 		// - Check if machine exists
 		$machine = Statistics::getMachine($machineuuid, Machine::NO_DATA);
 		if ($machine === false)
@@ -196,6 +199,21 @@ class RunMode
 		return call_user_func($conf->getModeName, $modeId);
 	}
 
+	/**
+	 * Delete given runmode.
+	 *
+	 * @param string|\Module $module Module runmode belongs to
+	 * @param string $modeId run mode id
+	 */
+	public static function deleteMode($module, $modeId)
+	{
+		if (is_object($module)) {
+			$module = $module->getIdentifier();
+		}
+		Database::exec('DELETE FROM runmode WHERE module = :module AND modeid = :modeId',
+			compact('module', 'modeId'));
+	}
+
 }
 
 /*                *\
@@ -235,6 +253,10 @@ class RunModeModuleConfig
 	 * @var bool If true, config.tgz should not be downloaded by the client
 	 */
 	public $noSysconfig = false;
+	/**
+	 * @var bool Allow adding and removing machines to this mode via the generic form
+	 */
+	public $allowGenericEditor = true;
 
 	public function __construct($file)
 	{
@@ -248,6 +270,7 @@ class RunModeModuleConfig
 		$this->loadType($data, 'configHook', 'string');
 		$this->loadType($data, 'isClient', 'boolean');
 		$this->loadType($data, 'noSysconfig', 'boolean');
+		$this->loadType($data, 'allowGenericEditor', 'boolean');
 	}
 
 	private function loadType($data, $key, $type)

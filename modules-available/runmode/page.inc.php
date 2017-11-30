@@ -26,20 +26,33 @@ class Page_RunMode extends Page
 			$machines = array_filter(Request::post('machines', [], 'array'), 'is_string');
 			$module = Request::post('module', false, 'string');
 			$modeId = Request::post('modeid', false, 'string');
-			// TODO Validate
+			$modConfig = RunMode::getModuleConfig($module);
+			if ($modConfig === false) {
+				Message::addError('module-hasnt-runmode', $module);
+				return;
+			}
+			if (!$modConfig->allowGenericEditor) {
+				Message::addError('cannot-edit-module', $module);
+				return;
+			}
+			$test = RunMode::getModeName($module, $modeId);
+			if ($test === false) {
+				Message::addError('invalid-modeid', $module, $modeId);
+				return;
+			}
 			$active = 0;
 			foreach ($machines as $machine) {
 				$ret = RunMode::setRunMode($machine, $module, $modeId, null, null);
 				if ($ret) {
 					$active++;
 				} else {
-					Message::addError('invalid-module-or-machine', $module, $machine);
+					Message::addError('runmode.machine-not-found', $machine);
 				}
 			}
 			$deleted = Database::exec('DELETE FROM runmode
 					WHERE module = :module AND modeid = :modeId AND machineuuid NOT IN (:machines)',
 				compact('module', 'modeId', 'machines'));
-			Message::addError('enabled-removed-save', $active, $deleted);
+			Message::addSuccess('runmode.enabled-removed-save', $active, $deleted);
 			$redirect = Request::post('redirect', false, 'string');
 			if ($redirect !== false) {
 				Util::redirect($redirect);
@@ -141,7 +154,7 @@ class Page_RunMode extends Page
 		$moduleId = $module->getIdentifier();
 		$modeName = RunMode::getModeName($moduleId, $modeId);
 		if ($modeName === false) {
-			Message::addError('invalid-modeid', $modeId);
+			Message::addError('invalid-modeid', $moduleId, $modeId);
 			Util::redirect('?do=runmode');
 		}
 		Render::addTemplate('machine-selector', [
