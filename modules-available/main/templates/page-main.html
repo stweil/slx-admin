@@ -1,5 +1,19 @@
 <div class="jumbotron">
 	<h1>{{lang_welcome}}, {{user}}</h1>
 	<p>{{lang_intro}}</p>
+</div>
 
+<script type="application/javascript"><!--
+document.addEventListener("DOMContentLoaded", function () {
+	if (Date.now && Math.abs(Date.now() / 1000 - {{now}}) > 300) {
+		$('#browser-time').text(new Date().toLocaleString());
+		$('#server-time').text(new Date({{now}} * 1000).toLocaleString());
+		$('#time-warner').show();
+	}
+});
+//--></script>
+
+<div class="alert alert-warning collapse" id="time-warner">
+	{{lang_clockDriftWarn}}<br>
+	<b>{{lang_browserTime}}</b>: <span id="browser-time"></span>, <b>{{lang_serverTime}}</b>: <span id="server-time"></span>
 </div>

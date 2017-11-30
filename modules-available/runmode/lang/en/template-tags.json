@@ -1,0 +1,10 @@
+{
+    "lang_addNewMachines": "Clients",
+    "lang_assignMachineIntroText": "Define the clients which should start a special runmode configuration",
+    "lang_assignRunmodeToMachine": "Runmode",
+    "lang_confirmDelete": "Do you want to delete the runmode for this client?",
+    "lang_isclient": "Pool-Client",
+    "lang_machine": "Client",
+    "lang_mode": "Mode",
+    "lang_specialMachinesForMode": "Runmode"
+}
