@@ -237,17 +237,12 @@ optional:
 			background: #000;
 		}
 
-		.OFF .screen-inner {
+		.OFFLINE .screen-inner {
 			background: #332;
 		}
 
-		/*
-		.OFF .screen-inner:after {
-			content: "\01F4A4";
-		}
-		*/
-
-		.IDLE .screen-inner {
+		.IDLE .screen-inner,
+		.STANDBY .screen-inner {
 			background: #250;
 		}
 
@@ -390,6 +385,10 @@ optional:
 	})();
 
 	$(document).ready(function () {
+		if (!SetUpDate) {
+			fatalError("js_weekcalendar not loaded");
+			return;
+		}
 		applyConfig({{{config}}});
 	});
 
@@ -432,10 +431,10 @@ optional:
 			time = new Date(p[0], p[1], p[2], p[3], p[4], p[5]);
 			console.log(time);
 		}
-		if (time === false || isNaN(time.getTime()) || time.getYear() < 2010) {
+		if (time === false || isNaN(time.getTime()) || time.getFullYear() < 2010) {
 			time = new Date(result.time);
 		}
-		if (isNaN(time.getTime()) || time.getYear() < 2010) {
+		if (isNaN(time.getTime()) || time.getFullYear() < 2010) {
 			time = new Date();
 		}
 		SetUpDate(time);
@@ -1066,8 +1065,10 @@ optional:
 		if (globalConfig.prettytime) {
 			var str = '';
 			if (hours > 0) {
-				str += hours + 'muh';
+				str += hours + 'h ';
 			}
+			str += minutes + 'min ';
+			return str;
 		}
 
 		if (minutes < 10) {
@@ -1579,7 +1580,7 @@ optional:
 				freePcs++;
 			}
 
-			$div.removeClass('BROKEN OFF IDLE OCCUPIED'.replace(update[i].pcState, '')).addClass(update[i].pcState);
+			$div.removeClass('BROKEN OFFLINE IDLE OCCUPIED STANDBY'.replace(update[i].pcState, '')).addClass(update[i].pcState);
 		}
 		room.freePcs = freePcs;
 		UpdateRoomHeader(room);
@@ -1608,6 +1609,7 @@ optional:
 	function scaleRoom(room) {
 		if (!room.$.layout || !room.$.layout.is(':visible')) return;
 		room.resizeRoom = false;
+		if (!room.layout) return;
 		generateOffsetAndScale(room);
 		room.$.layout.css('font-size', Math.floor(room.scale) + 'pt');
 		for (var i = 0; i < room.layout.length; i++) {
