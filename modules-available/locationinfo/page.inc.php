@@ -327,9 +327,6 @@ class Page_LocationInfo extends Page
 	{
 		// Check locations
 		$locationids = self::getLocationIdsFromRequest(true);
-		if (count($locationids) > 4) {
-			$locationids = array_slice($locationids, 0, 4);
-		}
 		return array('locationids' => $locationids);
 	}
 

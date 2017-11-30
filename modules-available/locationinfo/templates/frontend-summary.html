@@ -571,7 +571,13 @@
 		 * @param time Time value
 		 */
 		function updateCoursTimer(id, time) {
-			$("#div_Time_" + id).text(time);
+			// TODO: Add seconds again with a better update rate.
+			var time_split = time.split(":");
+			if (time != "") {
+				$("#div_Time_" + id).text(time_split[0] + ":" + time_split[1]);
+			} else {
+				$("#div_Time_" + id).text(time);
+			}
 		}
 
 		/**
