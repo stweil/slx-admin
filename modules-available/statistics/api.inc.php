@@ -211,7 +211,7 @@ if ($type{0} === '~') {
 				$params['user'] = Request::post('user', null, 'string');
 				$res = Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(),'
 					. $strUpdateBoottime
-					. " logintime = UNIX_TIMESTAMP(), currentuser = :user, state = 'OCCUPIED' "
+					. " logintime = UNIX_TIMESTAMP(), currentuser = :user, currentsession = NULL, state = 'OCCUPIED' "
 					. " WHERE machineuuid = :uuid AND lastseen = :oldlastseen AND state = :oldstate", $params);
 			} else {
 				$res = 0;
