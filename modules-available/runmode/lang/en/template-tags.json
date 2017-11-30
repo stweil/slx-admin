@@ -1,6 +1,6 @@
 {
     "lang_addNewMachines": "Clients",
-    "lang_assignMachineIntroText": "Define the clients which should start a special runmode configuration",
+    "lang_assignMachineIntroText": "Define the clients which should start a special runmode configuration. You can search for clients by UUID, IP address, host name or MAC address.",
     "lang_assignRunmodeToMachine": "Runmode",
     "lang_confirmDelete": "Do you want to delete the runmode for this client?",
     "lang_isclient": "Pool-Client",

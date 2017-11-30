@@ -68,6 +68,8 @@
     "lang_panelsTable": "Panels verwalten",
     "lang_panelsTableHints": "Hier sehen Sie alle erstellen Anzeigetafeln, die per Browser an beliebiger Stelle angezeigt werden k\u00f6nnen, z.B. als digitales T\u00fcrschild.",
     "lang_pleaseSelect": "Bitte w\u00e4hlen\u2026",
+    "lang_prettytime": "PrettyTime",
+    "lang_prettytimeTooltip": "Verwende ein anderes Anzeigeformat f\u00fcr die Uhrzeit",
     "lang_recursiveServerSet": "Auch f\u00fcr alle untergeordneten R\u00e4ume setzen",
     "lang_recursiveSetTooltip": "Wenn aktiviert, wird der Backend-Server auch f\u00fcr alle untergeordneten R\u00e4ume auf den hier gew\u00e4hlten Wert gesetzt",
     "lang_remoteSchedule": "Abruf Belegungsplan",

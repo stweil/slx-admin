@@ -5,6 +5,9 @@
     "ignored-invalid-range": "Ignored entry with invalid range",
     "ignored-invalid-start": "Ignored entry with invalid start time",
     "ignored-line-no-days": "Ignored entry with no days selected",
+    "invalid-backend-type": "Invalid backend type '{{0}}'",
     "invalid-panel-id": "Invalid panel id '{{0}}'",
-    "invalid-server-id": "Invalid server id '{{0}}'"
+    "invalid-panel-type": "Invalid panel type '{{0}}'",
+    "invalid-server-id": "Invalid server id '{{0}}'",
+    "server-id-missing": "Server id is missing"
 }

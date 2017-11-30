@@ -1,6 +1,6 @@
 {
     "lang_addNewMachines": "Clients",
-    "lang_assignMachineIntroText": "Definieren Sie hier Clients, die in einem speziellen Betriebsmodus gestartet werden sollen",
+    "lang_assignMachineIntroText": "Definieren Sie hier Clients, die in einem speziellen Betriebsmodus gestartet werden sollen. Sie k\u00f6nnen Rechner anhand der UUID, IP, Hostname oder MAC-Adresse suchen.",
     "lang_assignRunmodeToMachine": "Betriebsmodus",
     "lang_confirmDelete": "Wollen Sie den Betriebsmodus f\u00fcr diesen Client entfernen?",
     "lang_isclient": "Pool-Client",
