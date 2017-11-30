@@ -10,7 +10,7 @@
 #rolename {
     width: 200px;
     display: inline-block;
-    margin-left: 20px;
+    margin-left: 10px;
 }
 
 .table {
@@ -41,52 +41,48 @@
     margin-bottom: 20px;
 }
 
-.list-group, .checkbox {
-    margin: 0;
+
+.tree-container .selected {
+    background-color: rgba(0, 182, 41, 0.23);
 }
 
-.faded {
-    opacity: 0.6;
-}
-
-.unclickable {
-    pointer-events: none;
-}
-
-input[type='checkbox']:disabled {
-    cursor: inherit;
-}
-
-.module-toggle-group {
-    width: 100%;
-    margin-top: 20px;
-}
-
-.module-container {
+.tree-container {
     -moz-column-gap: 20px;
     -webkit-column-gap: 20px;
     column-gap: 20px;
 }
 
 
-.module-container div {
+.tree-container > ul {
     display: inline-block;
     width: 100%;
+    padding: 0;
 }
 
-
 @media (max-width: 767px) {
-    .module-container {
+    .tree-container {
         -moz-column-count: 1;
         -webkit-column-count: 1;
         column-count: 1;
     }
 }
 
-@media (min-width: 768px) {
-    .module-container {
+@media (min-width: 768px) and (max-width: 991px) {
+    .tree-container {
         -moz-column-count: 2;
         -webkit-column-count: 2;
         column-count: 2;
     }
+}
+
+@media (min-width: 992px) {
+    .tree-container {
+        -moz-column-count: 3;
+        -webkit-column-count: 3;
+        column-count: 3;
+    }
+}
+
+ul {
+    list-style-type: none;
 }

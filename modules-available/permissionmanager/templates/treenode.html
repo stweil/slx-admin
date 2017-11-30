@@ -1,0 +1,11 @@
+{{#toplevel}}<ul>{{/toplevel}}
+	<li title="{{description}}" data-toggle="tooltip" data-placement="left">
+		<div class='checkbox'>
+			<input name='{{checkboxname}}[]' value='{{id}}' type='checkbox' class='form-control' {{#selected}}checked{{/selected}}>
+			<label>{{#toplevel}}<b>{{/toplevel}}{{name}}{{#toplevel}}</b>{{/toplevel}}</label>
+		</div>
+		<ul>
+			{{{HTML}}}
+		</ul>
+	</li>
+{{#toplevel}}</ul>{{/toplevel}}

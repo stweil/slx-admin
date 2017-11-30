@@ -1,27 +1,29 @@
-<div class="col-md-12" style="margin-bottom: 0px;">
-	<div class='page-header'>
-		<div class='pull-right'>
-			<form id="switchForm" method="GET" action="?do=permissionmanager">
-				<input type="hidden" name="do" value="permissionmanager">
+<div class="row">
+	<div class="col-md-12" style="margin-bottom: 0;">
+		<div class='page-header'>
+			<div class='pull-right'>
+				<form id="switchForm" method="GET" action="?do=permissionmanager">
+					<input type="hidden" name="do" value="permissionmanager">
 
-				<div class="btn-group">
-					<button class="btn btn-default {{rolesButtonClass}}" type="submit" name="show" value="roles">
-						<span class="glyphicon glyphicon-education"></span>
-						{{lang_Roles}}
-					</button>
+					<div class="btn-group">
+						<button class="btn btn-default {{rolesButtonClass}}" type="submit" name="show" value="roles">
+							<span class="glyphicon glyphicon-education"></span>
+							{{lang_Roles}}
+						</button>
 
-					<button class="btn btn-default {{usersButtonClass}}" type="submit" name="show" value="users">
-						<span class="glyphicon glyphicon-user"></span>
-						{{lang_Users}}
-					</button>
+						<button class="btn btn-default {{usersButtonClass}}" type="submit" name="show" value="users">
+							<span class="glyphicon glyphicon-user"></span>
+							{{lang_Users}}
+						</button>
 
-					<button class="btn btn-default {{locationsButtonClass}}" type="submit" name="show" value="locations">
-						<span class="glyphicon glyphicon-home"></span>
-						{{lang_Locations}}
-					</button>
-				</div>
-			</form>
+						<button class="btn btn-default {{locationsButtonClass}}" type="submit" name="show" value="locations">
+							<span class="glyphicon glyphicon-home"></span>
+							{{lang_Locations}}
+						</button>
+					</div>
+				</form>
+			</div>
+			<h1>{{lang_moduleName}}</h1>
 		</div>
-		<h1>{{lang_moduleName}}</h1>
 	</div>
 </div>

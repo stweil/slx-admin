@@ -30,8 +30,8 @@ class Page_PermissionManager extends Page
 		} elseif ($action === 'saveRole') {
 			$roleID = Request::post("roleid", false);
 			$rolename = Request::post("rolename");
-			$locations = Request::post("allLocations", "off") == "on" ? array(NULL) : Request::post("locations");
-			$permissions = Request::post("allPermissions", "off") == "on" ? array("*") : Request::post("permissions");;
+			$locations = self::processLocations(Request::post("locations"));
+			$permissions = self::processPermissions(Request::post("permissions"));
 			PermissionDbUpdate::saveRole($rolename, $locations, $permissions, $roleID);
 		}
 	}
@@ -46,13 +46,12 @@ class Page_PermissionManager extends Page
 		// switch between tables, but always show menu to switch tables
 		if ( $show === 'roles' || $show === 'users' || $show === 'locations' ) {
 			// get menu button colors
-			$buttonColors = self::setButtonColors($show);
+			$buttonColors = array();
+			$buttonColors['rolesButtonClass'] = $show === 'roles' ? 'active' : '';
+			$buttonColors['usersButtonClass'] = $show === 'users' ? 'active' : '';
+			$buttonColors['locationsButtonClass'] = $show === 'locations' ? 'active' : '';
 
-			$data = array();
-
-			Render::openTag('div', array('class' => 'row'));
 			Render::addtemplate('_page', $buttonColors);
-			Render::closeTag('div');
 
 			if ($show === "roles") {
 				$data = array("roles" => GetPermissionData::getRoles());
@@ -67,68 +66,128 @@ class Page_PermissionManager extends Page
 		} elseif ($show === "roleEditor") {
 			$data = array();
 
-			$roleID = Request::get("roleid", false);
+			$selectedPermissions = array();
 			$selectedLocations = array();
+			$roleID = Request::get("roleid", false);
 			if ($roleID) {
 				$roleData = GetPermissionData::getRoleData($roleID);
 				$data["roleid"] = $roleID;
 				$data["rolename"] = $roleData["rolename"];
-				if (count($roleData["locations"]) == 1 && $roleData["locations"][0] == 0) {
-					$data["allLocChecked"] = "checked";
-					$data["selectizeClass"] = "faded unclickable";
-				} else {
-					$data["allLocChecked"] = "";
-					$data["selectizeClass"] = "";
-					$selectedLocations = $roleData["locations"];
-				}
-				if (count($roleData["permissions"]) == 1 && $roleData["permissions"][0] == "*") {
-					$data["allPermChecked"] = "checked";
-					$data["permissionsClass"] = "faded unclickable";
-				} else {
-					$data["allPermChecked"] = "";
-					$data["permissionsClass"] = "";
-					$data["selectedPermissions"] = implode(" ", $roleData["permissions"]);
-				}
+				$selectedPermissions = $roleData["permissions"];
+				$selectedLocations = $roleData["locations"];
 			}
 
-			$permissions = PermissionUtil::getPermissions();
+			$data["permissionHTML"] = self::generatePermissionHTML(PermissionUtil::getPermissions(), $selectedPermissions);
+			$data["locationHTML"] = self::generateLocationHTML(Location::getTree(), $selectedLocations);
 
-			$data["locations"] = Location::getLocations($selectedLocations);
-			$data["moduleNames"] = array();
-			foreach (array_keys($permissions) as $moduleid) {
-				$data["moduleNames"][] = array("id" => $moduleid, "name" => Module::get($moduleid)->getDisplayName());
-			}
-			$data["permissionHTML"] = self::generatePermissionHTML($permissions, "*");
 			Render::addTemplate('roleeditor', $data);
 
 		}
 	}
 
-	// Menu: Selected table is shown in blue (btn-primary)
-	private function setButtonColors($show) {
-		if ($show === 'roles') {
-			$buttonColors['rolesButtonClass'] = 'active';
-		} elseif ($show === 'users') {
-			$buttonColors['usersButtonClass'] = 'active';
-		} elseif ($show === 'locations') {
-			$buttonColors['locationsButtonClass'] = 'active';
-		}
-
-		return $buttonColors;
-	}
-
-	private static function generatePermissionHTML($subPermissions, $permString)
+	private static function generatePermissionHTML($subPermissions, $selectedPermissions = array(), $selectAll = false, $permString = "")
 	{
-		$genModuleBox = $permString == "*";
 		$res = "";
+		$toplevel = $permString == "";
+		if ($toplevel && in_array("*", $selectedPermissions)) $selectAll = true;
 		foreach ($subPermissions as $k => $v) {
-			$res .= Render::parse($genModuleBox ? "modulepermissionbox" : (is_array($v) ? "permissiontreenode" : "permission"),
-				array("id" =>  $genModuleBox ? $k : $permString.".".$k,
-						"name" => $genModuleBox ? Module::get($k)->getDisplayName(): $k,
-						"HTML" => is_array($v) ? self::generatePermissionHTML($v, $genModuleBox ? $k : $permString.".".$k) : "",
-						"description" => $v));
+			$leaf = !is_array($v);
+			$nextPermString = $permString ? $permString.".".$k : $k;
+			$id = $leaf ? $nextPermString : $nextPermString.".*";
+			$selected = $selectAll || in_array($id, $selectedPermissions);
+			$res .= Render::parse("treenode",
+				array("id" =>  $id,
+						"name" => $toplevel ? Module::get($k)->getDisplayName() : $k,
+						"toplevel" => $toplevel,
+						"checkboxname" => "permissions",
+						"selected" => $selected,
+						"HTML" => $leaf ? "" : self::generatePermissionHTML($v, $selectedPermissions, $selected, $nextPermString),
+						"description" => $leaf ? $v : ""));
+		}
+		if ($toplevel) {
+			$res = Render::parse("treepanel",
+				array("id" => "*",
+						"name" => Dictionary::translateFile("template-tags", "lang_Permissions"),
+						"checkboxname" => "permissions",
+						"selected" => $selectAll,
+						"HTML" => $res));
 		}
 		return $res;
+	}
+
+	private static function generateLocationHTML($locations, $selectedLocations = array(), $selectAll = false, $toplevel = true)
+	{
+		$res = "";
+		if ($toplevel && in_array(0, $selectedLocations)) $selectAll = true;
+		foreach ($locations as $location) {
+			$selected = $selectAll || in_array($location["locationid"], $selectedLocations);
+			$res .= Render::parse("treenode",
+				array("id" =>  $location["locationid"],
+						"name" => $location["locationname"],
+						"toplevel" => $toplevel,
+						"checkboxname" => "locations",
+						"selected" => $selected,
+						"HTML" => array_key_exists("children", $location) ?
+							self::generateLocationHTML($location["children"], $selectedLocations, $selected, false) : ""));
+		}
+		if ($toplevel) {
+			$res = Render::parse("treepanel",
+				array("id" => 0,
+						"name" => Dictionary::translateFile("template-tags", "lang_Locations"),
+						"checkboxname" => "locations",
+						"selected" => $selectAll,
+						"HTML" => $res));
+		}
+		return $res;
+	}
+
+	private static function processLocations($locations)
+	{
+		if (in_array(0, $locations)) return array(NULL);
+		$result = array();
+		foreach ($locations as $location) {
+			$rootchain = array_reverse(Location::getLocationRootChain($location));
+			foreach ($rootchain as $l) {
+				if (in_array($l, $result)) break;
+				if (in_array($l, $locations)) {
+					$result[] = $l;
+					break;
+				}
+			}
+		}
+		return $result;
+	}
+
+	private static function processPermissions($permissions)
+	{
+		if (in_array("*", $permissions)) return array("*");
+		$result = array();
+		foreach ($permissions as $permission) {
+			$x =& $result;
+			foreach (explode(".", $permission) as $p) {
+				$x =& $x[$p];
+			}
+		}
+		return self::extractPermissions($result);
+	}
+
+	private static function extractPermissions($permissions)
+	{
+		$result = array();
+		foreach ($permissions as $permission => $a) {
+			if (is_array($a)) {
+				if (array_key_exists("*", $a)) {
+					$result[] = $permission.".*";
+				} else {
+					foreach (self::extractPermissions($a) as $subPermission) {
+						$result[] = $permission.".".$subPermission;
+					}
+				}
+			} else {
+				$result[] = $permission;
+			}
+		}
+		return $result;
 	}
 
 }

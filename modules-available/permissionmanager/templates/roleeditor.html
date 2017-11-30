@@ -3,116 +3,57 @@
 	<input type="hidden" name="action" value="saveRole">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="roleid" value="{{roleid}}">
+
 	<div class="row">
 		<div class="col-md-12" style="margin-bottom: 20px;">
-			<b>{{lang_Name}}:</b>
-			<input name="rolename" value="{{rolename}}" type="text" id="rolename" class="form-control">
-			<button type="submit" id="saveButton" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_Save}}</button>
-			<button type="button" id="cancelButton" class="btn btn-default pull-right">{{lang_Cancel}}</button>
+			<ul class="nav nav-tabs text-center" role="tablist">
+				<li role="presentation" class="active"><a href="#permissions" role="tab" data-toggle="tab">{{lang_Permissions}}</a></li>
+				<li role="presentation"><a href="#locations" role="tab" data-toggle="tab">{{lang_Locations}}</a></li>
+				<li style="float: none; display: inline-block">
+					<b>{{lang_Name}}:</b>
+					<input name="rolename" value="{{rolename}}" type="text" id="rolename" class="form-control">
+				</li>
+				<li style="float: right;">
+					<button type="button" id="cancelButton" class="btn btn-default">{{lang_Cancel}}</button>
+					<button type="submit" id="saveButton" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_Save}}</button>
+				</li>
+			</ul>
 		</div>
 	</div>
 	<div class="row" style="margin-bottom: 20px;">
-		<div class="col-md-3">
-			<b style="line-height: 34px">{{lang_Locations}}:</b>
-			<div class="pull-right"><input name="allLocations" {{allLocChecked}} type="checkbox" id="allLocations"></div>
-		</div>
-		<div id="selectize-container" class="col-md-9 text-left {{selectizeClass}}">
-			<select multiple name="locations[]" id="select-location">
-				<option value></option>
-				{{#locations}}
-				<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
-				{{/locations}}
-			</select>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-3">
-			<b style="line-height: 34px">{{lang_Permissions}}:</b>
-			<div class="pull-right"><input name="allPermissions" {{allPermChecked}} type="checkbox" id="allPermissions"></div>
-			<div class="btn-group-vertical module-toggle-group permissions-container {{permissionsClass}}" role="group">
-				{{#moduleNames}}
-				<button id="button-{{id}}" type="button" class="btn btn-default module-toggle" data-moduleid="{{id}}">{{name}}</button>
-				{{/moduleNames}}
+		<div class="col-md-12">
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane active" id="permissions">
+					{{{permissionHTML}}}
+				</div>
+				<div role="tabpanel" class="tab-pane" id="locations">
+					{{{locationHTML}}}
+				</div>
 			</div>
 		</div>
-		<div class="col-md-9 module-container permissions-container {{permissionsClass}}">
-			{{{permissionHTML}}}
-		</div>
 	</div>
+
 </form>
 
 <script type="application/javascript">
 
-	selectedPermissions = "{{selectedPermissions}}";
-
 	document.addEventListener("DOMContentLoaded", function () {
 
-		$('#select-location').selectize({
-			allowEmptyOption: false,
-			maxItems: null,
-			highlight: false,
-			hideSelected: true,
-			create: false,
-			plugins: [ "remove_button" ]
-		});
-
-		var allLocations = $("#allLocations");
-		allLocations.bootstrapSwitch("size", "normal");
-		allLocations.bootstrapSwitch("labelWidth", 1);
-		allLocations.bootstrapSwitch("onText", "{{lang_all}}");
-		allLocations.bootstrapSwitch("offText", "{{lang_selected}}");
-
-		allLocations.on('switchChange.bootstrapSwitch', function(event, state) {
-			if (state) {
-				$("#selectize-container").addClass("faded unclickable");
-			} else {
-				$("#selectize-container").removeClass("faded unclickable");
-			}
-		});
-
-		var allPermissions = $("#allPermissions");
-		allPermissions.bootstrapSwitch("size", "normal");
-		allPermissions.bootstrapSwitch("labelWidth", 1);
-		allPermissions.bootstrapSwitch("onText", "{{lang_all}}");
-		allPermissions.bootstrapSwitch("offText", "{{lang_selected}}");
-
-
-		allPermissions.on('switchChange.bootstrapSwitch', function(event, state) {
-			if (state) {
-				$(".permissions-container").addClass("faded unclickable");
-			} else {
-				$(".permissions-container").removeClass("faded unclickable");
-			}
-		});
-
-		$(".module-toggle").click(function () {
-			var button = $(this);
-			var moduleBox = $("#" + button.data("moduleid"));
-			if (button.hasClass("btn-default")) {
-				button.removeClass("btn-default");
-				button.addClass("btn-primary");
-				moduleBox.show();
-			} else {
-				button.removeClass("btn-primary");
-				button.addClass("btn-default");
-				moduleBox.hide();
-			}
-		});
-
-		$(".module-container input[type=checkbox]").change(function () {
+		$(".tree-panel input[type=checkbox]").change(function () {
+			var checked = $(this).prop("checked");
 			var parent = $(this).parent().parent();
 			if (parent.hasClass("panel-heading")) parent = parent.parent();
-			parent = parent.find("ul:first");
-			parent.find("ul").removeClass("faded");
+
 			var checkboxes = parent.find("input[type=checkbox]");
-			if (parent.hasClass("faded")) {
-				checkboxes.prop("disabled", false);
-				checkboxes.prop("checked", false);
-				parent.removeClass("faded");
-			} else {
-				checkboxes.prop("disabled", true);
+			if (checked) {
 				checkboxes.prop("checked", true);
-				parent.addClass("faded");
+			} else {
+				checkboxes.prop("checked", false);
+				while (!parent.hasClass("tree-panel")) {
+					parent = parent.parent().parent();
+					if (parent.hasClass("tree-container")) parent = parent.parent().parent();
+					parent.find("input[type=checkbox]:first").prop("checked", false);
+				}
 			}
 		});
 		
@@ -127,19 +68,6 @@
 				return false;
 			}
 		});
-
-		var permissions = selectedPermissions.split(" ");
-		var arrayLength = permissions.length;
-		for (var i = 0; i < arrayLength; i++) {
-			var checkbox = $("input[type=checkbox][value='"+permissions[i]+"']");
-			checkbox.trigger('change').attr('checked', 'checked');
-			var moduleBox = checkbox.closest(".module-box");
-			moduleBox.show();
-			var button = $("#button-"+moduleBox.attr('id'));
-			button.removeClass("btn-default");
-			button.addClass("btn-primary");
-		}
-
 
 		$('[data-toggle="tooltip"]').tooltip({
 			container: 'body',
