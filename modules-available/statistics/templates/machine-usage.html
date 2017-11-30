@@ -5,46 +5,50 @@
 				{{lang_usageDetails}}
 			</div>
 			<div class="panel-body">
-				<div class="row">
-					<div class="col-sm-6">
-						<table class="table table-condensed">
-							<tr>
-								<th>{{lang_eventType}}</th>
-								<th>{{lang_when}}</th>
-								<th>{{lang_duration}}</th>
-							</tr>
-							{{#rows}}
-							<tr>
-								<td><span class="glyphicon glyphicon-{{glyph}}"></span></td>
-								<td>{{from}}</td>
-								<td>{{duration}}</td>
-							</tr>
-							{{/rows}}
-						</table>
+				{{#isclient}}
+					<div class="row">
+						<div class="col-sm-6">
+							<table class="table table-condensed">
+								<tr>
+									<th>{{lang_eventType}}</th>
+									<th>{{lang_when}}</th>
+									<th>{{lang_duration}}</th>
+								</tr>
+								{{#rows}}
+									<tr>
+										<td><span class="glyphicon glyphicon-{{glyph}}"></span></td>
+										<td>{{from}}</td>
+										<td>{{duration}}</td>
+									</tr>
+								{{/rows}}
+							</table>
+						</div>
+						<div class="col-sm-6">
+							<table class="table table-condensed">
+								{{#hasrows2}}
+									<tr>
+										<th>{{lang_eventType}}</th>
+										<th>{{lang_when}}</th>
+										<th>{{lang_duration}}</th>
+									</tr>
+								{{/hasrows2}}
+								{{#rows2}}
+									<tr>
+										<td><span class="glyphicon glyphicon-{{glyph}}"></span></td>
+										<td>{{from}}</td>
+										<td>{{duration}}</td>
+									</tr>
+								{{/rows2}}
+							</table>
+						</div>
 					</div>
-					<div class="col-sm-6">
-						<table class="table table-condensed">
-							{{#hasrows2}}
-							<tr>
-								<th>{{lang_eventType}}</th>
-								<th>{{lang_when}}</th>
-								<th>{{lang_duration}}</th>
-							</tr>
-							{{/hasrows2}}
-							{{#rows2}}
-							<tr>
-								<td><span class="glyphicon glyphicon-{{glyph}}"></span></td>
-								<td>{{from}}</td>
-								<td>{{duration}}</td>
-							</tr>
-							{{/rows2}}
-						</table>
-					</div>
-				</div>
+				{{/isclient}}
 				<div class="timebar">&nbsp;{{{graph}}}</div>
-				<div>
-					{{lang_timebarDesc}}
-				</div>
+				{{#isclient}}
+					<div>
+						{{lang_timebarDesc}}
+					</div>
+				{{/isclient}}
 			</div>
 		</div>
 	</div>

@@ -74,6 +74,7 @@
 			{{/state_STANDBY}}
 			<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
 			<div class="small">{{machineuuid}}</div>
+			{{#rmmodule}}<div class="small">{{lang_runMode}}: <a class="slx-bold" href="?do=runmode&amp;module={{rmmodule}}">{{rmmodule}}</a></div>{{/rmmodule}}
 		</td>
 		<td><b><a href="?do=Statistics&amp;show=list&amp;filters=subnet={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
 		<td class="text-right">{{lastseen}}</td>

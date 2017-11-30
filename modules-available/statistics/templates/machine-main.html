@@ -80,6 +80,14 @@
 							{{/session}}
 						</td>
 					</tr>
+					{{#modeid}}
+						<tr>
+							<td class="text-nowrap">{{lang_runMode}}</td>
+							<td>
+								<a href="?do={{modeid}}">{{moduleName}}</a> – {{modeName}}
+							</td>
+						</tr>
+					{{/modeid}}
 				</table>
 			</div>
 		</div>

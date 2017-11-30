@@ -29,7 +29,7 @@ class Filter
 		$addendum = '';
 
 		/* check if we have to do some parsing*/
-		if (Page_Statistics::$columns[$this->column]['type'] == 'date') {
+		if (Page_Statistics::$columns[$this->column]['type'] === 'date') {
 			$args[$key] = strtotime($this->argument);
 		} else {
 			$args[$key] = $this->argument;
@@ -180,8 +180,7 @@ class StateFilter extends Filter
 {
 	public function __construct($operator, $argument)
 	{
-		$this->operator = $operator;
-		$this->argument = $argument;
+		parent::__construct(null, $operator, $argument);
 	}
 
 	public function whereClause(&$args, &$joins)
@@ -236,3 +235,20 @@ class SubnetFilter extends Filter
 	}
 }
 
+class IsClientFilter extends Filter
+{
+	public function __construct($argument)
+	{
+		parent::__construct(null, null, $argument);
+	}
+
+	public function whereClause(&$args, &$joins)
+	{
+		if ($this->argument) {
+			$joins[] = ' LEFT JOIN runmode USING (machineuuid)';
+			return "(runmode.isclient <> 0 OR runmode.isclient IS NULL)";
+		}
+		$joins[] = ' INNER JOIN runmode USING (machineuuid)';
+		return "runmode.isclient = 0";
+	}
+}
