@@ -15,23 +15,25 @@ class Page_InternetAccess extends Page
 		$action = Request::any('action', 'show');
 
 		if ($action == 'save') {
-			if (isset($_POST['PROXY_CONF'])) {
-				$data = array();
-				foreach (array('PROXY_CONF', 'PROXY_ADDR', 'PROXY_PORT', 'PROXY_USERNAME', 'PROXY_PASSWORD') as $key) {
-					$data[$key] = Request::post($key, '');
-				}
-				if (!FileUtil::arrayToFile(CONFIG_PROXY_CONF, $data)) {
-					Message::addError('main.error-write', CONFIG_PROXY_CONF);
-					Util::redirect();
-				} else {
-					Message::addSuccess('settings-updated');
-					Taskmanager::release(Taskmanager::submit('ReloadProxy'));
-					$taskids = array();
-					Trigger::stopDaemons(NULL, $taskids);
-					$taskids = array();
-					Trigger::startDaemons(NULL, $taskids);
-					Session::set('ia-restart', $taskids);
-					Util::redirect('?do=InternetAccess&show=update');
+			if (User::hasPermission("configuration.safe")) {
+				if (isset($_POST['PROXY_CONF'])) {
+					$data = array();
+					foreach (array('PROXY_CONF', 'PROXY_ADDR', 'PROXY_PORT', 'PROXY_USERNAME', 'PROXY_PASSWORD') as $key) {
+						$data[$key] = Request::post($key, '');
+					}
+					if (!FileUtil::arrayToFile(CONFIG_PROXY_CONF, $data)) {
+						Message::addError('main.error-write', CONFIG_PROXY_CONF);
+						Util::redirect();
+					} else {
+						Message::addSuccess('settings-updated');
+						Taskmanager::release(Taskmanager::submit('ReloadProxy'));
+						$taskids = array();
+						Trigger::stopDaemons(null, $taskids);
+						$taskids = array();
+						Trigger::startDaemons(null, $taskids);
+						Session::set('ia-restart', $taskids);
+						Util::redirect('?do=InternetAccess&show=update');
+					}
 				}
 			}
 		}
