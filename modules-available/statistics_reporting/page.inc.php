@@ -55,8 +55,6 @@ class Page_Statistics_Reporting extends Page
 			if (User::hasPermission("table.export") && User::hasPermission("table.view.$this->type")) {
 				$this->doExport();
 				// Does not return
-			} else {
-				Message::addError('main.no-permission');
 			}
 		}
 		// Get report - fetch data exactly the way it would automatically be reported
@@ -67,10 +65,7 @@ class Page_Statistics_Reporting extends Page
 				Header('Content-Disposition: attachment; filename=remote-report.json');
 				Header('Content-Type: application/json; charset=utf-8');
 				die(json_encode($report));
-			} else {
-				Message::addError('main.no-permission');
 			}
-
 		}
 	}
 
@@ -109,6 +104,7 @@ class Page_Statistics_Reporting extends Page
 				$data['tables'][] = array(
 					'name' => Dictionary::translate('table_' . $table, true),
 					'value' => $table,
+					'allowed' => User::hasPermission("table.view.$table"),
 					'selected' => ($this->type === $table) ? 'selected' : '',
 				);
 			}
@@ -130,15 +126,17 @@ class Page_Statistics_Reporting extends Page
 				$data['settingsButtonClass'] = 'danger';
 			}
 
+			$data['allowedExport'] = User::hasPermission("table.export") && User::hasPermission("table.view.$this->type");
+			$data['allowedDownload'] = User::hasPermission("reporting.download");
+			$data['allowedReportChange'] = User::hasPermission("reporting.change");
+
 			Render::addTemplate('columnChooser', $data);
 
 			$data['data'] = $this->fetchData(GETDATA_PRINTABLE);
 
-			if (User::hasPermission("table.view.$this->type"))
+			if (User::hasPermission("table.view.$this->type")) {
 				Render::addTemplate('table-' . $this->type, $data);
-			else
-				Message::addError('main.no-permission');
-
+			}
 		}
 	}
 
@@ -146,23 +144,24 @@ class Page_Statistics_Reporting extends Page
 	{
 		$this->action = Request::any('action', false, 'string');
 		if ($this->action === 'setReporting') {
-			if (!User::hasPermission("reporting.change")) {
-				die("Permission denied.");
-			}
-			$state = Request::post('reporting', false, 'string');
-			if ($state === false) {
-				die('Missing setting value.');
-			}
-			RemoteReport::setReportingEnabled($state);
-			$data = array();
-			if (RemoteReport::isReportingEnabled()) {
-				$data['class'] = 'default';
-				$data['checked'] = true;
+			if (User::hasPermission("reporting.change")) {
+				$state = Request::post('reporting', false, 'string');
+				if ($state === false) {
+					die('Missing setting value.');
+				}
+				RemoteReport::setReportingEnabled($state);
+				$data = array();
+				if (RemoteReport::isReportingEnabled()) {
+					$data['class'] = 'default';
+					$data['checked'] = true;
+				} else {
+					$data['class'] = 'danger';
+				}
+				Header('Content-Type: application/json; charset=utf-8');
+				die(json_encode($data));
 			} else {
-				$data['class'] = 'danger';
+				die('No permission.');
 			}
-			Header('Content-Type: application/json; charset=utf-8');
-			die(json_encode($data));
 		} else {
 			echo 'Invalid action.';
 		}
