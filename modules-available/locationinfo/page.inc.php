@@ -223,14 +223,14 @@ class Page_LocationInfo extends Page
 		if ($locationids === false) {
 			if (!$failIfEmpty)
 				return array();
-			Message::addError('main.paramter-missing', 'locationids');
+			Message::addError('main.parameter-missing', 'locationids');
 			Util::redirect('?do=locationinfo');
 		}
 		$locationids = explode(',', $locationids);
 		$all = array_map(function ($item) { return $item['locationid']; }, Location::queryLocations());
 		$locationids = array_filter($locationids, function ($item) use ($all) { return in_array($item, $all); });
 		if ($failIfEmpty && empty($locationids)) {
-			Message::addError('main.paramter-empty', 'locationids');
+			Message::addError('main.parameter-empty', 'locationids');
 			Util::redirect('?do=locationinfo');
 		}
 		return $locationids;

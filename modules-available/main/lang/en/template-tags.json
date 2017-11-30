@@ -1,6 +1,8 @@
 {
+    "lang_browserTime": "Browser",
     "lang_changePassword": "Change password",
-    "lang_goTo": "Gehe zu",
+    "lang_clockDriftWarn": "The local system's\/browser's time doesn't match the server's time. Please make sure the server's clock is running correctly, otherwise time sensitive settings or tasks might not work properly.",
+    "lang_goTo": "Go to",
     "lang_intro": "This is the bwLehrpool configuration interface.",
     "lang_introGuest": "This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",
     "lang_language": "Language",
@@ -11,6 +13,7 @@
     "lang_needsSetup": "Setup incomplete",
     "lang_noExistingAccount": "No account has been created yet. Sign up to become the administrator.",
     "lang_register": "Register",
+    "lang_serverTime": "Server",
     "lang_toggleNavigation": "toggle navigation",
     "lang_translations": "Translations",
     "lang_warning": "Warning",

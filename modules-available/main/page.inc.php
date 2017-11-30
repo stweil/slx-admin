@@ -19,7 +19,8 @@ class Page_Main extends Page
 		// Logged in here
 		
 		Render::addTemplate('page-main', array(
-			'user' => User::getName()
+			'user' => User::getName(),
+			'now' => time(),
 		));
 
 		// Warnings
