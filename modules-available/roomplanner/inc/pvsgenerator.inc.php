@@ -216,7 +216,7 @@ class PvsGenerator
 			ConfigHolder::add("SLX_ADDONS", false, 100000);
 			ConfigHolder::add("SLX_PVS_DEDICATED", 'yes');
 			ConfigHolder::add("SLX_EXAM", false, 100000);
-			//ConfigHolder::add("SLX_SYSTEMD_TARGET", 'pvs-dedicated', 100000);
+			ConfigHolder::add("SLX_AUTOLOGIN", 'ON', 100000);
 		} else {
 			ConfigHolder::add("SLX_PVS_HYBRID", 'yes');
 		}
