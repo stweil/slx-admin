@@ -54,9 +54,18 @@ class PvsGenerator
 		/* collect names and build room blocks - filter empty rooms while at it */
 		$roomNames = array();
 		$roomBlocks = '';
+		$overrides = [];
 		foreach ($rooms as $room) {
-			if (is_null($room['notnull']) || isset($room['skip']) // Not leaf
-				|| empty($room['managerip'])) // rooms without managerips don't make sense
+			if (is_null($room['notnull']) || isset($room['skip'])) // Not leaf
+				continue;
+			if (Module::isAvailable('runmode')) {
+				$pc = RunMode::getForMode('roomplanner', $room['locationid']);
+				if (!empty($pc)) {
+					$pc = array_pop($pc);
+					$room['managerip'] = $pc['clientip'];
+				}
+			}
+			if (empty($room['managerip'])) // rooms without managerips don't make sense
 				continue;
 			$roomBlock = PvsGenerator::generateRoomBlock($room);
 			if ($roomBlock === false)

@@ -83,6 +83,12 @@ class InfoPanel
 			$idList = array_keys($array);
 		}
 
+		$ignoreList = array();
+		if (Module::isAvailable('runmode')) {
+			// Ignore clients with special runmode not marked as still being a client
+			$ignoreList = RunMode::getAllClients(false, true);
+		}
+
 		$positionCol = $withPosition ? 'm.position,' : '';
 		$query = "SELECT m.locationid, m.machineuuid, $positionCol m.logintime, m.lastseen, m.lastboot, m.state FROM machine m
 				WHERE m.locationid IN (:idlist)";
@@ -90,6 +96,8 @@ class InfoPanel
 
 		// Iterate over matching machines
 		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
+			if (isset($ignoreList[$row['machineuuid']]))
+				continue;
 			settype($row['locationid'], 'int');
 			if (!isset($array[$row['locationid']])) {
 				$array[$row['locationid']] = array('id' => $row['locationid'], 'machines' => array());

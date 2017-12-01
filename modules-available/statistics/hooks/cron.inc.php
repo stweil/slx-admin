@@ -4,9 +4,14 @@ function logstats()
 {
 	$NOW = time();
 	$cutoff = $NOW - 86400 * 30;
-	$known = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE lastseen > $cutoff");
-	$on = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE state IN ('IDLE', 'OCCUPIED')");
-	$used = Database::queryFirst("SELECT Count(*) AS val FROM machine WHERE state = 'OCCUPIED'");
+	$join = $where = '';
+	if (Module::get('runmode') !== false) {
+		$join = 'LEFT JOIN runmode r USING (machineuuid)';
+		$where = 'AND (r.isclient IS NULL OR r.isclient <> 0)';
+	}
+	$known = Database::queryFirst("SELECT Count(*) AS val FROM machine m $join WHERE m.lastseen > $cutoff $where");
+	$on = Database::queryFirst("SELECT Count(*) AS val FROM machine m $join WHERE m.state IN ('IDLE', 'OCCUPIED') $where");
+	$used = Database::queryFirst("SELECT Count(*) AS val FROM machine m $join WHERE m.state = 'OCCUPIED' $where");
 	Database::exec("INSERT INTO statistic (dateline, typeid, clientip, username, data) VALUES (:now, '~stats', '', '', :vals)", array(
 		'now' => $NOW,
 		'vals' => $known['val'] . '#' . $on['val'] . '#' . $used['val'],

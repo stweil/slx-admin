@@ -79,7 +79,6 @@ if ($type{0} === '~') {
 			'id44mb'     => $id44mb,
 			'badsectors' => $badsectors,
 			'data'       => $data,
-			'hostname'   => $hostname,
 			'state'      => 'IDLE',
 		);
 		// Create/update machine entry
