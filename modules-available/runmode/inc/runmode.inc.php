@@ -190,7 +190,7 @@ class RunMode
 		if ($withData) {
 			$xtra .= ', modedata';
 		}
-		$res = Database::simpleQuery("SELECT machineuuid, module, modeid, isclient $withData FROM runmode");
+		$res = Database::simpleQuery("SELECT machineuuid, module, modeid, isclient $xtra FROM runmode");
 		$ret = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($clientsOnly && !$row['isclient'])
