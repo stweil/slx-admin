@@ -248,10 +248,11 @@ class Page_Roomplanner extends Page
 
 	protected function getFurniture($config)
 	{
-		if ($config === false) {
+		if ($config === false)
 			return array();
-		}
 		$config = json_decode($config['roomplan'], true);
+		if (!is_array($config))
+			return array();
 		return $config;
 	}
 
