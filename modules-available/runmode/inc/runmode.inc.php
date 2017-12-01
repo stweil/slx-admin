@@ -160,7 +160,7 @@ class RunMode
 			$join = $sel = '';
 		}
 		$res = Database::simpleQuery(
-			"SELECT r.machineuuid, r.modedata $sel
+			"SELECT r.machineuuid, r.modedata, r.isclient $sel
 				FROM runmode r $join
 				WHERE module = :module AND modeid = :modeId",
 			compact('module', 'modeId'));
@@ -174,6 +174,28 @@ class RunMode
 			} else {
 				$ret[] = $row;
 			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * Return assoc array of all configured clients.
+	 * @param bool $withData also return data field?
+	 * @param bool $clientsOnly only return those with isclient == true
+	 * @return array all the entries from the table
+	 */
+	public static function getAllClients($withData = false, $clientsOnly = false)
+	{
+		$xtra = '';
+		if ($withData) {
+			$xtra .= ', modedata';
+		}
+		$res = Database::simpleQuery("SELECT machineuuid, module, modeid, isclient $withData FROM runmode");
+		$ret = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($clientsOnly && !$row['isclient'])
+				continue;
+			$ret[$row['machineuuid']] = $row;
 		}
 		return $ret;
 	}
