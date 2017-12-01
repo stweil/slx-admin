@@ -4,11 +4,11 @@ var slxTries = {};
 var slxCurrent = false;
 var slxTimer = false;
 
-function slxRunInstall(btn) {
+function slxRunInstall() {
 	if (onceOnlyGoddammit)
 		return;
-	$(btn).prop('disabled', true);
 	onceOnlyGoddammit = true;
+	$('.install-btn').prop('disabled', true);
 	var first = false;
 	list = $('.id-col').each(function () {
 		var id = $(this).text();

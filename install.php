@@ -343,6 +343,9 @@ if (DIRECT_MODE) {
 	</head>
 	<body>
 		<h1>Modules</h1>
+		<button onclick="slxRunInstall()" class="install-btn">Install/Upgrade</button>
+		<br>
+		<br>
 		<table>
 			<tr><th>Module</th><th>Status</th></tr>
 HERE;
@@ -353,7 +356,7 @@ HERE;
 	echo <<<HERE
 		</table>
 		<br><br>
-		<button onclick="slxRunInstall(this)">Install/Upgrade</button>
+		<button onclick="slxRunInstall()" class="install-btn">Install/Upgrade</button>
 		<script src="script/jquery.js"></script>
 		<script src="script/install.js"></script>
 	</body>
