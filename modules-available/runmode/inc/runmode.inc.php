@@ -181,10 +181,10 @@ class RunMode
 	/**
 	 * Return assoc array of all configured clients.
 	 * @param bool $withData also return data field?
-	 * @param bool $clientsOnly only return those with isclient == true
+	 * @param bool $isClient true = return clients only, false = return non-clients only, null = return both
 	 * @return array all the entries from the table
 	 */
-	public static function getAllClients($withData = false, $clientsOnly = false)
+	public static function getAllClients($withData = false, $isClient = null)
 	{
 		$xtra = '';
 		if ($withData) {
@@ -193,7 +193,7 @@ class RunMode
 		$res = Database::simpleQuery("SELECT machineuuid, module, modeid, isclient $xtra FROM runmode");
 		$ret = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if ($clientsOnly && !$row['isclient'])
+			if (!is_null($isClient) && ($row['isclient'] != 0) !== $isClient)
 				continue;
 			$ret[$row['machineuuid']] = $row;
 		}

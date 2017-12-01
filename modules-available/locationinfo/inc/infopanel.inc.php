@@ -86,7 +86,7 @@ class InfoPanel
 		$ignoreList = array();
 		if (Module::isAvailable('runmode')) {
 			// Ignore clients with special runmode not marked as still being a client
-			$ignoreList = RunMode::getAllClients(false, true);
+			$ignoreList = RunMode::getAllClients(false, false);
 		}
 
 		$positionCol = $withPosition ? 'm.position,' : '';
