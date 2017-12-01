@@ -4,6 +4,18 @@
 		<a href="?do=Locations&amp;action=showsubnets" class="btn btn-default"><span class="glyphicon glyphicon-list-alt"></span> {{lang_thisListBySubnet}}</a>
 	</div>
 	<h1>{{lang_locationsMainHeading}}</h1>
+
+	{{#overlapSelf}}
+		<div class="alert alert-warning">
+			{{lang_locationSelfOverlap}}: <b>{{locationname}}</b>
+		</div>
+	{{/overlapSelf}}
+	{{#overlapOther}}
+		<div class="alert alert-danger">
+			{{lang_locationOtherOverlap}}: <b>{{name1}}</b> – <b>{{name2}}</b>
+		</div>
+	{{/overlapOther}}
+
 	<table class="table table-condensed locations" style="margin-bottom:0px">
 		<tr>
 			<th width="100%">{{lang_locationName}}</th>
@@ -106,16 +118,7 @@
 		</table>
 	</form>
 </div>
-{{#overlapSelf}}
-<div class="alert alert-warning">
-	{{lang_locationSelfOverlap}}: <b>{{locationname}}</b>
-</div>
-{{/overlapSelf}}
-{{#overlapOther}}
-<div class="alert alert-danger">
-	{{lang_locationOtherOverlap}}: <b>{{name1}}</b> – <b>{{name2}}</b>
-</div>
-{{/overlapOther}}
+
 <script type="text/javascript"><!--
 var slxAddCounter = 0;
 var slxLastLocation = false;
