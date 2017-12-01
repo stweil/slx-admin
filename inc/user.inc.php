@@ -35,7 +35,9 @@ class User
 			$permission = $module ? $module->getIdentifier().".".$permission : $permission;
 			return PermissionUtil::userHasPermission(self::$user['userid'], $permission, $locationid);
 		}
-		return (self::$user['permissions'] & (Permission::get($permission) | Permission::get('superadmin'))) != 0;
+		if (self::$user['permissions'] & Permission::get('superadmin'))
+			return true;
+		return (self::$user['permissions'] & Permission::get($permission)) != 0;
 	}
 
 	public static function getAllowedLocations($permission)
