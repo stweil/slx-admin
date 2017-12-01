@@ -12,8 +12,8 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<div class="radio">
-				<input type="radio" name="storetype" value="internal" {{pre-internal}}>
-				<label>{{lang_intern}}</label>
+				<input type="radio" name="storetype" value="internal" {{pre-internal}} id="id-internal">
+				<label for="id-internal">{{lang_intern}}</label>
 			</div>
 		</div>
 		<div class="panel-body">
@@ -24,8 +24,8 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<div class="radio radio-inline">
-				<input type="radio" name="storetype" value="nfs" {{pre-nfs}}>
-				<label>NFS</label>
+				<input type="radio" name="storetype" value="nfs" {{pre-nfs}} id="id-nfs">
+				<label for="id-nfs">NFS</label>
 			</div>
 			<a class="btn btn-default btn-sm" data-toggle="modal" data-target="#help-nfs"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</div>
@@ -40,8 +40,8 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<div class="radio">
-				<input type="radio" name="storetype" value="cifs" {{pre-cifs}}>
-				<label>CIFS</label>
+				<input type="radio" name="storetype" value="cifs" {{pre-cifs}} id="id-cifs">
+				<label for="id-cifs">CIFS</label>
 			</div>
 		</div>
 		<div class="panel-body">

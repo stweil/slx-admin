@@ -15,9 +15,18 @@
 
 			<div class="form-group">
 				<strong>{{lang_bootBehavior}}</strong>
-				<div class="radio"><input type="radio" name="defaultentry" value="net" {{active-net}}><label>bwLehrpool</label></div>
-				<div class="radio"><input type="radio" name="defaultentry" value="hdd" {{active-hdd}}><label>{{lang_localHDD}}</label></div>
-				<div class="radio"><input type="radio" name="defaultentry" value="custom" {{active-custom}}><label>{{lang_customEntry}} (&quot;custom&quot;)</label></div>
+				<div class="radio">
+					<input type="radio" name="defaultentry" value="net" {{active-net}} id="id-net">
+					<label for="id-net">bwLehrpool</label>
+				</div>
+				<div class="radio">
+					<input type="radio" name="defaultentry" value="hdd" {{active-hdd}} id="id-hdd">
+					<label for="id-hdd">{{lang_localHDD}}</label>
+				</div>
+				<div class="radio">
+					<input type="radio" name="defaultentry" value="custom" {{active-custom}} id="id-custom">
+					<label for="id-custom">{{lang_customEntry}} (&quot;custom&quot;)</label>
+				</div>
 			</div>
 
 			<div class="form-group">

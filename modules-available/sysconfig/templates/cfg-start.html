@@ -15,7 +15,10 @@
 				<div class="input-group">
 					<span class="input-group-addon">
 						{{#unique}}
-						<input type="radio" name="module[{{groupid}}]" value="{{moduleid}}" id="module{{moduleid}}" {{#active}}checked{{/active}}>
+						<div class="radio">
+							<input type="radio" name="module[{{groupid}}]" value="{{moduleid}}" id="module{{moduleid}}" {{#active}}checked{{/active}}>
+							<label></label>
+						</div>
 						{{/unique}}
 						{{^unique}}
 						<div class="checkbox">

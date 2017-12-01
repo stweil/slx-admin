@@ -573,6 +573,18 @@ it only applies if they're in a container that has the checkbox class */
 	margin-top: 0;
 }
 
+.input-group-addon > .checkbox,
+.input-group-addon > .radio {
+	margin: 0;
+	line-height: normal;
+	text-align: left;
+}
+
+.checkbox input[type="checkbox"] + label:empty,
+.radio input[type="radio"] + label:empty {
+	padding: 0;
+}
+
 /* Hack to get ellipsis in containers without absolute width */
 /* Use: <table class="slx-ellipsis"><tr><td>my text bla bla</td></tr></table> */
 
