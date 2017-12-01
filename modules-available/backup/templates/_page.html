@@ -7,12 +7,12 @@
 		<div class="panel-heading">{{lang_backup}}</div>
 		<div class="panel-body">
 			<p>{{lang_backupDescription}}</p>
-			<button class="btn btn-primary pull-right" type="submit"><span class="glyphicon glyphicon-save"></span> {{lang_download}}</button>
-			<div class="text-right">
+			<p class="text-right">
 				{{lang_lastBackup}}:
 				{{^last_backup}}{{lang_unknown}}{{/last_backup}}
 				{{last_backup}}
-			</div>
+			</p>
+			<button class="btn btn-primary pull-right" type="submit"><span class="glyphicon glyphicon-save"></span> {{lang_download}}</button>
 		</div>
 	</div>
 </form>
@@ -34,15 +34,15 @@
 			</div>
 			<div>
 				<div class="checkbox">
-					<input type="checkbox" name="restore_openslx" checked="checked">
-					<label><b>{{lang_restoreSystemConfig}}</b></label>
+					<input type="checkbox" name="restore_openslx" checked="checked" id="id-sysonfig">
+					<label for="id-sysonfig"><b>{{lang_restoreSystemConfig}}</b></label>
 				</div>
 				<p><i>{{lang_systemExplanation}}</i></p>
 			</div>
 			<div>
 				<div class="checkbox">
-					<input type="checkbox" name="restore_dozmod" checked="checked">
-					<label><b>{{lang_restoreDozmodConfig}}</b></label>
+					<input type="checkbox" name="restore_dozmod" checked="checked" id="id-dozmod">
+					<label for="id-dozmod"><b>{{lang_restoreDozmodConfig}}</b></label>
 				</div>
 				<p><i>{{lang_dozmodExplanation}}</i></p>
 			</div>
