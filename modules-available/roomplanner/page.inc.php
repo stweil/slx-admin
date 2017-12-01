@@ -100,7 +100,7 @@ class Page_Roomplanner extends Page
 			$query = Request::get('query', false, 'string');
 			$aquery = preg_replace('/[^\x01-\x7f]+/', '%', $query);
 
-			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
+			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname, fixedlocationid '
 				. 'FROM machine '
 				. 'WHERE machineuuid LIKE :aquery '
 				. ' OR macaddr  	 LIKE :aquery '
@@ -289,7 +289,7 @@ class Page_Roomplanner extends Page
 
 	protected function getPotentialMachines()
 	{
-		$result = Database::simpleQuery('SELECT m.machineuuid, m.macaddr, m.clientip, m.hostname, l.locationname AS otherroom 
+		$result = Database::simpleQuery('SELECT m.machineuuid, m.macaddr, m.clientip, m.hostname, l.locationname AS otherroom, m.fixedlocationid
 			FROM machine m
 			LEFT JOIN location l ON (m.fixedlocationid = l.locationid AND m.subnetlocationid <> m.fixedlocationid)
 			WHERE subnetlocationid = :locationid', ['locationid' => $this->locationid]);
