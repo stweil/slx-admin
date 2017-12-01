@@ -462,4 +462,28 @@ SADFACE;
 		);
 	}
 
+	/**
+	 * Transform timestamp to easily readable string.
+	 * The format depends on how far the timestamp lies in the past.
+	 * @param int $ts unix timestamp
+	 * @return string human readable representation
+	 */
+	public static function prettyTime($ts)
+	{
+		static $TODAY = false, $ETODAY = false, $YESTERDAY = false, $YEAR = false;
+		if (!$ETODAY) $ETODAY = strtotime('today 23:59:59');
+		if ($ts > $ETODAY) // TODO: Do we need strings for future too?
+			return date('d.m.Y H:i', $ts);
+		if (!$TODAY) $TODAY = strtotime('today 0:00');
+		if ($ts >= $TODAY)
+			return Dictionary::translate('lang_today') . ' ' . date('H:i', $ts);
+		if (!$YESTERDAY) $YESTERDAY = strtotime('yesterday 0:00');
+		if ($ts >= $YESTERDAY)
+			return Dictionary::translate('lang_yesterday') . ' ' . date('H:i', $ts);
+		if (!$YEAR) $YEAR = strtotime('this year 1/1');
+		if ($ts >= $YEAR)
+			return date('d.m. H:i', $ts);
+		return date('d.m.Y', $ts);
+	}
+
 }
