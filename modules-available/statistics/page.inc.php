@@ -555,7 +555,7 @@ class Page_Statistics extends Page
 				$row['hostname'] = $row['clientip'];
 			}
 			$row['firstseen_int'] = $row['firstseen'];
-			$row['firstseen'] = date('d.m. H:i', $row['firstseen']);
+			$row['firstseen'] = Util::prettyTime($row['firstseen']);
 			$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1); // Trial and error until we got "expected" rounding..
 			$row['gbtmp'] = round($row['id44mb'] / 1024);
 			$row['ramclass'] = $this->ramColorClass($row['mbram']);
@@ -601,10 +601,10 @@ class Page_Statistics extends Page
 				$singleMachine = false;
 			}
 			$row['state_' . $row['state']] = true;
-			//$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
+			//$row['firstseen'] = Util::prettyTime($row['firstseen']);
 			$row['lastseen_int'] = $row['lastseen'];
-			$row['lastseen'] = date('d.m. H:i', $row['lastseen']);
-			//$row['lastboot'] = date('d.m. H:i', $row['lastboot']);
+			$row['lastseen'] = Util::prettyTime($row['lastseen']);
+			//$row['lastboot'] = Util::prettyTime($row['lastboot']);
 			$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1); // Trial and error until we got "expected" rounding..
 			$row['gbtmp'] = round($row['id44mb'] / 1024);
 			$octets = explode('.', $row['clientip']);
@@ -623,6 +623,7 @@ class Page_Statistics extends Page
 					$row['nohdd'] = true;
 				}
 			}
+			$row['cpumodel'] = preg_replace('/\(R\)|\(TM\)|\bintel\b|\bamd\b|\bcpu\b|dual-core|\bdual\s+core\b|\bdual\b|\bprocessor\b/i', ' ', $row['cpumodel']);
 			$rows[] = $row;
 		}
 		if ($singleMachine !== false && $singleMachine !== 'none') {
@@ -882,7 +883,7 @@ class Page_Statistics extends Page
 				$row['data'] -= ($cutoff - $row['dateline']);
 				$row['dateline'] = $cutoff;
 			}
-			$row['from'] = date('d.m. H:i', $row['dateline']);
+			$row['from'] = Util::prettyTime($row['dateline']);
 			$row['duration'] = floor($row['data'] / 86400) . 'd ' . gmdate('H:i', $row['data']);
 			if ($row['typeid'] === '~offline-length') {
 				$row['glyph'] = 'off';
@@ -933,21 +934,13 @@ class Page_Statistics extends Page
 		if (Module::get('syslog') !== false) {
 			$lres = Database::simpleQuery('SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog'
 				. ' WHERE machineuuid = :uuid ORDER BY logid DESC LIMIT 25', array('uuid' => $client['machineuuid']));
-			$today = date('d.m.Y');
-			$yesterday = date('d.m.Y', time() - 86400);
 			$count = 0;
 			$log = array();
 			while ($row = $lres->fetch(PDO::FETCH_ASSOC)) {
 				if (substr($row['description'], -5) === 'on :0' && strpos($row['description'], 'root logged') === false) {
 					continue;
 				}
-				$day = date('d.m.Y', $row['dateline']);
-				if ($day === $today) {
-					$day = Dictionary::translate('lang_today');
-				} elseif ($day === $yesterday) {
-					$day = Dictionary::translate('lang_yesterday');
-				}
-				$row['date'] = $day . date(' H:i', $row['dateline']);
+				$row['date'] = Util::prettyTime($row['dateline']);
 				$row['icon'] = $this->eventToIconName($row['logtypeid']);
 				$log[] = $row;
 				if (++$count === 10) {

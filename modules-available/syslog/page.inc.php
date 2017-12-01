@@ -57,19 +57,11 @@ class Page_SysLog extends Page
 
 				$whereClause .= "machineuuid='" . preg_replace('/[^0-9a-zA-Z\-]/', '', Request::get('machineuuid', '', 'string')) . "'";
 		}
-		$today = date('d.m.Y');
-		$yesterday = date('d.m.Y', time() - 86400);
 		$lines = array();
 		$paginate = new Paginate("SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog $whereClause ORDER BY logid DESC", 50);
 		$res = $paginate->exec();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$day = date('d.m.Y', $row['dateline']);
-			if ($day === $today) {
-				$day = Dictionary::translate('lang_today');
-			} elseif ($day === $yesterday) {
-				$day = Dictionary::translate('lang_yesterday');
-			}
-			$row['date'] = $day . date(' H:i', $row['dateline']);
+			$row['date'] = Util::prettyTime($row['dateline']);
 			$row['icon'] = $this->eventToIconName($row['logtypeid']);
 			$lines[] = $row;
 		}
