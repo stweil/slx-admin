@@ -47,6 +47,8 @@ class User
 			$permission = $module ? $module->getIdentifier().".".$permission : $permission;
 			return PermissionUtil::getAllowedLocations(self::$user['userid'], $permission);
 		}
+		if (self::$user['permissions'] & Permission::get('superadmin'))
+			return array_keys(Location::getLocationsAssoc());
 		return array();
 	}
 
