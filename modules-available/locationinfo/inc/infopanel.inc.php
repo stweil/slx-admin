@@ -20,6 +20,7 @@ class InfoPanel
 		}
 
 		if ($panel['paneltype'] === 'URL') {
+			// Shortcut for URL redirect
 			$config = json_decode($panel['panelconfig'], true);
 			return $panel['paneltype'];
 		}
@@ -31,6 +32,7 @@ class InfoPanel
 		if (!empty($panel['panelconfig'])) {
 			$json = json_decode($panel['panelconfig'], true);
 			if (is_array($json)) {
+				// Put location-specific overrides in separate variable for later use
 				if (isset($json['overrides']) && is_array($json['overrides'])) {
 					$overrides = $json['overrides'];
 				}
@@ -48,6 +50,7 @@ class InfoPanel
 				'id' => $lid,
 				'name' => isset($locations[$lid]) ? $locations[$lid]['locationname'] : 'noname00.pas',
 			);
+			// Now apply any overrides from above
 			if (isset($overrides[$lid]) && is_array($overrides[$lid])) {
 				$config['locations'][$lid]['config'] = $overrides[$lid];
 			}
@@ -80,13 +83,21 @@ class InfoPanel
 			$idList = array_keys($array);
 		}
 
+		$ignoreList = array();
+		if (Module::isAvailable('runmode')) {
+			// Ignore clients with special runmode not marked as still being a client
+			$ignoreList = RunMode::getAllClients(false, false);
+		}
+
 		$positionCol = $withPosition ? 'm.position,' : '';
-		$query = "SELECT m.locationid, m.machineuuid, $positionCol m.logintime, m.lastseen, m.lastboot FROM machine m
+		$query = "SELECT m.locationid, m.machineuuid, $positionCol m.logintime, m.lastseen, m.lastboot, m.state FROM machine m
 				WHERE m.locationid IN (:idlist)";
 		$dbquery = Database::simpleQuery($query, array('idlist' => $idList));
 
 		// Iterate over matching machines
 		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
+			if (isset($ignoreList[$row['machineuuid']]))
+				continue;
 			settype($row['locationid'], 'int');
 			if (!isset($array[$row['locationid']])) {
 				$array[$row['locationid']] = array('id' => $row['locationid'], 'machines' => array());
@@ -107,7 +118,7 @@ class InfoPanel
 				}
 			}
 			$pc['pcState'] = LocationInfo::getPcState($row);
-			//$pc['pcState'] = ['BROKEN', 'OFF', 'IDLE', 'OCCUPIED'][mt_rand(0,3)]; // XXX
+			//$pc['pcState'] = ['BROKEN', 'OFFLINE', 'IDLE', 'OCCUPIED', 'STANDBY'][mt_rand(0,4)]; // XXX
 
 			// Add the array to the machines list.
 			$array[$row['locationid']]['machines'][] = $pc;

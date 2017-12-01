@@ -74,10 +74,13 @@ if (!roomplanner) var roomplanner = {
 		initDelete: function(el) {
 			$(el).append('<div class="deleteHandle glyphicon glyphicon-remove-sign"></div>');
 			$(el).find('.deleteHandle').click(function() {
-				if ($(this).parent().attr('itemtype') == "pc") {
+				if ($(this).parent().attr('itemtype') === "pc") {
 					var self = this;
 					BootstrapDialog.confirm(__('are you sure'),function(result) {
 						if (result) {
+							if (onPcDelete) {
+								onPcDelete($(self).parent().attr('muuid'));
+							}
 							$(self).parent().remove();
 						}
 					});
@@ -169,8 +172,8 @@ if (!roomplanner) var roomplanner = {
 					var mw = $(this).resizable("option","maxWidth");
 					var mh = $(this).resizable("option","maxHeight");
 					
-					var hLimit = ($(this).attr('scalable') == 'v');
-					var vLimit = ($(this).attr('scalable') == 'h');
+					var hLimit = ($(this).attr('scalable') === 'v');
+					var vLimit = ($(this).attr('scalable') === 'h');
 					
 					if(collides.length) {
 						$(collides).each(function(idx,item) {

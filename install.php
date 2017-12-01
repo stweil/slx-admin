@@ -99,7 +99,7 @@ function tableRename($old, $new) {
  * @param string $refColumn referenced column
  * @return false|string[] list of constraints matching the request, false on error
  */
-function tableGetContraints($table, $column, $refTable, $refColumn)
+function tableGetConstraints($table, $column, $refTable, $refColumn)
 {
 	$db = 'openslx';
 	if (defined('CONFIG_SQL_DB')) {
@@ -117,6 +117,51 @@ function tableGetContraints($table, $column, $refTable, $refColumn)
 	if ($res === false)
 		return false;
 	return $res->fetchAll(PDO::FETCH_COLUMN, 0);
+}
+
+/**
+ * Because I'm stupid and can't type properly.
+ */
+function tableGetContraints($table, $column, $refTable, $refColumn)
+{
+	return tableGetConstraints($table, $column, $refTable, $refColumn);
+}
+
+/**
+ * Add constraint to table if it doesn't exist already.
+ * On failure, trigger finalResponse with error message.
+ *
+ * @param string $table table to add constraint to
+ * @param string $column foreign key column of that table
+ * @param string $refTable destination table
+ * @param string $refColumn primary key column in destination table
+ * @param string $actions "ON xxx ON yyy" string
+ * @return string UPDATE_* result code
+ */
+function tableAddConstraint($table, $column, $refTable, $refColumn, $actions)
+{
+	$test = tableExists($refTable) && tableHasColumn($refTable, $refColumn);
+	if ($test === false) {
+		// Most likely, destination table does not exist yet or isn't up to date
+		return UPDATE_RETRY;
+	}
+	$test = tableGetConstraints($table, $column, $refTable, $refColumn);
+	if ($test === false) {
+		// Should never happen!?
+		finalResponse(UPDATE_FAILED, 'DB: Cannot query constraints: ' . Database::lastError());
+	}
+	if (!empty($test)) {
+		// Already exists
+		return UPDATE_NOOP;
+	}
+	// Need to create
+	$ret = Database::exec("ALTER TABLE `$table` ADD CONSTRAINT FOREIGN KEY (`$column`)
+			REFERENCES `$refTable` (`$refColumn`)
+			$actions");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'DB: Cannot add constraint: ' . Database::lastError());
+	}
+	return UPDATE_DONE;
 }
 
 /**
@@ -144,6 +189,22 @@ function tableCreate($table, $structure, $fatalOnError = true)
 		finalResponse(UPDATE_FAILED, 'DB-Error: ' . Database::lastError());
 	}
 	return UPDATE_FAILED;
+}
+
+function responseFromArray($array)
+{
+	if (in_array(UPDATE_FAILED, $array)) {
+		finalResponse(UPDATE_FAILED, 'Update failed!');
+	}
+	if (in_array(UPDATE_RETRY, $array)) {
+		finalResponse(UPDATE_RETRY, 'Temporary failure, will try again.');
+	}
+	if (in_array(UPDATE_DONE, $array)) {
+		finalResponse(UPDATE_DONE, 'Tables created/updated successfully');
+	}
+
+	finalResponse(UPDATE_NOOP, 'Everything already up to date');
+
 }
 
 /*

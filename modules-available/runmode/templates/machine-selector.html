@@ -108,11 +108,22 @@ function renderMachineSelected(item, escape) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+	Selectize.define("no_bs", function (options) {
+		var original = this.deleteSelection;
+		this.deleteSelection = (function() {
+			return function (e) {
+				if (!e || e.keyCode !== 8) {
+					return original.apply(this, arguments);
+				}
+				return false;
+			};
+		})();
+	});
 	var old = {{{machines}}} || [];
 	var $box = $('#machine-sel').selectize({
 		options: old,
 		items: old.map(function(x) { return x.machineuuid; }),
-		plugins: ["remove_button"],
+		plugins: ["remove_button", "no_bs"],
 		valueField: 'machineuuid',
 		searchField: "combined",
 		openOnFocus: false,
@@ -121,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		load: loadMachines,
 		maxItems: null,
 		sortField: 'hostname',
-		sortDirection: 'asc'
+		sortDirection: 'asc',
 	});
 });
 

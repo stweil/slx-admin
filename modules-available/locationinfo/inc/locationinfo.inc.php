@@ -6,7 +6,7 @@ class LocationInfo
 	/**
 	 * Gets the pc data and returns it's state.
 	 *
-	 * @param array $pc The pc data from the db. Array('logintime' =>, 'lastseen' =>, 'lastboot' =>)
+	 * @param array $pc The pc data from the db. Array('state' => xx, 'lastseen' => xxx)
 	 * @return int pc state
 	 */
 	public static function getPcState($pc)
@@ -16,16 +16,36 @@ class LocationInfo
 		$lastboot = (int)$pc['lastboot'];
 		$NOW = time();
 
-		if ($NOW - $lastseen > 14 * 86400) {
+		if ($pc['state'] === 'OFFLINE' && $NOW - $lastseen > 21 * 86400) {
 			return "BROKEN";
-		} elseif (($NOW - $lastseen > 610) || $lastboot === 0) {
-			return "OFF";
-		} elseif ($logintime === 0) {
-			return "IDLE";
-		} elseif ($logintime > 0) {
-			return "OCCUPIED";
 		}
-		return -1;
+		return $pc['state'];
+	}
+
+	/**
+	 * Return list of locationids associated with given panel.
+	 * @param string $paneluuid panel
+	 * @param bool $recursive if true and paneltype == SUMMARY the result is recursive with all child room ids.
+	 * @return int[] locationIds
+	 */
+	public static function getLocationsOr404($paneluuid, $recursive = true)
+	{
+		$panel = Database::queryFirst('SELECT paneltype, locationids FROM locationinfo_panel WHERE paneluuid = :paneluuid',
+			compact('paneluuid'));
+		if ($panel !== false) {
+			$idArray = array_map('intval', explode(',', $panel['locationids']));
+			if ($panel['paneltype'] == "SUMMARY" && $recursive) {
+				$idList = Location::getRecursiveFlat($idArray);
+				$idArray = array();
+
+				foreach ($idList as $key => $value) {
+					$idArray[] = $key;
+				}
+			}
+			return $idArray;
+		}
+		http_response_code(404);
+		die('Panel not found');
 	}
 
 	/**
@@ -53,27 +73,38 @@ class LocationInfo
 	}
 
 	/**
-	 * Creates and returns a default config for room that didn't saved a config yet.
+	 * Creates and returns a default config for room that didn't save a config yet.
 	 *
 	 * @return array Return a default config.
 	 */
 	public static function defaultPanelConfig($type)
 	{
-		return array(
-			'language' => 'en',
-			'mode' => 1,
-			'vertical' => false,
-			'eco' => false,
-			'prettytime' => true,
-			'scaledaysauto' => true,
-			'daystoshow' => 7,
-			'rotation' => 0,
-			'scale' => 50,
-			'switchtime' => 20,
-			'calupdate' => 30,
-			'roomupdate' => 15,
-			'configupdate' => 180,
-		);
+		if ($type === 'DEFAULT') {
+			return array(
+				'language' => 'en',
+				'mode' => 1,
+				'vertical' => false,
+				'eco' => false,
+				'prettytime' => true,
+				'scaledaysauto' => true,
+				'daystoshow' => 7,
+				'rotation' => 0,
+				'scale' => 50,
+				'switchtime' => 20,
+				'calupdate' => 30,
+				'roomupdate' => 15,
+				'configupdate' => 180,
+			);
+		}
+		if ($type === 'SUMMARY') {
+			return array(
+				'language' => 'en',
+				'calupdate' => 30,
+				'roomupdate' => 15,
+				'configupdate' => 180,
+			);
+		}
+		return array();
 	}
 
 	/**
@@ -87,6 +118,12 @@ class LocationInfo
 		return $ret['panelname'];
 	}
 
+	/**
+	 * Hook called by runmode module where we should modify the client config according to our
+	 * needs. Disable standby/logout timeouts, enable autologin, set URL.
+	 * @param $machineUuid
+	 * @param $panelUuid
+	 */
 	public static function configHook($machineUuid, $panelUuid)
 	{
 		$row = Database::queryFirst('SELECT paneltype, panelconfig FROM locationinfo_panel WHERE paneluuid = :uuid',
@@ -104,6 +141,7 @@ class LocationInfo
 		ConfigHolder::add('SLX_ADDONS', '', 1000);
 		ConfigHolder::add('SLX_LOGOUT_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SCREEN_STANDBY_TIMEOUT', '', 1000);
+		ConfigHolder::add('SLX_SYSTEM_STANDBY_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
 	}
 

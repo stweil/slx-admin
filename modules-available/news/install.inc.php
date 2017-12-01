@@ -27,8 +27,10 @@ $res[] = tableCreate('vmchooser_pages', "
 	`content` text,
 	`type` varchar(10),
 	PRIMARY KEY (`newsid`),
-	KEY `dateline` (`dateline`)
+	KEY `type` (`type`, `dateline`)
 ");
+
+Database::exec('ALTER TABLE vmchooser_pages DROP KEY `dateline`, ADD KEY `type` (`type`, `dateline`)');
 
 // Create response for browser
 

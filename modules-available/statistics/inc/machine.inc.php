@@ -51,6 +51,11 @@ class Machine
 	public $logintime;
 
 	/**
+	 * @var string state of machine (OFFLINE, IDLE, OCCUPIED, STANDBY)
+	 */
+	public $state;
+
+	/**
 	 * @var string json data of position inside room (if any), null/empty otherwise
 	 */
 	public $position;

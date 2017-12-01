@@ -2,6 +2,9 @@
 
 class FilterSet
 {
+	/**
+	 * @var \Filter[]
+	 */
 	private $filters;
 	private $sortDirection;
 	private $sortColumn;
@@ -39,7 +42,7 @@ class FilterSet
 				$where .= $sep . $filter->whereClause($args, $joins);
 			}
 		}
-		$join = implode('', array_unique($joins));
+		$join = implode(' ', array_unique($joins));
 
 		$col = $this->sortColumn;
 		$isMapped = array_key_exists('map_sort', Page_Statistics::$columns[$col]);
@@ -72,4 +75,13 @@ class FilterSet
 	{
 		return $this->sortColumn;
 	}
+
+	public function filterNonClients()
+	{
+		if (Module::get('runmode') === false)
+			return;
+		// Runmode module exists, add filter
+		$this->filters[] = new IsClientFilter(true);
+	}
+
 }

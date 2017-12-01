@@ -11,10 +11,16 @@ var selectMachinInitialized = false;
 
 var placedMachines = [];
 
+function makeCombinedFieldSingle(item)
+{
+	item.combined = (item.machineuuid + " " + item.hostname + " " + item.clientip + " " + item.macaddr + " " + item.macaddr.replace(/-/g, ':')).toLocaleLowerCase();
+	item.sortField = (item.fixedlocationid === null ? 'a' : 'z') + item.hostname;
+}
+
 function makeCombinedField(machineArray)
 {
    machineArray.forEach(function (v,i,a){
-      machineArray[i].combined = (v.machineuuid + " " + v.hostname + " " + v.clientip + " " + v.macaddr + " " + v.macaddr.replace(/-/g, ':')).toLocaleLowerCase();
+		makeCombinedFieldSingle(machineArray[i]);
    });
    return machineArray;
 }
@@ -25,14 +31,13 @@ function renderMachineEntry(item, escape) {
     // console.log('used uuids is ');
     // console.log(placedMachines);
 
-    var isUsed = $.inArray(item.machineuuid, placedMachines) > -1;
     var extraClass = '';
     var extraText = '';
-    if (isUsed) {
-        extraText = ' (already placed)';
-        extraClass = 'used';
-    } else if (item.otherroom) {
+    if (item.otherroom) {
         extraText = ' (in ' + item.otherroom + ')';
+        extraClass = 'used';
+    } else if (item.fixedlocationid !== null) {
+        extraText = ' (already placed)';
         extraClass = 'used';
     }
     return '<div class="machine-entry ' + extraClass +'">'
@@ -120,7 +125,7 @@ function initSelectize() {
             render : { option : renderMachineEntry, item: renderMachineSelected},
             load: loadMachines,
             maxItems: 1,
-            sortField: 'hostname',
+            sortField: 'sortField',
             sortDirection: 'asc',
             onChange: clearSubnetBox
         });
@@ -136,7 +141,7 @@ function initSelectize() {
             create: false,
             render : { option : renderMachineEntry, item: renderMachineSelected},
             maxItems: 1,
-            sortField: 'hostname',
+            sortField: 'sortField',
             sortDirection: 'asc',
             onChange: clearSearchBox
         });
@@ -148,13 +153,16 @@ function initSelectize() {
 }
 function onBtnSelect() {
         /* check which one has a value */
-        console.assert($selectizeSubnet.length == 1);
-        console.assert($selectizeSearch.length == 1);
+        console.assert($selectizeSubnet.length === 1);
+        console.assert($selectizeSearch.length === 1);
 
         var bySubnet = machineCache[$selectizeSubnet[0].selectize.getValue()];
         var bySearch = machineCache[$selectizeSearch[0].selectize.getValue()];
 
-        var value = (bySubnet === undefined || bySubnet == "") ? bySearch : bySubnet;
+        var value = !bySubnet ? bySearch : bySubnet;
+        value.fixedlocationid = -1;
+        makeCombinedFieldSingle(value);
+
         var result = {muuid: value.machineuuid, ip: value.clientip, mac_address : value.macaddr, hostname: value.hostname};
 
         currentCallback(result);
@@ -165,6 +173,14 @@ function onBtnSelect() {
         clearSearchBox();
 }
 
+function onPcDelete(muuid) {
+    var bySubnet = machineCache[muuid];
+    var bySearch = machineCache[muuid];
+    var value = !bySubnet ? bySearch : bySubnet;
+    value.fixedlocationid = null;
+    makeCombinedFieldSingle(value);
+}
+
 /* to be called from berryous' code */
 function selectMachine(usedUuids, callback) {
     initSelectize();
@@ -172,7 +188,7 @@ function selectMachine(usedUuids, callback) {
     placedMachines =  usedUuids;
     $modal.modal('show');
     $modal.one('hidden.bs.modal', function () {
-        if (currentCallback != null) {
+        if (currentCallback) {
             currentCallback(false);
         }
     });

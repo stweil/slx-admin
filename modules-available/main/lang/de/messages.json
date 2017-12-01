@@ -7,6 +7,8 @@
     "module-missing-deps": "Modul {{0}} hat fehlende Abh\u00e4ngigkeiten",
     "no-permission": "Keine ausreichenden Rechte, um auf diese Seite zuzugreifen",
     "no-such-module": "Modul {{0}} existiert nicht oder ist nicht aktiv",
+    "parameter-empty": "Parameter {{0}} ist leer",
+    "parameter-missing": "Parameter {{0}} wurde nicht gesetzt",
     "task-error": "Ausf\u00fchrung fehlgeschlagen: {{0}}",
     "taskmanager-error": "Verbindung zum Taskmanager fehlgeschlagen",
     "taskmanager-format": "Taskmanager hat ung\u00fcltige Daten zur\u00fcckgeliefert",

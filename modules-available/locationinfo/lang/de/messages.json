@@ -5,6 +5,9 @@
     "ignored-invalid-range": "Eintrag mit ung\u00fcltiger Range ignoriert",
     "ignored-invalid-start": "Eintrag mit ung\u00fcltiger Startzeit ignoriert",
     "ignored-line-no-days": "Eintrag ohne ausgew\u00e4hlte Tage ignoriert",
+    "invalid-backend-type": "Ung\u00fcltiger Backend-Typ '{{0}}'",
     "invalid-panel-id": "Ung\u00fcltige Panel-ID '{{0}}'",
-    "invalid-server-id": "Ung\u00fcltige Server-ID '{{0}}'"
+    "invalid-panel-type": "Ung\u00fcltiger Panel-Typ '{{0}}'",
+    "invalid-server-id": "Ung\u00fcltige Server-ID '{{0}}'",
+    "server-id-missing": "Server-ID fehlt"
 }

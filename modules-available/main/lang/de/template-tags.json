@@ -1,5 +1,7 @@
 {
+    "lang_browserTime": "Browser",
     "lang_changePassword": "Passwort \u00e4ndern",
+    "lang_clockDriftWarn": "Die Uhrzeit des Satelliten-Servers weicht von der Uhrzeit des lokalen Systems\/Browsers ab. Bitte stellen Sie sicher, dass die Uhrzeit des Servers korrekt ist, da sonst zeitabh\u00e4ngige Einstellungen und Aufgaben evtl. nicht korrekt durchgef\u00fchrt werden.",
     "lang_goTo": "Gehe zu",
     "lang_intro": "Dies ist die bwLehrpool Konfigurationsoberfl\u00e4che.",
     "lang_introGuest": "Dies ist das Administrations-Interface der lokalen bwLehrpool-Installation. Bitte authentifizieren Sie sich, um Einstellungen vorzunehmen.",
@@ -11,6 +13,7 @@
     "lang_needsSetup": "Einrichtung unvollst\u00e4ndig",
     "lang_noExistingAccount": "Es existiert noch kein Administrator-Zugang f\u00fcr diesen Satelliten-Server.",
     "lang_register": "Registrieren",
+    "lang_serverTime": "Server",
     "lang_toggleNavigation": "Navigation ein\/ausblenden",
     "lang_translations": "\u00dcbersetzungen",
     "lang_warning": "Warnung",

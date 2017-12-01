@@ -21,7 +21,7 @@ class RebootQueries
 		}
 		$res = Database::simpleQuery("
 			SELECT machine.machineuuid, machine.hostname, machine.clientip,
-				machine.lastboot, machine.lastseen, machine.logintime,
+				machine.lastboot, machine.lastseen, machine.logintime, machine.state,
 				$sessionField, machine.currentuser, machine.locationid
 			FROM machine 
 			$leftJoin
@@ -29,12 +29,12 @@ class RebootQueries
 		$ret = $res->fetchAll(PDO::FETCH_ASSOC);
 		$NOW = time();
 		foreach ($ret as &$row) {
-			if ($row['lastboot'] == 0 || $NOW - $row['lastseen'] > 600) {
-				$row['status'] = 0;
-			} else {
+			if ($row['state'] === 'IDLE' || $row['state'] === 'OCCUPIED') {
 				$row['status'] = 1;
+			} else {
+				$row['status'] = 0;
 			}
-			if ($row['status'] === 0 || $row['logintime'] == 0) {
+			if ($row['state'] !== 'OCCUPIED') {
 				$row['currentuser'] = '';
 				$row['currentsession'] = '';
 			}

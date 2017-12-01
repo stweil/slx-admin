@@ -1,4 +1,5 @@
 {
+    "config-module": "Konfigurationsmodul",
     "lang_clientSshConfig": "SSH-Konfiguration",
     "lang_configurationCompilation": "Konfiguration zusammenstellen",
     "lang_contentOf": "Inhalt von",

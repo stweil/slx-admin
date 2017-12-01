@@ -106,6 +106,12 @@ class Page_Statistics extends Page
 				'op' => Page_Statistics::$op_nominal,
 				'type' => 'string',
 				'column' => true
+			],
+			'state' => [
+				'op' => Page_Statistics::$op_nominal,
+				'type' => 'enum',
+				'column' => true,
+				'values' => ['occupied', 'on']
 			]
 		];
 		if (Module::isAvailable('locations')) {
@@ -190,8 +196,6 @@ class Page_Statistics extends Page
 		} elseif ($action === 'addprojector' || $action === 'delprojector') {
 			$this->handleProjector($action);
 		}
-		// Fix online state of machines that crashed -- TODO: Make cronjob for this
-		Database::exec("UPDATE machine SET lastboot = 0 WHERE lastseen < UNIX_TIMESTAMP() - 610");
 	}
 
 	protected function doRender()
@@ -199,7 +203,12 @@ class Page_Statistics extends Page
 		$uuid = Request::get('uuid', false, 'string');
 		if ($uuid !== false) {
 			$this->showMachine($uuid);
+			return;
+		}
 
+		$show = Request::get('show', 'stat', 'string');
+		if ($show === 'projectors') {
+			$this->showProjectors();
 			return;
 		}
 
@@ -210,23 +219,19 @@ class Page_Statistics extends Page
 		}
 		$sortColumn = Request::any('sortColumn');
 		$sortDirection = Request::any('sortDirection');
-		$filters = Filter::parseQuery($this->query);
 
+		$filters = Filter::parseQuery($this->query);
 		$filterSet = new FilterSet($filters);
 		$filterSet->setSort($sortColumn, $sortDirection);
 
-
-		$show = Request::get('show', 'stat', 'string');
 		if ($show == 'list') {
 			Render::openTag('div', array('class' => 'row'));
 			$this->showFilter('list', $filterSet);
 			Render::closeTag('div');
 			$this->showMachineList($filterSet);
 			return;
-		} elseif ($show === 'projectors') {
-			$this->showProjectors();
-			return;
 		}
+		$filterSet->filterNonClients();
 		Render::openTag('div', array('class' => 'row'));
 		$this->showFilter('stat', $filterSet);
 		$this->showSummary($filterSet);
@@ -328,8 +333,8 @@ class Page_Statistics extends Page
 		if ($known['val'] == 1) {
 			$this->redirectFirst($where, $join, $args);
 		}
-		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastboot <> 0 AND ($where)", $args);
-		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE lastboot <> 0 AND logintime <> 0 AND ($where)", $args);
+		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE state IN ('IDLE', 'OCCUPIED') AND ($where)", $args);
+		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE state = 'OCCUPIED' AND ($where)", $args);
 		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE badsectors >= 10 AND ($where)", $args);
 		if ($on['val'] != 0) {
 			$usedpercent = round($used['val'] / $on['val'] * 100);
@@ -367,6 +372,10 @@ class Page_Statistics extends Page
 		}
 		$data['json'] = json_encode(array('labels' => $labels, 'datasets' => array($points1, $points2)));
 		$data['query'] = $this->query;
+		if (Module::get('runmode') !== false) {
+			$res = Database::queryFirst('SELECT Count(*) AS cnt FROM runmode');
+			$data['runmode'] =  $res['cnt'];
+		}
 		// Draw
 		Render::addTemplate('summary', $data);
 	}
@@ -570,10 +579,16 @@ class Page_Statistics extends Page
 
 		$xtra = '';
 		if ($filterSet->isNoId44Filter()) {
-			$xtra = ', data';
+			$xtra .= ', data';
 		}
-		$res = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, firstseen, lastseen,'
-			. ' logintime, lastboot, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes,'
+		if (Module::isAvailable('runmode')) {
+			$xtra .= ', runmode.module AS rmmodule';
+			if (strpos($join, 'runmode') === false) {
+				$join .= ' LEFT JOIN runmode USING (machineuuid) ';
+			}
+		}
+		$res = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, lastseen,'
+			. ' logintime, state, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes,'
 			. ' badsectors ' . $xtra . ' FROM machine'
 			. " $join WHERE $where $sort", $args);
 		$rows = array();
@@ -585,13 +600,7 @@ class Page_Statistics extends Page
 			} else {
 				$singleMachine = false;
 			}
-			if ($row['lastboot'] == 0) {
-				$row['state_off'] = true;
-			} elseif ($row['logintime'] == 0) {
-				$row['state_idle'] = true;
-			} else {
-				$row['state_occupied'] = true;
-			}
+			$row['state_' . $row['state']] = true;
 			//$row['firstseen'] = date('d.m.Y H:i', $row['firstseen']);
 			$row['lastseen_int'] = $row['lastseen'];
 			$row['lastseen'] = date('d.m. H:i', $row['lastseen']);
@@ -725,24 +734,40 @@ class Page_Statistics extends Page
 
 	private function showMachine($uuid)
 	{
-		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot,'
+		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot, state,'
 			. ' mbram, kvmstate, cpumodel, id44mb, data, hostname, currentuser, currentsession, notes FROM machine WHERE machineuuid = :uuid',
 			array('uuid' => $uuid));
+		if ($client === false) {
+			Message::addError('unknown-machine', $uuid);
+			return;
+		}
 		// Hack: Get raw collected data
 		if (Request::get('raw', false)) {
 			Header('Content-Type: text/plain; charset=utf-8');
 			die($client['data']);
 		}
+		// Runmode
+		if (Module::isAvailable('runmode')) {
+			$data = RunMode::getRunMode($uuid, RunMode::DATA_STRINGS);
+			if ($data !== false) {
+				$client += $data;
+			}
+		}
+		if (!isset($client['isclient'])) {
+			$client['isclient'] = true;
+		}
 		// Mangle fields
 		$NOW = time();
-		if ($client['lastboot'] == 0) {
-			$client['state_off'] = true;
-		} elseif ($client['logintime'] == 0) {
-			$client['state_idle'] = true;
+		if (!$client['isclient']) {
+			if ($client['state'] === 'IDLE') {
+				$client['state'] = 'OCCUPIED';
+			}
 		} else {
-			$client['state_occupied'] = true;
-			$this->fillSessionInfo($client);
+			if ($client['state'] === 'OCCUPIED') {
+				$this->fillSessionInfo($client);
+			}
 		}
+		$client['state_' . $client['state']] = true;
 		$client['firstseen_s'] = date('d.m.Y H:i', $client['firstseen']);
 		$client['lastseen_s'] = date('d.m.Y H:i', $client['lastseen']);
 		if ($client['lastboot'] == 0) {
@@ -750,7 +775,7 @@ class Page_Statistics extends Page
 		} else {
 			$uptime = $NOW - $client['lastboot'];
 			$client['lastboot_s'] = date('d.m.Y H:i', $client['lastboot']);
-			if (!isset($client['state_off']) || !$client['state_off']) {
+			if ($client['state'] === 'IDLE' || $client['state'] === 'OCCUPIED') {
 				$client['lastboot_s'] .= ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
 			}
 		}
@@ -833,6 +858,8 @@ class Page_Statistics extends Page
 		$last = false;
 		$first = true;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (!$client['isclient'] && $row['typeid'] === '~session-length')
+				continue; // Don't differentiate between session and idle for non-clients
 			if ($first && $row['dateline'] > $cutoff && $client['lastboot'] > $cutoff) {
 				// Special case: offline before
 				$spans['graph'] .= '<div style="background:#444;left:0%;width:' . round((min($row['dateline'], $client['lastboot']) - $cutoff) * $scale, 2) . '%">&nbsp;</div>';
@@ -865,12 +892,17 @@ class Page_Statistics extends Page
 				$color = '#e77';
 			}
 			$spans['graph'] .= '<div style="background:' . $color . ';left:' . round(($row['dateline'] - $cutoff) * $scale, 2) . '%;width:' . round(($row['data']) * $scale, 2) . '%">&nbsp;</div>';
-			$spans['rows'][] = $row;
+			if ($client['isclient']) {
+				$spans['rows'][] = $row;
+			}
 			$last = $row;
 		}
 		if ($first && $client['lastboot'] > $cutoff) {
 			// Special case: offline before
 			$spans['graph'] .= '<div style="background:#444;left:0%;width:' . round(($client['lastboot'] - $cutoff) * $scale, 2) . '%">&nbsp;</div>';
+		} elseif ($first) {
+			// Not seen in last two weeks
+			$spans['graph'] .= '<div style="background:#444;left:0%;width:100%">&nbsp;</div>';
 		}
 		if (isset($client['state_occupied'])) {
 			$spans['graph'] .= '<div style="background:#e99;left:' . round(($client['logintime'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['logintime'] + 900) * $scale, 2) . '%">&nbsp;</div>';
@@ -891,6 +923,7 @@ class Page_Statistics extends Page
 			$spans['rows2'] = array_slice($spans['rows'], ceil(count($spans['rows']) / 2));
 			$spans['rows'] = array_slice($spans['rows'], 0, ceil(count($spans['rows']) / 2));
 		}
+		$spans['isclient'] = $client['isclient'];
 		Render::addTemplate('machine-usage', $spans);
 		// Any hdds?
 		if (!empty($hdds['hdds'])) {
@@ -922,7 +955,7 @@ class Page_Statistics extends Page
 				}
 			}
 			Render::addTemplate('syslog', array(
-				'clientip' => $client['clientip'],
+				'machineuuid' => $client['machineuuid'],
 				'list' => $log,
 			));
 		}

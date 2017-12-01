@@ -178,7 +178,7 @@ class Page_BaseConfig extends Page
 				$settings[$var['catid']]['settings'][$key]['displayvalue'] = $var['defaultvalue'];
 			}
 			if (!isset($settings[$var['catid']]['settings'][$key]['shadows'])) {
-				$settings[$var['catid']]['settings'][$key]['shadows'] = null;
+				$settings[$var['catid']]['settings'][$key]['shadows'] = isset($var['shadows']) ? $var['shadows'] : null;
 			}
 			//echo "<pre>";
 			//var_dump($settings[$var['catid']]['settings'][$key]);

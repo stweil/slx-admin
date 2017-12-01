@@ -1,33 +1,5 @@
 <?php
 
-if (Request::get('redirect', false, 'int') !== false) {
-	// Redirect to actual panel from uuid
-	$uuid = Request::get('uuid', false, 'string');
-	if ($uuid === false) {
-		http_response_code(400);
-		die('Missing uuid parameter');
-	}
-	$row = Database::queryFirst('SELECT paneltype, panelconfig FROM locationinfo_panel WHERE paneluuid = :uuid', compact('uuid'));
-	if ($row === false) {
-		http_response_code(404);
-		die('Panel not found');
-	}
-	if ($row['paneltype'] === 'DEFAULT') {
-		Util::redirect(dirname($_SERVER['SCRIPT_NAME']) . '/modules/locationinfo/frontend/doorsign.html?uuid=' . $uuid);
-	} elseif ($row['paneltype'] === 'SUMMARY') {
-		Util::redirect(dirname($_SERVER['SCRIPT_NAME']) . '/modules/locationinfo/frontend/overview.html?uuid=' . $uuid);
-	} elseif ($row['paneltype'] === 'URL') {
-		$data = json_decode($row['panelconfig'], true);
-		if (!$data || !isset($data['url'])) {
-			http_response_code('500');
-			die('Panel config corrupted on server');
-		}
-		Util::redirect($data['url']);
-	}
-	http_response_code('500');
-	die('Panel has invalid type "' . $row['paneltype'] . '"');
-}
-
 /*
  * vvv - API to Panel - vvv
  */
@@ -46,7 +18,7 @@ function HandleParameters()
 	if ($get === "timestamp") {
 		$output = array('ts' => getLastChangeTs($uuid));
 	} elseif ($get === "machines") {
-		$locationIds = getLocationsOr404($uuid);
+		$locationIds = LocationInfo::getLocationsOr404($uuid);
 		$output = array();
 		InfoPanel::appendMachineData($output, $locationIds, false);
 		$output = array_values($output);
@@ -57,13 +29,13 @@ function HandleParameters()
 			die('Panel not found');
 		}
 	} elseif ($get === "pcstates") {
-		$locationIds = getLocationsOr404($uuid);
+		$locationIds = LocationInfo::getLocationsOr404($uuid);
 		$output = getPcStates($locationIds);
 	} elseif ($get === "locationtree") {
-		$locationIds = getLocationsOr404($uuid);
+		$locationIds = LocationInfo::getLocationsOr404($uuid);
 		$output = getLocationTree($locationIds);
 	} elseif ($get === "calendar") {
-		$locationIds = getLocationsOr404($uuid);
+		$locationIds = LocationInfo::getLocationsOr404($uuid);
 		$output = getCalendar($locationIds);
 	}
 	if ($output !== false) {
@@ -73,22 +45,6 @@ function HandleParameters()
 		http_response_code(404);
 		echo 'Unknown get option';
 	}
-}
-
-/**
- * Return list of locationids associated with given panel.
- * @param string $paneluuid panel
- * @return int[] locationIds
- */
-function getLocationsOr404($paneluuid)
-{
-	$panel = Database::queryFirst('SELECT locationids FROM locationinfo_panel WHERE paneluuid = :paneluuid',
-		compact('paneluuid'));
-	if ($panel !== false) {
-		return array_map('intval', explode(',', $panel['locationids']));
-	}
-	http_response_code(404);
-	die('Panel not found');
 }
 
 /**
@@ -132,8 +88,9 @@ function getPcStates($idList)
 			'id' => $id,
 			'idle' => 0,
 			'occupied' => 0,
-			'off' => 0,
+			'offline' => 0,
 			'broken' => 0,
+			'standby' => 0,
 		);
 	}
 

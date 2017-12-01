@@ -36,6 +36,7 @@ $res[] = $machineCreate = tableCreate('machine', "
   `logintime` int(10) unsigned NOT NULL,
   `position` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `lastboot` int(10) unsigned NOT NULL,
+  `state` enum('OFFLINE', 'IDLE', 'OCCUPIED', 'STANDBY', 'IGNORED') NOT NULL DEFAULT 'OFFLINE',
   `realcores` smallint(5) unsigned NOT NULL,
   `mbram` int(10) unsigned NOT NULL,
   `kvmstate` enum('UNKNOWN','UNSUPPORTED','DISABLED','ENABLED') NOT NULL,
@@ -51,6 +52,7 @@ $res[] = $machineCreate = tableCreate('machine', "
   PRIMARY KEY (`machineuuid`),
   KEY `macaddr` (`macaddr`),
   KEY `clientip` (`clientip`),
+  KEY `state` (`state`),
   KEY `realcores` (`realcores`),
   KEY `mbram` (`mbram`),
   KEY `kvmstate` (`kvmstate`),
@@ -198,6 +200,7 @@ if ($addTrigger) {
 			finalResponse(UPDATE_RETRY, 'Locations module not installed yet, retry later');
 		}
 	}
+	$res[] = UPDATE_DONE;
 }
 
 if ($machineHwCreate === UPDATE_DONE) {
@@ -217,12 +220,19 @@ if ($machineHwCreate === UPDATE_DONE) {
 	if ($ret === false) {
 		finalResponse(UPDATE_FAILED, 'Adding constraint to statistic_hw_prop failed: ' . Database::lastError());
 	}
+	$res[] = UPDATE_DONE;
+}
+
+// 2017-11-27: Add state column
+if (!tableHasColumn('machine', 'state')) {
+	$ret = Database::exec("ALTER TABLE `machine`
+		ADD COLUMN `state` enum('OFFLINE', 'IDLE', 'OCCUPIED', 'STANDBY', 'IGNORED') NOT NULL DEFAULT 'OFFLINE' AFTER `lastboot`,
+		ADD INDEX `state` (`state`)");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding state column to machine table failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
 }
 
 // Create response
-
-if (in_array(UPDATE_DONE, $res)) {
-	finalResponse(UPDATE_DONE, 'Tables created successfully');
-}
-
-finalResponse(UPDATE_NOOP, 'Everything already up to date');
+responseFromArray($res);

@@ -38,11 +38,9 @@ class Paginate
 			if (preg_match('/(\-\-|;)(\s|[^\'"`])*$/is', $query)) {
 				Util::traceError("Your query must not end in a comment or semi-colon!");
 			}
-			$query .= ' LIMIT ' . ($this->currentPage * $this->perPage) . ', ' . $this->perPage;
-			// Use SQL_CALC_FOUND_ROWS
-			if (!preg_match('/^\s*SELECT\s+SQL_CALC_FOUND_ROWS/is', $query)) {
-				$query = preg_replace('/^\s*SELECT/is', 'SELECT SQL_CALC_FOUND_ROWS ', $query);
-			}
+			// Don't use SQL_CALC_FOUND_ROWS as it leads to filesort frequently thus being slower than two queries
+			// See https://www.percona.com/blog/2007/08/28/to-sql_calc_found_rows-or-not-to-sql_calc_found_rows/
+
 		} else {
 			Util::traceError('Unsupported database engine');
 		}
@@ -55,7 +53,7 @@ class Paginate
 			if (substr($url, -1) !== '&') $url .= '&';
 		}
 		//
-		$this->query =$query;
+		$this->query = $query;
 		$this->url = $url;
 	}
 
@@ -64,11 +62,14 @@ class Paginate
 	 */
 	public function exec($args = array())
 	{
-		$args[':limit_start'] = $this->currentPage;
-		$args[':limit_count'] = $this->perPage;
-		$retval = Database::simpleQuery($this->query, $args);
-		$res = Database::queryFirst('SELECT FOUND_ROWS() AS rowcount');
-		$this->totalRows = (int)$res['rowcount'];
+		$countQuery = preg_replace('/ORDER\s+BY\s.*?(\sASC|\sDESC|$)/is', '', $this->query);
+		$countQuery = preg_replace('/SELECT\s.*?\sFROM\s/is', 'SELECT Count(*) AS rowcount FROM ', $countQuery);
+		$countRes = Database::queryFirst($countQuery, $args);
+		$args['limit_start'] = $this->currentPage;
+		$args['limit_count'] = $this->perPage;
+		$query = $this->query . ' LIMIT ' . ($this->currentPage * $this->perPage) . ', ' . $this->perPage;
+		$retval = Database::simpleQuery($query, $args);
+		$this->totalRows = (int)$countRes['rowcount'];
 		return $retval;
 	}
 

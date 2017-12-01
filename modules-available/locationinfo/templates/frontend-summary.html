@@ -2,7 +2,8 @@
 <html lang="de">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
 <head>
-	<script type='text/javascript' src='../../../script/jquery.js'></script>
+	<script type='text/javascript' src='{{dirprefix}}script/jquery.js'></script>
+
 
 	<style type='text/css'>
 		body {
@@ -59,7 +60,7 @@
 			border-style: solid;
 		}
 
-		.pc-idle, .pc-occupied, .pc-off, .pc-broken {
+		.pc-idle, .pc-occupied, .pc-offline, .pc-broken, .pc-standby {
 			padding: 2px 1px;
 			text-align: center;
 			font-size: 90%;
@@ -78,9 +79,14 @@
 			border-radius: 3px 0px 0px 3px;
 		}
 
-		.pc-off {
+		.pc-offline {
 			background-color: darkgrey;
 		}
+
+		.pc-standby {
+			background-color: darkgreen;
+		}
+
 
 		.pc-broken {
 			background-color: black;
@@ -106,7 +112,7 @@
 		var rooms = {};
 		var startdate;
 		var roomidsString = "";
-
+		var config = {{{config}}};
 
 		$(document).ready(function () {
 			//temp
@@ -115,13 +121,17 @@
 		});
 
 		function init() {
-			var ids = getUrlParameter("id");
+			// var ids = getUrlParameter("id");
+
+			/*
 			$.getJSON("../../../api.php?do=locationinfo&action=locationtree&id=" + ids, function (result) {
 				generateLayout(result);
 
 				setTimeout(update, 1000);
 			});
-
+			*/
+			generateLayout(config.tree);
+			update();
 		}
 
 		function SetUpDate(d) {
@@ -140,7 +150,7 @@
 		}
 
 		/**
-		 * generates the divs, decidecs if parent or child
+		 * generates the divs, decides if parent or child
 		 * @param json Room tree json
 		 * @param myParent parent div
 		 * @param outermost if the object is a root node
@@ -183,13 +193,16 @@
 			var rommUpdateIds = "";
 			var count = 0;
 			var nextUpdate = 15000;
+			// TODO: Only query a few rooms is not possible with the new api stuff ...
 			for (var property in rooms) {
 				if (rooms[property].lastCalendarUpdate === null || rooms[property].lastCalendarUpdate + CALUPDATE_MS < MyDate().getTime()) {
+					// TODO: NOT NECESSARY ANYMORE?!
 					calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
 					count++;
 					rooms[property].lastCalendarUpdate = MyDate().getTime();
 				}
 				if (rooms[property].lastRoomUpdate === null || rooms[property].lastRoomUpdate + ROOMUPDATE_MS < MyDate().getTime()) {
+					// TODO: NOT NECESSARY ANYMORE?!
 					rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
 					count++;
 					rooms[property].lastRoomUpdate = MyDate().getTime();
@@ -197,11 +210,11 @@
 				if (count > 7) break;
 			}
 			if (calendarUpdateIds !== "") {
-				queryCalendars(calendarUpdateIds);
+				queryCalendars();
 				nextUpdate = 1000;
 			}
 			if (rommUpdateIds !== "") {
-				queryRooms(rommUpdateIds);
+				queryRooms();
 				nextUpdate = 1000;
 			}
 			for (var property in rooms) {
@@ -214,6 +227,9 @@
 		function UpdateTimeTables(json) {
 			var l = json.length;
 			for (var i = 0; i < l; i++) {
+				if (rooms[json[i].id] == null) {
+					continue;
+				}
 				rooms[json[i].id].timetable = json[i].calendar;
 				for (var property in rooms[json[i].id].timetable) {
 					rooms[json[i].id].timetable[property].start = new Date(rooms[json[i].id].timetable[property].start);
@@ -225,11 +241,11 @@
 
 		/**
 		 * Querys Pc states
-		 * @param ids Room ID's which should be queried. Format for e.g.: "20,5,6"
+		 * Room are queried with the {{uuid}} of the panel.
 		 */
-		function queryRooms(ids) {
+		function queryRooms() {
 			$.ajax({
-				url: "../../../api.php?do=locationinfo&action=pcstates&id=" + ids,
+				url: "{{dirprefix}}api.php?do=locationinfo&get=pcstates&uuid={{uuid}}",
 				dataType: 'json',
 				cache: false,
 				timeout: 30000,
@@ -241,6 +257,7 @@
 						return;
 					}
 					updatePcStates(result);
+
 				}, error: function () {
 
 				}
@@ -282,7 +299,7 @@
 		function updatePcStates(json) {
 			var l = json.length;
 			for (var i = 0; i < l; i++) {
-				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].off, json[i].broken)
+				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].offline, json[i].broken, json[i].standby)
 			}
 
 		}
@@ -522,20 +539,21 @@
 		 * @param id of the child
 		 * @param idle PC's on
 		 * @param occupied PC's used
-		 * @param off PC's that are off
+		 * @param offline PC's that are off
 		 * @param broken PC's that are broken
 		 */
-		function updateRoomUsage(id, idle, occupied, off, broken) {
-			if (idle == 0 && occupied == 0 && off == 0) {
+		function updateRoomUsage(id, idle, occupied, offline, broken, standby) {
+			if (idle == 0 && occupied == 0 && offline == 0 && broken == 0 && standby == 0) {
 				$('#parent_' + id).parent().hide();
 				return;
 			}
 			$('#parent_' + id).parent().show();
-			var total = parseInt(idle) + parseInt(occupied) + parseInt(off) + parseInt(broken);
+			var total = parseInt(idle) + parseInt(occupied) + parseInt(offline) + parseInt(broken) + parseInt(standby);
 			$("#pc_Idle_" + id).text(idle).width((idle / total) * 100 + '%');
 			$("#pc_Occupied_" + id).text(occupied).width((occupied / total) * 100 + '%');
-			$("#pc_Off_" + id).text(off).width((off / total) * 100 + '%');
+			$("#pc_Offline_" + id).text(offline).width((offline / total) * 100 + '%');
 			$("#pc_Broken_" + id).text(broken).width((broken / total) * 100 + '%');
+			$("#pc_Standby_" + id).text(standby).width((standby / total) * 100 + '%');
 		}
 
 		/**
@@ -553,7 +571,13 @@
 		 * @param time Time value
 		 */
 		function updateCoursTimer(id, time) {
-			$("#div_Time_" + id).text(time);
+			// TODO: Add seconds again with a better update rate.
+			var time_split = time.split(":");
+			if (time != "") {
+				$("#div_Time_" + id).text(time_split[0] + ":" + time_split[1]);
+			} else {
+				$("#div_Time_" + id).text(time);
+			}
 		}
 
 		/**
@@ -577,7 +601,8 @@
 					"<div class='pc-state-wrapper'>" +
 					"<div id = 'pc_Occupied_" + id + "' class='pc-occupied'>?</div>" +
 					"<div id = 'pc_Idle_" + id + "'  class='pc-idle'>?</div>" +
-					"<div id = 'pc_Off_" + id + "' class='pc-off'>?</div>" +
+					"<div id = 'pc_Standby_" + id + "'  class='pc-standby'>?</div>" +
+					"<div id = 'pc_Offline_" + id + "' class='pc-offline'>?</div>" +
 					"<div id = 'pc_Broken_" + id + "' class='pc-broken'>?</div>" +
 					"</div>" +
 					"<div class='aroundCourse'>" +
@@ -585,8 +610,7 @@
 					"<div id = 'div_Time_" + id + "'class='courseFont'></div></div></div></div>";
 			var obj = $(target).append(text);
 			addRoom(id, name);
-			return obj
-
+			return obj;
 		}
 
 		/**
@@ -634,10 +658,11 @@
 
 		/**
 		 * querys the Calendar data
-		 * @param ids ID'S of rooms to query as string, for e.g.: "5,17,8" or "5"
+		 * Calender is queried with the {{uuid}} of the panel.
+		 * api.inc.php / page.inc.php is getting the ids with the panel uuid.
 		 */
-		function queryCalendars(ids) {
-			var url = "../../../api.php?do=locationinfo&action=calendar&id=" + ids;
+		function queryCalendars() {
+			var url = "{{dirprefix}}api.php?do=locationinfo&get=calendar&uuid={{uuid}}";
 
 			// Todo reimplement Frontend methode if needed
 			/*
@@ -652,8 +677,6 @@
 				timeout: 30000,
 				success: function (result) {
 					UpdateTimeTables(result);
-
-
 				}, error: function () {
 
 				}

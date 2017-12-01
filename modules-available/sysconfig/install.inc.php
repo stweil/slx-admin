@@ -39,21 +39,18 @@ $res[] = tableCreate('configtgz_location', "
 
 // Constraints
 if (in_array(UPDATE_DONE, $res)) {
-	$ret = Database::exec("ALTER TABLE `configtgz_x_module`
-		ADD CONSTRAINT `configtgz_x_module_ibfk_1` FOREIGN KEY (`configid`) REFERENCES `configtgz` (`configid`)
-		ON DELETE CASCADE");
-	$ret = Database::exec("ALTER TABLE `configtgz_x_module`
-		ADD CONSTRAINT `configtgz_x_module_ibfk_2` FOREIGN KEY (`moduleid`) REFERENCES `configtgz_module` (`moduleid`)") || $ret;
-	$ret = Database::exec("ALTER TABLE `configtgz_location`
-		ADD CONSTRAINT `configtgz_location_fk_configid` FOREIGN KEY ( `configid` ) REFERENCES `openslx`.`configtgz` (`configid`)
-		ON DELETE CASCADE ON UPDATE CASCADE") || $ret;
-	if ($ret) {
-		$res[] = UPDATE_DONE;
-	}
+	// To self
+	$res[] = tableAddConstraint('configtgz_x_module', 'configid', 'configtgz', 'configid',
+			'');
+	$res[] = tableAddConstraint('configtgz_x_module', 'moduleid', 'configtgz_module', 'moduleid',
+			'');
+	$res[] = tableAddConstraint('configtgz_location', 'configid', 'configtgz', 'configid',
+		'ON DELETE CASCADE ON UPDATE CASCADE');
 }
 
 // Update path
 
+// #######################
 // ##### 2014-12-12
 // Rename config modules
 Database::exec("UPDATE configtgz_module SET moduletype = 'Branding' WHERE moduletype = 'BRANDING'");
@@ -98,9 +95,4 @@ if ($list === false) {
 }
 
 // Create response for browser
-
-if (in_array(UPDATE_DONE, $res)) {
-	finalResponse(UPDATE_DONE, 'Tables created successfully');
-}
-
-finalResponse(UPDATE_NOOP, 'Everything already up to date');
+responseFromArray($res);

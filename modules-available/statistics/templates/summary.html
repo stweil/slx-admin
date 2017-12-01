@@ -1,6 +1,11 @@
 <div class="col-md-12">
 	<div class="panel panel-default">
 		<div class="panel-body">
+			{{#runmode}}
+				<div class="pull-right">
+					<a href="?do=runmode">{{lang_runmodeMachines}}</a>: <b>{{runmode}}</b>
+				</div>
+			{{/runmode}}
 			<div>
 				{{lang_knownMachines}}: <b>{{known}}</b>&emsp;
 				<a href="?do=Statistics&amp;show=stat&amp;filters={{query}}~,~state=on">{{lang_onlineMachines}}</a>: <b>{{online}}</b>&emsp;
@@ -10,8 +15,9 @@
 			<div>
 				<span class="glyphicon glyphicon-exclamation-sign red"></span>
 				<a href="?do=Statistics&amp;show=list&amp;filters={{query}}~,~badsectors>=10">
-					{{lang_withBadSectors}}: <b>{{badhdd}}</b>
+					{{lang_withBadSectors}}:
 				</a>
+				<b>{{badhdd}}</b>
 			</div>
 			{{/badhdd}}
 		</div>

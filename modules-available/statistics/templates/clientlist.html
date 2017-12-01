@@ -46,17 +46,21 @@
 		<tr>
 			<td data-sort-value="{{hostname}}" class="text-nowrap">
 				{{#hasnotes}}<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>{{/hasnotes}}
-				{{#state_off}}
+			{{#state_OFFLINE}}
 				<span class="glyphicon glyphicon-off" title="{{lang_machineOff}}"></span>
-				{{/state_off}}
-				{{#state_idle}}
+			{{/state_OFFLINE}}
+			{{#state_IDLE}}
 				<span class="glyphicon glyphicon-ok green" title="{{lang_machineIdle}}"></span>
-				{{/state_idle}}
-				{{#state_occupied}}
+			{{/state_IDLE}}
+			{{#state_OCCUPIED}}
 				<span class="glyphicon glyphicon-user red" title="{{lang_machineOccupied}}"></span>
-				{{/state_occupied}}
+			{{/state_OCCUPIED}}
+			{{#state_STANDBY}}
+			<span class="glyphicon glyphicon-off green" title="{{lang_machineStandby}}"></span>
+			{{/state_STANDBY}}
 				<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
 				<div class="small">{{machineuuid}}</div>
+			{{#rmmodule}}<div class="small">{{lang_runMode}}: <a class="slx-bold" href="?do=runmode&amp;module={{rmmodule}}">{{rmmodule}}</a></div>{{/rmmodule}}
 			</td>
 			<td data-sort-value="{{clientip}}"><b><a href="?do=Statistics&amp;show=list&amp;filters=subnet={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
 			<td data-sort-value="{{lastseen_int}}" class="text-right">{{lastseen}}</td>

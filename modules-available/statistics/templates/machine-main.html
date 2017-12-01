@@ -50,13 +50,13 @@
 					<tr>
 						<td class="text-nowrap">{{lang_usageState}}</td>
 						<td>
-							{{#state_off}}
+							{{#state_OFFLINE}}
 							<span class="glyphicon glyphicon-off"></span> {{lang_machineOff}}
-							{{/state_off}}
-							{{#state_idle}}
+							{{/state_OFFLINE}}
+							{{#state_IDLE}}
 							<span class="glyphicon glyphicon-ok green"></span> {{lang_machineIdle}}
-							{{/state_idle}}
-							{{#state_occupied}}
+							{{/state_IDLE}}
+							{{#state_OCCUPIED}}
 							{{#username}}
 							<span class="glyphicon glyphicon-user red"></span> {{lang_machineOccupiedBy}} <b>{{username}}</b>
 							{{/username}}
@@ -64,7 +64,10 @@
 							<span class="glyphicon glyphicon-user red"></span> {{lang_machineOccupied}}
 							{{/username}}
 							<div>{{logintime_s}}</div>
-							{{/state_occupied}}
+							{{/state_OCCUPIED}}
+							{{#state_STANDBY}}
+							<span class="glyphicon glyphicon-off green"></span> {{lang_machineStandby}}
+							{{/state_STANDBY}}
 							{{#session}}
 							<div>
 								{{#lectureid}}
@@ -77,6 +80,14 @@
 							{{/session}}
 						</td>
 					</tr>
+					{{#modeid}}
+						<tr>
+							<td class="text-nowrap">{{lang_runMode}}</td>
+							<td>
+								<a href="?do={{modeid}}">{{moduleName}}</a> – {{modeName}}
+							</td>
+						</tr>
+					{{/modeid}}
 				</table>
 			</div>
 		</div>

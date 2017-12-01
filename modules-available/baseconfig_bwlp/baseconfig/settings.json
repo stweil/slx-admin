@@ -73,6 +73,12 @@
 		"permissions": "2",
 		"validator": "list:socks4|socks5|http-connect|http-relay"
 	},
+	"SLX_BRIDGE_OTHER_NICS": {
+		"catid": "networking",
+		"defaultvalue": "no",
+		"permissions": "2",
+		"validator": "list:no|yes"
+	},
 	"SLX_REMOTE_LOG_SESSIONS": {
 		"catid": "other",
 		"defaultvalue": "anonymous",
@@ -115,6 +121,18 @@
 		"permissions": "2",
 		"validator": "regex:\/^\\d*$\/"
 	},
+	"SLX_SYSTEM_STANDBY_TIMEOUT": {
+		"catid": "power",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "regex:\/^\\d*$\/"
+	},
+	"SLX_WAKEUP_SCHEDULE": {
+		"catid": "power",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "regex:\/^(\\s*\\d{1,2}:\\d{1,2})*\\s*$\/"
+	},
 	"SLX_VMCHOOSER_TAB": {
 		"catid": "vmchooser",
 		"defaultvalue": "AUTO",
@@ -133,6 +151,12 @@
 		"permissions": "2",
 		"validator": "list:IGNORE|BUMP|EXCLUSIVE"
 	},
+	"SLX_VMCHOOSER_TIMEOUT": {
+		"catid": "vmchooser",
+		"defaultvalue": "120",
+		"permissions": "2",
+		"validator": "regex:\/^\\d*$\/"
+	},
 	"SLX_PRINT_USER_PREFIX": {
 		"catid": "sysconfig",
 		"defaultvalue": "",
@@ -144,6 +168,17 @@
 		"defaultvalue": "",
 		"permissions": "2",
 		"validator": "regex:\/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$\/i"
+	},
+	"SLX_AUTOLOGIN": {
+		"catid": "sysconfig",
+		"defaultvalue": "OFF",
+		"permissions": "2",
+		"validator": "list:ON|OFF",
+		"shadows": {
+			"ON": [
+				"SLX_VMCHOOSER_TIMEOUT"
+			]
+		}
 	},
 	"SLX_PVS_DEFAULT": {
 		"catid": "vmchooser",

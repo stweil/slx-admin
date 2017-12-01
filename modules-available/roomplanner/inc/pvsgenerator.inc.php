@@ -54,9 +54,18 @@ class PvsGenerator
 		/* collect names and build room blocks - filter empty rooms while at it */
 		$roomNames = array();
 		$roomBlocks = '';
+		$overrides = [];
 		foreach ($rooms as $room) {
-			if (is_null($room['notnull']) || isset($room['skip']) // Not leaf
-				|| empty($room['managerip'])) // rooms without managerips don't make sense
+			if (is_null($room['notnull']) || isset($room['skip'])) // Not leaf
+				continue;
+			if (Module::isAvailable('runmode')) {
+				$pc = RunMode::getForMode('roomplanner', $room['locationid']);
+				if (!empty($pc)) {
+					$pc = array_pop($pc);
+					$room['managerip'] = $pc['clientip'];
+				}
+			}
+			if (empty($room['managerip'])) // rooms without managerips don't make sense
 				continue;
 			$roomBlock = PvsGenerator::generateRoomBlock($room);
 			if ($roomBlock === false)
@@ -189,7 +198,7 @@ class PvsGenerator
 
 	private static function boundingBox($grid, &$minX, &$minY, &$maxX, &$maxY)
 	{
-		$minX = PHP_INT_MAX; /* PHP_INT_MIN is only avaiable since PHP 7 */
+		$minX = PHP_INT_MAX; /* PHP_INT_MIN is only available since PHP 7 */
 		$maxX = ~PHP_INT_MAX;
 		$minY = PHP_INT_MAX;
 		$maxY = ~PHP_INT_MAX;
@@ -200,6 +209,39 @@ class PvsGenerator
 			$minY = min($minY, $pos[Y]);
 			$maxY = max($maxY, $pos[Y]);
 		}
+	}
+
+	public static function runmodeConfigHook($machineUuid, $locationId, $data)
+	{
+		if (!empty($data)) {
+			$data = json_decode($data, true);
+		}
+		if (!is_array($data)) {
+			$data = array();
+		}
+		ConfigHolder::add("SLX_PVS_CONFIG_URL", 'http://' . $_SERVER['SERVER_ADDR'] . $_SERVER['SCRIPT_NAME'] . '?do=roomplanner');
+
+		if (isset($data['dedicatedmgr']) && $data['dedicatedmgr']) {
+			ConfigHolder::add("SLX_ADDONS", false, 100000);
+			ConfigHolder::add("SLX_PVS_DEDICATED", 'yes');
+			ConfigHolder::add("SLX_EXAM", false, 100000);
+			ConfigHolder::add("SLX_AUTOLOGIN", 'ON', 100000);
+		} else {
+			ConfigHolder::add("SLX_PVS_HYBRID", 'yes');
+		}
+	}
+
+	/**
+	 * Get display name for manager of given locationId.
+	 * @param $locationId
+	 * @return bool|string
+	 */
+	public static function getManagerName($locationId)
+	{
+		$names = Location::getNameChain($locationId);
+		if ($names === false)
+			return false;
+		return implode(' / ', $names);
 	}
 
 }

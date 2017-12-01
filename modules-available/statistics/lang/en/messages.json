@@ -1,6 +1,6 @@
 {
-    "invalid-filter": "Invalid filter",
     "invalid-filter-argument": "{{1}} is not a vald argument for filter {{0}}",
     "invalid-filter-key": "{{0}} is not a valid filter",
-    "notes-saved": "Notes have been saved"
+    "notes-saved": "Notes have been saved",
+    "unknown-machine": "Unknown machine uuid {{0}}"
 }

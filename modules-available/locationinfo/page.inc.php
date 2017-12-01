@@ -223,14 +223,14 @@ class Page_LocationInfo extends Page
 		if ($locationids === false) {
 			if (!$failIfEmpty)
 				return array();
-			Message::addError('main.paramter-missing', 'locationids');
+			Message::addError('main.parameter-missing', 'locationids');
 			Util::redirect('?do=locationinfo');
 		}
 		$locationids = explode(',', $locationids);
 		$all = array_map(function ($item) { return $item['locationid']; }, Location::queryLocations());
 		$locationids = array_filter($locationids, function ($item) use ($all) { return in_array($item, $all); });
 		if ($failIfEmpty && empty($locationids)) {
-			Message::addError('main.paramter-empty', 'locationids');
+			Message::addError('main.parameter-empty', 'locationids');
 			Util::redirect('?do=locationinfo');
 		}
 		return $locationids;
@@ -254,10 +254,13 @@ class Page_LocationInfo extends Page
 			$params = $this->preparePanelConfigDefault();
 		} elseif ($paneltype === 'URL') {
 			$params = $this->preparePanelConfigUrl();
+		}  elseif ($paneltype === 'SUMMARY') {
+			$params = $this->preparePanelConfigSummary();
 		} else {
 			Message::addError('invalid-panel-type', $paneltype);
 			Util::redirect('?do=locationinfo');
 		}
+
 
 		if ($paneluuid === 'new') {
 			$paneluuid = Util::randomUuid();
@@ -318,6 +321,13 @@ class Page_LocationInfo extends Page
 			'insecure-ssl' => Request::post('insecure-ssl', 0, 'int'),
 		);
 		return array('config' => $conf, 'locationids' => []);
+	}
+
+	private function preparePanelConfigSummary()
+	{
+		// Check locations
+		$locationids = self::getLocationIdsFromRequest(true);
+		return array('locationids' => $locationids);
 	}
 
 	/**
@@ -832,7 +842,7 @@ class Page_LocationInfo extends Page
 				'url' => $config['url'],
 				'ssl_checked' => $config['insecure-ssl'] ? 'checked' : '',
 			));
-		} else { // TODO
+		} else {
 			Render::addTemplate('page-config-panel-summary', array(
 				'new' => $id === 'new',
 				'uuid' => $id,
@@ -862,19 +872,37 @@ class Page_LocationInfo extends Page
 			Util::redirect($config['url']);
 		}
 
-		$data = array(
-			'uuid' => $uuid,
-			'config' => json_encode($config),
-			'language' => $config['language'],
-		);
-
+		$data = array();
 		preg_match('#^(.*)/#', $_SERVER['PHP_SELF'], $script);
 		preg_match('#^([^?]+)/#', $_SERVER['REQUEST_URI'], $request);
 		if ($script[1] !== $request[1]) {
 			$data['dirprefix'] = $script[1] . '/';
 		}
 
-		echo Render::parse('frontend-default', $data);
+		if ($type === 'DEFAULT') {
+			$data += array(
+				'uuid' => $uuid,
+				'config' => json_encode($config),
+				'language' => $config['language'],
+			);
+
+			die(Render::parse('frontend-default', $data));
+		}
+
+		if ($type === 'SUMMARY') {
+			$locations = LocationInfo::getLocationsOr404($uuid, false);
+			$config['tree'] = Location::getRecursive($locations);
+			$data += array(
+				'uuid' => $uuid,
+				'config' => json_encode($config),
+				'language' => $config['language'],
+			);
+
+			die(Render::parse('frontend-summary', $data));
+		}
+
+		http_response_code(500);
+		die('Unknown panel type ' . $type);
 	}
 
 }

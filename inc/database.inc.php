@@ -17,6 +17,7 @@ class Database
 	private static $statements = array();
 	private static $returnErrors;
 	private static $lastError = false;
+	private static $explainList = array();
 
 	/**
 	 * Connect to the DB if not already connected.
@@ -36,6 +37,11 @@ class Database
 			if (self::$returnErrors)
 				return false;
 			Util::traceError('Connecting to the local database failed: ' . $e->getMessage());
+		}
+		if (CONFIG_DEBUG) {
+			register_shutdown_function(function() {
+				self::examineLoggedQueries();
+			});
 		}
 		return true;
 	}
@@ -115,7 +121,7 @@ class Database
 	{
 		self::init();
 		if (CONFIG_DEBUG && preg_match('/^\s*SELECT/is', $query)) {
-			self::explainQuery($query, $args);
+			self::$explainList[] = [$query, $args];
 		}
 		// Support passing nested arrays for IN statements, automagically refactor
 		self::handleArrayArgument($query, $args);
@@ -141,6 +147,13 @@ class Database
 		return false;
 	}
 
+	public static function examineLoggedQueries()
+	{
+		foreach (self::$explainList as $e) {
+			self::explainQuery($e[0], $e[1]);
+		}
+	}
+
 	private static function explainQuery($query, $args)
 	{
 		$res = self::simpleQuery('EXPLAIN ' . $query, $args, true);
@@ -155,7 +168,7 @@ class Database
 			$lens[$key] = strlen($key);
 		}
 		foreach ($rows as $row) {
-			if (!$log && preg_match('/filesort|temporary/i', $row['Extra'])) {
+			if (!$log && $row['rows'] > 20 && preg_match('/filesort|temporary/i', $row['Extra'])) {
 				$log = true;
 			}
 			foreach ($row as $key => $col) {

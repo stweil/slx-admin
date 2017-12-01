@@ -37,6 +37,11 @@ class Location
 		return Database::queryFirst("SELECT * FROM location WHERE locationid = :locationId", compact('locationId'));
 	}
 
+	/**
+	 * Get name of location
+	 * @param int $locationId id of location to get name for
+	 * @return string|false Name of location, false if locationId doesn't exist
+	 */
 	public static function getName($locationId)
 	{
 		self::getLocationsAssoc();
@@ -44,6 +49,26 @@ class Location
 		if (!isset(self::$assocLocationCache[$locationId]))
 			return false;
 		return self::$assocLocationCache[$locationId]['locationname'];
+	}
+
+	/**
+	 * Get all the names of the given location and its parents, up
+	 * to the root element. Array keys will be locationids, value the names.
+	 * @param int $locationId
+	 * @return array|false locations, from furthest to nearest or false if locationId doesn't exist
+	 */
+	public static function getNameChain($locationId)
+	{
+		self::getLocationsAssoc();
+		settype($locationId, 'int');
+		if (!isset(self::$assocLocationCache[$locationId]))
+			return false;
+		$ret = array();
+		while (isset(self::$assocLocationCache[$locationId])) {
+			$ret[$locationId] = self::$assocLocationCache[$locationId]['locationname'];
+			$locationId = self::$assocLocationCache[$locationId]['parentlocationid'];
+		}
+		return array_reverse($ret, true);
 	}
 
 	public static function getLocationsAssoc()

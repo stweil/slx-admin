@@ -10,7 +10,7 @@
     "username": "Username",
     "username_helptext": "Authenticating user (only required for CourseService).",
     "verifyCert": "Verify certificate",
-    "verifyCert_helptext": "Wenn das Zertifikat abgelaufen ist, oder von keiner bekannten CA ausgestellt wurde, wird die Verbindung abgelehnt.",
+    "verifyCert_helptext": "If the certificate expired or was not signed by a known CA, the connection will be aborted.",
     "verifyHostname": "Verify host name",
-    "verifyHostname_helptext": "Der im Zertifikat angegebene Hostname muss mit dem Hostnamen aus der URL \u00fcbereinstimmen, sonst wird die Verbindung abgelehnt."
+    "verifyHostname_helptext": "The certificate's host name must match the host name given in the URL, otherwise the connection will be aborted."
 }

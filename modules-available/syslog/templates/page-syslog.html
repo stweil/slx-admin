@@ -4,7 +4,7 @@
 		max-width: 500px;
 	}
 </style>
-<form method="post" action="?do=SysLog">
+<form method="post" action="?do=SysLog{{#machineuuid}}&machineuuid={{machineuuid}}{{/machineuuid}}">
 	<input type="hidden" name="token" value="{{token}}">
 	<div class="pull-left">
 		<label for="filterstring">{{lang_filter}}</label>

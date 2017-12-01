@@ -171,6 +171,7 @@ class Dnbd3Util {
 		ConfigHolder::add('SLX_SHUTDOWN_SCHEDULE', '', 1000);
 		ConfigHolder::add('SLX_REBOOT_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_REBOOT_SCHEDULE', '', 1000);
+		ConfigHolder::add('SLX_SYSTEM_STANDBY_TIMEOUT', '', 1000);
 	}
 
 	/**

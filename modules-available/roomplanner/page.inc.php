@@ -58,7 +58,17 @@ class Page_Roomplanner extends Page
 		if ($this->action === 'show') {
 			/* do nothing */
 			Dashboard::disable();
-			$config = Database::queryFirst('SELECT roomplan, managerip, dedicatedmgr, tutoruuid FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
+			$config = Database::queryFirst('SELECT roomplan, managerip, tutoruuid FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
+			$runmode = RunMode::getForMode(Page::getModule(), $this->locationid, true);
+			if (empty($runmode)) {
+				$config['dedicatedmgr'] = false;
+			} else {
+				$runmode = array_pop($runmode);
+				$config['managerip'] = $runmode['clientip'];
+				$config['manageruuid'] = $runmode['machineuuid'];
+				$data = json_decode($runmode['modedata'], true);
+				$config['dedicatedmgr'] = (isset($data['dedicatedmgr']) && $data['dedicatedmgr']);
+			}
 			if ($config !== false) {
 				$managerIp = $config['managerip'];
 				$dediMgr = $config['dedicatedmgr'] ? 'checked' : '';
@@ -90,7 +100,7 @@ class Page_Roomplanner extends Page
 			$query = Request::get('query', false, 'string');
 			$aquery = preg_replace('/[^\x01-\x7f]+/', '%', $query);
 
-			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname '
+			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname, fixedlocationid '
 				. 'FROM machine '
 				. 'WHERE machineuuid LIKE :aquery '
 				. ' OR macaddr  	 LIKE :aquery '
@@ -101,6 +111,9 @@ class Page_Roomplanner extends Page
 			$returnObject = ['machines' => []];
 
 			while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+				if (empty($row['hostname'])) {
+					$row['hostname'] = $row['clientip'];
+				}
 				$returnObject['machines'][] = $row;
 			}
 			echo json_encode($returnObject);
@@ -207,16 +220,30 @@ class Page_Roomplanner extends Page
 	protected function saveRoomConfig($furniture, $tutorUuid)
 	{
 		$obj = json_encode(['furniture' => $furniture]);
-		Database::exec('INSERT INTO location_roomplan (locationid, roomplan, managerip, tutoruuid, dedicatedmgr)'
-			. ' VALUES (:locationid, :roomplan, :managerip, :tutoruuid, :dedicatedmgr)'
+		$managerIp = Request::post('managerip', '', 'string');
+		Database::exec('INSERT INTO location_roomplan (locationid, roomplan, managerip, tutoruuid)'
+			. ' VALUES (:locationid, :roomplan, :managerip, :tutoruuid)'
 			. ' ON DUPLICATE KEY UPDATE '
-			. ' roomplan=VALUES(roomplan), managerip=VALUES(managerip), tutoruuid=VALUES(tutoruuid), dedicatedmgr=VALUES(dedicatedmgr)', [
+			. ' roomplan=VALUES(roomplan), managerip=VALUES(managerip), tutoruuid=VALUES(tutoruuid)', [
 			'locationid' => $this->locationid,
 			'roomplan' => $obj,
-			'managerip' => Request::post('managerip', '', 'string'),
-			'dedicatedmgr' => (Request::post('dedimgr') === 'on' ? 1 : 0),
+			'managerip' => $managerIp,
 			'tutoruuid' => $tutorUuid
 		]);
+		// See if the client is known, set run-mode
+		if (empty($managerIp)) {
+			RunMode::deleteMode(Page::getModule(), $this->locationid);
+		} else {
+			RunMode::deleteMode(Page::getModule(), $this->locationid);
+			$pc = Statistics::getMachinesByIp($managerIp, Machine::NO_DATA, 'lastseen DESC');
+			if (!empty($pc)) {
+				$dedicated = (Request::post('dedimgr') === 'on');
+				$pc = array_shift($pc);
+				RunMode::setRunMode($pc->machineuuid, Page::getModule()->getIdentifier(), $this->locationid, json_encode([
+					'dedicatedmgr' => $dedicated
+				]), !$dedicated);
+			}
+		}
 	}
 
 	protected function getFurniture($config)
@@ -262,7 +289,7 @@ class Page_Roomplanner extends Page
 
 	protected function getPotentialMachines()
 	{
-		$result = Database::simpleQuery('SELECT m.machineuuid, m.macaddr, m.clientip, m.hostname, l.locationname AS otherroom 
+		$result = Database::simpleQuery('SELECT m.machineuuid, m.macaddr, m.clientip, m.hostname, l.locationname AS otherroom, m.fixedlocationid
 			FROM machine m
 			LEFT JOIN location l ON (m.fixedlocationid = l.locationid AND m.subnetlocationid <> m.fixedlocationid)
 			WHERE subnetlocationid = :locationid', ['locationid' => $this->locationid]);
@@ -270,6 +297,9 @@ class Page_Roomplanner extends Page
 		$machines = [];
 
 		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+			if (empty($row['hostname'])) {
+				$row['hostname'] = $row['clientip'];
+			}
 			$machines[] = $row;
 		}
 
