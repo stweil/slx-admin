@@ -428,7 +428,7 @@ optional:
 		var time = false;
 		var p = result.time.split('-');
 		if (p.length === 6) {
-			time = new Date(p[0], p[1], p[2], p[3], p[4], p[5]);
+			time = new Date(p[0], (p[1] - 1), p[2], p[3], p[4], p[5]);
 			console.log(time);
 		}
 		if (time === false || isNaN(time.getTime()) || time.getFullYear() < 2010) {
