@@ -16,11 +16,11 @@ class LdapAuth_Start extends AddModule_Base
 			$data['title'] = $this->edit->title();
 			$data['edit'] = $this->edit->id();
 		}
-		if ($data['fixnumeric'] === false) {
+		if (!isset($data['fixnumeric']) || $data['fixnumeric'] === false) {
 			$data['fixnumeric'] = 's';
 		}
 		postToArray($data, $LDAPAUTH_COMMON_FIELDS, true);
-		if (preg_match('/^(.*)\:(636|389)$/', $data['server'], $out)) {
+		if (isset($data['server']) && preg_match('/^(.*)\:(636|389)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
 		$data['step'] = 'LdapAuth_CheckConnection';

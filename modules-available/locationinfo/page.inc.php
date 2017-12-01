@@ -808,9 +808,11 @@ class Page_LocationInfo extends Page
 		}
 
 		$langs = Dictionary::getLanguages(true);
-		foreach ($langs as &$lang) {
-			if ($lang['cc'] === $config['language']) {
-				$lang['selected'] = 'selected';
+		if (isset($config['language'])) {
+			foreach ($langs as &$lang) {
+				if ($lang['cc'] === $config['language']) {
+					$lang['selected'] = 'selected';
+				}
 			}
 		}
 

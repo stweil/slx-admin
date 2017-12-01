@@ -59,7 +59,7 @@ class PvsGenerator
 			if (is_null($room['notnull']) || isset($room['skip'])) // Not leaf
 				continue;
 			if (Module::isAvailable('runmode')) {
-				$pc = RunMode::getForMode('roomplanner', $room['locationid']);
+				$pc = RunMode::getForMode('roomplanner', $room['locationid'], true);
 				if (!empty($pc)) {
 					$pc = array_pop($pc);
 					$room['managerip'] = $pc['clientip'];
@@ -219,7 +219,6 @@ class PvsGenerator
 		if (!is_array($data)) {
 			$data = array();
 		}
-		ConfigHolder::add("SLX_PVS_CONFIG_URL", 'http://' . $_SERVER['SERVER_ADDR'] . $_SERVER['SCRIPT_NAME'] . '?do=roomplanner');
 
 		if (isset($data['dedicatedmgr']) && $data['dedicatedmgr']) {
 			ConfigHolder::add("SLX_ADDONS", false, 100000);
