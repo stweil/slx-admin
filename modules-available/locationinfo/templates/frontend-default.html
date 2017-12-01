@@ -1352,7 +1352,6 @@ optional:
 	function initRoomLayout(room) {
 		var maxX = false, maxY = false;
 		var minX = false, minY = false;
-		var xDifference, yDifference;
 		var x, y;
 
 		generateRoomLayoutDiv((100 - room.config.scale) + "%", room);
@@ -1381,15 +1380,12 @@ optional:
 			}
 		}
 
-		xDifference = maxX - minX;
-		yDifference = maxY - minY;
-
-		room.xDifference = xDifference;
-		room.yDifference = yDifference;
 		room.minX = minX;
 		room.minY = minY;
-		room.maxX = maxX;
-		room.maxY = maxY;
+		room.maxX = maxX + picSizeX;
+		room.maxY = maxY + picSizeY;
+		room.xDifference = (room.maxX - room.minX);
+		room.yDifference = (room.maxY - room.minY);
 
 		setUpRoom(room, layout);
 		scaleRoom(room);
@@ -1402,7 +1398,7 @@ optional:
 	 * @param room Room Object
 	 */
 	function generateOffsetAndScale(room) {
-		var clientHeight;
+		var clientHeight, clientWidth;
 
 		if (room.config.vertical && room.config.mode === 1) {
 			clientHeight = room.$.container.height() - (room.$.calendar.position().top + room.$.calendar.height());
@@ -1410,36 +1406,20 @@ optional:
 			clientHeight = room.$.container.height() - (room.$.header.height() + 5);
 		}
 
-		var clientWidth = room.$.layout.width();
+		clientWidth = room.$.layout.width();
 
-		var scaleX;
-		if (room.xDifference !== 0) {
-			scaleX = clientWidth / room.xDifference;
-		} else {
-			scaleX = clientWidth;
+		var scaleX = clientWidth / picSizeX, scaleY = clientHeight / picSizeY;
+		if (room.xDifference > 0) {
+			scaleX = (clientWidth - 20) / room.xDifference;
 		}
-		var scaleY;
-		if (room.yDifference !== 0) {
-			scaleY = clientHeight / room.yDifference;
-		} else {
-			scaleY = clientHeight;
-		}
-		var scaleYs = (clientHeight - (picSizeY * scaleY)) / room.yDifference;
-		var scaleXs = (clientWidth - (picSizeX * scaleX)) / room.xDifference;
-		if (scaleYs <= 0) {
-			scaleYs = 9999;
-		}
-		if (scaleXs <= 0) {
-			scaleXs = 9999;
+		if (room.yDifference > 0) {
+			scaleY = (clientHeight - 20) / room.yDifference;
 		}
 
-		room.scale = Math.min(scaleYs, scaleY, scaleXs, scaleX, (clientHeight * 0.9) / picSizeY, (clientWidth * 0.9) / picSizeX);
-		room.xOffset = 0 - room.minX;
-		room.yOffset = 0 - room.minY;
-		room.xOffset += ((1 / 2 * (clientWidth - (((room.maxX + room.xOffset) * room.scale) + picSizeX * room.scale))) / room.scale);
-		room.yOffset += ((1 / 2 * (clientHeight - (((room.maxY + room.yOffset) * room.scale) + picSizeY * room.scale))) / room.scale);
+		room.scale = Math.min(scaleY, scaleX);
+		room.xOffset = -room.minX * room.scale + (clientWidth - room.xDifference * room.scale) / 2;
+		room.yOffset = -room.minY * room.scale + (clientHeight - room.yDifference * room.scale) / 2;
 	}
-
 
 	/**
 	 * adds images for each pc to Room Layout
@@ -1619,8 +1599,8 @@ optional:
 				room.layout[i].$div.css({
 					width: pcWidth,
 					height: pcHeight,
-					top: ((room.layout[i].y + room.yOffset) * room.scale) + "px",
-					left: ((room.layout[i].x + room.xOffset) * room.scale) + "px"
+					top: (room.layout[i].y * room.scale + room.yOffset) + "px",
+					left: (room.layout[i].x * room.scale + room.xOffset) + "px"
 				});
 			}
 		}
