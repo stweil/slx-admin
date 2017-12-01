@@ -111,6 +111,9 @@ class Page_Roomplanner extends Page
 			$returnObject = ['machines' => []];
 
 			while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+				if (empty($row['hostname'])) {
+					$row['hostname'] = $row['clientip'];
+				}
 				$returnObject['machines'][] = $row;
 			}
 			echo json_encode($returnObject);
@@ -294,6 +297,9 @@ class Page_Roomplanner extends Page
 		$machines = [];
 
 		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+			if (empty($row['hostname'])) {
+				$row['hostname'] = $row['clientip'];
+			}
 			$machines[] = $row;
 		}
 
