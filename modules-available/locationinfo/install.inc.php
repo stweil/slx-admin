@@ -26,7 +26,7 @@ $t2 = $res[] = tableCreate('locationinfo_coursebackend', '
 $t3 = $res[] = tableCreate('locationinfo_panel', "
 	`paneluuid` char(36) CHARACTER SET ascii NOT NULL,
 	`panelname` varchar(30) NOT NULL,
-	`locationids` varchar(20) CHARACTER SET ascii NOT NULL,
+	`locationids` varchar(100) CHARACTER SET ascii NOT NULL,
 	`paneltype` enum('DEFAULT','SUMMARY', 'URL') NOT NULL,
 	`panelconfig` blob NOT NULL,
 	`lastchange` int(10) UNSIGNED NOT NULL DEFAULT 0,
@@ -71,6 +71,9 @@ if ($t1 === UPDATE_DONE) {
 if ($t3 === UPDATE_NOOP) {
 	Database::exec("ALTER TABLE `locationinfo_panel` CHANGE `paneltype`
 		`paneltype` ENUM('DEFAULT', 'SUMMARY', 'URL') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+	// 2017-12-02 expand locationids column
+	Database::exec("ALTER TABLE `locationinfo_panel` CHANGE `locationids`
+		`locationids` varchar(100) CHARACTER SET ascii NOT NULL");
 }
 
 // 2017-07-26 Add servername key
