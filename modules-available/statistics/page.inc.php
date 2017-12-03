@@ -111,7 +111,7 @@ class Page_Statistics extends Page
 				'op' => Page_Statistics::$op_nominal,
 				'type' => 'enum',
 				'column' => true,
-				'values' => ['occupied', 'on']
+				'values' => ['occupied', 'on', 'off', 'idle', 'standby']
 			]
 		];
 		if (Module::isAvailable('locations')) {
