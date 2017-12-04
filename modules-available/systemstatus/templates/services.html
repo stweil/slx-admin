@@ -1,6 +1,20 @@
-{{#ldadpError}}
-<pre>{{ldadpError}}</pre>
-{{/ldadpError}}
-{{^ldadpError}}
-<div class="alert alert-success">LDAP-AD-Proxy: OK</div>
-{{/ldadpError}}
+{{#services}}
+	{{#unknown}}
+		<div class="alert alert-warning">
+			{{name}}: {{lang_unknownState}}
+		</div>
+	{{/unknown}}
+	{{^unknown}}
+		{{#fail}}
+		<div class="alert alert-danger">
+			{{name}}: <b>{{lang_failure}}</b>
+			{{#data.messages}}<pre>{{data.messages}}</pre>{{/data.messages}}
+		</div>
+		{{/fail}}
+		{{^fail}}
+		<div class="alert alert-success">
+			{{name}}: {{lang_OK}}
+		</div>
+		{{/fail}}
+	{{/unknown}}
+{{/services}}

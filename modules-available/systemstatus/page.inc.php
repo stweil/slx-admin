@@ -228,20 +228,42 @@ class Page_SystemStatus extends Page
 
 	protected function ajaxServices()
 	{
-		$data = array();
+		$data = array('services' => array());
+		$tasks = array();
 
-		$taskId = Trigger::ldadp();
-		if ($taskId === false)
-			return;
-		$status = Taskmanager::waitComplete($taskId, 10000);
-
-		if (Taskmanager::isFailed($status)) {
-			if (isset($status['data']['messages']))
-				$data['ldadpError'] = $status['data']['messages'];
-			else
-				$data['ldadpError'] = 'Taskmanager error';
+		foreach (['dmsd', 'dnbd3-server', 'atftpd'] as $svc) {
+			$tasks[] = array(
+				'name' => $svc,
+				'task' => Taskmanager::submit('Systemctl', ['service' => $svc, 'operation' => 'is-active'])
+			);
 		}
-		// TODO: Dozentenmodul, tftp, ...
+		$tasks[] = array(
+			'name' => 'LDAP/AD-Proxy',
+			'task' => Trigger::ldadp()
+		);
+		$deadline = time() + 10;
+		do {
+			$done = true;
+			foreach ($tasks as &$task) {
+				if (!is_string($task['task']) && (Taskmanager::isFailed($task['task']) || Taskmanager::isFinished($task['task'])))
+					continue;
+				$task['task'] = Taskmanager::waitComplete($task['task'], 100);
+				if (!Taskmanager::isFailed($task['task']) && !Taskmanager::isFinished($task['task'])) {
+					$done = false;
+				}
+			}
+			unset($task);
+		} while (!$done && time() < $deadline);
+
+		foreach ($tasks as $task) {
+			$fail = Taskmanager::isFailed($task['task']);
+			$data['services'][] = array(
+				'name' => $task['name'],
+				'fail' => $fail,
+				'data' => isset($task['data']) ? $task['data'] : null,
+				'unknown' => $task['task'] === false
+			);
+		}
 
 		echo Render::parse('services', $data);
 	}
