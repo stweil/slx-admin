@@ -1,0 +1,9 @@
+{
+    "cannot-edit-module": "Module {{0}} cannot be edited directly",
+    "enabled-removed-save": "Saved {{0}} clients, deleted {{1}}",
+    "invalid-modeid": "Module {{0}} doesn't provide mode {{1}}",
+    "machine-not-found": "Client {{0}} not found",
+    "machine-not-runmode": "No special mode of operation configured for client {{0}}",
+    "machine-removed": "Removed client {{0}}",
+    "module-hasnt-runmode": "Module {{0}} doesn't supply any special mode of operation"
+}

@@ -1,0 +1,9 @@
+{
+    "cannot-edit-module": "Modul {{0}} kann nicht direkt editiert werden",
+    "enabled-removed-save": "{{0}} Rechner gespeichert, {{1}} entfernt",
+    "invalid-modeid": "{{1}} ist kein g\u00fcltiger Betriebsmodus f\u00fcr Modul {{0}}",
+    "machine-not-found": "Rechner {{0}} nicht gefunden",
+    "machine-not-runmode": "Rechner {{0}} hatte keinen speziellen Betriebsmodus aktiviert",
+    "machine-removed": "Rechner {{0}} entfernt",
+    "module-hasnt-runmode": "Modul {{0}} bietet keine speziellen Betriebsmodi"
+}
