@@ -45,17 +45,27 @@ class InfoPanel
 		}
 		$config['locations'] = array();
 		$lids = array_map('intval', explode(',', $panel['locationids']));
-		foreach ($lids as $lid) {
-			$config['locations'][$lid] = array(
-				'id' => $lid,
-				'name' => isset($locations[$lid]) ? $locations[$lid]['locationname'] : 'noname00.pas',
-			);
-			// Now apply any overrides from above
-			if (isset($overrides[$lid]) && is_array($overrides[$lid])) {
-				$config['locations'][$lid]['config'] = $overrides[$lid];
+		// Locations -
+		if ($panel['paneltype'] === 'SUMMARY') {
+			$lids = Location::getRecursiveFlat($lids);
+			$lids = array_keys($lids);
+			foreach ($lids as $lid) {
+				$config['locations'][$lid] = array('id' => $lid);
 			}
 		}
-		self::appendMachineData($config['locations'], $lids, true);
+		if ($panel['paneltype'] === 'DEFAULT') {
+			foreach ($lids as $lid) {
+				$config['locations'][$lid] = array(
+					'id' => $lid,
+					'name' => isset($locations[$lid]) ? $locations[$lid]['locationname'] : 'noname00.pas',
+				);
+				// Now apply any overrides from above
+				if (isset($overrides[$lid]) && is_array($overrides[$lid])) {
+					$config['locations'][$lid]['config'] = $overrides[$lid];
+				}
+			}
+			self::appendMachineData($config['locations'], $lids, true);
+		}
 		self::appendOpeningTimes($config['locations'], $lids);
 
 		$config['ts'] = (int)$panel['lastchange'];
