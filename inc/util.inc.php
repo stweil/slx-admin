@@ -150,15 +150,21 @@ SADFACE;
 	 * Redirects the user via a '302 Moved' header.
 	 * An active session will be saved, any messages that haven't
 	 * been displayed yet will be appended to the redirect.
-	 * @param string $location Location to redirect to. "false" to redirect to same URL (useful after POSTs)
+	 * @param string|false $location Location to redirect to. "false" to redirect to same URL (useful after POSTs)
+	 * @param bool $preferRedirectPost if true, use the value from $_POST['redirect'] instead of $location
 	 */
-	public static function redirect($location = false)
+	public static function redirect($location = false, $preferRedirectPost = false)
 	{
 		if ($location === false) {
 			$location = preg_replace('/(&|\?)message\[\]\=[^&]*/', '\1', $_SERVER['REQUEST_URI']);
 		}
 		Session::save();
 		$messages = Message::toRequest();
+		if ($preferRedirectPost
+			&& ($redirect = Request::post('redirect', false, 'string')) !== false
+			&& !preg_match(',^(\w+\:|//),', $redirect) /* no uri scheme, no server */) {
+			$location = $redirect;
+		}
 		if (!empty($messages)) {
 			if (strpos($location, '?') === false) {
 				$location .= '?' . $messages;
