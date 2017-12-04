@@ -74,6 +74,7 @@
     "lang_showVisualization": "Visualisierung",
     "lang_sockets": "Sockel",
     "lang_subnet": "Subnetz",
+    "lang_sureDeletePermanent": "M\u00f6chten Sie diese(n) Rechner wirklich unwiderruflich aus der Datenbank entfernen?\r\n\r\nWichtig: L\u00f6schen verhindert nicht, dass ein Rechner nach erneutem Starten von bwLehrpool wieder in die Datenbank aufgenommen wird.",
     "lang_tempPart": "Temp. Partition",
     "lang_tempPartStats": "Tempor\u00e4re Partition",
     "lang_thoseAreProjectors": "Diese Modellnamen werden als Beamer behandelt, auch wenn die EDID-Informationen des Ger\u00e4tes anderes berichten.",

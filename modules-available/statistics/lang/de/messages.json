@@ -1,4 +1,5 @@
 {
+    "deleted-n-machines": "{{0}} Clients gel\u00f6scht",
     "invalid-filter-argument": "Das Argument {{1}} ist nicht g\u00fcltig f\u00fcr den Filter {{0}}",
     "invalid-filter-key": "{{0}} ist kein g\u00fcltiges Filterkriterium",
     "notes-saved": "Anmerkungen gespeichert",

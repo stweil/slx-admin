@@ -195,6 +195,35 @@ class Page_Statistics extends Page
 			Util::redirect('?do=Statistics&uuid=' . $uuid);
 		} elseif ($action === 'addprojector' || $action === 'delprojector') {
 			$this->handleProjector($action);
+		} elseif ($action === 'delmachines') {
+			$this->deleteMachines();
+			Util::redirect('?do=statistics', true);
+		}
+	}
+
+	private function deleteMachines()
+	{
+		$ids = Request::post('uuid', [], 'array');
+		$ids = array_values($ids);
+		if (empty($ids)) {
+			Message::addError('main.parameter-empty', 'uuid');
+			return;
+		}
+		$res = Database::simpleQuery('SELECT machineuuid, locationid FROM machine WHERE machineuuid IN (:ids)', compact('ids'));
+		$ids = array_flip($ids);
+		$delete = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			// TODO: Check locationid permissions
+			unset($ids[$row['machineuuid']]);
+			$delete[] = $row['machineuuid'];
+		}
+		if (!empty($delete)) {
+			Database::exec('DELETE FROM machine WHERE machineuuid IN (:delete)', compact('delete'));
+			Message::addSuccess('deleted-n-machines', count($delete));
+		}
+		if (!empty($ids)) {
+			// TODO: Warn permissions
+			Message::addWarning('unknown-machine', implode(', ', array_keys($ids)));
 		}
 	}
 
@@ -638,7 +667,8 @@ class Page_Statistics extends Page
 			'sortColumn' => $filterSet->getSortColumn(),
 			'columns' => json_encode(Page_Statistics::$columns),
 			'showList' => 1,
-			'show' => 'list'
+			'show' => 'list',
+			'redirect' => $_SERVER['QUERY_STRING']
 		));
 	}
 

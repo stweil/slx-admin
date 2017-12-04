@@ -74,6 +74,7 @@
     "lang_showVisualization": "Visualization",
     "lang_sockets": "Sockets",
     "lang_subnet": "Subnet",
+    "lang_sureDeletePermanent": "Are your sure you want to delete the selected machine(s) from the database? This cannot be undone.\r\n\r\nNote: Deleting machines from the database does not prevent booting up bwLehrpool again, which would recreate their respective database entries.",
     "lang_tempPart": "Temp. partition",
     "lang_tempPartStats": "Temporary partition",
     "lang_thoseAreProjectors": "These model names will always be treated as beamers, even if the device's EDID data says otherwise.",

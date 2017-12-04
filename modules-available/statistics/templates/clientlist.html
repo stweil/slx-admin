@@ -1,6 +1,8 @@
+<form method="post" action="?do=statistics">
+<input type="hidden" name="token" value="{{token}}">
+<input type="hidden" name="redirect" value="?{{redirect}}">
 
 <table class="stupidtable table table-condensed table-striped">
-
 	<thead>
 		<tr>
 			<td></td>
@@ -45,6 +47,10 @@
 		{{#rows}}
 		<tr>
 			<td data-sort-value="{{hostname}}" class="text-nowrap">
+				<div class="checkbox checkbox-inline">
+					<input type="checkbox" name="uuid[]" value="{{machineuuid}}">
+					<label></label>
+				</div>
 				{{#hasnotes}}<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>{{/hasnotes}}
 			{{#state_OFFLINE}}
 				<span class="glyphicon glyphicon-off" title="{{lang_machineOff}}"></span>
@@ -68,10 +74,10 @@
 			<td data-sort-value="{{gbram}}" class="text-right {{ramclass}}">{{gbram}}&thinsp;GiB</td>
 			<td data-sort-value="{{gbtmp}}" class="text-right {{hddclass}}">
 				{{gbtmp}}&thinsp;GiB
-				{{#badsectors}}<div>
-					<span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" title="{{lang_reallocatedSectors}}" data-placement="left"></span>
+				{{#badsectors}}<div><span data-toggle="tooltip" title="{{lang_reallocatedSectors}}" data-placement="left">
+					<span class="glyphicon glyphicon-exclamation-sign"></span>
 					{{badsectors}}
-				</div>{{/badsectors}}
+				</span></div>{{/badsectors}}
 				{{#nohdd}}<div>
 					<span class="glyphicon glyphicon-hdd red"></span>
 				</div>{{/nohdd}}
@@ -81,6 +87,37 @@
 		{{/rows}}
 	</tbody>
 </table>
+	<div class="text-right buttonbar">
+		<button type="reset" class="btn btn-default">
+			<span class="glyphicon glyphicon-remove"></span>
+			{{lang_reset}}
+		</button>
+		<button type="button" class="btn btn-danger" onclick="$('#del-confirm').modal()">
+			<span class="glyphicon glyphicon-trash"></span>
+			{{lang_delete}}
+		</button>
+	</div>
+	<div class="modal fade" id="del-confirm" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<b>{{lang_delete}}</b>
+				</div>
+				<div class="modal-body">
+					{{lang_sureDeletePermanent}}
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" class="btn btn-danger"  name="action" value="delmachines">
+						<span class="glyphicon glyphicon-trash"></span>
+						{{lang_delete}}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
 
 <script type="application/javascript"><!--
 document.addEventListener("DOMContentLoaded", function () {
