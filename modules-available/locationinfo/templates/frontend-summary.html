@@ -101,7 +101,8 @@
 		.paperEffect {
 			margin: 0 auto;
 			background-color: #fff;
-			box-shadow: 0 0 0.2vmin rgba(0, 0, 0, 0.4), inset 0 0 1vmin rgba(0, 0, 0, 0.1);
+			box-shadow: 0 0 3px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 0, 0, 0.1) inset;
+			box-shadow: 0 0 0.2vmin rgba(0, 0, 0, 0.4), 0 0 1vmin rgba(0, 0, 0, 0.1) inset;
 			border-radius: 1px;
 		}
 
@@ -115,7 +116,7 @@
 		var config = {{{config}}};
 
 		$(document).ready(function () {
-			//temp
+			// TODO: As in default panel, use time from json
 			SetUpDate(new Date());
 			init();
 		});
@@ -207,7 +208,7 @@
 					count++;
 					rooms[property].lastRoomUpdate = MyDate().getTime();
 				}
-				if (count > 7) break;
+				// TODO if (count > 7) break;
 			}
 			if (calendarUpdateIds !== "") {
 				queryCalendars();
@@ -310,6 +311,14 @@
 		 *  @param config Config Json of the room
 		 */
 		function addRoom(id, name) {
+			var ot = null;
+			if (config && config.locations) {
+				for (var i = 0; i < config.locations.length; ++i) {
+					if (config.locations[i].openingtime) {
+						// TODO: Messed up transformation from default panel
+					}
+				}
+			}
 			var room = {
 				id: id,
 				name: name,
@@ -318,7 +327,7 @@
 				nextEventEnd: null,
 				timeTilFree: null,
 				state: null,
-				openingTimes: null,
+				openingTimes: ot,
 				lastCalendarUpdate: null,
 				lastRoomUpdate: null,
 				getState: function () {
@@ -541,13 +550,16 @@
 		 * @param occupied PC's used
 		 * @param offline PC's that are off
 		 * @param broken PC's that are broken
+		 * @param standby PCs in standby mode
 		 */
 		function updateRoomUsage(id, idle, occupied, offline, broken, standby) {
-			if (idle == 0 && occupied == 0 && offline == 0 && broken == 0 && standby == 0) {
+			/* TODO Broken
+			if (idle === 0 && occupied === 0 && offline === 0 && broken === 0 && standby === 0) {
 				$('#parent_' + id).parent().hide();
 				return;
 			}
 			$('#parent_' + id).parent().show();
+			*/
 			var total = parseInt(idle) + parseInt(occupied) + parseInt(offline) + parseInt(broken) + parseInt(standby);
 			$("#pc_Idle_" + id).text(idle).width((idle / total) * 100 + '%');
 			$("#pc_Occupied_" + id).text(occupied).width((occupied / total) * 100 + '%');
