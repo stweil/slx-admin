@@ -476,6 +476,9 @@ SADFACE;
 	 */
 	public static function prettyTime($ts)
 	{
+		settype($ts, 'int');
+		if ($ts === 0)
+			return '???';
 		static $TODAY = false, $ETODAY = false, $YESTERDAY = false, $YEAR = false;
 		if (!$ETODAY) $ETODAY = strtotime('today 23:59:59');
 		if ($ts > $ETODAY) // TODO: Do we need strings for future too?

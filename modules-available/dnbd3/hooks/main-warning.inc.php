@@ -8,7 +8,7 @@ if (Dnbd3::isEnabled()) {
 
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		$error = $row['errormsg'] ? $row['errormsg'] : '<unknown error>';
-		$lastSeen = date('d.m.Y H:i', $row['dnbd3lastseen']);
+		$lastSeen = Util::prettyTime($row['dnbd3lastseen']);
 		if ($row['fixedip'] === '<self>') {
 			Message::addError('dnbd3.main-dnbd3-unreachable', true, $error, $lastSeen);
 			continue;
