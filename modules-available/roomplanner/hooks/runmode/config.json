@@ -2,5 +2,6 @@
 	"getModeName": "PvsGenerator::getManagerName",
 	"isClient": false,
 	"configHook": "PvsGenerator::runmodeConfigHook",
-	"allowGenericEditor": false
+	"allowGenericEditor": false,
+	"deleteUrlSnippet": "locationid="
 }

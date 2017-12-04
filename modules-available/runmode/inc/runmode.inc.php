@@ -279,6 +279,10 @@ class RunModeModuleConfig
 	 * @var bool Allow adding and removing machines to this mode via the generic form
 	 */
 	public $allowGenericEditor = true;
+	/**
+	 * @var string Snippet to construct URL for delete
+	 */
+	public $deleteUrlSnippet = false;
 
 	public function __construct($file)
 	{
@@ -293,6 +297,7 @@ class RunModeModuleConfig
 		$this->loadType($data, 'isClient', 'boolean');
 		$this->loadType($data, 'noSysconfig', 'boolean');
 		$this->loadType($data, 'allowGenericEditor', 'boolean');
+		$this->loadType($data, 'deleteUrlSnippet', 'string');
 	}
 
 	private function loadType($data, $key, $type)

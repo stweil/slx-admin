@@ -35,8 +35,16 @@
 					{{/isclient}}
 				</td>
 				<td class="text-center">
-					<button class="btn btn-danger btn-sm" name="machineuuid" value="{{machineuuid}}"><span
-							class="glyphicon glyphicon-remove"></span></button>
+					{{#canedit}}
+					<button type="submit" class="btn btn-danger btn-sm" name="machineuuid" value="{{machineuuid}}">
+						<span class="glyphicon glyphicon-trash"></span>
+					</button>
+					{{/canedit}}
+					{{#deleteUrl}}
+					<a class="btn btn-danger btn-sm" href="?do={{module}}&amp;{{deleteUrl}}{{modeid}}">
+						<span class="glyphicon glyphicon-trash"></span>
+					</a>
+					{{/deleteUrl}}
 				</td>
 			</tr>
 		{{/list}}
