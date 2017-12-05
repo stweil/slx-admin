@@ -36,11 +36,7 @@ class LocationInfo
 			$idArray = array_map('intval', explode(',', $panel['locationids']));
 			if ($panel['paneltype'] == "SUMMARY" && $recursive) {
 				$idList = Location::getRecursiveFlat($idArray);
-				$idArray = array();
-
-				foreach ($idList as $key => $value) {
-					$idArray[] = $key;
-				}
+				$idArray = array_keys($idList);
 			}
 			return $idArray;
 		}
@@ -143,6 +139,7 @@ class LocationInfo
 		ConfigHolder::add('SLX_SCREEN_STANDBY_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SYSTEM_STANDBY_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
+		ConfigHolder::add('SLX_BROWSER_INSECURE', '1'); // TODO: Sat server might redirect to HTTPS, which in turn could have a self-signed cert - push to client
 	}
 
 }
