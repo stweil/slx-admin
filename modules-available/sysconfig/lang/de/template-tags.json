@@ -41,7 +41,7 @@
     "lang_driveLetterNote": "WICHTIG: Bitte w\u00e4hlen Sie einen Laufwerksbuchstaben, der in den eingesetzten VMs verf\u00fcgbar ist, da ansonsten auf einen anderen Buchstaben ausgewichen werden muss.",
     "lang_editLong": "Modul oder Konfiguration bearbeiten.",
     "lang_editingLocationInfo": "Sie setzen die Konfiguration eines bestimmten Raums\/Orts, nicht die globale Konfiguration",
-    "lang_fixNumeric": "Nummerischen Account-Namen muss ein 's' vorangestellt werden",
+    "lang_fixNumeric": "Numerischen Account-Namen muss ein 's' vorangestellt werden",
     "lang_fixNumericDescription": "Wenn Sie diese Option aktivieren, m\u00fcssen Benutzer, deren Account-Name nur aus Ziffern besteht, diesem ein 's' voranstellen beim Login. Diese Option ist beim alten Login-Manager (KDM) zwingend erforderlich, da sonst der Loginvorgang fehlschl\u00e4gt. Mit dem neuen lightdm-basierten Login-Screen lassen sich numerische Account-Namen jedoch direkt verwenden. Wenn Sie an Ihrer Einrichtung keine numerischen Account-Namen verwenden, hat diese Option keine Auswirkung.",
     "lang_folderRedirection": "Folder Redirection",
     "lang_generateModule": "Modul erzeugen",
