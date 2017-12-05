@@ -170,6 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			$('#argumentInput').datepicker({format : 'yyyy-mm-dd'});
 			$('#argumentSelect').hide();
 		} else if(columns[col]['type'] == 'enum') {
+			$('#argumentSelect').empty();
 			$('#argumentInput').hide();
 			$('#argumentSelect').show();
 			columns[col]['values'].forEach(function (v) {
