@@ -264,6 +264,7 @@
 				}
 				ComputeCurrentState(rooms[json[i].id]);
 			}
+			update();
 		}
 
 		/**
@@ -316,7 +317,6 @@
 				updateCourseText(room.id, "Geschlossen");
 				updateCoursTimer(room.id, "");
 			}
-
 		}
 
 		/**
