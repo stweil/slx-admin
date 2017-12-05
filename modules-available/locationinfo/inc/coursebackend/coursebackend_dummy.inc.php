@@ -87,13 +87,24 @@ class CourseBackend_Dummy extends CourseBackend
 	 *
 	 * @param $roomIds array with local ID as key and serverId as value
 	 * @return array a recursive array that uses the roomID as key
-	 * and has the schedule array as value. A shedule array contains an array in this format:
-	 * ["start"=>'JJJJ-MM-DD HH:MM:SS',"end"=>'JJJJ-MM-DD HH:MM:SS',"title"=>string]
+	 * and has the schedule array as value. A schedule array contains an array in this format:
+	 * ["start"=>'YYYY-MM-DD<T>HH:MM:SS',"end"=>'YYYY-MM-DD<T>HH:MM:SS',"title"=>string]
 	 */
 	public function fetchSchedulesInternal($roomId)
 	{
 		$a = array();
 		foreach ($roomId as $id) {
+			if ($id == 1) {
+				$now = time();
+				return array($id => array(
+					array(
+						'title' => 'Lange',
+						'start' => date('Y-m-d', $now) . 'T0:00:00',
+						'end' => date('Y-m-d', $now + 86400 * 3) . 'T0:00:00',
+					)
+				));
+			}
+			// Normal
 			$x = array();
 			$time = strtotime('today');
 			$end = strtotime('+7 days', $time);

@@ -131,6 +131,19 @@ abstract class CourseBackend
 	 */
 	protected abstract function fetchSchedulesInternal($roomId);
 
+	private static function fixTime(&$start, &$end)
+	{
+		if (!preg_match('/^\d+-\d+-\d+T\d+:\d+:\d+$/', $start) || !preg_match('/^\d+-\d+-\d+T\d+:\d+:\d+$/', $start))
+			return false;
+		$start = strtotime($start);
+		$end = strtotime($end);
+		if ($start >= $end)
+			return false;
+		$start = date('Y-m-d\TH:i:s', $start);
+		$end = date('Y-m-d\TH:i:s', $end);
+		return true;
+	}
+
 	/**
 	 * Method for fetching the schedule of the given rooms on a server.
 	 *
@@ -184,18 +197,31 @@ abstract class CourseBackend
 			return false;
 		}
 
-		if ($this->getCacheTime() > 0) {
-			// Caching requested by backend, write to DB
-			foreach ($backendResponse as $serverRoomId => $calendar) {
+		foreach ($backendResponse as $serverRoomId => &$calendar) {
+			$calendar = array_values($calendar);
+			for ($i = 0; $i < count($calendar); ++$i) {
+				if (empty($calendar[$i]['title'])) {
+					$calendar[$i]['title'] = '-';
+				}
+				if (!self::fixTime($calendar[$i]['start'], $calendar[$i]['end'])) {
+					error_log("Ignoring calendar entry '{$calendar[$i]['title']}' with bad time format");
+					unset($calendar[$i]);
+				}
+			}
+			$calendar = array_values($calendar);
+			if ($this->getCacheTime() > 0) {
+				// Caching requested by backend, write to DB
 				$value = json_encode($calendar);
 				Database::simpleQuery("UPDATE locationinfo_locationconfig SET calendar = :ttable, lastcalendarupdate = :now
-					WHERE serverid = :serverid AND serverlocationid = :serverlocationid", array(
+						WHERE serverid = :serverid AND serverlocationid = :serverlocationid", array(
 					'serverid' => $this->serverId,
 					'serverlocationid' => $serverRoomId,
 					'ttable' => $value,
 					'now' => $NOW
 				));
 			}
+
+			unset($calendar);
 		}
 		// Add rooms that were requested to the final return value
 		foreach ($remoteIds as $location => $serverRoomId) {
