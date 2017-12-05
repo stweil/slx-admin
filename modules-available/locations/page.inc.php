@@ -69,7 +69,7 @@ class Page_Locations extends Page
 	private function addLocations()
 	{
 		$names = Request::post('newlocation', false);
-		$parents = Request::post('newparent', false);
+		$parents = Request::post('newparent', []);
 		if (!is_array($names) || !is_array($parents)) {
 			Message::addError('main.empty-field');
 			Util::redirect('?do=Locations');
@@ -198,6 +198,7 @@ class Page_Locations extends Page
 				}
 			}
 		}
+		// TODO: Check permissions for new parent (only if changed)
 		$ret = Database::exec('UPDATE location SET parentlocationid = :parent, locationname = :name'
 			. ' WHERE locationid = :lid', array(
 			'lid' => $locationId,
@@ -318,13 +319,13 @@ class Page_Locations extends Page
 			$res = Database::simpleQuery("SELECT subnetid, startaddr, endaddr, locationid FROM subnet
 													WHERE locationid IN (:locations) ORDER BY startaddr ASC",
 													array("locations" => User::getAllowedLocations("location.view")));
+			$allowedLocs = User::getAllowedLocations("subnet.add");
 			$rows = array();
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				$row['startaddr'] = long2ip($row['startaddr']);
 				$row['endaddr'] = long2ip($row['endaddr']);
 				$row['locations'] = Location::getLocations($row['locationid']);
 
-				$allowedLocs = User::getAllowedLocations("subnet.add");
 				foreach ($row['locations'] as &$loc) {
 					if (!(in_array($loc["locationid"], $allowedLocs) || $loc["locationid"] == $row['locationid'])) {
 						$loc["disabled"] = "disabled";
@@ -444,7 +445,8 @@ class Page_Locations extends Page
 		}
 
 		$addAllowedLocs = User::getAllowedLocations("location.add");
-		$addAllowedList = Location::getLocations(0, 0, True);
+		$addAllowedLocs[] = 0;
+		$addAllowedList = Location::getLocations(0, 0, true);
 		foreach ($addAllowedList as &$loc) {
 			if (!in_array($loc["locationid"], $addAllowedLocs)) {
 				$loc["disabled"] = "disabled";
@@ -514,6 +516,7 @@ class Page_Locations extends Page
 		);
 
 		$allowedLocs = User::getAllowedLocations("location.edit");
+		$allowedLocs[] = 0;
 		foreach ($data['parents'] as &$parent) {
 			if (!(in_array($parent["locationid"], $allowedLocs) || $parent["locationid"] == $loc['parentlocationid'])) {
 				$parent["disabled"] = "disabled";
