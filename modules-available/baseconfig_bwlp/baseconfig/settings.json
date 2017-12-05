@@ -185,5 +185,11 @@
 		"defaultvalue": "OFF",
 		"permissions": "2",
 		"validator": "list:ON|OFF"
+	},
+	"SLX_PASSTHROUGH_USB_ID": {
+		"catid": "vmchooser",
+		"defaultvalue": "",
+		"permissions": "2",
+		"validator": "regex:\/^(([0-9a-f]{4}:[0-9a-f]{4}\\s*)+|)$\/i"
 	}
 }
