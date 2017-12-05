@@ -146,7 +146,7 @@ class Page_Dnbd3 extends Page
 			if ($server['uptime'] != 0) {
 				$server['uptime'] += ($NOW - $server['dnbd3lastseen']);
 			}
-			$server['dnbd3lastseen_s'] = $server['dnbd3lastseen'] ? date('d.m.Y H:i', $server['dnbd3lastseen']) : '-';
+			$server['dnbd3lastseen_s'] = $server['dnbd3lastseen'] ? Util::prettyTime($server['dnbd3lastseen']) : '-';
 			$server['uptime_s'] = $server['uptime'] ? floor($server['uptime'] / 86400) . 'd ' . gmdate('H:i', $server['uptime']) : '-';
 			$server['totalup_s'] = Util::readableFileSize($server['totalup']);
 			$server['totaldown_s'] = Util::readableFileSize($server['totaldown']);
