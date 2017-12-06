@@ -7,7 +7,7 @@
 class LdapAuth_Start extends AddModule_Base
 {
 
-	public static function getMapping($config = false)
+	public static function getMapping($config = false, &$empty = true)
 	{
 		$list = array(
 			['name' => 'uid', 'field' => 'uid'],
@@ -19,8 +19,9 @@ class LdapAuth_Start extends AddModule_Base
 		);
 		if (is_array($config)) {
 			foreach ($list as &$item) {
-				if (isset($config[$item['field']])) {
+				if (!empty($config[$item['field']])) {
 					$item['value'] = $config[$item['field']];
+					$empty = false;
 				}
 				if ($item['field'] === 'homemount' && !empty($config['homeattr']) && empty($config['value'])) {
 					$item['value'] = $config['homeattr'];
@@ -47,7 +48,8 @@ class LdapAuth_Start extends AddModule_Base
 			$data['server'] = $out[1];
 		}
 		$data['step'] = 'LdapAuth_CheckConnection';
-		$data['mapping'] = self::getMapping(isset($data['mapping']) ? $data['mapping'] : false);
+		$data['map_empty'] = true;
+		$data['mapping'] = self::getMapping(isset($data['mapping']) ? $data['mapping'] : false, $data['map_empty']);
 		Render::addDialog(Dictionary::translateFile('config-module', 'ldapAuth_title'), false, 'ldap-start', $data);
 	}
 

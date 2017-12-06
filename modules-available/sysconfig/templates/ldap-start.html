@@ -10,32 +10,32 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="edit" value="{{edit}}">
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_moduleTitle}}</span>
+		<span class="input-group-addon slx-ga2">{{lang_moduleTitle}}</span>
 		<input tabindex="1" name="title" value="{{title}}" type="text" class="form-control">
 	</div>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">Server *</span>
+		<span class="input-group-addon slx-ga2">Server *</span>
 		<input tabindex="2" name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_bindDN}}</span>
+		<span class="input-group-addon slx-ga2">{{lang_bindDN}}</span>
 		<input tabindex="3" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="CN=bwlp,OU=Benutzer,DC=domain,DC=hs-beispiel,DC=de">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_password}}</span>
+		<span class="input-group-addon slx-ga2">{{lang_password}}</span>
 		<input tabindex="4" name="bindpw" value="{{bindpw}}" type="{{password_type}}" class="form-control" placeholder="{{lang_password}}">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span-->
 	</div>
-	<div style="min-width:150px;" class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_searchBase}} *</span>
+	<div class="input-group">
+		<span class="input-group-addon slx-ga2">{{lang_searchBase}} *</span>
 		<input tabindex="5" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="ou=users,dc=hochschule,dc=de">
 		<!--span class="input-group-btn">
 			<a class="btn btn-default"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -43,14 +43,14 @@
 	</div>
 	<br>
 	<div class="input-group">
-		<span class="input-group-addon slx-ga" style="min-width:150px">{{lang_homeFallback}}</span>
+		<span class="input-group-addon slx-ga2">{{lang_homeFallback}}</span>
 		<input tabindex="6" name="home" value="{{home}}" type="text" class="form-control" placeholder="\\server.example.com\%s">
 		<span class="input-group-btn">
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-home"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
 	</div>
 	<br>
-	<div class="collapse" id="attrbox">
+	<div class="{{#map_empty}}collapse{{/map_empty}}" id="attrbox">
 		<p>{{lang_customizeAttrDesc}}</p>
 		{{#mapping}}
 			<div class="input-group">
@@ -59,10 +59,12 @@
 			</div>
 		{{/mapping}}
 	</div>
+	{{#map_empty}}
 	<div class="btn btn-default center-block" onclick="$('#attrbox').show();$(this).hide()">
 		{{lang_customizeAttributes}}
 		<span class="glyphicon glyphicon-menu-down"></span>
 	</div>
+	{{/map_empty}}
 	<br>
 	<div>
 		<div class="checkbox">
