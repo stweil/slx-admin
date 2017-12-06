@@ -57,8 +57,8 @@
 	<br>
 	<div>
 		<div class="checkbox">
-			<input type="checkbox" name="fixnumeric" {{#fixnumeric}}checked{{/fixnumeric}}>
-			<label><b>{{lang_fixNumeric}}</b></label>
+			<input id="num-cb" type="checkbox" name="fixnumeric" {{#fixnumeric}}checked{{/fixnumeric}}>
+			<label for="num-cb"><b>{{lang_fixNumeric}}</b></label>
 		</div>
 		<div>
 			<i>{{lang_fixNumericDescription}}</i>
@@ -67,8 +67,8 @@
 	<br>
 	<div>
 		<div class="checkbox">
-			<input type="checkbox" name="ssl" onchange="$('#cert-box').css('display', this.checked ? '' : 'none')" {{#ssl}}checked{{/ssl}}>
-			<label><b>{{lang_ssl}}</b></label>
+			<input if="ssl-cb" type="checkbox" name="ssl" onchange="$('#cert-box').css('display', this.checked ? '' : 'none')" {{#ssl}}checked{{/ssl}}>
+			<label for="ssl-cb"><b>{{lang_ssl}}</b></label>
 		</div>
 		<div>
 			<i>{{lang_sslDescription}}</i>
