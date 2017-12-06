@@ -980,10 +980,11 @@ optional:
 		var columnWidth = $cal.find(".wc-day-1").width();
 
 		if (room.config.scaledaysauto) {
-			var result = ($cal.weekCalendar("option", "daysToShow") * columnWidth) / 100;
+			var result = ($cal.weekCalendar("option", "daysToShow") * columnWidth) / 130;
 			result = parseInt(Math.min(Math.max(Math.abs(result), 1), 7));
 			if (result !== $cal.weekCalendar("option", "daysToShow")) {
 				$cal.weekCalendar("option", "daysToShow", result);
+				columnWidth = $cal.find(".wc-day-1").width();
 			}
 		}
 		if (((!room.config.scaledaysauto) || $cal.weekCalendar("option", "daysToShow") === 1) && columnWidth < 85) {
@@ -1007,21 +1008,21 @@ optional:
 		clientHeight -= 6;
 		var height = clientHeight / (room.openTimes * $cal.weekCalendar("option", "timeslotsPerHour"));
 
-
 		if (height < 30) {
 			height = 30;
 		}
+		var fontHeight = Math.min(height, columnWidth / 2.1);
 		// Scale calendar font
-		if (height > 120) {
+		if (fontHeight > 120) {
 			$cal.weekCalendar("option", "textSize", 28);
 		}
-		else if (height > 100) {
+		else if (fontHeight > 100) {
 			$cal.weekCalendar("option", "textSize", 24);
-		} else if (height > 80) {
+		} else if (fontHeight > 80) {
 			$cal.weekCalendar("option", "textSize", 22);
-		} else if (height > 70) {
+		} else if (fontHeight > 70) {
 			$cal.weekCalendar("option", "textSize", 20);
-		} else if (height > 60) {
+		} else if (fontHeight > 60) {
 			$cal.weekCalendar("option", "textSize", 14);
 		} else {
 			$cal.weekCalendar("option", "textSize", 13);
