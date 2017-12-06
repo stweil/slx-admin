@@ -43,11 +43,25 @@
 	</div>
 	<br>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">Home</span>
+		<span class="input-group-addon slx-ga" style="min-width:150px">{{lang_homeFallback}}</span>
 		<input tabindex="6" name="home" value="{{home}}" type="text" class="form-control" placeholder="\\server.example.com\%s">
 		<span class="input-group-btn">
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-home"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
+	</div>
+	<br>
+	<div class="collapse" id="attrbox">
+		<p>{{lang_customizeAttrDesc}}</p>
+		{{#mapping}}
+			<div class="input-group">
+				<span class="input-group-addon slx-ga2">{{name}}</span>
+				<input name="mapping[{{field}}]" value="{{value}}" type="text" class="form-control" placeholder="{{name}}">
+			</div>
+		{{/mapping}}
+	</div>
+	<div class="btn btn-default center-block" onclick="$('#attrbox').show();$(this).hide()">
+		{{lang_customizeAttributes}}
+		<span class="glyphicon glyphicon-menu-down"></span>
 	</div>
 	<br>
 	<div>
