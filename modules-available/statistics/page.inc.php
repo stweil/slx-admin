@@ -604,6 +604,7 @@ class Page_Statistics extends Page
 	 */
 	private function showMachineList($filterSet)
 	{
+		Module::isAvailable('js_stupidtable');
 		$filterSet->makeFragments($where, $join, $sort, $args);
 
 		$xtra = '';
