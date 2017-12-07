@@ -1,33 +1,47 @@
 Design Guidelines
 =================
 
-Buttons generell rechts wenn möglich.
+Buttons on the right-hand side if possible.
 
-Reihenfolge von links nach rechts: erst Nebenfunktion (cancel etc) dann Hauptfunktion ganz rechts (save etc)
+Button order from left to right: secondary action (cancel etc), primary action (save etc)
 
-Einzelne Buttons: normale Größe, glyphicon (außer bei Nebenfunktion), Text
+Single buttons: normal size, glyphicon and text
+Multiple buttons with the same action (e.g. in a table): btn-sm, glyphicon only, no text
 
-mehrere Buttons mit selber gleicher Funktion (zB. in Tabelle): btn-sm, nur glyphicon ohne Text
-
-Button Farben:
-    Aktionen mit irreversiblen Folgen (zB. Delete) = Rot 
-    Hauptfunktion (zB. Save) = Blau
-    Hinzufügen = Grün
-    Sonderfunktionen (zB. send test mail) = Gelb
-    Nebenfunktion (zB. cancel) = Weiß
+Button colors:
+    Action with irreversible consequences (e.g. delete) = red (btn-danger) 
+    Primary action (e.g. save) = blue (btn-primary)
+    Add/Create = green (btn-success)
+    speciel actions (e.g. send test mail) = yellow (btn-warning)
+    Secondary action (e.g. cancel) = white (btn-default)
     
-Tabellen sortierbar machen mit Stupidtable-Plugin (wenn sinnvoll)
+Prefered glyphicons:
+    add (create) = glyphicon-plus
+    add (assign) = glyphicon-share-alt
+    delete = glyphicon-trash
+    remove = glyphicon-remove
+    save = glyphicon-floppy-disk
+    edit = glyphicon-edit
+    cancel = no glyphicon
+    reset = glyphicon-refresh
+    help = glyphicon-question-sign
+    download = glyphicon-download-alt
+    settings = glyphicon-cog
+    
+Tables should be sortable if it makes sense (using the stupidtable-plugin).
+Every column should have a heading.
 
-Checkboxen und Radio Buttons im Bootstrap Style
+Bootstrap styled checkboxes and radiobuttons
 
-Titel des Moduls immer ganz oben
+Modals with an action should have a cancel button.
+Info-modals without an action: no buttons in footer. only x-button in the top right corner to close the modal.
 
-Modals mit Aktion haben cancel Button (“cancel | save”)
+Modals instead of confirm()
 
-Info-Modals ohne Aktion haben keine Buttons unten und stattdessen nur ein x oben rechts
+Module heading in the top left corner
 
-Modals statt confirm()
+Subheadings in panels
 
-Unterüberschriften in Panels für schönere Gliederung
+Saving changes only after using the save button
 
-Speichern erst mit Klick auf Save Button
+
