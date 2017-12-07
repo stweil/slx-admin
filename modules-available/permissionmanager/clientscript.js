@@ -42,6 +42,12 @@ document.addEventListener("DOMContentLoaded", function() {
 		});
 	}
 
+	$("tr").on('click', function (e) {
+		if (e.target.type !== "checkbox") {
+			$(this).find("input:checkbox").trigger("click");
+		}
+	});
+
 	$("form input").keydown(function(e) {
 		if (e.keyCode === 13) e.preventDefault();
 	});

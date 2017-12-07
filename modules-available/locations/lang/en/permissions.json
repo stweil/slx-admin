@@ -1,0 +1,9 @@
+{
+	"location.view": "View locations.",
+	"location.edit": "Edit locations.",
+	"location.add": "Add locations.",
+	"location.delete": "Delete locations.",
+	"subnet.edit": "Edit subnets.",
+	"subnet.add": "Add subnets.",
+	"subnet.delete": "Delete subnets."
+}

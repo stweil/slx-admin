@@ -41,6 +41,10 @@
     margin-bottom: 20px;
 }
 
+.selectize-input {
+    overflow: visible;
+}
+
 
 .tree-container .selected {
     background-color: rgba(0, 182, 41, 0.23);

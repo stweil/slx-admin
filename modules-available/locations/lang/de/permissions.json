@@ -1,0 +1,9 @@
+{
+	"location.view": "Räume anschauen.",
+	"location.edit": "Räume bearbeiten.",
+	"location.add": "Räume hinzufügen.",
+	"location.delete": "Räume löschen.",
+	"subnet.edit": "Subnetze bearbeiten.",
+	"subnet.add": "Subnetze hinzufügen.",
+	"subnet.delete": "Subnetze löschen."
+}

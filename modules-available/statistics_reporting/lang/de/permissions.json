@@ -1,0 +1,10 @@
+{
+	"table.view.total": "Gesamt Tabelle anschauen.",
+	"table.view.location": "Orte Tabelle anschauen.",
+	"table.view.client": "Client Tabelle anschauen.",
+	"table.view.user": "Benutzer Tabelle anschauen.",
+	"table.view.vm": "Veranstaltungen Tabelle anschauen.",
+	"table.export": "Tabellen als JSON/CSV/XML exportieren. Dazu werden die Rechte um die jeweiligen Tabllen anzuschauen benötigt.",
+	"reporting.download": "Wöchentlichen Report herunterladen.",
+	"reporting.change": "Einstellungen zu dem wöchentlichen Report ändern."
+}
