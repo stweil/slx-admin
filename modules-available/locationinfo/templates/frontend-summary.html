@@ -330,6 +330,10 @@
 			}
 
 		}
+
+		const OT_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+		const OT_KEYS = ['HourOpen', 'HourClose', 'MinutesOpen', 'MinutesClose'];
+
 		/**
 		 *  Generates a room Object and adds it to the rooms array
 		 *  @param id ID of the room
@@ -337,14 +341,22 @@
 		 *  @param config Config Json of the room
 		 */
 		function addRoom(id, name) {
-			var ot = null;
+			var ot = [];
 			if (config && config.locations) {
 				for (var i = 0; i < config.locations.length; ++i) {
-					if (config.locations[i].openingtime) {
+					if (config.locations[i].id == id) {
 						// TODO: Messed up transformation from default panel
+						if (config.locations[i].openingtime) {
+							var raw_ot = config.locations[i].openingtime;
+
+							for (var j = 0; j < OT_DAYS.length; ++j) {
+								ot.push(filterOpeningTimesDay(raw_ot[OT_DAYS[j]]));
+							}
+						}
 					}
 				}
 			}
+
 			var room = {
 				id: id,
 				name: name,
@@ -381,6 +393,48 @@
 			}
 		}
 
+		/**
+		 * Filter out invalid opening time entries from given array,
+		 * also make sure all the values are of type number (int)
+		 *
+		 * @param {Array} arr
+		 * @return {Array} list of valid opening times
+		 */
+		function filterOpeningTimesDay(arr) {
+			if (!arr || arr.constructor !== Array) return [];
+			return arr.map(function (el) {
+				if (!el || typeof el !== 'object') return null;
+				for (var i = 0; i < OT_KEYS.length; ++i) {
+					el[OT_KEYS[i]] = toInt(el[OT_KEYS[i]]);
+					if (isNaN(el[OT_KEYS[i]])) return null;
+				}
+				return el;
+			}).filter(function (el) {
+				if (!el) return false;
+				if (el.HourOpen < 0 || el.HourOpen > 23) return false;
+				if (el.HourClose < 0 || el.HourClose > 23) return false;
+				if (el.HourClose < el.HourOpen) return false;
+				if (el.MinutesOpen < 0 || el.MinutesOpen > 59) return false;
+				if (el.MinutesClose < 0 || el.MinutesClose > 59) return false;
+				if (el.HourOpen === el.HourClose && el.MinutesClose < el.MinutesOpen) return false;
+				return true;
+			});
+		}
+
+		/**
+		 * Convert passed argument to integer if possible, return NaN otherwise.
+		 * The difference to parseInt() is that leading zeros are ignored and not
+		 * interpreted as octal representation.
+		 *
+		 * @param str string or already a number
+		 * @return {number} str converted to number, or NaN
+		 */
+		function toInt(str) {
+			var t = typeof str;
+			if (t === 'number') return str | 0;
+			if (t === 'string') return parseInt(str.replace(/^0+([^0])/, '$1'));
+			return NaN;
+		}
 
 		/**
 		 * computes state of a room, states are:
@@ -443,6 +497,7 @@
 				// changes from falls needs testing
 				return true;
 			}
+
 			var tmp = room.openingTimes[now.getDay()];
 			if (tmp == null) {
 				return false;
@@ -512,7 +567,7 @@
 						openDate.setHours(tmp[i].HourOpen);
 						openDate.setMinutes(tmp[i].MinutesOpen);
 						if (openDate > now) {
-							if (!IsOpen(new Date(openDate.getTime() - 60000))) {
+							if (!IsOpen(new Date(openDate.getTime() - 60000), room)) {
 								if (bestdate == null || bestdate > openDate) {
 									bestdate = openDate;
 								}
@@ -527,6 +582,30 @@
 				}
 			}
 			return bestdate;
+		}
+
+		/**
+		 * checks if a room is on a given date/time open
+		 * @param date Date Object
+		 * @param room Room object
+		 * @returns {Boolean} for open or not
+		 */
+		function IsOpen(date, room) {
+			if (!room.openingTimes || room.openingTimes.length === 0) return true;
+			var tmp = room.openingTimes[date.getDay()];
+			if (!tmp) return false;
+			var openDate = new Date(date.getTime());
+			var closeDate = new Date(date.getTime());
+			for (var i = 0; i < tmp.length; i++) {
+				openDate.setHours(tmp[i].HourOpen);
+				openDate.setMinutes(tmp[i].MinutesOpen);
+				closeDate.setHours(tmp[i].HourClose);
+				closeDate.setMinutes(tmp[i].MinutesClose);
+				if (openDate < date && closeDate > date) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		/**
@@ -552,7 +631,7 @@
 						closeDate.setHours(tmp[i].HourClose);
 						closeDate.setMinutes(tmp[i].MinutesClose);
 						if (closeDate > now) {
-							if (!IsOpen(new Date(closeDate.getTime() + 60000))) {
+							if (!IsOpen(new Date(closeDate.getTime() + 60000), room)) {
 								if (bestdate == null || bestdate > closeDate) {
 									bestdate = closeDate;
 								}
