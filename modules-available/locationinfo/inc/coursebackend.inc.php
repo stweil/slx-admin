@@ -47,17 +47,20 @@ abstract class CourseBackend
 		foreach (glob(dirname(__FILE__) . '/coursebackend/coursebackend_*.inc.php', GLOB_NOSORT) as $file) {
 			require_once $file;
 			preg_match('#coursebackend_([^/\.]+)\.inc\.php$#i', $file, $out);
-			if (!class_exists('coursebackend_' . $out[1])) {
-				trigger_error("Backend type source unit $file doesn't seem to define class CourseBackend_{$out[1]}", E_USER_ERROR);
+			$className = 'CourseBackend_' . $out[1];
+			if (!class_exists($className)) {
+				trigger_error("Backend type source unit $file doesn't seem to define class $className", E_USER_ERROR);
 			}
+			if (!CONFIG_DEBUG && defined("$className::DEBUG") && constant("$className::DEBUG"))
+				continue;
 			self::$backendTypes[$out[1]] = true;
 		}
 	}
 
 	/**
-	 * Get all known config module types.
+	 * Get all known backend types.
 	 *
-	 * @return array list of modules
+	 * @return array list of backends
 	 */
 	public static function getList()
 	{
@@ -65,24 +68,30 @@ abstract class CourseBackend
 		return array_keys(self::$backendTypes);
 	}
 
-	/**
-	 * Get fresh instance of ConfigModule subclass for given module type.
-	 *
-	 * @param string $moduleType name of module type
-	 * @return \CourseBackend module instance
-	 */
-	public static function getInstance($moduleType)
+	public static function exists($backendType)
 	{
 		self::loadDb();
-		if (!isset(self::$backendTypes[$moduleType])) {
-			error_log('Unknown module type: ' . $moduleType);
+		return isset(self::$backendTypes[$backendType]);
+	}
+
+	/**
+	 * Get fresh instance of CourseBackend subclass for given backend type.
+	 *
+	 * @param string $backendType name of module type
+	 * @return \CourseBackend|false module instance
+	 */
+	public static function getInstance($backendType)
+	{
+		self::loadDb();
+		if (!isset(self::$backendTypes[$backendType])) {
+			error_log('Unknown module type: ' . $backendType);
 			return false;
 		}
-		if (!is_object(self::$backendTypes[$moduleType])) {
-			$class = "coursebackend_$moduleType";
-			self::$backendTypes[$moduleType] = new $class;
+		if (!is_object(self::$backendTypes[$backendType])) {
+			$class = "coursebackend_$backendType";
+			self::$backendTypes[$backendType] = new $class;
 		}
-		return self::$backendTypes[$moduleType];
+		return self::$backendTypes[$backendType];
 	}
 
 	/**
@@ -328,6 +337,9 @@ abstract class CourseBackend
 			$xml = new SimpleXMLElement($cleanresponse);
 		} catch (Exception $e) {
 			$this->error = 'Could not parse reply as XML, got ' . get_class($e) . ': ' . $e->getMessage();
+			if (CONFIG_DEBUG) {
+				error_log($cleanresponse);
+			}
 			return false;
 		}
 		$array = json_decode(json_encode((array)$xml), true);

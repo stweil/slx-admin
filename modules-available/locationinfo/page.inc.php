@@ -449,7 +449,7 @@ class Page_LocationInfo extends Page
 		$locations = Location::getLocations(0, 0, false, true);
 
 		// Get hidden state of all locations
-		$dbquery = Database::simpleQuery("SELECT li.locationid, li.serverid, li.serverlocationid, li.openingtime, li.lastcalendarupdate, cb.servername
+		$dbquery = Database::simpleQuery("SELECT li.locationid, li.serverid, li.serverlocationid, li.openingtime, li.lastcalendarupdate, cb.servertype, cb.servername
 			FROM `locationinfo_locationconfig` AS li
 			LEFT JOIN `locationinfo_coursebackend` AS cb USING (serverid)");
 
@@ -466,6 +466,7 @@ class Page_LocationInfo extends Page
 				'openingGlyph' => $glyph,
 				'backend' => $backend,
 				'lastCalendarUpdate' => $row['lastcalendarupdate'], // TODO
+				'backendMissing' => !CourseBackend::exists($row['servertype']),
 			);
 		}
 

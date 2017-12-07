@@ -106,6 +106,9 @@ class CourseBackend_Davinci extends CourseBackend
 			}
 			$return = $this->xmlStringToArray($return);
 			if ($return === false) {
+				if (CONFIG_DEBUG) {
+					error_log('Room was ' . $roomId);
+				}
 				continue;
 			}
 			$lessons = $this->getArrayPath($return, '/Lessons/Lesson');

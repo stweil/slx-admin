@@ -4,6 +4,8 @@ class CourseBackend_Dummy extends CourseBackend
 {
 	private $pw;
 
+	const DEBUG = true;
+
 	/**
 	 * uses json to setCredentials, the json must follow the form given in
 	 * getCredentials

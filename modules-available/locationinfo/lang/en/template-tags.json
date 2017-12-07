@@ -39,7 +39,7 @@
     "lang_language": "Language",
     "lang_languageTooltip": "The language the frontend uses",
     "lang_locationName": "Name",
-    "lang_locationSettings": "Settings",
+    "lang_locationSettings": "Location specific settings",
     "lang_locations": "Locations",
     "lang_locationsTable": "Rooms \/ Locations",
     "lang_locationsTableHints": "Here you can define opening times for your locations and link the location ID to a configured backend (e.g. HISinOne) to show calendar events.",

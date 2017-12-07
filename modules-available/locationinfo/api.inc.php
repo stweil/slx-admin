@@ -175,10 +175,10 @@ function getCalendar($idList)
 	foreach ($serverList as $serverid => $server) {
 		$serverInstance = CourseBackend::getInstance($server['type']);
 		if ($serverInstance === false) {
-			EventLog::warning('Cannot fetch schedule for locationid ' . $server['locationid']
+			EventLog::warning('Cannot fetch schedule for location (' . implode(', ', $server['idlist']) . ')'
 				. ': Backend type ' . $server['type'] . ' unknown. Disabling location.');
-			Database::exec("UPDATE locationinfo_locationconfig SET serverid = 0 WHERE locationid = :lid",
-				array('lid' => $server['locationid']));
+			Database::exec("UPDATE locationinfo_locationconfig SET serverid = NULL WHERE locationid IN (:lid)",
+				array('lid' => $server['idlist']));
 			continue;
 		}
 		$credentialsOk = $serverInstance->setCredentials($serverid, $server['credentials']);
