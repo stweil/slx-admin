@@ -22,15 +22,10 @@ class Page_dozmod_users extends Page
 		if ($action === 'setmail' || $action === 'setsu' || $action == 'setlogin') {
 			if (User::hasPermission("users.".$action)) {
 				$this->setUserOption($action);
-			} else {
-				die("No permission.");
 			}
-
 		} elseif ($action === 'setorglogin') {
 			if (User::hasPermission("users.orglogin")) {
 				$this->setOrgOption($action);
-			} else {
-				die("No permission.");
 			}
 		} else {
 			die('No such action');

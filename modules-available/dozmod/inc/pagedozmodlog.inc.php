@@ -29,9 +29,13 @@ class Page_dozmod_log extends Page
 				. " LEFT JOIN sat.lecture l ON (l.lectureid = targetid)"
 				. " ORDER BY al.dateline DESC LIMIT 500", array(), true, true);
 		} elseif ($this->action === 'showuser') {
-			$this->listUser();
+			if (User::hasPermission("log.showuser")) {
+				$this->listUser();
+			}
 		} else {
-			$this->listTarget();
+			if (User::hasPermission("log.showtarget")) {
+				$this->listTarget();
+			}
 		}
 	}
 
@@ -150,6 +154,9 @@ class Page_dozmod_log extends Page
 		if ($showTarget) {
 			$data['showTarget'] = true;
 		}
+
+		$data['allowedShowUser'] = User::hasPermission("log.showuser");
+		$data['allowedShowTarget'] = User::hasPermission("log.showtarget");
 		Render::addTemplate('actionlog-log', $data);
 	}
 

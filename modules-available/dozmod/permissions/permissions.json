@@ -8,5 +8,7 @@
 	"users.setmail": "Enable/Disable Email Notification",
 	"users.setlogin": "Enable/Disable Login",
 	"users.setsu": "Set User to superuser",
-	"users.orglogin": "Enalbe/Disable Login for Users from certain organisations."
+	"users.orglogin": "Enalbe/Disable Login for Users from certain organisations.",
+	"log.showuser": "Show User Data in Log",
+	"log.showtarget": "Show Target Data in Log"
 }

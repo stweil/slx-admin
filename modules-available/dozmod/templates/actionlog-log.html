@@ -18,7 +18,7 @@
 			{{#showActor}}
 			<td style="min-width:140px">
 				{{#uuserid}}
-				<a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{uuserid}}">{{ulastname}}, {{ufirstname}}</a>
+				{{#allowedShowUser}}<a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{uuserid}}">{{/allowedShowUser}} {{ulastname}}, {{ufirstname}}{{#allowedShowUser}}</a>{{/allowedShowUser}}
 				{{/uuserid}}
 				{{^uuserid}}
 				{{lang_system}}
@@ -28,7 +28,7 @@
 			{{#showTarget}}
 			<td style="word-wrap: break-word">
 				{{#targeturl}}
-				<a href="{{targeturl}}">{{targetname}}</a>
+				{{#allowedShowTarget}}<a href="{{targeturl}}">{{/allowedShowTarget}}{{targetname}}{{#allowedShowTarget}}</a>{{/allowedShowTarget}}
 				{{/targeturl}}
 				{{^targeturl}}
 				{{targetname}}

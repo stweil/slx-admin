@@ -52,16 +52,10 @@ class Page_DozMod extends Page
 		if ($action === 'mail') {
 			if (User::hasPermission("mail.save")) {
 				$this->mailHandler();
-			} else {
-				Message::addError('main.no-permission');
-				Util::redirect('?do=dozmod&section=mailconfig');
 			}
 		} elseif ($action === 'runtime') {
 			if (User::hasPermission("runtimeconfig.save")) {
 				$this->runtimeHandler();
-			} else {
-				Message::addError('main.no-permission');
-				Util::redirect('?do=dozmod&section=runtimeconfig');
 			}
 		} elseif ($action === 'delimages') {
 			if (User::hasPermission("images.delete")) {
@@ -70,9 +64,6 @@ class Page_DozMod extends Page
 					Message::addInfo('delete-images', $result);
 				}
 				Util::redirect('?do=DozMod');
-			} else {
-				Message::addError('main.no-permission');
-				Util::redirect('?do=dozmod');
 			}
 		} elseif ($action !== false) {
 			Util::traceError('Invalid action: ' . $action);
@@ -102,7 +93,7 @@ class Page_DozMod extends Page
 			if (empty($expiredImages)) {
 				Message::addSuccess('no-expired-images');
 			} else {
-				Render::addTemplate('images-delete', array('images' => $expiredImages));
+				Render::addTemplate('images-delete', array('images' => $expiredImages, 'allowedDelete' => User::hasPermission("images.delete")));
 			}
 		}
 		if ($section === 'mailconfig') {
@@ -114,6 +105,8 @@ class Page_DozMod extends Page
 					$mailConf['set_' . $mailConf['ssl']] = 'selected="selected"';
 				}
 			}
+			$mailConf['allowedSave'] = User::hasPermission('mail.save');
+			$mailConf['allowedTest'] = User::hasPermission('mail.testmail');
 			Render::addTemplate('mailconfig', $mailConf);
 		}
 		if ($section === 'runtimeconfig') {
@@ -146,6 +139,7 @@ class Page_DozMod extends Page
 					$runtimeConf['allowLoginByDefault'] = 'checked';
 				}
 			}
+			$runtimeConf['allowedSave'] = User::hasPermission("runtimeconfig.save");
 			Render::addTemplate('runtimeconfig', $runtimeConf);
 		}
 		if ($section === 'blockstats') {
@@ -231,14 +225,10 @@ class Page_DozMod extends Page
 		if ($action === 'mail') {
 			if (User::hasPermission("mail.testmail")) {
 				$this->handleTestMail();
-			} else {
-				die('No permission');
 			}
 		} elseif ($action === 'delimages') {
 			if (User::hasPermission("images.delete")) {
 				die($this->handleDeleteImages());
-			} else {
-				die('No permission');
 			}
 		} elseif ($action === 'getblockinfo') {
 			$this->ajaxGetBlockInfo();

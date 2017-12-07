@@ -15,16 +15,10 @@ class Page_mail_templates extends Page
 		} elseif ($action === 'save') {
 			if (User::hasPermission("templates.save")) {
 				$this->handleSave();
-			} else {
-				Message::addError('main.no-permission');
-				Util::redirect('?do=dozmod&section=templates');
 			}
 		} elseif ($action === 'reset') {
 			if(User::hasPermission("templates.reset")) {
 				$this->handleReset();
-			} else {
-				Message::addError('main.no-permission');
-				Util::redirect('?do=dozmod&section=templates');
 			}
 		} else {
 			Message::addError('main.invalid-action', $action);
@@ -70,6 +64,8 @@ class Page_mail_templates extends Page
 	protected function doRender()
 	{
 		$this->enrichHtml();
+		$this->templates['allowedReset'] = User::hasPermission("templates.reset");
+		$this->templates['allowedSave'] = User::hasPermission("templates.save");
 		Render::addTemplate('templates', ['templates' => $this->templates]);
 	}
 

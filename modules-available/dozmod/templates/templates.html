@@ -80,12 +80,12 @@
 			{{/templates}}
 			</div>
 
-			<button type="submit" onclick="return validateForm()" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+			<button {{^allowedSave}}disabled{{/allowedSave}} type="submit" onclick="return validateForm()" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 		</form>
 		<form method="POST" action="?do=dozmod&amp;section=templates">
 			<input type="hidden" name="token" value="{{token}}">
 			<div>
-				<button type="button" data-toggle="modal" data-target="#resetTemplatesModal" class="btn btn-danger">{{lang_loadDefaults}}</button>
+				<button {{^allowedReset}}disabled{{/allowedReset}} type="button" data-toggle="modal" data-target="#resetTemplatesModal" class="btn btn-danger">{{lang_loadDefaults}}</button>
 			</div>
 
 			<div id="resetTemplatesModal" class="modal fade" role="dialog">
