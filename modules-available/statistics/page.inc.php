@@ -116,7 +116,7 @@ class Page_Statistics extends Page
 		];
 		if (Module::isAvailable('locations')) {
 			Page_Statistics::$columns['location'] = [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::$op_stringcmp,
 				'type' => 'enum',
 				'column' => false,
 				'values' => array_keys(Location::getLocationsAssoc()),

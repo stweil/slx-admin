@@ -208,15 +208,22 @@ class LocationFilter extends Filter
 
 	public function whereClause(&$args, &$joins)
 	{
+		$recursive = (substr($this->operator, -1) === '~');
+		$this->operator = str_replace('~', '=', $this->operator);
+
 		settype($this->argument, 'int');
+		$neg = $this->operator === '=' ? '' : 'NOT';
 		if ($this->argument === 0) {
-			$neg = $this->operator === '=' ? '' : 'NOT';
 			return "machine.locationid IS $neg NULL";
 		} else {
 			global $unique_key;
 			$key = $this->column . '_arg' . ($unique_key++);
-			$args[$key] = $this->argument;
-			return "machine.locationid {$this->operator} :$key";
+			if ($recursive) {
+				$args[$key] = array_keys(Location::getRecursiveFlat($this->argument));
+			} else {
+				$args[$key] = $this->argument;
+			}
+			return "machine.locationid $neg IN (:$key)";
 		}
 	}
 }
