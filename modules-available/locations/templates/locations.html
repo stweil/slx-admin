@@ -41,12 +41,12 @@
 				<td class="text-nowrap" align="right">
 					{{^linkClass}}
 					{{#havestatistics}}
-					{{clientCount}}
-					<span class="text-muted">
-						/
-						<span style="display:inline-block;width:3ex">{{clientCountSum}}</span>
+						<a href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}">&nbsp;{{clientCount}}&nbsp;</a>
+					<span style="display:inline-block;width:5ex">
+					{{#hasChild}}
+					(<a href="?do=Statistics&amp;show=list&amp;filters=location~{{locationid}}">&downarrow;{{clientCountSum}}</a>)
+					{{/hasChild}}
 					</span>
-					<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}"><span class="glyphicon glyphicon-eye-open"></span></a>
 					{{/havestatistics}}
 					{{/linkClass}}
 				</td>
@@ -87,9 +87,8 @@
 		<tr>
 			<td>{{lang_unassignedMachines}}</td>
 			<td class="text-nowrap" align="right">
-				{{unassignedCount}}
-				<a class="btn btn-default btn-xs" href="?do=Statistics&amp;show=list&amp;filters=location=0">
-					<span class="glyphicon glyphicon-eye-open"></span>
+				<a href="?do=Statistics&amp;show=list&amp;filters=location=0">
+					&nbsp;{{unassignedCount}}&nbsp;
 				</a>
 			</td>
 			<td class="text-nowrap" align="right">
@@ -103,15 +102,15 @@
 	<form method="post" action="?do=Locations">
 		<input type="hidden" name="token" value="{{token}}">
 		<input type="hidden" name="action" value="addlocations">
-		<table class="table table-condensed table-hover">
+		<table class="table table-condensed">
 			<tr id="lasttr">
 				<td width="60%">&emsp;</td>
 				<td class="text-right" colspan="2">
-					<button id="saveLocationRows" type="submit" class="btn btn-primary" style="display: none">
-						<span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}
-					</button>
 					<button {{^addAllowed}}disabled{{/addAllowed}} class="btn btn-success" type="button" onclick="slxAddLocationRow()">
 						<span class="glyphicon glyphicon-plus"></span> {{lang_location}}
+					</button>
+					<button id="saveLocationRows" type="submit" class="btn btn-primary collapse">
+						<span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}
 					</button>
 				</td>
 			</tr>

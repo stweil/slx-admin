@@ -377,6 +377,7 @@ class Page_Locations extends Page
 			unset($loc);
 			foreach ($locs as $loc) {
 				foreach ($loc['parents'] as $pid) {
+					$locs[(int)$pid]['hasChild'] = true;
 					$locs[(int)$pid]['clientCountSum'] += $loc['clientCount'];
 				}
 			}
