@@ -194,6 +194,7 @@
 
 		const ROOMUPDATE_MS = 2*60*1000;
 		const CALUPDATE_MS = 20*60*1000;
+      var timeout = null;
 
 		function update() {
 			var calendarUpdateIds = "";
@@ -228,6 +229,7 @@
 			for (property in rooms) {
 				upDateRoomState(rooms[property]);
 			}
+			clearTimeout(timeout);
 			setTimeout(update, nextUpdate);
 		}
 
