@@ -39,6 +39,34 @@ class Page_Dnbd3 extends Page
 		}
 		$bgr = Request::post('bgr', false, 'bool');
 		$firewall = Request::post('firewall', false, 'bool');
+		$overrideIp = false;
+		$sip = Request::post('fixedip', null, 'string');
+		if (empty($sip)) {
+			$overrideIp = null;
+		} elseif ($server['fixedip'] !== $overrideIp) {
+			$ip = ip2long(trim($sip));
+			if ($ip !== false) {
+				$ip = long2ip($ip);
+			}
+			if ($ip === false) {
+				Message::addError('invalid-ipv4', $sip);
+				return;
+			}
+			$res = Database::queryFirst('SELECT serverid FROM dnbd3_server s
+					LEFT JOIN machine m USING (machineuuid)
+					WHERE s.fixedip = :ip OR m.clientip = :ip', compact('ip'));
+			if ($res !== false) {
+				Message::addError('server-already-exists', $ip);
+				return;
+			}
+			$overrideIp = $ip;
+		}
+		if ($overrideIp !== false) {
+			Database::exec('UPDATE dnbd3_server SET fixedip = :fixedip WHERE machineuuid = :uuid', array(
+				'uuid' => $server['machineuuid'],
+				'fixedip' => $overrideIp,
+			));
+		}
 		RunMode::setRunMode($server['machineuuid'], 'dnbd3', 'proxy',
 			json_encode(compact('bgr', 'firewall')), false);
 	}
@@ -310,10 +338,10 @@ class Page_Dnbd3 extends Page
 			Message::addError('server-non-existent', 'server');
 			Util::redirect('?do=dnbd3');
 		}
-		if (!is_null($server['clientip'])) {
-			$server['ip'] = $server['clientip'];
-		} elseif (!is_null($server['fixedip'])) {
+		if (!is_null($server['fixedip'])) {
 			$server['ip'] = $server['fixedip'];
+		} elseif (!is_null($server['clientip'])) {
+			$server['ip'] = $server['clientip'];
 		} else {
 			$server['ip'] = '127.0.0.1';
 		}

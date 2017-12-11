@@ -11,10 +11,10 @@ class Dnbd3Util {
 			FROM dnbd3_server s
 			LEFT JOIN machine m USING (machineuuid)');
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (!is_null($row['clientip'])) {
-				$ip = $row['clientip'];
-			} elseif (!is_null($row['fixedip'])) {
+			if (!is_null($row['fixedip'])) {
 				$ip = $row['fixedip'];
+			} elseif (!is_null($row['clientip'])) {
+				$ip = $row['clientip'];
 			} else {
 				continue; // Huh?
 			}
@@ -25,6 +25,9 @@ class Dnbd3Util {
 					RunMode::setRunMode($row['machineuuid'], 'dnbd3', null, null, null);
 					continue;
 				}
+			} elseif ($ip === $satServerIp) {
+				// Manually configured sat server as dnbd3 server - makes no sense
+				continue;
 			}
 			$server = array(
 				'serverid' => $row['serverid'],
@@ -141,7 +144,7 @@ class Dnbd3Util {
 		$self = Property::getServerIp();
 		$public[$self] = $self;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$ip = $row['clientip'] ? $row['clientip'] : $row['fixedip'];
+			$ip = $row['fixedip'] ? $row['fixedip'] : $row['clientip'];
 			if ($ip === '<self>') {
 				continue;
 			}

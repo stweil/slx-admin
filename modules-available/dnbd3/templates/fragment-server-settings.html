@@ -2,13 +2,21 @@
 
 <div class="checkbox">
 	<input type="checkbox" name="bgr" id="bgr" {{#bgr}}checked{{/bgr}}>
-	<label for="bgr">{{lang_backgroundReplication}}</label>
+	<label for="bgr"><b>{{lang_backgroundReplication}}</b></label>
 </div>
 <i>{{lang_backgroundReplicationInfo}}</i>
-<br>
+<br><br>
+
 <div class="checkbox">
 	<input type="checkbox" name="firewall" id="firewall" {{#firewall}}checked{{/firewall}}>
-	<label for="firewall">{{lang_firewalled}}</label>
+	<label for="firewall"><b>{{lang_firewalled}}</b></label>
 </div>
 <i>{{lang_firewallInfo}}</i>
+<br><br>
+
+<div>
+	<label for="fixedip">{{lang_overrideIp}}</label>
+	<input class="form-control" type="text" name="fixedip" id="fixedip" value="{{fixedip}}">
+</div>
+<i>{{lang_overrideIpInfo}}</i>
 <br>

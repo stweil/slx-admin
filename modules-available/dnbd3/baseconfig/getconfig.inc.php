@@ -24,6 +24,7 @@ $res = Database::simpleQuery('SELECT s.fixedip, m.clientip, sxl.locationid FROM 
 		LEFT JOIN dnbd3_server_x_location sxl USING (serverid)
 		WHERE sxl.locationid IS NULL OR sxl.locationid IN (:lids)', array('lids' => $locationIds));
 // Lookup of priority - first index (0) will be closest location in chain
+// low value is higher priority
 $locationsAssoc = array_flip($locationIds);
 $servers = array();
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -33,7 +34,7 @@ while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 	} else {
 		$defPrio = 1000;
 	}
-	$ip = $row['clientip'] ? $row['clientip'] : $row['fixedip'];
+	$ip = $row['fixedip'] ? $row['fixedip'] : $row['clientip'];
 	if ($defPrio === 1000 && is_null($row['locationid'])) {
 		$serverLoc = Location::getFromIp($ip);
 		if ($serverLoc !== false) {

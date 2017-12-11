@@ -38,6 +38,8 @@
     "lang_managedServerAdd": "Add automatically configured proxy",
     "lang_managedServerHelp": "Automatically configured DNBD3-Proxies will boot like normal bwLehrpool-Clients over PXE and the satellite server. If a client is configured as proxy it will boot with a different configuration and acts exclusively as proxy. The client can therefore not be used as a normal working station.\r\nThe advantage is that you don't need to install or configure anything else. The client will reboot every week to get possible updates ot the minilinux.\r\nIf you want to use this feature, please create a partition with ID 45 on the local hard disk of the proxy server. In contrast to the ID 44 partition which is formated after every reboot, this partition is persistent. As a rule of thumb the partition should be as big as possible. If there is no space left the proxy will delete the VM which hasn't be used for the longest time. More information in the wiki.",
     "lang_numFails": "Errors",
+    "lang_overrideIp": "IP address to use",
+    "lang_overrideIpInfo": "Usually the address that the DHCP server assigns to the boot interface of the proxy will be used. If the proxy has multiple interfaces (that also get an address assigned via DHCP) you can specify that address here to enforce their usage instead.",
     "lang_proxyConfig": "Configuration",
     "lang_proxyLocationText": "Here you can restrict the usage of this proxy to certain locations. This can be useful if the usage is only reasonable from some locations. That may be because of the network infrastructure.",
     "lang_proxyServerTHead": "Server\/Proxy",
