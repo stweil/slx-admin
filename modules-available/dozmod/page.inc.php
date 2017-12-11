@@ -351,8 +351,8 @@ class Page_DozMod extends Page
 
 			$params = [
 				'int' => [
-					'maxImageValidityDays' => array('min' => 7, 'max' => 999),
-					'maxLectureValidityDays' => array('min' => 7, 'max' => 999),
+					'maxImageValidityDays' => array('min' => 7, 'max' => 9999),
+					'maxLectureValidityDays' => array('min' => 7, 'max' => 9999),
 					'maxLocationsPerLecture' => array('min' => 0, 'max' => 999),
 					'maxTransfers' => array('min' => 1, 'max' => 10),
 				],
