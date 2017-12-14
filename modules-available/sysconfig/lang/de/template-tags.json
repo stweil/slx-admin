@@ -34,6 +34,7 @@
     "lang_customModuleInfo1": "\u00dcber ein benutzerdefiniertes Modul ist es m\u00f6glich, beliebige Dateien zum Linux-Grundsystem, das auf den Clients gebootet wird, hinzuzuf\u00fcgen. Dazu kann ein Archiv mit einer Dateisystemstruktur hochgeladen werden, die in dieser Form 1:1 in das gebootete Linux extrahiert wird.",
     "lang_customModuleInfo2": "Beispiel: Enth\u00e4lt das hochgeladene Archiv eine Datei etc\/beispiel.conf, so wird auf einem gebooteten Client diese Datei als \/etc\/beispiel.conf zu finden sein.",
     "lang_customizeAttrDesc": "Hier k\u00f6nnen Sie die Standardwerte f\u00fcr bestimmte Attribute und deren Werte \u00fcberschreiben, wenn ihr LDAP-Schema nicht dem \u00fcblichen Unix-Schema entspricht.",
+    "lang_customizeAttrDescAd": "Hier k\u00f6nnen Sie die Standardwerte f\u00fcr bestimmte Attribute und deren Werte \u00fcberschreiben, wenn Sie z.B. den cn oder userPrincipalName f\u00fcr den Login verwenden wollen, anstelle des sAMAccountNames, oder der Pfad zum Netzlaufwerk des Benutzers nicht im Attribut homeDirectory zu finden ist.",
     "lang_customizeAttributes": "Attribute anpassen",
     "lang_deleteLong": "Modul oder Konfiguration l\u00f6schen.",
     "lang_determiningHomeDirectory": "Versuche Attribut f\u00fcr das Home-Verzeichnis zu ermitteln...",

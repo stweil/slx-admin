@@ -34,6 +34,7 @@
     "lang_customModuleInfo1": "About a custom module, it is possible to add arbitrary files to a Linux system that is booted clients. For this purpose, an archive can be uploaded using a file system structure that is extracted in this form 1:1 in the booted Linux.",
     "lang_customModuleInfo2": "Example: If the uploaded archive is the file etc\/example.conf, this file will be located as \/etc\/example.conf to a booted client.",
     "lang_customizeAttrDesc": "Here you can override attribute names and values if your LDAP scheme doesn't adhere to the usual Unix scheme.",
+    "lang_customizeAttrDescAd": "Here you can override attribute names and values, for example if you don't want to use the sAMAccountName for identification, but something like cn oder userPrincipalName, or maybe the user's network drive isn't to be found in the homeDirectory attribute.",
     "lang_customizeAttributes": "Customize attributes",
     "lang_deleteLong": "Delete module or configuration.",
     "lang_determiningHomeDirectory": "Trying to determine home directory attribute...",
