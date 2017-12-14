@@ -7,33 +7,9 @@
 class LdapAuth_Start extends AddModule_Base
 {
 
-	public static function getMapping($config = false, &$empty = true)
-	{
-		$list = array(
-			['name' => 'uid', 'field' => 'uid'],
-			['name' => 'uidnumber', 'field' => 'uidnumber'],
-			['name' => 'uncHomePath', 'field' => 'homemount'],
-			['name' => 'homeDirectory', 'field' => 'localhome'],
-			['name' => 'posixAccount', 'field' => 'posixAccount'],
-			['name' => 'shadowAccount', 'field' => 'shadowAccount'],
-		);
-		if (is_array($config)) {
-			foreach ($list as &$item) {
-				if (!empty($config[$item['field']])) {
-					$item['value'] = $config[$item['field']];
-					$empty = false;
-				}
-				if ($item['field'] === 'homemount' && !empty($config['homeattr']) && empty($config['value'])) {
-					$item['value'] = $config['homeattr'];
-				}
-			}
-		}
-		return $list;
-	}
-
 	protected function renderInternal()
 	{
-		$LDAPAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'ssl', 'fixnumeric', 'certificate', 'mapping');
+		$LDAPAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'certificate', 'mapping');
 		$data = array();
 		if ($this->edit !== false) {
 			moduleToArray($this->edit, $data, $LDAPAUTH_COMMON_FIELDS);
@@ -47,9 +23,12 @@ class LdapAuth_Start extends AddModule_Base
 		if (isset($data['server']) && preg_match('/^(.*)\:(636|389)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
+		if (isset($data['homeattr']) && !isset($data['mapping']['homemount'])) {
+			$data['mapping']['homemount'] = $data['homeattr'];
+		}
 		$data['step'] = 'LdapAuth_CheckConnection';
 		$data['map_empty'] = true;
-		$data['mapping'] = self::getMapping(isset($data['mapping']) ? $data['mapping'] : false, $data['map_empty']);
+		$data['mapping'] = ConfigModuleBaseLdap::getMapping(isset($data['mapping']) ? $data['mapping'] : false, $data['map_empty']);
 		Render::addDialog(Dictionary::translateFile('config-module', 'ldapAuth_title'), false, 'ldap-start', $data);
 	}
 
@@ -104,7 +83,7 @@ class LdapAuth_CheckConnection extends AddModule_Base
 			'fixnumeric' => Request::post('fixnumeric'),
 			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id'],
-			'mapping' => LdapAuth_Start::getMapping(Request::post('mapping', false, 'array')),
+			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
 		);
 		$data['prev'] = 'LdapAuth_Start';
 		$data['next'] = 'LdapAuth_CheckCredentials';
@@ -159,8 +138,6 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 		$this->taskIds = array(
 			'tm-search' => $ldapSearch['id']
 		);
-		if (isset($selfSearch['id']))
-			$this->taskIds['self-search'] = $selfSearch['id'];
 	}
 
 	protected function renderInternal()
@@ -177,7 +154,7 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 				'fixnumeric' => Request::post('fixnumeric'),
 				'fingerprint' => Request::post('fingerprint'),
 				'certificate' => Request::post('certificate', ''),
-				'mapping' => LdapAuth_Start::getMapping(Request::post('mapping', false, 'array')),
+				'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
 				'prev' => 'LdapAuth_Start',
 				'next' => 'LdapAuth_HomeDir',
 			))
@@ -218,7 +195,7 @@ class LdapAuth_HomeDir extends AddModule_Base
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => Request::post('originalbinddn'),
-			'mapping' => LdapAuth_Start::getMapping(Request::post('mapping', false, 'array')),
+			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
 			'prev' => 'LdapAuth_Start',
 			'next' => 'LdapAuth_Finish',
 		);
@@ -278,6 +255,7 @@ class LdapAuth_Finish extends AddModule_Base
 		$module->setData('home', Request::post('home'));
 		$module->setData('certificate', Request::post('certificate'));
 		$module->setData('ssl', $ssl);
+		$module->setData('mapping', Request::post('mapping', false, 'array'));
 		$module->setData('fixnumeric', Request::post('fixnumeric', '', 'string'));
 		foreach (LdapAuth_HomeDir::getAttributes() as $key) {
 			$value = Request::post($key);

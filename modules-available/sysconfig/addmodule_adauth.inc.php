@@ -13,7 +13,7 @@ class AdAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'certificate');
+		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'certificate', 'mapping');
 		$data = array();
 		if ($this->edit !== false) {
 			moduleToArray($this->edit, $data, $ADAUTH_COMMON_FIELDS);
@@ -31,7 +31,12 @@ class AdAuth_Start extends AddModule_Base
 		if (isset($data['server']) && preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
+		if (isset($data['homeattr']) && !isset($data['mapping']['homemount'])) {
+			$data['mapping']['homemount'] = $data['homeattr'];
+		}
 		$data['step'] = 'AdAuth_CheckConnection';
+		$data['map_empty'] = true;
+		$data['mapping'] = ConfigModuleBaseLdap::getMapping(isset($data['mapping']) ? $data['mapping'] : false, $data['map_empty']);
 		Render::addDialog(Dictionary::translateFile('config-module', 'adAuth_title'), false, 'ad-start', $data);
 	}
 
@@ -67,10 +72,11 @@ class AdAuth_CheckConnection extends AddModule_Base
 		if (preg_match('/^([^\:]+)\:(\d+)$/', $this->server, $out)) {
 			$ports = array($out[2]);
 			$this->server = $out[1];
+			// Test the default ports twice since the other one might not return all required data (home directory)
 		} elseif ($ssl) {
-			$ports = array(636, 3269);
+			$ports = array(636, 3269, 636);
 		} else {
-			$ports = array(389, 3268);
+			$ports = array(389, 3268, 389);
 		}
 		$this->scanTask = Taskmanager::submit('PortScan', array(
 			'host' => $this->server,
@@ -97,7 +103,8 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'ssl' => Request::post('ssl'),
 			'fixnumeric' => Request::post('fixnumeric'),
 			'certificate' => Request::post('certificate', ''),
-			'taskid' => $this->scanTask['id']
+			'taskid' => $this->scanTask['id'],
+			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
 		);
 		$data['prev'] = 'AdAuth_Start';
 		if ((preg_match(AD_BOTH_REGEX, $this->bindDn) > 0) || (strlen($this->searchBase) < 2)) {
@@ -157,8 +164,8 @@ class AdAuth_SelfSearch extends AddModule_Base
 			$taskData['filter'] = 'sAMAccountName=' . $out[2];
 		} elseif (preg_match(AD_AT_REGEX, $binddn, $out) && !empty($out[1])) {
 			$this->originalBindDn = $binddn;
-			$taskData['filter'] = 'sAMAccountName=' . $out[1];
-		} elseif (preg_match('/^cn\=([^\=]+),.*?,dc\=([^\=]+),/i', Ldap::normalizeDn($binddn), $out)) {
+			$taskData['filter'] = 'userPrincipalName=' . $binddn;
+		} elseif (preg_match('/^cn\=([^\=]+),.*?dc\=([^\=]+),/i', Ldap::normalizeDn($binddn), $out)) {
 			if (empty($selfSearchBase)) {
 				$this->originalBindDn = $out[2] . '\\' . $out[1];
 				$taskData['filter'] = 'sAMAccountName=' . $out[1];
@@ -198,6 +205,7 @@ class AdAuth_SelfSearch extends AddModule_Base
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => $this->originalBindDn,
+			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
 			'prev' => 'AdAuth_Start'
 		);
 		if (empty($data['homeattr'])) {
@@ -275,6 +283,7 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 				'certificate' => Request::post('certificate', ''),
 				'originalbinddn' => Request::post('originalbinddn'),
 				'tryHomeAttr' => true,
+				'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
 				'prev' => 'AdAuth_Start',
 				'next' => 'AdAuth_CheckCredentials'
 			))
@@ -316,7 +325,8 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			'server' => $uri,
 			'searchbase' => $searchbase,
 			'binddn' => $binddn,
-			'bindpw' => $bindpw
+			'bindpw' => $bindpw,
+			'mapping' => Request::post('mapping', false, 'array'),
 		));
 		if (!isset($ldapSearch['id'])) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
@@ -325,8 +335,6 @@ class AdAuth_CheckCredentials extends AddModule_Base
 		$this->taskIds = array(
 			'tm-search' => $ldapSearch['id']
 		);
-		if (isset($selfSearch['id']))
-			$this->taskIds['self-search'] = $selfSearch['id'];
 	}
 
 	protected function renderInternal()
@@ -345,6 +353,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 				'fingerprint' => Request::post('fingerprint'),
 				'certificate' => Request::post('certificate', ''),
 				'originalbinddn' => Request::post('originalbinddn'),
+				'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
 				'prev' => 'AdAuth_Start',
 				'next' => 'AdAuth_HomeDir'
 			))
@@ -408,6 +417,7 @@ class AdAuth_HomeDir extends AddModule_Base
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => Request::post('originalbinddn'),
+			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
 			'prev' => 'AdAuth_Start',
 			'next' => 'AdAuth_Finish'
 		);
@@ -466,6 +476,7 @@ class AdAuth_Finish extends AddModule_Base
 		$module->setData('homeattr', Request::post('homeattr'));
 		$module->setData('certificate', Request::post('certificate'));
 		$module->setData('ssl', $ssl);
+		$module->setData('mapping', Request::post('mapping', false, 'array'));
 		$module->setData('fixnumeric', Request::post('fixnumeric', '', 'string'));
 		foreach (AdAuth_HomeDir::getAttributes() as $key) {
 			$value = Request::post($key);

@@ -39,6 +39,9 @@
 		<input name="ssl" value="on" type="hidden">
 		<input type="hidden" name="certificate" value="{{certificate}}">
 		{{/ssl}}
+		{{#mapping}}
+			<input type="hidden" name="mapping[{{field}}]" value="{{value}}">
+		{{/mapping}}
 		<input name="fixnumeric" value="{{fixnumeric}}" type="hidden">
 		<button type="submit" class="btn btn-primary">&laquo; {{lang_back}}</button>
 	</form>
@@ -60,6 +63,9 @@
 		<input name="ssl" value="on" type="hidden">
 		<input type="hidden" name="certificate" value="{{certificate}}">
 		{{/ssl}}
+		{{#mapping}}
+			<input type="hidden" name="mapping[{{field}}]" value="{{value}}">
+		{{/mapping}}
 		<input name="fixnumeric" value="{{fixnumeric}}" type="hidden">
 		<input name="fingerprint" value="{{fingerprint}}" type="hidden">
 		<button id="nextbutton" type="submit" class="btn btn-primary" style="display:none">{{lang_skip}} &raquo;</button>

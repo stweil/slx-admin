@@ -16,6 +16,9 @@ abstract class ConfigModule
 	private $moduleTitle = false;
 	private $moduleStatus = false;
 	private $currentVersion = 0;
+	/**
+	 * @var false|array Data of module, false if not initialized
+	 */
 	protected $moduleData = false;
 	
 	/**
@@ -86,7 +89,7 @@ abstract class ConfigModule
 	 * Get fresh instance of ConfigModule subclass for given module type.
 	 *
 	 * @param string $moduleType name of module type
-	 * @return \ConfigModule module instance
+	 * @return false|\ConfigModule module instance
 	 */
 	public static function getInstance($moduleType)
 	{
@@ -117,7 +120,7 @@ abstract class ConfigModule
 	 * Get module instance from id.
 	 *
 	 * @param int $moduleId module id to get
-	 * @return ConfigModule The requested module from DB, or false on error
+	 * @return false|\ConfigModule The requested module from DB, or false on error
 	 */
 	public static function get($moduleId)
 	{

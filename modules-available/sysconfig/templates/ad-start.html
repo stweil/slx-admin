@@ -20,40 +20,50 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="edit" value="{{edit}}">
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_moduleTitle}}</span>
+		<span class="input-group-addon slx-ga2">{{lang_moduleTitle}}</span>
 		<input tabindex="1" name="title" value="{{title}}" type="text" class="form-control" autofocus>
 	</div>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">Server *</span>
+		<span class="input-group-addon slx-ga2">Server *</span>
 		<input tabindex="2" name="server" value="{{server}}" type="text" class="form-control" placeholder="dc0.institution.example.com">
 	</div>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_bindDN}} *</span>
+		<span class="input-group-addon slx-ga2">{{lang_bindDN}} *</span>
 		<input tabindex="3" name="binddn" value="{{binddn}}" type="text" class="form-control" placeholder="domain\bwlp *ODER* CN=bwlp,OU=Benutzer,DC=domain,DC=hs-beispiel,DC=de">
 	</div>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_password}} *</span>
+		<span class="input-group-addon slx-ga2">{{lang_password}} *</span>
 		<input tabindex="4" name="bindpw" value="{{bindpw}}" type="{{password_type}}" class="form-control" placeholder="{{lang_password}}">
 	</div>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_searchBase}}</span>
+		<span class="input-group-addon slx-ga2">{{lang_searchBase}}</span>
 		<input tabindex="5" name="searchbase" value="{{searchbase}}" type="text" class="form-control" placeholder="dc=windows,dc=hs-beispiel,dc=de">
 	</div>
-	<br>
 	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">Home</span>
+		<span class="input-group-addon slx-ga2">Home</span>
 		<input tabindex="6" name="home" value="{{home}}" type="text" class="form-control" placeholder="\\server.example.com\%s">
 		<span class="input-group-btn">
 			<a class="btn btn-default" data-toggle="modal" data-target="#help-home"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</span>
 	</div>
-	<div class="input-group">
-		<span style="min-width:150px;" class="input-group-addon slx-ga">{{lang_homeAttr}}</span>
-		<input tabindex="6" name="homeattr" value="{{homeattr}}" type="text" class="form-control" placeholder="homeDirectory">
-		<span class="input-group-btn">
-			<a class="btn btn-default" data-toggle="modal" data-target="#help-homeattr"><span class="glyphicon glyphicon-question-sign"></span></a>
-		</span>
+	<br>
+	<div class="{{#map_empty}}collapse{{/map_empty}}" id="attrbox">
+		<p>{{lang_customizeAttrDescAd}}</p>
+		{{#mapping}}
+			{{#ad}}
+			<div class="input-group">
+				<span class="input-group-addon slx-ga2">{{name}}</span>
+				<input name="mapping[{{field}}]" value="{{value}}" type="text" class="form-control" placeholder="{{ad}}">
+			</div>
+			{{/ad}}
+		{{/mapping}}
 	</div>
+	{{#map_empty}}
+		<div class="btn btn-default center-block" onclick="$('#attrbox').show();$(this).hide()">
+			{{lang_customizeAttributes}}
+			<span class="glyphicon glyphicon-menu-down"></span>
+		</div>
+	{{/map_empty}}
 	<br>
 	<div>
 		<div class="checkbox">

@@ -10,6 +10,27 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 		'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia',
 		'shareOther', 'shareHomeDrive', 'shareDomain', 'credentialPassthrough', 'mapping');
 
+	public static function getMapping($config = false, &$empty = true)
+	{
+		$list = array(
+			['name' => 'uid', 'field' => 'uid', 'ad' => 'sAMAccountName'],
+			['name' => 'uidnumber', 'field' => 'uidnumber', 'ad' => false],
+			['name' => 'uncHomePath', 'field' => 'homemount', 'ad' => 'homeDirectory'],
+			['name' => 'homeDirectory', 'field' => 'localhome', 'ad' => false],
+			['name' => 'posixAccount', 'field' => 'posixAccount', 'ad' => 'user'],
+			//['name' => 'shadowAccount', 'field' => 'shadowAccount'],
+		);
+		if (is_array($config)) {
+			foreach ($list as &$item) {
+				if (!empty($config[$item['field']])) {
+					$item['value'] = $config[$item['field']];
+					$empty = false;
+				}
+			}
+		}
+		return $list;
+	}
+
 	protected function generateInternal($tgz, $parent)
 	{
 		Trigger::ldadp($this->id(), $parent);
