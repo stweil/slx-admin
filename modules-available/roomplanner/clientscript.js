@@ -174,9 +174,14 @@ function onBtnSelect() {
 }
 
 function onPcDelete(muuid) {
-    var bySubnet = machineCache[muuid];
-    var bySearch = machineCache[muuid];
-    var value = !bySubnet ? bySearch : bySubnet;
+    var value = machineCache[muuid];
+    if (!value) {
+        subnetMachines.forEach(function (v, i, a) {
+            if (subnetMachines[i] && subnetMachines[i].machineuuid === muuid) {
+                value = subnetMachines[i];
+            }
+        });
+    }
     value.fixedlocationid = null;
     makeCombinedFieldSingle(value);
 }
