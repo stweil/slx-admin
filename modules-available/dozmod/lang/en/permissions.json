@@ -1,0 +1,14 @@
+{
+	"images.delete": "Delete images marked for deletion.",
+	"mail.save": "Save SMTP configuration for sending mails.",
+	"mail.testmail": "Send a testmail.",
+	"runtimeconfig.save": "Save limits and defaults of a runtime configuration.",
+	"templates.save": "Save email templates.",
+	"templates.reset": "Reset email templates.",
+	"users.setmail": "Enable/Disable Email Notification.",
+	"users.setlogin": "Enable/Disable Login.",
+	"users.setsu": "Set User to superuser.",
+	"users.orglogin": "Enalbe/Disable Login for Users from certain organisations.",
+	"log.showuser": "Show User Data in Log.",
+	"log.showtarget": "Show Target Data in Log."
+}

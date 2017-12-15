@@ -11,21 +11,21 @@ class Page_Backup extends Page
 	protected function doPreprocess()
 	{
 		User::load();
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
 		$this->action = Request::post('action');
-		if ($this->action === 'backup') {
+		if ($this->action === 'backup' && User::hasPermission("create")) {
 			$this->backup();
-		} elseif ($this->action === 'restore') {
+		} elseif ($this->action === 'restore' && User::hasPermission("restore")) {
 			$this->restore();
 		}
 	}
 
 	protected function doRender()
 	{
-		if ($this->action === 'restore') {
+		if ($this->action === 'restore' && User::hasPermission("restore")) {
 			Render::addTemplate('restore', $this->templateData);
 		} else {
 			$lastBackup = (int)Property::get(self::LAST_BACKUP_PROP, 0);
@@ -34,7 +34,9 @@ class Page_Backup extends Page
 			} else {
 				$lastBackup = date('d.m.Y', $lastBackup);
 			}
-			Render::addTemplate('_page', ['last_backup' => $lastBackup]);
+			Render::addTemplate('_page', ['last_backup' => $lastBackup,
+																"createAllowed" => User::hasPermission("create"),
+																"restoreAllowed" => User::hasPermission("restore")]);
 		}
 	}
 

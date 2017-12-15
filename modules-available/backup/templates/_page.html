@@ -3,7 +3,7 @@
 <form action="?do=Backup" method="post">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="backup">
-	<div class="panel panel-default">
+	<div class="panel panel-default {{^createAllowed}}disabledPanel{{/createAllowed}}">
 		<div class="panel-heading">{{lang_backup}}</div>
 		<div class="panel-body">
 			<p>{{lang_backupDescription}}</p>
@@ -20,7 +20,7 @@
 <form action="?do=Backup" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="restore">
-	<div class="panel panel-default">
+	<div class="panel panel-default {{^restoreAllowed}}disabledPanel{{/restoreAllowed}}">
 		<div class="panel-heading">{{lang_restore}}</div>
 		<div class="panel-body">
 			<p>{{lang_restoreDescription}}</p>

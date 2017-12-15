@@ -73,10 +73,9 @@ class PermissionUtil
 			if (!is_array($data))
 				continue;
 			preg_match('#^modules/([^/]+)/#', $file, $out);
-			$newData = array();
-			foreach( $data as $k => $v ) {
-				$newData[] = $v;
-				$permissions = self::putInPermissionTree($out[1].".".$k, $v, $permissions);
+			foreach( $data as $p ) {
+				$description = Dictionary::translateFileModule($out[1], "permissions", $p);
+				$permissions = self::putInPermissionTree($out[1].".".$p, $description, $permissions);
 			}
 		}
 		ksort($permissions);

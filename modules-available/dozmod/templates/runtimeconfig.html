@@ -117,7 +117,7 @@
 			<input type="hidden" name="token" value="{{token}}">
 			<input type="hidden" name="action" value="runtime">
 			<div class="text-right">
-				<button class="btn btn-primary" type="submit" name="button" value="save"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+				<button {{^allowedSave}}disabled{{/allowedSave}} class="btn btn-primary" type="submit" name="button" value="save"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 			</div>
 		</form>
 	</div>

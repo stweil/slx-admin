@@ -1,7 +1,7 @@
 <form action="?do=WebInterface" method="post">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="customization">
-	<div class="panel panel-default">
+	<div class="panel panel-default {{^editAllowed}}disabledPanel{{/editAllowed}}">
 		<div class="panel-heading">{{lang_customization}}</div>
 		<div class="panel-body">
 			<p>{{lang_customizationDesc}}</p>

@@ -64,7 +64,7 @@
 		$('form').submit(function () {
 			var name = $.trim($('#rolename').val());
 			if (name  === '') {
-				alert('{{lang_emptyNameWarning}}');
+				$("#rolename").addClass("missingInput");
 				return false;
 			}
 		});

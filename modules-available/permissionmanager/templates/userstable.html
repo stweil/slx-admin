@@ -3,16 +3,18 @@
 
 	<div class="row">
 		<div class="col-md-4">
-			<button class="btn btn-success" type="button" data-toggle="modal" data-target="#addRoleToUserModal"><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
-			<button class="btn btn-danger" type="button" data-toggle="modal" data-target="#removeRoleFromUserModal"><span class="glyphicon glyphicon-trash"></span> {{lang_removeRole}}</button>
 		</div>
-		<div class="col-md-4 text-left">
+		<div class="col-md-4">
 			<select multiple name="roles[]" id="select-role">
 				<option value>{{lang_selectizePlaceholder}}</option>
 				{{#roles}}
 				<option value="{{roleid}}">{{rolename}}</option>
 				{{/roles}}
 			</select>
+		</div>
+		<div class="col-md-4 text-right">
+			<button class="btn btn-success" type="button" data-toggle="modal" data-target="#addRoleToUserModal"><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
+			<button class="btn btn-danger" type="button" data-toggle="modal" data-target="#removeRoleFromUserModal"><span class="glyphicon glyphicon-trash"></span> {{lang_removeRole}}</button>
 		</div>
 	</div>
 
@@ -151,6 +153,7 @@
 
 		});
 	});
+
 
 	// if remove-Role button is clicked, uncheck all checkboxes in add-role modal so they aren't submitted too
 	function clearAddRoleModal () {
