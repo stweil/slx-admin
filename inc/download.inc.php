@@ -69,7 +69,7 @@ class Download
 	 * POST-Download file, obey given timeout in seconds
 	 * Return data on success, false on failure
 	 * @param string $url URL to fetch
-	 * @param array $params POST params to set in body, list of key-value-pairs
+	 * @param array|false $params POST params to set in body, list of key-value-pairs
 	 * @param int $timeout timeout in seconds
 	 * @param int $code HTTP response code, or 999 on error
 	 */

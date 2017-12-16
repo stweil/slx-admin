@@ -27,7 +27,6 @@ class RebootQueries
 			$leftJoin
 			WHERE $where AND machine.lastseen > :cutoff", $queryArgs);
 		$ret = $res->fetchAll(PDO::FETCH_ASSOC);
-		$NOW = time();
 		foreach ($ret as &$row) {
 			if ($row['state'] === 'IDLE' || $row['state'] === 'OCCUPIED') {
 				$row['status'] = 1;

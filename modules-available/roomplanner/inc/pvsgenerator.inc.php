@@ -54,7 +54,6 @@ class PvsGenerator
 		/* collect names and build room blocks - filter empty rooms while at it */
 		$roomNames = array();
 		$roomBlocks = '';
-		$overrides = [];
 		foreach ($rooms as $room) {
 			if (is_null($room['notnull']) || isset($room['skip'])) // Not leaf
 				continue;

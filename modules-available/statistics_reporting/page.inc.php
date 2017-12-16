@@ -8,7 +8,18 @@ class Page_Statistics_Reporting extends Page
 	private $type;
 
 	// "Constants"
+	/**
+	 * @var int
+	 */
 	private $days;
+	/**
+	 * @var int
+	 */
+	private $lower;
+	/**
+	 * @var int
+	 */
+	private $upper;
 
 	/**
 	 * @var array Names of columns that are being used by the various tables
@@ -306,6 +317,7 @@ class Page_Statistics_Reporting extends Page
 		case 'vm':
 			return GetData::perVM($flags);
 		}
+		return false;
 	}
 
 }

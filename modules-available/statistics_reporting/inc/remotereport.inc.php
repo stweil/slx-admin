@@ -96,7 +96,7 @@ class RemoteReport
 		return $result;
 	}
 
-	private function getLocalHardware()
+	private static function getLocalHardware()
 	{
 		$cpuInfo = file_get_contents('/proc/cpuinfo');
 		$uptime = file_get_contents('/proc/uptime');

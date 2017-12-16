@@ -21,8 +21,7 @@ abstract class AddModule_Base
 
 	/**
 	 * 
-	 * @param type $step
-	 * @return \AddModule_Base
+	 * @param string $step name of class representing the current step
 	 */
 	public static function setStep($step)
 	{

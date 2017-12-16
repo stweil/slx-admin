@@ -30,11 +30,14 @@ class Page_BaseConfig extends Page
 				$qry_values = ', :enabled';
 				$qry_update = ', enabled = :enabled';
 				$params = array();
+				$delExtra = '';
 			} elseif (empty($this->qry_extra['field'])) {
 				// Module specific, but module doesn't have an extra field
 				$qry_insert = '';
 				$qry_values = '';
 				$qry_update = '';
+				$params = array();
+				$delExtra = '';
 			} else {
 				// Module with extra field
 				$qry_insert = ', ' . $this->qry_extra['field'];
@@ -290,7 +293,7 @@ class Page_BaseConfig extends Page
 	
 	/**
 	 * Create html snippet for setting, based on given validator
-	 * @param type $validator
+	 * @param string $validator
 	 * @return boolean
 	 */
 	private function makeInput($validator, $setting, $current, $shadows)

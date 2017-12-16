@@ -622,7 +622,6 @@ class Page_Statistics extends Page
 			. ' badsectors ' . $xtra . ' FROM machine'
 			. " $join WHERE $where $sort", $args);
 		$rows = array();
-		$NOW = time();
 		$singleMachine = 'none';
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($singleMachine === 'none') {
@@ -894,7 +893,7 @@ class Page_Statistics extends Page
 				continue; // Don't differentiate between session and idle for non-clients
 			if ($first && $row['dateline'] > $cutoff && $client['lastboot'] > $cutoff) {
 				// Special case: offline before
-				$spans['graph'] .= '<div style="background:#444;left:0%;width:' . round((min($row['dateline'], $client['lastboot']) - $cutoff) * $scale, 2) . '%">&nbsp;</div>';
+				$spans['graph'] .= '<div style="background:#444;left:0;width:' . round((min($row['dateline'], $client['lastboot']) - $cutoff) * $scale, 2) . '%">&nbsp;</div>';
 			}
 			$first = false;
 			if ($row['dateline'] + $row['data'] < $cutoff || $row['data'] > 864000) {
@@ -931,10 +930,10 @@ class Page_Statistics extends Page
 		}
 		if ($first && $client['lastboot'] > $cutoff) {
 			// Special case: offline before
-			$spans['graph'] .= '<div style="background:#444;left:0%;width:' . round(($client['lastboot'] - $cutoff) * $scale, 2) . '%">&nbsp;</div>';
+			$spans['graph'] .= '<div style="background:#444;left:0;width:' . round(($client['lastboot'] - $cutoff) * $scale, 2) . '%">&nbsp;</div>';
 		} elseif ($first) {
 			// Not seen in last two weeks
-			$spans['graph'] .= '<div style="background:#444;left:0%;width:100%">&nbsp;</div>';
+			$spans['graph'] .= '<div style="background:#444;left:0;width:100%">&nbsp;</div>';
 		}
 		if (isset($client['state_occupied'])) {
 			$spans['graph'] .= '<div style="background:#e99;left:' . round(($client['logintime'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['logintime'] + 900) * $scale, 2) . '%">&nbsp;</div>';

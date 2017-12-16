@@ -230,7 +230,7 @@ class Page_Dnbd3 extends Page
 		$stats['bytesReceived_s'] = Util::readableFileSize($stats['bytesReceived']);
 		$stats['uptime_s'] = floor($stats['uptime'] / 86400) . 'd ' . gmdate('H:i:s', $stats['uptime']);
 		Render::addTemplate('page-proxy-stats', $stats);
-		$images = Dnbd3Rpc::query($server['ip'], 5003,false, false, true);
+		// TODO $images = Dnbd3Rpc::query($server['ip'], 5003,false, false, true);
 		$confAlts = Dnbd3Rpc::query($server['ip'], 5003,false, false, false, false, true, true);
 		$ips = array();
 		$sort = array();

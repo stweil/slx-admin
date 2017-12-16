@@ -116,8 +116,10 @@ class Branding_ProcessFile extends AddModule_Base
 				
 			// [wikipedia] Try to be nice and detect links that might give a hint where the svg can be found
 			if (preg_match_all('#href="([^"]*upload.wikimedia.org/[^"]*/[^"]*/[^"]*\.svg|[^"]+/[^"]+:[^"]+\.svg[^"]*)"#', $content, $out, PREG_PATTERN_ORDER)) {
-				if ($title === false && preg_match('#<title>([^<]*)</title>#i', $content, $tout))
+				if ($title === false && preg_match('#<title>([^<]*)</title>#i', $content, $tout)) {
 					$title = trim(preg_replace('/\W*Wikipedia.*/', '', $tout[1]));
+				}
+				$new = false;
 				foreach ($out[1] as $res) {
 					if (strpos($res, 'action=edit') !== false)
 						continue;
@@ -125,7 +127,7 @@ class Branding_ProcessFile extends AddModule_Base
 					if ($new !== $url)
 						break;
 				}
-				if ($new === $url)
+				if ($new === $url || $new === false)
 					break;
 				$url = $new;
 				continue;

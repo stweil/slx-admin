@@ -15,6 +15,9 @@ Render::init();
 class Render
 {
 
+	/**
+	 * @var Mustache_Engine
+	 */
 	private static $mustache = false;
 	private static $body = '';
 	private static $header = '';
@@ -81,7 +84,7 @@ class Render
 	';
 		// Include any module specific styles
 		foreach ($modules as $module) {
-			$files = $module->getCss($module != $pageModule);
+			$files = $module->getCss($module !== $pageModule);
 			foreach ($files as $file) {
 				echo '<link href="', $module->getDir(), '/', $file, '" rel="stylesheet" media="screen">';
 			}
@@ -110,7 +113,7 @@ class Render
 		<script src="script/slx-fixes.js"></script>
 	';
 		foreach ($modules as $module) {
-			$files = $module->getScripts($module != $pageModule);
+			$files = $module->getScripts($module !== $pageModule);
 			foreach ($files as $file) {
 				echo '<script src="', $module->getDir(), '/', $file, '"></script>';
 			}

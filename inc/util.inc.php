@@ -109,7 +109,7 @@ SADFACE;
 		return $arg;
 	}
 
-	public static function formatBacktraceHtml($trace, $escape = true)
+	public static function formatBacktraceHtml($trace)
 	{
 		$output = '';
 		foreach ($trace as $idx => $line) {
@@ -185,7 +185,7 @@ SADFACE;
 	
 	public static function addRedirectParam($key, $value)
 	{
-		self::$redirectParams[] = $key .= '=' . urlencode($value);
+		self::$redirectParams[] = $key . '=' . urlencode($value);
 	}
 
 	/**
@@ -225,14 +225,14 @@ SADFACE;
 	 * Convert given number to human readable file size string.
 	 * Will append Bytes, KiB, etc. depending on magnitude of number.
 	 * 
-	 * @param type $bytes numeric value of the filesize to make readable
-	 * @param type $decimals number of decimals to show, -1 for automatic
-	 * @return type human readable string representing the given filesize
+	 * @param float|int $bytes numeric value of the filesize to make readable
+	 * @param int $decimals number of decimals to show, -1 for automatic
+	 * @return string human readable string representing the given filesize
 	 */
 	public static function readableFileSize($bytes, $decimals = -1)
 	{
 		static $sz = array('Byte', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB');
-		$factor = floor((strlen($bytes) - 1) / 3);
+		$factor = (int)floor((strlen($bytes) - 1) / 3);
 		if ($factor == 0) {
 			$decimals = 0;
 		} elseif ($decimals === -1) {
@@ -351,9 +351,9 @@ SADFACE;
 	/**
 	 * Send a file to user for download.
 	 *
-	 * @param type $file path of local file
-	 * @param type $name name of file to send to user agent
-	 * @param type $delete delete the file when done?
+	 * @param string $file path of local file
+	 * @param string $name name of file to send to user agent
+	 * @param boolean $delete delete the file when done?
 	 * @return boolean false: file could not be opened.
 	 *		true: error while reading the file
 	 *		- on success, the function does not return
@@ -362,7 +362,7 @@ SADFACE;
 	{
 		while ((@ob_get_level()) > 0)
 			@ob_end_clean();
-		$fh = @fopen($file, 'rb');
+		$fh = fopen($file, 'rb');
 		if ($fh === false) {
 			Message::addError('main.error-read', $file);
 			return false;
@@ -382,9 +382,10 @@ SADFACE;
 			@ob_flush();
 			@flush();
 		}
-		@fclose($fh);
-		if ($delete)
-			@unlink($file);
+		fclose($fh);
+		if ($delete) {
+			unlink($file);
+		}
 		exit(0);
 	}
 
@@ -401,7 +402,11 @@ SADFACE;
 	public static function randomBytes($length, $secure = true)
 	{
 		if (function_exists('random_bytes')) {
-			return random_bytes($length);
+			try {
+				return random_bytes($length);
+			} catch (Exception $e) {
+				// Continue below
+			}
 		}
 		if ($secure) {
 			if (function_exists('openssl_random_pseudo_bytes')) {

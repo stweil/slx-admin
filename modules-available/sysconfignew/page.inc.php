@@ -73,6 +73,7 @@ class Page_SysConfigNew extends Page
 					);
 				}
 
+				$ret = '';
 				foreach ($modules as $module) {
 					$class = ($module['chosen']) ? "select-item select-item-selected" : "select-item";
 					$ret .= "<button type='button' class='" . $class . "' onclick='select(this)' >";

@@ -111,7 +111,7 @@ class Trigger
 	 * Mount the VM store into the server.
 	 *
 	 * @param array $vmstore VM Store configuration to use. If false, read from properties
-	 * @return array task status of mount procedure, or false on error
+	 * @return array|false task status of mount procedure, or false on error
 	 */
 	public static function mount($vmstore = false)
 	{
@@ -125,12 +125,13 @@ class Trigger
 		} else {
 			$storetype = 'unknown';
 		}
-		if ($storetype === 'nfs')
+		if ($storetype === 'nfs') {
 			$addr = $vmstore['nfsaddr'];
-		if ($storetype === 'cifs')
+		} elseif ($storetype === 'cifs') {
 			$addr = $vmstore['cifsaddr'];
-		if ($storetype === 'internal')
+		} else {
 			$addr = 'null';
+		}
 		return Taskmanager::submit('MountVmStore', array(
 				'address' => $addr,
 				'type' => 'images',
@@ -173,6 +174,16 @@ class Trigger
 		));
 		if (isset($task['id'])) {
 			$taskids['dmsdid'] = $task['id'];
+			$parent = $task['id'];
+		}
+		$task = Taskmanager::submit('Systemctl', array(
+			'operation' => $action,
+			'service' => 'dnbd3-server',
+			'parentTask' => $parent,
+			'failOnParentFail' => false
+		));
+		if (isset($task['id'])) {
+			$taskids['dnbd3id'] = $task['id'];
 			$parent = $task['id'];
 		}
 		return $parent;

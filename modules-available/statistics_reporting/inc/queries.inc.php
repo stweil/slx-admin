@@ -5,7 +5,7 @@ class Queries
 {
 
 	// Client Data: Name, Time Online, Median Time Online, Time Offline, last start, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location, id of location (anonymized), machine uuid (anonymized)
-	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
+	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$notassigned = Dictionary::translate('notAssigned', true);
 		Database::exec("SET SESSION group_concat_max_len = 1000000000");
 		$res = Database::simpleQuery("SELECT t2.name AS clientName, timeSum, medianSessionLength, offlineSum, IFNULL(lastStart, 0) as lastStart, IFNULL(lastLogout, 0) as lastLogout, longSessions, shortSessions, t2.locId, t2.locName, MD5(CONCAT(t2.locId, :salt)) AS locHash, MD5(CONCAT(t2.uuid, :salt)) AS clientHash FROM (
@@ -27,7 +27,7 @@ class Queries
 	}
 
 	// Location Data: Name, ID (anonymized), Time Online, Median Time Online, Time Offline, Number of Sessions > 60Sec, Number of Sessions < 60Sec
-	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24, $excludeToday = false) {
+	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$notassigned = Dictionary::translate('notAssigned', true);
 		Database::exec("SET SESSION group_concat_max_len = 1000000000");
 		$res = Database::simpleQuery("SELECT t2.locId, t2.locName, MD5(CONCAT(t2.locId, :salt)) AS locHash, timeSum, medianSessionLength, offlineSum, longSessions, shortSessions FROM (

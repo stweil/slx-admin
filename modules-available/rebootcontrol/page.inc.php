@@ -33,7 +33,6 @@ class Page_RebootControl extends Page
 			}
 			$shutdown = $this->action === "startShutdown";
 			$minutes = Request::post('minutes', 0, 'int');
-			$privKey = SSHKey::getPrivateKey();
 
 			$list = RebootQueries::getMachinesByUuid($clients);
 			if (count($list) !== count($clients)) {

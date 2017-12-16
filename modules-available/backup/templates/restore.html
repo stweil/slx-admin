@@ -2,8 +2,8 @@
 	<div class="panel-heading">{{lang_backup}}</div>
 	<div class="panel-body">
 		<div id="zeug">
-			<div data-tm-id="{{syncid}}" data-tm-log="messages">{{lang_stopping}} syncdaemon</div>
 			<div data-tm-id="{{dmsdid}}" data-tm-log="messages">{{lang_stopping}} dmsd</div>
+			<div data-tm-id="{{dnbd3id}}" data-tm-log="messages">{{lang_stopping}} DNBD3</div>
 			<div data-tm-id="{{ldadpid}}" data-tm-log="messages">{{lang_stopping}} ldadp</div>
 			<div data-tm-id="{{mountid}}" data-tm-log="messages">{{lang_stopping}} vmstore</div>
 			<div data-tm-id="{{restoreid}}" data-tm-log="messages" data-tm-callback="restoreCb">{{lang_restoreConfig}}</div>
@@ -19,6 +19,7 @@
 </div>
 
 <script type="text/javascript">
+	var slxDotInterval = false;
 	function restoreCb(task)
 	{
 		if (!task || !task.statusCode)

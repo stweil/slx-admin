@@ -45,7 +45,7 @@ function toInt(str) {
  * @param {Array} globalConfig
  * @returns {string} printable time
  */
-function GetTimeDiferenceAsString(a, b, globalConfig = null) {
+function GetTimeDiferenceAsString(a, b, globalConfig) {
 	if (!a || !b) {
 		return "";
 	}

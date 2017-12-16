@@ -330,9 +330,9 @@ class Page_Exams extends Page
 				die('delete only works with a post request');
 			}
 			$examid = Request::post('examid');
-			$res = Database::exec("DELETE FROM exams WHERE examid = :examid;", compact('examid'));
-			$res = Database::exec("DELETE FROM exams_x_location WHERE examid = :examid;", compact('examid'));
-			if ($res === false) {
+			$res1 = Database::exec("DELETE FROM exams WHERE examid = :examid;", compact('examid'));
+			$res2 = Database::exec("DELETE FROM exams_x_location WHERE examid = :examid;", compact('examid'));
+			if ($res1 === false || $res2 === false) {
 				Message::addError('exam-not-deleted-error');
 			} else {
 				Message::addInfo('exam-deleted-success');

@@ -29,7 +29,7 @@ class Taskmanager
 	 * @param array $data data to pass to the task. the structure depends on the task.
 	 * @param boolean $async if true, the function will not wait for the reply of the taskmanager, which means
 	 * 		the return value is just true (and you won't know if the task could acutally be started)
-	 * @return array struct representing the task status (as a result of submit); false on communication error
+	 * @return array|false struct representing the task status (as a result of submit); false on communication error
 	 */
 	public static function submit($task, $data = false, $async = false)
 	{
@@ -60,7 +60,7 @@ class Taskmanager
 	 * Query status of given task.
 	 *
 	 * @param mixed $task task id or task struct
-	 * @return array status of task as array, or false on communication error
+	 * @return array|false status of task as array, or false on communication error
 	 */
 	public static function status($task)
 	{
@@ -72,7 +72,7 @@ class Taskmanager
 		self::init();
 		$seq = (string) mt_rand();
 		$message = "$seq,     status, $task";
-		$sent = socket_send(self::$sock, $message, strlen($message), 0);
+		socket_send(self::$sock, $message, strlen($message), 0);
 		$reply = self::readReply($seq);
 		if (!is_array($reply))
 			return false;
@@ -96,9 +96,9 @@ class Taskmanager
 	/**
 	 * Wait for the given task's completion.
 	 *
-	 * @param array $task task to wait for
+	 * @param string|array $task task to wait for
 	 * @param int $timeout maximum time in ms to wait for completion of task
-	 * @return array result/status of task, or false if it couldn't be queried
+	 * @return array|false result/status of task, or false if it couldn't be queried
 	 */
 	public static function waitComplete($task, $timeout = 2500)
 	{
@@ -112,7 +112,8 @@ class Taskmanager
 		if (!is_string($task))
 			return false;
 		$done = false;
-		for ($i = 0; $i < ($timeout / 150); ++$i) {
+		$deadline = microtime(true) + $timeout / 1000;
+		do {
 			$status = self::status($task);
 			if (!isset($status['statusCode']))
 				break;
@@ -121,9 +122,10 @@ class Taskmanager
 				break;
 			}
 			usleep(100000);
-		}
-		if ($done)
+		} while (microtime(true) < $deadline);
+		if ($done) { // For now we do this unconditionally, but maybe we want to keep them longer some time?
 			self::release($task);
+		}
 		return $status;
 	}
 
@@ -131,7 +133,7 @@ class Taskmanager
 	 * Check whether the given task can be considered failed. This
 	 * includes that the task id is invalid, etc.
 	 *
-	 * @param array $task struct representing task, obtained by ::status
+	 * @param array|false $task struct representing task, obtained by ::status
 	 * @return boolean true if task failed, false if finished successfully or still waiting/running
 	 */
 	public static function isFailed($task)
@@ -183,7 +185,7 @@ class Taskmanager
 	/**
 	 * Release a given task from the task manager, so it won't keep the result anymore in case it's finished running.
 	 *
-	 * @param string $task task to release. can either be its id, or a struct representing the task, as returned
+	 * @param string|array $task task to release. can either be its id, or a struct representing the task, as returned
 	 * by ::submit() or ::status()
 	 */
 	public static function release($task)

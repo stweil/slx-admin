@@ -99,7 +99,7 @@ class Validator
 		return $displayValue;
 	}
 
-	private static function validateMultiInput(&$list, &$displayValue)
+	private static function validateMultiInput($list, &$displayValue)
 	{
 		return $displayValue;
 	}

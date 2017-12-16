@@ -175,11 +175,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	{
 		if( ! inclusive ) inclusive = false;
 		var epsilon = ( inclusive ? -1 : +1 ) * CollisionCoords.EPSILON;
-		if( ( x > ( this.x1 + epsilon ) && x < ( this.x2 - epsilon ) ) &&
-				( y > ( this.y1 + epsilon ) && y < ( this.y2 - epsilon ) )    )
-			return true;
-		else
-			return false;
+		return (x > (this.x1 + epsilon) && x < (this.x2 - epsilon)) &&
+			(y > (this.y1 + epsilon) && y < (this.y2 - epsilon));
 	};
 	
 	CollisionCoords.prototype.overlaps = function( other, inclusive )
@@ -189,16 +186,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				hit = other._overlaps( this, inclusive );
 		if( hit.length > 0 )
 		{
-			hit[0].dir = hit[0].dir == "Inside"  ? "Outside" :
-									 hit[0].dir == "Outside" ? "Inside"  :
-									 hit[0].dir == "N"       ? "S"       :
-									 hit[0].dir == "S"       ? "N"       :
-									 hit[0].dir == "W"       ? "E"       :
-									 hit[0].dir == "E"       ? "W"       :
-									 hit[0].dir == "NE"      ? "SW"      :
-									 hit[0].dir == "SW"      ? "NE"      :
-									 hit[0].dir == "SE"      ? "NW"      :
-									 hit[0].dir == "NW"      ? "SE"      :
+			hit[0].dir = hit[0].dir === "Inside"  ? "Outside" :
+									 hit[0].dir === "Outside" ? "Inside"  :
+									 hit[0].dir === "N"       ? "S"       :
+									 hit[0].dir === "S"       ? "N"       :
+									 hit[0].dir === "W"       ? "E"       :
+									 hit[0].dir === "E"       ? "W"       :
+									 hit[0].dir === "NE"      ? "SW"      :
+									 hit[0].dir === "SW"      ? "NE"      :
+									 hit[0].dir === "SE"      ? "NW"      :
+									 hit[0].dir === "NW"      ? "SE"      :
 																						 undefined;
 		}
 		return hit || [];

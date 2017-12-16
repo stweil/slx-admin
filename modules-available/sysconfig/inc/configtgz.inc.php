@@ -232,6 +232,11 @@ class ConfigTgz
 		self::recompress([], SysConfig::GLOBAL_MINIMAL_CONFIG);
 	}
 
+	/**
+	 * @param string $title Title of config
+	 * @param int[] $moduleIds Modules to include in config
+	 * @return false|ConfigTgz The module instance, false on error
+	 */
 	public static function insert($title, $moduleIds)
 	{
 		if (!is_array($moduleIds))
@@ -287,6 +292,10 @@ class ConfigTgz
 		return $instance;
 	}
 
+	/**
+	 * @param int $moduleId ID of config module
+	 * @return ConfigTgz[]|false
+	 */
 	public static function getAllForModule($moduleId)
 	{
 		$res = Database::simpleQuery("SELECT configid, title, filepath FROM configtgz_x_module "

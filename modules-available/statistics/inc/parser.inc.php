@@ -99,8 +99,8 @@ class Parser {
 		$hdds = array();
 		// Could have more than one disk - linear scan
 		$lines = preg_split("/[\r\n]+/", $data);
-		$dev = false;
 		$i = 0;
+		$mbrToMbFactor = $sectorToMbFactor = 0;
 		foreach ($lines as $line) {
 			if (preg_match('/^Disk (\S+):.* (\d+) bytes/i', $line, $out)) {
 				// --- Beginning of MBR disk ---
@@ -260,7 +260,6 @@ class Parser {
 	public static function parseSmartctl(&$hdds, $data)
 	{
 		$lines = preg_split("/[\r\n]+/", $data);
-		$i = 0;
 		foreach ($lines as $line) {
 			if (preg_match('/^NEXTHDD=(.+)$/', $line, $out)) {
 				unset($dev);

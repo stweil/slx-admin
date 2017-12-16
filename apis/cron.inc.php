@@ -96,7 +96,7 @@ foreach (Hook::load('cron') as $hook) {
 		handleModule($hook->file);
 	} catch (Exception $e) {
 		// Logging
-		EventLog::failure('Cronjob for module ' . $hook->moduleId . ' has crashed. Check the php or web server error log.', $e->toString());
+		EventLog::failure('Cronjob for module ' . $hook->moduleId . ' has crashed. Check the php or web server error log.', $e->getMessage());
 	}
 	Property::removeFromList(CRON_KEY_STATUS, $value);
 }

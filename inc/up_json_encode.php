@@ -90,7 +90,6 @@ function up_json_encode($var, $options = 0, $_indent = "")
 
 	#-- prepare JSON string
 	list($_space, $_tab, $_nl) = ($options & JSON_PRETTY_PRINT) ? array(" ", "    $_indent", "\n") : array("", "", "");
-	$json = "$_indent";
 
 	if (($options & JSON_NUMERIC_CHECK) and is_string($var) and is_numeric($var)) {
 		$var = (strpos($var, ".") || strpos($var, "e")) ? floatval($var) : intval($var);
@@ -143,7 +142,6 @@ function up_json_encode($var, $options = 0, $_indent = "")
 			"<" => $options & JSON_HEX_TAG ? "\\u003C" : "<",
 			">" => $options & JSON_HEX_TAG ? "\\u003E" : ">",
 			"'" => $options & JSON_HEX_APOS ? "\\u0027" : "'",
-			"\"" => "\\u0022",
 			"&" => $options & JSON_HEX_AMP ? "\\u0026" : "&",
 		);
 		$var = strtr($var, $rewrite);

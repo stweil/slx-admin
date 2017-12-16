@@ -22,7 +22,6 @@ abstract class AddConfig_Base
 	/**
 	 * 
 	 * @param string $step
-	 * @return \AddConfig_Base
 	 */
 	public static function setStep($step)
 	{
@@ -186,6 +185,9 @@ class AddConfig_Start extends AddConfig_Base
  */
 class AddConfig_Finish extends AddConfig_Base
 {
+	/**
+	 * @var ConfigTgz
+	 */
 	private $config = false;
 	
 	protected function preprocessInternal()

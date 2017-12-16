@@ -101,7 +101,6 @@ class PermissionUtil
 				$tree =& $tree[$subPermission];
 			}
 		}
-		$tree = $description;
 		return $original;
 	}
 }

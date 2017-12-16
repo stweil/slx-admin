@@ -15,7 +15,9 @@ $HANDLER['subsections'] = array(
  */
 
 /**
- * Configuration categories
+ * Configuration categories.
+ * @param \Module $module
+ * @return array
  */
 $HANDLER['grep_config-variable-categories'] = function($module) {
 	if (!$module->activate())
@@ -28,7 +30,9 @@ $HANDLER['grep_config-variable-categories'] = function($module) {
 };
 
 /**
- * Configuration variables
+ * Configuration variables.
+ * @param \Module $module
+ * @return array
  */
 $HANDLER['grep_config-variables'] = function($module) {
 	if (!$module->activate())

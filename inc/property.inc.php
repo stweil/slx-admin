@@ -243,7 +243,7 @@ class Property
 	
 	public static function setPasswordFieldType($value)
 	{
-		return self::set('password-type', $value);
+		self::set('password-type', $value);
 	}
 	
 	public static function getPasswordFieldType()

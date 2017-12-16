@@ -11,9 +11,7 @@ class LocationInfo
 	 */
 	public static function getPcState($pc)
 	{
-		$logintime = (int)$pc['logintime'];
 		$lastseen = (int)$pc['lastseen'];
-		$lastboot = (int)$pc['lastboot'];
 		$NOW = time();
 
 		if ($pc['state'] === 'OFFLINE' && $NOW - $lastseen > 21 * 86400) {

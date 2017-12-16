@@ -37,12 +37,18 @@ class BaseConfigUtil
 		return $settings;
 	}
 
+	/**
+	 * Get configuration categories for given module, or all modules if false is passed.
+	 *
+	 * @param \Module $module
+	 * @return array
+	 */
 	public static function getCategories($module = false)
 	{
 		$categories = array();
 		if ($module === false) {
 			$module = '*';
-		} else {
+		} elseif (is_object($module)) {
 			$module = $module->getIdentifier();
 		}
 		foreach (glob("modules/{$module}/baseconfig/categories.json", GLOB_NOSORT) as $file) {
@@ -61,8 +67,8 @@ class BaseConfigUtil
 	/**
 	 * Mark variables that would be shadowed according to the given values.
 	 *
-	 * @param $vars list of vars as obtained from BaseConfigUtil::getVariables()
-	 * @param $values key-value-pairs of variable assignments to work with
+	 * @param array $vars list of vars as obtained from BaseConfigUtil::getVariables()
+	 * @param array $values key-value-pairs of variable assignments to work with
 	 */
 	public static function markShadowedVars(&$vars, $values) {
 		foreach ($vars as $key => &$var) {

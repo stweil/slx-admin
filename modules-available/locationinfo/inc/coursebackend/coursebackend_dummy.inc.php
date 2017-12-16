@@ -137,5 +137,3 @@ class CourseBackend_Dummy extends CourseBackend
 	}
 
 }
-
-?>

@@ -392,7 +392,7 @@ class Page_LocationInfo extends Page
 		$credentialsOk = $serverInstance->setCredentials($serverid, json_decode($dbresult['credentials'], true));
 
 		if ($credentialsOk) {
-			$connectionOk = $serverInstance->checkConnection();
+			$serverInstance->checkConnection();
 		}
 
 		LocationInfo::setServerError($serverid, $serverInstance->getError());

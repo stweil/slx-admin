@@ -413,6 +413,8 @@ class Ppd
 					// StringValue
 					$value = $vMatch[1];
 					$valueTranslation = isset($vMatch[2]) ? $this->unhexTranslation($no, substr($vMatch[2], 1)) : $value;
+				} else {
+					$valueTranslation = $value;
 				}
 				// Key-value-pair parsed, now the fun part
 				// Special cases for openening closing certain groups
@@ -691,6 +693,7 @@ class Ppd
 		$chars = array_reduce(array_unique($array), function ($carry, $item) {
 			return $carry . '\x' . dechex(ord($item));
 		}, '');
+		return $chars;
 	}
 
 	private function unhexTranslation($lineNo, $translation)
@@ -703,7 +706,7 @@ class Ppd
 			}
 			$string = preg_replace('/[^a-fA-F0-9]/', '', $match[0]);
 			if (strlen($string) % 2 !== 0) {
-				$this->warn('Odd number of hex digits in hex substring');
+				$this->warn($lineNo, 'Odd number of hex digits in hex substring');
 				$string = substr($string, 0, -1);
 			}
 			return pack('H*', $string);

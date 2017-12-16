@@ -18,6 +18,9 @@ $HANDLER['subsections'] = array(
  * Global tags.
  * This just returns the union of global tags of all languages, as there is no
  * way to define a definite set of required global tags.
+ *
+ * @param Module $module
+ * @return array dem tags
  */
 $HANDLER['grep_global-tags'] = function($module) {
 	$want = array();

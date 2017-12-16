@@ -48,7 +48,7 @@ class Page_dozmod_log extends Page
 			. ' WHERE userid = :uuid'
 			. ' LIMIT 1', array('uuid' => $this->uuid));
 		if ($user === false) {
-			Message:addError('unknown-userid', $this->uuid);
+			Message::addError('unknown-userid', $this->uuid);
 			Util::redirect('?do=dozmod&section=actionlog');
 		}
 		// Mangle date and render
@@ -70,7 +70,7 @@ class Page_dozmod_log extends Page
 		// We have to guess what kind of target it is
 		if (!$this->addImageHeader()
 				&& !$this->addLectureHeader()) {
-			Message:addError('unknown-targetid', $this->uuid);
+			Message::addError('unknown-targetid', $this->uuid);
 			// Keep going, there might still be log entries for a deleted uuid
 		}
 

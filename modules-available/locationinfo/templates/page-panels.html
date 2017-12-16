@@ -11,8 +11,8 @@
 		{{#hasRunmode}}
 			<th class="slx-smallcol">{{lang_runmodeTHead}}</th>
 		{{/hasRunmode}}
-		<th class="slx-smallcol"></th>
-		<th class="slx-smallcol"></th>
+		<th class="slx-smallcol">{{lang_edit}}</th>
+		<th class="slx-smallcol">{{lang_delete}}</th>
 	</tr>
 	</thead>
 	<tbody>
@@ -43,13 +43,11 @@
 				<td>
 					<a class="btn btn-default btn-xs" href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
 						<span class="glyphicon glyphicon-cog"></span>
-						{{lang_edit}}
 					</a>
 				</td>
 				<td>
 					<button type="submit" name="uuid" value="{{paneluuid}}" class="btn btn-danger btn-xs">
 						<span class="glyphicon glyphicon-trash"></span>
-						{{lang_delete}}
 					</button>
 				</td>
 			</tr>
@@ -58,16 +56,16 @@
 	</tbody>
 </table>
 
-<div>
-	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-default">
+<div class="buttonbar text-right">
+	<a class="btn btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-default">
 		<span class="glyphicon glyphicon-plus"></span>
 		{{lang_defaultPanel}}
 	</a>
-	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-summary">
+	<a class="btn btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-summary">
 		<span class="glyphicon glyphicon-plus"></span>
 		{{lang_summaryPanel}}
 	</a>
-	<a class="btn btn-sm btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-url">
+	<a class="btn btn-success" href="?do=locationinfo&amp;show=edit-panel&amp;uuid=new-url">
 		<span class="glyphicon glyphicon-plus"></span>
 		{{lang_urlPanel}}
 	</a>

@@ -132,8 +132,6 @@ class Page_Translation extends Page
 
 	protected function doRender()
 	{
-		$langs = Dictionary::getLanguages(true);
-		
 		// Overview (list of modules)
 		if ($this->module === false) {
 			$this->showListOfModules();
@@ -466,7 +464,7 @@ class Page_Translation extends Page
 	/**
 	 * Get all module tags used/required.
 	 *
-	 * @param type $module
+	 * @param string $module
 	 * @return array of array(tagname => (bool)required)
 	 */
 	private function loadUsedModuleTags($module = false)
@@ -507,7 +505,16 @@ class Page_Translation extends Page
 		}
 		return $want;
 	}
-	
+
+	/**
+	 * Return list of existing tags needing translation. This calls
+	 * the function defined by the module. which is expected to return
+	 * an array serving as a list, where the KEYS are the tags expected,
+	 * the value of each entry can be false if the tag is optional.
+	 *
+	 * @param string $subsection Name of subsection
+	 * @return array|false List of tags as KEYS of array
+	 */
 	private function loadUsedCustomTags($subsection)
 	{
 		if (!isset($this->customHandler['grep_'.$subsection]))
@@ -534,10 +541,10 @@ class Page_Translation extends Page
 	/**
 	 * Get missing and unused counters for given module's templates.
 	 *
-	 * @param type $lang lang to use
-	 * @param type $tags
-	 * @param type $module
-	 * @return array list(missingCount, unusedCount)
+	 * @param string $lang lang to use
+	 * @param array $tags Array of tags, where the tag names are the keys
+	 * @param \Module|false $module the module to work with, defaults to the currently edited module
+	 * @return array [missingCount, unusedCount]
 	 */
 	private function getModuleTemplateStatus($lang, $tags = false, $module = false)
 	{
@@ -553,8 +560,8 @@ class Page_Translation extends Page
 	 * @param string $file the name of the translation file to load for checking
 	 * @param boolean $fallback whether to check the global-tags of the main module as fallback
 	 * @param array $tags list of tags that are expected to exist. Tags are the array keys!
-	 * @param \Module $module the module to work with, defaults to the currently edited module
-	 * @return array list(missingCount, unusedCount)
+	 * @param \Module|false $module the module to work with, defaults to the currently edited module
+	 * @return array [missingCount, unusedCount]
 	 */
 	private function getModuleTranslationStatus($lang, $file, $fallback, $tags, $module = false)
 	{
@@ -663,8 +670,6 @@ class Page_Translation extends Page
 	private function loadTemplateEditArray()
 	{
 		$tags = $this->loadUsedTemplateTags();
-		if ($tags === false)
-			return false;
 		$table = $this->buildTranslationTable('template-tags', array_keys($tags), true);
 		$global = Dictionary::getArray($this->module->getIdentifier(), 'global-tags', $this->destLang);
 		foreach ($table as &$entry) {
@@ -833,6 +838,12 @@ class Page_Translation extends Page
 		return $tags;
 	}
 
+	/**
+	 * @param string $file Source dictionary
+	 * @param string[]|false $requiredTags Tags that are considered required
+	 * @param bool $findAlreadyTranslated If true, try to find a translation for this string in another language
+	 * @return array numeric array suitable for passing to mustache
+	 */
 	private function buildTranslationTable($file, $requiredTags = false, $findAlreadyTranslated = false)
 	{
 		$tags = array();
@@ -891,7 +902,7 @@ class Page_Translation extends Page
 	 * user selected, then english, then everything else.
 	 *
 	 * @param string $file translation unit
-	 * @param type $tags list of tags, formatted as used in buildTranslationTable()
+	 * @param array $tags list of tags, formatted as used in buildTranslationTable()
 	 */
 	private function findTranslationSamples($file, &$tags)
 	{

@@ -256,6 +256,9 @@ function hasUpdateScript($module)
 	return is_readable($module->getDir() . '/install.inc.php');
 }
 
+/**
+ * @param Module $module
+ */
 function runUpdateScript($module)
 {
 	require_once $module->getDir() . '/install.inc.php';
@@ -277,6 +280,7 @@ if (DIRECT_MODE) {
 			$new[] = $entry;
 		}
 	}
+	/* @var Module[] $new */
 	$modules = $new;
 	if (empty($modules)) {
 		finalResponse(UPDATE_NOOP, 'No modules with install scripts, nothing to do');
@@ -287,6 +291,7 @@ if (DIRECT_MODE) {
 	for ($i = 0; $i < $count; ++$i) {
 		$assoc[$modules[$i]->getIdentifier()] = $modules[($i + 1) % $count];
 	}
+	/* @var Module[] $assoc */
 
 	if (!empty($argv[1])) {
 		$last = $argv[1];

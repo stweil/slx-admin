@@ -10,7 +10,7 @@ function slxRunInstall() {
 	onceOnlyGoddammit = true;
 	$('.install-btn').prop('disabled', true);
 	var first = false;
-	list = $('.id-col').each(function () {
+	$('.id-col').each(function () {
 		var id = $(this).text();
 		slxModules[id] = 'IDLE';
 		slxTries[id] = 0;

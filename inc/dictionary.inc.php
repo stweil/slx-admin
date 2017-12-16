@@ -3,7 +3,13 @@
 class Dictionary
 {
 
+	/**
+	 * @var string[] Array of languages, numeric index, two letter CC as values
+	 */
 	private static $languages = false;
+	/**
+	 * @var array Array of languages, numeric index, values are ['name' => 'Language Name', 'cc' => 'xx']
+	 */
 	private static $languagesLong = false;
 	private static $stringCache = array();
 
@@ -49,16 +55,24 @@ class Dictionary
 		define('LANG', $language);
 	}
 
-	public static function getArray($module, $path, $lang = false)
+	/**
+	 * Get complete key=>value list for given module, file, language
+	 *
+	 * @param string $module Module name
+	 * @param string $file Dictionary name
+	 * @param string|false $lang Language CC, false === current language
+	 * @return array assoc array mapping language tags to the translated strings
+	 */
+	public static function getArray($module, $file, $lang = false)
 	{
 		if ($lang === false)
 			$lang = LANG;
-		$file = Util::safePath("modules/{$module}/lang/{$lang}/{$path}.json");
-		if (isset(self::$stringCache[$file]))
-			return self::$stringCache[$file];
-		if (!file_exists($file))
+		$path = Util::safePath("modules/{$module}/lang/{$lang}/{$file}.json");
+		if (isset(self::$stringCache[$path]))
+			return self::$stringCache[$path];
+		if (!file_exists($path))
 			return array();
-		$content = file_get_contents($file);
+		$content = file_get_contents($path);
 		if ($content === false) { // File does not exist for language
 			$content = '[]';
 		}
@@ -66,12 +80,22 @@ class Dictionary
 		if (!is_array($json)) {
 			$json = array();
 		}
-		return self::$stringCache[$file] = $json;
+		return self::$stringCache[$path] = $json;
 	}
 
-	public static function translateFileModule($moduleId, $path, $tag, $returnTagOnMissing = false)
+	/**
+	 * Translate a tag from a dictionary of a module. The current
+	 * language will be used.
+	 *
+	 * @param string $moduleId The module in question
+	 * @param string $file Dictionary name
+	 * @param string $tag Tag name
+	 * @param bool $returnTagOnMissing If true, the tag name enclosed in {{}} will be returned if the tag does not exist
+	 * @return string|false The requested tag's translation, or false if not found and $returnTagOnMissing === false
+	 */
+	public static function translateFileModule($moduleId, $file, $tag, $returnTagOnMissing = false)
 	{
-		$strings = self::getArray($moduleId, $path);
+		$strings = self::getArray($moduleId, $file);
 		if (!isset($strings[$tag])) {
 			if ($returnTagOnMissing) {
 				return '{{' . $tag . '}}';
@@ -80,14 +104,29 @@ class Dictionary
 		}
 		return $strings[$tag];
 	}
-	
-	public static function translateFile($path, $tag, $returnTagOnMissing = false)
+
+	/**
+	 * Translate a tag from a dictionary of the current module, using the current language.
+	 *
+	 * @param string $file Dictionary name
+	 * @param string $tag Tag name
+	 * @param bool $returnTagOnMissing If true, the tag name enclosed in {{}} will be returned if the tag does not exist
+	 * @return string|false The requested tag's translation, or false if not found and $returnTagOnMissing === false
+	 */
+	public static function translateFile($file, $tag, $returnTagOnMissing = false)
 	{
 		if (!class_exists('Page') || Page::getModule() === false)
 			return false; // We have no page - return false for now, as we're most likely running in api or install mode
-		return self::translateFileModule(Page::getModule()->getIdentifier(), $path, $tag, $returnTagOnMissing);
+		return self::translateFileModule(Page::getModule()->getIdentifier(), $file, $tag, $returnTagOnMissing);
 	}
 
+	/**
+	 * Translate a tag from the current module's default dictionary, using the current language.
+	 *
+	 * @param string $tag Tag name
+	 * @param bool $returnTagOnMissing If true, the tag name enclosed in {{}} will be returned if the tag does not exist
+	 * @return string|false The requested tag's translation, or false if not found and $returnTagOnMissing === false
+	 */
 	public static function translate($tag, $returnTagOnMissing = false)
 	{
 		$string = self::translateFile('module', $tag);
@@ -99,6 +138,13 @@ class Dictionary
 		return '{{' . $tag . '}}';
 	}
 
+	/**
+	 * Translate the given message id, reading the given module's messages dictionary.
+	 *
+	 * @param string $module Module the message belongs to
+	 * @param string $id Message id
+	 * @return string|false
+	 */
 	public static function getMessage($module, $id)
 	{
 		$string = self::translateFileModule($module, 'messages', $id);
@@ -107,7 +153,13 @@ class Dictionary
 		}
 		return $string;
 	}
-	
+
+	/**
+	 * Get translation of the given category.
+	 *
+	 * @param string $category
+	 * @return string Category name, or some generic fallback to the given category id
+	 */
 	public static function getCategoryName($category)
 	{
 		if ($category === false) {
@@ -126,7 +178,7 @@ class Dictionary
 	/**
 	 * Get all supported languages as array.
 	 *
-	 * @param boolean $withName true = return assoc array containinc cc and name of all languages;
+	 * @param boolean $withName true = return assoc array containing cc and name of all languages;
 	 *		false = regular array containing only the ccs
 	 * @return array List of languages
 	 */
@@ -151,7 +203,14 @@ class Dictionary
 		}
 		return self::$languagesLong;
 	}
-	
+
+	/**
+	 * Get name of language matching given language CC.
+	 * Default to the CC if the language isn't known.
+	 *
+	 * @param string $langCC
+	 * @return string
+	 */
 	public static function getLanguageName($langCC)
 	{
 		if (file_exists("lang/$langCC/name.txt")) {

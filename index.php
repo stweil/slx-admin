@@ -172,7 +172,7 @@ if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 		 * Map an error code into an Error word.
 		 *
 		 * @param int $code Error code to map
-		 * @return array Array of error word.
+		 * @return string Readable error type
 		 */
 		function mapErrorCode($code)
 		{

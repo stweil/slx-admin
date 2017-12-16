@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	/* data-shadowing bindings */
-	$allShadowingFields = $('[data-shadows]');
+	var $allShadowingFields = $('[data-shadows]');
 	$allShadowingFields.on('change', function (event) { updateShadows(event.target); });
 	$allShadowingFields.each(function (idx, elem) { updateShadows(elem); });
 });

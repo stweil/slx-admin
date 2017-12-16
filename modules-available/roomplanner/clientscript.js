@@ -11,6 +11,9 @@ var selectMachinInitialized = false;
 
 var placedMachines = [];
 
+var $modal, $selectizeSearch;
+var currentCallback = false;
+
 function makeCombinedFieldSingle(item)
 {
 	item.combined = (item.machineuuid + " " + item.hostname + " " + item.clientip + " " + item.macaddr + " " + item.macaddr.replace(/-/g, ':')).toLocaleLowerCase();

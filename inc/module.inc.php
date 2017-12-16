@@ -214,7 +214,7 @@ class Module
 	private function getDepsInternal(&$deps)
 	{
 		if (!is_array($this->dependencies))
-			return array();
+			return;
 		foreach ($this->dependencies as $dep) {
 			if (isset($deps[$dep])) // Handle cyclic dependencies
 				continue;

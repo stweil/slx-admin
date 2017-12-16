@@ -2,21 +2,29 @@
 
 class Page_News extends Page
 {
-    /**
-     * Member variables needed to represent a news entry.
-     *
-     * @var newsId int		ID of the news entry attributed by the database.
-     * @var string Title of the entry.
-     *             $newsContent	string	Content as text. (TODO: html-Support?)
-     *             $newsDate	string	Unix epoch date of the news' creation.
-     */
-    private $newsId = false;
-    private $newsTitle = false;
-    private $newsContent = false;
-    private $newsDate = false;
-    private $helpContent = '';
-    private $editHelp = false;
-    private $hasSummernote = false;
+	/*
+	 * Member variables needed to represent a news entry.
+	 */
+
+	/**
+	 * @var int ID of the news entry attributed by the database.
+	 */
+	private $newsId = false;
+	/**
+	 * @var string Title of the entry.
+	 */
+	private $newsTitle = false;
+	/**
+	 * @var string Content as text. (TODO: html-Support?)
+	 */
+	private $newsContent = false;
+	/**
+	 * @var int Unix epoch date of the news' creation.
+	 */
+	private $newsDate = false;
+	private $helpContent = '';
+	private $editHelp = false;
+	private $hasSummernote = false;
 
     /**
      * Implementation of the abstract doPreprocess function.

@@ -182,8 +182,8 @@ foreach ($messages as $id => $modules) {
 	asort($modules, SORT_NUMERIC);
 	$modules = array_reverse($modules, true);
 	reset($modules);
-	list($topModule, $topCount) = each($modules);
-	reset($modules);
+	$topModule = key($modules);
+	$topCount = $modules[$topModule];
 	$sum = 0;
 	foreach ($modules as $c) {
 		$sum += $c;

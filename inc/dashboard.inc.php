@@ -41,8 +41,8 @@ class Dashboard
 		}
 		$currentPage = Page::getModule()->getIdentifier();
 		$categories = array();
-		$catSort = array();
 		foreach ($modByCategory as $catId => $modList) {
+			/* @var Module[] $modList */
 			$modules = array();
 			foreach ($modList as $modId => $module) {
 				if ($module === false)

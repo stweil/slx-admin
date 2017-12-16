@@ -79,7 +79,7 @@ class User
 	public static function updatePassword($password)
 	{
 		if (!self::isLoggedIn())
-			return;
+			return false;
 		$passwd = Crypto::hash6($password);
 		$userid = self::getId();
 		return Database::exec('UPDATE user SET passwd = :passwd WHERE userid = :userid LIMIT 1', compact('userid', 'passwd')) > 0;
