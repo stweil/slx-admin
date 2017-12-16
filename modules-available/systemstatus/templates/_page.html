@@ -92,12 +92,16 @@
 							<div class ="modal fade" id="rebootServerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 								<div class="modal-dialog" style="width: 400px" role="document">
 									<div class="modal-content">
+										<div class="modal-header">
+											<button type="button" class="close" data-dismiss="modal">&times;</button>
+											<b>{{lang_serverReboot}}</b>
+										</div>
 										<div class="modal-body">
-											{{lang_areYouSureNoUndo}}
+											{{lang_areYouSureReboot}}
 										</div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-											<button type="submit" class="btn btn-sm btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_serverReboot}}</button>
+											<button type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_serverReboot}}</button>
 										</div>
 									</div>
 								</div>
