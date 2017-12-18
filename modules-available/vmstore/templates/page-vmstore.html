@@ -39,10 +39,11 @@
 
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<div class="radio">
+			<div class="radio radio-inline">
 				<input type="radio" name="storetype" value="cifs" {{pre-cifs}} id="id-cifs">
 				<label for="id-cifs">CIFS</label>
 			</div>
+			<a class="btn btn-default btn-sm" data-toggle="modal" data-target="#help-cifs"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</div>
 		<div class="panel-body">
 			<label for="cifsaddr">UNC-Pfad</label>
@@ -94,6 +95,9 @@
 				<p>
 					{{lang_vmLocationHelp3}}
 				</p>
+				<p>
+					{{lang_vmLocationHelp4}}
+				</p>
 			</div>
 		</div>
 	</div>
@@ -121,6 +125,34 @@
 /mnt/images    1.2.3.4(rw,all_squash,anonuid=1234,async)
 /mnt/images    *(ro,async)
 				</pre>
+				<p>
+					{{lang_nfsHelp3}}
+				</p>
+				<p>
+					{{lang_nfsHelp4}}
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="help-cifs" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				CIFS/SMB
+			</div>
+			<div class="modal-body">
+				<p>
+					{{lang_cifsHelp1}}
+				</p>
+				<p>
+					{{lang_cifsHelp2}}
+				</p>
+				<p>
+					{{lang_cifsHelp3}}
+				</p>
 			</div>
 		</div>
 	</div>
