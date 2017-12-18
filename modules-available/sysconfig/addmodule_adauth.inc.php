@@ -510,8 +510,7 @@ class AdAuth_Finish extends AddModule_Base
 			Message::addError('main.value-invalid', 'any', 'any');
 			$tgz = false;
 		} else {
-			$parent = $this->stopOldInstance();
-			$tgz = $module->generate($this->edit === false, $parent);
+			$tgz = $module->generate($this->edit === false);
 		}
 		if ($tgz === false) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
@@ -520,24 +519,6 @@ class AdAuth_Finish extends AddModule_Base
 		$this->taskIds = array(
 			'tm-config' => $tgz,
 		);
-	}
-
-	private function stopOldInstance()
-	{
-		if ($this->edit === false)
-			return NULL;
-		$list = ConfigTgz::getAllForModule($this->edit->id());
-		if (!is_array($list))
-			return NULL;
-		$parent = NULL;
-		foreach ($list as $tgz) {
-			if (!$tgz->isActive())
-				continue;
-			$task = Trigger::ldadp($tgz->id(), $parent);
-			if (isset($task['id']))
-				$parent = $task['id'];
-		}
-		return $parent;
 	}
 
 	protected function renderInternal()

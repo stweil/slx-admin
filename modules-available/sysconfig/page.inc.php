@@ -343,6 +343,9 @@ class Page_SysConfig extends Page
 			Message::addError('main.empty-field');
 			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
+		// Validate that either the configid is valid (in case we override for a specific location)
+		// or that if the locationid is 0 (=global) that the configid exists, because it's not allowed
+		// to unset the global config
 		if ($this->currentLoc === 0 || $configid !== 0) {
 			$row = Database::queryFirst("SELECT title, filepath FROM configtgz WHERE configid = :configid LIMIT 1", array('configid' => $configid));
 			if ($row === false) {
@@ -358,6 +361,7 @@ class Page_SysConfig extends Page
 			Database::exec("INSERT INTO configtgz_location (locationid, configid) VALUES (:locationid, :configid)"
 				. " ON DUPLICATE KEY UPDATE configid = :configid", compact('locationid', 'configid'));
 		}
+		Event::activeConfigChanged();
 		Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 	}
 
