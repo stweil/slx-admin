@@ -59,13 +59,18 @@ class AdAuth_CheckConnection extends AddModule_Base
 		$this->server = Request::post('server');
 		$binddn = Request::post('binddn');
 		$ssl = Request::post('ssl', 'off') === 'on';
-		if (empty($this->server) || empty($binddn)) {
-			Message::addError('main.empty-field');
+		if (empty($this->server)) {
+			Message::addError('main.parameter-empty', 'server');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		if (empty($binddn)) {
+			Message::addError('main.parameter-empty', 'binddn');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		if ((preg_match(AD_AT_REGEX, $this->bindDn) > 0) && (strlen($this->searchBase) < 2)) {
-			Message::addError('main.empty-field', 'searchBase');
+			Message::addError('main.parameter-empty', 'searchBase');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -127,10 +132,8 @@ class AdAuth_SelfSearch extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$server = Request::post('server');
-		$port = Request::post('port');
+		$server = $binddn = $port = null;
 		$searchbase = Request::post('searchbase', '');
-		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
@@ -138,10 +141,13 @@ class AdAuth_SelfSearch extends AddModule_Base
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('main.empty-field');
-			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
-			return;
+		foreach (['server', 'binddn', 'port'] as $var) {
+			$$var = Request::post($var, null);
+			if (empty($$var)) {
+				Message::addError('main.parameter-empty', $var);
+				AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+				return;
+			}
 		}
 		$this->originalBindDn = '';
 		// Fix bindDN if short name given
@@ -226,10 +232,8 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$server = Request::post('server');
-		$port = Request::post('port');
+		$server = $binddn = $port = null;
 		$searchbase = Request::post('searchbase', '');
-		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
@@ -237,10 +241,13 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('main.empty-field');
-			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
-			return;
+		foreach (['server', 'binddn', 'port'] as $var) {
+			$$var = Request::post($var, null);
+			if (empty($$var)) {
+				Message::addError('main.parameter-empty', $var);
+				AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+				return;
+			}
 		}
 		if ($ssl) {
 			$uri = "ldaps://$server:$port/";
@@ -299,10 +306,8 @@ class AdAuth_CheckCredentials extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$server = Request::post('server');
-		$port = Request::post('port');
+		$server = $binddn = $port = null;
 		$searchbase = Request::post('searchbase', '');
-		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
@@ -310,10 +315,13 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('main.empty-field');
-			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
-			return;
+		foreach (['server', 'binddn', 'port'] as $var) {
+			$$var = Request::post($var, null);
+			if (empty($$var)) {
+				Message::addError('main.parameter-empty', $var);
+				AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+				return;
+			}
 		}
 		// Test query 4 users
 		if ($ssl) {
