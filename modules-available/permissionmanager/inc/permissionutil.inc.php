@@ -75,7 +75,7 @@ class PermissionUtil
 			preg_match('#^modules/([^/]+)/#', $file, $out);
 			foreach( $data as $p ) {
 				$description = Dictionary::translateFileModule($out[1], "permissions", $p);
-				$permissions = self::putInPermissionTree($out[1].".".$p, $description, $permissions);
+				self::putInPermissionTree($out[1].".".$p, $description, $permissions);
 			}
 		}
 		ksort($permissions);
@@ -89,10 +89,9 @@ class PermissionUtil
 		return $permissions;
 	}
 
-	private static function putInPermissionTree($permission, $description, $tree)
+	private static function putInPermissionTree($permission, $description, &$tree)
 	{
 		$subPermissions = explode('.', $permission);
-		$original =& $tree;
 		foreach ($subPermissions as $subPermission) {
 			if ($subPermission) {
 				if (!array_key_exists($subPermission, $tree)) {
@@ -101,6 +100,6 @@ class PermissionUtil
 				$tree =& $tree[$subPermission];
 			}
 		}
-		return $original;
+		$tree = $description;
 	}
 }
