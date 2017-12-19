@@ -129,8 +129,8 @@ class Page_LocationInfo extends Page
 		}
 		$serverlocationid = Request::post('serverlocationid', '', 'string');
 
-		$recursive = (Request::post('recursive', '', 'string') !== '');
-		if (empty($serverlocationid) && !$recursive) {
+		$changeServerRecursive = (Request::post('recursive', '', 'string') !== '');
+		if (empty($serverlocationid) && !$changeServerRecursive) {
 			$insertServerId = null;
 			$ignoreServer = 1;
 		} else {
@@ -170,12 +170,16 @@ class Page_LocationInfo extends Page
 					$mangled[] = $entry;
 				}
 				if (empty($mangled)) {
-					$openingtimes = '';
+					$openingtimes = null;
 				} else {
 					$openingtimes = json_encode($mangled);
 				}
 			}
 		}
+		$NOW = time();
+		// Check if openingtimes changed
+		$res = Database::queryFirst('SELECT openingtime FROM locationinfo_locationconfig WHERE locationid = :locationid', compact('locationid'));
+		$otChanged = $res === false || $res['openingtime'] !== $openingtimes;
 
 		Database::exec("INSERT INTO `locationinfo_locationconfig` (locationid, serverid, serverlocationid, openingtime, lastcalendarupdate, lastchange)
 				VALUES (:id, :insertserverid, :serverlocationid, :openingtimes, 0, :now)
@@ -187,27 +191,66 @@ class Page_LocationInfo extends Page
 			'openingtimes' => $openingtimes,
 			'serverlocationid' => $serverlocationid,
 			'ignore_server' => $ignoreServer,
-			'now' => time(),
+			'now' => $NOW,
 		));
 
-		if (!$recursive)
-			return true;
-
-		// Recursive overwriting of serverid
-		$children = Location::getRecursiveFlat($locationid);
-		$array = array();
-		foreach ($children as $loc) {
-			$array[] = $loc['locationid'];
+		if ($otChanged) {
+			$tree = Location::getLocationsAssoc();
+			$todo = array();
+			$done = array();
+			foreach ($tree as $l) {
+				if ($l['parentlocationid'] == $locationid) {
+					$todo[] = $l['locationid'];
+				}
+			}
+			while (!empty($todo)) {
+				$loc = array_pop($todo);
+				if (in_array($loc, $done))
+					continue;
+				$done[] = $loc;
+				// See if this one inherits
+				$res = Database::queryFirst('SELECT openingtime FROM locationinfo_locationconfig WHERE locationid = :loc', compact('loc'));
+				if ($res === false) {
+					$res = Database::exec('INSERT INTO locationinfo_locationconfig (locationid, lastchange)
+							VALUES (:locationid, :now) ON DUPLICATE KEY UPDATE lastchange = :now',
+						array('locationid' => $loc, 'now' => $NOW));
+				} elseif (strlen($res['openingtime']) < 5) {
+					$res = Database::exec('UPDATE locationinfo_locationconfig SET lastchange = :now, openingtime = NULL
+							WHERE locationid = :locationid',
+						array('locationid' => $loc, 'now' => $NOW));
+				} else {
+					$res = 0;
+				}
+				if ($res > 0) {
+					// Row was updated, which means the openingtime column was empty, which means the openingtime is inherited, descend further
+					$todo = array_merge($todo, $tree[$loc]['children']);
+					foreach ($tree as $l) {
+						if ($l['parentlocationid'] == $loc) {
+							$todo[] = $l['locationid'];
+						}
+					}
+				}
+			}
 		}
-		if (!empty($array)) {
-			Database::exec("UPDATE locationinfo_locationconfig
+
+		if ($changeServerRecursive) {
+			// Recursive overwriting of serverid
+			$children = Location::getRecursiveFlat($locationid);
+			$array = array();
+			foreach ($children as $loc) {
+				$array[] = $loc['locationid'];
+			}
+			if (!empty($array)) {
+				Database::exec("UPDATE locationinfo_locationconfig
 				SET serverid = :serverid, lastcalendarupdate = IF(serverid <> :serverid, 0, lastcalendarupdate), lastchange = :now
 				WHERE locationid IN (:locations)", array(
 					'serverid' => $serverid,
 					'locations' => $array,
-					'now' => time(),
-			));
+					'now' => $NOW,
+				));
+			}
 		}
+
 		return true;
 	}
 
@@ -465,7 +508,7 @@ class Page_LocationInfo extends Page
 			$locations[$locid] += array(
 				'openingGlyph' => $glyph,
 				'backend' => $backend,
-				'lastCalendarUpdate' => $row['lastcalendarupdate'], // TODO
+				'lastCalendarUpdate' => Util::prettyTime($row['lastcalendarupdate']), // TODO
 				'backendMissing' => !CourseBackend::exists($row['servertype']),
 			);
 		}
@@ -478,8 +521,8 @@ class Page_LocationInfo extends Page
 				$depth--;
 			}
 			while ($location['depth'] > $depth) {
+				array_push($stack, empty($location['openingGlyph']) && ($depth === -1 || empty($stack[$depth])) ? '' : 'arrow-up');
 				$depth++;
-				array_push($stack, empty($location['openingGlyph']) ? '' : 'arrow-up');
 			}
 			if ($depth > 0 && empty($location['openingGlyph'])) {
 				$location['openingGlyph'] = $stack[$depth - 1];

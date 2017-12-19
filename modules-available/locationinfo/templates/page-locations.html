@@ -7,6 +7,7 @@
 	<tr>
 		<th>{{lang_locationName}}</th>
 		<th>{{lang_backend}}</th>
+		<th>{{lang_lastUpdate}}</th>
 		<th>{{lang_openingtimes}}</th>
 	</tr>
 	</thead>
@@ -23,6 +24,11 @@
 			</td>
 			<td {{#backendMissing}}class="text-danger"{{/backendMissing}}>
 				{{backend}}
+			</td>
+			<td>
+				{{#backend}}
+					{{lastCalendarUpdate}}
+				{{/backend}}
 			</td>
 			<td>
 				<span class="glyphicon glyphicon-{{openingGlyph}}"></span>

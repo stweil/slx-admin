@@ -49,15 +49,11 @@ function HandleParameters()
 
 /**
  * Get last config modification timestamp for given panel.
- * This was planned to be smart and check the involved locations,
- * even going up the location tree if the opening time schedule
- * is inherited, but this would still be incomplete by design, as
- * it wouldn't react to the linked room plan being considered
- * for changes, or added/removed PCs etc. So rather than giving
- * an incomplete "clever" design for detecting changes, we only
- * consider direct editing of the panel now. So the advice would
- * simply be "if you want the panel to reload automatically, hit
- * the edit button and click save". Might even add a shortcut
+ * This is incomplete however, as it wouldn't react to the
+ * linked room plan being edited, or added/removed PCs
+ * etc. So the advice would simply be "if you want the
+ * panel to reload automatically, hit the edit button
+ * and click save". Might even add a shortcut
  * reload-button to the list of panels at some point.
  *
  * @param string $paneluuid panels uuid
@@ -65,13 +61,21 @@ function HandleParameters()
  */
 function getLastChangeTs($paneluuid)
 {
-	$panel = Database::queryFirst('SELECT lastchange FROM locationinfo_panel WHERE paneluuid = :paneluuid',
+	$panel = Database::queryFirst('SELECT lastchange, locationids FROM locationinfo_panel WHERE paneluuid = :paneluuid',
 		compact('paneluuid'));
 	if ($panel === false) {
 		http_response_code(404);
 		die('Panel not found');
 	}
-	return (int)$panel['lastchange'];
+	$lastChange = array((int)$panel['lastchange']);
+	if (!empty($panel['locationids'])) {
+		$res = Database::simpleQuery('SELECT lastchange FROM locationinfo_locationconfig
+				WHERE locationid IN (:locs)', array('locs' => explode(',', $panel['locationids'])));
+		while (($lc = $res->fetchColumn()) !== false) {
+			$lastChange[] = (int)$lc;
+		}
+	}
+	return max($lastChange);
 }
 
 /**
