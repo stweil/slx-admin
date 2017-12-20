@@ -412,6 +412,9 @@ abstract class ConfigModule
 				$this->markFailed();
 				return false;
 			}
+		} elseif (!file_exists($tmpTgz)) {
+			EventLog::warning('ConfigModule::markUpdated for tmpTgz="' . $this->moduleTitle . '" called which doesn\'t exist. Doing nothing.');
+			return true;
 		} else {
 			$task = Taskmanager::submit('MoveFile', array(
 					'source' => $tmpTgz,
@@ -419,10 +422,11 @@ abstract class ConfigModule
 			));
 			$task = Taskmanager::waitComplete($task, 5000);
 			if (Taskmanager::isFailed($task) || !Taskmanager::isFinished($task)) {
-				if (!API && !AJAX)
+				if (!API && !AJAX) {
 					Taskmanager::addErrorMessage($task);
-				else
-					EventLog::failure('Could not move ' . $tmpTgz . ' to ' . $this->moduleArchive . ' while generating "' . $this->moduleTitle . '"');
+				} else {
+					EventLog::failure('Could not move ' . $tmpTgz . ' to ' . $this->moduleArchive . ' while generating "' . $this->moduleTitle . '"', print_r($task, true));
+				}
 				$this->markFailed();
 				return false;
 			}
