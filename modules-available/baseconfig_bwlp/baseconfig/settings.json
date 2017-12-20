@@ -79,6 +79,12 @@
 		"permissions": "2",
 		"validator": "list:no|yes"
 	},
+	"SLX_JUMBO_FRAMES": {
+		"catid": "networking",
+		"defaultvalue": "no",
+		"permissions": "2",
+		"validator": "list:no|yes"
+	},
 	"SLX_REMOTE_LOG_SESSIONS": {
 		"catid": "other",
 		"defaultvalue": "anonymous",
