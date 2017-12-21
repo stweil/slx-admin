@@ -263,6 +263,7 @@ if ($type{0} === '~') {
 			// `devicetype`, `devicename`, `subid`, `machineuuid`
 			// Make sure all screens are in the general hardware table
 			$hwids = array();
+			$ports = array();
 			foreach ($screens as $port => $screen) {
 				if (!array_key_exists('name', $screen))
 					continue;
@@ -274,6 +275,7 @@ if ($type{0} === '~') {
 					$hwids[$screen['name']] = $hwid;
 				}
 				// Now add new entries
+				$ports[] = $port;
 				$machinehwid = Database::insertIgnore('machine_x_hw', 'machinehwid', array(
 					'hwid' => $hwid,
 					'machineuuid' => $uuid,
@@ -302,30 +304,40 @@ if ($type{0} === '~') {
 					Database::exec("DELETE FROM machine_x_hw_prop WHERE machinehwid = :machinehwid AND prop NOT LIKE '@%'",
 						array('machinehwid' => $machinehwid));
 				} else {
-					$qs = '?' . str_repeat(',?', count($validProps) - 1);
-					array_unshift($validProps, $machinehwid);
-					Database::exec("DELETE FROM machine_x_hw_prop"
-						. " WHERE machinehwid = ? AND prop NOT LIKE '@%' AND prop NOT IN ($qs)",
-						$validProps);
+					Database::exec("DELETE FROM machine_x_hw_prop
+						WHERE machinehwid = :mhwid AND prop NOT LIKE '@%' AND prop NOT IN (:props)", array(
+							'mhwid' => $machinehwid,
+							'props' => array_values($validProps),
+					));
 				}
 			}
 			// Remove/disable stale entries
-			if (empty($hwids)) {
+			if (empty($ports)) {
 				// No screens connected at all, purge all screen entries for this machine
-				Database::exec("UPDATE machine_x_hw x, statistic_hw h"
-					. " SET x.disconnecttime = UNIX_TIMESTAMP()"
-					. " WHERE x.machineuuid = :uuid AND x.hwid = h.hwid AND h.hwtype = :type AND x.disconnecttime = 0",
+				Database::exec("UPDATE machine_x_hw x, statistic_hw h
+						SET x.disconnecttime = UNIX_TIMESTAMP()
+						WHERE x.machineuuid = :uuid AND x.hwid = h.hwid AND h.hwtype = :type AND x.disconnecttime = 0",
 					array('uuid' => $uuid, 'type' => DeviceType::SCREEN));
 			} else {
 				// Some screens connected, make sure old entries get removed
-				$params = array_values($hwids);
-				array_unshift($params, $uuid);
-				array_unshift($params, DeviceType::SCREEN);
-				$qs = '?' . str_repeat(',?', count($hwids) - 1);
-				Database::exec("UPDATE machine_x_hw x, statistic_hw h"
-					. " SET x.disconnecttime = UNIX_TIMESTAMP()"
-					. " WHERE h.hwid = x.hwid AND x.disconnecttime = 0 AND h.hwtype = ? AND x.machineuuid = ? AND x.hwid NOT IN ($qs)", $params);
-
+				Database::exec("UPDATE machine_x_hw x, statistic_hw h
+						SET x.disconnecttime = UNIX_TIMESTAMP()
+						WHERE h.hwid = x.hwid AND x.disconnecttime = 0 AND h.hwtype = :type
+						AND x.machineuuid = :uuid AND x.devpath NOT IN (:ports)", array(
+					'ports' => array_values($ports),
+					'uuid' => $uuid,
+					'type' => DeviceType::SCREEN,
+				));
+				if (!empty($hwids)) {
+					Database::exec("UPDATE machine_x_hw x, statistic_hw h
+						SET x.disconnecttime = UNIX_TIMESTAMP()
+						WHERE h.hwid = x.hwid AND x.disconnecttime = 0 AND h.hwtype = :type
+						AND x.machineuuid = :uuid AND x.hwid NOT IN (:hwids)", array(
+						'hwids' => array_values($hwids),
+						'uuid' => $uuid,
+						'type' => DeviceType::SCREEN,
+					));
+				}
 			}
 		}
 	} else if ($type === '~suspend') {
