@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-	var selectize = $('#select-role');
+	var selectize = $("#select-role");
 	if (selectize.length) {
 		selectize = selectize.selectize({
 			allowEmptyOption: false,
@@ -13,10 +13,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		// If Site gets refreshed, all data-selectizeCounts will be reset to 0, so delete the filters from the selectize
 		selectize.clear();
 
-		selectize.on('item_add', function (value, $item) {
+		selectize.on("item_add", function (value, $item) {
 			// When first item gets added the filter isn't empty anymore, so hide all rows
 			if (selectize.items.length === 1) {
-				$('.dataTable tbody').find('tr').hide();
+				$(".dataTable tbody").find("tr").hide();
 			}
 			// Find all rows which shall be shown and increase their counter by 1
 			$(".roleid-" + value).closest("tr").each(function () {
@@ -25,10 +25,10 @@ document.addEventListener("DOMContentLoaded", function() {
 			});
 		});
 
-		selectize.on('item_remove', function (value, $item) {
+		selectize.on("item_remove", function (value, $item) {
 			// When no items in the filter, show all rows again
 			if (selectize.items.length === 0) {
-				$('.dataTable tbody').find('tr').show();
+				$(".dataTable tbody").find("tr").show();
 			} else {
 				// Find all rows which have the delete role, decrease their counter by 1
 				$(".roleid-" + value).closest("tr").each(function () {
@@ -42,9 +42,9 @@ document.addEventListener("DOMContentLoaded", function() {
 		});
 	}
 
-	$("tr").on('click', function (e) {
-		if (e.target.type !== "checkbox") {
-			$(this).find("input:checkbox").trigger("click");
+	$("tr").on("click", function(e) {
+		if (e.target.type !== "checkbox" && e.target.tagName !== "A") {
+			$(this).find("input[type=checkbox]").trigger("click");
 		}
 	});
 

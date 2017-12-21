@@ -10,11 +10,11 @@
 				<li role="presentation" class="active"><a href="#permissions" role="tab" data-toggle="tab">{{lang_Permissions}}</a></li>
 				<li role="presentation"><a href="#locations" role="tab" data-toggle="tab">{{lang_Locations}}</a></li>
 				<li style="float: none; display: inline-block">
-					<b>{{lang_Name}}:</b>
-					<input name="rolename" value="{{rolename}}" type="text" id="rolename" class="form-control">
+					<label for="rolename">{{lang_Name}}:</label>
+					<input id="rolename" name="rolename" value="{{rolename}}" type="text" class="form-control">
 				</li>
 				<li style="float: right;">
-					<button type="button" id="cancelButton" class="btn btn-default">{{lang_Cancel}}</button>
+					<span><a href="?do=permissionmanager&show={{cancelShow}}" id="cancelButton" class="btn btn-default">{{lang_Cancel}}</a></span>
 					<button type="submit" id="saveButton" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_Save}}</button>
 				</li>
 			</ul>
@@ -56,15 +56,12 @@
 				}
 			}
 		});
-		
-		$("#cancelButton").click(function () {
-			window.location.replace("?do=permissionmanager&show=roles");
-		});
 
 		$('form').submit(function () {
-			var name = $.trim($('#rolename').val());
-			if (name  === '') {
-				$("#rolename").addClass("missingInput");
+			var input = $("#rolename");
+			var name = $.trim(input.val());
+			if (!name) {
+				input.addClass("missingInput");
 				return false;
 			}
 		});

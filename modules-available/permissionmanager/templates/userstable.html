@@ -13,8 +13,8 @@
 			</select>
 		</div>
 		<div class="col-md-4 text-right">
-			<button class="btn btn-success" type="button" data-toggle="modal" data-target="#addRoleToUserModal"><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
-			<button class="btn btn-danger" type="button" data-toggle="modal" data-target="#removeRoleFromUserModal"><span class="glyphicon glyphicon-trash"></span> {{lang_removeRole}}</button>
+			<button class="roleButtons btn btn-success" type="button" data-toggle="modal" data-target="#addRoleToUserModal" disabled><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
+			<button class="roleButtons btn btn-danger" type="button" data-toggle="modal" data-target="#removeRoleFromUserModal" disabled><span class="glyphicon glyphicon-remove-circle"></span> {{lang_removeRole}}</button>
 		</div>
 	</div>
 
@@ -35,7 +35,7 @@
 						<td>{{username}}</td>
 						<td>
 							{{#roles}}
-							<span class="label label-default customSpanMargin roleid-{{roleid}}">{{rolename}}</span>
+							<a href="?do=permissionmanager&show=roleEditor&cancel=users&roleid={{roleid}}" class="label label-default customSpanMargin roleid-{{roleid}}">{{rolename}}</a>
 							{{/roles}}
 						</td>
 						<td data-sort-value="0">
@@ -89,7 +89,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" name="action" value="addRoleToUser" class="btn btn-success"  onclick="clearRemoveRoleModal()"><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
+					<button id="confirmAddButton" type="submit" name="action" value="addRoleToUser" class="btn btn-success"  onclick="clearRemoveRoleModal()" disabled><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
 				</div>
 			</div>
 		</div>
@@ -100,7 +100,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel2">{{lang_Remove}}</h4>
+					<h4 class="modal-title" id="myModalLabel2">{{lang_removeRole}}</h4>
 				</div>
 				<div class="modal-body">
 					<div class="row">
@@ -132,7 +132,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" name="action" value="removeRoleFromUser" class="btn btn-danger" onclick="clearAddRoleModal()"><span class="glyphicon glyphicon-trash"></span> {{lang_Remove}}</button>
+					<button id="confirmRemoveButton" type="submit" name="action" value="removeRoleFromUser" class="btn btn-danger" onclick="clearAddRoleModal()" disabled><span class="glyphicon glyphicon-remove-circle"></span> {{lang_removeRole}}</button>
 				</div>
 			</div>
 		</div>
@@ -140,34 +140,85 @@
 </form>
 
 <script>
+	selectedUsersCounter = 0;
+	selectedAddRolesCounter = 0;
+	selectedRemoveRolesCounter = 0;
+
 	document.addEventListener("DOMContentLoaded", function() {
-		// if checked,: mark green, else: unmark
-		$('input:checkbox').change(function() {
+		var checkboxes = $("input[type=checkbox]");
+		checkboxes.prop("checked", false);
+		$(".roleButtons, #confirmAddButton, #confirmRemoveButton").prop("disabled", true);
+
+		checkboxes.change(function() {
 			if ($(this).is(':checked')) {
+				var color = "#eeeeff";
+				if ($(this).closest("table").is("#addRoleToUserTable")) {
+					color = "#eeffee";
+				} else if ($(this).closest("table").is("#removeRoleFromUserTable")) {
+					color = "#ffeeee";
+				}
 				$(this).closest("td").data("sort-value", 1);
-				$(this).closest("tr").css("background-color", "#f2ffe6");
+				$(this).closest("tr").css("background-color", color);
 			} else {
 				$(this).closest("td").data("sort-value", 0);
 				$(this).closest("tr").css("background-color", "");
 			}
+		});
 
+		$("#usersTable").find("input[type=checkbox]").change(function() {
+			if ($(this).is(':checked')) {
+				selectedUsersCounter++;
+				if (selectedUsersCounter === 1) {
+					$(".roleButtons").prop("disabled", false);
+				}
+			} else {
+				selectedUsersCounter--;
+				if (selectedUsersCounter === 0) {
+					$(".roleButtons").prop("disabled", true);
+				}
+			}
+		});
+
+		$("#addRoleToUserTable").find("input[type=checkbox]").change(function() {
+			if ($(this).is(':checked')) {
+				selectedAddRolesCounter++;
+				if (selectedAddRolesCounter === 1) {
+					$("#confirmAddButton").prop("disabled", false);
+				}
+			} else {
+				selectedAddRolesCounter--;
+				if (selectedAddRolesCounter === 0) {
+					$("#confirmAddButton").prop("disabled", true);
+				}
+			}
+		});
+
+		$("#removeRoleFromUserTable").find("input[type=checkbox]").change(function() {
+			if ($(this).is(':checked')) {
+				selectedRemoveRolesCounter++;
+				if (selectedRemoveRolesCounter === 1) {
+					$("#confirmRemoveButton").prop("disabled", false);
+				}
+			} else {
+				selectedRemoveRolesCounter--;
+				if (selectedRemoveRolesCounter === 0) {
+					$("#confirmRemoveButton").prop("disabled", true);
+				}
+			}
 		});
 	});
-
 
 	// if remove-Role button is clicked, uncheck all checkboxes in add-role modal so they aren't submitted too
 	function clearAddRoleModal () {
 		$('#addRoleToUserModal')
 			.find("input[type=checkbox]")
-			.prop("checked", "")
-			.end();
+			.prop("checked", false);
 	}
 
 	// if add-Role button is clicked, uncheck all checkboxes in remove-role modal so they aren't submitted too
 	function clearRemoveRoleModal() {
 		$('#removeRoleFromUserModal')
 			.find("input[type=checkbox]")
-			.prop("checked", "")
-			.end();
+			.prop("checked", false);
 	}
 </script>

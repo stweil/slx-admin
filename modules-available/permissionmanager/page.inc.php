@@ -64,14 +64,14 @@ class Page_PermissionManager extends Page
 				Render::addTemplate('locationstable', $data);
 			}
 		} elseif ($show === "roleEditor") {
-			$data = array();
+			$data = array("cancelShow" => Request::get("cancel", "roles"));
 
 			$selectedPermissions = array();
 			$selectedLocations = array();
-			$roleID = Request::get("roleid", false);
-			if ($roleID) {
-				$roleData = GetPermissionData::getRoleData($roleID);
-				$data["roleid"] = $roleID;
+			$roleid = Request::get("roleid", false);
+			if ($roleid) {
+				$roleData = GetPermissionData::getRoleData($roleid);
+				$data["roleid"] = $roleid;
 				$data["rolename"] = $roleData["rolename"];
 				$selectedPermissions = $roleData["permissions"];
 				$selectedLocations = $roleData["locations"];
@@ -85,12 +85,21 @@ class Page_PermissionManager extends Page
 		}
 	}
 
-	private static function generatePermissionHTML($subPermissions, $selectedPermissions = array(), $selectAll = false, $permString = "")
+	/**
+	 * Recursively generate HTML code for the permission selection tree.
+	 *
+	 * @param array $permissions the permission tree
+	 * @param array $selectedPermissions permissions that should be preselected
+	 * @param array $selectAll true if all pemrissions should be preselected, false if only those in $selectedPermissions
+	 * @param array $permString the prefix permission string with which all permissions in the permission tree should start
+	 * @return string generated html code
+	 */
+	private static function generatePermissionHTML($permissions, $selectedPermissions = array(), $selectAll = false, $permString = "")
 	{
 		$res = "";
 		$toplevel = $permString == "";
 		if ($toplevel && in_array("*", $selectedPermissions)) $selectAll = true;
-		foreach ($subPermissions as $k => $v) {
+		foreach ($permissions as $k => $v) {
 			$leaf = !is_array($v);
 			$nextPermString = $permString ? $permString.".".$k : $k;
 			$id = $leaf ? $nextPermString : $nextPermString.".*";
@@ -115,6 +124,15 @@ class Page_PermissionManager extends Page
 		return $res;
 	}
 
+	/**
+	 * Recursively generate HTML code for the location selection tree.
+	 *
+	 * @param array $locations the location tree
+	 * @param array $selectedLocations locations that should be preselected
+	 * @param array $selectAll true if all locations should be preselected, false if only those in $selectedLocations
+	 * @param array $toplevel true if the location tree are the children of the root location, false if not
+	 * @return string generated html code
+	 */
 	private static function generateLocationHTML($locations, $selectedLocations = array(), $selectAll = false, $toplevel = true)
 	{
 		$res = "";
@@ -141,6 +159,12 @@ class Page_PermissionManager extends Page
 		return $res;
 	}
 
+	/**
+	 * Remove locations that are already covered by parent locations from the array.
+	 *
+	 * @param array $locations the locationid array
+	 * @return array the locationid array without redundant locationids
+	 */
 	private static function processLocations($locations)
 	{
 		if (in_array(0, $locations)) return array(NULL);
@@ -158,6 +182,12 @@ class Page_PermissionManager extends Page
 		return $result;
 	}
 
+	/**
+	 * Remove permissions that are already covered by parent permissions from the array.
+	 *
+	 * @param array $permissions the permissionid array
+	 * @return array the permissionid array without redundant permissionids
+	 */
 	private static function processPermissions($permissions)
 	{
 		if (in_array("*", $permissions)) return array("*");
@@ -171,6 +201,12 @@ class Page_PermissionManager extends Page
 		return self::extractPermissions($result);
 	}
 
+	/**
+	 * Convert a multidimensional array of permissions to a flat array of permissions.
+	 *
+	 * @param array $permissions multidimensional array of permissionids
+	 * @return array flat array of permissionids
+	 */
 	private static function extractPermissions($permissions)
 	{
 		$result = array();

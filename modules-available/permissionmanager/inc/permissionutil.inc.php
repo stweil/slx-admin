@@ -2,6 +2,14 @@
 
 class PermissionUtil
 {
+	/**
+	 * Check if the user has the given permission (for the given location).
+	 *
+	 * @param string $userid userid to check
+	 * @param string $permissionid permissionid to check
+	 * @param int|null $locationid locationid to check or null if the location should be disregarded
+	 * @return bool true if user has permission, false if not
+	 */
 	public static function userHasPermission($userid, $permissionid, $locationid) {
 		$locations = array();
 		if (!is_null($locationid)) {
@@ -27,6 +35,13 @@ class PermissionUtil
 		return false;
 	}
 
+	/**
+	 * Get all locations where the user has the given permission.
+	 *
+	 * @param string $userid userid to check
+	 * @param string $permissionid permissionid to check
+	 * @return array array of locationids where the user has the given permission
+	 */
 	public static function getAllowedLocations($userid, $permissionid) {
 
 		$res = Database::simpleQuery("SELECT permissionid, COALESCE(locationid, 0) AS locationid FROM user_x_role
@@ -51,6 +66,13 @@ class PermissionUtil
 		return $allowedLocations;
 	}
 
+	/**
+	 * Extend an array of locations by adding all sublocations.
+	 *
+	 * @param array $tree tree of all locations (structured like Location::getTree())
+	 * @param array $locations the array of locationids to extend
+	 * @return array extended array of locationids
+	 */
 	public static function getSublocations($tree, $locations) {
 		$result = array_flip($locations);
 		foreach ($tree as $location) {
@@ -65,6 +87,11 @@ class PermissionUtil
 		return array_keys($result);
 	}
 
+	/**
+	 * Get all permissions of all active modules that have permissions in their permissions/permissions.json file.
+	 *
+	 * @return array permission tree as a multidimensional array
+	 */
 	public static function getPermissions()
 	{
 		$permissions = array();
@@ -89,6 +116,13 @@ class PermissionUtil
 		return $permissions;
 	}
 
+	/**
+	 * Place a permission into the given permission tree.
+	 *
+	 * @param string $permission the permission to place in the tree
+	 * @param string $description the description of the permission
+	 * @param array $tree the permission tree to modify
+	 */
 	private static function putInPermissionTree($permission, $description, &$tree)
 	{
 		$subPermissions = explode('.', $permission);

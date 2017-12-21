@@ -2,9 +2,17 @@
 
 class GetPermissionData {
 
-	// get UserIDs, User Login Names, User Roles
+	/**
+	 * Get data for all users.
+	 *
+	 * @return array array of users (each with userid, username and roles (each with roleid and rolename))
+	 */
 	public static function getUserData() {
-		$res = self::queryUserData();
+		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, role.rolename AS rolename, role.roleid AS roleid
+												FROM user
+												LEFT JOIN user_x_role ON user.userid = user_x_role.userid
+												LEFT JOIN role ON user_x_role.roleid = role.roleid
+												");
 		$userdata= array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$userdata[$row['userid'].' '.$row['login']][] = array(
@@ -24,7 +32,11 @@ class GetPermissionData {
 		return $data;
 	}
 
-	// get LocationIDs, Location Names, Roles of each Location
+	/**
+	 * Get data for all locations.
+	 *
+	 * @return array array of locations (each including the roles that have permissions for them)
+	 */
 	public static function getLocationData() {
 		$res = Database::simpleQuery("SELECT role.roleid as roleid, rolename, GROUP_CONCAT(COALESCE(locationid, 0)) AS locationids FROM role
  												INNER JOIN role_x_location ON role.roleid = role_x_location.roleid GROUP BY roleid ORDER BY rolename ASC");
@@ -46,7 +58,11 @@ class GetPermissionData {
 		return array_values($locations);
 	}
 
-	// get all roles from database (id and name)
+	/**
+	 * Get all roles.
+	 *
+	 * @return array array roles (each with roleid and rolename)
+	 */
 	public static function getRoles() {
 		$res = Database::simpleQuery("SELECT roleid, rolename FROM role ORDER BY rolename ASC");
 		$data = array();
@@ -59,6 +75,12 @@ class GetPermissionData {
 		return $data;
 	}
 
+	/**
+	 * Get permissions and locations for a given role.
+	 *
+	 * @param string $roleid id of the role
+	 * @return array array containing an array of permissions and an array of locations
+	 */
 	public static function getRoleData($roleid) {
 		$query = "SELECT roleid, rolename FROM role WHERE roleid = :roleid";
 		$data = Database::queryFirst($query, array("roleid" => $roleid));
@@ -75,16 +97,6 @@ class GetPermissionData {
 			$data["permissions"][] = $row['permissionid'];
 		}
 		return $data;
-	}
-
-	// UserID, User Login Name, Roles of each User
-	private static function queryUserData() {
-		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, role.rolename AS rolename, role.roleid AS roleid
-												FROM user
-													LEFT JOIN user_x_role ON user.userid = user_x_role.userid
-													LEFT JOIN role ON user_x_role.roleid = role.roleid
-												");
-		return $res;
 	}
 
 }

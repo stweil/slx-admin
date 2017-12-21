@@ -8,13 +8,13 @@
 			<input type="text" class="form-control" id="roleNameSearchField" onkeyup="searchFieldFunction()" placeholder="{{lang_searchPlaceholder}}">
 		</div>
 		<div class="col-md-4 text-right">
-			<button class="btn btn-success" type="button" onclick="openRoleEditor()"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</button>
+			<a href="?do=permissionmanager&show=roleEditor" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</a>
 		</div>
 	</div>
 
 	<div class="row">
 		<div class="col-md-12">
-			<table id="rolesTable" class="table table-condensed table-hover stupidtable">
+			<table class="table table-condensed table-hover stupidtable">
 				<thead>
 					<tr>
 						<th data-sort="string">{{lang_Roles}}</th>
@@ -25,10 +25,10 @@
 
 				<tbody>
 				{{#roles}}
-					<tr class="rolesRow">
-						<td class="rolesData">{{rolename}}</td>
+					<tr>
+						<td class="rolename">{{rolename}}</td>
 						<td class="text-center">
-							<a class="btn btn-xs btn-info" href="?do=permissionmanager&show=roleEditor&roleid={{roleid}}"><span class="glyphicon glyphicon-edit"></span></a>
+							<a class="btn btn-xs btn-primary" href="?do=permissionmanager&show=roleEditor&roleid={{roleid}}"><span class="glyphicon glyphicon-edit"></span></a>
 						</td>
 						<td class="text-center">
 							<a class="btn btn-xs btn-danger" href="#deleteModal" data-toggle="modal" data-target="#deleteModal" onclick="deleteRole('{{roleid}}')"><span class="glyphicon glyphicon-trash"></span></a>
@@ -64,30 +64,18 @@
 </form>
 
 <script>
-	function openRoleEditor() {
-		window.location.href = "?do=permissionmanager&show=roleEditor"
-	}
-
 	function deleteRole($roleid) {
 		$(".modal-footer #deleteId").val($roleid);
 	}
 
 	function searchFieldFunction() {
-		// Declare variables
-		var input, filter, table, trs, a, i;
-		input = document.getElementById('roleNameSearchField');
-		filter = input.value.toUpperCase();
-		table = document.getElementById("rolesTable");
-		trs = table.getElementsByClassName('rolesRow');
-
-		// Loop through all list items, and hide those who don't match the search query
-		for (i = 0; i < trs.length; i++) {
-			a = trs[i].getElementsByClassName("rolesData")[0];
-			if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
-				trs[i].style.display = "";
+		var filter = $("#roleNameSearchField").val().toLowerCase();
+		$(".rolename").each(function() {
+			if ($(this).text().toLowerCase().indexOf(filter) >= 0) {
+				$(this).closest("tr").show();
 			} else {
-				trs[i].style.display = "none";
+				$(this).closest("tr").hide();
 			}
-		}
+		});
 	}
 </script>
