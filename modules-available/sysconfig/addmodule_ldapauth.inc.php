@@ -23,7 +23,7 @@ class LdapAuth_Start extends AddModule_Base
 		if (isset($data['server']) && preg_match('/^(.*)\:(636|389)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
-		if (isset($data['homeattr']) && !isset($data['mapping']['homemount'])) {
+		if (isset($data['homeattr']) && !isset($data['mapping']['homemount']) && strtolower($data['homeattr']) !== 'homedirectory') {
 			$data['mapping']['homemount'] = $data['homeattr'];
 		}
 		$data['step'] = 'LdapAuth_CheckConnection';

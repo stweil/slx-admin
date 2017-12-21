@@ -31,7 +31,7 @@ class AdAuth_Start extends AddModule_Base
 		if (isset($data['server']) && preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
-		if (isset($data['homeattr']) && !isset($data['mapping']['homemount'])) {
+		if (isset($data['homeattr']) && !isset($data['mapping']['homemount']) && strtolower($data['homeattr']) !== 'homedirectory') {
 			$data['mapping']['homemount'] = $data['homeattr'];
 		}
 		$data['step'] = 'AdAuth_CheckConnection';
@@ -96,6 +96,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 
 	protected function renderInternal()
 	{
+		$mapping = Request::post('mapping', false, 'array');
 		$data = array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
@@ -104,17 +105,16 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'binddn' => $this->bindDn,
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
-			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl'),
 			'fixnumeric' => Request::post('fixnumeric'),
 			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id'],
-			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
+			'mapping' => ConfigModuleBaseLdap::getMapping($mapping),
 		);
 		$data['prev'] = 'AdAuth_Start';
 		if ((preg_match(AD_BOTH_REGEX, $this->bindDn) > 0) || (strlen($this->searchBase) < 2)) {
 			$data['next'] = 'AdAuth_SelfSearch';
-		} elseif (empty($data['homeattr'])) {
+		} elseif (empty($mapping['homemount'])) {
 			$data['next'] = 'AdAuth_HomeAttrCheck';
 		} else {
 			$data['next'] = 'AdAuth_CheckCredentials';
@@ -196,6 +196,7 @@ class AdAuth_SelfSearch extends AddModule_Base
 
 	protected function renderInternal()
 	{
+		$mapping = Request::post('mapping', false, 'array');
 		$data = array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
@@ -205,16 +206,15 @@ class AdAuth_SelfSearch extends AddModule_Base
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
-			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fixnumeric' => Request::post('fixnumeric'),
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => $this->originalBindDn,
-			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
+			'mapping' => ConfigModuleBaseLdap::getMapping($mapping),
 			'prev' => 'AdAuth_Start'
 		);
-		if (empty($data['homeattr'])) {
+		if (empty($mapping['homemount'])) {
 			$data['next'] = 'AdAuth_HomeAttrCheck';
 		} else {
 			$data['next'] = 'AdAuth_CheckCredentials';
@@ -283,7 +283,6 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 				'binddn' => Request::post('binddn'),
 				'bindpw' => Request::post('bindpw'),
 				'home' => Request::post('home'),
-				'homeattr' => Request::post('homeattr'),
 				'ssl' => Request::post('ssl') === 'on',
 				'fixnumeric' => Request::post('fixnumeric'),
 				'fingerprint' => Request::post('fingerprint'),
