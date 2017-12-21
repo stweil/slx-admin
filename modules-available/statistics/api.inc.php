@@ -263,7 +263,7 @@ if ($type{0} === '~') {
 			// `devicetype`, `devicename`, `subid`, `machineuuid`
 			// Make sure all screens are in the general hardware table
 			$hwids = array();
-			$ports = array();
+			$keepPair = array();
 			foreach ($screens as $port => $screen) {
 				if (!array_key_exists('name', $screen))
 					continue;
@@ -275,7 +275,7 @@ if ($type{0} === '~') {
 					$hwids[$screen['name']] = $hwid;
 				}
 				// Now add new entries
-				$ports[] = $port;
+				$keepPair[] = array($hwid, $port);
 				$machinehwid = Database::insertIgnore('machine_x_hw', 'machinehwid', array(
 					'hwid' => $hwid,
 					'machineuuid' => $uuid,
@@ -312,7 +312,7 @@ if ($type{0} === '~') {
 				}
 			}
 			// Remove/disable stale entries
-			if (empty($ports)) {
+			if (empty($keepPair)) {
 				// No screens connected at all, purge all screen entries for this machine
 				Database::exec("UPDATE machine_x_hw x, statistic_hw h
 						SET x.disconnecttime = UNIX_TIMESTAMP()
@@ -322,22 +322,12 @@ if ($type{0} === '~') {
 				// Some screens connected, make sure old entries get removed
 				Database::exec("UPDATE machine_x_hw x, statistic_hw h
 						SET x.disconnecttime = UNIX_TIMESTAMP()
-						WHERE h.hwid = x.hwid AND x.disconnecttime = 0 AND h.hwtype = :type
-						AND x.machineuuid = :uuid AND x.devpath NOT IN (:ports)", array(
-					'ports' => array_values($ports),
+						WHERE (x.hwid, x.devpath) NOT IN (:pairs) AND x.disconnecttime = 0 AND h.hwtype = :type
+						AND x.machineuuid = :uuid", array(
+					'pairs' => $keepPair,
 					'uuid' => $uuid,
 					'type' => DeviceType::SCREEN,
 				));
-				if (!empty($hwids)) {
-					Database::exec("UPDATE machine_x_hw x, statistic_hw h
-						SET x.disconnecttime = UNIX_TIMESTAMP()
-						WHERE h.hwid = x.hwid AND x.disconnecttime = 0 AND h.hwtype = :type
-						AND x.machineuuid = :uuid AND x.hwid NOT IN (:hwids)", array(
-						'hwids' => array_values($hwids),
-						'uuid' => $uuid,
-						'type' => DeviceType::SCREEN,
-					));
-				}
 			}
 		}
 	} else if ($type === '~suspend') {
