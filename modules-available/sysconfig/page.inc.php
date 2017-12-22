@@ -479,4 +479,36 @@ class Page_SysConfig extends Page
 		AddConfig_Base::setStep($step);
 	}
 
+	/**
+	 * If modules need updates (blue refresh buttons), we query their state
+	 * via ajax, in case they are about to generate. This happens for example
+	 * if you edit a module and a bunch of configs depend on it and will be
+	 * rebuilt.
+	 */
+	protected function doAjax()
+	{
+		if (Request::post('action') === 'status') {
+			$mods = Request::post('mods');
+			$confs = Request::post('confs');
+			$outMods = array();
+			$outConfs = array();
+			$mods = explode(',', $mods);
+			$confs = explode(',', $confs);
+			// Mods
+			$res = Database::simpleQuery("SELECT moduleid FROM configtgz_module
+					WHERE moduleid in (:mods) AND status = 'OK'", compact('mods'));
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$outMods[] = $row['moduleid'];
+			}
+			// Confs
+			$res = Database::simpleQuery("SELECT configid FROM configtgz
+					WHERE configid in (:confs) AND status = 'OK'", compact('confs'));
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$outConfs[] = $row['configid'];
+			}
+			Header('Content-Type: application/json');
+			die(json_encode(array('mods' => $outMods, 'confs' => $outConfs)));
+		}
+	}
+
 }
