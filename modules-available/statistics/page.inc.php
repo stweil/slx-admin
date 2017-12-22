@@ -21,6 +21,11 @@ class Page_Statistics extends Page
 
 	private $query;
 
+	/**
+	 * @var bool whether we have a SubPage from the pages/ subdir
+	 */
+	private $haveSubpage;
+
 	/* PHP sucks, no static, const array definitions... Or am I missing something? */
 	public function initConstants()
 	{
@@ -125,53 +130,6 @@ class Page_Statistics extends Page
 		/* TODO ... */
 	}
 
-	/*
-	 * TODO: Move to separate unit... hardware configurator?
-	 */
-
-	protected function handleProjector($action)
-	{
-		$hwid = Request::post('hwid', false, 'int');
-		if ($hwid === false) {
-			Util::traceError('Param hwid missing');
-		}
-		if ($action === 'addprojector') {
-			Database::exec('INSERT INTO statistic_hw_prop (hwid, prop, value)'
-				. ' VALUES (:hwid, :prop, :value)', array(
-					'hwid' => $hwid,
-					'prop' => 'projector',
-					'value' => 'true',
-			));
-		} else {
-			Database::exec('DELETE FROM statistic_hw_prop WHERE hwid = :hwid AND prop = :prop', array(
-				'hwid' => $hwid,
-				'prop' => 'projector',
-			));
-		}
-		if (Module::isAvailable('sysconfig')) {
-			ConfigTgz::rebuildAllConfigs();
-		}
-		Util::redirect('?do=statistics&show=projectors');
-	}
-
-	protected function showProjectors()
-	{
-		$res = Database::simpleQuery('SELECT h.hwname, h.hwid FROM statistic_hw h'
-			. " INNER JOIN statistic_hw_prop p ON (h.hwid = p.hwid AND p.prop = :projector)"
-			. " WHERE h.hwtype = :screen ORDER BY h.hwname ASC", array(
-				'projector' => 'projector',
-				'screen' => DeviceType::SCREEN,
-		));
-		$data = array(
-			'projectors' => $res->fetchAll(PDO::FETCH_ASSOC)
-		);
-		Render::addTemplate('projector-list', $data);
-	}
-
-	/*
-	 * End TODO
-	 */
-
 	protected function doPreprocess()
 	{
 		$this->initConstants();
@@ -180,24 +138,42 @@ class Page_Statistics extends Page
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
-		$action = Request::post('action');
-		if ($action === 'setnotes') {
-			$uuid = Request::post('uuid', '', 'string');
-			$text = Request::post('content', '', 'string');
-			if (empty($text)) {
-				$text = null;
+
+		$show = Request::any('show', 'stat', 'string');
+		$show = preg_replace('/[^a-z0-9_\-]/', '', $show);
+
+		if (file_exists('modules/statistics/pages/' . $show . '.inc.php')) {
+
+			require_once 'modules/statistics/pages/' . $show . '.inc.php';
+			$this->haveSubpage = true;
+			SubPage::doPreprocess();
+
+		} else {
+
+			$action = Request::post('action');
+			if ($action === 'setnotes') {
+				$uuid = Request::post('uuid', '', 'string');
+				$text = Request::post('content', '', 'string');
+				if (empty($text)) {
+					$text = null;
+				}
+				Database::exec('UPDATE machine SET notes = :text WHERE machineuuid = :uuid', array(
+					'uuid' => $uuid,
+					'text' => $text,
+				));
+				Message::addSuccess('notes-saved');
+				Util::redirect('?do=Statistics&uuid=' . $uuid);
+			} elseif ($action === 'delmachines') {
+				$this->deleteMachines();
+				Util::redirect('?do=statistics', true);
 			}
-			Database::exec('UPDATE machine SET notes = :text WHERE machineuuid = :uuid', array(
-				'uuid' => $uuid,
-				'text' => $text,
-			));
-			Message::addSuccess('notes-saved');
-			Util::redirect('?do=Statistics&uuid=' . $uuid);
-		} elseif ($action === 'addprojector' || $action === 'delprojector') {
-			$this->handleProjector($action);
-		} elseif ($action === 'delmachines') {
-			$this->deleteMachines();
-			Util::redirect('?do=statistics', true);
+
+		}
+
+		if (Request::isPost()) {
+			// Make sure we don't render any content for POST requests - should be handled above and then
+			// redirected properly
+			Util::redirect('?do=statistics');
 		}
 	}
 
@@ -229,6 +205,11 @@ class Page_Statistics extends Page
 
 	protected function doRender()
 	{
+		if ($this->haveSubpage) {
+			SubPage::doRender();
+			return;
+		}
+
 		$uuid = Request::get('uuid', false, 'string');
 		if ($uuid !== false) {
 			$this->showMachine($uuid);
@@ -236,10 +217,6 @@ class Page_Statistics extends Page
 		}
 
 		$show = Request::get('show', 'stat', 'string');
-		if ($show === 'projectors') {
-			$this->showProjectors();
-			return;
-		}
 
 		/* read filter */
 		$this->query = Request::any('filters', false);

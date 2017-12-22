@@ -343,6 +343,9 @@ class Page_SysConfig extends Page
 			Message::addError('main.empty-field');
 			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
+		// Validate that either the configid is valid (in case we override for a specific location)
+		// or that if the locationid is 0 (=global) that the configid exists, because it's not allowed
+		// to unset the global config
 		if ($this->currentLoc === 0 || $configid !== 0) {
 			$row = Database::queryFirst("SELECT title, filepath FROM configtgz WHERE configid = :configid LIMIT 1", array('configid' => $configid));
 			if ($row === false) {
@@ -358,6 +361,7 @@ class Page_SysConfig extends Page
 			Database::exec("INSERT INTO configtgz_location (locationid, configid) VALUES (:locationid, :configid)"
 				. " ON DUPLICATE KEY UPDATE configid = :configid", compact('locationid', 'configid'));
 		}
+		Event::activeConfigChanged();
 		Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 	}
 
@@ -473,6 +477,38 @@ class Page_SysConfig extends Page
 		if ($step === 0)
 			$step = 'AddConfig_Start';
 		AddConfig_Base::setStep($step);
+	}
+
+	/**
+	 * If modules need updates (blue refresh buttons), we query their state
+	 * via ajax, in case they are about to generate. This happens for example
+	 * if you edit a module and a bunch of configs depend on it and will be
+	 * rebuilt.
+	 */
+	protected function doAjax()
+	{
+		if (Request::post('action') === 'status') {
+			$mods = Request::post('mods');
+			$confs = Request::post('confs');
+			$outMods = array();
+			$outConfs = array();
+			$mods = explode(',', $mods);
+			$confs = explode(',', $confs);
+			// Mods
+			$res = Database::simpleQuery("SELECT moduleid FROM configtgz_module
+					WHERE moduleid in (:mods) AND status = 'OK'", compact('mods'));
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$outMods[] = $row['moduleid'];
+			}
+			// Confs
+			$res = Database::simpleQuery("SELECT configid FROM configtgz
+					WHERE configid in (:confs) AND status = 'OK'", compact('confs'));
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$outConfs[] = $row['configid'];
+			}
+			Header('Content-Type: application/json');
+			die(json_encode(array('mods' => $outMods, 'confs' => $outConfs)));
+		}
 	}
 
 }

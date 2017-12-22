@@ -226,8 +226,8 @@
 				queryRooms();
 				nextUpdate = 1000;
 			}
-			for (property in rooms) {
-				upDateRoomState(rooms[property]);
+			if (nextUpdate !== 1000) {
+				queryPanelChange();
 			}
 			clearTimeout(timeout);
 			setTimeout(update, nextUpdate);
@@ -267,7 +267,9 @@
 				}
 				ComputeCurrentState(rooms[json[i].id]);
 			}
-			update();
+			for (property in rooms) {
+				upDateRoomState(rooms[property]);
+			}
 		}
 
 		/**
@@ -763,6 +765,30 @@
 
 				}
 			});
+		}
+
+		/**
+		 * Checks whether the panel has been edited and reloads
+		 * the entire page if so.
+		 */
+		function queryPanelChange() {
+			$.ajax({
+				url: "{{dirprefix}}api.php?do=locationinfo&get=timestamp&uuid={{uuid}}",
+				dataType: 'json',
+				cache: false,
+				timeout: 5000,
+				success: function (result) {
+					if (!result || !result.ts) {
+						console.log('Warning: get=timestamp didnt return json with ts field');
+						return;
+					}
+					if (config.ts && config.ts !== result.ts) {
+						// Change
+						window.location.reload(true);
+					}
+					config.ts = result.ts;
+				}
+			})
 		}
 
 	</script>

@@ -59,14 +59,16 @@ class Page_mail_templates extends Page
 			$t['modified'] = !$t['original'];
 			$t['conflict'] = !$t['original'] && $t['edit_version'] < $t['version'];
 		}
-
 	}
+
 	protected function doRender()
 	{
 		$this->enrichHtml();
-		$this->templates['allowedReset'] = User::hasPermission("templates.reset");
-		$this->templates['allowedSave'] = User::hasPermission("templates.save");
-		Render::addTemplate('templates', ['templates' => $this->templates]);
+		Render::addTemplate('templates', [
+			'templates' => $this->templates,
+			'allowedReset' => User::hasPermission("templates.reset"),
+			'allowedSave' => User::hasPermission("templates.save"),
+		]);
 	}
 
 	private function forcmp($string)

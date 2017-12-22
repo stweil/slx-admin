@@ -31,7 +31,7 @@ class AdAuth_Start extends AddModule_Base
 		if (isset($data['server']) && preg_match('/^(.*)\:(636|3269|389|3268)$/', $data['server'], $out)) {
 			$data['server'] = $out[1];
 		}
-		if (isset($data['homeattr']) && !isset($data['mapping']['homemount'])) {
+		if (isset($data['homeattr']) && !isset($data['mapping']['homemount']) && strtolower($data['homeattr']) !== 'homedirectory') {
 			$data['mapping']['homemount'] = $data['homeattr'];
 		}
 		$data['step'] = 'AdAuth_CheckConnection';
@@ -59,13 +59,18 @@ class AdAuth_CheckConnection extends AddModule_Base
 		$this->server = Request::post('server');
 		$binddn = Request::post('binddn');
 		$ssl = Request::post('ssl', 'off') === 'on';
-		if (empty($this->server) || empty($binddn)) {
-			Message::addError('main.empty-field');
+		if (empty($this->server)) {
+			Message::addError('main.parameter-empty', 'server');
+			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+			return;
+		}
+		if (empty($binddn)) {
+			Message::addError('main.parameter-empty', 'binddn');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
 		if ((preg_match(AD_AT_REGEX, $this->bindDn) > 0) && (strlen($this->searchBase) < 2)) {
-			Message::addError('main.empty-field', 'searchBase');
+			Message::addError('main.parameter-empty', 'searchBase');
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
@@ -91,6 +96,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 
 	protected function renderInternal()
 	{
+		$mapping = Request::post('mapping', false, 'array');
 		$data = array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
@@ -99,17 +105,16 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'binddn' => $this->bindDn,
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
-			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl'),
 			'fixnumeric' => Request::post('fixnumeric'),
 			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id'],
-			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
+			'mapping' => ConfigModuleBaseLdap::getMapping($mapping),
 		);
 		$data['prev'] = 'AdAuth_Start';
 		if ((preg_match(AD_BOTH_REGEX, $this->bindDn) > 0) || (strlen($this->searchBase) < 2)) {
 			$data['next'] = 'AdAuth_SelfSearch';
-		} elseif (empty($data['homeattr'])) {
+		} elseif (empty($mapping['homemount'])) {
 			$data['next'] = 'AdAuth_HomeAttrCheck';
 		} else {
 			$data['next'] = 'AdAuth_CheckCredentials';
@@ -127,10 +132,8 @@ class AdAuth_SelfSearch extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$server = Request::post('server');
-		$port = Request::post('port');
+		$server = $binddn = $port = null;
 		$searchbase = Request::post('searchbase', '');
-		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
@@ -138,10 +141,13 @@ class AdAuth_SelfSearch extends AddModule_Base
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('main.empty-field');
-			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
-			return;
+		foreach (['server', 'binddn', 'port'] as $var) {
+			$$var = Request::post($var, null);
+			if (empty($$var)) {
+				Message::addError('main.parameter-empty', $var);
+				AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+				return;
+			}
 		}
 		$this->originalBindDn = '';
 		// Fix bindDN if short name given
@@ -190,6 +196,7 @@ class AdAuth_SelfSearch extends AddModule_Base
 
 	protected function renderInternal()
 	{
+		$mapping = Request::post('mapping', false, 'array');
 		$data = array(
 			'edit' => Request::post('edit'),
 			'title' => Request::post('title'),
@@ -199,16 +206,15 @@ class AdAuth_SelfSearch extends AddModule_Base
 			'binddn' => Request::post('binddn'),
 			'bindpw' => Request::post('bindpw'),
 			'home' => Request::post('home'),
-			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fixnumeric' => Request::post('fixnumeric'),
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => $this->originalBindDn,
-			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
+			'mapping' => ConfigModuleBaseLdap::getMapping($mapping),
 			'prev' => 'AdAuth_Start'
 		);
-		if (empty($data['homeattr'])) {
+		if (empty($mapping['homemount'])) {
 			$data['next'] = 'AdAuth_HomeAttrCheck';
 		} else {
 			$data['next'] = 'AdAuth_CheckCredentials';
@@ -226,10 +232,8 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$server = Request::post('server');
-		$port = Request::post('port');
+		$server = $binddn = $port = null;
 		$searchbase = Request::post('searchbase', '');
-		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
@@ -237,10 +241,13 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('main.empty-field');
-			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
-			return;
+		foreach (['server', 'binddn', 'port'] as $var) {
+			$$var = Request::post($var, null);
+			if (empty($$var)) {
+				Message::addError('main.parameter-empty', $var);
+				AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+				return;
+			}
 		}
 		if ($ssl) {
 			$uri = "ldaps://$server:$port/";
@@ -276,7 +283,6 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 				'binddn' => Request::post('binddn'),
 				'bindpw' => Request::post('bindpw'),
 				'home' => Request::post('home'),
-				'homeattr' => Request::post('homeattr'),
 				'ssl' => Request::post('ssl') === 'on',
 				'fixnumeric' => Request::post('fixnumeric'),
 				'fingerprint' => Request::post('fingerprint'),
@@ -299,10 +305,8 @@ class AdAuth_CheckCredentials extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$server = Request::post('server');
-		$port = Request::post('port');
+		$server = $binddn = $port = null;
 		$searchbase = Request::post('searchbase', '');
-		$binddn = Request::post('binddn');
 		$bindpw = Request::post('bindpw');
 		$ssl = Request::post('ssl', 'off') === 'on';
 		if ($ssl && !Request::post('fingerprint')) {
@@ -310,10 +314,13 @@ class AdAuth_CheckCredentials extends AddModule_Base
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
 			return;
 		}
-		if (empty($server) || empty($binddn) || empty($port)) {
-			Message::addError('main.empty-field');
-			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
-			return;
+		foreach (['server', 'binddn', 'port'] as $var) {
+			$$var = Request::post($var, null);
+			if (empty($$var)) {
+				Message::addError('main.parameter-empty', $var);
+				AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
+				return;
+			}
 		}
 		// Test query 4 users
 		if ($ssl) {
@@ -502,8 +509,7 @@ class AdAuth_Finish extends AddModule_Base
 			Message::addError('main.value-invalid', 'any', 'any');
 			$tgz = false;
 		} else {
-			$parent = $this->stopOldInstance();
-			$tgz = $module->generate($this->edit === false, $parent);
+			$tgz = $module->generate($this->edit === false);
 		}
 		if ($tgz === false) {
 			AddModule_Base::setStep('AdAuth_Start'); // Continues with AdAuth_Start for render()
@@ -512,24 +518,6 @@ class AdAuth_Finish extends AddModule_Base
 		$this->taskIds = array(
 			'tm-config' => $tgz,
 		);
-	}
-
-	private function stopOldInstance()
-	{
-		if ($this->edit === false)
-			return NULL;
-		$list = ConfigTgz::getAllForModule($this->edit->id());
-		if (!is_array($list))
-			return NULL;
-		$parent = NULL;
-		foreach ($list as $tgz) {
-			if (!$tgz->isActive())
-				continue;
-			$task = Trigger::ldadp($tgz->id(), $parent);
-			if (isset($task['id']))
-				$parent = $task['id'];
-		}
-		return $parent;
 	}
 
 	protected function renderInternal()

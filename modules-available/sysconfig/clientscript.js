@@ -98,7 +98,7 @@ function checkBuildStatus() {
         confs.push($(this).val());
     });
     if (mods.length === 0 && confs.length === 0) return;
-    if (++statusChecks < 10) setTimeout(checkBuildStatus, 200 + 50 * statusChecks);
+    if (++statusChecks < 10) setTimeout(checkBuildStatus, 150 + 100 * statusChecks);
     $.post('?do=SysConfig', { mods: mods.join(), confs: confs.join(), token: TOKEN, action: 'status' }, function (data) {
         if (typeof data === 'undefined') return;
         if (typeof data.mods === 'object') updateButtonColor($(".refmod.btn-primary"), data.mods);

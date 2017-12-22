@@ -213,6 +213,7 @@ class Database
 	 */
 	private static function handleArrayArgument(&$query, &$args)
 	{
+		$again = false;
 		foreach (array_keys($args) as $key) {
 			if (is_numeric($key) || $key === '?')
 				continue;
@@ -229,13 +230,21 @@ class Database
 				}
 				$new = array();
 				foreach ($args[$key] as $subIndex => $sub) {
-					$new[] = $newkey . '_' . $subIndex;
+					if (is_array($sub)) {
+						$new[] = '(' . $newkey . '_' . $subIndex . ')';
+						$again = true;
+					} else {
+						$new[] = $newkey . '_' . $subIndex;
+					}
 					$args[$newkey . '_' . $subIndex] = $sub;
 				}
 				unset($args[$key]);
 				$new = implode(',', $new);
 				$query = preg_replace('/' . $newkey . '\b/', $new, $query);
 			}
+		}
+		if ($again) {
+			self::handleArrayArgument($query, $args);
 		}
 	}
 

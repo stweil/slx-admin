@@ -12,7 +12,7 @@ class InfoPanel
 	 */
 	public static function getConfig($paneluuid, &$config)
 	{
-		$panel = Database::queryFirst('SELECT panelname, panelconfig, paneltype, locationids, lastchange FROM locationinfo_panel WHERE paneluuid = :paneluuid',
+		$panel = Database::queryFirst('SELECT panelname, panelconfig, paneltype, locationids FROM locationinfo_panel WHERE paneluuid = :paneluuid',
 			compact('paneluuid'));
 
 		if ($panel === false) {
@@ -68,7 +68,6 @@ class InfoPanel
 		}
 		self::appendOpeningTimes($config['locations'], $lids);
 
-		$config['ts'] = (int)$panel['lastchange'];
 		$config['locations'] = array_values($config['locations']);
 		$config['time'] = date('Y-n-j-G-') . (int)date('i') . '-' . (int)(date('s'));
 

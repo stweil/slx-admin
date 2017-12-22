@@ -33,7 +33,10 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 
 	protected function generateInternal($tgz, $parent)
 	{
-		Trigger::ldadp($this->id(), $parent);
+		$np = Trigger::ldadp($this->id(), $parent);
+		if ($np !== false) {
+			$parent = $np;
+		}
 		$config = $this->moduleData;
 		if (isset($config['certificate']) && !is_string($config['certificate'])) {
 			unset($config['certificate']);
@@ -64,7 +67,11 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 			$config['fixnumeric'] = 's';
 		}
 		$this->preTaskmanagerHook($config);
-		return Taskmanager::submit('CreateLdapConfig', $config);
+		$task = Taskmanager::submit('CreateLdapConfig', $config);
+		if (is_array($task) && isset($task['id'])) {
+			Trigger::ldadp(null, $task['id']);
+		}
+		return $task;
 	}
 
 	/**
