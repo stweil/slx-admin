@@ -1,7 +1,7 @@
 {
-    "lang_actual": "Actual",
+    "lang_uptodate": "Up to date",
     "lang_canUpdate1": "At least one component of",
-    "lang_canUpdate2": "can be updated. For a smooth operation, it is recommended to keep all components up to date.",
+    "lang_canUpdate2": "Can be updated. For a smooth operation, it is recommended to keep all components up to date.",
     "lang_configurationPackageNotFound": "Configuration package not found!",
     "lang_desiredVersion": "Desired version",
     "lang_errorGetting": "Error while downloading list!",
