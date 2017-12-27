@@ -3,7 +3,7 @@
 	<input type="password" name="password_fake" id="password_fake" value="" style="position:absolute;top:-2000px" tabindex="-1">
 	<input type="hidden" name="action" value="ipxe">
 	<input type="hidden" name="token" value="{{token}}">
-	<div class="panel panel-default">
+	<div class="panel panel-default {{^editAllowed}}disabledPanel{{/editAllowed}}">
 		<div class="panel-heading">
 			{{lang_bootMenu}}
 		</div>
@@ -52,10 +52,10 @@
 		</div>
 
 		<div class="panel-footer">
-			<button class="btn btn-primary pull-right" name="action" value="ipxe">{{lang_bootMenuCreate}}</button>
+			<button class="btn btn-primary pull-right" name="action" value="ipxe" {{^editAllowed}}disabled{{/editAllowed}}>{{lang_bootMenuCreate}}</button>
 			<div>
 				<div class="btn-group" role="group">
-					<a class="btn btn-default" href="?do=ServerSetup&amp;action=getimage">
+					<a class="btn btn-default {{^downloadAllowed}}disabled{{/downloadAllowed}}" href="?do=ServerSetup&amp;action=getimage">
 						<span class="glyphicon glyphicon-download-alt"></span>
 						{{lang_downloadImage}}
 					</a>
