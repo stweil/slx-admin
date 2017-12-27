@@ -18,17 +18,16 @@ class PermissionUtil
 			else $locations[] = 0;
 		}
 
-		$res = Database::simpleQuery("SELECT role_x_permission.permissionid as 'permissionid',
-													role_x_location.locationid as 'locationid'
-												FROM user_x_role
+		$res = Database::simpleQuery("SELECT permissionid, locationid FROM user_x_role
 												INNER JOIN role_x_permission ON user_x_role.roleid = role_x_permission.roleid
-												LEFT JOIN role_x_location ON role_x_permission.roleid = role_x_location.roleid
+												LEFT JOIN (SELECT roleid, COALESCE(locationid, 0) AS locationid FROM role_x_location) t1
+													ON role_x_permission.roleid = t1.roleid
 												WHERE user_x_role.userid = :userid", array("userid" => $userid));
 
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$userPermission = trim($row["permissionid"], "*");
-			if (substr($permissionid, 0, strlen($userPermission)) === $userPermission
-					&& (is_null($locationid) || in_array($row["locationid"], $locations))) {
+			$userPermission = rtrim($row["permissionid"], ".*").".";
+			if ((is_null($locationid) || (!is_null($row["locationid"]) && in_array($row["locationid"], $locations))) &&
+				(substr($permissionid.".", 0, strlen($userPermission)) === $userPermission || $userPermission === ".")) {
 				return true;
 			}
 		}
@@ -51,8 +50,8 @@ class PermissionUtil
 
 		$allowedLocations = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$userPermission = trim($row["permissionid"], "*");
-			if (!is_null($row["locationid"]) && substr($permissionid, 0, strlen($userPermission)) === $userPermission) {
+			$userPermission = rtrim($row["permissionid"], ".*").".";
+			if (substr($permissionid.".", 0, strlen($userPermission)) === $userPermission || $userPermission === ".") {
 				$allowedLocations[$row["locationid"]] = 1;
 			}
 		}
@@ -60,6 +59,7 @@ class PermissionUtil
 		$locations = Location::getTree();
 		if (in_array("0", $allowedLocations)) {
 			$allowedLocations = array_map("intval", Location::extractIds($locations));
+			$allowedLocations[] = 0;
 		} else {
 			$allowedLocations = self::getSublocations($locations, $allowedLocations);
 		}
