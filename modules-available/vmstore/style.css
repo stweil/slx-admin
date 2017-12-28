@@ -1,0 +1,12 @@
+.disabledPanel  {
+    cursor: not-allowed;
+}
+
+.disabledPanel > .panel-heading, .disabledPanel > .panel-body {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.disabledPanel > .panel-heading > .btn {
+    pointer-events: initial;
+}

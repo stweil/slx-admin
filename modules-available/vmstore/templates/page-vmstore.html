@@ -9,11 +9,11 @@
 	<p>{{lang_vmLocationChoose}} <a class="btn btn-default" data-toggle="modal" data-target="#help-store"><span class="glyphicon glyphicon-question-sign"></span></a></p>
 
 
-	<div class="panel panel-default">
+	<div class="panel panel-default {{^internalAllowed}}disabledPanel{{/internalAllowed}}">
 		<div class="panel-heading">
 			<div class="radio">
 				<input type="radio" name="storetype" value="internal" {{pre-internal}} id="id-internal">
-				<label for="id-internal">{{lang_intern}}</label>
+				<label for="id-internal">{{lang_internal}}</label>
 			</div>
 		</div>
 		<div class="panel-body">
@@ -21,7 +21,7 @@
 		</div>
 	</div>
 
-	<div class="panel panel-default">
+	<div class="panel panel-default {{^nfsAllowed}}disabledPanel{{/nfsAllowed}}">
 		<div class="panel-heading">
 			<div class="radio radio-inline">
 				<input type="radio" name="storetype" value="nfs" {{pre-nfs}} id="id-nfs">
@@ -37,7 +37,7 @@
 
 
 
-	<div class="panel panel-default">
+	<div class="panel panel-default {{^cifsAllowed}}disabledPanel{{/cifsAllowed}}">
 		<div class="panel-heading">
 			<div class="radio radio-inline">
 				<input type="radio" name="storetype" value="cifs" {{pre-cifs}} id="id-cifs">
@@ -46,7 +46,7 @@
 			<a class="btn btn-default btn-sm" data-toggle="modal" data-target="#help-cifs"><span class="glyphicon glyphicon-question-sign"></span></a>
 		</div>
 		<div class="panel-body">
-			<label for="cifsaddr">UNC-Pfad</label>
+			<label for="cifsaddr">UNC-{{lang_path}}</label>
 			<input type="text" class="form-control" name="cifsaddr" value="{{cifsaddr}}" placeholder="\\samba.server.example.com\bwlp" id="cifsaddr">
 			<br>
 			<label for="cifsuser">{{lang_readWrite}}</label>
@@ -75,7 +75,7 @@
 		</div>
 	</div>
 	<div class="text-right">
-		<button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+		<button class="btn btn-primary" type="submit" {{^saveAllowed}}disabled{{/saveAllowed}}><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 	</div>
 
 </form>
