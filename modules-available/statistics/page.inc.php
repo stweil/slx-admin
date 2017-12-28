@@ -21,6 +21,8 @@ class Page_Statistics extends Page
 
 	private $query;
 
+	private $locationsAllowedToView;
+
 	/**
 	 * @var bool whether we have a SubPage from the pages/ subdir
 	 */
@@ -134,10 +136,13 @@ class Page_Statistics extends Page
 	{
 		$this->initConstants();
 		User::load();
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
+
+		$this->locationsAllowedToView = User::getAllowedLocations("view");
+
 
 		$show = Request::any('show', 'stat', 'string');
 		$show = preg_replace('/[^a-z0-9_\-]/', '', $show);
@@ -153,16 +158,20 @@ class Page_Statistics extends Page
 			$action = Request::post('action');
 			if ($action === 'setnotes') {
 				$uuid = Request::post('uuid', '', 'string');
-				$text = Request::post('content', '', 'string');
-				if (empty($text)) {
-					$text = null;
+				$locationid = Database::queryFirst('SELECT locationid FROM machine WHERE machineuuid = :uuid',
+																	array('uuid' => $uuid))['locationid'];
+				if (User::hasPermission("note", $locationid)) {
+					$text = Request::post('content', '', 'string');
+					if (empty($text)) {
+						$text = null;
+					}
+					Database::exec('UPDATE machine SET notes = :text WHERE machineuuid = :uuid', array(
+						'uuid' => $uuid,
+						'text' => $text,
+					));
+					Message::addSuccess('notes-saved');
+					Util::redirect('?do=Statistics&uuid=' . $uuid);
 				}
-				Database::exec('UPDATE machine SET notes = :text WHERE machineuuid = :uuid', array(
-					'uuid' => $uuid,
-					'text' => $text,
-				));
-				Message::addSuccess('notes-saved');
-				Util::redirect('?do=Statistics&uuid=' . $uuid);
 			} elseif ($action === 'delmachines') {
 				$this->deleteMachines();
 				Util::redirect('?do=statistics', true);
@@ -188,10 +197,12 @@ class Page_Statistics extends Page
 		$res = Database::simpleQuery('SELECT machineuuid, locationid FROM machine WHERE machineuuid IN (:ids)', compact('ids'));
 		$ids = array_flip($ids);
 		$delete = [];
+		$allowedLocations = User::getAllowedLocations("delete");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			// TODO: Check locationid permissions
-			unset($ids[$row['machineuuid']]);
-			$delete[] = $row['machineuuid'];
+			if (in_array($row['locationid'], $allowedLocations)) {
+				unset($ids[$row['machineuuid']]);
+				$delete[] = $row['machineuuid'];
+			}
 		}
 		if (!empty($delete)) {
 			Database::exec('DELETE FROM machine WHERE machineuuid IN (:delete)', compact('delete'));
@@ -277,7 +288,8 @@ class Page_Statistics extends Page
 			foreach (Location::getLocations() as $loc) {
 				$locsFlat['L' . $loc['locationid']] = array(
 					'pad' => $loc['locationpad'],
-					'name' => $loc['locationname']
+					'name' => $loc['locationname'],
+					'disabled' => !in_array($loc['locationid'], $this->locationsAllowedToView)
 				);
 			}
 		}
@@ -333,8 +345,9 @@ class Page_Statistics extends Page
 	private function showSummary($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
-
-		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE ($where)", $args);
+		$args['allowedLocations'] = $this->locationsAllowedToView;
+		$where = "locationid IN (:allowedLocations) AND ($where)";
+		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE $where", $args);
 		// If we only have one machine, redirect to machine details
 		if ($known['val'] == 1) {
 			$this->redirectFirst($where, $join, $args);
@@ -394,7 +407,8 @@ class Page_Statistics extends Page
 		global $STATS_COLORS;
 
 		$filterSet->makeFragments($where, $join, $sort, $args);
-
+		$args['allowedLocations'] = $this->locationsAllowedToView;
+		$where = "locationid IN (:allowedLocations) AND ($where)";
 		$res = Database::simpleQuery('SELECT systemmodel, Round(AVG(realcores)) AS cores, Count(*) AS `count` FROM machine'
 			. " $join WHERE $where GROUP BY systemmodel ORDER BY `count` DESC, systemmodel ASC", $args);
 		$lines = array();
@@ -427,7 +441,8 @@ class Page_Statistics extends Page
 		global $STATS_COLORS, $SIZE_RAM;
 
 		$filterSet->makeFragments($where, $join, $sort, $args);
-
+		$args['allowedLocations'] = $this->locationsAllowedToView;
+		$where = "locationid IN (:allowedLocations) AND ($where)";
 		$res = Database::simpleQuery("SELECT mbram, Count(*) AS `count` FROM machine $join WHERE $where  GROUP BY mbram", $args);
 		$lines = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -473,7 +488,8 @@ class Page_Statistics extends Page
 	private function showKvmState($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
-
+		$args['allowedLocations'] = $this->locationsAllowedToView;
+		$where = "locationid IN (:allowedLocations) AND ($where)";
 		$colors = array('UNKNOWN' => '#666', 'UNSUPPORTED' => '#ea5', 'DISABLED' => '#e55', 'ENABLED' => '#6d6');
 		$res = Database::simpleQuery("SELECT kvmstate, Count(*) AS `count` FROM machine $join WHERE $where GROUP BY kvmstate ORDER BY `count` DESC", $args);
 		$lines = array();
@@ -497,7 +513,8 @@ class Page_Statistics extends Page
 		global $STATS_COLORS, $SIZE_ID44;
 
 		$filterSet->makeFragments($where, $join, $sort, $args);
-
+		$args['allowedLocations'] = $this->locationsAllowedToView;
+		$where = "locationid IN (:allowedLocations) AND ($where)";
 		$res = Database::simpleQuery("SELECT id44mb, Count(*) AS `count` FROM machine $join WHERE $where GROUP BY id44mb", $args);
 		$lines = array();
 		$total = 0;
@@ -549,7 +566,8 @@ class Page_Statistics extends Page
 	private function showLatestMachines($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
-
+		$args['allowedLocations'] = $this->locationsAllowedToView;
+		$where = "locationid IN (:allowedLocations) AND ($where)";
 		$args['cutoff'] = ceil(time() / 3600) * 3600 - 86400 * 10;
 
 		$res = Database::simpleQuery("SELECT machineuuid, clientip, hostname, firstseen, mbram, kvmstate, id44mb FROM machine $join"
@@ -583,7 +601,8 @@ class Page_Statistics extends Page
 	{
 		Module::isAvailable('js_stupidtable');
 		$filterSet->makeFragments($where, $join, $sort, $args);
-
+		$args['allowedLocations'] = $this->locationsAllowedToView;
+		$where = "locationid IN (:allowedLocations) AND ($where)";
 		$xtra = '';
 		if ($filterSet->isNoId44Filter()) {
 			$xtra .= ', data';
@@ -594,18 +613,20 @@ class Page_Statistics extends Page
 				$join .= ' LEFT JOIN runmode USING (machineuuid) ';
 			}
 		}
-		$res = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, lastseen,'
+		$res = Database::simpleQuery('SELECT machineuuid, locationid, macaddr, clientip, lastseen,'
 			. ' logintime, state, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes,'
 			. ' badsectors ' . $xtra . ' FROM machine'
 			. " $join WHERE $where $sort", $args);
 		$rows = array();
 		$singleMachine = 'none';
+		$deleteAllowedLocations = User::getAllowedLocations("delete");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($singleMachine === 'none') {
 				$singleMachine = $row['machineuuid'];
 			} else {
 				$singleMachine = false;
 			}
+			$row['deleteAllowed'] = in_array($row['locationid'], $deleteAllowedLocations);
 			$row['state_' . $row['state']] = true;
 			//$row['firstseen'] = Util::prettyTime($row['firstseen']);
 			$row['lastseen_int'] = $row['lastseen'];
@@ -747,6 +768,10 @@ class Page_Statistics extends Page
 			array('uuid' => $uuid));
 		if ($client === false) {
 			Message::addError('unknown-machine', $uuid);
+			return;
+		}
+		if (!in_array($client['locationid'], $this->locationsAllowedToView)) {
+			Message::addError('main.no-permission');
 			return;
 		}
 		// Hack: Get raw collected data
@@ -960,6 +985,7 @@ class Page_Statistics extends Page
 			));
 		}
 		// Notes
+		$client["notesAllowed"] = User::hasPermission("note", $client["locationid"]);
 		Render::addTemplate('machine-notes', $client);
 	}
 

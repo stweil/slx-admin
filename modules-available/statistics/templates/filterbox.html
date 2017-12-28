@@ -176,10 +176,12 @@ document.addEventListener("DOMContentLoaded", function () {
 			$('#argumentSelect').show();
 			columns[col]['values'].forEach(function (v) {
 				var t = v;
+				var disabled = true;
 				if (col === 'location' && slxLocations['L' + v]) {
 					t = slxLocations['L' + v].pad + ' ' + slxLocations['L' + v].name;
+					disabled = slxLocations['L' + v].disabled;
 				}
-				$('#argumentSelect').append($('<option>', { value: v, text: t }));
+				$('#argumentSelect').append($('<option>', { value: v, text: t, disabled: disabled }));
 			});
 		} else {
 			$('#argumentInput').datepicker('remove');
