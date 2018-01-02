@@ -43,10 +43,9 @@
 								{{^liesInPast}}
 								<a onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></a>
 								{{/liesInPast}}
-								<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm" >{{lang_edit}}</a>
-								<input type="hidden" name="token" value="{{token}}">
+								<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm {{^allowedEdit}}disabled{{/allowedEdit}}"><span class="glyphicon glyphicon-edit"></span></a>								<input type="hidden" name="token" value="{{token}}">
 								<input type="hidden" name="examid" value="{{examid}}">
-								<button class="btn {{btnClass}} btn-sm">{{lang_delete}}</button>
+								<button {{^allowedDelete}}disabled{{/allowedDelete}} class="btn {{btnClass}} btn-sm"><span class="glyphicon glyphicon-trash"></span></button>
 							</form>
 						</td>
 					</tr>
@@ -56,7 +55,7 @@
 		</div>
 		<div class="text-right">
 			<div class="btn-group" role="group">
-				<a href="?do=exams&action=add" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign"></span> {{lang_addExam}}</a>
+				<a href="?do=exams&action=add" class="btn btn-success {{^allowedToAdd}}disabled{{/allowedToAdd}}"><span class="glyphicon glyphicon-plus-sign"></span> {{lang_addExam}}</a>
 			</div>
 		</div>
 	</div>

@@ -31,7 +31,7 @@
 						<td width="20%">
 							<div class="pull-right text-nowrap">
 								<a class="btn btn-sm btn-default" role="button" onclick="slxShow({{starttime}}, {{endtime}})"><span class="glyphicon glyphicon-eye-open"></span></a>
-								<a href="?do=exams&amp;action=add&amp;lectureid={{lectureid}}" class="btn btn-sm btn-success" role="button">
+								<a href="?do=exams&amp;action=add&amp;lectureid={{lectureid}}" class="btn btn-sm btn-success {{^allowedToAdd}}disabled{{/allowedToAdd}}" role="button">
 									<span class="glyphicon glyphicon-plus-sign"></span>
 									<span class="hidden-sm">{{lang_addExam}}</span>
 								</a>
