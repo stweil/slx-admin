@@ -4,214 +4,342 @@
 class Queries
 {
 
-	// Client Data: Name, Time Online, Median Time Online, Time Offline, last start, last logout, Last Time Booted, Number of Sessions > 60Sec, Number of Sessions < 60Sec, name of location, id of location (anonymized), machine uuid (anonymized)
-	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$notassigned = Dictionary::translate('notAssigned', true);
-		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT t2.name AS clientName, timeSum, medianSessionLength, offlineSum, IFNULL(lastStart, 0) as lastStart, IFNULL(lastLogout, 0) as lastLogout, longSessions, shortSessions, t2.locId, t2.locName, MD5(CONCAT(t2.locId, :salt)) AS locHash, MD5(CONCAT(t2.uuid, :salt)) AS clientHash FROM (
-													SELECT machine.machineuuid AS 'uuid', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions', MAX(sessionTable.endInBound) AS 'lastLogout'
-													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
-														RIGHT JOIN machine ON sessionTable.machineuuid = machine.machineuuid
-													GROUP BY machine.machineuuid
-												) 	t1 
-												RIGHT JOIN (
-													SELECT IF(machine.hostname = '', machine.clientip, machine.hostname) AS 'name', machine.machineuuid AS 'uuid', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum', MAX(offlineTable.endInBound) AS 'lastStart', IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId'
-													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
-														RIGHT JOIN machine ON offlineTable.machineuuid = machine.machineuuid
-														LEFT JOIN location ON machine.locationid = location.locationid
-													GROUP BY machine.machineuuid
-												) 	t2 
-												ON t1.uuid = t2.uuid", array("salt" => GetData::$salt));
-
-		return $res;
+	private static function keepKeys(&$array, $list)
+	{
+		foreach (array_keys($array) as $key) {
+			if (!in_array($key, $list)) {
+				unset($array[$key]);
+			}
+		}
 	}
 
-	// Location Data: Name, ID (anonymized), Time Online, Median Time Online, Time Offline, Number of Sessions > 60Sec, Number of Sessions < 60Sec
-	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$notassigned = Dictionary::translate('notAssigned', true);
-		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT t2.locId, t2.locName, MD5(CONCAT(t2.locId, :salt)) AS locHash, timeSum, medianSessionLength, offlineSum, longSessions, shortSessions FROM (
-													SELECT location.locationid AS 'locId', SUM(CAST(sessionTable.length AS UNSIGNED)) AS 'timeSum', GROUP_CONCAT(sessionTable.length) AS 'medianSessionLength', SUM(sessionTable.length >= 60) AS 'longSessions', SUM(sessionTable.length < 60) AS 'shortSessions'
-													FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable
-												   	RIGHT JOIN machine ON sessionTable.machineuuid = machine.machineuuid 
-														LEFT JOIN location ON machine.locationid = location.locationid 
-													GROUP BY machine.locationid
-												) 	t1 
-												RIGHT JOIN (
-													SELECT IFNULL(location.locationname, '$notassigned') AS 'locName', location.locationid AS 'locId', SUM(CAST(offlineTable.length AS UNSIGNED)) AS 'offlineSum'
-													FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable
-														RIGHT JOIN machine ON offlineTable.machineuuid = machine.machineuuid 
-														LEFT JOIN location ON machine.locationid = location.locationid 
-													GROUP BY machine.locationid
-												) 	t2 
-												ON t1.locId = t2.locId", array("salt" => GetData::$salt));
-		return $res;
+	public static function getClientStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24)
+	{
+		$res = Database::simpleQuery("SELECT m.machineuuid, m.hostname, m.clientip,
+				m.locationid, m.firstseen -- , m.lastboot, m.logintime, m.state
+ 				FROM machine m WHERE firstseen <= $to"); // " WHERE lastseen >= :from", compact('from'));
+		$machines = self::getStats3($res, $from, $to, $lowerTimeBound, $upperTimeBound);
+		foreach ($machines as &$machine) {
+			$machine['medianSessionLength'] = self::calcMedian($machine['sessions']);
+			unset($machine['sessions']);
+			$machine['clientName'] = $machine['hostname'] ? $machine['hostname'] : $machine['clientip'];
+		}
+		return $machines;
+	}
+
+	public static function getLocationStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24)
+	{
+		$res = Database::simpleQuery("SELECT m.machineuuid, m.hostname, m.clientip,
+				m.locationid, m.firstseen -- , m.lastboot, m.logintime, m.state
+ 				FROM machine m WHERE firstseen <= $to"); // " WHERE lastseen >= :from", compact('from'));
+		$machines = self::getStats3($res, $from, $to, $lowerTimeBound, $upperTimeBound);
+		$locations = [];
+		$keys = ['locationid', 'totalTime', 'totalOffTime', 'totalSessionTime', 'totalStandbyTime', 'totalIdleTime', 'totalIdleTime', 'longSessions', 'shortSessions', 'sessions'];
+		while ($machine = array_pop($machines)) {
+			if (!isset($locations[$machine['locationid']])) {
+				self::keepKeys($machine, $keys);
+				$locations[$machine['locationid']] = $machine;
+			} else {
+				$l =& $locations[$machine['locationid']];
+				$l['totalTime'] += $machine['totalTime'];
+				$l['totalOffTime'] += $machine['totalOffTime'];
+				$l['totalSessionTime'] += $machine['totalSessionTime'];
+				$l['totalStandbyTime'] += $machine['totalStandbyTime'];
+				$l['totalIdleTime'] += $machine['totalIdleTime'];
+				$l['longSessions'] += $machine['longSessions'];
+				$l['shortSessions'] += $machine['shortSessions'];
+				$l['sessions'] = array_merge($l['sessions'], $machine['sessions']);
+			}
+		}
+		foreach ($locations as &$location) {
+			$location['medianSessionLength'] = self::calcMedian($location['sessions']);
+			unset($location['sessions']);
+		}
+		return $locations;
+	}
+
+	public static function getOverallStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24)
+	{
+		$res = Database::simpleQuery("SELECT m.machineuuid, m.hostname, m.clientip,
+				m.locationid, m.firstseen -- , m.lastboot, m.logintime, m.state
+ 				FROM machine m WHERE firstseen <= $to"); // " WHERE lastseen >= :from", compact('from'));
+		$machines = self::getStats3($res, $from, $to, $lowerTimeBound, $upperTimeBound);
+		$total = false;
+		$keys = ['totalTime', 'totalOffTime', 'totalSessionTime', 'totalStandbyTime', 'totalIdleTime', 'totalIdleTime', 'longSessions', 'shortSessions', 'sessions'];
+		while ($machine = array_pop($machines)) {
+			if ($total === false) {
+				self::keepKeys($machine, $keys);
+				$total = $machine;
+			} else {
+				$total['totalTime'] += $machine['totalTime'];
+				$total['totalOffTime'] += $machine['totalOffTime'];
+				$total['totalSessionTime'] += $machine['totalSessionTime'];
+				$total['totalStandbyTime'] += $machine['totalStandbyTime'];
+				$total['totalIdleTime'] += $machine['totalIdleTime'];
+				$total['longSessions'] += $machine['longSessions'];
+				$total['shortSessions'] += $machine['shortSessions'];
+				$total['sessions'] = array_merge($total['sessions'], $machine['sessions']);
+			}
+		}
+		$total['medianSessionLength'] = self::calcMedian($total['sessions']);
+		unset($total['sessions']);
+		return $total;
+	}
+
+	/**
+	 * @param \PDOStatement $res
+	 * @param int $from
+	 * @param int $to
+	 * @param int $lowerTimeBound
+	 * @param int $upperTimeBound
+	 * @return array
+	 */
+	private static function getStats3($res, $from, $to, $lowerTimeBound, $upperTimeBound)
+	{
+		//$debug = false;
+		if ($lowerTimeBound === 0 && $upperTimeBound === 24 || $upperTimeBound <= $lowerTimeBound) {
+			$bounds = false;
+		} else {
+			$bounds = [$lowerTimeBound, $upperTimeBound];
+		}
+		$machines = array();
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['firstseen'] = max($row['firstseen'], $from);
+			$row += array(
+				'totalTime' => self::timeDiff($row['firstseen'], $to, $bounds),
+				'totalOffTime' => 0,
+				'totalSessionTime' => 0,
+				'totalStandbyTime' => 0,
+				'sessions' => [],
+				'lastStart' => 0,
+				'lastLogout' => 0,
+				'longSessions' => 0,
+				'shortSessions' => 0,
+				'active' => false,
+			);
+			$machines[$row['machineuuid']] = $row;
+		}
+		// Don't filter by typeid in the query, still faster by being able to use the machineuuid/dateline index and filtering later
+		$last = $from - 86400; // Start 24h early to catch sessions already in progress
+		$dups = [];
+		// Fetch in batches of 1000 rows (for current 50 machines)
+		do {
+			$res = Database::simpleQuery("SELECT logid, dateline, typeid, machineuuid, data
+					FROM statistic WHERE dateline >= :last AND dateline <= :to AND machineuuid IS NOT NULL
+					ORDER BY dateline ASC LIMIT 1000", compact('last', 'to'));
+			$last = false;
+			$count = 0;
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$count += 1; // Update count first, as we use it as a condition in outer loop. No continue before this
+				settype($row['logid'], 'int');
+				// Update for next query
+				$last = $row['dateline'];
+				// Ignore dups, we query >= last dateline as we can have multiple events at the same second, but
+				// only some of them got returned because of LIMIT. Skip here because excluding in query directly
+				// would make the query itself rather inefficient. We also cannot use logid > X because the logid
+				// is not strictly ascending with time, as dateline gets backdated to event start on insert
+				if ($count === 150) {
+					$dups = [];
+				} elseif ($count > 900) {
+					$dups[] = $row['logid'];
+				} elseif ($count < 150 && array_key_exists($row['logid'], $dups)) {
+					continue;
+				}
+				if (!isset($machines[$row['machineuuid']]))
+					continue;
+				if ($row['typeid'] !== '~offline-length' && $row['typeid'] !== '~suspend-length' && $row['typeid'] !== '~session-length')
+					continue;
+				settype($row['dateline'], 'int');
+				settype($row['data'], 'int');
+				if ($row['data'] <= 0)
+					continue;
+				// Clamp to $from and $to
+				if ($row['dateline'] < $from) {
+					$diff = $row['dateline'] + $row['data'] - $from;
+					if ($diff <= 0)
+						continue;
+					$row['dateline'] += $diff;
+					$row['data'] -= $diff;
+				}
+				if ($row['dateline'] + $row['data'] > $to) {
+					$row['data'] = $to - $row['dateline'];
+					if ($row['data'] < 0)
+						continue;
+				}
+				$machine =& $machines[$row['machineuuid']];
+				// Process event if applicable
+				if ($row['typeid'] === '~session-length') { // SESSION timespan
+					$row['typeid'] = 'totalSessionTime';
+					$machine['lastLogout'] = $row['dateline'] + $row['data'];
+				} elseif ($row['typeid'] === '~offline-length') { // OFFLINE timespan
+					$row['typeid'] = 'totalOffTime';
+					$machine['lastStart'] = $row['dateline'] + $row['data'];
+				} else { // STANDBY timespan
+					$row['typeid'] = 'totalStandbyTime';
+				}
+				self::addTime($machine, $row, $bounds);
+			}
+			$dups = array_flip($dups);
+		} while ($last !== false && $count === 1000); // Check if we need to fetch more rows for current batch
+		foreach ($machines as &$machine) {
+			if (!$machine['active']) {
+				$machine['totalOffTime'] = $machine['totalTime'];
+			}
+			$machine['totalIdleTime'] = $machine['totalTime'] - ($machine['totalOffTime'] + $machine['totalStandbyTime'] + $machine['totalSessionTime']);
+		}
+		return $machines;
+	}
+
+	private static function addTime(&$machine, $row, $bounds)
+	{
+		// First event, handle difference
+		if (!$machine['active'] && $row['dateline'] + $row['data']  >= $machine['firstseen']) {
+			if ($row['dateline'] > $machine['firstseen']) {
+				$s = $machine['firstseen'];
+				$e = $row['dateline'];
+				/*
+				if ($debug) {
+					error_log('Initial offline time += ' . self::timeDiff($s, $e, $bounds, true));
+				}
+				*/
+				$machine['totalOffTime'] += self::timeDiff($s, $e, $bounds);
+				$machine['active'] = true;
+				if ($machine['lastStart'] < $row['dateline']) {
+					$machine['lastStart'] = $row['dateline'];
+				}
+			} else {
+				// Not offline at beginning of period, do nothing
+				$machine['active'] = true;
+			}
+		}
+		// Current row
+		if ($bounds === false) {
+			// Simple case: No bounds
+			$machine[$row['typeid']] += $row['data'];
+		} else {
+			$start = $row['dateline'];
+			$end = $row['dateline'] + $row['data'];
+			/*
+			if ($debug) {
+				error_log('Adding ' . $row['typeid'] . ' += ' . self::timeDiff($start, $end, $bounds, true));
+			}
+			*/
+			$machine[$row['typeid']] += self::timeDiff($start, $end, $bounds);
+			$sh = date('G', $start);
+		}
+		if ($row['typeid'] === 'totalSessionTime' && ($bounds === false || ($sh >= $bounds[0] && $sh < $bounds[1]))) {
+			if ($row['data'] >= 60) {
+				$machine['longSessions'] += 1;
+				$machine['sessions'][] = $row['data'];
+			} else {
+				$machine['shortSessions'] += 1;
+			}
+		}
+	}
+
+	private static function timeDiff($start, $end, $bounds)
+	{
+		// Put given timespan into bounds
+		/*
+		if ($debug) {
+			$os = $start;
+			$oe = $end;
+		}
+		*/
+		if ($bounds !== false) {
+			// Put start time into bounds
+			if ($start !== null) {
+				$sh = date('G', $start);
+				if ($sh < $bounds[0]) {
+					$start = strtotime($bounds[0] . ':00:00', $start);
+				} elseif ($sh >= $bounds[1]) {
+					$start = strtotime($bounds[0] . ':00:00 +1day', $start);
+				}
+			}
+			// Put end time into bounds
+			if ($end !== null && $end > $start) {
+				$eh = date('G', $end);
+				if ($eh < $bounds[0]) {
+					$end = strtotime($bounds[1] . ':00:00 -1day', $end);
+				} elseif ($eh >= $bounds[1]) {
+					$end = strtotime($bounds[1] . ':00:00', $end);
+				}
+			}
+		}
+		if ($end !== null && $start !== null && $end < $start) {
+			$end = $start;
+		}
+		/*
+		if ($debug) {
+			if ($start >= $end) {
+				error_log('END < START: ' . date('d.m.Y H:i:s', $start) . ' - ' . date('d.m.Y H:i:s', $end));
+			} else {
+				if ($os != $start) {
+					error_log('Corrected start: ' . date('d.m.Y H:i:s', $os) . ' to ' . date('d.m.Y H:i:s', $start));
+				}
+				if ($oe != $end) {
+					error_log('Corrected end  : ' . date('d.m.Y H:i:s', $oe) . ' to ' . date('d.m.Y H:i:s', $end));
+				}
+			}
+		}
+		*/
+		// Calc time excluding out of range hours
+		return ($end - $start) - self::getIgnoredTime($start, $end, $bounds);
+	}
+
+	private static function getIgnoredTime($start, $end, $bounds)
+	{
+		if ($bounds === false || $start >= $end)
+			return 0;
+		$end = strtotime('00:00:00', $end);
+		if ($start >= $end)
+			return 0;
+		/*
+		if ($debug) {
+			error_log('From ' . date('d.m.Y H:i:s', $start) . ' to ' . date('d.m.Y H:i:s', $end) . ' = ' . ceil(($end - $start) / 86400) * (24 - ($bounds[1] - $bounds[0])));
+		}
+		*/
+		return (int)ceil(($end - $start) / 86400) * (24 - ($bounds[1] - $bounds[0])) * 3600;
+	}
+
+	/**
+	 * Get median of array.
+	 * @param int[] list of values
+	 * @return int The median
+	 */
+	private static function calcMedian($array) {
+		if (empty($array))
+			return 0;
+		sort($array, SORT_NUMERIC);
+		$count = count($array); //total numbers in array
+		$middleval = (int)floor(($count-1) / 2); // find the middle value, or the lowest middle value
+		if($count % 2 === 1) { // odd number, middle is the median
+			return (int)$array[$middleval];
+		}
+		// even number, calculate avg of 2 medians
+		$low = $array[$middleval];
+		$high = $array[$middleval+1];
+		return (int)round(($low+$high) / 2);
 	}
 
 	// User Data: Name, Name(anonymized), Number of Logins
 	public static function getUserStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT username AS name, IF(username = 'anonymous', 'anonymous', md5(CONCAT(username, :salt))) AS  userHash, COUNT(*) AS 'count'
+		$res = Database::simpleQuery("SELECT username AS name, COUNT(*) AS 'count'
 												FROM statistic 
-												WHERE typeid='.vmchooser-session-name' AND dateline >= $from and dateline <= $to
-													AND FROM_UNIXTIME(dateline, '%H') >= $lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < $upperTimeBound
-												GROUP BY username 
-												ORDER BY 2 DESC", array("salt" => GetData::$salt));
+												WHERE typeid='.vmchooser-session-name' AND dateline >= :from and dateline <= :to
+													AND FROM_UNIXTIME(dateline, '%H') >= :lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < :upperTimeBound
+												GROUP BY username", compact('from', 'to', 'lowerTimeBound', 'upperTimeBound'));
 		return $res;
 	}
 
 	// Virtual Machine Data: Name, Number of Usages
 	public static function getVMStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT data AS name, MD5(CONCAT(data, :salt)) AS vmHash, COUNT(*) AS 'count'
+		$res = Database::simpleQuery("SELECT data AS name, COUNT(*) AS 'count'
 											 	FROM statistic
-												WHERE typeid='.vmchooser-session-name' AND dateline >= $from and dateline <= $to
-													AND FROM_UNIXTIME(dateline, '%H') >= $lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < $upperTimeBound
-												GROUP BY data 
-												ORDER BY 2 DESC", array("salt" => GetData::$salt));
+												WHERE typeid='.vmchooser-session-name' AND dateline >= :from and dateline <= :to
+													AND FROM_UNIXTIME(dateline, '%H') >= :lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < :upperTimeBound
+												GROUP BY data", compact('from', 'to', 'lowerTimeBound', 'upperTimeBound'));
 		return $res;
-	}
-
-	//Total Data: Time Online, Median Time Online, Number of Sessions > 60Sec, Number of Sessions < 60Sec
-	public static function getOverallStatistics ($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		Database::exec("SET SESSION group_concat_max_len = 1000000000");
-		$res = Database::simpleQuery("SELECT SUM(CAST(sessionTable.length AS UNSIGNED)) AS sum, GROUP_CONCAT(sessionTable.length) AS median, SUM(sessionTable.length >= 60) AS longSessions, SUM(sessionTable.length < 60) AS shortSessions
-											 	FROM ".self::getBoundedTableQueryString('~session-length', $from, $to, $lowerTimeBound, $upperTimeBound)." sessionTable");
-		return $res;
-	}
-
-	// Total Data(2): Time Offline
-	public static function getTotalOfflineStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
-		$res = Database::simpleQuery("SELECT SUM(CAST(offlineTable.length AS UNSIGNED)) AS timeOff
-												FROM ".self::getBoundedTableQueryString('~offline-length', $from, $to, $lowerTimeBound, $upperTimeBound)." offlineTable");
-		return $res;
-	}
-
-	// query string which provides table with time-cutoff and time-bounds
-	private static function getBoundedTableQueryString($typeid, $from, $to, $lowerTimeBound, $upperTimeBound)
-	{
-		// get Clients that are currently oflfine (the offline time is not yet recorded in the statistic table)
-		$union = $typeid == '~offline-length' ?
-			"union
-			 select 	CAST(IF(lastseen < $from, $from, lastseen) as UNSIGNED) as start, $to as end,
-			 			'~offline-length' as typeid, machineuuid, 'machine' 
-			 from machine where lastseen <= $to and UNIX_TIMESTAMP() - lastseen >= 600" : "";
-
-
-		$lowerFormat = "'%y-%m-%d $lowerTimeBound:00:00'";
-		$upperFormat = "'%y-%m-%d ".($upperTimeBound-1).":59:59'";
-		$queryString = "
-			select
-			
-			# The whole length of the session/offline time.
-			(end-start
-			
-			# Now the time that is not within the daily time bounds is subtracted.
-			# This includes the time before the first daily bound, the time after the last daily bound
-			# and the time between the daily bounds (if a session/offline time spans multiple days)
-			
-			# Time before the first daily bound is subtracted.
-			- IF(
-					start > startUpper,
-					UNIX_TIMESTAMP(FROM_UNIXTIME(start, $lowerFormat) + INTERVAL 1 DAY) - start,
-					IF(
-						 start < startLower,
-						 startLower - start,
-						 0
-					)
-			  )
-			  
-			# Time after the last daily bound is subtracted.
-			- IF(
-					end > endUpper,
-					end - (endUpper + 1),
-					IF(
-						 end < endLower,
-						 end - (UNIX_TIMESTAMP(FROM_UNIXTIME(end, $upperFormat) - INTERVAL 1 DAY) + 1),
-						 0
-					)
-			  )
-			  
-			# Time between the daily bounds is subtracted.
-			- (    daysDiff - 2
-					 + IF(start <= startUpper, 1, 0)
-					 + IF(end >= endLower, 1, 0)
-			  ) * ((24 - ($upperTimeBound - $lowerTimeBound)) * 3600)
-		
-			# If the session crossed a clock change (to/from daylight saving time), the last subtraction may have subtracted
-			# one hour too much or too little. This IF will correct this.
-			- IF(
-					innerStart < innerEnd,
-					IF(
-						timeDiff = 1 AND ($lowerTimeBound >= 2 OR $upperTimeBound <= 2),
-						3600,
-						IF(timeDiff = -1 AND ($lowerTimeBound >= 3 OR $upperTimeBound <= 3), -3600, 0)
-					),
-					0
-			  )
-			  
-			) as 'length',
-			
-			IF(end < endUpper AND end > endLower AND end < $to, end, 0) as endInBound,
-			
-			machineuuid
-			
-			
-			# These nested selects are necessary because some things need to be calculated before others.
-			# (e.g. start is needed to calculate startLower)
-			from (
-				select 
-					*,
-					
-					# timeDiff is the clock change between innerStart and innerEnd. ( 0 = no clock change)
-					((CAST(date_format(from_unixtime(innerStart), '%H') as SIGNED) -
-					CAST(date_format(convert_tz(from_unixtime(innerStart), @@session.time_zone, '+00:00'), '%H') as SIGNED) + 24) % 24
-					-
-					(CAST(date_format(from_unixtime(innerEnd), '%H') as SIGNED) -
-					CAST(date_format(convert_tz(from_unixtime(innerEnd), @@session.time_zone, '+00:00'), '%H') as SIGNED) + 24) % 24) as timeDiff
-				from (
-					select 
-						*,
-						
-						# innerStart and innerEnd are start and end but excluding the time before the first daily upper bound and after the last daily lower bound.
-						CAST(IF(start <= startUpper, startUpper, UNIX_TIMESTAMP(FROM_UNIXTIME(start, $upperFormat) + INTERVAL 1 DAY)) as UNSIGNED) as innerStart,
-						CAST(IF(end >= endLower, endLower, UNIX_TIMESTAMP(FROM_UNIXTIME(end, $lowerFormat) - INTERVAL 1 DAY)) as UNSIGNED) as innerEnd
-					from (
-						select 
-							*,
-							
-							# daysDiff = how many different days the start and end are apart (0 = start and end on the same day)
-							(TO_DAYS(FROM_UNIXTIME(end, '%y-%m-%d')) - TO_DAYS(FROM_UNIXTIME(start, '%y-%m-%d'))) as daysDiff,
-							
-							# startLower = lower daily time bound on the starting day
-							CAST(UNIX_TIMESTAMP(FROM_UNIXTIME(start, $lowerFormat)) as UNSIGNED) as startLower,
-							# startUpper = upper daily time bound on the starting day
-							CAST(UNIX_TIMESTAMP(FROM_UNIXTIME(start, $upperFormat)) as UNSIGNED) as startUpper,
-							# endLower = lower daily time bound on the ending day
-							CAST(UNIX_TIMESTAMP(FROM_UNIXTIME(end, $lowerFormat)) as UNSIGNED) as endLower,
-							# endUpper = upper daily time bound on the ending day
-							CAST(UNIX_TIMESTAMP(FROM_UNIXTIME(end, $upperFormat)) as UNSIGNED) as endUpper
-						from (
-							# Statistic logs (combined with currently offline machines if offline times are requested) .
-							select 	CAST(IF(dateline < $from, $from, dateline) as UNSIGNED) as start,
-										CAST(IF(dateline+data > $to, $to, dateline+data) as UNSIGNED) as end,
-										typeid, machineuuid, 'statistic'
-							from statistic where dateline+data >= $from and dateline <= $to and typeid = '$typeid' 
-							$union
-						) t
-					) t
-				) t
-			) t
-			
-			
-			# Filter out the session that are at least overlapping with the time bounds.
-			where (
-				(daysDiff = 0 and (start <= UNIX_TIMESTAMP(FROM_UNIXTIME(start, $upperFormat)) and end >= UNIX_TIMESTAMP(FROM_UNIXTIME(end, $lowerFormat))))
-				or
-				(daysDiff = 1 and (start <= UNIX_TIMESTAMP(FROM_UNIXTIME(start, $upperFormat)) or end >= UNIX_TIMESTAMP(FROM_UNIXTIME(end, $lowerFormat))))
-				or
-				daysDiff >= 2
-	 		)
-		";
-		return "(".$queryString.")";
 	}
 
 	public static function getDozmodStats($from, $to)

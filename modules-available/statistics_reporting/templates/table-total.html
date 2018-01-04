@@ -1,22 +1,36 @@
-<table id="table-total" class="table table-condensed table-striped stupidtable">
+<table id="table-total" class="table table-condensed table-striped table-nowrap stupidtable">
 	<thead>
 	<tr>
-		<th class="text-left col-md-2"></th>
-		<th class="text-left col_totalTime">{{lang_totalTime}}</th>
-		<th class="text-left col_medianSessionLength">{{lang_medianSessionLength}}</th>
-		<th class="text-left col_longSessions">{{lang_longSessions}}</th>
-		<th class="text-left col_shortSessions">{{lang_shortSessions}}</th>
-		<th class="text-left col_totalOffTime">{{lang_totalOffTime}}</th>
+		<th></th>
+		<th class="col_totalTime">{{lang_totalTime}}</th>
+		<th class="col_medianSessionLength">{{lang_medianSessionLength}}</th>
+		<th class="col_longSessions">{{lang_longSessions}}</th>
+		<th class="col_shortSessions">{{lang_shortSessions}}</th>
+		<th class="col_totalOffTime">{{lang_totalOffTime}}</th>
+		<th class="col_totalOffTime">(%)</th>
+		<th class="col_totalStandbyTime">{{lang_totalStandbyTime}}</th>
+		<th class="col_totalStandbyTime">(%)</th>
+		<th class="col_totalSessionTime">{{lang_totalSessionTime}}</th>
+		<th class="col_totalSessionTime">(%)</th>
+		<th class="col_totalIdleTime">{{lang_totalIdleTime}}</th>
+		<th class="col_totalIdleTime">(%)</th>
 	</tr>
 	</thead>
 	<tbody>
 	<tr>
-		<th class="text-left">{{lang_total}}</th>
-		<td class="text-left col_totalTime">{{data.totalTime_s}}</td>
-		<td class="text-left col_medianSessionLength">{{data.medianSessionLength_s}}</td>
-		<td class="text-left col_longSessions">{{data.longSessions}}</td>
-		<td class="text-left col_shortSessions">{{data.shortSessions}}</td>
-		<td class="text-left col_totalOffTime">{{data.totalOffTime_s}}</td>
+		<td>{{lang_total}}</td>
+		<td class="col_totalTime">{{data.totalTime_s}}</td>
+		<td class="col_medianSessionLength">{{data.medianSessionLength_s}}</td>
+		<td class="col_longSessions">{{data.longSessions}}</td>
+		<td class="col_shortSessions">{{data.shortSessions}}</td>
+		<td class="text-right col_totalOffTime">{{data.totalOffTime_s}}</td>
+		<td class="col_totalOffTime p-addon">{{data.totalOffTime_p}}&thinsp;%</td>
+		<td class="text-right col_totalStandbyTime">{{data.totalStandbyTime_s}}</td>
+		<td class="col_totalStandbyTime p-addon">{{data.totalStandbyTime_p}}&thinsp;%</td>
+		<td class="text-right col_totalSessionTime">{{data.totalSessionTime_s}}</td>
+		<td class="col_totalSessionTime p-addon">{{data.totalSessionTime_p}}&thinsp;%</td>
+		<td class="text-right col_totalIdleTime">{{data.totalIdleTime_s}}</td>
+		<td class="col_totalIdleTime p-addon">{{data.totalIdleTime_p}}&thinsp;%</td>
 	</tr>
 	</tbody>
 </table>
