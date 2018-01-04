@@ -18,6 +18,8 @@ class Database
 	private static $returnErrors;
 	private static $lastError = false;
 	private static $explainList = array();
+	private static $queryCount = 0;
+	private static $queryTime = 0;
 
 	/**
 	 * Connect to the DB if not already connected.
@@ -120,10 +122,11 @@ class Database
 	public static function simpleQuery($query, $args = array(), $ignoreError = null)
 	{
 		self::init();
-		if (CONFIG_DEBUG && preg_match('/^\s*SELECT/is', $query)) {
-			self::$explainList[] = [$query, $args];
+		if (CONFIG_DEBUG && !isset(self::$explainList[$query]) && preg_match('/^\s*SELECT/is', $query)) {
+			self::$explainList[$query] = [$args];
 		}
 		// Support passing nested arrays for IN statements, automagically refactor
+		$oquery = $query;
 		self::handleArrayArgument($query, $args);
 		try {
 			if (!isset(self::$statements[$query])) {
@@ -131,11 +134,23 @@ class Database
 			} else {
 				self::$statements[$query]->closeCursor();
 			}
+			$start = microtime(true);
 			if (self::$statements[$query]->execute($args) === false) {
 				self::$lastError = implode("\n", self::$statements[$query]->errorInfo());
 				if ($ignoreError === true || ($ignoreError === null && self::$returnErrors))
 					return false;
 				Util::traceError("Database Error: \n" . self::$lastError);
+			}
+			if (CONFIG_DEBUG) {
+				$duration = microtime(true) - $start;
+				self::$queryTime += $duration;
+				$duration = round($duration, 3);
+				if (isset(self::$explainList[$oquery])) {
+					self::$explainList[$oquery][] = $duration;
+				} elseif ($duration > 0.1) {
+					error_log('SLOW ****** ' . $duration . "s *********\n" . $query);
+				}
+				self::$queryCount += 1;
 			}
 			return self::$statements[$query];
 		} catch (Exception $e) {
@@ -149,20 +164,35 @@ class Database
 
 	public static function examineLoggedQueries()
 	{
-		foreach (self::$explainList as $e) {
-			self::explainQuery($e[0], $e[1]);
+		foreach (self::$explainList as $q => $a) {
+			self::explainQuery($q, $a);
 		}
 	}
 
-	private static function explainQuery($query, $args)
+	private static function explainQuery($query, $data)
 	{
+		$args = array_shift($data);
+		$slow = false;
+		$veryslow = false;
+		foreach ($data as &$ts) {
+			if ($ts > 0.004) {
+				$slow = true;
+				if ($ts > 0.015) {
+					$ts = "[$ts]";
+					$veryslow = true;
+				}
+			}
+		}
+		if (!$slow)
+			return;
+		unset($ts);
 		$res = self::simpleQuery('EXPLAIN ' . $query, $args, true);
 		if ($res === false)
 			return;
 		$rows = $res->fetchAll(PDO::FETCH_ASSOC);
 		if (empty($rows))
 			return;
-		$log = false;
+		$log = $veryslow;
 		$lens = array();
 		foreach (array_keys($rows[0]) as $key) {
 			$lens[$key] = strlen($key);
@@ -181,6 +211,7 @@ class Database
 		if (!$log)
 			return;
 		error_log('Possible slow query: ' . $query);
+		error_log('Times: ' . implode(', ', $data));
 		$border = $head = '';
 		foreach ($lens as $key => $len) {
 			$border .= '+' . str_repeat('-', $len + 2);
@@ -255,6 +286,7 @@ class Database
 	public static function prepare($query)
 	{
 		self::init();
+		self::$queryCount += 1; // Cannot know actual count
 		return self::$dbh->prepare($query);
 	}
 
@@ -350,6 +382,16 @@ class Database
 			Util::traceError('Could not find value in table ' . $table . ' that was just inserted');
 		}
 		return $res[$aiKey];
+	}
+
+	public static function getQueryCount()
+	{
+		return self::$queryCount;
+	}
+
+	public static function getQueryTime()
+	{
+		return self::$queryTime;
 	}
 
 }
