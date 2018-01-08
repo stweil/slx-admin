@@ -104,6 +104,11 @@ class Page_Statistics extends Page
 				'type' => 'string',
 				'column' => true
 			],
+			'hostname' => [
+				'op' => Page_Statistics::$op_stringcmp,
+				'type' => 'string',
+				'column' => true
+			],
 			'subnet' => [
 				'op' => Page_Statistics::$op_nominal,
 				'type' => 'string',
@@ -119,7 +124,12 @@ class Page_Statistics extends Page
 				'type' => 'enum',
 				'column' => true,
 				'values' => ['occupied', 'on', 'off', 'idle', 'standby']
-			]
+			],
+			'runtime' => [
+				'op' => Page_Statistics::$op_ordinal,
+				'type' => 'int',
+				'column' => true
+			],
 		];
 		if (Module::isAvailable('locations')) {
 			Page_Statistics::$columns['location'] = [

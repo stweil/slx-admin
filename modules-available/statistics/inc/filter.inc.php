@@ -88,15 +88,17 @@ class Filter
 			$lhs = trim(substr($q, 0, $pos));
 			$rhs = trim(substr($q, $pos + strlen($operator)));
 
-			if ($lhs == 'gbram') {
+			if ($lhs === 'gbram') {
 				$filters[] = new RamGbFilter($operator, $rhs);
-			} elseif ($lhs == 'state') {
+			} elseif ($lhs === 'runtime') {
+				$filters[] = new RuntimeFilter($operator, $rhs);
+			} elseif ($lhs === 'state') {
 				$filters[] = new StateFilter($operator, $rhs);
-			} elseif ($lhs == 'hddgb') {
+			} elseif ($lhs === 'hddgb') {
 				$filters[] = new Id44Filter($operator, $rhs);
-			} elseif ($lhs == 'location') {
+			} elseif ($lhs === 'location') {
 				$filters[] = new LocationFilter($operator, $rhs);
-			} elseif ($lhs == 'subnet') {
+			} elseif ($lhs === 'subnet') {
 				$filters[] = new SubnetFilter($operator, $rhs);
 			} else {
 				if (array_key_exists($lhs, Page_Statistics::$columns) && Page_Statistics::$columns[$lhs]['column']) {
@@ -138,6 +140,38 @@ class RamGbFilter extends Filter
 		} else {
 			error_log("unimplemented operator in RamGbFilter: $this->operator");
 
+			return ' 1';
+		}
+	}
+}
+
+class RuntimeFilter extends Filter
+{
+	public function __construct($operator, $argument)
+	{
+		parent::__construct('lastboot', $operator, $argument);
+	}
+
+	public function whereClause(&$args, &$joins)
+	{
+		global $SIZE_RAM;
+		$lower = time() + (int)$this->argument * 3600;
+		$upper = $lower + 3600;
+		$common = "state IN ('OCCUPIED', 'IDLE', 'STANDBY') AND";
+		if ($this->operator == '=') {
+			return "$common ({$this->column} BETWEEN $lower AND $upper)";
+		} elseif ($this->operator == '<') {
+			return "$common {$this->column} < $lower";
+		} elseif ($this->operator == '<=') {
+			return "$common {$this->column} < $upper";
+		} elseif ($this->operator == '>') {
+			return "$common {$this->column} > $upper";
+		} elseif ($this->operator == '>=') {
+			return "$common {$this->column} > $lower";
+		} elseif ($this->operator == '!=') {
+			return "$common ({$this->column} < $lower OR {$this->column} > $upper)";
+		} else {
+			error_log("unimplemented operator in RuntimeFilter: $this->operator");
 			return ' 1';
 		}
 	}
