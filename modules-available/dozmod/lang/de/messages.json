@@ -8,5 +8,7 @@
     "nothing-submitted": "Es wurde nichts \u00fcbermittelt",
     "runtimelimits-config-saved": "Einstellungen gespeichert",
     "templates-saved": "Templates wurden gespeichert",
-    "timeout": "Zeit\u00fcberschreitung"
+    "timeout": "Zeit\u00fcberschreitung",
+    "unknown-targetid": "Target {{0}} nicht bekannt",
+    "unknown-userid": "Unbekannter Nutzer, {{0}}"
 }

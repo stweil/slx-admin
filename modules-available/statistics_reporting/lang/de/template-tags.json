@@ -1,5 +1,4 @@
 {
-    "lang_apply": "Anwenden",
     "lang_displayColumns": "Auswahl angezeigter Spalten",
     "lang_displaySelection": "Anzeigemodus, Auswahl Zeitfenster",
     "lang_downloadReport": "Report herunterladen",
@@ -7,7 +6,7 @@
     "lang_hostname": "Hostname",
     "lang_lastLogout": "Letzter Logout",
     "lang_lastStart": "Letzter Boot",
-    "lang_location": "Ort",
+    "lang_locationname": "Ort",
     "lang_longSessions": "Sitzungen \u2265 60s",
     "lang_medianSessionLength": "Sitzungsdauer Median",
     "lang_moduleName": "Statistikauswertung",
@@ -18,7 +17,10 @@
     "lang_shortSessions": "Sitzungen < 60s",
     "lang_show": "Anzeigen",
     "lang_total": "Gesamt",
-    "lang_totalOffTime": "Gesamtzeit offline",
+    "lang_totalIdleTime": "Ungenutzt",
+    "lang_totalOffTime": "Offline",
+    "lang_totalSessionTime": "Belegt",
+    "lang_totalStandbyTime": "Standby",
     "lang_totalTime": "Gesamtzeit",
     "lang_user": "Nutzer",
     "lang_vm": "Veranstaltung"

@@ -8,5 +8,7 @@
     "nothing-submitted": "There was nothing submitted",
     "runtimelimits-config-saved": "Configuration saved successfully",
     "templates-saved": "Templates saved successfully",
-    "timeout": "Timeout"
+    "timeout": "Timeout",
+    "unknown-targetid": "Unknown target id {{0}}",
+    "unknown-userid": "Unknown user id {{0}}"
 }
