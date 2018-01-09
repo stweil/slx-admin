@@ -1,0 +1,5 @@
+{
+	"shutdown": "Shutdown Client.",
+	"reboot": "Reboot Client.",
+	"newkeypair": "Generate new Keypair."
+}
