@@ -446,7 +446,6 @@ class Page_Locations extends Page
 		}
 
 		$addAllowedLocs = User::getAllowedLocations("location.add");
-		$addAllowedLocs[] = 0;
 		$addAllowedList = Location::getLocations(0, 0, true);
 		foreach ($addAllowedList as &$loc) {
 			if (!in_array($loc["locationid"], $addAllowedLocs)) {
