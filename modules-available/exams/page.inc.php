@@ -9,6 +9,10 @@ class Page_Exams extends Page
 	private $currentExam;
 	private $rangeMin;
 	private $rangeMax;
+	private $userEditLocations = [];
+	private $userDeleteLocations = [];
+	private $userAddLocations = [];
+	private $allowedLocations = [];
 
 
 	/** if examid is set, also add a column 'selected' **/
@@ -37,9 +41,33 @@ class Page_Exams extends Page
 			. "LEFT JOIN sat.lecture l USING (lectureid) "
 			. "GROUP BY examid "
 			. "ORDER BY examid ASC");
+
 		while ($exam = $tmp->fetch(PDO::FETCH_ASSOC)) {
-			$this->exams[] = $exam;
+			// check if allowed to edit this exam
+			if ($this->allowedToEdit($exam['examid'])) {
+				$exam['allowedEdit'] = True;
+			}
+			// check if allowed to delete this exam
+			if ($this->allowedToDelete($exam['examid'])) {
+				$exam['allowedDelete'] = True;
+			}
+
+
+			$locationids = explode(',', $exam['locationids']);
+			// if global permission, add all exams to the list, no filter required
+			if ($locationids[0] == 0) {
+				$this->exams[] = $exam;
+			} else {
+				foreach($locationids as $locid) {
+					// only add the exam if permisson for atleast one of the exam locations
+					if (in_array($locid, $this->allowedLocations)) {
+						$this->exams[] = $exam;
+						break;
+					}
+				}
+			}
 		}
+
 	}
 
 	protected function readLectures()
@@ -55,6 +83,67 @@ class Page_Exams extends Page
 			['rangeMax' => $this->rangeMax, 'rangeMin' => $this->rangeMin]);
 		while ($lecture = $tmp->fetch(PDO::FETCH_ASSOC)) {
 			$this->lectures[] = $lecture;
+		}
+	}
+
+	// Returns the list of locations of the exam
+	protected function getExamLocations($examid) {
+		$res = Database::simpleQuery("SELECT locationid FROM exams_x_location WHERE examid= :examid", array('examid' => $examid));
+		return $res;
+	}
+
+	// Initialise the user-permission-based lists
+	protected function setUserLocations() {
+
+		// all locations the user has permission to edit
+		$this->userEditLocations = User::getAllowedLocations("exams.edit");
+		// all locations the user has permission to delete
+		$this->userDeleteLocations = User::getAllowedLocations("exams.delete");
+		// all locations the user has permission to add
+		$this->userAddLocations = User::getAllowedLocations("exams.add");
+		// all locations the user has at least one of the 3 permissions
+		$this->allowedLocations = array_unique(array_merge($this->userAddLocations, $this->userEditLocations, $this->userDeleteLocations));
+	}
+
+	// returns true if user is allowed to delete the exam
+	protected function allowedToDelete($examid) {
+
+		$res = $this->getExamLocations($examid);
+		$locations = [];
+		while ($locId = $res->fetch(PDO::FETCH_ASSOC)) {
+			$locations[] = $locId['locationid'];
+		}
+
+		return empty(array_diff($locations, $this->userDeleteLocations));
+
+	}
+
+	// returns true if user is allowed to add an exam
+	protected function allowedToAdd() {
+		return User::hasPermission("exams.add");
+	}
+
+	// returns true if user is allowed to edit the exam
+	protected function allowedToEdit($examid) {
+
+		$res = $this->getExamLocations($examid);
+		$locations = [];
+		while ($locId = $res->fetch(PDO::FETCH_ASSOC)) {
+			$locations[] = $locId['locationid'];
+		}
+
+		return empty(array_diff($locations, $this->userEditLocations));
+
+	}
+
+	// checks if user is allowed to save an exam with all the locations
+	// needs information if it's add (second para = true) or edit (second para = false)
+	protected function allowedToSave($locationids, $isAdd) {
+
+		if ($isAdd) {
+			return empty(array_diff($locationids, $this->userAddLocations));
+		} else {
+			return empty(array_diff($locationids, $this->userEditLocations));
 		}
 	}
 
@@ -88,6 +177,7 @@ class Page_Exams extends Page
 						$locationids[] = $location['locationid'];
 					}
 				}
+
 				foreach ($locationids as $locationid) {
 					$out[] = [
 						'id' => 'shadow_' . $unique_ids++,
@@ -131,13 +221,17 @@ class Page_Exams extends Page
 
 	protected function makeGroupsForVis()
 	{
+
 		$out = [];
+
 		foreach ($this->locations as $l) {
-			$out[] = [
-				'id' => $l['locationid'],
-				'content' => $l['locationpad'] . ' ' . $l['locationname'],
-				'sortIndex' => $l['sortIndex'],
-			];
+			if (in_array($l["locationid"], $this->allowedLocations)) {
+				$out[] = [
+					'id' => $l['locationid'],
+					'content' => $l['locationpad'] . ' ' . $l['locationname'],
+					'sortIndex' => $l['sortIndex'],
+				];
+			}
 		}
 		return json_encode($out);
 	}
@@ -189,7 +283,7 @@ class Page_Exams extends Page
 		}
 		return $out;
 	}
-	
+
 	protected function makeEditFromArray($source)
 	{
 		if (!isset($source['description']) && isset($source['displayname'])) {
@@ -242,42 +336,45 @@ class Page_Exams extends Page
 
 		if ($examid === 0) {
 			// No examid given, is add
-			$res = Database::exec("INSERT INTO exams(lectureid, starttime, endtime, autologin, description) VALUES(:lectureid, :starttime, :endtime, :autologin, :description);",
-					compact('lectureid', 'starttime', 'endtime', 'autologin', 'description')) !== false;
+			if ($this->allowedToSave($locationids, True)) {
+				$res = Database::exec("INSERT INTO exams(lectureid, starttime, endtime, autologin, description) VALUES(:lectureid, :starttime, :endtime, :autologin, :description);",
+						compact('lectureid', 'starttime', 'endtime', 'autologin', 'description')) !== false;
 
-			$exam_id = Database::lastInsertId();
-			foreach ($locationids as $lid) {
-				$res = $res && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:exam_id, :lid)", compact('exam_id', 'lid')) !== false;
-			}
-			if ($res === false) {
-				Message::addError('exam-not-added');
-			} else {
-				Message::addInfo('exam-added-success');
+				$exam_id = Database::lastInsertId();
+				foreach ($locationids as $lid) {
+					$res = $res && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:exam_id, :lid)", compact('exam_id', 'lid')) !== false;
+				}
+				if ($res === false) {
+					Message::addError('exam-not-added');
+				} else {
+					Message::addInfo('exam-added-success');
+				}
 			}
 			Util::redirect('?do=exams');
 		}
 
 		// Edit
+		if ($this->allowedToSave($locationids, False)) {
+			$this->currentExam = Database::queryFirst("SELECT * FROM exams WHERE examid = :examid", array('examid' => $examid));
+			if ($this->currentExam === false) {
+				Message::addError('invalid-exam-id', $examid);
+				Util::redirect('?do=exams');
+			}
 
-		$this->currentExam = Database::queryFirst("SELECT * FROM exams WHERE examid = :examid", array('examid' => $examid));
-		if ($this->currentExam === false) {
-			Message::addError('invalid-exam-id', $examid);
-			Util::redirect('?do=exams');
-		}
-
-		/* update fields */
-		$res = Database::exec("UPDATE exams SET lectureid = :lectureid, starttime = :starttime, endtime = :endtime, autologin = :autologin, description = :description WHERE examid = :examid",
-				compact('lectureid', 'starttime', 'endtime', 'description', 'examid', 'autologin')) !== false;
-		/* drop all connections and reconnect to rooms */
-		$res = $res && Database::exec("DELETE FROM exams_x_location WHERE examid = :examid", compact('examid')) !== false;
-		/* reconnect */
-		foreach ($locationids as $lid) {
-			$res = $res && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:examid, :lid)", compact('examid', 'lid')) !== false;
-		}
-		if ($res !== false) {
-			Message::addInfo("changes-successfully-saved");
-		} else {
-			Message::addError("error-while-saving-changes");
+			/* update fields */
+			$res = Database::exec("UPDATE exams SET lectureid = :lectureid, starttime = :starttime, endtime = :endtime, autologin = :autologin, description = :description WHERE examid = :examid",
+					compact('lectureid', 'starttime', 'endtime', 'description', 'examid', 'autologin')) !== false;
+			/* drop all connections and reconnect to rooms */
+			$res = $res && Database::exec("DELETE FROM exams_x_location WHERE examid = :examid", compact('examid')) !== false;
+			/* reconnect */
+			foreach ($locationids as $lid) {
+				$res = $res && Database::exec("INSERT INTO exams_x_location(examid, locationid) VALUES(:examid, :lid)", compact('examid', 'lid')) !== false;
+			}
+			if ($res !== false) {
+				Message::addInfo("changes-successfully-saved");
+			} else {
+				Message::addError("error-while-saving-changes");
+			}
 		}
 		Util::redirect('?do=exams');
 	}
@@ -286,7 +383,7 @@ class Page_Exams extends Page
 	{
 		User::load();
 
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
@@ -299,26 +396,40 @@ class Page_Exams extends Page
 			$this->action = $req_action;
 		}
 
-		if ($this->action === 'show') {
+		if (Request::isPost()) {
+			$examid = Request::post('examid', 0, 'int');
+		} else if (Request::isGet()) {
+			$examid = Request::get('examid', 0, 'int');
+		} else {
+			die('Neither Post nor Get Request send.');
+		}
 
+		// initialise user-permission-lists
+		$this->setUserLocations();
+
+		if ($this->action === 'show') {
 			$this->readExams();
 			$this->readLocations();
 			$this->readLectures();
 
 		} elseif ($this->action === 'add') {
 
-			$this->readLectures();
+			if($this->allowedToAdd()) {
+				$this->readLectures();
+			}
 
 		} elseif ($this->action === 'edit') {
 
-			$examid = Request::get('examid', 0, 'int');
-			$this->currentExam = Database::queryFirst("SELECT * FROM exams WHERE examid = :examid", array('examid' => $examid));
-			if ($this->currentExam === false) {
-				Message::addError('invalid-exam-id', $examid);
-				Util::redirect('?do=exams');
+			if($this->allowedToEdit($examid)) {
+				$this->currentExam = Database::queryFirst("SELECT * FROM exams WHERE examid = :examid", array('examid' => $examid));
+				if ($this->currentExam === false) {
+					Message::addError('invalid-exam-id', $examid);
+					Util::redirect('?do=exams');
+				}
+				$this->readLocations($examid);
+				$this->readLectures();
+
 			}
-			$this->readLocations($examid);
-			$this->readLectures();
 
 		} elseif ($this->action === 'save') {
 
@@ -329,14 +440,17 @@ class Page_Exams extends Page
 			if (!Request::isPost()) {
 				die('delete only works with a post request');
 			}
-			$examid = Request::post('examid');
-			$res1 = Database::exec("DELETE FROM exams WHERE examid = :examid;", compact('examid'));
-			$res2 = Database::exec("DELETE FROM exams_x_location WHERE examid = :examid;", compact('examid'));
-			if ($res1 === false || $res2 === false) {
-				Message::addError('exam-not-deleted-error');
-			} else {
-				Message::addInfo('exam-deleted-success');
+
+			if ($this->allowedToDelete($examid)) {
+				$res1 = Database::exec("DELETE FROM exams WHERE examid = :examid;", compact('examid'));
+				$res2 = Database::exec("DELETE FROM exams_x_location WHERE examid = :examid;", compact('examid'));
+				if ($res1 === false || $res2 === false) {
+					Message::addError('exam-not-deleted-error');
+				} else {
+					Message::addInfo('exam-deleted-success');
+				}
 			}
+
 			Util::redirect('?do=exams');
 
 		} elseif ($this->action === false) {
@@ -348,13 +462,22 @@ class Page_Exams extends Page
 
 	protected function doRender()
 	{
+		if (Request::isPost()) {
+			$examid = Request::post('examid', 0, 'int');
+		} else if (Request::isGet()) {
+			$examid = Request::get('examid', 0, 'int');
+		} else {
+			die('Neither Post nor Get Request send.');
+		}
+
 		if ($this->action === "show") {
 
 			// General title and description
 			Render::addTemplate('page-main-heading');
 			// List of defined exam periods
 			Render::addTemplate('page-exams', [
-					'exams' => $this->makeExamsForTemplate()
+				'exams' => $this->makeExamsForTemplate(),
+				'allowedToAdd' => $this->allowedToAdd()
 			]);
 			// List of upcoming lectures marked as exam
 			$upcoming = $this->makeLectureExamList();
@@ -363,6 +486,7 @@ class Page_Exams extends Page
 			} else {
 				Render::addTemplate('page-upcoming-lectures', [
 					'pending_lectures' => $upcoming,
+					'allowedToAdd' => $this->allowedToAdd(),
 					'decollapse' => array_key_exists('class', end($upcoming))
 				]);
 			}
@@ -380,37 +504,62 @@ class Page_Exams extends Page
 
 		} elseif ($this->action === "add") {
 
-			Render::setTitle(Dictionary::translate('title_add-exam'));
-			$data = [];
-			$baseLecture = Request::any('lectureid', false, 'string');
-			$locations = null;
-			if ($baseLecture !== false) {
-				foreach ($this->lectures as &$lecture) {
-					if ($lecture['lectureid'] === $baseLecture) {
-						$data['exam'] = $this->makeEditFromArray($lecture);
-						$locations = explode(',', $lecture['lids']);
-						$lecture['selected'] = 'selected';
-						break;
+			if($this->allowedToAdd()) {
+				Render::setTitle(Dictionary::translate('title_add-exam'));
+				$data = [];
+				$baseLecture = Request::any('lectureid', false, 'string');
+				$locations = null;
+				if ($baseLecture !== false) {
+					foreach ($this->lectures as &$lecture) {
+						if ($lecture['lectureid'] === $baseLecture) {
+							$data['exam'] = $this->makeEditFromArray($lecture);
+							$locations = explode(',', $lecture['lids']);
+							$lecture['selected'] = 'selected';
+							break;
+						}
+					}
+					unset($lecture);
+				}
+
+				$this->readLocations($locations);
+				$data['lectures'] = $this->lectures;
+				$data['locations'] = $this->locations;
+
+				// if user has no permission to add for this location, disable the location in the select
+				foreach ($data['locations'] as &$loc) {
+					if (!in_array($loc["locationid"], $this->userAddLocations)) {
+						$loc["disabled"] = "disabled";
 					}
 				}
-				unset($lecture);
+
+				Render::addTemplate('page-add-edit-exam', $data);
 			}
-			$data['lectures'] = $this->lectures;
-			$this->readLocations($locations);
-			$data['locations'] = $this->locations;
-			Render::addTemplate('page-add-edit-exam', $data);
 
 		} elseif ($this->action === 'edit') {
 
-			Render::setTitle(Dictionary::translate('title_edit-exam'));
-			$exam = $this->makeEditFromArray($this->currentExam);
-			foreach ($this->lectures as &$lecture) {
-				if ($lecture['lectureid'] === $this->currentExam['lectureid']) {
-					$lecture['selected'] = 'selected';
+			if ($this->allowedToEdit($examid)) {
+				Render::setTitle(Dictionary::translate('title_edit-exam'));
+				$exam = $this->makeEditFromArray($this->currentExam);
+				foreach ($this->lectures as &$lecture) {
+					if ($lecture['lectureid'] === $this->currentExam['lectureid']) {
+						$lecture['selected'] = 'selected';
+					}
 				}
-			}
-			Render::addTemplate('page-add-edit-exam', ['exam' => $exam, 'locations' => $this->locations, 'lectures' => $this->lectures]);
 
+				$data = [];
+				$data['exam'] = $exam;
+				$data['locations'] = $this->locations;
+				$data['lectures'] = $this->lectures;
+
+				// if user has no permission to edit for this location, disable the location in the select
+				foreach ($data['locations'] as &$loc) {
+					if (!in_array($loc["locationid"], $this->userEditLocations)) {
+						$loc["disabled"] = "disabled";
+					}
+				}
+
+				Render::addTemplate('page-add-edit-exam', $data);
+			}
 		}
 	}
 

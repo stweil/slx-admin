@@ -19,7 +19,7 @@
 				</div>
 				<select id="locations" multiple name="locations[]">
 					{{#locations}}
-					<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
+					<option value="{{locationid}}" {{disabled}} {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
 					{{/locations}}
 				</select>
 			</div>

@@ -8,15 +8,15 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<div class="row">
 		<div class="col-md-12">
-				<label>{{lang_location}}:
-					<select id="locationDropdown" name="locationId" class="form-control" onchange="selectLocation()">
-						{{#locations}}
-						<option value="{{locationid}}" {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
-						{{/locations}}
-					</select>
-				</label>
-			<button type="button" id="selectAllButton" class="btn btn-primary pull-right" onclick="selectAllRows()"><span class="glyphicon glyphicon-check"></span> {{lang_selectall}}</button>
-			<button type="button" id="unselectAllButton" class="btn btn-default pull-right" onclick="unselectAllRows()" style="display: none;"><span class="glyphicon glyphicon-unchecked"></span> {{lang_unselectall}}</button>
+			<label>{{lang_location}}:
+				<select id="locationDropdown" name="locationId" class="form-control" onchange="selectLocation()">
+					{{#locations}}
+					<option value="{{locationid}}" {{disabled}} {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
+					{{/locations}}
+				</select>
+			</label>
+			<button type="button" id="selectAllButton" {{^allowedToSelect}}disabled{{/allowedToSelect}} class="btn btn-primary pull-right" onclick="selectAllRows()"><span class="glyphicon glyphicon-check"></span> {{lang_selectall}}</button>
+			<button type="button" id="unselectAllButton" {{^allowedToSelect}}disabled{{/allowedToSelect}} class="btn btn-default pull-right" onclick="unselectAllRows()" style="display: none;"><span class="glyphicon glyphicon-unchecked"></span> {{lang_unselectall}}</button>
 			<button type="button" id="rebootButton" class="btn btn-warning pull-right" data-toggle="modal" data-target="#rebootModal" disabled><span class="glyphicon glyphicon-repeat"></span> {{lang_rebootButton}}</button>
 			<button type="button" id="shutdownButton" class="btn btn-danger pull-right" data-toggle="modal" data-target="#shutdownModal" disabled><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
 		</div>
@@ -25,41 +25,41 @@
 		<div class="col-md-12">
 			<table class="table table-condensed table-hover stupidtable" id="dataTable">
 				<thead>
-					<tr>
-						<th data-sort="string">{{lang_client}}</th>
-						<th data-sort="ipv4">{{lang_ip}}</th>
-						<th data-sort="string">{{lang_status}}</th>
-						<th data-sort="string">{{lang_session}}</th>
-						<th data-sort="string">{{lang_user}}</th>
-						<th data-sort="int" data-sort-default="desc">{{lang_selected}}</th>
-					</tr>
+				<tr>
+					<th data-sort="string">{{lang_client}}</th>
+					<th data-sort="ipv4">{{lang_ip}}</th>
+					<th data-sort="string">{{lang_status}}</th>
+					<th data-sort="string">{{lang_session}}</th>
+					<th data-sort="string">{{lang_user}}</th>
+					<th data-sort="int" data-sort-default="desc">{{lang_selected}}</th>
+				</tr>
 				</thead>
 
 				<tbody>
 				{{#data}}
-					<tr>
-						<td>
-							{{hostname}}
-							{{^hostname}}{{clientip}}{{/hostname}}
-						</td>
-						<td>{{clientip}}</td>
-						<td class="statusColumn">
-							{{#status}}
-								<span class="text-success">{{lang_on}}</span>
-							{{/status}}
-							{{^status}}
-								<span class="text-danger">{{lang_off}}</span>
-							{{/status}}
-						</td>
-						<td>{{#status}}{{currentsession}}{{/status}}</td>
-						<td>{{#status}}{{currentuser}}{{/status}}</td>
-						<td data-sort-value="0" class="checkboxColumn">
-							<div class="checkbox">
-								<input id="m-{{machineuuid}}" type="checkbox" name="clients[]" value='{{machineuuid}}'>
-								<label for="m-{{machineuuid}}"></label>
-							</div>
-						</td>
-					</tr>
+				<tr>
+					<td>
+						{{hostname}}
+						{{^hostname}}{{clientip}}{{/hostname}}
+					</td>
+					<td>{{clientip}}</td>
+					<td class="statusColumn">
+						{{#status}}
+						<span class="text-success">{{lang_on}}</span>
+						{{/status}}
+						{{^status}}
+						<span class="text-danger">{{lang_off}}</span>
+						{{/status}}
+					</td>
+					<td>{{#status}}{{currentsession}}{{/status}}</td>
+					<td>{{#status}}{{currentuser}}{{/status}}</td>
+					<td data-sort-value="0" class="checkboxColumn">
+						<div class="checkbox">
+							<input id="m-{{machineuuid}}" type="checkbox" name="clients[]" value='{{machineuuid}}'>
+							<label for="m-{{machineuuid}}"></label>
+						</div>
+					</td>
+				</tr>
 				{{/data}}
 				</tbody>
 			</table>
@@ -79,7 +79,7 @@
 				</div>
 				<div class="modal-body">
 					<span id="pubKeyTitle">{{lang_pubKey}}</span>
-					<button class="btn btn-s btn-warning pull-right" onclick="generateNewKeypair()" type="button"><span class="glyphicon glyphicon-refresh"></span> {{lang_genNew}}</button>
+					<button {{^allowedToGenerateKey}}disabled{{/allowedToGenerateKey}} class="btn btn-s btn-warning pull-right" onclick="generateNewKeypair()" type="button"><span class="glyphicon glyphicon-refresh"></span> {{lang_genNew}}</button>
 					<pre id="pubKey">{{pubKey}}</pre>
 				</div>
 				<div class="modal-footer">
@@ -100,7 +100,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" name="action" value="startReboot" class="btn btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_reboot}}</button>
+					<button type="submit" {{^allowedToReboot}}disabled{{/allowedToReboot}} name="action" value="startReboot" class="btn btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_reboot}}</button>
 				</div>
 			</div>
 		</div>
@@ -115,11 +115,11 @@
 				</div>
 				<div class="modal-body">
 					{{lang_shutdownCheck}}
-						{{lang_shutdownIn}} <input id="shutdownTimer" name="minutes" title="{{lang_shutdownIn}}" type="number" value="0" min="0" onkeypress="return isNumberKey(event)"> {{lang_minutes}}
+					{{lang_shutdownIn}} <input id="shutdownTimer" name="minutes" title="{{lang_shutdownIn}}" type="number" value="0" min="0" onkeypress="return isNumberKey(event)"> {{lang_minutes}}
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" name="action" value="startShutdown" class="btn btn-danger"><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
+					<button type="submit" {{^allowedToShutdown}}disabled{{/allowedToShutdown}} name="action" value="startShutdown" class="btn btn-danger"><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
 				</div>
 			</div>
 		</div>
@@ -162,7 +162,7 @@
 					$('#rebootButton').prop('disabled', false);
 					$('#shutdownButton').prop('disabled', false);
 				}
-		});
+			});
 		$('.checkboxColumn').click(function(e) {
 			if (e.target === this) {
 				$(this).find('input[type="checkbox"]').click();
