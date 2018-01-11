@@ -55,7 +55,10 @@
 							<label for="input-ssl">{{lang_insecureSsl}}</label>
 						</div>
 						<div class="col-sm-7">
-							<input id="input-ssl" type="checkbox" name="insecure-ssl" {{ssl_checked}} value="1">
+							<div class="checkbox">
+								<input id="input-ssl" type="checkbox" name="insecure-ssl" {{ssl_checked}} value="1">
+								<label></label>
+							</div>
 						</div>
 						<div class="col-sm-2">
 							<a class="btn btn-default helptext" title="{{lang_ignoreSslTooltip}}">
@@ -64,6 +67,23 @@
 						</div>
 					</div>
 				</div>
+
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-sm-3">
+							<label for="input-reload">{{lang_reloadIntervalMins}}</label>
+						</div>
+						<div class="col-sm-7">
+							<input class="form-control" id="input-reload" type="number" min="0" max="999" name="reloadminutes" pattern="\d*" value="{{reloadminutes}}">
+						</div>
+						<div class="col-sm-2">
+							<a class="btn btn-default helptext" title="{{lang_reloadIntervalTooltip}}">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</a>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>

@@ -362,6 +362,7 @@ class Page_LocationInfo extends Page
 		$conf = array(
 			'url' => Request::post('url', 'https://www.bwlehrpool.de/', 'string'),
 			'insecure-ssl' => Request::post('insecure-ssl', 0, 'int'),
+			'reload-minutes' => max(0, Request::post('reloadminutes', 0, 'int')),
 		);
 		return array('config' => $conf, 'locationids' => []);
 	}
@@ -887,6 +888,7 @@ class Page_LocationInfo extends Page
 				'panelname' => $panel['panelname'],
 				'url' => $config['url'],
 				'ssl_checked' => $config['insecure-ssl'] ? 'checked' : '',
+				'reloadminutes' => (int)$config['reload-minutes'],
 			));
 		} else {
 			Render::addTemplate('page-config-panel-summary', array(
