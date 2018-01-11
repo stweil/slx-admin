@@ -16,11 +16,8 @@
     margin-bottom: 0;
 }
 
-#rebootButton, #settingsButton, #selectAllButton, #unselectAllButton {
+.controlButtons {
     margin-left: 10px;
-}
-
-#rebootButton, #shutdownButton, #selectAllButton, #unselectAllButton {
     width: 140px;
 }
 

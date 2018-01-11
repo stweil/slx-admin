@@ -15,10 +15,10 @@
 					{{/locations}}
 				</select>
 			</label>
-			<button type="button" id="selectAllButton" {{^allowedToSelect}}disabled{{/allowedToSelect}} class="btn btn-primary pull-right" onclick="selectAllRows()"><span class="glyphicon glyphicon-check"></span> {{lang_selectall}}</button>
-			<button type="button" id="unselectAllButton" {{^allowedToSelect}}disabled{{/allowedToSelect}} class="btn btn-default pull-right" onclick="unselectAllRows()" style="display: none;"><span class="glyphicon glyphicon-unchecked"></span> {{lang_unselectall}}</button>
-			<button type="button" id="rebootButton" class="btn btn-warning pull-right" data-toggle="modal" data-target="#rebootModal" disabled><span class="glyphicon glyphicon-repeat"></span> {{lang_rebootButton}}</button>
-			<button type="button" id="shutdownButton" class="btn btn-danger pull-right" data-toggle="modal" data-target="#shutdownModal" disabled><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
+			<button type="button" id="selectAllButton" {{^allowedToSelect}}disabled{{/allowedToSelect}} class="btn btn-primary pull-right controlButtons" onclick="selectAllRows()"><span class="glyphicon glyphicon-check"></span> {{lang_selectall}}</button>
+			<button type="button" id="unselectAllButton" {{^allowedToSelect}}disabled{{/allowedToSelect}} class="btn btn-default pull-right controlButtons" onclick="unselectAllRows()" style="display: none;"><span class="glyphicon glyphicon-unchecked"></span> {{lang_unselectall}}</button>
+			<button type="button" {{#allowedToReboot}}id="rebootButton"{{/allowedToReboot}} class="btn btn-warning pull-right controlButtons" data-toggle="modal" data-target="#rebootModal" disabled><span class="glyphicon glyphicon-repeat"></span> {{lang_rebootButton}}</button>
+			<button type="button" {{#allowedToShutdown}}id="shutdownButton"{{/allowedToShutdown}} class="btn btn-danger pull-right controlButtons" data-toggle="modal" data-target="#shutdownModal" disabled><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
 		</div>
 	</div>
 	<div class="row">
