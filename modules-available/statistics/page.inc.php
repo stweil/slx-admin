@@ -1062,7 +1062,11 @@ class Page_Statistics extends Page
 
 	public static function getPciId($cat, $id)
 	{
-		return Database::queryFirst('SELECT value, dateline FROM pciid WHERE category = :cat AND id = :id LIMIT 1',
+		static $cache = [];
+		$key = $cat . '-' . $id;
+		if (isset($cache[$key]))
+			return $cache[$key];
+		return $cache[$key] = Database::queryFirst('SELECT value, dateline FROM pciid WHERE category = :cat AND id = :id LIMIT 1',
 			array('cat' => $cat, 'id' => $id));
 	}
 
