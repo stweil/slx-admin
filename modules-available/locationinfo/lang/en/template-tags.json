@@ -71,6 +71,8 @@
     "lang_prettytimeTooltip": "Use a different display format for the time",
     "lang_recursiveServerSet": "Also set for all child locations",
     "lang_recursiveSetTooltip": "If checked, all direct and indirect child locations will be configured to use the backend server selected above",
+    "lang_reloadIntervalMins": "Reload every X minutes",
+    "lang_reloadIntervalTooltip": "Set this field to a value > 0 (in minutes) to reload the page periodically. Set to 0 or leave blank to disable.",
     "lang_remoteSchedule": "Time table retrieval",
     "lang_room": "Room",
     "lang_roomId": "Room ID",

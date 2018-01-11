@@ -82,7 +82,6 @@
     "lang_noValidCert": "The server did not supply a certificate, or the certificate is invalid.",
     "lang_onProblemSearchBase": "If no users are found, please check the search base",
     "lang_or": "or",
-    "lang_password": "Password",
     "lang_rebuild": "Rebuild",
     "lang_rebuildLong": "Rebuild module or configuration.",
     "lang_rebuildOutdatedLong": "Rebuild module or configuration. The module\/configuration is outdated or missing and should be regenerated.",

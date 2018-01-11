@@ -9,9 +9,12 @@
     "lang_hours": "hour(s)",
     "lang_next": "Next",
     "lang_no": "No",
+    "lang_password": "Password",
     "lang_reset": "Reset",
     "lang_save": "Save",
     "lang_today": "Today",
+    "lang_user": "User",
+    "lang_username": "Username",
     "lang_yes": "Yes",
     "lang_yesterday": "Yesterday"
 }

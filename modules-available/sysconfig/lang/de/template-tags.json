@@ -82,7 +82,6 @@
     "lang_noValidCert": "Der Server besitzt kein oder ein nicht valides Zertifikat.",
     "lang_onProblemSearchBase": "Werden keine Benutzer gefunden, dann \u00fcberpr\u00fcfen Sie bitte die Suchbasis",
     "lang_or": "oder",
-    "lang_password": "Passwort",
     "lang_rebuild": "Neu generieren",
     "lang_rebuildLong": "Modul oder Konfiguration neu generieren. Das entsprechende Modul bzw. Konfiguration ist aktuell und sollte nicht neu generiert werden m\u00fcssen.",
     "lang_rebuildOutdatedLong": "Modul oder Konfiguration neu generieren. Das entsprechende Modul bzw. Konfiguration ist veraltet oder nicht vorhanden.",

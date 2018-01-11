@@ -54,7 +54,6 @@
     "lang_organizationListHeader": "Set access permissions for organizations",
     "lang_os": "Operating System",
     "lang_owner": "Owner",
-    "lang_password": "Password",
     "lang_passwordplaceholder": "SMTP Password",
     "lang_placeholders": "Placeholders",
     "lang_port": "Port",
@@ -87,7 +86,6 @@
     "lang_userList": "User List",
     "lang_userListDescription": "Here you can promote \"super users\", which will have all permissions in the bwLehrpool-Suite. You can also ban users from accessing this server via the bwLehrpool-Suite.",
     "lang_userListHeader": "Users known to this satellite",
-    "lang_username": "Username",
     "lang_usernameplaceholder": "SMTP Username",
     "lang_version": "Version timestamp",
     "lang_when": "When"
