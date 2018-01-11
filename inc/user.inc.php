@@ -109,7 +109,6 @@ class User
 
 	public static function logout()
 	{
-		error_log("in logout");
 		Session::delete();
 		Header('Location: ?do=Main&fromlogout');
 		exit(0);
