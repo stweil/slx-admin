@@ -42,6 +42,14 @@ class Page_RunMode extends Page
 			}
 			$active = 0;
 			foreach ($machines as $machine) {
+				$oldMode = RunMode::getRunMode($machine, 0);
+				if ($oldMode !== false) {
+					$oldModule = RunMode::getModuleConfig($oldMode['module']);
+					if ($oldModule !== false && (!$oldModule->allowGenericEditor || $oldModule->deleteUrlSnippet !== false)) {
+						Message::addError('runmode.machine-still-assigned', $machine, $oldMode['module']);
+						continue;
+					}
+				}
 				$ret = RunMode::setRunMode($machine, $module, $modeId, null, null);
 				if ($ret) {
 					$active++;
@@ -105,10 +113,6 @@ class Page_RunMode extends Page
 			Message::addError('module-hasnt-runmode', $moduleId);
 			Util::redirect('?do=runmode');
 		}
-		if (!$config->allowGenericEditor) {
-			Message::addError('runmode.cannot-edit-module', $moduleId);
-			return;
-		}
 		// Given modeId?
 		$modeId = Request::get('modeid', false, 'string');
 		if ($modeId !== false) {
@@ -170,9 +174,17 @@ class Page_RunMode extends Page
 	{
 		$moduleId = $module->getIdentifier();
 		$modeName = RunMode::getModeName($moduleId, $modeId);
+		$redirect = Request::get('redirect', '', 'string');
+		if (empty($redirect)) {
+			$redirect = '?do=runmode';
+		}
 		if ($modeName === false) {
 			Message::addError('invalid-modeid', $moduleId, $modeId);
-			Util::redirect('?do=runmode');
+			Util::redirect($redirect);
+		}
+		if (!RunMode::getModuleConfig($moduleId)->allowGenericEditor) {
+			Message::addError('runmode.cannot-edit-module', $module);
+			Util::redirect($redirect);
 		}
 		Render::addTemplate('machine-selector', [
 			'module' => $moduleId,
@@ -180,7 +192,7 @@ class Page_RunMode extends Page
 			'moduleName' => $module->getDisplayName(),
 			'modeName' => $modeName,
 			'machines' => json_encode(RunMode::getForMode($module, $modeId, true)),
-			'redirect' => Request::get('redirect', '', 'string'),
+			'redirect' => $redirect,
 		]);
 	}
 
