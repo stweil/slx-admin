@@ -155,19 +155,19 @@ class RuntimeFilter extends Filter
 	public function whereClause(&$args, &$joins)
 	{
 		global $SIZE_RAM;
-		$lower = time() + (int)$this->argument * 3600;
-		$upper = $lower + 3600;
+		$upper = time() - (int)$this->argument * 3600;
+		$lower = $upper - 3600;
 		$common = "state IN ('OCCUPIED', 'IDLE', 'STANDBY') AND";
 		if ($this->operator == '=') {
 			return "$common ({$this->column} BETWEEN $lower AND $upper)";
 		} elseif ($this->operator == '<') {
-			return "$common {$this->column} < $lower";
-		} elseif ($this->operator == '<=') {
-			return "$common {$this->column} < $upper";
-		} elseif ($this->operator == '>') {
 			return "$common {$this->column} > $upper";
-		} elseif ($this->operator == '>=') {
+		} elseif ($this->operator == '<=') {
 			return "$common {$this->column} > $lower";
+		} elseif ($this->operator == '>') {
+			return "$common {$this->column} < $lower";
+		} elseif ($this->operator == '>=') {
+			return "$common {$this->column} < $upper";
 		} elseif ($this->operator == '!=') {
 			return "$common ({$this->column} < $lower OR {$this->column} > $upper)";
 		} else {
