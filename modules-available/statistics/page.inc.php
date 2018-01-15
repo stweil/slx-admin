@@ -661,6 +661,13 @@ class Page_Statistics extends Page
 				}
 			}
 			$row['cpumodel'] = preg_replace('/\(R\)|\(TM\)|\bintel\b|\bamd\b|\bcpu\b|dual-core|\bdual\s+core\b|\bdual\b|\bprocessor\b/i', ' ', $row['cpumodel']);
+			if (!empty($row['rmmodule'])) {
+				$data = RunMode::getRunMode($row['machineuuid'], RunMode::DATA_STRINGS);
+				if ($data !== false) {
+					$row['moduleName'] = $data['moduleName'];
+					$row['modeName'] = $data['modeName'];
+				}
+			}
 			$rows[] = $row;
 		}
 		if ($singleMachine !== false && $singleMachine !== 'none') {
