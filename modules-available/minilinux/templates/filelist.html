@@ -18,7 +18,7 @@
 			<p>
 				{{lang_canUpdate1}} <b>{{title}}</b> {{lang_canUpdate2}}
 			</p>
-			<p><span class="btn btn-primary" onclick="slxUpdateAll(this, 'download-{{id}}')">{{lang_update}}</span></p>
+			<button {{^allowedToUpdate}}disabled{{/allowedToUpdate}} class="btn btn-primary" onclick="slxUpdateAll(this, 'download-{{id}}')"><span class="glyphicon glyphicon-refresh"></span> {{lang_update}}<span></span></button>
 			{{/systemChanged}}
 			{{^systemChanged}}
 			<p>{{lang_systemUpdated}}</p>
@@ -35,8 +35,8 @@
 							{{#fileChanged}}<span class="glyphicon glyphicon-exclamation-sign"></span> <b>{{lang_outdated}}</b>{{/fileChanged}}
 						</div>
 						<div class="col-xs-2">
-							{{#fileChanged}}<span class="btn btn-primary btn-xs update-button" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">{{lang_update}}</span>{{/fileChanged}}
-							{{^fileChanged}}<span class="btn btn-default btn-xs" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')">{{lang_redownload}}</span>{{/fileChanged}}
+							{{#fileChanged}}<button {{^allowedToUpdate}}disabled{{/allowedToUpdate}} class="btn btn-primary btn-xs update-button" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')"><span class="glyphicon glyphicon-refresh"></span> {{lang_update}}</button> {{/fileChanged}}
+							{{^fileChanged}}<button {{^allowedToUpdate}}disabled{{/allowedToUpdate}} class="btn btn-default btn-xs" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')"><span class="glyphicon glyphicon-download-alt"></span> {{lang_redownload}}</button> {{/fileChanged}}
 						</div>
 					</div>
 					{{{download}}}

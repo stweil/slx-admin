@@ -7,7 +7,12 @@ class Page_MiniLinux extends Page
 	{
 		User::load();
 
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
+			Message::addError('main.no-permission');
+			Util::redirect('?do=Main');
+		}
+
+		if (!(User::hasPermission("show") || User::hasPermission("update"))) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
@@ -81,48 +86,51 @@ class Page_MiniLinux extends Page
 				$system['version'] = $selected['version'];
 			}
 			$data['versions'] = array_values($versionNumbers);
+			$data['allowedToUpdate'] = User::hasPermission("update");
 			echo Render::parse('filelist', $data);
 			return;
 		case 'download':
-			$id = Request::post('id');
-			$name = Request::post('name');
-			if (!$id || !$name || strpos("$id$name", '/') !== false) {
-				echo "Invalid download request";
-				return;
-			}
-			$file = false;
-			$gpg = 'missing';
-			foreach ($data['systems'] as &$system) {
-				if ($system['id'] !== $id) continue;
-				foreach ($system['versions'] as &$version) {
-					if ($version['version'] != $selectedVersion) continue;
-					foreach ($version['files'] as &$f) {
-						if ($f['name'] !== $name) continue;
-						$file = $f;
-						if (!empty($f['gpg'])) $gpg = $f['gpg'];
-						break;
+			if (User::hasPermission("update")) {
+				$id = Request::post('id');
+				$name = Request::post('name');
+				if (!$id || !$name || strpos("$id$name", '/') !== false) {
+					echo "Invalid download request";
+					return;
+				}
+				$file = false;
+				$gpg = 'missing';
+				foreach ($data['systems'] as &$system) {
+					if ($system['id'] !== $id) continue;
+					foreach ($system['versions'] as &$version) {
+						if ($version['version'] != $selectedVersion) continue;
+						foreach ($version['files'] as &$f) {
+							if ($f['name'] !== $name) continue;
+							$file = $f;
+							if (!empty($f['gpg'])) $gpg = $f['gpg'];
+							break;
+						}
 					}
 				}
-			}
-			if ($file === false) {
-				echo "Nonexistent system/file: $id / $name";
+				if ($file === false) {
+					echo "Nonexistent system/file: $id / $name";
+					return;
+				}
+				$task = Taskmanager::submit('DownloadFile', array(
+					'url' => CONFIG_REMOTE_ML . '/' . $id . '/' . $selectedVersion . '/' . $name,
+					'destination' => CONFIG_HTTP_DIR . '/' . $id . '/' . $name,
+					'gpg' => $gpg
+				));
+				if (!isset($task['id'])) {
+					echo 'Error launching download task: ' . $task['statusCode'];
+					return;
+				}
+				Property::setDownloadTask($file['md5'], $task['id']);
+				echo Render::parse('download', array(
+					'name' => $name,
+					'task' => $task['id']
+				));
 				return;
 			}
-			$task = Taskmanager::submit('DownloadFile', array(
-				'url' => CONFIG_REMOTE_ML . '/' . $id . '/' . $selectedVersion . '/' . $name,
-				'destination' => CONFIG_HTTP_DIR . '/' . $id . '/' . $name,
-				'gpg' => $gpg
-			));
-			if (!isset($task['id'])) {
-				echo 'Error launching download task: ' . $task['statusCode'];
-				return;
-			}
-			Property::setDownloadTask($file['md5'], $task['id']);
-			echo Render::parse('download', array(
-				'name' => $name,
-				'task' => $task['id']
-			));
-			return;
 		}
 	}
 
