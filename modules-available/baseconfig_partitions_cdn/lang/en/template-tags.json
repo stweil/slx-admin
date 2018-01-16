@@ -1,9 +1,9 @@
 {
     "lang_areYouSureNoUndo": "Are you sure? This cannot be undone!",
-    "lang_confirm": "Would you like to save the settings on [ \/srv\/openslx\/www\/boot\/config ] ?",
+    "lang_confirm": "Would you like to save the settings on \/srv\/openslx\/www\/boot\/config?",
     "lang_create": "Create",
     "lang_discardChanges": "Discard Changes",
-    "lang_explanationText": "Here you can configure what kind of partitions will be created on the client computers, and where they will be mounted",
+    "lang_explanationText": "Here you can configure what kind of partitions will be created on the client computers, and where they will be mounted.",
     "lang_helpId": "Partition Id",
     "lang_helpMountPoint": "Must be a directory: \/example\/directory\/",
     "lang_helpOptions": "Currently, only option 'bootable' is available",

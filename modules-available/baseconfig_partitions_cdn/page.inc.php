@@ -10,23 +10,39 @@ class Page_BaseConfig_Partitions_CDN extends Page
 		$action = Request::post('action');
 
 		if($action == 'new_partition') {
-			$this->addPartition();
+			if (User::hasPermission("partitions.add")) {
+				$this->addPartition();
+			}
 		}
 		if($action == 'reset') {
-			$this->resetConfig();
+			if (User::hasPermission("partitions.reset")) {
+				$this->resetConfig();
+			}
 		}
 
 		$deletePartition = Request::get('deletePartition');
 		if($deletePartition !== false) { // TODO: CSRF: Actions that change/update/delete anything should be POST
-			$this->deletePartition($deletePartition);
+			if (User::hasPermission("partitions.delete")) {
+				$this->deletePartition($deletePartition);
+			}
 		}
 
-		$this->updatePartitions();
+		if(User::hasPermission("partitions.edit")) {
+			$this->updatePartitions();
+		}
 	}
 
 	protected function doRender()
 	{
-		if (!User::hasPermission('baseconfig_local')) {
+		if (!User::isLoggedIn()) {
+			Message::addError('main.no-permission');
+			Util::redirect('?do=Main');
+		}
+
+		$hasAnyRight = User::hasPermission("partitions.add") || User::hasPermission("partitions.delete")
+						|| User::hasPermission("partitions.edit") || User::hasPermission("partitions.reset");
+
+		if (!(User::hasPermission("show") || $hasAnyRight)) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
@@ -48,7 +64,11 @@ class Page_BaseConfig_Partitions_CDN extends Page
 
 		Render::addTemplate('_page', array(
 			'partitions' => $partitions,
-			'user' => User::getId()
+			'user' => User::getId(),
+			'allowedToAdd' => User::hasPermission("partitions.add"),
+			'allowedToDelete' => User::hasPermission("partitions.delete"),
+			'allowedToEdit' => User::hasPermission("partitions.edit"),
+			'allowedToReset' => User::hasPermission("partitions.reset")
 		));
 	}
 
@@ -92,9 +112,9 @@ class Page_BaseConfig_Partitions_CDN extends Page
 	private function updatePartitions(){
 		$partitions = array();
 		foreach($_POST as $key => $value){
-			if(substr($key,0,9) == 'partition'){
-				$id = substr($key,10,1);
-				$type = substr($key,12);
+
+			if (substr($key, 0, 9) == 'partition') {
+				list($key, $id, $type) = explode("-", $key);
 				$partitions[$id][$type] = $value;
 			}
 		}
@@ -111,6 +131,8 @@ class Page_BaseConfig_Partitions_CDN extends Page
 			Database::exec('UPDATE setting_partition SET partition_id=:partition_id, size=:size, mount_point=:mount_point,
 					options=:options  WHERE id=:id AND user=:user;', $data);
 		}
+
+
 		if (!empty($partitions)) {
 			Message::addSuccess('partitions-updated');
 			Util::redirect('?do=BaseConfig_Partitions_CDN');
@@ -129,5 +151,6 @@ class Page_BaseConfig_Partitions_CDN extends Page
 		Database::exec ( "INSERT INTO setting_partition SET partition_id = '40', size = '20G', mount_point = '/cache/export/dnbd3', user = :user", $data );
 		Database::exec ( "INSERT INTO setting_partition SET partition_id = '41', size = '5G', mount_point = '/home', user = :user", $data );
 		Database::exec ( "INSERT INTO setting_partition SET partition_id = '82', size = '1G', user = :user", $data );
+		Util::redirect('?do=BaseConfig_Partitions_CDN');
 	}
 }

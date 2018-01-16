@@ -1,0 +1,7 @@
+[
+	"show",
+	"partitions.add",
+	"partitions.delete",
+	"partitions.edit",
+	"partitions.reset"
+]

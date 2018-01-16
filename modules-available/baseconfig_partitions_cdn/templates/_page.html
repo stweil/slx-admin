@@ -21,7 +21,7 @@
 					<input name='partition-{{id}}-options' type='text' class='form-control' size='30' value='{{options}}' placeholder='{{lang_partitionOptions}}'/>
 				</div>
 				<div class='col-sm-1 col-md-2'>
-					<a class='btn btn-danger' href='?do=BaseConfig_Partitions_CDN&amp;deletePartition={{id}}&amp;token={{token}}'>
+					<a class='btn btn-danger btn-sm {{allowedToDelete}}disabled{{allowedToDelete}}' href='?do=BaseConfig_Partitions_CDN&amp;deletePartition={{id}}&amp;token={{token}}'>
 						<span class='glyphicon glyphicon-trash'></span>
 					</a>
 				</div>
@@ -30,16 +30,16 @@
 		{{/partitions}}
 		<div class='list-group-item clearfix'>
 			<div class="pull-right">
-				<a class='btn btn-success ' data-toggle='modal' data-target='#add-partition'>
+				<button {{^allowedToAdd}}disabled{{/allowedToAdd}} type="button" class='btn btn-success' data-toggle='modal' data-target='#add-partition'>
 					<span class='glyphicon glyphicon-plus'></span> {{lang_newPartition}}
-				</a>
+				</button>
 			</div>
 		</div>
 	</div>
 	<div class="pull-right">
-		<a class="btn btn-default" data-toggle="modal" data-target="#downloadModal"><span class="glyphicon glyphicon-download-alt"></span> Download</a>
+		<button type="button" class="btn btn-default" data-toggle="modal" data-target="#downloadModal"><span class="glyphicon glyphicon-download-alt"></span> Download</button>
 		<button class="btn btn-warning" type="reset"><span class="glyphicon glyphicon-refresh"></span> {{lang_discardChanges}}</button>
-		<button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+		<button {{^allowedToEdit}}disabled{{/allowedToEdit}} class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 	</div>
 
 	<div class ="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -49,8 +49,10 @@
 					{{lang_confirm}}
 				</div>
 				<div class="modal-footer">
-					<button type="button" onclick="saveConfig(false)" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="button" onclick="saveConfig(true)" class="btn btn-sm btn-danger" name="download"> Download</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="button" onclick="saveConfig()" class="btn btn-primary" name="download">
+						<span class="glyphicon glyphicon-download-alt"></span> Download
+					</button>
 				</div>
 			</div>
 		</div>
@@ -60,7 +62,7 @@
 <form method="post" action="?do=BaseConfig_Partitions_CDN">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="reset">
-	<button class="btn btn-danger" type="button" data-toggle="modal" data-target="#resetDefaultModal">{{lang_resetDefault}}</button>
+	<button {{^allowedToReset}}disabled{{/allowedToReset}} class="btn btn-danger" type="button" data-toggle="modal" data-target="#resetDefaultModal">{{lang_resetDefault}}</button>
 
 	<div class ="modal fade" id="resetDefaultModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog" style="width: 400px" role="document">
@@ -70,7 +72,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" class="btn btn-sm btn-danger" name="resetDefault"> {{lang_resetDefault}}</button>
+					<button type="submit" class="btn btn-danger" name="resetDefault"> {{lang_resetDefault}}</button>
 				</div>
 			</div>
 		</div>
@@ -78,7 +80,7 @@
 </form>
 
 <!-- Create Partition Window -->
-<form action="?do=BaseConfig_Partitions_CDN" method="post">
+<form id="createPartitionForm" action="?do=BaseConfig_Partitions_CDN" method="post">
 	<div class="modal fade" id="add-partition" tabindex="-1" role="dialog">
 		<div class="modal-dialog">
 
@@ -89,12 +91,12 @@
 
 				<div class="modal-body">
 					<div class="input-group">
-						<span class="input-group-addon" style="min-width:140px;">{{lang_partitionId}}</span>
+						<span class="input-group-addon" style="min-width:140px;">{{lang_partitionId}} *</span>
 						<input name="new-partition-id" class="form-control" type="text">
 					</div>
 					<p class="help-block">{{lang_helpId}}</p>
 					<div class="input-group">
-						<span class="input-group-addon" style="min-width:140px;">{{lang_partitionSize}}</span>
+						<span class="input-group-addon" style="min-width:140px;">{{lang_partitionSize}} *</span>
 						<input name="new-partition-size" class="form-control" type="text">
 					</div>
 					<p class="help-block">{{lang_helpSize}}</p>
@@ -111,8 +113,10 @@
 				</div>
 
 				<div class="modal-footer">
-					<a class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</a>
-					<input type="submit" class="btn btn-primary" value="{{lang_create}}">
+					<button class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" class="btn btn-success">
+						<span class='glyphicon glyphicon-plus'></span> {{lang_create}}
+					</button>
 				</div>
 			</div>
 		</div>
@@ -120,12 +124,28 @@
 	<input type="hidden" name="action" value="new_partition">
 	<input type="hidden" name="token" value="{{token}}">
 </form>
-<script type="text/javascript">
-	function saveConfig(download){
-		if(download)
-			window.location = 'api.php?do=baseconfig&user={{user}}&save=true';
-		else
-			window.location = 'api.php?do=baseconfig&user={{user}}';
-	}
 
+<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded", function () {
+		$("#createPartitionForm").submit(function () {
+			var input1 = $("input[name=new-partition-id]");
+			var input2 = $("input[name=new-partition-size]");
+			var id = $.trim(input1.val());
+			var size = $.trim(input2.val());
+			if (!id) {
+				input1.addClass("missingInput");
+			}
+			if (!size) {
+				input2.addClass("missingInput");
+			}
+			if (!id || !size) {
+				return false;
+			}
+		});
+	});
+
+
+	function saveConfig(){
+		window.location = 'api.php?do=baseconfig&user={{user}}&save=true';
+	}
 </script>
