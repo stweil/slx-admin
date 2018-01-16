@@ -1,7 +1,7 @@
 {
 	"show": "Zeige Partitionen. Wird nicht benötigt, wenn Nutzer eine der anderen Rechte hat.",
-	"add": "Füge eine neue Partition hinzu.",
-	"delete": "Lösche eine Partition.",
-	"edit": "Speichere Änderungen an Partitionen.",
-	"reset": "Setze Partitionen auf Standardwerte zurück."
+	"partitions.add": "Füge eine neue Partition hinzu.",
+	"partitions.delete": "Lösche eine Partition.",
+	"partitions.edit": "Speichere Änderungen an Partitionen.",
+	"partitions.reset": "Setze Partitionen auf Standardwerte zurück."
 }
