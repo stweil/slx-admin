@@ -55,10 +55,10 @@ class Page_SysLog extends Page
 			else
 				$whereClause .= ' AND ';
 
-				$whereClause .= "machineuuid='" . preg_replace('/[^0-9a-zA-Z\-]/', '', Request::get('machineuuid', '', 'string')) . "'";
+			$whereClause .= "machineuuid='" . preg_replace('/[^0-9a-zA-Z\-]/', '', Request::get('machineuuid', '', 'string')) . "'";
 		}
 		$lines = array();
-		$paginate = new Paginate("SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog $whereClause ORDER BY logid DESC", 50);
+		$paginate = new Paginate("SELECT logid, dateline, logtypeid, clientip, machineuuid, description, extra FROM clientlog $whereClause ORDER BY logid DESC", 50);
 		$res = $paginate->exec();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$row['date'] = Util::prettyTime($row['dateline']);

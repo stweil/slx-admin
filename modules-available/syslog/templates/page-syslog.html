@@ -45,7 +45,7 @@
 		<tr>
 			<td><span class="type-button glyphicon {{icon}}" title="{{logtypeid}}"></span></td>
 			<td class="text-center" nowrap="nowrap">{{date}}</td>
-			<td class="text-left">{{clientip}}</td>
+			<td class="text-left"><a href="?do=statistics&uuid={{machineuuid}}">{{clientip}}</a></td>
 			<td>{{description}}</td>
 			<td class="text-center">{{#extra}}
 				<a class="btn btn-default btn-xs" onclick="$('#details-body').html($('#extra-{{logid}}').html())"
