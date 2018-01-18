@@ -15,6 +15,13 @@ class Page_SysLog extends Page
 
 	protected function doRender()
 	{
+		Render::addTemplate("heading");
+
+		if (!User::hasPermission("view")) {
+			Message::addError('main.no-permission');
+			return;
+		}
+
 		$cutoff = strtotime('-1 month');
 		$res = Database::simpleQuery("SELECT logtypeid, Count(*) AS counter FROM clientlog WHERE dateline > $cutoff GROUP BY logtypeid ORDER BY counter ASC");
 		$types = array();
@@ -55,11 +62,24 @@ class Page_SysLog extends Page
 			else
 				$whereClause .= ' AND ';
 
-				$whereClause .= "machineuuid='" . preg_replace('/[^0-9a-zA-Z\-]/', '', Request::get('machineuuid', '', 'string')) . "'";
+			$whereClause .= "machineuuid='" . preg_replace('/[^0-9a-zA-Z\-]/', '', Request::get('machineuuid', '', 'string')) . "'";
 		}
+
+		$allowedLocations = User::getAllowedLocations("view");
+		$joinClause = "";
+		if (!in_array(0, $allowedLocations)) {
+			$joinClause = "INNER JOIN machine ON machine.machineuuid = clientlog.machineuuid";
+			if (empty($whereClause))
+				$whereClause .= ' WHERE ';
+			else
+				$whereClause .= ' AND ';
+
+			$whereClause .= 'locationid IN (:allowedLocations)';
+		}
+
 		$lines = array();
-		$paginate = new Paginate("SELECT logid, dateline, logtypeid, clientip, description, extra FROM clientlog $whereClause ORDER BY logid DESC", 50);
-		$res = $paginate->exec();
+		$paginate = new Paginate("SELECT logid, dateline, logtypeid, clientlog.clientip as clientip, description, extra FROM clientlog $joinClause $whereClause ORDER BY logid DESC", 50);
+		$res = $paginate->exec(array("allowedLocations" => $allowedLocations));
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$row['date'] = Util::prettyTime($row['dateline']);
 			$row['icon'] = $this->eventToIconName($row['logtypeid']);

@@ -65,8 +65,6 @@ class Paginate
 		$countQuery = preg_replace('/ORDER\s+BY\s.*?(\sASC|\sDESC|$)/is', '', $this->query);
 		$countQuery = preg_replace('/SELECT\s.*?\sFROM\s/is', 'SELECT Count(*) AS rowcount FROM ', $countQuery);
 		$countRes = Database::queryFirst($countQuery, $args);
-		$args['limit_start'] = $this->currentPage;
-		$args['limit_count'] = $this->perPage;
 		$query = $this->query . ' LIMIT ' . ($this->currentPage * $this->perPage) . ', ' . $this->perPage;
 		$retval = Database::simpleQuery($query, $args);
 		$this->totalRows = (int)$countRes['rowcount'];
