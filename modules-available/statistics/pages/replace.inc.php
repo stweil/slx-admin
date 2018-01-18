@@ -62,7 +62,7 @@ class SubPage
 		$fun = function($file, $list) {
 			include $file;
 		};
-		foreach (Hook::load('statistics-machine-replace') as $hook) {
+		foreach (Hook::load('statistics/machine-replace') as $hook) {
 			$fun($hook->file, $list);
 		}
 
