@@ -1,0 +1,13 @@
+[
+	"show.overview.diskstat",
+	"show.overview.services",
+	"show.overview.adresses",
+	"show.overview.systeminfo",
+	"show.overview.dmsdusers",
+	"show.logs.bwlpserver",
+	"show.logs.netstat",
+	"show.logs.pslist",
+	"show.logs.ldapad",
+	"show.logs.lighttpd",
+	"serverreboot"
+]
