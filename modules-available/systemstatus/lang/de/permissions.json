@@ -1,0 +1,13 @@
+{
+	"show.overview.diskstat": "Zeige Speicherplatzwerte auf Übersichtsseite.",
+	"show.overview.services": "Zeige Dienste auf Übersichtsseite.",
+	"show.overview.addresses": "Zeige Adresskonfiguration auf Übersichtsseite.",
+	"show.overview.systeminfo": "Zeige Systemwerte auf Übersichtsseite.",
+	"show.overview.dmsdusers": "Zeige dmsd-Werte auf Übersichtsseite.",
+	"show.logs.bwlpserver": "Zeige bwlp-Server Logs.",
+	"show.logs.netstat": "Zeige netstat Logs.",
+	"show.logs.pslist": "Zeige ps-list Logs.",
+	"show.logs.ldapad": "Zeige ldap und ad Logs.",
+	"show.logs.lighttpd": "Zeige light-tpd Logs.",
+	"serverreboot": "Server neustarten."
+}

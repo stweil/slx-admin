@@ -1,0 +1,13 @@
+{
+	"show.overview.diskstat": "Show diskstats on overview page.",
+	"show.overview.services": "Show services on overview page.",
+	"show.overview.addresses": "Show addresses on overview page.",
+	"show.overview.systeminfo": "Show systeminfo on overview page.",
+	"show.overview.dmsdusers": "Show dmsd-stats on overview page.",
+	"show.logs.bwlpserver": "Show bwlp-server logs.",
+	"show.logs.netstat": "Show netstat logs.",
+	"show.logs.pslist": "Show ps-list logs.",
+	"show.logs.ldapad": "Show ldap+ad logs.",
+	"show.logs.lighttpd": "Show light-tpd logs.",
+	"serverreboot": "Reboot server."
+}

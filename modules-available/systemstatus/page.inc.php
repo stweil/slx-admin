@@ -21,7 +21,6 @@ class Page_SystemStatus extends Page
 				Message::addError('main.no-permission');
 				Util::redirect('?do=Main');
 			}
-
 		}
 	}
 
@@ -147,12 +146,11 @@ class Page_SystemStatus extends Page
 		} else {
 			echo "No permission to view this section.";
 		}
-
 	}
 
 	protected function ajaxAddressList()
 	{
-		if (User::hasPermission("show.overview.adresses")) {
+		if (User::hasPermission("show.overview.addresses")) {
 			$task = Taskmanager::submit('LocalAddressesList');
 			if ($task === false)
 				return;
