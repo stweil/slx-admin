@@ -326,9 +326,9 @@ class Queries
 	public static function getUserStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT username AS name, COUNT(*) AS 'count'
 												FROM statistic 
-												WHERE typeid='.vmchooser-session-name' AND dateline >= :from and dateline <= :to
-													AND FROM_UNIXTIME(dateline, '%H') >= :lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < :upperTimeBound
-												GROUP BY username", compact('from', 'to', 'lowerTimeBound', 'upperTimeBound'));
+												WHERE typeid='.vmchooser-session-name' AND dateline >= $from and dateline <= $to
+													AND FROM_UNIXTIME(dateline, '%H') >= $lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < $upperTimeBound
+												GROUP BY username");
 		return $res;
 	}
 
@@ -336,9 +336,9 @@ class Queries
 	public static function getVMStatistics($from, $to, $lowerTimeBound = 0, $upperTimeBound = 24) {
 		$res = Database::simpleQuery("SELECT data AS name, COUNT(*) AS 'count'
 											 	FROM statistic
-												WHERE typeid='.vmchooser-session-name' AND dateline >= :from and dateline <= :to
-													AND FROM_UNIXTIME(dateline, '%H') >= :lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < :upperTimeBound
-												GROUP BY data", compact('from', 'to', 'lowerTimeBound', 'upperTimeBound'));
+												WHERE typeid='.vmchooser-session-name' AND dateline >= $from and dateline <= $to
+													AND FROM_UNIXTIME(dateline, '%H') >= $lowerTimeBound AND FROM_UNIXTIME(dateline, '%H') < $upperTimeBound
+												GROUP BY data");
 		return $res;
 	}
 
