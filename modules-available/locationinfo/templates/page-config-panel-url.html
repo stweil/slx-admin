@@ -25,9 +25,9 @@
 							<input class="form-control" name="name" id="panel-title" type="text" value="{{panelname}}">
 						</div>
 						<div class="col-sm-2">
-							<a class="btn btn-default helptext" title="{{lang_displayNameTooltip}}">
+							<p class="btn btn-static helptext" title="{{lang_displayNameTooltip}}">
 								<span class="glyphicon glyphicon-question-sign"></span>
-							</a>
+							</p>
 						</div>
 					</div>
 				</div>
@@ -42,9 +42,9 @@
 									 placeholder="http://www.bwlehrpool.de/" pattern=".*://.*" required>
 						</div>
 						<div class="col-sm-2">
-							<a class="btn btn-default helptext" title="{{lang_urlTooltip}}">
+							<p class="btn btn-static helptext" title="{{lang_urlTooltip}}">
 								<span class="glyphicon glyphicon-question-sign"></span>
-							</a>
+							</p>
 						</div>
 					</div>
 				</div>
@@ -61,9 +61,9 @@
 							</div>
 						</div>
 						<div class="col-sm-2">
-							<a class="btn btn-default helptext" title="{{lang_ignoreSslTooltip}}">
+							<p class="btn btn-static helptext" title="{{lang_ignoreSslTooltip}}">
 								<span class="glyphicon glyphicon-question-sign"></span>
-							</a>
+							</p>
 						</div>
 					</div>
 				</div>
@@ -77,9 +77,9 @@
 							<input class="form-control" id="input-reload" type="number" min="0" max="999" name="reloadminutes" pattern="\d*" value="{{reloadminutes}}">
 						</div>
 						<div class="col-sm-2">
-							<a class="btn btn-default helptext" title="{{lang_reloadIntervalTooltip}}">
+							<p class="btn btn-static helptext" title="{{lang_reloadIntervalTooltip}}">
 								<span class="glyphicon glyphicon-question-sign"></span>
-							</a>
+							</p>
 						</div>
 					</div>
 				</div>
@@ -95,6 +95,8 @@
 <script type="text/javascript"><!--
 
 document.addEventListener("DOMContentLoaded", function () {
+	// Initialize fancy tooltips
+        $('p.helptext').tooltip();
 
 });
 

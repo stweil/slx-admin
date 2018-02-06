@@ -28,9 +28,9 @@
 									<input class="form-control" name="name" id="panel-title" type="text" value="{{panelname}}">
 								</div>
 								<div class="col-sm-2">
-									<a class="btn btn-default helptext" title="{{lang_displayNameTooltip}}">
+									<p class="btn btn-static helptext" title="{{lang_displayNameTooltip}}">
 										<span class="glyphicon glyphicon-question-sign"></span>
-									</a>
+									</p>
 								</div>
 							</div>
 						</div>
@@ -48,9 +48,9 @@
 									</select>
 								</div>
 								<div class="col-sm-2">
-									<a class="btn btn-default helptext" title="{{lang_languageTooltip}}">
+									<p class="btn btn-static helptext" title="{{lang_languageTooltip}}">
 										<span class="glyphicon glyphicon-question-sign"></span>
-									</a>
+									</p>
 								</div>
 							</div>
 						</div>
@@ -64,9 +64,9 @@
 									<input id="input-eco" type="checkbox" name="eco" {{eco_checked}}>
 								</div>
 								<div class="col-sm-2">
-									<a class="btn btn-default helptext" title="{{lang_ecoTooltip}}">
+									<p class="btn btn-static helptext" title="{{lang_ecoTooltip}}">
 										<span class="glyphicon glyphicon-question-sign"></span>
-									</a>
+									</p>
 								</div>
 							</div>
 						</div>
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	var $locInput = $('#locationids');
 
 	// Initialize fancy tooltips
-	$('a.helptext').tooltip();
+	$('p.helptext').tooltip();
 	// Add listener to range sliders so their label can be updated
 	$('input[type="range"]').change(function () {
 		$(this).siblings().find('.range-display').text($(this).val());

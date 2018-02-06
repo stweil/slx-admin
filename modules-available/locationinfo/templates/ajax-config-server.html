@@ -12,9 +12,9 @@
 								 form="form-{{currentbackend}}">
 					</div>
 					<div class="col-md-2">
-						<a class="btn btn-default" title="{{lang_nameTooltip}}">
+						<p class="btn btn-static" title="{{lang_nameTooltip}}">
 							<span class="glyphicon glyphicon-question-sign"></span>
-						</a>
+						</p>
 					</div>
 				</div>
 			</div>
@@ -34,9 +34,9 @@
 						</select>
 					</div>
 					<div class="col-md-2">
-						<a class="btn btn-default" id="help-type" title="{{lang_typeTooltip}}">
+						<p class="btn btn-static" id="help-type" title="{{lang_typeTooltip}}">
 							<span class="glyphicon glyphicon-question-sign"></span>
-						</a>
+						</p>
 					</div>
 				</div>
 			</div>
@@ -92,7 +92,7 @@
 		currentBackend = value;
 	}
 
-	$('a.btn[title]').tooltip();
+	$('p.btn[title]').tooltip();
 	$('#myModalSubmitButton').attr('form', 'form-' + currentBackend);
 	$('.settings-bs-switch').bootstrapSwitch({size:'small'});
 

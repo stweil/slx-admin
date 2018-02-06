@@ -110,9 +110,9 @@
 		</select>
 	</div>
 	<div class="col-sm-2">
-		<a class="btn btn-default helptext" title="{{lang_serverTooltip}}">
+		<p class="btn btn-static helptext" title="{{lang_serverTooltip}}">
 			<span class="glyphicon glyphicon-question-sign"></span>
-		</a>
+		</p>
 	</div>
 </div>
 <div class="row">
@@ -124,9 +124,9 @@
 		</div>
 	</div>
 	<div class="col-sm-2">
-		<a class="btn btn-default helptext" title="{{lang_recursiveSetTooltip}}">
+		<p class="btn btn-static helptext" title="{{lang_recursiveSetTooltip}}">
 			<span class="glyphicon glyphicon-question-sign"></span>
-		</a>
+		</p>
 	</div>
 </div>
 <div class="row">
@@ -137,9 +137,9 @@
 		<input class="form-control" name="serverlocationid" id="serverlocationid" value="{{serverlocationid}}">
 	</div>
 	<div class="col-sm-2">
-		<a class="btn btn-default helptext" title="{{lang_roomIdTooltip}}">
+		<p class="btn btn-static helptext" title="{{lang_roomIdTooltip}}">
 			<span class="glyphicon glyphicon-question-sign"></span>
-		</a>
+		</p>
 	</div>
 </div>
 
@@ -170,7 +170,7 @@
 
 		setTimepicker($('#settings-outer').find('.timepicker2'));
 
-		$('a.helptext').tooltip();
+		$('p.helptext').tooltip();
 
 		$('#new-openingtime').click(function (e) {
 			e.preventDefault();
