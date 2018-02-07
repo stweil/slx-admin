@@ -3,6 +3,6 @@
 	"configHook": "Dnbd3Util::runmodeConfigHook",
 	"noSysconfig": true,
 	"systemdDefaultTarget": "dnbd3-proxy",
-	"allowGenericEditor": false,
+	"allowGenericEditor": true,
 	"deleteUrlSnippet": "dummyparam="
 }

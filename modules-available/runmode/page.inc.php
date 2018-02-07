@@ -183,7 +183,7 @@ class Page_RunMode extends Page
 			Util::redirect($redirect);
 		}
 		if (!RunMode::getModuleConfig($moduleId)->allowGenericEditor) {
-			Message::addError('runmode.cannot-edit-module', $module);
+			Message::addError('runmode.cannot-edit-module', $moduleId);
 			Util::redirect($redirect);
 		}
 		Render::addTemplate('machine-selector', [
