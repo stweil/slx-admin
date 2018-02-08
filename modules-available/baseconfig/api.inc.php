@@ -16,6 +16,8 @@ class ConfigHolder
 
 	private static $context = '';
 
+	private static $postHooks = [];
+
 	public static function setContext($name)
 	{
 		self::$context = $name;
@@ -54,8 +56,26 @@ class ConfigHolder
 		return self::$config[$key][0]['value'];
 	}
 
+	/**
+	 * @param callable $func
+	 */
+	public static function addPostHook($func)
+	{
+		self::$postHooks[] = array('context' => self::$context, 'function' => $func);
+	}
+
+	public static function applyPostHooks()
+	{
+		foreach (self::$postHooks as $hook) {
+			self::$context = $hook['context'] . ':post';
+			$hook['function']();
+		}
+		self::$postHooks = [];
+	}
+
 	public static function getConfig()
 	{
+		self::applyPostHooks();
 		$ret = [];
 		foreach (self::$config as $key => $list) {
 			if ($list[0]['value'] === false)
@@ -67,6 +87,7 @@ class ConfigHolder
 
 	public static function outputConfig()
 	{
+		self::applyPostHooks();
 		foreach (self::$config as $key => $list) {
 			echo '##', $key, "\n";
 			foreach ($list as $pos => $item) {

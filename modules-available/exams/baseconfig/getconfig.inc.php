@@ -15,5 +15,4 @@ if (Exams::isInExamMode($locationIds, $lectureId, $autoLogin)) {
 		ConfigHolder::add('SLX_AUTOLOGIN', $autoLogin, 10000);
 	}
 	ConfigHolder::add('SLX_SYSTEMD_TARGET', 'exam-mode', 10000);
-	ConfigHolder::add("SLX_PVS_HYBRID", false, 10000);
 }
