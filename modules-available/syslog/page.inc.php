@@ -3,6 +3,9 @@
 class Page_SysLog extends Page
 {
 
+	const PROP_ANON_DAYS = 'syslog.anon-days'; // Copy in cronjob
+
+
 	protected function doPreprocess()
 	{
 		User::load();
@@ -10,6 +13,15 @@ class Page_SysLog extends Page
 		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
+		}
+		if (($days = Request::post('anondays', false, 'int')) !== false) {
+			if ($days < 0 || $days > 180) {
+				Message::addError('anon-days-out-of-range', $days);
+			} else {
+				Property::set(self::PROP_ANON_DAYS, $days);
+				Message::addSuccess('anon-days-saved');
+			}
+			Util::redirect('?do=syslog');
 		}
 	}
 
@@ -72,6 +84,7 @@ class Page_SysLog extends Page
 			'list'     => $lines,
 			'types'    => json_encode(array_values($types)),
 			'machineuuid' => Request::get('machineuuid'),
+			'anondays' => Property::get(self::PROP_ANON_DAYS, 0),
 		));
 	}
 
