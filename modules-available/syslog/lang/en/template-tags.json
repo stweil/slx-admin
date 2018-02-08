@@ -1,11 +1,12 @@
 {
+    "lang_anonDaysDescription": "After how many days should log messages be anonymized? Set to 0 to disable this feature.",
+    "lang_applyFilter": "Apply Filter",
     "lang_client": "Client",
     "lang_clientLog": "Client Log",
     "lang_details": "Details",
     "lang_event": "Event",
     "lang_filter": "Filter",
-    "lang_go": "Go",
     "lang_not": "not",
-    "lang_when": "When",
-    "lang_applyFilter": "Apply Filter"
+    "lang_settings": "Settings",
+    "lang_when": "When"
 }
