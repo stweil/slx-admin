@@ -222,7 +222,6 @@ class PvsGenerator
 		if (isset($data['dedicatedmgr']) && $data['dedicatedmgr']) {
 			ConfigHolder::add("SLX_ADDONS", false, 100000);
 			ConfigHolder::add("SLX_PVS_DEDICATED", 'yes');
-			ConfigHolder::add("SLX_EXAM", false, 100000);
 			ConfigHolder::add("SLX_AUTOLOGIN", 'ON', 100000);
 		} else {
 			ConfigHolder::add("SLX_PVS_HYBRID", 'yes');

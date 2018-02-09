@@ -72,7 +72,7 @@ class RunMode
 	 * @param string $machineuuid
 	 * @param int $returnData bitfield of data to return
 	 * @return false|array {'machineuuid', 'isclient', 'module', 'modeid', 'modedata',
-	 * 		<'hostname', 'clientip', 'macaddr', 'locationid', 'lastseen'>}
+	 * 		('hostname', 'clientip', 'macaddr', 'locationid', 'lastseen'), ('moduleName', 'modeName')}
 	 */
 	public static function getRunMode($machineuuid, $returnData = self::DATA_MACHINE_DATA)
 	{

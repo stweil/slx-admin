@@ -24,8 +24,8 @@ class Page_Statistics_Reporting extends Page
 	/**
 	 * @var array Names of columns that are being used by the various tables
 	 */
-	private $COLUMNS = array('location', 'totalTime', 'medianSessionLength', 'sessions', 'longSessions', 'shortSessions',
-		'totalOffTime', 'lastLogout', 'lastStart');
+	private $COLUMNS = array('locationname', 'totalTime', 'medianSessionLength', 'sessions', 'longSessions', 'shortSessions',
+		'totalOffTime', 'totalStandbyTime', 'totalSessionTime', 'totalIdleTime', 'lastLogout', 'lastStart');
 
 	/**
 	 * @var array Names of the tables we can display
@@ -56,10 +56,16 @@ class Page_Statistics_Reporting extends Page
 		}
 
 		// timespan you want to see. default = last 7 days
-		GetData::$from = strtotime("- " . ($this->days - 1) . " days 00:00:00");
+		GetData::$from = strtotime("-" . ($this->days - 1) . " days 00:00:00");
 		GetData::$to = time();
 		GetData::$lowerTimeBound = $this->lower;
 		GetData::$upperTimeBound = $this->upper;
+		/*
+		GetData::$from = strtotime("2017-12-01 00:00:00");
+		GetData::$to = strtotime("2017-12-15 00:00:00");
+		GetData::$lowerTimeBound = 1;
+		GetData::$upperTimeBound = 2;
+		*/
 
 		// Export - handle in doPreprocess so we don't render the menu etc.
 		if ($this->action === 'export') {
@@ -193,20 +199,20 @@ class Page_Statistics_Reporting extends Page
 				if (Request::get('col_' . $column, 'delete', 'string') === 'delete') {
 					foreach ($res as &$row) {
 						unset($row[$column], $row[$column . '_s']);
-						if ($column === 'location') {
-							unset($row['locationId']);
+						if ($column === 'locationname') {
+							unset($row['locationid']);
 						}
 					}
 				} elseif ($printable && isset($row[0][$column . '_s'])) {
 					foreach ($res as &$row) {
 						unset($row[$column]);
 					}
-				} elseif ($column === 'location' && (isset($res[0]['location']) || isset($res[0]['locationId']))) {
+				} elseif ($column === 'locationname' && (isset($res[0]['locationname']) || isset($res[0]['locationid']))) {
 					foreach ($res as &$row) {
 						if ($printable) {
-							unset($row['locationId']);
+							unset($row['locationid']);
 						} else {
-							unset($row['location']);
+							unset($row['locationname']);
 						}
 					}
 				}
@@ -285,7 +291,7 @@ class Page_Statistics_Reporting extends Page
 			$highlight = Request::get('location', false, 'int');
 			if ($highlight !== false) {
 				foreach ($data as &$row) {
-					if ($row['locationId'] == $highlight) {
+					if ($row['locationid'] == $highlight) {
 						$row['highlight'] = true;
 					}
 				}
@@ -293,7 +299,7 @@ class Page_Statistics_Reporting extends Page
 			// only show locations which you have permission for
 			$filterLocs = User::getAllowedLocations("table.view.location");
 			foreach ($data as $key => $row) {
-				if (!in_array($row['locationId'], $filterLocs)) {
+				if (!in_array($row['locationid'], $filterLocs)) {
 					unset($data[$key]);
 				}
 			}
@@ -301,11 +307,11 @@ class Page_Statistics_Reporting extends Page
 			$data = array_values($data);
 			return $data;
 		case 'client':
-			$data = GetData::perClient($flags);
+			$data = GetData::perClient($flags, Request::any('new', false, 'string'));
 			// only show clients from locations which you have permission for
 			$filterLocs = User::getAllowedLocations("table.view.location");
 			foreach ($data as $key => $row) {
-				if (!in_array($row['locationId'], $filterLocs)) {
+				if (!in_array($row['locationid'], $filterLocs)) {
 					unset($data[$key]);
 				}
 			}

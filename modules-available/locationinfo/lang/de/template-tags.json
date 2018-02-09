@@ -71,6 +71,8 @@
     "lang_prettytimeTooltip": "Verwende ein anderes Anzeigeformat f\u00fcr die Uhrzeit",
     "lang_recursiveServerSet": "Auch f\u00fcr alle untergeordneten R\u00e4ume setzen",
     "lang_recursiveSetTooltip": "Wenn aktiviert, wird der Backend-Server auch f\u00fcr alle untergeordneten R\u00e4ume auf den hier gew\u00e4hlten Wert gesetzt",
+    "lang_reloadIntervalMins": "Neuladen alle X Minuten",
+    "lang_reloadIntervalTooltip": "Setzen Sie dieses Feld auf einen Wert > 0 (in Minuten), um die Seite auf den Clients regelm\u00e4\u00dfig neu zu laden. Feld auf 0 setzen oder leer lassen deaktiviert diese Funktion.",
     "lang_remoteSchedule": "Abruf Belegungsplan",
     "lang_room": "Raum",
     "lang_roomId": "Raum ID",

@@ -66,7 +66,8 @@ class Page_MiniLinux extends Page
 				foreach ($selected['files'] as &$file) {
 					$file['uid'] = 'dlid' . $count++;
 					$local = CONFIG_HTTP_DIR . '/' . $system['id'] . '/' . $file['name'];
-					if (!file_exists($local) || filesize($local) !== $file['size'] || filemtime($local) < $file['mtime']) {
+					if (!file_exists($local) || filesize($local) !== $file['size'] || filemtime($local) < $file['mtime']
+							|| md5_file($local) !== $file['md5']) {
 						$file['fileChanged'] = true;
 						$system['systemChanged'] = true;
 					}

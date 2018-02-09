@@ -1,7 +1,11 @@
 {
     "deleted-n-machines": "{{0}} Clients gel\u00f6scht",
+    "ignored-both-in-use": "Rechnerpaar ignoriert, da beide noch in Betrieb zu sein scheinen. ({{0}} und {{1}})",
     "invalid-filter-argument": "Das Argument {{1}} ist nicht g\u00fcltig f\u00fcr den Filter {{0}}",
     "invalid-filter-key": "{{0}} ist kein g\u00fcltiges Filterkriterium",
+    "invalid-replace-format": "Ung\u00fcltiges Parameterformat ({{0}})",
+    "no-replacement-matches": "Keine Rechner gefunden, die den oben genannten Kriterien entsprechen",
     "notes-saved": "Anmerkungen gespeichert",
-    "unknown-machine": "Unbekannte Rechner-ID {{0}}"
+    "unknown-machine": "Unbekannte Rechner-ID {{0}}",
+    "x-machines-replaced": "{{0}} Rechner ersetzt"
 }

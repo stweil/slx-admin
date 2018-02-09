@@ -12,6 +12,8 @@ if (CONFIG_SQL_PASS === '%MYSQL_OPENSLX_PASS%') {
 
 require_once('inc/user.inc.php');
 
+$global_start = microtime(true);
+
 /**
  * Page class which all module's pages must be extending from
  */
@@ -212,6 +214,13 @@ if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 
 if (defined('CONFIG_FOOTER')) {
 	Render::addTemplate('footer', array('text' => CONFIG_FOOTER), 'main');
+}
+if (CONFIG_DEBUG) {
+	$duration = microtime(true) - $global_start;
+	Render::addTemplate('footer', array('text' =>
+			round($duration, 3) . 's, '
+			. Database::getQueryCount() . ' queries, '
+			. round(Database::getQueryTime(), 3) . 's query time total'), 'main');
 }
 
 Render::addTemplate('tm-callback-trigger', array(), 'main');

@@ -54,7 +54,6 @@
     "lang_organizationListHeader": "Nutzungsrechte f\u00fcr den Satelliten festlegen",
     "lang_os": "Betriebssystem",
     "lang_owner": "Besitzer",
-    "lang_password": "Passwort",
     "lang_passwordplaceholder": "SMTP Passwort",
     "lang_placeholders": "Platzhalter",
     "lang_port": "Port",
@@ -87,7 +86,6 @@
     "lang_userList": "Benutzerliste",
     "lang_userListDescription": "Hier k\u00f6nnen Sie individuelle Nutzer zu \"Super-Usern\" machen. Diese haben in der bwLehrpool-Suite auf alle Veranstaltungen und VMs Vollzugriff, unabh\u00e4ngig von den gesetzten Berechtigungen. Au\u00dferdem k\u00f6nnen Sie hier Benutzer vom Zugriff mittels der bwLehrpool-Suite ausschlie\u00dfen.",
     "lang_userListHeader": "Dem Satelliten bekannte Benutzer",
-    "lang_username": "Benutzername",
     "lang_usernameplaceholder": "SMTP Benutzername",
     "lang_version": "Version vom",
     "lang_when": "Wann"

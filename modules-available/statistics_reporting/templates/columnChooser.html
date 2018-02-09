@@ -2,7 +2,10 @@
 	<input type="hidden" name="do" value="statistics_reporting">
 
 	<div class="page-header">
-		<button id="button-settings" type="button" class="btn btn-{{settingsButtonClass}} pull-right" data-toggle="modal" data-target="#modal-settings"><span class="glyphicon glyphicon-cog"></span> Settings</button>
+		<button id="button-settings" type="button" class="btn
+			btn-{{settingsButtonClass}} pull-right" data-toggle="modal"
+			data-target="#modal-settings"><span class="glyphicon
+			glyphicon-cog"></span> {{lang_settings}}</button>
 		<h1>{{lang_moduleName}}</h1>
 	</div>
 
@@ -82,7 +85,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title"><b>Settings</b></h4>
+				<h4 class="modal-title"><b>{{lang_settings}}</b></h4>
 			</div>
 			<div class="modal-body">
 				<div class="checkbox">

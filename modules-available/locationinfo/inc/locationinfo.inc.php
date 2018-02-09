@@ -130,6 +130,9 @@ class LocationInfo
 			if ($data && $data['insecure-ssl']) {
 				ConfigHolder::add('SLX_BROWSER_INSECURE', '1');
 			}
+			if ($data && $data['reload-minutes']) {
+				ConfigHolder::add('SLX_BROWSER_RELOAD_SECS', $data['reload-minutes'] * 60);
+			}
 		}
 		ConfigHolder::add('SLX_BROWSER_URL', 'http://' . $_SERVER['SERVER_ADDR'] . '/panel/' . $panelUuid);
 		ConfigHolder::add('SLX_ADDONS', '', 1000);

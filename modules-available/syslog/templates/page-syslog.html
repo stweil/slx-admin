@@ -1,3 +1,6 @@
+<button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#modal-settings">
+	<span class="glyphicon glyphicon-cog"></span> {{lang_settings}}
+</button>
 <style type="text/css">
 	.selectize-dropdown {
 		max-width: 500px;
@@ -44,7 +47,7 @@
 		<tr>
 			<td><span class="type-button glyphicon {{icon}}" title="{{logtypeid}}"></span></td>
 			<td class="text-center" nowrap="nowrap">{{date}}</td>
-			<td class="text-left">{{clientip}}</td>
+			<td class="text-left"><a href="?do=statistics&uuid={{machineuuid}}">{{clientip}}</a></td>
 			<td>{{description}}</td>
 			<td class="text-center">{{#extra}}
 				<a class="btn btn-default btn-xs" onclick="$('#details-body').html($('#extra-{{logid}}').html())"
@@ -70,6 +73,29 @@
 				<pre id="details-body"></pre>
 			</div>
 		</div>
+	</div>
+</div>
+
+<div id="modal-settings" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form method="post" action="?do=syslog">
+				<input type="hidden" name="token" value="{{token}}">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title"><b>{{lang_settings}}</b></h4>
+				</div>
+				<div class="modal-body">
+					<p>{{lang_anonDaysDescription}}</p>
+					<input type="number" name="anondays" value="{{anondays}}" min="0" max="180">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+				</div>
+			</form>
+		</div>
+
 	</div>
 </div>
 

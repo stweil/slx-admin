@@ -11,27 +11,27 @@
 			<td></td>
 			<td class="text-right">
 				<button type="button" class="btn btn-default btn-xs" onclick="popupFilter('lastseen')">
-					<span id="btn_filter_lastseen" class="glyphicon glyphicon-filter"></span>
+					<span class="glyphicon glyphicon-filter"></span>
 				</button>
 			</td>
 			<td>
 				<button type="button" class="btn btn-default btn-xs" onclick="popupFilter('kvmstate')">
-					<span id="btn_filter_kvmstate" class="glyphicon glyphicon-filter"></span>
+					<span class="glyphicon glyphicon-filter"></span>
 				</button>
 			</td>
 			<td class="text-right">
 				<button type="button" class="btn btn-default btn-xs" onclick="popupFilter('gbram')">
-					<span id="btn_filter_gbram" class="glyphicon glyphicon-filter"></span>
+					<span class="glyphicon glyphicon-filter"></span>
 				</button>
 			</td>
 			<td class="text-right">
 				<button type="button" class="btn btn-default btn-xs" onclick="popupFilter('hddgb')">
-					<span id="btn_filter_hddgb" class="glyphicon glyphicon-filter"></span>
+					<span class="glyphicon glyphicon-filter"></span>
 				</button>
 			</td>
 			<td>
-				<button class="btn btn-default btn-xs" onclick="popupFilter('realcores')">
-					<span id="btn_filter_cpu" class="glyphicon glyphicon-filter"></span>
+				<button type="button" class="btn btn-default btn-xs" onclick="popupFilter('realcores')">
+					<span class="glyphicon glyphicon-filter"></span>
 				</button>
 			</td>
 		</tr>
@@ -72,7 +72,11 @@
 			{{/state_STANDBY}}
 				<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
 				<div class="small">{{machineuuid}}</div>
-			{{#rmmodule}}<div class="small">{{lang_runMode}}: <a class="slx-bold" href="?do=runmode&amp;module={{rmmodule}}">{{rmmodule}}</a></div>{{/rmmodule}}
+			{{#rmmodule}}
+				<div class="small">{{lang_runMode}}:
+					<a class="slx-bold" href="?do=runmode&amp;module={{rmmodule}}">{{moduleName}}</a> / {{modeName}}
+				</div>
+			{{/rmmodule}}
 			</td>
 			<td data-sort-value="{{clientip}}"><b><a href="?do=Statistics&amp;show=list&amp;filters=subnet={{subnet}}">{{subnet}}</a>{{lastoctet}}</b><br>{{macaddr}}</td>
 			<td data-sort-value="{{lastseen_int}}" class="text-right text-nowrap">{{lastseen}}</td>

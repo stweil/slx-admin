@@ -1,23 +1,37 @@
-<table id="table-perlocation" class="table table-condensed table-striped stupidtable">
+<table id="table-perlocation" class="table table-condensed table-striped table-nowrap stupidtable">
 	<thead>
 	<tr>
-		<th data-sort="string" class="text-left col-md-2">{{lang_location}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_totalTime">{{lang_totalTime}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_medianSessionLength">{{lang_medianSessionLength}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_longSessions">{{lang_longSessions}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_shortSessions">{{lang_shortSessions}}</th>
-		<th data-sort="int" data-sort-default="desc" class="text-left col_totalOffTime">{{lang_totalOffTime}}</th>
+		<th data-sort="string">{{lang_locationname}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalTime">{{lang_totalTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_medianSessionLength">{{lang_medianSessionLength}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_longSessions">{{lang_longSessions}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_shortSessions">{{lang_shortSessions}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalOffTime">{{lang_totalOffTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalOffTime">(%)</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalStandbyTime">{{lang_totalStandbyTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalStandbyTime">(%)</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalSessionTime">{{lang_totalSessionTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalSessionTime">(%)</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalIdleTime">{{lang_totalIdleTime}}</th>
+		<th data-sort="int" data-sort-default="desc" class="col_totalIdleTime">(%)</th>
 	</tr>
 	</thead>
 	<tbody>
 	{{#data}}
 	<tr{{#highlight}} class="info"{{/highlight}}>
-		<td class="locationName text-left">{{location}}</td>
-		<td data-sort-value="{{totalTime}}" class="text-left col_totalTime">{{totalTime_s}}</td>
-		<td data-sort-value="{{medianSessionLength}}" class="text-left col_medianSessionLength">{{medianSessionLength_s}}</td>
-		<td class="text-left col_longSessions">{{longSessions}}</td>
-		<td class="text-left col_shortSessions">{{shortSessions}}</td>
-		<td data-sort-value="{{totalOffTime}}" class="text-left col_totalOffTime">{{totalOffTime_s}}</td>
+		<td data-sort-value="{{parentlocations}}" class="locationName text-left">{{locationname}}</td>
+		<td data-sort-value="{{totalTime}}" class="text-right col_totalTime">{{totalTime_s}}</td>
+		<td data-sort-value="{{medianSessionLength}}" class="col_medianSessionLength">{{medianSessionLength_s}}</td>
+		<td class="text-right col_longSessions">{{longSessions}}</td>
+		<td class="text-right col_shortSessions">{{shortSessions}}</td>
+		<td data-sort-value="{{totalOffTime}}" class="text-right col_totalOffTime">{{totalOffTime_s}}</td>
+		<td class="col_totalOffTime p-addon">{{totalOffTime_p}}&thinsp;%</td>
+		<td data-sort-value="{{totalStandbyTime}}" class="text-right col_totalStandbyTime">{{totalStandbyTime_s}}</td>
+		<td class="col_totalStandbyTime p-addon">{{totalStandbyTime_p}}&thinsp;%</td>
+		<td data-sort-value="{{totalSessionTime}}" class="text-right col_totalSessionTime">{{totalSessionTime_s}}</td>
+		<td class="col_totalSessionTime p-addon">{{totalSessionTime_p}}&thinsp;%</td>
+		<td data-sort-value="{{totalIdleTime}}" class="text-right col_totalIdleTime">{{totalIdleTime_s}}</td>
+		<td class="col_totalIdleTime p-addon">{{totalIdleTime_p}}&thinsp;%</td>
 	</tr>
 	{{/data}}
 	</tbody>

@@ -2,5 +2,7 @@
 	"isClient": false,
 	"configHook": "Dnbd3Util::runmodeConfigHook",
 	"noSysconfig": true,
-	"systemdDefaultTarget": "dnbd3-proxy"
+	"systemdDefaultTarget": "dnbd3-proxy",
+	"allowGenericEditor": true,
+	"deleteUrlSnippet": "dummyparam="
 }

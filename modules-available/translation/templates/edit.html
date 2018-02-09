@@ -5,7 +5,7 @@
 </div>
 
 <form  action="?do=Translation" method="post" class="slx-visible-rows">
-	<table id="moduleTable" class="table table-condensed table-hover stupidtable">
+	<table id="moduleTable" class="table table-condensed table-hover">
 		<thead>
 			<tr>
 				<th>{{lang_tag}}</th>
@@ -35,10 +35,10 @@
 
 				<td class="col-sm-4" id="tagid-{{tagid}}">
 					{{^big}}
-					<input type="text" class="form-control switchable" value="{{translation}}" ondblclick="slxMb(this)" name="lang#!#{{tag}}" placeholder="{{placeholder}}">
+					<input type="text" class="form-control switchable {{#missing}}txt-empty{{/missing}}" value="{{translation}}" ondblclick="slxMb(this)" name="lang#!#{{tag}}" placeholder="{{placeholder}}">
 					{{/big}}
 					{{#big}}
-					<textarea rows="3" class="form-control" name="lang#!#{{tag}}" placeholder="{{placeholder}}">{{translation}}</textarea>
+					<textarea rows="3" class="form-control {{#missing}}txt-empty{{/missing}}" name="lang#!#{{tag}}" placeholder="{{placeholder}}">{{translation}}</textarea>
 					{{/big}}
 				</td>
 
@@ -76,90 +76,6 @@
 	</div>
 </form>
 <br/>
-
-<!-- vorherige Version der "Tabelle" geregelt über Divisions
-
-		<form action="?do=Translation" method="post" class="slx-visible-rows">
-			<input type="hidden" name="module" value="{{module}}">
-			<input type="hidden" name="destlang" value="{{destlang}}">
-			<input type="hidden" name="section" value="{{section}}">
-			<input type="hidden" name="subsection" value="{{subsection}}">
-			<input type="hidden" name="token" value="{{token}}">
-			<div class="row">
-				<div class="col-xs-4 col-sm-3">{{lang_tag}}</div>
-				<div class="col-xs-6 col-sm-4">{{lang_translation}} (<b>{{language}}</b>)</div>
-				<div class="hidden-xs col-sm-3 col-lg-4">{{lang_sample}}</div>
-				<div class="col-xs-2 col-sm-2 col-lg-1">!</div>
-			</div>
-			{{#tags}}
-			<div class="row">
-				<div class="col-xs-4 col-sm-3">
-					{{#unused}}
-					<span class="label label-danger">{{lang_unused}}</span>
-					{{/unused}}
-					{{#missing}}
-					<span class="label label-warning">{{lang_missing}}</span>
-					{{/missing}}
-					{{#isglobal}}
-					<span class="label label-success" title="{{lang_globalTooltip}}">{{lang_global}}</span>
-					{{/isglobal}}
-					{{tag}}
-					<div class="slx-notebox">{{{notes}}}</div>
-				</div>
-				<div class="col-xs-6 col-sm-4" id="tagid-{{tagid}}">
-					{{^big}}
-					<input type="text" class="form-control switchable" value="{{translation}}" ondblclick="slxMb(this)" name="lang#!#{{tag}}" placeholder="{{placeholder}}">
-					{{/big}}
-					{{#big}}
-					<textarea rows="3" class="form-control" name="lang#!#{{tag}}" placeholder="{{placeholder}}">{{translation}}</textarea>
-					{{/big}}
-				</div>
-				<div class="hidden-xs col-sm-3 col-lg-4">
-					<div class="slx-textpreview"><div>
-						<div class="badge">{{samplelang}}</div>
-						{{sampletext}}
-						</div></div>
-				</div>
-				<div class="col-xs-2 col-sm-2 col-lg-1">
-					<button type="button" class="btn btn-danger btn-xs" onclick="slxDelTag({{tagid}})" tabindex="-1">
-						<span class="glyphicon glyphicon-trash"></span>
-						<span class="hidden-xs">{{lang_delete}}</span>
-					</button>
-				</div>
-			</div>
-			{{/tags}}
-			<div id="newTag"></div>
-			<br/>
-			<div class="text-right">
-				<a class="btn btn-default" href='?do=Translation' >{{lang_back}}</a>
-				<button class="btn btn-success" type="button" onclick="slxAddTag()" >{{lang_createTag}}</button>
-				<button type="submit" class="btn btn-primary" name="update" value="true">{{lang_save}}</button>
-			</div>
-		</form>
-
-
-
-
-Function:
-		$('#newTag').before(
-			'<div class="row" id="new-delete-' + slxNewTagCounter + '">' +
-			'	<div class="col-xs-4 col-sm-3">' +
-			'		<input type="text" name="new-id[' + slxNewTagCounter + ']" class="form-control">' +
-			'	</div>' +
-			'	<div class="col-xs-6 col-sm-4">' +
-			'		<input type="text" class="form-control" name="new-text[' + slxNewTagCounter + ']">' +
-			'	</div>' +
-			'	<div class="hidden-xs col-sm-4">' +
-			'	</div>' +
-			'	<div class="col-xs-2 col-sm-1">' +
-			'		<button type="button" class="btn btn-danger btn-xs" onclick="slxDelNew(' + slxNewTagCounter + ')" tabindex="-1"><span class="glyphicon glyphicon-remove"></span> {{lang_delete}}</button>' +
-			'	</div>' +
-			'</div>'
-		);
-
-
-
--->
 
 <script type="text/javascript">
 	var slxNewTagCounter = 0;
@@ -204,4 +120,9 @@ Function:
 		ta.val(old.val());
 		old.replaceWith(ta);
 	}
+
+	document.addEventListener('DOMContentLoaded', function () {
+		$('.txt-empty').first().focus();
+	});
+
 </script>

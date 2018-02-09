@@ -83,7 +83,7 @@ class RemoteReport
 			GetData::$from = $from;
 			GetData::$to = $to;
 			$data = array('total' => GetData::total(GETDATA_ANONYMOUS));
-			$data['perLocation'] = GetData::perLocation(GETDATA_ANONYMOUS);
+			$data['perLocation'] = array_values(GetData::perLocation(GETDATA_ANONYMOUS));
 			$data['perVM'] = GetData::perVM(GETDATA_ANONYMOUS);
 			$data['tsFrom'] = $from;
 			$data['tsTo'] = $to;

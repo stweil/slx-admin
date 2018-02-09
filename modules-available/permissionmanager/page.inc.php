@@ -116,7 +116,7 @@ class Page_PermissionManager extends Page
 		if ($toplevel) {
 			$res = Render::parse("treepanel",
 				array("id" => "*",
-						"name" => Dictionary::translateFile("template-tags", "lang_Permissions"),
+						"name" => Dictionary::translateFile("template-tags", "lang_permissions"),
 						"checkboxname" => "permissions",
 						"selected" => $selectAll,
 						"HTML" => $res));
@@ -151,7 +151,7 @@ class Page_PermissionManager extends Page
 		if ($toplevel) {
 			$res = Render::parse("treepanel",
 				array("id" => 0,
-						"name" => Dictionary::translateFile("template-tags", "lang_Locations"),
+						"name" => Dictionary::translateFile("template-tags", "lang_locations"),
 						"checkboxname" => "locations",
 						"selected" => $selectAll,
 						"HTML" => $res));

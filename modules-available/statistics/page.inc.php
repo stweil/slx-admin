@@ -104,6 +104,11 @@ class Page_Statistics extends Page
 				'type' => 'string',
 				'column' => true
 			],
+			'hostname' => [
+				'op' => Page_Statistics::$op_stringcmp,
+				'type' => 'string',
+				'column' => true
+			],
 			'subnet' => [
 				'op' => Page_Statistics::$op_nominal,
 				'type' => 'string',
@@ -119,7 +124,12 @@ class Page_Statistics extends Page
 				'type' => 'enum',
 				'column' => true,
 				'values' => ['occupied', 'on', 'off', 'idle', 'standby']
-			]
+			],
+			'runtime' => [
+				'op' => Page_Statistics::$op_ordinal,
+				'type' => 'int',
+				'column' => true
+			],
 		];
 		if (Module::isAvailable('locations')) {
 			Page_Statistics::$columns['location'] = [
@@ -651,6 +661,13 @@ class Page_Statistics extends Page
 				}
 			}
 			$row['cpumodel'] = preg_replace('/\(R\)|\(TM\)|\bintel\b|\bamd\b|\bcpu\b|dual-core|\bdual\s+core\b|\bdual\b|\bprocessor\b/i', ' ', $row['cpumodel']);
+			if (!empty($row['rmmodule'])) {
+				$data = RunMode::getRunMode($row['machineuuid'], RunMode::DATA_STRINGS);
+				if ($data !== false) {
+					$row['moduleName'] = $data['moduleName'];
+					$row['modeName'] = $data['modeName'];
+				}
+			}
 			$rows[] = $row;
 		}
 		if ($singleMachine !== false && $singleMachine !== 'none') {
@@ -937,9 +954,9 @@ class Page_Statistics extends Page
 			// Not seen in last two weeks
 			$spans['graph'] .= '<div style="background:#444;left:0;width:100%">&nbsp;</div>';
 		}
-		if (isset($client['state_occupied'])) {
+		if ($client['state'] === 'OCCUPIED') {
 			$spans['graph'] .= '<div style="background:#e99;left:' . round(($client['logintime'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['logintime'] + 900) * $scale, 2) . '%">&nbsp;</div>';
-		} elseif (isset($client['state_off'])) {
+		} elseif ($client['state'] === 'OFFLINE') {
 			$spans['graph'] .= '<div style="background:#444;left:' . round(($client['lastseen'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['lastseen'] + 900) * $scale, 2) . '%">&nbsp;</div>';
 		}
 		$t = explode('-', date('Y-n-j-G', $cutoff));
@@ -1052,7 +1069,11 @@ class Page_Statistics extends Page
 
 	public static function getPciId($cat, $id)
 	{
-		return Database::queryFirst('SELECT value, dateline FROM pciid WHERE category = :cat AND id = :id LIMIT 1',
+		static $cache = [];
+		$key = $cat . '-' . $id;
+		if (isset($cache[$key]))
+			return $cache[$key];
+		return $cache[$key] = Database::queryFirst('SELECT value, dateline FROM pciid WHERE category = :cat AND id = :id LIMIT 1',
 			array('cat' => $cat, 'id' => $id));
 	}
 

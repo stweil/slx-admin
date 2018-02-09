@@ -5,5 +5,6 @@
     "machine-not-found": "Client {{0}} not found",
     "machine-not-runmode": "No special mode of operation configured for client {{0}}",
     "machine-removed": "Removed client {{0}}",
+    "machine-still-assigned": "Client {{0}} still set to mode {{1}}, not assigning new mode.",
     "module-hasnt-runmode": "Module {{0}} doesn't supply any special mode of operation"
 }

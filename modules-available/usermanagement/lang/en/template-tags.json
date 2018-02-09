@@ -5,11 +5,9 @@
     "lang_email": "Email",
     "lang_login": "Login",
     "lang_operations": "Operation",
-    "lang_password": "Password",
     "lang_remove": "Remove",
     "lang_telephone": "Telephone",
     "lang_userAdmin": "Administrator",
     "lang_userInfo": "On this section, you will be able to create website users, besides editing or removing existing users.",
-    "lang_userPage": "Users",
-    "lang_username": "Username"
+    "lang_userPage": "Users"
 }

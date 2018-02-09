@@ -47,8 +47,11 @@ class User
 			$permission = $module ? $module->getIdentifier().".".$permission : $permission;
 			return PermissionUtil::getAllowedLocations(self::$user['userid'], $permission);
 		}
-		if (self::$user['permissions'] & Permission::get('superadmin'))
-			return array_keys(Location::getLocationsAssoc());
+		if (self::$user['permissions'] & Permission::get('superadmin')) {
+			$a = array_keys(Location::getLocationsAssoc());
+			$a[] = 0;
+			return $a;
+		}
 		return array();
 	}
 
@@ -109,7 +112,6 @@ class User
 
 	public static function logout()
 	{
-		error_log("in logout");
 		Session::delete();
 		Header('Location: ?do=Main&fromlogout');
 		exit(0);

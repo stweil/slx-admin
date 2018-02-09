@@ -1,11 +1,12 @@
 {
+    "lang_anonDaysDescription": "Nach wie vielen Tagen sollen Logeintr\u00e4ge anonymisiert werden? Auf 0 setzen, um Funktion zu deaktivieren.",
+    "lang_applyFilter": "Filter anwenden",
     "lang_client": "Client",
     "lang_clientLog": "Client Log",
     "lang_details": "Details",
     "lang_event": "Ereignis",
     "lang_filter": "Filter",
-    "lang_go": "Go",
     "lang_not": "not",
-    "lang_when": "Wann",
-    "lang_applyFilter": "Filter anwenden"
+    "lang_settings": "Einstellungen",
+    "lang_when": "Wann"
 }
