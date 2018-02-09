@@ -178,6 +178,7 @@ body {
   display: block;
   cursor: pointer;
 }
+
 input[readonly] {
   background-color: white !important;
   cursor: text !important;
@@ -597,4 +598,9 @@ table.slx-ellipsis td {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+div.disabled input, div.disabled label {
+	pointer-events: none;
+	cursor: not-allowed;
 }

@@ -16,16 +16,18 @@ class Page_Backup extends Page
 			Util::redirect('?do=Main');
 		}
 		$this->action = Request::post('action');
-		if ($this->action === 'backup' && User::hasPermission("create")) {
+		if ($this->action === 'backup') {
+			User::assertPermission("create");
 			$this->backup();
-		} elseif ($this->action === 'restore' && User::hasPermission("restore")) {
+		} elseif ($this->action === 'restore') {
+			User::assertPermission("restore");
 			$this->restore();
 		}
 	}
 
 	protected function doRender()
 	{
-		if ($this->action === 'restore' && User::hasPermission("restore")) {
+		if ($this->action === 'restore') { // TODO: We're in post mode, redirect with all the taskids first...
 			Render::addTemplate('restore', $this->templateData);
 		} else {
 			$lastBackup = (int)Property::get(self::LAST_BACKUP_PROP, 0);
@@ -34,9 +36,9 @@ class Page_Backup extends Page
 			} else {
 				$lastBackup = date('d.m.Y', $lastBackup);
 			}
-			Render::addTemplate('_page', ['last_backup' => $lastBackup,
-																"createAllowed" => User::hasPermission("create"),
-																"restoreAllowed" => User::hasPermission("restore")]);
+			$params = ['last_backup' => $lastBackup];
+			Permission::addGlobalTags($params['perms'], NULL, ['create', 'restore']);
+			Render::addTemplate('_page', $params);
 		}
 	}
 

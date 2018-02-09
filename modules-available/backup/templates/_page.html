@@ -3,16 +3,16 @@
 <form action="?do=Backup" method="post">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="backup">
-	<div class="panel panel-default {{^createAllowed}}disabledPanel{{/createAllowed}}">
+	<div class="panel panel-default">
 		<div class="panel-heading">{{lang_backup}}</div>
-		<div class="panel-body">
+		<div class="panel-body {{perms.create.disabled}}">
 			<p>{{lang_backupDescription}}</p>
 			<p class="text-right">
 				{{lang_lastBackup}}:
 				{{^last_backup}}{{lang_unknown}}{{/last_backup}}
 				{{last_backup}}
 			</p>
-			<button class="btn btn-primary pull-right" type="submit"><span class="glyphicon glyphicon-save"></span> {{lang_download}}</button>
+			<button {{perms.create.disabled}} class="btn btn-primary pull-right" type="submit"><span class="glyphicon glyphicon-save"></span> {{lang_download}}</button>
 		</div>
 	</div>
 </form>
@@ -20,15 +20,15 @@
 <form action="?do=Backup" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="restore">
-	<div class="panel panel-default {{^restoreAllowed}}disabledPanel{{/restoreAllowed}}">
+	<div class="panel panel-default">
 		<div class="panel-heading">{{lang_restore}}</div>
-		<div class="panel-body">
+		<div class="panel-body {{perms.restore.disabled}}">
 			<p>{{lang_restoreDescription}}</p>
 			<div class="input-group upload-ex">
 				<input type="text" class="form-control" readonly placeholder="{{lang_selectFile}}">
 				<span class="input-group-btn">
 					<span class="btn btn-default btn-file">
-						{{lang_browseForFile}}&hellip; <input type="file" name="backupfile">
+						{{lang_browseForFile}}&hellip; <input type="file" name="backupfile" {{perms.restore.disabled}}>
 					</span>
 				</span>
 			</div>
@@ -46,7 +46,7 @@
 				</div>
 				<p><i>{{lang_dozmodExplanation}}</i></p>
 			</div>
-			<button class="btn btn-primary pull-right" type="submit"><span class="glyphicon glyphicon-open"></span> {{lang_restore}}</button>
+			<button {{perms.restore.disabled}} class="btn btn-primary pull-right" type="submit"><span class="glyphicon glyphicon-open"></span> {{lang_restore}}</button>
 		</div>
 	</div>
 </form>
