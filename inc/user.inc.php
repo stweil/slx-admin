@@ -31,8 +31,12 @@ class User
 		if (!self::isLoggedIn())
 			return false;
 		if (Module::isAvailable("permissionmanager")) {
-			$module = Page::getModule();
-			$permission = $module ? $module->getIdentifier().".".$permission : $permission;
+			if ($permission{0} === '.') {
+				$permission = substr($permission, 1);
+			} else {
+				$module = Page::getModule();
+				$permission = $module ? $module->getIdentifier() . "." . $permission : $permission;
+			}
 			return PermissionUtil::userHasPermission(self::$user['userid'], $permission, $locationid);
 		}
 		if (self::$user['permissions'] & Permission::get('superadmin'))
@@ -40,8 +44,29 @@ class User
 		return (self::$user['permissions'] & Permission::get($permission)) != 0;
 	}
 
+	/**
+	 * Confirm current user has the given permission, stop execution and show error message
+	 * otherwise.
+	 * @param string $permission Permission to check for
+	 * @param null|int $locationid location this permission has to apply to, NULL if any location is sufficient
+	 * @param null|string $redirect page to redirect to if permission is not given, NULL defaults to main page
+	 */
+	public static function assertPermission($permission, $locationid = NULL, $redirect = NULL)
+	{
+		if (User::hasPermission($permission, $locationid))
+			return;
+		Message::addError('main.no-permission');
+		if (is_null($redirect)) {
+			Util::redirect('?do=main');
+		} else {
+			Util::redirect($redirect);
+		}
+	}
+
 	public static function getAllowedLocations($permission)
 	{
+		if (!self::isLoggedIn())
+			return [];
 		if (Module::isAvailable("permissionmanager")) {
 			$module = Page::getModule();
 			$permission = $module ? $module->getIdentifier().".".$permission : $permission;

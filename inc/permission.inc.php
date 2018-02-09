@@ -15,5 +15,25 @@ class Permission
 		return self::$permissions[$permission];
 	}
 
+
+	public static function addGlobalTags(&$array, $locationid, $disabled)
+	{
+		if (!Module::isAvailable('permissionmanager'))
+			return;
+		foreach ($disabled as $perm) {
+			if (User::hasPermission($perm, $locationid))
+				continue;
+			if (strpos($perm, '.') === false) {
+				$array[$perm]['disabled'] = 'disabled';
+				continue;
+			}
+			$temp =& $array;
+			foreach (explode('.', $perm) as $sub) {
+				$temp =& $temp[$sub];
+			}
+			$temp['disabled'] = 'disabled';
+		}
+	}
+
 }
 
