@@ -600,12 +600,22 @@ table.slx-ellipsis td {
 	white-space: nowrap;
 }
 
-div.disabled input, div.disabled label {
-	pointer-events: none;
+div.disabled {
 	cursor: not-allowed;
+}
+
+div.disabled input, div.disabled label, div.disabled .btn {
+	pointer-events: none;
 }
 
 .input-group-addon > label {
 	font-weight: normal;
 	margin-bottom: inherit;
+}
+
+div.disabled-hack {
+	cursor: not-allowed;
+	margin: 0;
+	padding: 0;
+	display: inline-block;
 }

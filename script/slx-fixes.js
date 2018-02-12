@@ -42,3 +42,10 @@ if (history && history.replaceState && window && window.location && window.locat
 $('.slx-decollapse').click(function () {
 	$(this).siblings('.collapse').removeClass('collapse');
 });
+
+$('a.disabled').each(function() {
+	var $this = $(this);
+	var $hax = $('<div class="disabled-hack">');
+	$this.after($hax);
+	$hax.append($this);
+});
