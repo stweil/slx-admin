@@ -1,5 +1,11 @@
-[
-	"shutdown",
-	"reboot",
-	"newkeypair"
-]
+{
+    "newkeypair": {
+        "location-aware": false
+    },
+    "reboot": {
+        "location-aware": true
+    },
+    "shutdown": {
+        "location-aware": true
+    }
+}

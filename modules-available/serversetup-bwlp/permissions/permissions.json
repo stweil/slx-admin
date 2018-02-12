@@ -1,5 +1,11 @@
-[
-	"edit.address",
-	"edit.menu",
-	"download"
-]
+{
+    "download": {
+        "location-aware": false
+    },
+    "edit.address": {
+        "location-aware": false
+    },
+    "edit.menu": {
+        "location-aware": false
+    }
+}

@@ -1,5 +1,11 @@
-[
-	"edit.https",
-	"edit.password",
-	"edit.design"
-]
+{
+    "edit.design": {
+        "location-aware": false
+    },
+    "edit.https": {
+        "location-aware": false
+    },
+    "edit.password": {
+        "location-aware": false
+    }
+}

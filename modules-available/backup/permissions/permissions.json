@@ -1,4 +1,8 @@
-[
-	"create",
-	"restore"
-]
+{
+    "create": {
+        "location-aware": false
+    },
+    "restore": {
+        "location-aware": false
+    }
+}

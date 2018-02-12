@@ -100,9 +100,9 @@ class PermissionUtil
 			if (!is_array($data))
 				continue;
 			preg_match('#^modules/([^/]+)/#', $file, $out);
-			foreach( $data as $p ) {
+			foreach( $data as $p => $data) {
 				$description = Dictionary::translateFileModule($out[1], "permissions", $p);
-				self::putInPermissionTree($out[1].".".$p, $description, $permissions);
+				self::putInPermissionTree($out[1].".".$p, $data['location-aware'], $description, $permissions);
 			}
 		}
 		ksort($permissions);
@@ -120,10 +120,11 @@ class PermissionUtil
 	 * Place a permission into the given permission tree.
 	 *
 	 * @param string $permission the permission to place in the tree
+	 * @param bool $locationAware whether this permissions can be restricted to specific locations only
 	 * @param string $description the description of the permission
 	 * @param array $tree the permission tree to modify
 	 */
-	private static function putInPermissionTree($permission, $description, &$tree)
+	private static function putInPermissionTree($permission, $locationAware, $description, &$tree)
 	{
 		$subPermissions = explode('.', $permission);
 		foreach ($subPermissions as $subPermission) {
@@ -134,6 +135,6 @@ class PermissionUtil
 				$tree =& $tree[$subPermission];
 			}
 		}
-		$tree = $description;
+		$tree = array('description' => $description, 'location-aware' => $locationAware, 'isLeaf' => true);
 	}
 }

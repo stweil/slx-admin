@@ -1,3 +1,5 @@
-[
-	"configuration.safe"
-]
+{
+    "configuration.safe": {
+        "location-aware": false
+    }
+}

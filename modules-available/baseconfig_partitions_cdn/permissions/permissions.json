@@ -1,7 +1,17 @@
-[
-	"show",
-	"partitions.add",
-	"partitions.delete",
-	"partitions.edit",
-	"partitions.reset"
-]
+{
+    "partitions.add": {
+        "location-aware": false
+    },
+    "partitions.delete": {
+        "location-aware": false
+    },
+    "partitions.edit": {
+        "location-aware": false
+    },
+    "partitions.reset": {
+        "location-aware": false
+    },
+    "show": {
+        "location-aware": false
+    }
+}

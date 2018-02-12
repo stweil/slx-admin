@@ -1,5 +1,8 @@
-[
-	"exams.add",
-	"exams.delete",
-	"exams.edit"
-]
+{
+    "exams.edit": {
+        "location-aware": true
+    },
+    "exams.view": {
+        "location-aware": true
+    }
+}

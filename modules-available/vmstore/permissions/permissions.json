@@ -1,5 +1,11 @@
-[
-	"choose.internal",
-	"choose.nfs",
-	"choose.cifs"
-]
+{
+    "choose.cifs": {
+        "location-aware": false
+    },
+    "choose.internal": {
+        "location-aware": false
+    },
+    "choose.nfs": {
+        "location-aware": false
+    }
+}

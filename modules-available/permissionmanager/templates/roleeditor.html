@@ -4,32 +4,24 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="roleid" value="{{roleid}}">
 
-	<div class="row">
-		<div class="col-md-12" style="margin-bottom: 20px;">
-			<ul class="nav nav-tabs text-center" role="tablist">
-				<li role="presentation" class="active"><a href="#permissions" role="tab" data-toggle="tab">{{lang_permissions}}</a></li>
-				<li role="presentation"><a href="#locations" role="tab" data-toggle="tab">{{lang_locations}}</a></li>
-				<li style="float: none; display: inline-block">
-					<label for="rolename">{{lang_name}}:</label>
-					<input id="rolename" name="rolename" value="{{rolename}}" type="text" class="form-control">
-				</li>
-				<li style="float: right;">
-					<span><a href="?do=permissionmanager&show={{cancelShow}}" id="cancelButton" class="btn btn-default">{{lang_cancel}}</a></span>
-					<button type="submit" id="saveButton" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
-				</li>
-			</ul>
+	<ul class="nav nav-tabs text-center" role="tablist">
+		<li role="presentation" class="active"><a href="#permissions" role="tab" data-toggle="tab">{{lang_permissions}}</a></li>
+		<li role="presentation"><a href="#locations" role="tab" data-toggle="tab">{{lang_locations}}</a></li>
+		<li style="float: none; display: inline-block">
+			<label for="rolename">{{lang_name}}:</label>
+			<input id="rolename" name="rolename" value="{{rolename}}" type="text" class="form-control">
+		</li>
+		<li style="float: right;">
+			<span><a href="?do=permissionmanager&show={{cancelShow}}" id="cancelButton" class="btn btn-default">{{lang_cancel}}</a></span>
+			<button type="submit" id="saveButton" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+		</li>
+	</ul>
+	<div class="tab-content">
+		<div role="tabpanel" class="tab-pane active" id="permissions">
+			{{{permissionHTML}}}
 		</div>
-	</div>
-	<div class="row" style="margin-bottom: 20px;">
-		<div class="col-md-12">
-			<div class="tab-content">
-				<div role="tabpanel" class="tab-pane active" id="permissions">
-					{{{permissionHTML}}}
-				</div>
-				<div role="tabpanel" class="tab-pane" id="locations">
-					{{{locationHTML}}}
-				</div>
-			</div>
+		<div role="tabpanel" class="tab-pane" id="locations">
+			{{{locationHTML}}}
 		</div>
 	</div>
 

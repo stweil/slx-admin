@@ -1,13 +1,35 @@
-[
-	"show.overview.diskstat",
-	"show.overview.services",
-	"show.overview.adresses",
-	"show.overview.systeminfo",
-	"show.overview.dmsdusers",
-	"show.logs.bwlpserver",
-	"show.logs.netstat",
-	"show.logs.pslist",
-	"show.logs.ldapad",
-	"show.logs.lighttpd",
-	"serverreboot"
-]
+{
+    "serverreboot": {
+        "location-aware": false
+    },
+    "show.logs.bwlpserver": {
+        "location-aware": false
+    },
+    "show.logs.ldapad": {
+        "location-aware": false
+    },
+    "show.logs.lighttpd": {
+        "location-aware": false
+    },
+    "show.logs.netstat": {
+        "location-aware": false
+    },
+    "show.logs.pslist": {
+        "location-aware": false
+    },
+    "show.overview.adresses": {
+        "location-aware": false
+    },
+    "show.overview.diskstat": {
+        "location-aware": false
+    },
+    "show.overview.dmsdusers": {
+        "location-aware": false
+    },
+    "show.overview.services": {
+        "location-aware": false
+    },
+    "show.overview.systeminfo": {
+        "location-aware": false
+    }
+}

@@ -1,10 +1,26 @@
-[
-	"table.view.total",
-	"table.view.location",
-	"table.view.client",
-	"table.view.user",
-	"table.view.vm",
-	"table.export",
-	"reporting.download",
-	"reporting.change"
-]
+{
+    "reporting.change": {
+        "location-aware": false
+    },
+    "reporting.download": {
+        "location-aware": false
+    },
+    "table.export": {
+        "location-aware": false
+    },
+    "table.view.client": {
+        "location-aware": true
+    },
+    "table.view.location": {
+        "location-aware": true
+    },
+    "table.view.total": {
+        "location-aware": false
+    },
+    "table.view.user": {
+        "location-aware": false
+    },
+    "table.view.vm": {
+        "location-aware": false
+    }
+}

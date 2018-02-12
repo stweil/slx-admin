@@ -100,18 +100,21 @@ class Page_PermissionManager extends Page
 		$toplevel = $permString == "";
 		if ($toplevel && in_array("*", $selectedPermissions)) $selectAll = true;
 		foreach ($permissions as $k => $v) {
-			$leaf = !is_array($v);
+			$leaf = isset($v['isLeaf']) && $v['isLeaf'];
 			$nextPermString = $permString ? $permString.".".$k : $k;
 			$id = $leaf ? $nextPermString : $nextPermString.".*";
 			$selected = $selectAll || in_array($id, $selectedPermissions);
-			$res .= Render::parse("treenode",
-				array("id" =>  $id,
-						"name" => $toplevel ? Module::get($k)->getDisplayName() : $k,
-						"toplevel" => $toplevel,
-						"checkboxname" => "permissions",
-						"selected" => $selected,
-						"HTML" => $leaf ? "" : self::generatePermissionHTML($v, $selectedPermissions, $selected, $nextPermString),
-						"description" => $leaf ? $v : ""));
+			$data = array("id" =>  $id,
+				"name" => $toplevel ? Module::get($k)->getDisplayName() : $k,
+				"toplevel" => $toplevel,
+				"checkboxname" => "permissions",
+				"selected" => $selected,
+				"HTML" => $leaf ? "" : self::generatePermissionHTML($v, $selectedPermissions, $selected, $nextPermString),
+			);
+			if ($leaf) {
+				$data += $v;
+			}
+			$res .= Render::parse("treenode", $data);
 		}
 		if ($toplevel) {
 			$res = Render::parse("treepanel",

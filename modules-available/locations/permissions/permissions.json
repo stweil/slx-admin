@@ -1,9 +1,23 @@
-[
-	"location.view",
-	"location.edit",
-	"location.add",
-	"location.delete",
-	"subnet.edit",
-	"subnet.add",
-	"subnet.delete"
-]
+{
+    "location.add": {
+        "location-aware": false
+    },
+    "location.delete": {
+        "location-aware": false
+    },
+    "location.edit": {
+        "location-aware": false
+    },
+    "location.view": {
+        "location-aware": false
+    },
+    "subnet.add": {
+        "location-aware": false
+    },
+    "subnet.delete": {
+        "location-aware": false
+    },
+    "subnet.edit": {
+        "location-aware": false
+    }
+}

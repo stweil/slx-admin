@@ -1,14 +1,38 @@
-[
-	"images.delete",
-	"mail.save",
-	"mail.testmail",
-	"runtimeconfig.save",
-	"templates.save",
-	"templates.reset",
-	"users.setmail",
-	"users.setlogin",
-	"users.setsu",
-	"users.orglogin",
-	"log.showuser",
-	"log.showtarget"
-]
+{
+    "images.delete": {
+        "location-aware": false
+    },
+    "log.showtarget": {
+        "location-aware": false
+    },
+    "log.showuser": {
+        "location-aware": false
+    },
+    "mail.save": {
+        "location-aware": false
+    },
+    "mail.testmail": {
+        "location-aware": false
+    },
+    "runtimeconfig.save": {
+        "location-aware": false
+    },
+    "templates.reset": {
+        "location-aware": false
+    },
+    "templates.save": {
+        "location-aware": false
+    },
+    "users.orglogin": {
+        "location-aware": false
+    },
+    "users.setlogin": {
+        "location-aware": false
+    },
+    "users.setmail": {
+        "location-aware": false
+    },
+    "users.setsu": {
+        "location-aware": false
+    }
+}

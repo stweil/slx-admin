@@ -1,5 +1,11 @@
-[
-	"view",
-	"note",
-	"delete"
-]
+{
+    "machine.delete": {
+        "location-aware": true
+    },
+    "machine.note": {
+        "location-aware": true
+    },
+    "machine.view": {
+        "location-aware": true
+    }
+}

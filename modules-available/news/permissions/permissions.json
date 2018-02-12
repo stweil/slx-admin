@@ -1,6 +1,14 @@
-[
-	"news.save",
-	"news.delete",
-	"help.save",
-	"help.delete"
-]
+{
+    "help.delete": {
+        "location-aware": false
+    },
+    "help.save": {
+        "location-aware": false
+    },
+    "news.delete": {
+        "location-aware": false
+    },
+    "news.save": {
+        "location-aware": false
+    }
+}

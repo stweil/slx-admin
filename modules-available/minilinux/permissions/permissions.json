@@ -1,4 +1,8 @@
-[
-	"show",
-	"update"
-]
+{
+    "show": {
+        "location-aware": false
+    },
+    "update": {
+        "location-aware": false
+    }
+}
