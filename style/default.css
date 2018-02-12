@@ -604,3 +604,8 @@ div.disabled input, div.disabled label {
 	pointer-events: none;
 	cursor: not-allowed;
 }
+
+.input-group-addon > label {
+	font-weight: normal;
+	margin-bottom: inherit;
+}
