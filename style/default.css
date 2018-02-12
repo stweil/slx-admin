@@ -7,7 +7,7 @@ body {
   padding-bottom: 10px;
 }
 
-.panel-heading, .panel-footer, .jumbotron, pre, .input-group-addon {
+.panel-default > .panel-heading, .panel-footer, .jumbotron, pre, .input-group-addon {
   background-image: url('bg.png');
 }
 
