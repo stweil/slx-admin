@@ -1,5 +1,5 @@
 {
-	"view": "Client Statistiken anschauen.",
-	"note": "Client Notizen speichern.",
-	"delete": "Client löschen."
+	"view": "Statistiken anschauen.",
+	"machine.note": "Anmerkungen zu einem Rechner speichern.",
+	"machine.delete": "Rechner löschen."
 }

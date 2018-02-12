@@ -1,5 +1,5 @@
 {
-	"view": "View client statistics.",
-	"note": "Save client notes.",
-	"delete": "Delete client."
+	"view": "View statistics.",
+	"machine.note": "Save client notes.",
+	"machine.delete": "Delete clients."
 }

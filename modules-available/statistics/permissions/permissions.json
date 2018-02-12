@@ -5,7 +5,7 @@
     "machine.note": {
         "location-aware": true
     },
-    "machine.view": {
+    "view": {
         "location-aware": true
     }
 }

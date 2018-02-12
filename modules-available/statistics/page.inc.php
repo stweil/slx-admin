@@ -170,7 +170,7 @@ class Page_Statistics extends Page
 				$uuid = Request::post('uuid', '', 'string');
 				$locationid = Database::queryFirst('SELECT locationid FROM machine WHERE machineuuid = :uuid',
 																	array('uuid' => $uuid))['locationid'];
-				if (User::hasPermission("note", $locationid)) {
+				if (User::hasPermission("machine.note", $locationid)) {
 					$text = Request::post('content', '', 'string');
 					if (empty($text)) {
 						$text = null;
@@ -207,7 +207,7 @@ class Page_Statistics extends Page
 		$res = Database::simpleQuery('SELECT machineuuid, locationid FROM machine WHERE machineuuid IN (:ids)', compact('ids'));
 		$ids = array_flip($ids);
 		$delete = [];
-		$allowedLocations = User::getAllowedLocations("delete");
+		$allowedLocations = User::getAllowedLocations("machine.delete");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (in_array($row['locationid'], $allowedLocations)) {
 				unset($ids[$row['machineuuid']]);
@@ -629,7 +629,7 @@ class Page_Statistics extends Page
 			. " $join WHERE $where $sort", $args);
 		$rows = array();
 		$singleMachine = 'none';
-		$deleteAllowedLocations = User::getAllowedLocations("delete");
+		$deleteAllowedLocations = User::getAllowedLocations("machine.delete");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($singleMachine === 'none') {
 				$singleMachine = $row['machineuuid'];
@@ -1002,7 +1002,7 @@ class Page_Statistics extends Page
 			));
 		}
 		// Notes
-		$client["notesAllowed"] = User::hasPermission("note", $client["locationid"]);
+		$client["notesAllowed"] = User::hasPermission("machine.note", $client["locationid"]);
 		Render::addTemplate('machine-notes', $client);
 	}
 
