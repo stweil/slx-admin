@@ -100,17 +100,26 @@ class PermissionUtil
 			if (!is_array($data))
 				continue;
 			preg_match('#^modules/([^/]+)/#', $file, $out);
-			foreach( $data as $p => $data) {
-				$description = Dictionary::translateFileModule($out[1], "permissions", $p);
-				self::putInPermissionTree($out[1].".".$p, $data['location-aware'], $description, $permissions);
+			$moduleId = $out[1];
+			if (Module::get($moduleId) === false)
+				continue;
+			foreach($data as $perm => $permissionFlags) {
+				$description = Dictionary::translateFileModule($moduleId, "permissions", $perm);
+				self::putInPermissionTree($moduleId . "." . $perm, $permissionFlags['location-aware'], $description, $permissions);
 			}
 		}
 		ksort($permissions);
 		global $MENU_CAT_OVERRIDE;
 		$sortingOrder = $MENU_CAT_OVERRIDE;
-		foreach ($permissions as $module => $v) $sortingOrder[Module::get($module)->getCategory()][] = $module;
+		foreach ($permissions as $module => $v) {
+			$sortingOrder[Module::get($module)->getCategory()][] = $module;
+		}
 		$permissions = array_replace(array_flip(call_user_func_array('array_merge', $sortingOrder)), $permissions);
-		foreach ($permissions as $module => $v) if (is_int($v)) unset($permissions[$module]);
+		foreach ($permissions as $module => $v) {
+			if (is_int($v)) {
+				unset($permissions[$module]);
+			}
+		}
 
 
 		return $permissions;
