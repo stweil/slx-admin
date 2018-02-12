@@ -1,15 +1,8 @@
 <form method="post" action="?do=permissionmanager">
 	<input type="hidden" name="token" value="{{token}}">
 
-	<div class="row">
-		<div class="col-md-4">
-		</div>
-		<div class="col-md-4">
-			<input type="text" class="form-control" id="roleNameSearchField" onkeyup="searchFieldFunction()" placeholder="{{lang_searchPlaceholder}}">
-		</div>
-		<div class="col-md-4 text-right">
-			<a href="?do=permissionmanager&show=roleEditor" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</a>
-		</div>
+	<div>
+		<input type="text" class="form-control" id="roleNameSearchField" onkeyup="searchFieldFunction()" placeholder="{{lang_searchPlaceholder}}">
 	</div>
 
 	<div class="row">
@@ -18,8 +11,8 @@
 				<thead>
 					<tr>
 						<th data-sort="string">{{lang_roles}}</th>
-						<th class="text-center">{{lang_edit}}</th>
-						<th class="text-center">{{lang_delete}}</th>
+						<th class="text-center slx-smallcol">{{lang_edit}}</th>
+						<th class="text-center slx-smallcol">{{lang_delete}}</th>
 					</tr>
 				</thead>
 
@@ -39,7 +32,6 @@
 			</table>
 		</div>
 	</div>
-
 
 	<!-- Modals -->
 	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -62,6 +54,10 @@
 	</div>
 
 </form>
+
+<div class="text-right">
+	<a href="?do=permissionmanager&show=roleEditor" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</a>
+</div>
 
 <script>
 	function deleteRole($roleid) {

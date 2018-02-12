@@ -34,6 +34,9 @@ class Page_PermissionManager extends Page
 			$permissions = self::processPermissions(Request::post("permissions"));
 			PermissionDbUpdate::saveRole($rolename, $locations, $permissions, $roleID);
 		}
+		if (Request::isPost()) {
+			Util::redirect('?do=permissionmanager&show=' . Request::get("show", "roles"));
+		}
 	}
 
 	/**
@@ -44,32 +47,35 @@ class Page_PermissionManager extends Page
 		$show = Request::get("show", "roles");
 
 		// switch between tables, but always show menu to switch tables
-		if ( $show === 'roles' || $show === 'users' || $show === 'locations' ) {
-			// get menu button colors
-			$buttonColors = array();
-			$buttonColors['rolesButtonClass'] = $show === 'roles' ? 'active' : '';
-			$buttonColors['usersButtonClass'] = $show === 'users' ? 'active' : '';
-			$buttonColors['locationsButtonClass'] = $show === 'locations' ? 'active' : '';
+		// get menu button colors
+		$buttonColors = array();
+		if ($show === "roleEditor") {
+			$buttonColors['groupClass'] = 'slx-fade';
+			$buttonColors['rolesButtonClass'] = 'active';
+		} else {
+			$buttonColors[$show . 'ButtonClass'] = 'active';
+		}
 
-			Render::addtemplate('_page', $buttonColors);
+		Render::addtemplate('header-menu', $buttonColors);
 
-			if ($show === "roles") {
-				$data = array("roles" => GetPermissionData::getRoles());
-				Render::addTemplate('rolestable', $data);
-			} elseif ($show === "users") {
-				$data = array("user" => GetPermissionData::getUserData(), "roles" => GetPermissionData::getRoles());
-				Render::addTemplate('userstable', $data);
-			} elseif ($show === "locations") {
-				$data = array("location" => GetPermissionData::getLocationData(), "allroles" => GetPermissionData::getRoles());
-				Render::addTemplate('locationstable', $data);
-			}
+		if ($show === "roles") {
+			$data = array("roles" => GetPermissionData::getRoles());
+			Render::addTemplate('rolestable', $data);
+		} elseif ($show === "users") {
+			$data = array("user" => GetPermissionData::getUserData(), "allroles" => GetPermissionData::getRoles());
+			Render::addTemplate('role-filter-selectize', $data);
+			Render::addTemplate('userstable', $data);
+		} elseif ($show === "locations") {
+			$data = array("location" => GetPermissionData::getLocationData(), "allroles" => GetPermissionData::getRoles());
+			Render::addTemplate('role-filter-selectize', $data);
+			Render::addTemplate('locationstable', $data);
 		} elseif ($show === "roleEditor") {
 			$data = array("cancelShow" => Request::get("cancel", "roles"));
 
 			$selectedPermissions = array();
 			$selectedLocations = array();
-			$roleid = Request::get("roleid", false);
-			if ($roleid) {
+			$roleid = Request::get("roleid", false, 'int');
+			if ($roleid !== false) {
 				$roleData = GetPermissionData::getRoleData($roleid);
 				$data["roleid"] = $roleid;
 				$data["rolename"] = $roleData["rolename"];
@@ -81,7 +87,6 @@ class Page_PermissionManager extends Page
 			$data["locationHTML"] = self::generateLocationHTML(Location::getTree(), $selectedLocations);
 
 			Render::addTemplate('roleeditor', $data);
-
 		}
 	}
 

@@ -1,37 +1,21 @@
-<div class="row">
-	<div class="col-md-4"></div>
-	<div class="col-md-4">
-		<select multiple name="roles[]" id="select-role">
-			<option value>{{lang_selectizePlaceholder}}</option>
-			{{#allroles}}
-			<option value="{{roleid}}">{{rolename}}</option>
-			{{/allroles}}
-		</select>
-	</div>
-</div>
+<table id="locationsTable" class="table table-condensed table-hover dataTable">
+	<thead>
+		<tr>
+			<th>{{lang_locations}}</th>
+			<th class="slx-smallcol">{{lang_roles}}</th>
+		</tr>
+	</thead>
 
-<div class="row">
-	<div class="col-md-12">
-		<table id="locationsTable" class="table table-condensed table-hover stupidtable dataTable">
-			<thead>
-				<tr>
-					<th data-sort="string">{{lang_locations}}</th>
-					<th>{{lang_roles}}</th>
-				</tr>
-			</thead>
-
-			<tbody>
-			{{#location}}
-				<tr data-selectizeCount='0'>
-					<td>{{locationpad}} {{locationname}}</td>
-					<td>
-						{{#roles}}
-						<a href="?do=permissionmanager&show=roleEditor&cancel=locations&roleid={{roleid}}" class="label label-default customSpanMargin roleid-{{roleid}}">{{rolename}}</a>
-						{{/roles}}
-					</td>
-				</tr>
-			{{/location}}
-			</tbody>
-		</table>
-	</div>
-</div>
+	<tbody>
+	{{#location}}
+		<tr class="{{#roles}}roleid-{{roleid}} {{/roles}}">
+			<td>{{locationpad}} {{locationname}}</td>
+			<td class="slx-smallcol">
+				{{#roles}}
+				<a href="?do=permissionmanager&show=roleEditor&cancel=locations&roleid={{roleid}}" class="label label-default customSpanMargin">{{rolename}}</a>
+				{{/roles}}
+			</td>
+		</tr>
+	{{/location}}
+	</tbody>
+</table>

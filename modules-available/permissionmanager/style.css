@@ -1,30 +1,5 @@
-#switchForm {
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-#saveButton {
-    margin-left: 10px;
-}
-
-#rolename {
-    width: 200px;
-    display: inline-block;
-    margin-left: 10px;
-}
-
-.missingInput {
-    border-color: rgba(255, 0, 0, 0.8);
-    box-shadow: 0 1px 1px rgba(255, 0, 0, 0.075) inset, 0 0 8px rgba(255, 0, 0, 0.6);
-}
-
 .table {
     margin-top: 20px;
-}
-
-.table > tbody > tr > td {
-    vertical-align: middle;
-    height: 50px;
 }
 
 .scrollingTable {
@@ -32,27 +7,15 @@
     overflow: auto;
 }
 
-.customSpanMargin {
+/* vcenter .label in table cell */
+td > .label {
     display: inline-block;
-    margin-top: 2px;
-    margin-bottom: 2px;
+    margin: 2px 0;
 }
 
-.panel-primary > .panel-heading {
-    background-image: none;
-}
-
-.panel{
-    margin-bottom: 20px;
-}
-
-.selectize-input {
-    overflow: visible;
-}
-
-
-.tree-container .selected {
-    background-color: rgba(0, 182, 41, 0.23);
+/* lists in tree view: hide bullet points, first entry bold, ... */
+.tree-container ul {
+    list-style-type: none;
 }
 
 .tree-container > ul {
@@ -65,6 +28,7 @@
     font-weight: bold;
 }
 
+/* number of columns in tree view depending on screen size */
 .tree-container {
     -moz-column-gap: 20px;
     -webkit-column-gap: 20px;
@@ -90,8 +54,4 @@
         -webkit-column-count: 3;
         column-count: 3;
     }
-}
-
-ul {
-    list-style-type: none;
 }

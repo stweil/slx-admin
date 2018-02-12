@@ -2,40 +2,23 @@
 	<input type="hidden" name="token" value="{{token}}">
 
 	<div class="row">
-		<div class="col-md-4">
-		</div>
-		<div class="col-md-4">
-			<select multiple name="roles[]" id="select-role">
-				<option value>{{lang_selectizePlaceholder}}</option>
-				{{#roles}}
-				<option value="{{roleid}}">{{rolename}}</option>
-				{{/roles}}
-			</select>
-		</div>
-		<div class="col-md-4 text-right">
-			<button class="roleButtons btn btn-success" type="button" data-toggle="modal" data-target="#addRoleToUserModal" disabled><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
-			<button class="roleButtons btn btn-danger" type="button" data-toggle="modal" data-target="#removeRoleFromUserModal" disabled><span class="glyphicon glyphicon-remove-circle"></span> {{lang_removeRole}}</button>
-		</div>
-	</div>
-
-	<div class="row">
 		<div class="col-md-12">
 			<table id="usersTable" class="table table-condensed table-hover stupidtable dataTable">
 				<thead>
 					<tr>
 						<th data-sort="string">{{lang_users}}</th>
-						<th>{{lang_roles}}</th>
-						<th data-sort="int" data-sort-default="desc">{{lang_selected}}</th>
+						<th class="slx-smallcol">{{lang_roles}}</th>
+						<th class="slx-smallcol" data-sort="int" data-sort-default="desc">{{lang_selected}}</th>
 					</tr>
 				</thead>
 
 				<tbody>
 				{{#user}}
-					<tr data-selectizeCount='0'>
+					<tr class="{{#roles}}roleid-{{roleid}} {{/roles}}">
 						<td>{{username}}</td>
-						<td>
+						<td class="slx-smallcol">
 							{{#roles}}
-							<a href="?do=permissionmanager&show=roleEditor&cancel=users&roleid={{roleid}}" class="label label-default customSpanMargin roleid-{{roleid}}">{{rolename}}</a>
+							<a href="?do=permissionmanager&show=roleEditor&cancel=users&roleid={{roleid}}" class="label label-default customSpanMargin">{{rolename}}</a>
 							{{/roles}}
 						</td>
 						<td data-sort-value="0">
@@ -71,7 +54,7 @@
 								</thead>
 
 								<tbody>
-								{{#roles}}
+								{{#allroles}}
 									<tr>
 										<td>{{rolename}}</td>
 										<td data-sort-value="0">
@@ -81,7 +64,7 @@
 											</div>
 										</td>
 									</tr>
-								{{/roles}}
+								{{/allroles}}
 								</tbody>
 							</table>
 						</div>
@@ -114,7 +97,7 @@
 								</thead>
 
 								<tbody>
-								{{#roles}}
+								{{#allroles}}
 									<tr>
 										<td>{{rolename}}</td>
 										<td data-sort-value="0">
@@ -124,7 +107,7 @@
 											</div>
 										</td>
 									</tr>
-								{{/roles}}
+								{{/allroles}}
 								</tbody>
 							</table>
 						</div>
@@ -138,6 +121,11 @@
 		</div>
 	</div>
 </form>
+
+<div class="text-right">
+	<button class="roleButtons btn btn-success" type="button" data-toggle="modal" data-target="#addRoleToUserModal" disabled><span class="glyphicon glyphicon-share-alt"></span> {{lang_addRole}}</button>
+	<button class="roleButtons btn btn-danger" type="button" data-toggle="modal" data-target="#removeRoleFromUserModal" disabled><span class="glyphicon glyphicon-remove-circle"></span> {{lang_removeRole}}</button>
+</div>
 
 <script>
 	selectedUsersCounter = 0;

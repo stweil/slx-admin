@@ -1,7 +1,7 @@
 {{#toplevel}}<ul>{{/toplevel}}
-<li title="{{description}}" data-toggle="tooltip" data-placement="left">
+<li {{#description}}title="{{description}}" data-toggle="tooltip" data-placement="left"{{/description}}>
 	<div class='checkbox'>
-		<input id="{{id}}" name="{{checkboxname}}[]" value="{{id}}" type="checkbox" class="form-control" {{#selected}}checked{{/selected}}>
+		<input id="{{id}}" name="{{checkboxname}}[]" value="{{id}}" type="checkbox" {{#selected}}checked{{/selected}}>
 		<label for="{{id}}">
 			{{name}}
 			{{#location-aware}}<span class="glyphicon glyphicon-home text-muted"></span>{{/location-aware}}

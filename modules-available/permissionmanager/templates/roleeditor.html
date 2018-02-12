@@ -1,24 +1,42 @@
-<h1>{{lang_roleEditor}}</h1>
+<h2>
+	{{#roleid}}
+		{{lang_editRoleHeading}}
+	{{/roleid}}
+	{{^roleid}}
+		{{lang_addRoleHeading}}
+	{{/roleid}}
+</h2>
+
 <form method="post" action="?do=permissionmanager">
 	<input type="hidden" name="action" value="saveRole">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="roleid" value="{{roleid}}">
 
+	<div class="input-group">
+	<span class="input-group-addon">
+		<label for="rolename">{{lang_name}}</label>
+	</span>
+		<input id="rolename" name="rolename" value="{{rolename}}" type="text" class="form-control" required>
+	</div>
+	<br>
+
+	<div class="pull-right">
+		<a href="?do=permissionmanager&amp;show={{cancelShow}}" class="btn btn-default">{{lang_cancel}}</a>
+		<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+	</div>
 	<ul class="nav nav-tabs text-center" role="tablist">
 		<li role="presentation" class="active"><a href="#permissions" role="tab" data-toggle="tab">{{lang_permissions}}</a></li>
 		<li role="presentation"><a href="#locations" role="tab" data-toggle="tab">{{lang_locations}}</a></li>
-		<li style="float: none; display: inline-block">
-			<label for="rolename">{{lang_name}}:</label>
-			<input id="rolename" name="rolename" value="{{rolename}}" type="text" class="form-control">
-		</li>
-		<li style="float: right;">
-			<span><a href="?do=permissionmanager&show={{cancelShow}}" id="cancelButton" class="btn btn-default">{{lang_cancel}}</a></span>
-			<button type="submit" id="saveButton" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
-		</li>
 	</ul>
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane active" id="permissions">
 			{{{permissionHTML}}}
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<span class="glyphicon glyphicon-home text-muted"></span>&emsp;
+					{{lang_locationAwareDesc}}
+				</div>
+			</div>
 		</div>
 		<div role="tabpanel" class="tab-pane" id="locations">
 			{{{locationHTML}}}
@@ -31,31 +49,17 @@
 
 	document.addEventListener("DOMContentLoaded", function () {
 
-		$(".tree-panel input[type=checkbox]").change(function () {
-			var checked = $(this).prop("checked");
-			var parent = $(this).parent().parent();
-			if (parent.hasClass("panel-heading")) parent = parent.parent();
-
-			var checkboxes = parent.find("input[type=checkbox]");
-			if (checked) {
-				checkboxes.prop("checked", true);
-			} else {
-				checkboxes.prop("checked", false);
-				while (!parent.hasClass("tree-panel")) {
-					parent = parent.parent().parent();
-					if (parent.hasClass("tree-container")) parent = parent.parent().parent();
-					parent.find("input[type=checkbox]:first").prop("checked", false);
-				}
-			}
+		$(".tree-container input[type=checkbox]").change(function () {
+			// (Un)Mark all sub-elements when changing a checkbox in the panel body
+			var $this = $(this);
+			var checked = $this.prop("checked");
+			$this.closest('li').find("input[type=checkbox]").prop("checked", checked);
 		});
-
-		$('form').submit(function () {
-			var input = $("#rolename");
-			var name = $.trim(input.val());
-			if (!name) {
-				input.addClass("missingInput");
-				return false;
-			}
+		$("input.master-checkbox").change(function () {
+			// (Un)Mark everything within the panel when the master checkbox on top is clicked
+			var $this = $(this);
+			var checked = $this.prop("checked");
+			$this.closest('.tree-panel').find("input[type=checkbox]").prop("checked", checked);
 		});
 
 		$('[data-toggle="tooltip"]').tooltip({
