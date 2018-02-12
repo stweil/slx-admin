@@ -1,5 +1,4 @@
 {
-	"exams.add": "Add new exam.",
-	"exams.delete": "Delete exam.",
-	"exams.edit": "Edit exam."
+	"exams.view": "View scheduled exams.",
+	"exams.edit": "Add/delete/edit exams."
 }

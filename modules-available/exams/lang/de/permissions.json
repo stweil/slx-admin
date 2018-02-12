@@ -1,5 +1,4 @@
 {
-	"exams.add": "Neues Examen hinzufügen.",
-	"exams.delete": "Examen löschen.",
-	"exams.edit": "Examen bearbeiten."
+	"exams.view": "Geplante Prüfungen sehen.",
+	"exams.edit": "Prüfungen anlegen/editieren/löschen."
 }
