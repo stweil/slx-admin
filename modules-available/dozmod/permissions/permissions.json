@@ -1,17 +1,17 @@
 {
-    "images.delete": {
+    "expiredimages.delete": {
         "location-aware": false
     },
-    "log.showtarget": {
+    "actionlog.showtarget": {
         "location-aware": false
     },
-    "log.showuser": {
+    "actionlog.showuser": {
         "location-aware": false
     },
-    "mail.save": {
+    "mailconfig.save": {
         "location-aware": false
     },
-    "mail.testmail": {
+    "mailconfig.testmail": {
         "location-aware": false
     },
     "runtimeconfig.save": {
@@ -23,7 +23,7 @@
     "templates.save": {
         "location-aware": false
     },
-    "users.orglogin": {
+    "users.setorglogin": {
         "location-aware": false
     },
     "users.setlogin": {

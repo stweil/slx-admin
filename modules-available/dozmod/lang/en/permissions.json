@@ -1,14 +1,14 @@
 {
-	"images.delete": "Delete images marked for deletion.",
-	"mail.save": "Save SMTP configuration for sending mails.",
-	"mail.testmail": "Send a testmail.",
-	"runtimeconfig.save": "Save limits and defaults of a runtime configuration.",
-	"templates.save": "Save email templates.",
-	"templates.reset": "Reset email templates.",
-	"users.setmail": "Enable/Disable Email Notification.",
-	"users.setlogin": "Enable/Disable Login.",
-	"users.setsu": "Set User to superuser.",
-	"users.orglogin": "Enalbe/Disable Login for Users from certain organisations.",
-	"log.showuser": "Show User Data in Log.",
-	"log.showtarget": "Show Target Data in Log."
+    "actionlog.showtarget": "Show Target Data in Log.",
+    "actionlog.showuser": "Show User Data in Log.",
+    "expiredimages.delete": "Delete images marked for deletion.",
+    "mailconfig.save": "Save SMTP configuration for sending mails.",
+    "mailconfig.testmail": "Send a testmail.",
+    "runtimeconfig.save": "Save limits and defaults of a runtime configuration.",
+    "templates.reset": "Reset email templates.",
+    "templates.save": "Save email templates.",
+    "users.setorglogin": "Enalbe\/Disable Login for Users from certain organisations.",
+    "users.setlogin": "Enable\/Disable Login.",
+    "users.setmail": "Enable\/Disable Email Notification.",
+    "users.setsu": "Set User to superuser."
 }

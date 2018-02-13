@@ -1,31 +1,31 @@
 <?php
 
-class Page_dozmod_users extends Page
+class SubPage
 {
 
-	protected function doPreprocess()
+	public static function doPreprocess()
 	{
 
 	}
 
-	protected function doRender()
+	public static function doRender()
 	{
-		$this->listUsers();
-		$this->listOrganizations();
+		self::listUsers();
+		self::listOrganizations();
 	}
 
-	protected function doAjax()
+	protected static function doAjax()
 	{
 		User::load();
 
 		$action = Request::post('action', '', 'string');
 		if ($action === 'setmail' || $action === 'setsu' || $action == 'setlogin') {
 			if (User::hasPermission("users.".$action)) {
-				$this->setUserOption($action);
+				self::setUserOption($action);
 			}
 		} elseif ($action === 'setorglogin') {
-			if (User::hasPermission("users.orglogin")) {
-				$this->setOrgOption($action);
+			if (User::hasPermission("users.setorglogin")) {
+				self::setOrgOption($action);
 			}
 		} else {
 			die('No such action');
@@ -34,7 +34,7 @@ class Page_dozmod_users extends Page
 
 	// Helpers
 
-	private function listUsers()
+	private static function listUsers()
 	{
 		$res = Database::simpleQuery('SELECT userid, firstname, lastname, email, lastlogin, user.canlogin, issuperuser, emailnotifications,'
 			. ' organization.displayname AS orgname FROM sat.user'
@@ -42,35 +42,35 @@ class Page_dozmod_users extends Page
 			. ' ORDER BY lastname ASC, firstname ASC');
 		$rows = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['canlogin'] = $this->checked($row['canlogin']);
-			$row['issuperuser'] = $this->checked($row['issuperuser']);
-			$row['emailnotifications'] = $this->checked($row['emailnotifications']);
+			$row['canlogin'] = self::checked($row['canlogin']);
+			$row['issuperuser'] = self::checked($row['issuperuser']);
+			$row['emailnotifications'] = self::checked($row['emailnotifications']);
 			$row['lastlogin'] = date('d.m.Y', $row['lastlogin']);
 			$rows[] = $row;
 		}
 		Render::addTemplate('userlist', array('users' => $rows));
 	}
 
-	private function listOrganizations()
+	private static function listOrganizations()
 	{
 		$res = Database::simpleQuery('SELECT organizationid, displayname, canlogin FROM sat.organization'
 			. ' ORDER BY displayname ASC');
 		$rows = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['canlogin'] = $this->checked($row['canlogin']);
+			$row['canlogin'] = self::checked($row['canlogin']);
 			$rows[] = $row;
 		}
 		Render::addTemplate('orglist', array('organizations' => $rows));
 	}
 
-	private function checked($val)
+	private static function checked($val)
 	{
 		if ($val)
 			return 'checked="checked"';
 		return '';
 	}
 
-	private function setUserOption($option)
+	private static function setUserOption($option)
 	{
 		$val = (string) Request::post('value', '-');
 		if ($val !== '1' && $val !== '0')
@@ -97,7 +97,7 @@ class Page_dozmod_users extends Page
 		die($val);
 	}
 
-	private function setOrgOption($option)
+	private static function setOrgOption($option)
 	{
 		$val = (string) Request::post('value', '-');
 		if ($val !== '1' && $val !== '0')

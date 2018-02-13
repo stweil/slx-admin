@@ -1,24 +1,22 @@
 <?php
 
-class Page_mail_templates extends Page
+class SubPage
 {
 
-	private $templates = [];
+	private static $templates = [];
 
-	protected function doPreprocess()
+	public static function doPreprocess()
 	{
-		User::load();
-
 		$action = Request::post('action', 'show', 'string');
 		if ($action === 'show') {
-			$this->fetchTemplates();
+			self::fetchTemplates();
 		} elseif ($action === 'save') {
 			if (User::hasPermission("templates.save")) {
-				$this->handleSave();
+				self::handleSave();
 			}
 		} elseif ($action === 'reset') {
 			if(User::hasPermission("templates.reset")) {
-				$this->handleReset();
+				self::handleReset();
 			}
 		} else {
 			Message::addError('main.invalid-action', $action);
@@ -26,9 +24,9 @@ class Page_mail_templates extends Page
 		}
 	}
 
-	private function enrichHtml() {
+	private static function enrichHtml() {
 		/* for each template */
-		foreach ($this->templates as &$t) {
+		foreach (self::$templates as &$t) {
 			$lis = "";
 			$optManVars = "";
 			$optVars = "";
@@ -61,36 +59,36 @@ class Page_mail_templates extends Page
 		}
 	}
 
-	protected function doRender()
+	public static function doRender()
 	{
-		$this->enrichHtml();
+		self::enrichHtml();
 		Render::addTemplate('templates', [
-			'templates' => $this->templates,
+			'templates' => self::$templates,
 			'allowedReset' => User::hasPermission("templates.reset"),
 			'allowedSave' => User::hasPermission("templates.save"),
 		]);
 	}
 
-	private function forcmp($string)
+	private static function forcmp($string)
 	{
 		return trim(str_replace("\r\n", "\n", $string));
 	}
 
-	private function handleSave()
+	private static function handleSave()
 	{
 		$data = Request::post('templates');
 		if (is_array($data)) {
-			$this->fetchTemplates();
-			foreach ($this->templates as &$template) {
+			self::fetchTemplates();
+			foreach (self::$templates as &$template) {
 				if (isset($data[$template['name']])) {
-					if ($this->forcmp($template['template']) !== $this->forcmp($data[$template['name']]['template'])) {
+					if (self::forcmp($template['template']) !== self::forcmp($data[$template['name']]['template'])) {
 						if (empty($template['original_template'])) {
 							$template['original_template'] = $template['template'];
 						}
 						$template['edit_version'] = $template['version'];
 					}
 					$template['original'] = (empty($template['original_template']) && $template['original'])
-						|| $this->forcmp($template['original_template']) === $this->forcmp($data[$template['name']]['template']);
+						|| self::forcmp($template['original_template']) === self::forcmp($data[$template['name']]['template']);
 					if ($template['original']) {
 						$template['original_template'] = '';
 					}
@@ -98,7 +96,7 @@ class Page_mail_templates extends Page
 				}
 			}
 			unset($template);
-			$data = json_encode(array('templates' => $this->templates));
+			$data = json_encode(array('templates' => self::$templates));
 			Database::exec("UPDATE sat.configuration SET value = :value WHERE parameter = 'templates'", array('value' => $data));
 			Message::addSuccess('templates-saved');
 		} else {
@@ -107,7 +105,7 @@ class Page_mail_templates extends Page
 		Util::redirect('?do=dozmod&section=templates');
 	}
 
-	private function handleReset()
+	private static function handleReset()
 	{
 		$result = Download::asStringPost('http://127.0.0.1:9080/do/reset-mail-templates', array(), 10, $code);
 		if ($code == 999) {
@@ -120,16 +118,21 @@ class Page_mail_templates extends Page
 		Util::redirect('?do=dozmod&section=templates');
 	}
 
-	private function fetchTemplates() {
+	private static function fetchTemplates() {
 		$templates= Database::queryFirst('SELECT value FROM sat.configuration WHERE parameter = :param', array('param' => 'templates'));
 		if ($templates != null) {
 			$templates = @json_decode($templates['value'], true);
 			if (is_array($templates)) {
-				$names = array_map(function ($e) { return $e['name']; }, $templates['templates']);
+				$names = array_map(static function ($e) { return $e['name']; }, $templates['templates']);
 				array_multisort($names, SORT_ASC, $templates['templates']);
-				$this->templates = $templates['templates'];
+				self::$templates = $templates['templates'];
 			}
 		}
+
+	}
+
+	public static function doAjax()
+	{
 
 	}
 

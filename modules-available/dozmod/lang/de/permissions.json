@@ -1,14 +1,14 @@
 {
-	"images.delete": "Zur Löschung vorgemerkete Abbilder löschen.",
-	"mail.save": "Änderungen an der SMTP-Konfiguration zum Versenden von Mails speichern.",
-	"mail.testmail": "Eine Test E-Mail verschicken.",
-	"runtimeconfig.save": "Änderungen an der Laufzeit-Konfiguration speichern.",
-	"templates.save": "E-Mail Templates speichern.",
-	"templates.reset": "E-Mail Templates zurücksetzen.",
-	"users.setmail": "E-Mail Benachrichtigungen für einzelne Benutzer aktivieren/deaktivieren.",
-	"users.setlogin": "Anmeldungen für einzelne Benutzer aktivieren/deaktivieren.",
-	"users.setsu": "Benutzer zu SuperUser ernennen.",
-	"users.orglogin": "Anmeldungen für Benutzer von bestimmten Einrichtungen aktivieren/deaktivieren.",
-	"log.showuser": "User Data im Aktions-Log anzeigen.",
-	"log.showtarget": "Target Data im Aktions-Log anzeigen."
+    "actionlog.showtarget": "Target Data im Aktions-Log anzeigen.",
+    "actionlog.showuser": "User Data im Aktions-Log anzeigen.",
+    "expiredimages.delete": "Zur L\u00f6schung vorgemerkete Abbilder l\u00f6schen.",
+    "mailconfig.save": "\u00c4nderungen an der SMTP-Konfiguration zum Versenden von Mails speichern.",
+    "mailconfig.testmail": "Eine Test E-Mail verschicken.",
+    "runtimeconfig.save": "\u00c4nderungen an der Laufzeit-Konfiguration speichern.",
+    "templates.reset": "E-Mail Templates zur\u00fccksetzen.",
+    "templates.save": "E-Mail Templates speichern.",
+    "users.setorglogin": "Anmeldungen f\u00fcr Benutzer von bestimmten Einrichtungen aktivieren\/deaktivieren.",
+    "users.setlogin": "Anmeldungen f\u00fcr einzelne Benutzer aktivieren\/deaktivieren.",
+    "users.setmail": "E-Mail Benachrichtigungen f\u00fcr einzelne Benutzer aktivieren\/deaktivieren.",
+    "users.setsu": "Benutzer zu SuperUser ernennen."
 }
