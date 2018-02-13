@@ -104,6 +104,15 @@ spl_autoload_register(function ($class) {
 
 if (defined('CONFIG_DEBUG') && CONFIG_DEBUG) {
 	set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+		if (preg_match('/^\[skip:\s*(\d+)\]\s*(.*)/is', $errstr, $out)) {
+			$errstr = $out[2];
+			$trace = debug_backtrace();
+			$idx = (int)$out[1] + 1;
+			if (count($trace) > $idx) {
+				$errfile = $trace[$idx]['file'];
+				$errline = $trace[$idx]['line'];
+			}
+		}
 		global $SLX_ERRORS;
 		$SLX_ERRORS[] = array(
 			'errno' => $errno,
