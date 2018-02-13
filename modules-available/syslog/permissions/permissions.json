@@ -1,5 +1,8 @@
 {
     "view": {
         "location-aware": true
+    },
+    "configure-anonymization": {
+        "location-aware": false
     }
 }

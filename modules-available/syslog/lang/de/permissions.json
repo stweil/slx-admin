@@ -1,3 +1,4 @@
 {
-	"view": "Client Log anschauen."
+    "configure-anonymization": "Einstellen, nach wie vielen Tagen die Nutzernamen in den Logs entfernt werden.",
+    "view": "Client Log anschauen."
 }

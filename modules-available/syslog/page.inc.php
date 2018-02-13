@@ -14,7 +14,9 @@ class Page_SysLog extends Page
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
+
 		if (($days = Request::post('anondays', false, 'int')) !== false) {
+			User::assertPermission('configure-anonymization', NULL,'?do=syslog');
 			if ($days < 0 || $days > 180) {
 				Message::addError('anon-days-out-of-range', $days);
 			} else {
@@ -27,7 +29,9 @@ class Page_SysLog extends Page
 
 	protected function doRender()
 	{
-		Render::addTemplate("heading");
+		$data = ['anondays' => Property::get(self::PROP_ANON_DAYS, 0)];
+		Permission::addGlobalTags($data['perms'], NULL, ['configure-anonymization']);
+		Render::addTemplate("heading", $data);
 
 		if (!User::hasPermission("view")) {
 			Message::addError('main.no-permission');
@@ -104,7 +108,6 @@ class Page_SysLog extends Page
 			'list'     => $lines,
 			'types'    => json_encode(array_values($types)),
 			'machineuuid' => Request::get('machineuuid'),
-			'anondays' => Property::get(self::PROP_ANON_DAYS, 0),
 		));
 	}
 
