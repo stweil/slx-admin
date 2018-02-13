@@ -53,11 +53,30 @@ class Page_Translation extends Page
 	private function loadCustomHandler($moduleName)
 	{
 		$path = 'modules/' . $moduleName . '/hooks/translation.inc.php';
-		if (!file_exists($path))
-			return false;
 		$HANDLER = array();
-		require $path;
-		return $HANDLER;
+		if (file_exists($path)) {
+			require $path;
+		}
+		$backup = $HANDLER;
+		foreach (glob('modules/*/hooks/translation-global.inc.php', GLOB_NOSORT) as $path) {
+			$HANDLER = array();
+			require $path;
+			if (empty($HANDLER['subsections']))
+				continue;
+			foreach ($HANDLER['subsections'] as $sub) {
+				$suf = '';
+				while (isset($backup['subsections']) && in_array($sub . $suf, $backup['subsections'])) {
+					$suf = mt_rand();
+				}
+				$backup['subsections'][] = $sub . $suf;
+				if (isset($HANDLER['grep_' . $sub])) {
+					$backup['grep_' . $sub . $suf] = $HANDLER['grep_' . $sub];
+				}
+			}
+		}
+		if (empty($backup))
+			return false;
+		return $backup;
 	}
 	
 	/**
@@ -81,7 +100,7 @@ class Page_Translation extends Page
 	{
 		User::load();
 
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
