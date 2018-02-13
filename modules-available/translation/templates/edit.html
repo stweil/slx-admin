@@ -35,7 +35,7 @@
 
 				<td class="col-sm-4" id="tagid-{{tagid}}">
 					{{^big}}
-					<input type="text" class="form-control switchable {{#missing}}txt-empty{{/missing}}" value="{{translation}}" ondblclick="slxMb(this)" name="lang#!#{{tag}}" placeholder="{{placeholder}}">
+					<input type="text" class="form-control switchable {{#missing}}txt-empty{{/missing}}" value="{{translation}}" ondblclick="slxMb(this)" name="langtag[{{tag}}]" placeholder="{{placeholder}}">
 					{{/big}}
 					{{#big}}
 					<textarea rows="3" class="form-control {{#missing}}txt-empty{{/missing}}" name="lang#!#{{tag}}" placeholder="{{placeholder}}">{{translation}}</textarea>

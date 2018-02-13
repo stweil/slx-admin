@@ -997,24 +997,19 @@ class Page_Translation extends Page
 		$data = array();
 
 		//find the tag requests to change the file
-		foreach ($_POST as $key => $value) {
-			$str = explode('#!#', $key, 2);
-			if (count($str) !== 2)
+		$tags = Request::post('langtag', array(), 'array');
+		foreach ($tags as $tag => $value) {
+			$tag = trim($tag);
+			if (empty($tag)) {
+				Message::addWarning('i18n-empty-tag');
 				continue;
-			if ($str[0] === 'lang') {
-				$tag = trim($str[1]);
-				if (empty($tag)) {
-					Message::addWarning('i18n-empty-tag');
-					continue;
-				}
-				if (empty($value)) {
-					unset($data[$tag]);
-				} else {
-					$data[$tag] = $value;
-				}
+			}
+			if (empty($value)) {
+				unset($data[$tag]);
+			} else {
+				$data[$tag] = $value;
 			}
 		}
-		
 		$translation = Request::post('new-text', array(), 'array');
 		foreach (Request::post('new-id', array(), 'array') as $k => $tag) {
 			if (empty($translation[$k]) || empty($tag))
