@@ -103,14 +103,32 @@ class Page_PermissionManager extends Page
 	{
 		$res = "";
 		$toplevel = $permString == "";
-		if ($toplevel && in_array("*", $selectedPermissions)) $selectAll = true;
+		if ($toplevel && in_array("*", $selectedPermissions)) {
+			$selectAll = true;
+		}
 		foreach ($permissions as $k => $v) {
-			$leaf = isset($v['isLeaf']) && $v['isLeaf'];
-			$nextPermString = $permString ? $permString.".".$k : $k;
-			$id = $leaf ? $nextPermString : $nextPermString.".*";
-			$selected = $selectAll || in_array($id, $selectedPermissions);
-			$data = array("id" =>  $id,
-				"name" => $toplevel ? Module::get($k)->getDisplayName() : $k,
+			$selected = $selectAll;
+			$nextPermString = $permString ? $permString . "." . $k : $k;
+			if ($toplevel) {
+				$displayName = Module::get($k)->getDisplayName();
+			} else {
+				$displayName = $k;
+			}
+			do {
+				$leaf = isset($v['isLeaf']) && $v['isLeaf'];
+				$id = $leaf ? $nextPermString : $nextPermString . ".*";
+				$selected = $selected || in_array($id, $selectedPermissions);
+				if ($leaf || count($v) !== 1)
+					break;
+				reset($v);
+				$k = key($v);
+				$v = $v[$k];
+				$nextPermString .= '.' . $k;
+				$displayName .= '.' . $k;
+			} while (true);
+			$data = array(
+				"id" => $id,
+				"name" => $displayName,
 				"toplevel" => $toplevel,
 				"checkboxname" => "permissions",
 				"selected" => $selected,
