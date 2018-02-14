@@ -163,6 +163,8 @@ class PermissionUtil
 			trigger_error('[skip:3]Cannot check malformed permission "' . $permissionId . '"', E_USER_WARNING);
 			return;
 		}
+		if ($split[1] === '*')
+			return;
 		$data = json_decode(file_get_contents('modules/' . $split[0] . '/permissions/permissions.json'), true);
 		if (substr($split[1], -2) === '.*') {
 			$len = strlen($split[1]) - 1;
