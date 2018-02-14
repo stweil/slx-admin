@@ -71,41 +71,37 @@ class Page_News extends Page
             /* find out whether it's news or help */
             $pageType = Request::post('news-type');
 
-            if ($pageType == 'news') {
-            	if (User::hasPermission("news.save")) {
-						if (!$this->saveNews()) {
-							// re-set the fields we got
-							Request::post('news-title') ? $this->newsTitle = Request::post('news-title') : $this->newsTitle = false;
-							Request::post('news-content') ? $this->newsContent = Request::post('news-content') : $this->newsContent = false;
-						} else {
-							Message::addSuccess('news-save-success');
-							$lastId = Database::lastInsertId();
-							Util::redirect("?do=News&newsid=$lastId");
-						}
+            if ($pageType === 'news') {
+            	User::assertPermission("news.save");
+					if (!$this->saveNews()) {
+						// re-set the fields we got
+						$this->newsTitle = Request::post('news-title', false, 'string');
+						$this->newsContent = Request::post('news-content', false, 'string');
+					} else {
+						Message::addSuccess('news-save-success');
+						$lastId = Database::lastInsertId();
+						Util::redirect("?do=News&newsid=$lastId");
 					}
-            } elseif ($pageType == 'help') {
-            	if (User::hasPermission("help.save")) {
-						if ($this->saveHelp()) {
-							Message::addSuccess('help-save-success');
-							$lastId = Database::lastInsertId();
-							Util::redirect("?do=News&newsid=$lastId");
-						}
+            } elseif ($pageType === 'help') {
+            	User::assertPermission("help.save");
+					if ($this->saveHelp()) {
+						Message::addSuccess('help-save-success');
+						$lastId = Database::lastInsertId();
+						Util::redirect("?do=News&newsid=$lastId");
 					}
             }
         } elseif ($action === 'delete') {
             // delete it
 			  $pageType = Request::post('news-type');
 
-			  if ($pageType == 'news') {
-			  		if(User::hasPermission("news.delete")) {
-						$this->delNews(Request::post('newsid'));
-						Util::redirect('?do=News&editHelp='.Request::any('editHelp'));
-					}
-			  } elseif ($pageType == 'help') {
-			  		if(User::hasPermission("help.delete")) {
-						$this->delNews(Request::post('newsid'));
-						Util::redirect('?do=News&editHelp='.Request::any('editHelp'));
-					}
+			  if ($pageType === 'news') {
+			  		User::assertPermission("news.delete");
+					$this->delNews(Request::post('newsid'));
+					Util::redirect('?do=News&editHelp='.Request::any('editHelp'));
+			  } elseif ($pageType === 'help') {
+			  		User::assertPermission("help.delete");
+					$this->delNews(Request::post('newsid'));
+					Util::redirect('?do=News&editHelp='.Request::any('editHelp'));
 			  }
         } else {
             // unknown action, redirect user
@@ -146,20 +142,20 @@ class Page_News extends Page
             $linesHelp[] = $row;
         }
 
-        $paginate->render('page-news', array(
-                'token' => Session::get('token'),
-                'latestDate' => ($this->newsDate ? date('d.m.Y H:i', $this->newsDate) : '--'),
-                'latestContent' => $this->newsContent,
-                'latestTitle' => $this->newsTitle,
-                'latestHelp' => $this->helpContent,
-                'editHelp' => $this->editHelp,
-                'list' => $lines,
-                'listHelp' => $linesHelp,
-			  		 'allowedNewsSave' => User::hasPermission("news.save"),
-			  		 'allowedNewsDelete' => User::hasPermission("news.delete"),
-			  		 'allowedHelpSave' => User::hasPermission("help.save"),
-			  		 'allowedHelpDelete' => User::hasPermission("help.delete"),
-                'hasSummernote' => $this->hasSummernote, ));
+        $data = array(
+			  'token' => Session::get('token'),
+			  'latestDate' => ($this->newsDate ? date('d.m.Y H:i', $this->newsDate) : '--'),
+			  'latestContent' => $this->newsContent,
+			  'latestTitle' => $this->newsTitle,
+			  'latestHelp' => $this->helpContent,
+			  'editHelp' => $this->editHelp,
+			  'list' => $lines,
+			  'listHelp' => $linesHelp,
+			  'hasSummernote' => $this->hasSummernote,
+		  );
+        Permission::addGlobalTags($data['perms'], null, ['news.save', 'news.delete', 'help.save', 'help.delete']);
+
+        $paginate->render('page-news', $data);
     }
     /**
      * Loads the news with the given ID into the form.
