@@ -95,8 +95,8 @@ class Page_PermissionManager extends Page
 	 *
 	 * @param array $permissions the permission tree
 	 * @param array $selectedPermissions permissions that should be preselected
-	 * @param array $selectAll true if all pemrissions should be preselected, false if only those in $selectedPermissions
-	 * @param array $permString the prefix permission string with which all permissions in the permission tree should start
+	 * @param bool $selectAll true if all permissions should be preselected, false if only those in $selectedPermissions
+	 * @param string $permString the prefix permission string with which all permissions in the permission tree should start
 	 * @return string generated html code
 	 */
 	private static function generatePermissionHTML($permissions, $selectedPermissions = array(), $selectAll = false, $permString = "")
@@ -142,10 +142,10 @@ class Page_PermissionManager extends Page
 		if ($toplevel) {
 			$res = Render::parse("treepanel",
 				array("id" => "*",
-						"name" => Dictionary::translateFile("template-tags", "lang_permissions"),
-						"checkboxname" => "permissions",
-						"selected" => $selectAll,
-						"HTML" => $res));
+					"name" => Dictionary::translateFile("template-tags", "lang_permissions"),
+					"checkboxname" => "permissions",
+					"selected" => $selectAll,
+					"HTML" => $res));
 		}
 		return $res;
 	}
@@ -162,25 +162,27 @@ class Page_PermissionManager extends Page
 	private static function generateLocationHTML($locations, $selectedLocations = array(), $selectAll = false, $toplevel = true)
 	{
 		$res = "";
-		if ($toplevel && in_array(0, $selectedLocations)) $selectAll = true;
+		if ($toplevel && in_array(0, $selectedLocations)) {
+			$selectAll = true;
+		}
 		foreach ($locations as $location) {
 			$selected = $selectAll || in_array($location["locationid"], $selectedLocations);
 			$res .= Render::parse("treenode",
-				array("id" =>  $location["locationid"],
-						"name" => $location["locationname"],
-						"toplevel" => $toplevel,
-						"checkboxname" => "locations",
-						"selected" => $selected,
-						"HTML" => array_key_exists("children", $location) ?
-							self::generateLocationHTML($location["children"], $selectedLocations, $selected, false) : ""));
+				array("id" => $location["locationid"],
+					"name" => $location["locationname"],
+					"toplevel" => $toplevel,
+					"checkboxname" => "locations",
+					"selected" => $selected,
+					"HTML" => array_key_exists("children", $location) ?
+						self::generateLocationHTML($location["children"], $selectedLocations, $selected, false) : ""));
 		}
 		if ($toplevel) {
 			$res = Render::parse("treepanel",
 				array("id" => 0,
-						"name" => Dictionary::translateFile("template-tags", "lang_locations"),
-						"checkboxname" => "locations",
-						"selected" => $selectAll,
-						"HTML" => $res));
+					"name" => Dictionary::translateFile("template-tags", "lang_locations"),
+					"checkboxname" => "locations",
+					"selected" => $selectAll,
+					"HTML" => $res));
 		}
 		return $res;
 	}
@@ -193,12 +195,14 @@ class Page_PermissionManager extends Page
 	 */
 	private static function processLocations($locations)
 	{
-		if (in_array(0, $locations)) return array(NULL);
+		if (in_array(0, $locations))
+			return array(null);
 		$result = array();
 		foreach ($locations as $location) {
 			$rootchain = array_reverse(Location::getLocationRootChain($location));
 			foreach ($rootchain as $l) {
-				if (in_array($l, $result)) break;
+				if (in_array($l, $result))
+					break;
 				if (in_array($l, $locations)) {
 					$result[] = $l;
 					break;
@@ -216,7 +220,8 @@ class Page_PermissionManager extends Page
 	 */
 	private static function processPermissions($permissions)
 	{
-		if (in_array("*", $permissions)) return array("*");
+		if (in_array("*", $permissions))
+			return array("*");
 		$result = array();
 		foreach ($permissions as $permission) {
 			$x =& $result;
@@ -239,10 +244,10 @@ class Page_PermissionManager extends Page
 		foreach ($permissions as $permission => $a) {
 			if (is_array($a)) {
 				if (array_key_exists("*", $a)) {
-					$result[] = $permission.".*";
+					$result[] = $permission . ".*";
 				} else {
 					foreach (self::extractPermissions($a) as $subPermission) {
-						$result[] = $permission.".".$subPermission;
+						$result[] = $permission . "." . $subPermission;
 					}
 				}
 			} else {

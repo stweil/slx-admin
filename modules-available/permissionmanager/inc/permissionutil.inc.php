@@ -25,15 +25,15 @@ class PermissionUtil
 			$compare[] = $permission[0];
 		}
 		for ($i = 1; $i < $partCount; ++$i) {
-			$compare[$i-1] .= '.*';
+			$compare[$i - 1] .= '.*';
 			for ($j = $i; $j < $partCount; ++$j) {
 				$compare[$j] .= '.' . $permission[$i];
 			}
 		}
 		$compare[] = '*';
 
-		if ($permission[$partCount-1] === '*') {
-			$wildcard = substr($compare[$partCount-1], 0, -1);
+		if ($permission[$partCount - 1] === '*') {
+			$wildcard = substr($compare[$partCount - 1], 0, -1);
 			$wclen = strlen($wildcard);
 		} else {
 			$wclen = $wildcard = false;
@@ -48,7 +48,8 @@ class PermissionUtil
 	 * @param int|null $locationid locationid to check or null if the location should be disregarded
 	 * @return bool true if user has permission, false if not
 	 */
-	public static function userHasPermission($userid, $permissionid, $locationid) {
+	public static function userHasPermission($userid, $permissionid, $locationid)
+	{
 		self::validatePermission($permissionid);
 		$parts = explode('.', $permissionid);
 		// Limit query to first part of permissionid, which is always the module id
@@ -91,7 +92,8 @@ class PermissionUtil
 	 * @param string $permissionid permissionid to check
 	 * @return array array of locationids where the user has the given permission
 	 */
-	public static function getAllowedLocations($userid, $permissionid) {
+	public static function getAllowedLocations($userid, $permissionid)
+	{
 		self::validatePermission($permissionid);
 		$parts = explode('.', $permissionid);
 		// Limit query to first part of permissionid, which is always the module id
@@ -130,7 +132,8 @@ class PermissionUtil
 	 * @param array $allowedLocations the array of locationids to extend
 	 * @return array extended array of locationids
 	 */
-	public static function getSublocations($tree, $allowedLocations) {
+	public static function getSublocations($tree, $allowedLocations)
+	{
 		$result = $allowedLocations;
 		foreach ($tree as $location) {
 			if (array_key_exists("children", $location)) {
@@ -189,7 +192,7 @@ class PermissionUtil
 			$moduleId = $out[1];
 			if (Module::get($moduleId) === false)
 				continue;
-			foreach($data as $perm => $permissionFlags) {
+			foreach ($data as $perm => $permissionFlags) {
 				$description = Dictionary::translateFileModule($moduleId, "permissions", $perm);
 				self::putInPermissionTree($moduleId . "." . $perm, $permissionFlags['location-aware'], $description, $permissions);
 			}
