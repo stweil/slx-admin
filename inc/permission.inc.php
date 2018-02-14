@@ -28,7 +28,7 @@ class Permission
 				continue;
 			}
 			if (strpos($perm, '.') === false) {
-				$array[$perm]['disabled'] = 'disabled';
+				$array[$perm] = ['disabled' => 'disabled', 'readonly' => 'readonly'];
 				continue;
 			}
 			$temp =& $array;
@@ -37,7 +37,7 @@ class Permission
 					continue;
 				$temp =& $temp[$sub];
 			}
-			$temp['disabled'] = 'disabled';
+			$temp = ['disabled' => 'disabled', 'readonly' => 'readonly'];
 		}
 		if (!$one && !is_null($noneAvailDisabled)) {
 			$array[$noneAvailDisabled]['disabled'] = true;
