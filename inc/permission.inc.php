@@ -19,7 +19,7 @@ class Permission
 	// TODO: Doc/Refactor
 	public static function addGlobalTags(&$array, $locationid, $disabled, $noneAvailDisabled = null)
 	{
-		if (!Module::isAvailable('permissionmanager'))
+		if (Module::get('permissionmanager') === false)
 			return;
 		$one = false;
 		foreach ($disabled as $perm) {
@@ -42,6 +42,13 @@ class Permission
 		if (!$one && !is_null($noneAvailDisabled)) {
 			$array[$noneAvailDisabled]['disabled'] = true;
 		}
+	}
+
+	public static function moduleHasPermissions($moduleId)
+	{
+		if (Module::get('permissionmanager') === false)
+			return true;
+		return file_exists('modules/' . $moduleId . '/permissions/permissions.json');
 	}
 
 }

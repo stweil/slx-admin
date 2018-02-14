@@ -68,7 +68,7 @@ class Dashboard
 			'url' => urlencode($_SERVER['REQUEST_URI']),
 			'langs' => Dictionary::getLanguages(true),
 			'user' => User::getName(),
-			'warning' => User::getName() !== false && User::getLastSeenEvent() < Property::getLastWarningId(),
+			'warning' => User::getName() !== false && User::hasPermission('.eventlog.*') && User::getLastSeenEvent() < Property::getLastWarningId(),
 			'needsSetup' => User::getName() !== false && Property::getNeedsSetup()
 		));
 	}

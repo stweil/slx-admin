@@ -26,7 +26,10 @@ class Page_Main extends Page
 		// Warnings
 		$needSetup = false;
 		foreach (Hook::load('main-warning') as $hook) {
-			include $hook->file;
+			if (Permission::moduleHasPermissions($hook->moduleId)
+					&& User::hasPermission('.' . $hook->moduleId . '.*')) {
+				include $hook->file;
+			}
 		}
 
 		// Update warning state
