@@ -28,6 +28,7 @@ class Page_Locations extends Page
 
 	private function updateSubnets()
 	{
+		User::assertPermission('subnets.edit', NULL, '?do=locations');
 		$count = 0;
 		$starts = Request::post('startaddr', false);
 		$ends = Request::post('endaddr', false);
@@ -47,12 +48,6 @@ class Page_Locations extends Page
 				Message::addError('main.value-invalid', 'locationid', $loc);
 				continue;
 			}
-
-			$oldLoc = Database::queryFirst("SELECT locationid FROM subnet WHERE subnetid = :subnetid", array("subnetid" => $subnetid))["locationid"];
-			if (($loc == $oldLoc && !User::hasPermission("subnet.edit", $loc)) ||
-				 ($loc != $oldLoc && (!User::hasPermission("subnet.delete", $oldLoc) || !User::hasPermission("subnet.add", $loc))))
-				continue;
-
 			$range = $this->rangeToLongVerbose($start, $end);
 			if ($range === false)
 				continue;
@@ -63,7 +58,7 @@ class Page_Locations extends Page
 		}
 		AutoLocation::rebuildAll();
 		Message::addSuccess('subnets-updated', $count);
-		Util::redirect('?do=Locations&action=showsubnets');
+		Util::redirect('?do=Locations');
 	}
 
 	private function addLocations()
@@ -81,8 +76,10 @@ class Page_Locations extends Page
 			if (empty($name))
 				continue;
 			$parent = isset($parents[$idx]) ? (int)$parents[$idx] : 0;
-			if (!User::hasPermission("location.add", $parent))
+			if (!User::hasPermission("location.add", $parent)) {
+				Message::addError('no-permission-location', isset($locs[$parent]) ? $locs[$parent]['locationname'] : $parent);
 				continue;
+			}
 			if ($parent !== 0) {
 				$ok = false;
 				foreach ($locs as $loc) {
@@ -123,24 +120,16 @@ class Page_Locations extends Page
 		$change = false;
 		// Delete location?
 		if ($locationId === $del) {
-			if (!User::hasPermission("location.delete", $locationId)) {
-				Message::addError('main.no-permission', 'locationid', $locationId);
-				Util::redirect('?do=Locations');
-			}
+			User::assertPermission("location.delete", $locationId, '?do=locations');
 			$this->deleteLocation($location);
 			$change = true;
 		}
 		// Update subnets
 		$change |= $this->updateLocationSubnets();
-
-		if (User::hasPermission("subnet.add", $locationId)) {
-			// Insert subnets
-			$change |= $this->addNewLocationSubnets($location);
-		}
-		if (User::hasPermission("location.edit", $locationId)) {
-			// Update location!
-			$change |= $this->updateLocationData($location);
-		}
+		// Insert subnets
+		$change |= $this->addNewLocationSubnets($location);
+		// Update location!
+		$change |= $this->updateLocationData($location);
 
 		if ($change) {
 			// In case subnets or tree layout changed, recalc this
@@ -176,13 +165,17 @@ class Page_Locations extends Page
 		$locationId = (int)$location['locationid'];
 		$newParent = Request::post('parentlocationid', false, 'integer');
 		$newName = Request::post('locationname', false, 'string');
-		if ($newName === false || preg_match('/^\s*$/', $newName)) {
+		if (!User::hasPermission('location.edit.name', $locationId)) {
+			$newName = $location['locationname'];
+		} elseif ($newName === false || preg_match('/^\s*$/', $newName)) {
 			if ($newName !== false) {
 				Message::addWarning('main.value-invalid', 'location name', $newName);
 			}
 			$newName = $location['locationname'];
 		}
-		if ($newParent === false) {
+		if ($newParent === false || !User::hasPermission('location.edit.parent', $locationId)
+				|| !User::hasPermission('location.edit.parent', $newParent)
+				|| !User::hasPermission('location.edit.*', $location['parentlocationid'])) {
 			$newParent = $location['parentlocationid'];
 		} else if ($newParent !== 0) {
 			$rows = Location::queryLocations();
@@ -213,13 +206,15 @@ class Page_Locations extends Page
 
 	private function updateLocationSubnets()
 	{
-		$change = false;
-
 		$locationId = Request::post('locationid', false, 'integer');
+		if (!User::hasPermission('location.edit.subnets', $locationId))
+			return false;
+
+		$change = false;
 
 		// Deletion first
 		$dels = Request::post('deletesubnet', false);
-		if (is_array($dels) && User::hasPermission("subnet.delete", $locationId)) {
+		if (is_array($dels)) {
 			$count = 0;
 			$stmt = Database::prepare('DELETE FROM subnet WHERE subnetid = :id');
 			foreach ($dels as $key => $value) {
@@ -234,8 +229,6 @@ class Page_Locations extends Page
 				$change = true;
 			}
 		}
-		if (!User::hasPermission("subnet.edit", $locationId))
-			return $change;
 
 		// Now actual updates
 		$starts = Request::post('startaddr', false);
@@ -267,8 +260,11 @@ class Page_Locations extends Page
 
 	private function addNewLocationSubnets($location)
 	{
-		$change = false;
 		$locationId = (int)$location['locationid'];
+		if (!User::hasPermission('location.edit.subnets', $locationId))
+			return false;
+
+		$change = false;
 		$starts = Request::post('newstartaddr', false);
 		$ends = Request::post('newendaddr', false);
 		if (!is_array($starts) || !is_array($ends)) {
@@ -316,28 +312,16 @@ class Page_Locations extends Page
 			Util::redirect('?do=Locations&action=showlocations');
 		}
 		if ($getAction === 'showsubnets') {
-			$res = Database::simpleQuery("SELECT subnetid, startaddr, endaddr, locationid FROM subnet
-													WHERE locationid IN (:locations) ORDER BY startaddr ASC",
-													array("locations" => User::getAllowedLocations("location.view")));
-			$allowedLocs = User::getAllowedLocations("subnet.add");
+			User::assertPermission('subnets.edit', NULL, '?do=locations');
+			$res = Database::simpleQuery("SELECT subnetid, startaddr, endaddr, locationid FROM subnet");
 			$rows = array();
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				$row['startaddr'] = long2ip($row['startaddr']);
 				$row['endaddr'] = long2ip($row['endaddr']);
 				$row['locations'] = Location::getLocations($row['locationid']);
-
-				foreach ($row['locations'] as &$loc) {
-					if (!(in_array($loc["locationid"], $allowedLocs) || $loc["locationid"] == $row['locationid'])) {
-						$loc["disabled"] = "disabled";
-					}
-				}
-
-				$row['editThisSubnetAllowed'] = User::hasPermission("subnet.edit", $row['locationid']);
-				$row['deleteThisSubnetAllowed'] = User::hasPermission("subnet.delete", $row['locationid']);
 				$rows[] = $row;
 			}
-
-			Render::addTemplate('subnets', array('list' => $rows, 'editSubnetAllowed' => User::hasPermission("subnet.edit")));
+			Render::addTemplate('subnets', array('list' => $rows));
 		} elseif ($getAction === 'showlocations') {
 			$this->showLocationList();
 		}
@@ -349,38 +333,59 @@ class Page_Locations extends Page
 		$overlapSelf = $overlapOther = true;
 		Location::getOverlappingSubnets($overlapSelf, $overlapOther);
 		//$locs = Location::getLocations(0, 0, false, true);
-		$locs = Location::getLocationsAssoc();
+		$locationList = Location::getLocationsAssoc();
 		// Statistics: Count machines for each subnet
 		$unassigned = false;
+
+		// Filter view: Remove locations we can't reach at all, but show parents to locations
+		// we have permission to, so the tree doesn't look all weird
+		$visibleLocationIds = $allowedLocationIds = User::getAllowedLocations("location.view");
+		foreach ($allowedLocationIds as $lid) {
+			$visibleLocationIds = array_merge($visibleLocationIds, $locationList[$lid]['parents']);
+		}
+		$visibleLocationIds = array_unique($visibleLocationIds);
+		foreach (array_keys($locationList) as $lid) {
+			if (!in_array($lid, $visibleLocationIds)) {
+				unset($locationList[$lid]);
+			} elseif (!in_array($lid, $allowedLocationIds)) {
+				$locationList[$lid]['show-only'] = true;
+			}
+		}
+
+		// Client statistics
 		if (Module::get('statistics') !== false) {
-			$DL = time() - 605;
 			$unassigned = 0;
-			$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt, Sum(If(lastseen > $DL AND logintime <> 0, 1, 0)) AS used
- 				 FROM machine GROUP BY locationid");
+			$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt, Sum(If(state = 'OCCUPIED', 1, 0)) AS used
+ 				 FROM machine WHERE locationid IN (:allowedLocationIds) GROUP BY locationid", compact('allowedLocationIds'));
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-				$loc = (int)$row['locationid'];
-				if (isset($locs[$loc])) {
-					$locs[$loc]['clientCount'] = $row['cnt'];
-					$locs[$loc]['clientLoad'] = round(100 * $row['used'] / $row['cnt']) . '%';
+				$locId = (int)$row['locationid'];
+				if (isset($locationList[$locId])) {
+					$locationList[$locId]['clientCount'] = $row['cnt'];
+					$locationList[$locId]['clientLoad'] = round(100 * $row['used'] / $row['cnt']) . '%';
 				} else {
 					$unassigned += $row['cnt'];
 				}
 			}
 			unset($loc);
-			foreach ($locs as &$loc) {
+			foreach ($locationList as &$loc) {
+				if (!in_array($loc['locationid'], $allowedLocationIds))
+					continue;
+				if (!isset($loc['clientCountSum'])) {
+					$loc['clientCountSum'] = 0;
+				}
 				if (!isset($loc['clientCount'])) {
 					$loc['clientCount'] = 0;
 					$loc['clientLoad'] = '0%';
+					$loc['clientCountSum'] += $loc['clientCount'];
 				}
-				$loc['clientCountSum'] = $loc['clientCount'];
+				foreach ($loc['parents'] as $pid) {
+					if (!in_array($pid, $allowedLocationIds))
+						continue;
+					$locationList[(int)$pid]['hasChild'] = true;
+					$locationList[(int)$pid]['clientCountSum'] += $loc['clientCount'];
+				}
 			}
 			unset($loc);
-			foreach ($locs as $loc) {
-				foreach ($loc['parents'] as $pid) {
-					$locs[(int)$pid]['hasChild'] = true;
-					$locs[(int)$pid]['clientCountSum'] += $loc['clientCount'];
-				}
-			}
 		}
 		// Show currently active sysconfig for each location
 		$defaultConfig = false;
@@ -390,18 +395,18 @@ class Page_Locations extends Page
 				if (strlen($conf['locs']) === 0)
 					continue;
 				$confLocs = explode(',', $conf['locs']);
-				foreach ($confLocs as $loc) {
-					settype($loc, 'int');
-					if ($loc === 0) {
+				foreach ($confLocs as $locId) {
+					settype($locId, 'int');
+					if ($locId === 0) {
 						$defaultConfig = $conf['title'];
 					}
-					if (!isset($locs[$loc]))
+					if (!isset($locationList[$locId]))
 						continue;
-					$locs[$loc] += array('configName' => $conf['title'], 'configClass' => 'slx-bold');
+					$locationList[$locId] += array('configName' => $conf['title'], 'configClass' => 'slx-bold');
 				}
 			}
 			$depth = array();
-			foreach ($locs as &$loc) {
+			foreach ($locationList as &$loc) {
 				$d = $loc['depth'];
 				if (!isset($loc['configName'])) {
 					// Has no explicit config assignment
@@ -419,29 +424,13 @@ class Page_Locations extends Page
 		}
 		// Count overridden config vars
 		if (Module::get('baseconfig') !== false) {
-			$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt FROM `setting_location` GROUP BY locationid");
+			$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt FROM `setting_location`
+ 					WHERE locationid IN (:allowedLocationIds) GROUP BY locationid", compact('allowedLocationIds'));
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				$lid = (int)$row['locationid'];
-				if (isset($locs[$lid])) {
-					$locs[$lid]['overriddenVars'] = $row['cnt'];
+				if (isset($locationList[$lid])) {
+					$locationList[$lid]['overriddenVars'] = $row['cnt'];
 				}
-			}
-		}
-
-		$allowedLocs = User::getAllowedLocations("location.view");
-		$withParents = array();
-		foreach ($allowedLocs as $loc) {
-			$withParents = array_merge($withParents, Location::getLocationRootChain($loc));
-		}
-
-		foreach ($locs as $key => $loc) {
-			if (!in_array($loc["locationid"], $withParents)) {
-				unset($locs[$key]);
-			} elseif (!in_array($loc["locationid"], $allowedLocs)) {
-				$id = $locs[$key]["locationid"];
-				$name = $locs[$key]["locationname"];
-				$depth = $locs[$key]["depth"];
-				$locs[$key] = array("locationid" => $id, "locationname" => $name, "depth" => $depth, "linkClass" => "not-allowed");
 			}
 		}
 
@@ -452,10 +441,11 @@ class Page_Locations extends Page
 				$loc["disabled"] = "disabled";
 			}
 		}
+		unset($loc);
 
 		// Output
-		Render::addTemplate('locations', array(
-			'list' => array_values($locs),
+		$data = array(
+			'list' => array_values($locationList),
 			'havestatistics' => Module::get('statistics') !== false,
 			'havebaseconfig' => Module::get('baseconfig') !== false,
 			'havesysconfig' => Module::get('sysconfig') !== false,
@@ -465,9 +455,12 @@ class Page_Locations extends Page
 			'haveOverlapOther' => !empty($overlapOther),
 			'unassignedCount' => $unassigned,
 			'defaultConfig' => $defaultConfig,
-			'addAllowed' => User::hasPermission("location.add"),
-			'addAllowedList' => array_values($addAllowedList)
-		));
+			'addAllowedList' => array_values($addAllowedList),
+		);
+		// TODO: Buttons for config vars and sysconfig are currently always shown, as their availability
+		// depends on permissions in the according modules, not this one
+		Permission::addGlobalTags($data['perms'], NULL, ['subnets.edit', 'location.add']);
+		Render::addTemplate('locations', $data);
 	}
 
 	/*
@@ -515,11 +508,16 @@ class Page_Locations extends Page
 			'parents' => Location::getLocations($loc['parentlocationid'], $locationId, true)
 		);
 
-		$allowedLocs = User::getAllowedLocations("location.edit");
-		$allowedLocs[] = 0;
-		foreach ($data['parents'] as &$parent) {
-			if (!(in_array($parent["locationid"], $allowedLocs) || $parent["locationid"] == $loc['parentlocationid'])) {
-				$parent["disabled"] = "disabled";
+		// Disable locations in the parent selector where the user cannot change to
+		if (!User::hasPermission('location.edit.*', $loc['parentlocationid'])
+				|| !User::hasPermission('location.edit.parent', $locationId)) {
+			$allowedLocs = [];
+		} else {
+			$allowedLocs = User::getAllowedLocations("location.edit.*");
+			foreach ($data['parents'] as &$parent) {
+				if (!(in_array($parent["locationid"], $allowedLocs) || $parent["locationid"] == $loc['parentlocationid'])) {
+					$parent["disabled"] = "disabled";
+				}
 			}
 		}
 
@@ -533,16 +531,16 @@ class Page_Locations extends Page
 		// Get clients matching this location's subnet(s)
 		$count = $online = $used = 0;
 		if (Module::get('statistics') !== false) {
-			$mres = Database::simpleQuery("SELECT lastseen, logintime FROM machine"
+			$mres = Database::simpleQuery("SELECT state FROM machine"
 				. " WHERE machine.locationid = :lid", array('lid' => $locationId));
-			$DL = time() - 605;
 			while ($row = $mres->fetch(PDO::FETCH_ASSOC)) {
 				$count++;
-				if ($row['lastseen'] > $DL) {
+				if ($row['state'] === 'IDLE') {
 					$online++;
-					if ($row['logintime'] != 0) {
-						$used++;
-					}
+				}
+				if ($row['state'] === 'OCCUPIED') {
+					$online++;
+					$used++;
 				}
 			}
 			$data['haveStatistics'] = true;
@@ -553,18 +551,13 @@ class Page_Locations extends Page
 		$data['used_percent'] = $count === 0 ? 0 : round(($used / $count) * 100);
 
 
-		$data['havebaseconfig'] = Module::get('baseconfig') !== false;
-		$data['havesysconfig'] = Module::get('sysconfig') !== false;
-		$data['editAllowed'] = User::hasPermission("location.edit", $locationId);
-		$data['deleteAllowed'] = User::hasPermission("location.delete", $locationId);
-		$data['editSubnetAllowed'] = User::hasPermission("subnet.edit", $locationId);
-		$data['deleteSubnetAllowed'] = User::hasPermission("subnet.delete", $locationId);
-		$data['addSubnetAllowed'] = User::hasPermission("subnet.add", $locationId);
-		$data['saveButton'] = $data['editAllowed'] || $data['editSubnetAllowed'] || $data['deleteSubnetAllowed'] || $data['addSubnetAllowed'];
+		Permission::addGlobalTags($data['perms'], $locationId, ['location.edit.name', 'location.edit.subnets', 'location.delete', '.roomplanner.edit'], 'save_button');
+		if (empty($allowedLocs)) {
+			$data['perms']['location']['edit']['parent']['disabled'] = 'disabled';
+		} else {
+			unset($data['perms']['save_button']);
+		}
 
-		// echo '<pre>';
-		// var_dump($data);
-		// echo '</pre>';
 		echo Render::parse('location-subnets', $data);
 	}
 

@@ -1,7 +1,13 @@
 <div>
 	<div class="btn-group pull-right">
-		<a href="?do=Locations&amp;action=showlocations" class="btn btn-default active"><span class="glyphicon glyphicon-home"></span> {{lang_thisListByLocation}}</a>
-		<a href="?do=Locations&amp;action=showsubnets" class="btn btn-default"><span class="glyphicon glyphicon-list-alt"></span> {{lang_thisListBySubnet}}</a>
+		<a href="?do=Locations&amp;action=showlocations" class="btn btn-default active">
+			<span class="glyphicon glyphicon-home"></span>
+			{{lang_thisListByLocation}}
+		</a>
+		<a href="?do=Locations&amp;action=showsubnets" class="btn btn-default {{perms.subnets.edit.disabled}}">
+			<span class="glyphicon glyphicon-list-alt"></span>
+			{{lang_thisListBySubnet}}
+		</a>
 	</div>
 	<h1>{{lang_locationsMainHeading}}</h1>
 
@@ -36,10 +42,17 @@
 			<tr>
 				<td>
 					<div style="display:inline-block;width:{{depth}}em"></div>
-					<a href="#" class="{{linkClass}}" onclick="slxOpenLocation(this, {{locationid}}); return false">{{locationname}}{{^linkClass}} <b class="caret"></b>{{/linkClass}}</a>
+					{{#show-only}}
+						<span>{{locationname}}</span>
+					{{/show-only}}
+					{{^show-only}}
+						<a href="#" onclick="slxOpenLocation(this, {{locationid}}); return false">
+							{{locationname}}
+							<b class="caret"></b>
+						</a>
+					{{/show-only}}
 				</td>
 				<td class="text-nowrap" align="right">
-					{{^linkClass}}
 					{{#havestatistics}}
 						<a href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}">&nbsp;{{clientCount}}&nbsp;</a>
 					<span style="display:inline-block;width:5ex">
@@ -48,17 +61,13 @@
 					{{/hasChild}}
 					</span>
 					{{/havestatistics}}
-					{{/linkClass}}
 				</td>
 				<td class="text-nowrap" align="right">
-					{{^linkClass}}
 					{{#havestatistics}}
 					{{clientLoad}}
 					{{/havestatistics}}
-					{{/linkClass}}
 				</td>
 				<td class="text-nowrap">
-					{{^linkClass}}
 					{{#havebaseconfig}}
 					<div class="pull-right" style="z-index:-1">
 						<a class="btn btn-default btn-xs" href="?do=baseconfig&amp;module=locations&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
@@ -67,10 +76,8 @@
 					{{lang_overrideCount}}: {{overriddenVars}}&emsp;&emsp;
 					{{/overriddenVars}}
 					{{/havebaseconfig}}
-					{{/linkClass}}
 				</td>
 				<td class="text-nowrap">
-					{{^linkClass}}
 					{{#havesysconfig}}
 					<div class="pull-right">
 						<a class="btn btn-default btn-xs" href="?do=sysconfig&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
@@ -79,7 +86,6 @@
 					{{configName}}&emsp;&emsp;
 					</span>
 					{{/havesysconfig}}
-					{{/linkClass}}
 				</td>
 			</tr>
 		{{/list}}
@@ -106,7 +112,7 @@
 			<tr id="lasttr">
 				<td width="60%">&emsp;</td>
 				<td class="text-right" colspan="2">
-					<button {{^addAllowed}}disabled{{/addAllowed}} class="btn btn-success" type="button" onclick="slxAddLocationRow()">
+					<button {{perms.location.add.disabled}} class="btn btn-success" type="button" onclick="slxAddLocationRow()">
 						<span class="glyphicon glyphicon-plus"></span> {{lang_location}}
 					</button>
 					<button id="saveLocationRows" type="submit" class="btn btn-primary collapse">

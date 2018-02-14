@@ -1,23 +1,23 @@
 {
     "location.add": {
-        "location-aware": false
+        "location-aware": true
     },
     "location.delete": {
-        "location-aware": false
+        "location-aware": true
     },
-    "location.edit": {
-        "location-aware": false
+    "location.edit.name": {
+        "location-aware": true
+    },
+    "location.edit.subnets": {
+        "location-aware": true
+    },
+    "location.edit.parent": {
+        "location-aware": true
     },
     "location.view": {
-        "location-aware": false
+        "location-aware": true
     },
-    "subnet.add": {
-        "location-aware": false
-    },
-    "subnet.delete": {
-        "location-aware": false
-    },
-    "subnet.edit": {
+    "subnets.edit": {
         "location-aware": false
     }
 }

@@ -251,7 +251,7 @@ class Location
 	{
 		$ids = array();
 		foreach ($tree as $node) {
-			$ids[] = $node['locationid'];
+			$ids[] = (int)$node['locationid'];
 			if (!empty($node['children'])) {
 				$ids = array_merge($ids, self::extractIds($node['children']));
 			}
