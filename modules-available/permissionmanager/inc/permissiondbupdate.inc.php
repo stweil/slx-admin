@@ -9,12 +9,14 @@ class PermissionDbUpdate {
 	 * @param array $roles roleids
 	 */
 	public static function addRoleToUser($users, $roles) {
-		$query = "INSERT IGNORE INTO user_x_role (userid, roleid) VALUES (:userid, :roleid)";
+		$arg = array();
 		foreach($users AS $userid) {
 			foreach ($roles AS $roleid) {
-				Database::exec($query, array("userid" => $userid, "roleid" => $roleid));
+				$arg[] = compact('userid', 'roleid');
 			}
 		}
+		Database::exec("INSERT IGNORE INTO user_x_role (userid, roleid) VALUES :arg",
+			['arg' => $arg]);
 	}
 
 	/**
@@ -49,20 +51,24 @@ class PermissionDbUpdate {
 		if ($roleid) {
 			Database::exec("UPDATE role SET rolename = :rolename WHERE roleid = :roleid",
 									array("rolename" => $rolename, "roleid" => $roleid));
-			Database::exec("DELETE FROM role_x_location WHERE roleid = :roleid", array("roleid" => $roleid));
-			Database::exec("DELETE FROM role_x_permission WHERE roleid = :roleid", array("roleid" => $roleid));
+			Database::exec("DELETE FROM role_x_location
+					WHERE roleid = :roleid AND locationid NOT IN (:locations)", array("roleid" => $roleid, 'locations' => $locations));
+			Database::exec("DELETE FROM role_x_permission
+					WHERE roleid = :roleid AND permissionid NOT IN (:permissions)", array("roleid" => $roleid, 'permissions' => $permissions));
 		} else {
 			Database::exec("INSERT INTO role (rolename) VALUES (:rolename)", array("rolename" => $rolename));
 			$roleid = Database::lastInsertId();
 		}
-		foreach ($locations as $locationid) {
-			Database::exec("INSERT INTO role_x_location (roleid, locationid) VALUES (:roleid, :locationid)",
-									array("roleid" => $roleid, "locationid" => $locationid));
-		}
-		foreach ($permissions as $permissionid) {
-			Database::exec("INSERT INTO role_x_permission (roleid, permissionid) VALUES (:roleid, :permissionid)",
-											array("roleid" => $roleid, "permissionid" => $permissionid));
-		}
+		$arg = array_map(function($loc) use ($roleid) {
+			return compact('roleid', 'loc');
+		}, $locations);
+		Database::exec("INSERT IGNORE INTO role_x_location (roleid, locationid) VALUES :arg",
+				['arg' => $arg]);
+		$arg = array_map(function($perm) use ($roleid) {
+			return compact('roleid', 'perm');
+		}, $permissions);
+		Database::exec("INSERT IGNORE INTO role_x_permission (roleid, permissionid) VALUES :arg",
+			['arg' => $arg]);
 	}
 
 }
