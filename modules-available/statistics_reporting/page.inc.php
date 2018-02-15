@@ -283,6 +283,7 @@ class Page_Statistics_Reporting extends Page
 
 	private function fetchData($flags)
 	{
+		// TODO: Make all modes location-aware, filter while querying, not after
 		switch ($this->type) {
 		case 'total':
 			return GetData::total($flags);
@@ -309,7 +310,7 @@ class Page_Statistics_Reporting extends Page
 		case 'client':
 			$data = GetData::perClient($flags, Request::any('new', false, 'string'));
 			// only show clients from locations which you have permission for
-			$filterLocs = User::getAllowedLocations("table.view.location");
+			$filterLocs = User::getAllowedLocations("table.view.client");
 			foreach ($data as $key => $row) {
 				if (!in_array($row['locationid'], $filterLocs)) {
 					unset($data[$key]);
