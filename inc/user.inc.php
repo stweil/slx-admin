@@ -68,8 +68,12 @@ class User
 		if (!self::isLoggedIn())
 			return [];
 		if (Module::isAvailable("permissionmanager")) {
-			$module = Page::getModule();
-			$permission = $module ? $module->getIdentifier().".".$permission : $permission;
+			if ($permission{0} === '.') {
+				$permission = substr($permission, 1);
+			} else {
+				$module = Page::getModule();
+				$permission = $module ? $module->getIdentifier() . "." . $permission : $permission;
+			}
 			return PermissionUtil::getAllowedLocations(self::$user['userid'], $permission);
 		}
 		if (self::$user['permissions'] & Permission::get('superadmin')) {
