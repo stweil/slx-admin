@@ -17,7 +17,8 @@ class Page_ServerSetup extends Page
 			Util::redirect('?do=Main');
 		}
 
-		if (Request::any('action') === 'getimage' && User::hasPermission("download")) {
+		if (Request::any('action') === 'getimage') {
+			User::assertPermission("download");
 			$this->handleGetImage();
 		}
 
@@ -30,13 +31,15 @@ class Page_ServerSetup extends Page
 			$this->getLocalAddresses();
 		}
 
-		if ($action === 'ip' && User::hasPermission("edit.address")) {
+		if ($action === 'ip') {
+			User::assertPermission("edit.address");
 			// New address is to be set
 			$this->getLocalAddresses();
 			$this->updateLocalAddress();
 		}
 
-		if ($action === 'ipxe' && User::hasPermission("edit.menu")) {
+		if ($action === 'ipxe') {
+			User::assertPermission("edit.menu");
 			// iPXE stuff changes
 			$this->updatePxeMenu();
 		}
@@ -50,12 +53,18 @@ class Page_ServerSetup extends Page
 			Render::addTemplate('ipxe_update', array('taskid' => $taskid));
 		}
 
+		Permission::addGlobalTags($perms, null, ['edit.menu', 'edit.address', 'download']);
+
 		Render::addTemplate('ipaddress', array(
 			'ips' => $this->taskStatus['data']['addresses'],
 			'chooseHintClass' => $this->hasIpSet ? '' : 'alert alert-danger',
 			'editAllowed' => User::hasPermission("edit.address"),
+			'perms' => $perms,
 		));
 		$data = $this->currentMenu;
+		if (!User::hasPermission('edit.menu')) {
+			unset($data['masterpasswordclear']);
+		}
 		if (!isset($data['defaultentry'])) {
 			$data['defaultentry'] = 'net';
 		}
@@ -68,8 +77,7 @@ class Page_ServerSetup extends Page
 		if ($data['defaultentry'] === 'custom') {
 			$data['active-custom'] = 'checked';
 		}
-		$data['editAllowed'] = User::hasPermission("edit.menu");
-		$data['downloadAllowed'] = User::hasPermission("download");
+		$data['perms'] = $perms;
 		Render::addTemplate('ipxe', $data);
 	}
 
