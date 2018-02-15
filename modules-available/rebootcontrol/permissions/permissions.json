@@ -2,10 +2,10 @@
     "newkeypair": {
         "location-aware": false
     },
-    "reboot": {
+    "action.reboot": {
         "location-aware": true
     },
-    "shutdown": {
+    "action.shutdown": {
         "location-aware": true
     }
 }

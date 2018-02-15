@@ -1,5 +1,5 @@
 {
-	"shutdown": "Client herunterfahren.",
-	"reboot": "Client neustarten.",
+	"action.shutdown": "Client herunterfahren.",
+	"action.reboot": "Client neustarten.",
 	"newkeypair": "Neues Schlüsselpaar generieren."
 }

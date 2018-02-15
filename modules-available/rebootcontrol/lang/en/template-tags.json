@@ -1,12 +1,14 @@
 {
     "lang_authFail": "Authentication failed",
     "lang_client": "Client",
+    "lang_confirmNewKeypair": "Really create new key pair?",
     "lang_connecting": "Connecting...",
     "lang_error": "Not available",
     "lang_genNew": "Generate new keypair",
     "lang_ip": "IP",
     "lang_location": "Location",
     "lang_minutes": " Minutes",
+    "lang_newKeypairExplanation": "You can create a new keypair, which will replace the old one. Please note that after doing so, you cannot poweroff or reboot clients that are already running, since they still use the old key. They have to be rebooted manually first.",
     "lang_off": "Off",
     "lang_on": "On",
     "lang_online": "Online",
@@ -27,6 +29,5 @@
     "lang_shutdownCheck": "Do you really want to shut down the selected clients?",
     "lang_shutdownIn": "Shutdown in: ",
     "lang_status": "Status",
-    "lang_unselectall": "Unselect all",
-    "lang_user": "User"
+    "lang_unselectall": "Unselect all"
 }

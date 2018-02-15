@@ -16,9 +16,8 @@
     margin-bottom: 0;
 }
 
-.controlButtons {
-    margin-left: 10px;
-    width: 140px;
+.select-button {
+    min-width: 150px;
 }
 
 #dataTable {
@@ -28,11 +27,6 @@
 
 #shutdownTimer {
     text-align: center;
-}
-#pubKeyTitle {
-    display: inline-block;
-    margin-top: 7px;
-    margin-bottom: 20px;
 }
 
 pre {

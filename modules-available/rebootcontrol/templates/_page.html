@@ -1,26 +1,5 @@
-<div class="page-header">
-	<button type="button" id="settingsButton" class="btn btn-default pull-right" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span> {{lang_settings}}</button>
-	<h1>{{lang_rebootControl}}</h1>
-</div>
-
-
 <form id="tableDataForm" method="post" action="?do=rebootcontrol" class="form-inline">
 	<input type="hidden" name="token" value="{{token}}">
-	<div class="row">
-		<div class="col-md-12">
-			<label>{{lang_location}}:
-				<select id="locationDropdown" name="locationId" class="form-control" onchange="selectLocation()">
-					{{#locations}}
-					<option value="{{locationid}}" {{disabled}} {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
-					{{/locations}}
-				</select>
-			</label>
-			<button type="button" id="selectAllButton" {{^allowedToSelect}}disabled{{/allowedToSelect}} class="btn btn-primary pull-right controlButtons" onclick="selectAllRows()"><span class="glyphicon glyphicon-check"></span> {{lang_selectall}}</button>
-			<button type="button" id="unselectAllButton" {{^allowedToSelect}}disabled{{/allowedToSelect}} class="btn btn-default pull-right controlButtons" onclick="unselectAllRows()" style="display: none;"><span class="glyphicon glyphicon-unchecked"></span> {{lang_unselectall}}</button>
-			<button type="button" {{#allowedToReboot}}id="rebootButton"{{/allowedToReboot}} class="btn btn-warning pull-right controlButtons" data-toggle="modal" data-target="#rebootModal" disabled><span class="glyphicon glyphicon-repeat"></span> {{lang_rebootButton}}</button>
-			<button type="button" {{#allowedToShutdown}}id="shutdownButton"{{/allowedToShutdown}} class="btn btn-danger pull-right controlButtons" data-toggle="modal" data-target="#shutdownModal" disabled><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
-		</div>
-	</div>
 	<div class="row">
 		<div class="col-md-12">
 			<table class="table table-condensed table-hover stupidtable" id="dataTable">
@@ -53,7 +32,7 @@
 					</td>
 					<td>{{#status}}{{currentsession}}{{/status}}</td>
 					<td>{{#status}}{{currentuser}}{{/status}}</td>
-					<td data-sort-value="0" class="checkboxColumn">
+					<td data-sort-value="0" class="checkboxColumn slx-smallcol">
 						<div class="checkbox">
 							<input id="m-{{machineuuid}}" type="checkbox" name="clients[]" value='{{machineuuid}}'>
 							<label for="m-{{machineuuid}}"></label>
@@ -69,25 +48,6 @@
 
 	<!-- Modals -->
 
-	<div id="settingsModal" class="modal fade" role="dialog">
-		<div class="modal-dialog">
-
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
-					<h4 class="modal-title"><b>{{lang_settings}}</b></h4>
-				</div>
-				<div class="modal-body">
-					<span id="pubKeyTitle">{{lang_pubKey}}</span>
-					<button {{^allowedToGenerateKey}}disabled{{/allowedToGenerateKey}} class="btn btn-s btn-warning pull-right" onclick="generateNewKeypair()" type="button"><span class="glyphicon glyphicon-refresh"></span> {{lang_genNew}}</button>
-					<pre id="pubKey">{{pubKey}}</pre>
-				</div>
-				<div class="modal-footer">
-				</div>
-			</div>
-		</div>
-	</div>
-
 	<div class ="modal fade" id="rebootModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
@@ -100,7 +60,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" {{^allowedToReboot}}disabled{{/allowedToReboot}} name="action" value="startReboot" class="btn btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_reboot}}</button>
+					<button type="submit" {{perms.action.reboot.disabled}} name="action" value="reboot" class="btn btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_reboot}}</button>
 				</div>
 			</div>
 		</div>
@@ -115,11 +75,11 @@
 				</div>
 				<div class="modal-body">
 					{{lang_shutdownCheck}}
-					{{lang_shutdownIn}} <input id="shutdownTimer" name="minutes" title="{{lang_shutdownIn}}" type="number" value="0" min="0" onkeypress="return isNumberKey(event)"> {{lang_minutes}}
+					{{lang_shutdownIn}} <input id="shutdownTimer" name="minutes" title="{{lang_shutdownIn}}" type="number" value="0" min="0" pattern="\d+"> {{lang_minutes}}
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" {{^allowedToShutdown}}disabled{{/allowedToShutdown}} name="action" value="startShutdown" class="btn btn-danger"><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
+					<button type="submit" {{perms.action.shutdown.disabled}} name="action" value="shutdown" class="btn btn-danger"><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
 				</div>
 			</div>
 		</div>
@@ -128,104 +88,76 @@
 
 
 <script type="application/javascript">
-	document.addEventListener("DOMContentLoaded", function() {
-		markCheckedRows();
+	var $dataTable;
 
-		$('input:checkbox').change(
-			function(){
+	document.addEventListener("DOMContentLoaded", function() {
+
+		$dataTable = $("#dataTable");
+		markCheckedRows();
+		// Handle change of checkboxes in table
+		$('input:checkbox').change(function() {
+				var $this = $(this);
 				//give each checkbox the function to mark the row (in green)
-				if ($(this).is(':checked')) {
-					markRows($(this).closest("tr"), true);
-					$(this).closest("td").data("sort-value", 1);
+				if ($this.is(':checked')) {
+					markRows($this.closest("tr"), true);
+					$this.closest("td").data("sort-value", 1);
 				} else {
-					markRows($(this).closest("tr"), false);
-					$(this).closest("td").data("sort-value", 0);
+					markRows($this.closest("tr"), false);
+					$this.closest("td").data("sort-value", 0);
 				}
 
 				//if all are checked, change the selectAll-Button to unselectAll. if one is not checked, change unselectAll to selectAll
-				var dataTable = $("#dataTable");
-				var unchecked = dataTable.find("input[type=checkbox]:not(:checked)").length;
-				if (unchecked == 0) {
+				var unchecked = $dataTable.find("input:checkbox:not(:checked)").length;
+				var checked = $dataTable.find("input:checkbox:checked").length;
+				if (unchecked === 0) {
 					$('#selectAllButton').hide();
 					$('#unselectAllButton').show();
-				} else if (unchecked == 1) {
+				} else if (checked === 0) {
 					$('#selectAllButton').show();
 					$('#unselectAllButton').hide();
 				}
 
 				//if no client is selected, disable the shutdown/reboot button, and enable them if a client is selected
-				var checked = dataTable.find("input[type=checkbox]:checked").length;
-				if (checked == 0) {
-					$('#rebootButton').prop('disabled', true);
-					$('#shutdownButton').prop('disabled', true);
-				} else {
-					$('#rebootButton').prop('disabled', false);
-					$('#shutdownButton').prop('disabled', false);
-				}
+				$('#rebootButton').prop('disabled', checked === 0 || '{{perms.action.reboot.disabled}}' === 'disabled');
+				$('#shutdownButton').prop('disabled', checked === 0 || '{{perms.action.shutdown.disabled}}' === 'disabled');
 			});
+		// Propagate click on column with checkbox to checkbox
 		$('.checkboxColumn').click(function(e) {
 			if (e.target === this) {
-				$(this).find('input[type="checkbox"]').click();
+				$(this).find('input:checkbox').click();
 			}
 		});
+		// Arm the (de)select all buttons
+		$('#selectAllButton').click(function() { selectAllRows(true); });
+		$('#unselectAllButton').click(function() { selectAllRows(false); });
 	});
 
-	// Change Location when selected in Dropdown Menu
-	function selectLocation() {
-		var dropdown = $("#locationDropdown");
-		var location = dropdown.val();
-		window.location.replace("?do=rebootcontrol&location="+location);
-	}
-
 	// Check all checkboxes, change selectAll button, make shutdown/reboot button enabled as clients will certainly be selected
-	function selectAllRows() {
-		var checked = $("tr input:checkbox:checked");
-
-		//change button
-		$('#selectAllButton').hide();
-		$('#unselectAllButton').show();
-
-		//check rows and mark them
-		$('input[type="checkbox"]', '#dataTable').prop('checked', true);
-		markRows($("tr:not(:first)"), true);
-		$(".checkboxColumn").data("sort-value", 1);
-
-		//enable shutdown/reboot button
-		$('#rebootButton').prop('disabled', false);
-		$('#shutdownButton').prop('disabled', false);
+	function selectAllRows(selected) {
+		var $box = $dataTable.find('input:checkbox');
+		if ($box.length === 0) return;
+		if (selected) {
+			$box = $box.filter(':not(:checked)');
+		} else {
+			$box = $box.filter(':checked');
+		}
+		if ($box.length === 0) return;
+		$box.prop('checked', !!selected).trigger('change');
 	}
 
-	// Uncheck all checkboxes, change unselectAll Button, make shutdown/reboot button disabled as clients will certainly be not selected
-	function unselectAllRows() {
-		//change button
-		$('#selectAllButton').show();
-		$('#unselectAllButton').hide();
-
-		//uncheck rows and unmark them
-		$('input[type="checkbox"]', '#dataTable').prop('checked', false);
-		markRows($("tr"), false);
-		$(".checkboxColumn").data("sort-value", 0);
-
-		//disable shutdown/reboot button
-		$('#rebootButton').prop('disabled', true);
-		$('#shutdownButton').prop('disabled', true);
-	}
-
-	// mark all previous checked rows (used when loading site)
+	// mark all previous checked rows (used when loading site), enable (de)select all if list is not empty
 	function markCheckedRows() {
-		var checked = $("tr input:checkbox:checked");
-		markRows(checked.closest("tr"), true);
-		var unchecked = $("#dataTable").find("input[type=checkbox]:not(:checked)").length;
-		if(unchecked == 0) {
+		var $checked = $dataTable.find("input:checkbox:checked");
+		markRows($checked.closest("tr"), true);
+		var $unchecked = $dataTable.find("input:checkbox:not(:checked)");
+		markRows($unchecked.closest("tr"), false);
+		if($unchecked.length === 0) {
 			$('#selectAllButton').hide();
 			$('#unselectAllButton').show();
 		}
-	}
-
-	// only allow numbers to get typed into the "shutdown in X Minutes" box.
-	function isNumberKey(evt){
-		var charCode = (evt.which) ? evt.which : event.keyCode;
-		return !(charCode > 31 && (charCode < 48 || charCode > 57));
+		if ($unchecked.length > 0 || $checked.length > 0) {
+			$('.select-button').prop('disabled', false);
+		}
 	}
 
 	function markRows($rows, marked) {
@@ -237,6 +169,8 @@
 	}
 
 	function generateNewKeypair() {
+		if (!confirm('{{lang_confirmNewKeypair}}'))
+			return;
 		$.ajax({
 			url: '?do=rebootcontrol',
 			type: 'POST',
