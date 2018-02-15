@@ -1,9 +1,9 @@
 {
-	"location.view": "Räume anschauen.",
-	"location.edit": "Räume bearbeiten.",
-	"location.add": "Räume hinzufügen.",
-	"location.delete": "Räume löschen.",
-	"subnet.edit": "Subnetze bearbeiten.",
-	"subnet.add": "Subnetze hinzufügen.",
-	"subnet.delete": "Subnetze löschen."
+    "location.add": "R\u00e4ume\/Orte hinzuf\u00fcgen.",
+    "location.delete": "R\u00e4ume\/Orte l\u00f6schen.",
+    "location.edit.name": "Orte umbenennen.",
+    "location.edit.parent": "Den \u00fcbergeordneten Ort eines Ortes \u00e4ndern.",
+    "location.edit.subnets": "Die IP-Ranges eines Ortes \u00e4ndern.",
+    "location.view": "R\u00e4ume anschauen.",
+    "subnets.edit": "Subnetze mittels der Subnetz\u00fcbersicht \u00e4ndern."
 }

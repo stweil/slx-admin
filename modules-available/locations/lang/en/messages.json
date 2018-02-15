@@ -3,6 +3,7 @@
     "invalid-location-id": "Invalid location id: {{0}}",
     "location-deleted": "Location has been deleted (locations: {{0}}, subnets: {{1}})",
     "location-updated": "Location {{0}} has been updated",
+    "no-permission-location": "No permissions for location {{0}}",
     "parameter-missing": "Missing parameter: {{0}}",
     "subnets-created": "{{0}} subnet(s) created",
     "subnets-deleted": "{{0}} subnet(s) deleted",

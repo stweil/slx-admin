@@ -1,9 +1,9 @@
 {
-	"location.view": "View locations.",
-	"location.edit": "Edit locations.",
-	"location.add": "Add locations.",
-	"location.delete": "Delete locations.",
-	"subnet.edit": "Edit subnets.",
-	"subnet.add": "Add subnets.",
-	"subnet.delete": "Delete subnets."
+    "location.add": "Add locations.",
+    "location.delete": "Delete locations.",
+    "location.edit.name": "Rename locations.",
+    "location.edit.parent": "Change the parent location of a location.",
+    "location.edit.subnets": "Edit the IP ranges of a location.",
+    "location.view": "View locations.",
+    "subnets.edit": "Edit subnets via the subnet overview."
 }
