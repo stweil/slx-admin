@@ -8,10 +8,7 @@ class Page_VmStore extends Page
 	{
 		User::load();
 
-		if (!User::isLoggedIn()) {
-			Message::addError('main.no-permission');
-			Util::redirect('?do=Main');
-		}
+		User::assertPermission('edit');
 		
 		$action = Request::post('action');
 		
@@ -33,10 +30,6 @@ class Page_VmStore extends Page
 		if (isset($vmstore['storetype'])) {
 			$vmstore['pre-' . $vmstore['storetype']] = 'checked';
 		}
-		$vmstore['internalAllowed'] = User::hasPermission("choose.internal");
-		$vmstore['nfsAllowed'] = User::hasPermission("choose.nfs");
-		$vmstore['cifsAllowed'] = User::hasPermission("choose.cifs");
-		$vmstore['saveAllowed'] = $vmstore['internalAllowed'] || $vmstore['nfsAllowed'] || $vmstore['cifsAllowed'];
 		Render::addTemplate('page-vmstore', $vmstore);
 	}
 	
@@ -49,12 +42,6 @@ class Page_VmStore extends Page
 		$storetype = $vmstore['storetype'];
 		if (!in_array($storetype, array('internal', 'nfs', 'cifs'))) {
 			Message::addError('main.value-invalid', 'type', $storetype);
-			Util::redirect('?do=VmStore');
-		}
-		if (($storetype === 'internal' && !User::hasPermission("choose.internal")) ||
-			 ($storetype === 'nfs' && !User::hasPermission("choose.nfs")) ||
-			 ($storetype === 'cifs' && !User::hasPermission("choose.cifs"))) {
-			Message::addError('main.no-permission');
 			Util::redirect('?do=VmStore');
 		}
 		// Validate syntax of nfs/cifs

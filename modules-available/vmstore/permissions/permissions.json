@@ -1,11 +1,5 @@
 {
-    "choose.cifs": {
-        "location-aware": false
-    },
-    "choose.internal": {
-        "location-aware": false
-    },
-    "choose.nfs": {
+    "edit": {
         "location-aware": false
     }
 }

@@ -1,5 +1,3 @@
 {
-	"choose.internal": "Internen Speicher auswählen.",
-	"choose.nfs": "Einen NFS Netzwerkspeicher auswählen.",
-	"choose.cifs": "Einen CIFS Netzwerkspeicher auswählen."
+    "edit": "Den verwendeten VM-Speicher konfigurieren."
 }

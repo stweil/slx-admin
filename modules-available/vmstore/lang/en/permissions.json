@@ -1,5 +1,3 @@
 {
-	"choose.internal": "Choose internal storage.",
-	"choose.nfs": "Choose a NFS network storage.",
-	"choose.cifs": "Choose a CIFS network storage."
+    "edit": "Configure VM storage to use."
 }
