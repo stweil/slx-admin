@@ -1,21 +1,21 @@
 <form action="?do=WebInterface" method="post">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="customization">
-	<div class="panel panel-default {{^editAllowed}}disabledPanel{{/editAllowed}}">
+	<div class="panel panel-default">
 		<div class="panel-heading">{{lang_customization}}</div>
 		<div class="panel-body">
 			<p>{{lang_customizationDesc}}</p>
 			<div>
 				<label>
 					{{lang_pageTitlePrefix}}
-					<input type="text" class="form-control" name="prefix" value="{{prefix}}">
+					<input type="text" class="form-control" name="prefix" value="{{prefix}}" {{perms.edit.design.disabled}}>
 				</label>
 
 			</div>
 			<div>
 				<label>
 					{{lang_logoBackground}}
-					<select class="form-control" name="bgcolor">
+					<select class="form-control" name="bgcolor" {{perms.edit.design.disabled}}>
 						{{#colors}}
 							<option style="color:{{text}};background:{{color}}" {{selected}}>{{color}}</option>
 						{{/colors}}
@@ -23,7 +23,10 @@
 				</label>
 			</div>
 			<div class="pull-right">
-				<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+				<button type="submit" class="btn btn-primary" {{perms.edit.design.disabled}}>
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
 			</div>
 		</div>
 	</div>

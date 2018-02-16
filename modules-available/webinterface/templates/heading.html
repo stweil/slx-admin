@@ -1,1 +1,19 @@
-<h1>{{lang_moduleHeading}}</h1>
+<div class="page-header">
+	<h1>{{lang_moduleHeading}}</h1>
+</div>
+<script><!--
+document.addEventListener('DOMContentLoaded', function () {
+	var $boxCustom = $('#wcustom');
+	$('.row-select').click(function (e) {
+		if (e.target.tagName === 'INPUT')
+			return;
+		$(e.target).closest('.row-select').find('input').click();
+	});
+	$('#cert-options').find('input').change(function(e) {
+		$boxCustom.toggle(e.target.id === 'mcustom');
+	});
+	if ($('#mcustom').is(':checked')) {
+		$boxCustom.show();
+	}
+});
+//--></script>

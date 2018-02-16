@@ -1,7 +1,7 @@
 <form action="?do=WebInterface" method="post">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="https">
-	<div class="panel panel-default {{^editAllowed}}disabledPanel{{/editAllowed}}">
+	<div class="panel panel-default">
 		<div class="panel-heading">{{lang_httpsSettings}}</div>
 		<div class="panel-body">
 			<p>{{lang_httpsDescription}}</p>
@@ -25,46 +25,45 @@
 				<p>{{lang_suppliedSelected}}</p>
 				{{/suppliedSelected}}
 			</div>
-			{{#httpsEnabled}}
-			<div class="input-group" onclick="$('#moff').prop('checked', true);
-					$('#wcustom').hide()">
-				<span class="input-group-addon">
-					<div class="radio">
-						<input id="moff" type="radio" name="mode" value="off">
-						<label></label>
-					</div>
-				</span>
-				<span class="form-control">
-					{{lang_noHttps}}
-				</span>
-			</div>
-			{{/httpsEnabled}}
-			<div class="input-group" onclick="$('#mrandom').prop('checked', true);
-					$('#wcustom').hide()">
-				<span class="input-group-addon">
-					<div class="radio">
-						<input id="mrandom" type="radio" name="mode" value="random">
-						<label></label>
-					</div>
-				</span>
-				<span class="form-control">
-					{{lang_randomCert}}
-				</span>
-			</div>
-			<div class="input-group" onclick="$('#mcustom').prop('checked', true);
-					$('#wcustom').show()">
-				<span class="input-group-addon">
-					<div class="radio">
-						<input id="mcustom" type="radio" name="mode" value="custom">
-						<label></label>
-					</div>
-				</span>
-				<span class="form-control">
-					{{lang_customCert}}
-				</span>
+			<div id="cert-options">
+				{{#httpsEnabled}}
+				<div class="input-group row-select">
+					<span class="input-group-addon">
+						<span class="radio">
+							<input id="moff" type="radio" name="mode" value="off" {{perms.edit.https.disabled}}>
+							<label></label>
+						</span>
+					</span>
+					<span class="form-control">
+						{{lang_noHttps}}
+					</span>
+				</div>
+				{{/httpsEnabled}}
+				<div class="input-group row-select">
+					<span class="input-group-addon">
+						<span class="radio">
+							<input id="mrandom" type="radio" name="mode" value="random" {{perms.edit.https.disabled}}>
+							<label></label>
+						</span>
+					</span>
+					<span class="form-control">
+						{{lang_randomCert}}
+					</span>
+				</div>
+				<div class="input-group row-select">
+					<span class="input-group-addon">
+						<span class="radio">
+							<input id="mcustom" type="radio" name="mode" value="custom" {{perms.edit.https.disabled}}>
+							<label></label>
+						</span>
+					</span>
+					<span class="form-control">
+						{{lang_customCert}}
+					</span>
+				</div>
 			</div>
 
-			<div class="well well-sm" style="display:none" id="wcustom">
+			<div class="well well-sm collapse" id="wcustom">
 				{{lang_certificate}}
 				<pre class="small">
 -----BEGIN CERTIFICATE-----
@@ -87,32 +86,35 @@ MIIFfTCCA...
 			</div>
 
 			<br>
-			<div class="input-group">
+			<div class="input-group row-select">
 				<span class="input-group-addon">
-					<div class="checkbox">
-						<input id="httpsredirect" type="checkbox" name="httpsredirect" value="on" {{redirect_checked}}>
+					<span class="checkbox">
+						<input id="httpsredirect" type="checkbox" name="httpsredirect" value="on" {{redirect_checked}} {{perms.edit.https.disabled}}>
 						<label></label>
-					</div>
+					</span>
 				</span>
-				<span class="form-control" onclick="$('#httpsredirect').prop('checked', !$('#httpsredirect').prop('checked'))">
+				<span class="form-control">
 					{{lang_httpsRedirect}}
 				</span>
 			</div>
-			<div class="input-group">
+			<div class="input-group row-select">
 				<span class="input-group-addon">
-					<div class="checkbox">
-						<input id="usehsts" type="checkbox" name="usehsts" value="on" {{hsts_checked}}>
+					<span class="checkbox">
+						<input id="usehsts" type="checkbox" name="usehsts" value="on" {{hsts_checked}} {{perms.edit.https.disabled}}>
 						<label></label>
-					</div>
+					</span>
 				</span>
-				<span class="form-control" onclick="$('#usehsts').prop('checked', !$('#usehsts').prop('checked'))">
+				<span class="form-control">
 					{{lang_useHsts}}
 				</span>
 			</div>
 			<br>
 
 			<div class="pull-right">
-				<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+				<button type="submit" class="btn btn-primary" {{perms.edit.https.disabled}}>
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
 			</div>
 		</div>
 	</div>

@@ -16,13 +16,16 @@ class Page_WebInterface extends Page
 		}
 		switch (Request::post('action')) {
 			case 'https':
-				if (User::hasPermission("edit.https")) $this->actionConfigureHttps();
+				User::assertPermission("edit.https");
+				$this->actionConfigureHttps();
 				break;
 			case 'password':
-				if (User::hasPermission("edit.password")) $this->actionShowHidePassword();
+				User::assertPermission("edit.password");
+				$this->actionShowHidePassword();
 				break;
 			case 'customization':
-				if (User::hasPermission("edit.design")) $this->actionCustomization();
+				User::assertPermission("edit.design");
+				$this->actionCustomization();
 				break;
 		}
 	}
@@ -123,7 +126,7 @@ class Page_WebInterface extends Page
 			}
 		}
 		$data[$type . 'Selected'] = true;
-		$data["editAllowed"] = User::hasPermission("edit.https");
+		Permission::addGlobalTags($data['perms'], null, ['edit.https']);
 		Render::addTemplate('https', $data);
 		//
 		// Password fields
@@ -133,8 +136,11 @@ class Page_WebInterface extends Page
 			$data['selected_show'] = 'checked';
 		else
 			$data['selected_hide'] = 'checked';
-		$data["editAllowed"] = User::hasPermission("edit.password");
+		Permission::addGlobalTags($data['perms'], null, ['edit.password']);
 		Render::addTemplate('passwords', $data);
+		//
+		// Colors/Prefix
+		//
 		$data = array('prefix' => Property::get('page-title-prefix'));
 		$data['colors'] = array_map(function ($i) { return array('color' => $i ? '#' . $i : '', 'text' => Render::readableColor($i)); },
 			array('', 'f00', '0f0', '00f', 'ff0', 'f0f', '0ff', 'fff', '000', 'f90', '09f', '90f', 'f09', '9f0'));
@@ -150,7 +156,7 @@ class Page_WebInterface extends Page
 		if ($color) {
 			$data['colors'][] = array('color' => $color, 'selected' => 'selected');
 		}
-		$data["editAllowed"] = User::hasPermission("edit.design");
+		Permission::addGlobalTags($data['perms'], null, ['edit.design']);
 		Render::addTemplate('customization', $data);
 	}
 
