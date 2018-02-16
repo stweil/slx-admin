@@ -58,17 +58,16 @@ class SubPage
 				$mailConf['set_' . $mailConf['ssl']] = 'selected="selected"';
 			}
 		}
-		Permission::addGlobalTags($mailConf['perms'], NULL, ['mailconfig.save', 'mailconfig.testmail']);
+		Permission::addGlobalTags($mailConf['perms'], null, ['mailconfig.save']);
 		Render::addTemplate('mailconfig', $mailConf);
 	}
 
 	public static function doAjax()
 	{
+		User::assertPermission("mailconfig.save");
 		$action = Request::post('action');
 		if ($action === 'mail') {
-			if (User::hasPermission("mailconfig.testmail")) {
-				self::handleTestMail();
-			}
+			self::handleTestMail();
 		}
 	}
 

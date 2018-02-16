@@ -11,9 +11,6 @@
     "mailconfig.save": {
         "location-aware": false
     },
-    "mailconfig.testmail": {
-        "location-aware": false
-    },
     "runtimeconfig.save": {
         "location-aware": false
     },

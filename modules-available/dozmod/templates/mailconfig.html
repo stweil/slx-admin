@@ -55,7 +55,7 @@
 			</div>
 			<br>
 			<div class="text-right">
-				<button {{perms.mailconfig.testmail.disabled}} class="btn btn-warning" type="button" id="test-button" name="button" value="test" onclick="slxTestConfig()"><span class="glyphicon glyphicon-envelope"></span> {{lang_test}}</button>
+				<button {{perms.mailconfig.save.disabled}} class="btn btn-warning" type="button" id="test-button" name="button" value="test" onclick="slxTestConfig()"><span class="glyphicon glyphicon-envelope"></span> {{lang_test}}</button>
 				<span id="test-spin" style="display:none"><span class="glyphicon glyphicon-refresh slx-rotation"></span></span>
 				<pre id="test-output" style="display:none;text-align:left"></pre>
 				<button {{perms.mailconfig.save.disabled}} class="btn btn-primary" type="submit" name="button" value="save"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
