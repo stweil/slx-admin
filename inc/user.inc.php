@@ -56,6 +56,10 @@ class User
 		if (User::hasPermission($permission, $locationid))
 			return;
 		Message::addError('main.no-permission');
+		if (AJAX) {
+			Message::renderList();
+			exit;
+		}
 		if (is_null($redirect)) {
 			Util::redirect('?do=main');
 		} else {
