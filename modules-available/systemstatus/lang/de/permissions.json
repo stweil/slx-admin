@@ -1,13 +1,13 @@
 {
-	"show.overview.diskstat": "Zeige Speicherplatzwerte auf Übersichtsseite.",
-	"show.overview.services": "Zeige Dienste auf Übersichtsseite.",
-	"show.overview.addresses": "Zeige Adresskonfiguration auf Übersichtsseite.",
-	"show.overview.systeminfo": "Zeige Systemwerte auf Übersichtsseite.",
-	"show.overview.dmsdusers": "Zeige dmsd-Werte auf Übersichtsseite.",
-	"show.logs.bwlpserver": "Zeige bwlp-Server Logs.",
-	"show.logs.netstat": "Zeige netstat Logs.",
-	"show.logs.pslist": "Zeige ps-list Logs.",
-	"show.logs.ldapad": "Zeige ldap und ad Logs.",
-	"show.logs.lighttpd": "Zeige light-tpd Logs.",
-	"serverreboot": "Server neustarten."
+    "serverreboot": "Server neustarten.",
+    "show.overview.addresses": "Zeige Adresskonfiguration auf \u00dcbersichtsseite.",
+    "show.overview.diskstat": "Zeige Speicherplatzwerte auf \u00dcbersichtsseite.",
+    "show.overview.dmsdusers": "Zeige dmsd-Werte auf \u00dcbersichtsseite.",
+    "show.overview.services": "Zeige Dienste auf \u00dcbersichtsseite.",
+    "show.overview.systeminfo": "Zeige Systemwerte auf \u00dcbersichtsseite.",
+    "tab.dmsdlog": "Zugriff auf bwLehrpool-Suite-Server Statusausgabe.",
+    "tab.ldadplog": "Zugriff auf LDAP\/AD-Proxy Logs.",
+    "tab.lighttpdlog": "Zugriff auf Webserver-Logs.",
+    "tab.netstat": "Zeige Aufgabe von netstat.",
+    "tab.pslist": "Zeige Prozessliste."
 }

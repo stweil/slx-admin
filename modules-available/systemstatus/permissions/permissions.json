@@ -2,22 +2,22 @@
     "serverreboot": {
         "location-aware": false
     },
-    "show.logs.bwlpserver": {
+    "tab.dmsdlog": {
         "location-aware": false
     },
-    "show.logs.ldapad": {
+    "tab.netstat": {
         "location-aware": false
     },
-    "show.logs.lighttpd": {
+    "tab.pslist": {
         "location-aware": false
     },
-    "show.logs.netstat": {
+    "tab.ldadplog": {
         "location-aware": false
     },
-    "show.logs.pslist": {
+    "tab.lighttpdlog": {
         "location-aware": false
     },
-    "show.overview.adresses": {
+    "show.overview.addresses": {
         "location-aware": false
     },
     "show.overview.diskstat": {

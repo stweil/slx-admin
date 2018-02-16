@@ -1,13 +1,13 @@
 {
-	"show.overview.diskstat": "Show diskstats on overview page.",
-	"show.overview.services": "Show services on overview page.",
-	"show.overview.addresses": "Show addresses on overview page.",
-	"show.overview.systeminfo": "Show systeminfo on overview page.",
-	"show.overview.dmsdusers": "Show dmsd-stats on overview page.",
-	"show.logs.bwlpserver": "Show bwlp-server logs.",
-	"show.logs.netstat": "Show netstat logs.",
-	"show.logs.pslist": "Show ps-list logs.",
-	"show.logs.ldapad": "Show ldap+ad logs.",
-	"show.logs.lighttpd": "Show light-tpd logs.",
-	"serverreboot": "Reboot server."
+    "serverreboot": "Reboot server.",
+    "show.overview.addresses": "Show addresses on overview page.",
+    "show.overview.diskstat": "Show diskstats on overview page.",
+    "show.overview.dmsdusers": "Show dmsd-stats on overview page.",
+    "show.overview.services": "Show services on overview page.",
+    "show.overview.systeminfo": "Show systeminfo on overview page.",
+    "tab.dmsdlog": "Show bwLehrpool-Suite status.",
+    "tab.ldadplog": "Show LDAP\/AD proxy logs.",
+    "tab.lighttpdlog": "Show web server logs.",
+    "tab.netstat": "Show output of netstat.",
+    "tab.pslist": "Show process list."
 }
