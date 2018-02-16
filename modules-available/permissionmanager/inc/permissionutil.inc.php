@@ -50,6 +50,7 @@ class PermissionUtil
 	 */
 	public static function userHasPermission($userid, $permissionid, $locationid)
 	{
+		$permissionid = strtolower($permissionid);
 		self::validatePermission($permissionid);
 		$parts = explode('.', $permissionid);
 		// Limit query to first part of permissionid, which is always the module id
@@ -60,9 +61,14 @@ class PermissionUtil
 					WHERE user_x_role.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')",
 				compact('userid', 'prefix'));
 		} else {
-			$locations = Location::getLocationRootChain($locationid);
-			if (count($locations) == 0)
-				return false;
+			if ($locationid === 0) {
+				$locations = [0];
+			} else {
+				$locations = Location::getLocationRootChain($locationid);
+				if (empty($locations)) { // Non-existent location, still continue as user might have global perms
+					$locations = [0];
+				}
+			}
 			$res = Database::simpleQuery("SELECT permissionid FROM role_x_permission
 					INNER JOIN user_x_role USING (roleid)
 					INNER JOIN role_x_location USING (roleid)
@@ -94,6 +100,7 @@ class PermissionUtil
 	 */
 	public static function getAllowedLocations($userid, $permissionid)
 	{
+		$permissionid = strtolower($permissionid);
 		self::validatePermission($permissionid);
 		$parts = explode('.', $permissionid);
 		// Limit query to first part of permissionid, which is always the module id

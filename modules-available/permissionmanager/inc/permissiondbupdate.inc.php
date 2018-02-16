@@ -53,6 +53,10 @@ class PermissionDbUpdate
 	 */
 	public static function saveRole($rolename, $locations, $permissions, $roleid = null)
 	{
+		foreach ($permissions as &$permission) {
+			$permission = strtolower($permission);
+		}
+		unset($permission);
 		if ($roleid) {
 			Database::exec("UPDATE role SET rolename = :rolename WHERE roleid = :roleid",
 				array("rolename" => $rolename, "roleid" => $roleid));
