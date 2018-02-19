@@ -3,6 +3,9 @@
 class GetPermissionData
 {
 
+	const WITH_USER_COUNT = 1;
+	const WITH_LOCATION_COUNT = 2;
+
 	/**
 	 * Get data for all users.
 	 *
@@ -64,11 +67,26 @@ class GetPermissionData
 	/**
 	 * Get all roles.
 	 *
+	 * @param int $flags Bitmask specifying additional data to fetch (WITH_* constants of this class)
 	 * @return array array roles (each with roleid and rolename)
 	 */
-	public static function getRoles()
+	public static function getRoles($flags = 0)
 	{
-		return Database::queryAll("SELECT roleid, rolename FROM role ORDER BY rolename ASC");
+		$cols = $joins = '';
+		if ($flags & self::WITH_USER_COUNT) {
+			$cols .= ', Count(DISTINCT rxu.userid) AS users';
+			$joins .= ' LEFT JOIN user_x_role rxu ON (r.roleid = rxu.roleid)';
+		}
+		if ($flags & self::WITH_LOCATION_COUNT) {
+			$cols .= ', Count(DISTINCT rxl.locationid) AS locations';
+			$joins .= ' LEFT JOIN role_x_location rxl ON (r.roleid = rxl.roleid)';
+		}
+		if (!empty($joins)) {
+			$joins .= ' GROUP BY r.roleid';
+		}
+		return Database::queryAll("SELECT r.roleid, r.rolename $cols FROM role r
+			$joins
+			ORDER BY rolename ASC");
 	}
 
 	/**

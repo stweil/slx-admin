@@ -33,7 +33,7 @@ class Permission
 			}
 			$temp =& $array;
 			foreach (explode('.', $perm) as $sub) {
-				if (empty($sub))
+				if (empty($sub) || $sub === '*')
 					continue;
 				$temp =& $temp[$sub];
 			}

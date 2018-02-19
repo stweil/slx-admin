@@ -53,6 +53,9 @@ class PermissionUtil
 		$permissionid = strtolower($permissionid);
 		self::validatePermission($permissionid);
 		$parts = explode('.', $permissionid);
+		// Special case: To prevent lockout, userid === 1 always has permissionmanager.*
+		if ($parts[0] === 'permissionmanager' && User::getId() === 1)
+			return true;
 		// Limit query to first part of permissionid, which is always the module id
 		$prefix = $parts[0] . '.%';
 		if (is_null($locationid)) {
@@ -103,21 +106,26 @@ class PermissionUtil
 		$permissionid = strtolower($permissionid);
 		self::validatePermission($permissionid);
 		$parts = explode('.', $permissionid);
-		// Limit query to first part of permissionid, which is always the module id
-		$prefix = $parts[0] . '.%';
-		$res = Database::simpleQuery("SELECT permissionid, locationid FROM role_x_permission
-					INNER JOIN user_x_role USING (roleid)
-					INNER JOIN role_x_location USING (roleid)
-					WHERE user_x_role.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')",
-			compact('userid', 'prefix'));
+		// Special case: To prevent lockout, userid === 1 always has permissionmanager.*
+		if ($parts[0] === 'permissionmanager' && User::getId() === 1) {
+			$allowedLocations = [true];
+		} else {
+			// Limit query to first part of permissionid, which is always the module id
+			$prefix = $parts[0] . '.%';
+			$res = Database::simpleQuery("SELECT permissionid, locationid FROM role_x_permission
+						INNER JOIN user_x_role USING (roleid)
+						INNER JOIN role_x_location USING (roleid)
+						WHERE user_x_role.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')",
+				compact('userid', 'prefix'));
 
-		// Gather locationid from relevant rows
-		self::makeComparisonVariants($parts, $compare, $wildcard, $wclen);
-		$allowedLocations = array();
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (in_array($row['permissionid'], $compare, true)
+			// Gather locationid from relevant rows
+			self::makeComparisonVariants($parts, $compare, $wildcard, $wclen);
+			$allowedLocations = array();
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				if (in_array($row['permissionid'], $compare, true)
 					|| ($wildcard !== false && strncmp($row['permissionid'], $wildcard, $wclen) === 0)) {
-				$allowedLocations[(int)$row['locationid']] = true;
+					$allowedLocations[(int)$row['locationid']] = true;
+				}
 			}
 		}
 		$locations = Location::getTree();

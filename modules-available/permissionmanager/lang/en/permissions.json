@@ -1,0 +1,7 @@
+{
+    "locations.view": "See locations with assigned roles.",
+    "roles.edit": "Edit roles.",
+    "roles.view": "Show roles.",
+    "users.edit-roles": "Assign or remove roles from users.",
+    "users.view": "See users with assigned roles."
+}

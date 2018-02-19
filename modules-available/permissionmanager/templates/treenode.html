@@ -1,7 +1,7 @@
 {{#toplevel}}<ul>{{/toplevel}}
 <li {{#description}}title="{{description}}" data-toggle="tooltip" data-placement="left"{{/description}}>
 	<div class='checkbox'>
-		<input id="{{id}}" name="{{checkboxname}}[]" value="{{id}}" type="checkbox" {{#selected}}checked{{/selected}}>
+		<input id="{{id}}" name="{{checkboxname}}[]" value="{{id}}" type="checkbox" {{#selected}}checked{{/selected}} {{edit_disabled}} {{perms.roles.edit.disabled}}>
 		<label for="{{id}}">
 			{{name}}
 			{{#location-aware}}<span class="glyphicon glyphicon-home text-muted"></span>{{/location-aware}}

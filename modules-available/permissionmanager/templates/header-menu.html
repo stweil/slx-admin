@@ -4,17 +4,17 @@
 			<input type="hidden" name="do" value="permissionmanager">
 
 			<div class="btn-group {{groupClass}}">
-				<button class="btn btn-default {{rolesButtonClass}}" type="submit" name="show" value="roles">
+				<button class="btn btn-default {{rolesButtonClass}}" type="submit" name="show" value="roles" {{perms.roles.disabled}}>
 					<span class="glyphicon glyphicon-education"></span>
 					{{lang_roles}}
 				</button>
 
-				<button class="btn btn-default {{usersButtonClass}}" type="submit" name="show" value="users">
+				<button class="btn btn-default {{usersButtonClass}}" type="submit" name="show" value="users" {{perms.users.disabled}}>
 					<span class="glyphicon glyphicon-user"></span>
 					{{lang_users}}
 				</button>
 
-				<button class="btn btn-default {{locationsButtonClass}}" type="submit" name="show" value="locations">
+				<button class="btn btn-default {{locationsButtonClass}}" type="submit" name="show" value="locations" {{perms.locations.disabled}}>
 					<span class="glyphicon glyphicon-home"></span>
 					{{lang_locations}}
 				</button>

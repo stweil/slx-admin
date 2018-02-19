@@ -1,0 +1,17 @@
+{
+	"roles.view": {
+		"location-aware": false
+	},
+	"roles.edit": {
+		"location-aware": false
+	},
+	"users.view": {
+		"location-aware": false
+	},
+	"users.edit-roles": {
+		"location-aware": false
+	},
+	"locations.view": {
+		"location-aware": false
+	}
+}

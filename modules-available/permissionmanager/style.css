@@ -55,3 +55,7 @@ td > .label {
         column-count: 3;
     }
 }
+
+.btn-group-muted > button {
+    color: #aaa;
+}

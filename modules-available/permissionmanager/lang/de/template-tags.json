@@ -1,18 +1,20 @@
 {
     "lang_addRole": "Rollen erteilen",
     "lang_addRoleHeading": "Neue Rolle hinzuf\u00fcgen",
-    "lang_deleteCheck": "Sind Sie sich sicher, dass Sie diese Rolle l\u00f6schen wollen?",
     "lang_editRoleHeading": "Rolle bearbeiten",
     "lang_locationAwareDesc": "Berechtigungen mit diesem Symbol k\u00f6nnen auf bestimmte R\u00e4ume\/Orte beschr\u00e4nkt werden. Alle anderen Berechtigungen sind unabh\u00e4ngig von den f\u00fcr diese Rolle ausgew\u00e4hlten Orten.",
     "lang_locations": "R\u00e4ume",
     "lang_moduleName": "Rechtemanager",
     "lang_name": "Name",
     "lang_newRole": "Rolle anlegen",
+    "lang_numAssignedUsers": "Benutzer mit dieser Rolle",
     "lang_permissions": "Rechte",
     "lang_removeRole": "Rollen entziehen",
+    "lang_roleDeleteConfirm": "Sind Sie sich sicher, dass Sie diese Rolle l\u00f6schen m\u00f6chten? Benutzer, denen diese Rolle zugewiesen ist, werden die entsprechenden Berechtigungen verlieren.",
     "lang_roles": "Rollen",
     "lang_searchPlaceholder": "Nach Rollen suchen...",
     "lang_selected": "ausgew\u00e4hlte",
     "lang_selectizePlaceholder": "Nach Rollen filtern...",
-    "lang_users": "Nutzer"
+    "lang_users": "Nutzer",
+    "lang_view": "Anzeigen"
 }

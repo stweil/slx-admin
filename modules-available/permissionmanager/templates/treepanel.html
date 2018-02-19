@@ -1,7 +1,7 @@
 <div class="panel panel-primary tree-panel">
 	<div class="panel-heading">
 		<div class="checkbox">
-			<input id="{{id}}" name="{{checkboxname}}[]" value="{{id}}" type="checkbox" class="master-checkbox" {{#selected}}checked{{/selected}}>
+			<input id="{{id}}" name="{{checkboxname}}[]" value="{{id}}" type="checkbox" class="master-checkbox" {{#selected}}checked{{/selected}} {{perms.roles.edit.disabled}}>
 			<label for="{{id}}">{{name}}</label>
 		</div>
 	</div>
