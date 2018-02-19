@@ -43,8 +43,10 @@ $('.slx-decollapse').click(function () {
 	$(this).siblings('.collapse').removeClass('collapse');
 });
 
+// Show not-allowed cursor for disabled links (not in btn-group as it messes up the style)
 $('a.disabled').each(function() {
 	var $this = $(this);
+	if ($this.parent().hasClass('btn-group')) return;
 	var $hax = $('<div class="disabled-hack">');
 	$this.after($hax);
 	$hax.append($this);
