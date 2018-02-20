@@ -4,10 +4,10 @@ class PermissionDbUpdate
 {
 
 	/**
-	 * Insert all user/role combinations into the user_x_role table.
+	 * Insert all user/role combinations into the role_x_user table.
 	 *
-	 * @param array $users userids
-	 * @param array $roles roleids
+	 * @param int[] $users userids
+	 * @param string[] $roles roleids
 	 */
 	public static function addRoleToUser($users, $roles)
 	{
@@ -17,19 +17,19 @@ class PermissionDbUpdate
 				$arg[] = compact('userid', 'roleid');
 			}
 		}
-		Database::exec("INSERT IGNORE INTO user_x_role (userid, roleid) VALUES :arg",
+		Database::exec("INSERT IGNORE INTO role_x_user (userid, roleid) VALUES :arg",
 			['arg' => $arg]);
 	}
 
 	/**
-	 * Remove all user/role combinations from the user_x_role table.
+	 * Remove all user/role combinations from the role_x_user table.
 	 *
-	 * @param array $users userids
-	 * @param array $roles roleids
+	 * @param int[] $users userids
+	 * @param string[] $roles roleids
 	 */
 	public static function removeRoleFromUser($users, $roles)
 	{
-		$query = "DELETE FROM user_x_role WHERE userid IN (:users) AND roleid IN (:roles)";
+		$query = "DELETE FROM role_x_user WHERE userid IN (:users) AND roleid IN (:roles)";
 		Database::exec($query, array("users" => $users, "roles" => $roles));
 	}
 
@@ -47,8 +47,8 @@ class PermissionDbUpdate
 	 * Save changes to a role or create a new one.
 	 *
 	 * @param string $rolename rolename
-	 * @param array $locations array of locations
-	 * @param array $permissions array of permissions
+	 * @param int[] $locations array of locations
+	 * @param string[] $permissions array of permissions
 	 * @param string|null $roleid roleid or null if the role does not exist yet
 	 */
 	public static function saveRole($rolename, $locations, $permissions, $roleid = null)
@@ -61,7 +61,7 @@ class PermissionDbUpdate
 			Database::exec("UPDATE role SET rolename = :rolename WHERE roleid = :roleid",
 				array("rolename" => $rolename, "roleid" => $roleid));
 			Database::exec("DELETE FROM role_x_location
-					WHERE roleid = :roleid AND locationid NOT IN (:locations)",
+					WHERE roleid = :roleid AND (locationid NOT IN (:locations) OR locationid IS NULL)",
 				array("roleid" => $roleid, 'locations' => $locations));
 			Database::exec("DELETE FROM role_x_permission
 					WHERE roleid = :roleid AND permissionid NOT IN (:permissions)",

@@ -60,8 +60,8 @@ class PermissionUtil
 		$prefix = $parts[0] . '.%';
 		if (is_null($locationid)) {
 			$res = Database::simpleQuery("SELECT permissionid FROM role_x_permission
-					INNER JOIN user_x_role USING (roleid)
-					WHERE user_x_role.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')",
+					INNER JOIN role_x_user USING (roleid)
+					WHERE role_x_user.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')",
 				compact('userid', 'prefix'));
 		} else {
 			if ($locationid === 0) {
@@ -73,9 +73,9 @@ class PermissionUtil
 				}
 			}
 			$res = Database::simpleQuery("SELECT permissionid FROM role_x_permission
-					INNER JOIN user_x_role USING (roleid)
+					INNER JOIN role_x_user USING (roleid)
 					INNER JOIN role_x_location USING (roleid)
-					WHERE user_x_role.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')
+					WHERE role_x_user.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')
 						AND (locationid IN (:locations) OR locationid IS NULL)",
 				compact('userid', 'prefix', 'locations'));
 		}
@@ -113,9 +113,9 @@ class PermissionUtil
 			// Limit query to first part of permissionid, which is always the module id
 			$prefix = $parts[0] . '.%';
 			$res = Database::simpleQuery("SELECT permissionid, locationid FROM role_x_permission
-						INNER JOIN user_x_role USING (roleid)
+						INNER JOIN role_x_user USING (roleid)
 						INNER JOIN role_x_location USING (roleid)
-						WHERE user_x_role.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')",
+						WHERE role_x_user.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')",
 				compact('userid', 'prefix'));
 
 			// Gather locationid from relevant rows

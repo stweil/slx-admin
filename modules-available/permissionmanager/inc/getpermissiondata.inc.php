@@ -15,8 +15,8 @@ class GetPermissionData
 	{
 		$res = Database::simpleQuery("SELECT user.userid AS userid, user.login AS login, role.rolename AS rolename, role.roleid AS roleid
 												FROM user
-												LEFT JOIN user_x_role ON user.userid = user_x_role.userid
-												LEFT JOIN role ON user_x_role.roleid = role.roleid
+												LEFT JOIN role_x_user ON user.userid = role_x_user.userid
+												LEFT JOIN role ON role_x_user.roleid = role.roleid
 												");
 		$userdata = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -75,7 +75,7 @@ class GetPermissionData
 		$cols = $joins = '';
 		if ($flags & self::WITH_USER_COUNT) {
 			$cols .= ', Count(DISTINCT rxu.userid) AS users';
-			$joins .= ' LEFT JOIN user_x_role rxu ON (r.roleid = rxu.roleid)';
+			$joins .= ' LEFT JOIN role_x_user rxu ON (r.roleid = rxu.roleid)';
 		}
 		if ($flags & self::WITH_LOCATION_COUNT) {
 			$cols .= ', Count(DISTINCT rxl.locationid) AS locations';
