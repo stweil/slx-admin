@@ -108,7 +108,7 @@ class Page_PermissionManager extends Page
 			$data["permissionHTML"] = self::generatePermissionHTML(PermissionUtil::getPermissions(), $selectedPermissions,
 				false, '', ['perms' => $data['perms']]);
 			$data["locationHTML"] = self::generateLocationHTML(Location::getTree(), $selectedLocations,
-				false, '', ['perms' => $data['perms']]);
+				false, true, ['perms' => $data['perms']]);
 
 			Render::addTemplate('roleeditor', $data);
 		}
