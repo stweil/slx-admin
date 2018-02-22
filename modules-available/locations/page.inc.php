@@ -341,6 +341,8 @@ class Page_Locations extends Page
 		// we have permission to, so the tree doesn't look all weird
 		$visibleLocationIds = $allowedLocationIds = User::getAllowedLocations("location.view");
 		foreach ($allowedLocationIds as $lid) {
+			if (!isset($locationList[$lid]))
+				continue;
 			$visibleLocationIds = array_merge($visibleLocationIds, $locationList[$lid]['parents']);
 		}
 		$visibleLocationIds = array_unique($visibleLocationIds);
