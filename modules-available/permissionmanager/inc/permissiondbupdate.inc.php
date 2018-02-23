@@ -7,17 +7,19 @@ class PermissionDbUpdate
 	 * Insert all user/role combinations into the role_x_user table.
 	 *
 	 * @param int[] $users userids
-	 * @param string[] $roles roleids
+	 * @param int[] $roles roleids
 	 */
 	public static function addRoleToUser($users, $roles)
 	{
+		if (empty($users) || empty($roles))
+			return 0;
 		$arg = array();
 		foreach ($users AS $userid) {
 			foreach ($roles AS $roleid) {
 				$arg[] = compact('userid', 'roleid');
 			}
 		}
-		Database::exec("INSERT IGNORE INTO role_x_user (userid, roleid) VALUES :arg",
+		return Database::exec("INSERT IGNORE INTO role_x_user (userid, roleid) VALUES :arg",
 			['arg' => $arg]);
 	}
 
@@ -25,12 +27,28 @@ class PermissionDbUpdate
 	 * Remove all user/role combinations from the role_x_user table.
 	 *
 	 * @param int[] $users userids
-	 * @param string[] $roles roleids
+	 * @param int[] $roles roleids
 	 */
 	public static function removeRoleFromUser($users, $roles)
 	{
+		if (empty($users) || empty($roles))
+			return 0;
 		$query = "DELETE FROM role_x_user WHERE userid IN (:users) AND roleid IN (:roles)";
-		Database::exec($query, array("users" => $users, "roles" => $roles));
+		return Database::exec($query, array("users" => $users, "roles" => $roles));
+	}
+
+	/**
+	 * Assign the specified roles to given users, removing any roles from the users
+	 * that are not in the given set.
+	 *
+	 * @param int[] $users list of user ids
+	 * @param int[] $roles list of role ids
+	 */
+	public static function setRolesForUser($users, $roles)
+	{
+		$count = Database::exec("DELETE FROM role_x_user WHERE userid in (:users) AND roleid NOT IN (:roles)",
+			compact('users', 'roles'));
+		return $count + self::addRoleToUser($users, $roles);
 	}
 
 	/**
@@ -40,7 +58,7 @@ class PermissionDbUpdate
 	 */
 	public static function deleteRole($roleid)
 	{
-		Database::exec("DELETE FROM role WHERE roleid = :roleid", array("roleid" => $roleid));
+		return Database::exec("DELETE FROM role WHERE roleid = :roleid", array("roleid" => $roleid));
 	}
 
 	/**

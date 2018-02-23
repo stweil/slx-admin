@@ -61,6 +61,7 @@ class Page_AddUser extends Page
 				EventLog::info(User::getName() . ' created user ' . $login);
 			}
 			Message::addInfo('adduser-success');
+			$this->saveRoles($id);
 			return;
 		}
 	}
@@ -113,6 +114,7 @@ class Page_AddUser extends Page
 					Database::exec('UPDATE user SET passwd = :pass WHERE userid = :userid', $data);
 					Message::addSuccess('password-changed');
 				}
+				$this->saveRoles($userid);
 			}
 		}
 		Util::redirect('?do=adduser&show=edituser&userid=' . $userid);
@@ -141,6 +143,19 @@ class Page_AddUser extends Page
 		Message::addSuccess('user-deleted', $userid);
 	}
 
+	private function saveRoles($userid)
+	{
+		if (!Module::isAvailable('permissionmanager'))
+			return;
+		if (!User::hasPermission('.permissionmanager.users.edit-roles'))
+			return;
+		$roles = Request::post('roles', [], 'array');
+		$ret = PermissionDbUpdate::setRolesForUser([$userid], $roles);
+		if ($ret > 0) {
+			Message::addSuccess('roles-updated');
+		}
+	}
+
 	protected function doRender()
 	{
 		Render::addTemplate('header');
@@ -151,7 +166,12 @@ class Page_AddUser extends Page
 			if ($hasUsers) {
 				User::assertPermission('user.add');
 			}
+			Render::openTag('form', ['class' => 'form-adduser', 'action' => '?do=adduser', 'method' => 'post']);
 			Render::addTemplate('page-adduser');
+			if ($hasUsers) {
+				$this->showPermissions();
+			}
+			Render::closeTag('form');
 		} elseif ($show === 'edituser') {
 			User::assertPermission('user.edit');
 			$userid = Request::get('userid', false, 'int');
@@ -165,7 +185,10 @@ class Page_AddUser extends Page
 				Message::addError('user-not-found', $userid);
 			} else {
 				// TODO: LDAP -> disallow pw change, maybe other fields too?
+				Render::openTag('form', ['class' => 'form-adduser', 'action' => '?do=adduser', 'method' => 'post']);
 				Render::addTemplate('page-edituser', $user);
+				$this->showPermissions($userid);
+				Render::closeTag('form');
 			}
 		} elseif ($show === 'list') {
 			User::assertPermission('list.view');
@@ -179,6 +202,16 @@ class Page_AddUser extends Page
 			Permission::addGlobalTags($data['perms'], null, ['user.add', 'user.edit', 'user.remove']);
 			$page->render('page-userlist', $data);
 		}
+	}
+
+	private function showPermissions($userid = false)
+	{
+		if (!Module::isAvailable('permissionmanager'))
+			return;
+		if (!User::hasPermission('.permissionmanager.users.edit-roles'))
+			return;
+		$data = ['roles' => PermissionUtil::getRoles($userid, false)];
+		Render::addTemplate('user-permissions', $data);
 	}
 
 }

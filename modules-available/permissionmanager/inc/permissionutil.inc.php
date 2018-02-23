@@ -232,6 +232,28 @@ class PermissionUtil
 	}
 
 	/**
+	 * Get all existing roles.
+	 *
+	 * @param int|false $userid Which user to consider, false = none
+	 * @param bool $onlyMatching true = filter roles the user doesn't have
+	 * @return array list of roles
+	 */
+	public static function getRoles($userid = false, $onlyMatching = true)
+	{
+		if ($userid === false) {
+			return Database::queryAll('SELECT roleid, rolename FROM role ORDER BY rolename ASC');
+		}
+		$ret = Database::queryAll('SELECT r.roleid, r.rolename, u.userid AS hasRole FROM role r
+				LEFT JOIN role_x_user u ON (r.roleid = u.roleid AND u.userid = :userid)
+				GROUP BY r.roleid
+				ORDER BY rolename ASC', ['userid' => $userid]);
+		foreach ($ret as &$role) {
+			settype($role['hasRole'], 'bool');
+		}
+		return $ret;
+	}
+
+	/**
 	 * Place a permission into the given permission tree.
 	 *
 	 * @param string $permission the permission to place in the tree
@@ -252,4 +274,5 @@ class PermissionUtil
 		}
 		$tree = array('description' => $description, 'location-aware' => $locationAware, 'isLeaf' => true);
 	}
+
 }

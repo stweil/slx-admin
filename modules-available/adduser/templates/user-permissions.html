@@ -1,0 +1,24 @@
+<h3>{{lang_assignRoles}}</h3>
+
+<table class="table table-condensed table-hover">
+	<thead>
+	<tr>
+		<th data-sort="string">{{lang_role}}</th>
+		<th class="text-center slx-smallcol"></th>
+	</tr>
+	</thead>
+
+	<tbody>
+	{{#roles}}
+		<tr>
+			<td class="rolename">{{rolename}}</td>
+			<td class="text-center">
+				<div class="checkbox">
+					<input type="checkbox" name="roles[]" value="{{roleid}}" {{#hasRole}}checked{{/hasRole}}>
+					<label></label>
+				</div>
+			</td>
+		</tr>
+	{{/roles}}
+	</tbody>
+</table>
