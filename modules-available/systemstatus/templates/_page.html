@@ -92,7 +92,7 @@
 						{{lang_maintenance}}
 					</div>
 					<div class="panel-body">
-						<form class="form-adduser" action="?do=SystemStatus" method="post">
+						<form action="?do=SystemStatus" method="post">
 							<input type="hidden" name="token" value="{{token}}">
 							<input type="hidden" name="action" value="reboot">
 							<button {{perms.serverreboot.disabled}} class="btn btn-warning" type="button" data-toggle="modal" data-target="#rebootServerModal"><span class="glyphicon glyphicon-repeat"></span> {{lang_serverReboot}}</button>

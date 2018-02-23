@@ -1,6 +1,16 @@
 {
+    "lang_addUser": "Nutzer hinzuf\u00fcgen",
+    "lang_changeLoginHint": "Sie k\u00f6nnen den Namen, den der Nutzer beim Login angeben muss, \u00e4ndern. Dies ist nur bei lokalen Nutzern m\u00f6glich, die nicht \u00fcber LDAP\/AD authentifiziert werden.",
+    "lang_changeOwnPasswordHint": "Ihr eigenes Passwort k\u00f6nnen Sie \u00fcber den Button \"Passwort \u00e4ndern\" im Men\u00fc \u00e4ndern.",
+    "lang_changePassword": "Neues Passwort",
     "lang_confirmation": "Wiederholen",
     "lang_createUser": "Benutzer anlegen",
+    "lang_editUser": "Benutzer bearbeiten",
+    "lang_email": "E-Mail",
     "lang_fullName": "Vollst\u00e4ndiger Name",
-    "lang_telephone": "Telefon"
+    "lang_login": "Login",
+    "lang_name": "Name",
+    "lang_phone": "Telefon",
+    "lang_userManagement": "Benutzerverwaltung",
+    "lang_userlist": "Benutzerliste"
 }

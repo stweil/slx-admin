@@ -1,5 +1,8 @@
 {
+    "adduser-success": "Benutzer erfolgreich hinzugef\u00fcgt",
+    "db-error": "Datenbankfehler: {{0}}",
+    "password-changed": "Passwort ge\u00e4ndert",
     "password-mismatch": "Passwort und Passwortbest\u00e4tigung stimmen nicht \u00fcberein",
-    "adduser-disabled": "Keine ausreichenden Rechte, um weitere Benutzer hinzuzuf\u00fcgen",
-    "adduser-success": "Benutzer erfolgreich hinzugef\u00fcgt"
+    "user-edited": "Benutzerdaten wurden ge\u00e4ndert",
+    "user-not-found": "Benutzer mit ID {{0}} nicht gefunden"
 }

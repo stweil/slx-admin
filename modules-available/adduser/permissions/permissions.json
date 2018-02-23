@@ -1,0 +1,14 @@
+{
+	"user.add": {
+		"location-aware": false
+	},
+	"user.edit": {
+		"location-aware": false
+	},
+	"user.remove": {
+		"location-aware": false
+	},
+	"list.view": {
+		"location-aware": false
+	}
+}
