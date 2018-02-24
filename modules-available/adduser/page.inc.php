@@ -169,7 +169,7 @@ class Page_AddUser extends Page
 			Render::openTag('form', ['class' => 'form-adduser', 'action' => '?do=adduser', 'method' => 'post']);
 			Render::addTemplate('page-adduser');
 			if ($hasUsers) {
-				$this->showPermissions();
+				$this->showRoles();
 			}
 			Render::closeTag('form');
 		} elseif ($show === 'edituser') {
@@ -187,7 +187,7 @@ class Page_AddUser extends Page
 				// TODO: LDAP -> disallow pw change, maybe other fields too?
 				Render::openTag('form', ['class' => 'form-adduser', 'action' => '?do=adduser', 'method' => 'post']);
 				Render::addTemplate('page-edituser', $user);
-				$this->showPermissions($userid);
+				$this->showRoles($userid);
 				Render::closeTag('form');
 			}
 		} elseif ($show === 'list') {
@@ -204,7 +204,7 @@ class Page_AddUser extends Page
 		}
 	}
 
-	private function showPermissions($userid = false)
+	private function showRoles($userid = false)
 	{
 		if (!Module::isAvailable('permissionmanager'))
 			return;
