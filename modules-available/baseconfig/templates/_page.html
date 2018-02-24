@@ -29,7 +29,7 @@
 								{{#defaultvalue}}{{lang_defaultValue}}:{{/defaultvalue}}
 								{{defaultvalue}}
 							</div>
-							<input class="bs-switch" name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}}>
+							<input class="bs-switch" name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}} {{edit_disabled}}>
 							<label for="CB_{{setting}}">
 								{{#override}}{{lang_enableOverride}}{{/override}}
 								{{^override}}{{lang_settingActive}}{{/override}}
@@ -73,7 +73,7 @@
 		{{#override}}
 		<a class="btn btn-default" href="api.php?do=baseconfig&amp;user={{userid}}&amp;module={{target_module}}&amp;value={{field_value}}&amp;force=1">Download</a>
 		{{/override}}
-		<button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+		<button class="btn btn-primary" type="submit" {{edit_disabled}}><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 	</div>
 	<br/>
 
@@ -86,6 +86,8 @@ function updateShadows(e) {
 	if (!rules) return;
 	var currentValue = $(e).val();
 	for (var triggerVal in rules) {
+		if (!rules.hasOwnProperty(triggerVal))
+			continue;
 		var targets = rules[triggerVal];
 		for (var i = 0; i < targets.length; ++i) {
 			var target = targets[i];
@@ -95,11 +97,11 @@ function updateShadows(e) {
 			if (currentValue === triggerVal) {
 				inp.prop('disabled', true);
 				if (selitem) selitem.disable();
-				$('#' + target + '.multilist').multiselect('disable');
+				inp.filter('.multiselect').multiselect('disable');
 			} else {
 				inp.prop('disabled', false);
 				if (selitem) selitem.enable();
-				$('#' + target + '.multilist').multiselect('enable');
+				inp.filter('.multiselect').multiselect('enable');
 			}
 		}
 	}
@@ -125,6 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		buttonWidth: '100%',
 		buttonClass: 'form-control'
 	});
+	$('select.multiselect').filter(':disabled').multiselect('disable');
 
 	/* data-shadowing bindings */
 	var $allShadowingFields = $('[data-shadows]');

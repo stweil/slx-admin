@@ -347,6 +347,16 @@ class Page_Locations extends Page
 		}
 		$visibleLocationIds = array_unique($visibleLocationIds);
 		foreach (array_keys($locationList) as $lid) {
+			if (User::hasPermission('.baseconfig.view', $lid)) {
+				$visibleLocationIds[] = $lid;
+			} else {
+				$locationList[$lid]['havebaseconfig'] = false;
+			}
+			if (User::hasPermission('.sysconfig.config.view-list', $lid)) {
+				$visibleLocationIds[] = $lid;
+			} else {
+				$locationList[$lid]['havesysconfig'] = false;
+			}
 			if (!in_array($lid, $visibleLocationIds)) {
 				unset($locationList[$lid]);
 			} elseif (!in_array($lid, $allowedLocationIds)) {

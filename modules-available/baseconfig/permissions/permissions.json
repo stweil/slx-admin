@@ -1,0 +1,8 @@
+{
+	"view": {
+		"location-aware": true
+	},
+	"edit": {
+		"location-aware": true
+	}
+}

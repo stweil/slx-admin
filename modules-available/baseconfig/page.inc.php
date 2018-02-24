@@ -13,19 +13,25 @@ class Page_BaseConfig extends Page
 	protected function doPreprocess()
 	{
 		User::load();
+		if (!User::isLoggedIn()) {
+			Message::addError('main.no-permission');
+			Util::redirect('?do=Main');
+		}
 
 		// Determine if we're setting global or module specific
 		$this->getModuleSpecific();
 
 		$newValues = Request::post('setting');
 		if (is_array($newValues)) {
-			if (!User::hasPermission('superadmin')) {
-				Message::addError('main.no-permission');
-				Util::redirect('?do=baseconfig');
+			if ($this->targetModule === 'locations') {
+				User::assertPermission('edit', $this->qry_extra['field_value']);
+			} else {
+				User::assertPermission('edit', 0);
 			}
 			// Build variables for specific sub-settings
 			if ($this->targetModule === false) {
-				// We're editing global settings - use the 'enabled' field
+				// We're editing global settings
+				// use the 'enabled' field
 				$qry_insert = ', enabled';
 				$qry_values = ', :enabled';
 				$qry_update = ', enabled = :enabled';
@@ -115,10 +121,6 @@ class Page_BaseConfig extends Page
 
 	protected function doRender()
 	{
-		if (!User::hasPermission('superadmin')) {
-			Message::addError('main.no-permission');
-			Util::redirect('?do=Main');
-		}
 		// Check if valid submodule mode, store name if any
 		if ($this->targetModule !== false) {
 			$this->qry_extra['subheading'] = $this->getCurrentModuleName();
@@ -126,6 +128,13 @@ class Page_BaseConfig extends Page
 				Message::addError('main.value-invalid', $this->qry_extra['field'], $this->qry_extra['field_value']);
 				Util::redirect('?do=BaseConfig');
 			}
+		}
+		if ($this->targetModule === 'locations') {
+			User::assertPermission('view', $this->qry_extra['field_value']);
+			$editForbidden = !User::hasPermission('edit', $this->qry_extra['field_value']);
+		} else {
+			User::assertPermission('view', 0);
+			$editForbidden = !User::hasPermission('edit', 0);
 		}
 		// Get stuff that's set in DB already
 		if ($this->targetModule === false) {
@@ -183,15 +192,13 @@ class Page_BaseConfig extends Page
 			if (!isset($settings[$var['catid']]['settings'][$key]['shadows'])) {
 				$settings[$var['catid']]['settings'][$key]['shadows'] = isset($var['shadows']) ? $var['shadows'] : null;
 			}
-			//echo "<pre>";
-			//var_dump($settings[$var['catid']]['settings'][$key]);
-			//echo "</pre>";
 			$settings[$var['catid']]['settings'][$key] += array(
 				'item' => $this->makeInput(
 					$var['validator'],
 					$key,
 					$settings[$var['catid']]['settings'][$key]['displayvalue'],
-					$settings[$var['catid']]['settings'][$key]['shadows']
+					$settings[$var['catid']]['settings'][$key]['shadows'],
+					$editForbidden
 				),
 				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key)),
 				'setting' => $key,
@@ -218,6 +225,7 @@ class Page_BaseConfig extends Page
 			'override' => $this->targetModule !== false,
 			'categories'  => array_values($settings),
 			'target_module' => $this->targetModule,
+			'edit_disabled' => $editForbidden ? 'disabled' : '',
 		) + $this->qry_extra);
 		Module::isAvailable('bootstrap_switch');
 	}
@@ -296,12 +304,15 @@ class Page_BaseConfig extends Page
 	 * @param string $validator
 	 * @return boolean
 	 */
-	private function makeInput($validator, $setting, $current, $shadows)
+	private function makeInput($validator, $setting, $current, $shadows, $disabled)
 	{
 		/* for the html snippet we need: */
 		$args = array('class' => 'form-control', 'name' => "setting[$setting]", 'id' => $setting);
 		if (!empty($shadows)) {
 			$args['data-shadows'] = json_encode($shadows);
+		}
+		if ($disabled) {
+			$args['disabled'] = true;
 		}
 		$inner = "";
 		/* -- */
@@ -360,10 +371,13 @@ class Page_BaseConfig extends Page
 
 		$output = "<$tag ";
 		foreach ($args as $key => $val) {
+			if ($val === true) {
+				$output .= $key . ' ';
+			}
 			$output .= "$key=\"" . htmlspecialchars($val) . '" ';
 		}
 		if (empty($inner)) {
-			$output .= '/>';
+			$output .= '>';
 		} else {
 			$output .= '>' . $inner . "</$tag>";
 		}
