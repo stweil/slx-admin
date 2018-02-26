@@ -1,0 +1,20 @@
+{
+	"toggle-usage": {
+		"location-aware": false
+	},
+	"refresh": {
+		"location-aware": false
+	},
+	"view.list": {
+		"location-aware": false
+	},
+	"view.details": {
+		"location-aware": false
+	},
+	"configure.proxy": {
+		"location-aware": false
+	},
+	"configure.external": {
+		"location-aware": false
+	}
+}

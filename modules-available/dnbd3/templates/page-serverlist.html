@@ -15,14 +15,14 @@
 			<form method="post" action="?do=dnbd3">
 				<input type="hidden" name="token" value="{{token}}">
 				<div class="checkbox">
-					<input id="enable-dnbd3" type="checkbox" name="enabled" {{enabled_checked_s}}>
+					<input id="enable-dnbd3" type="checkbox" name="enabled" {{enabled_checked_s}} {{perms.toggle-usage.disabled}}>
 					<label for="enable-dnbd3">{{lang_enableDnbd3}}</label>
 				</div>
 				<div class="checkbox">
-					<input id="allow-nfs" type="checkbox" name="with-nfs" {{nfs_checked_s}}>
+					<input id="allow-nfs" type="checkbox" name="with-nfs" {{nfs_checked_s}} {{perms.toggle-usage.disabled}}>
 					<label for="allow-nfs">{{lang_allowNfsFallback}}</label>
 				</div>
-				<button type="submit" name="action" value="toggle-usage" class="btn btn-success">
+				<button type="submit" name="action" value="toggle-usage" class="btn btn-success" {{perms.toggle-usage.disabled}}>
 					<span class="glyphicon glyphicon-floppy-disk"></span>
 					{{lang_save}}
 				</button>
@@ -36,7 +36,9 @@
 	<input type="hidden" name="action" value="refresh">
 	<h2>
 		{{lang_serverList}}
-		<button id="refbtn" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button>
+		<button id="refbtn" type="submit" class="btn btn-default" {{perms.refresh.disabled}}>
+			<span class="glyphicon glyphicon-refresh"></span>
+		</button>
 	</h2>
 </form>
 
@@ -78,14 +80,18 @@
 					</td>
 					<td class="{{#self}}slx-bold{{/self}}">
 						{{#machineuuid}}
-							<a class="pull-right btn btn-default btn-xs" href="?do=Statistics&uuid={{machineuuid}}">
+							<a class="pull-right btn btn-default btn-xs" href="?do=statistics&uuid={{machineuuid}}">
 								<span class="glyphicon glyphicon-eye-open"></span>
 							</a>
 						{{/machineuuid}}
+						{{^perms.view.details.disabled}}
 						<a href="?do=dnbd3&amp;show=proxy&amp;server={{serverid}}">
+						{{/perms.view.details.disabled}}
 							{{fixedip}}
 							<span class="small">{{clientip}}</span>
+						{{^perms.view.details.disabled}}
 						</a>
+						{{/perms.view.details.disabled}}
 						<div class="small">{{hostname}}</div>
 					</td>
 					<td data-sort="int" data-sort-default="desc" data-sort-value="{{disktotal}}">
@@ -123,7 +129,7 @@
 							{{#locations}}
 								{{locations}}
 							{{/locations}}
-							<a href="?do=dnbd3&amp;show=locations&amp;server={{serverid}}" class="btn btn-default btn-xs">
+							<a href="?do=dnbd3&amp;show=locations&amp;server={{serverid}}" class="btn btn-default btn-xs {{edit_disabled}}">
 								<span class="glyphicon glyphicon-map-marker"></span>
 							</a>
 						{{/self}}
@@ -132,17 +138,19 @@
 						{{#machineuuid}}
 							{{#rebootcontrol}}
 								<button class="btn btn-warning btn-xs reboot-btn" type="button" data-id="{{serverid}}"
-										  data-toggle="modal" data-target="#server-reboot-modal" title="{{lang_reboot}}">
+										  data-toggle="modal" data-target="#server-reboot-modal" title="{{lang_reboot}}"
+											{{perms.configure.proxy.disabled}}>
 									<span class="glyphicon glyphicon-repeat"></span>
 								</button>
 							{{/rebootcontrol}}
 							<button class="btn btn-default btn-xs edit-btn" type="button" data-id="{{serverid}}"
-									  data-toggle="modal" data-target="#server-edit-modal" title="{{lang_settings}}">
+									  data-toggle="modal" data-target="#server-edit-modal" title="{{lang_settings}}"
+										{{perms.configure.proxy.disabled}}>
 								<span class="glyphicon glyphicon-cog"></span>
 							</button>
 						{{/machineuuid}}
 						{{^self}}
-							<button class="btn btn-danger btn-xs" name="server" value="{{serverid}}"
+							<button class="btn btn-danger btn-xs {{edit_disabled}}" name="server" value="{{serverid}}"
 									  onclick="return confirm('{{lang_wantToDelete}}')" title="{{lang_delete}}">
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>
@@ -156,7 +164,7 @@
 
 <div class="btn-toolbar pull-right">
 	<div class="btn-group">
-		<button type="button" class="btn btn-success" data-toggle="modal" data-target="#add-modal">
+		<button type="button" class="btn btn-success" data-toggle="modal" data-target="#add-modal" {{perms.configure.external.disabled}}>
 			<span class="glyphicon glyphicon-plus"></span>
 			{{lang_externalServerAdd}}
 		</button>
@@ -165,7 +173,7 @@
 		</button>
 	</div>
 	<div class="btn-group">
-		<a class="btn btn-success" href="?do=runmode&amp;module=dnbd3&amp;modeid=proxy&amp;redirect=?do=dnbd3">
+		<a class="btn btn-success {{perms.configure.proxy.disabled}}" href="?do=runmode&amp;module=dnbd3&amp;modeid=proxy&amp;redirect=?do=dnbd3">
 			<span class="glyphicon glyphicon-plus"></span>
 			{{lang_managedServerAdd}}
 		</a>

@@ -11,8 +11,10 @@ class Page_Dnbd3 extends Page
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
+
 		$action = Request::post('action', false, 'string');
 		if ($action === 'refresh') {
+			User::assertPermission('refresh');
 			Dnbd3Util::updateServerStatus();
 		} elseif ($action === 'delserver') {
 			$this->deleteServer();
@@ -37,6 +39,7 @@ class Page_Dnbd3 extends Page
 			Message::addError('not-automatic-server', $server['ip']);
 			return;
 		}
+		User::assertPermission('configure.proxy');
 		$bgr = Request::post('bgr', false, 'bool');
 		$firewall = Request::post('firewall', false, 'bool');
 		$overrideIp = false;
@@ -73,6 +76,7 @@ class Page_Dnbd3 extends Page
 
 	private function toggleUsage()
 	{
+		User::assertPermission('toggle-usage');
 		$enabled = Request::post('enabled', false, 'bool');
 		$nfs = Request::post('with-nfs', false, 'bool');
 		$task = Dnbd3::setEnabled($enabled);
@@ -83,6 +87,11 @@ class Page_Dnbd3 extends Page
 	private function saveServerLocations()
 	{
 		$server = $this->getServerById();
+		if (isset($server['machineuuid'])) {
+			User::assertPermission('configure.proxy');
+		} else {
+			User::assertPermission('configure.external');
+		}
 		$locids = Request::post('location', [], 'array');
 		if (empty($locids)) {
 			Database::exec('DELETE FROM dnbd3_server_x_location WHERE serverid = :serverid',
@@ -99,6 +108,7 @@ class Page_Dnbd3 extends Page
 
 	private function addServer()
 	{
+		User::assertPermission('configure.external');
 		$ip = Request::post('newip', false, 'string');
 		if ($ip === false) {
 			Message::addError('main.parameter-missing', 'ip');
@@ -129,7 +139,10 @@ class Page_Dnbd3 extends Page
 		if ($server['fixedip'] === '<self>')
 			return;
 		if (!is_null($server['machineuuid'])) {
+			User::assertPermission('configure.proxy');
 			RunMode::setRunMode($server['machineuuid'], 'dnbd3', null, null, null);
+		} else {
+			User::assertPermission('configure.external');
 		}
 		Database::exec('DELETE FROM dnbd3_server WHERE serverid = :serverid',
 			array('serverid' => $server['serverid']));
@@ -156,6 +169,7 @@ class Page_Dnbd3 extends Page
 
 	private function showServerList()
 	{
+		User::assertPermission('view.list');
 		$dynClients = RunMode::getForMode(Page::getModule(), 'proxy', true, true);
 		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastseen AS dnbd3lastseen,
 			s.uptime, s.totalup, s.totaldown, s.clientcount, s.disktotal, s.diskfree, Count(sxl.locationid) AS locations,
@@ -166,6 +180,8 @@ class Page_Dnbd3 extends Page
 		$servers = array();
 		$sort = array();
 		$NOW = time();
+		$permExt = User::hasPermission('configure.external');
+		$permRunmode = User::hasPermission('configure.proxy');
 		while ($server = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (isset($dynClients[$server['machineuuid']])) {
 				$server += $dynClients[$server['machineuuid']];
@@ -200,6 +216,10 @@ class Page_Dnbd3 extends Page
 			} else {
 				$sort[] = $server['fixedip'] . '.' . $server['machineuuid'];
 			}
+			// Permission to edit
+			if (!($permExt && is_null($server['machineuuid'])) && !($permRunmode && !is_null($server['machineuuid']))) {
+				$server['edit_disabled'] = 'disabled';
+			}
 			$servers[] = $server;
 		}
 		foreach ($dynClients as $server) {
@@ -208,20 +228,23 @@ class Page_Dnbd3 extends Page
 			Database::exec('INSERT INTO dnbd3_server (machineuuid) VALUES (:uuid)', array('uuid' => $server['machineuuid']));
 		}
 		array_multisort($sort, SORT_ASC, $servers);
-		Render::addTemplate('page-serverlist', array(
+		$data = array(
 			'list' => $servers,
 			'enabled' => Dnbd3::isEnabled(),
 			'enabled_checked_s' => Dnbd3::isEnabled() ? 'checked' : '',
 			'nfs_checked_s' => Dnbd3::hasNfsFallback() ? 'checked' : '',
 			'rebootcontrol' => Module::isAvailable('rebootcontrol', false)
-		));
+		);
+		Permission::addGlobalTags($data['perms'], null, ['view.details', 'refresh', 'toggle-usage', 'configure.proxy', 'configure.external']);
+		Render::addTemplate('page-serverlist', $data);
 	}
 
 	private function showProxyDetails()
 	{
+		User::assertPermission('view.details');
 		$server = $this->getServerById();
 		Render::addTemplate('page-proxy-header', $server);
-		$stats = Dnbd3Rpc::query($server['ip'], 5003,true, true, false, true);
+		$stats = Dnbd3Rpc::query($server['ip'], 5003, true, true, false, true);
 		if (!is_array($stats) || !isset($stats['runId'])) {
 			Message::addError('server-unreachable');
 			return;
@@ -230,8 +253,8 @@ class Page_Dnbd3 extends Page
 		$stats['bytesReceived_s'] = Util::readableFileSize($stats['bytesReceived']);
 		$stats['uptime_s'] = floor($stats['uptime'] / 86400) . 'd ' . gmdate('H:i:s', $stats['uptime']);
 		Render::addTemplate('page-proxy-stats', $stats);
-		// TODO $images = Dnbd3Rpc::query($server['ip'], 5003,false, false, true);
-		$confAlts = Dnbd3Rpc::query($server['ip'], 5003,false, false, false, false, true, true);
+		// TODO $images = Dnbd3Rpc::query($server['ip'], 5003, false, false, true);
+		$confAlts = Dnbd3Rpc::query($server['ip'], 5003, false, false, false, false, true, true);
 		$ips = array();
 		$sort = array();
 		foreach ($stats['clients'] as &$c) {
@@ -293,6 +316,11 @@ class Page_Dnbd3 extends Page
 	private function showServerLocationEdit()
 	{
 		$server = $this->getServerById();
+		if (isset($server['machineuuid'])) {
+			User::assertPermission('configure.proxy');
+		} else {
+			User::assertPermission('configure.external');
+		}
 		// Get selected ones
 		$res = Database::simpleQuery('SELECT locationid FROM dnbd3_server_x_location WHERE serverid = :serverid',
 			array('serverid' => $server['serverid']));
