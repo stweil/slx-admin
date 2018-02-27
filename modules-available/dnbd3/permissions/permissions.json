@@ -12,7 +12,7 @@
 		"location-aware": false
 	},
 	"configure.proxy": {
-		"location-aware": false
+		"location-aware": true
 	},
 	"configure.external": {
 		"location-aware": false

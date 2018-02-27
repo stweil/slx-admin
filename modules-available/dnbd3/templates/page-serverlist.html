@@ -36,8 +36,9 @@
 	<input type="hidden" name="action" value="refresh">
 	<h2>
 		{{lang_serverList}}
-		<button id="refbtn" type="submit" class="btn btn-default" {{perms.refresh.disabled}}>
+		<button id="refbtn" type="submit" class="btn btn-default" {{perms.refresh.disabled}} title="{{lang_manualRefreshInfo}}">
 			<span class="glyphicon glyphicon-refresh"></span>
+			{{lang_manualRefresh}}
 		</button>
 	</h2>
 </form>
@@ -139,18 +140,18 @@
 							{{#rebootcontrol}}
 								<button class="btn btn-warning btn-xs reboot-btn" type="button" data-id="{{serverid}}"
 										  data-toggle="modal" data-target="#server-reboot-modal" title="{{lang_reboot}}"
-											{{perms.configure.proxy.disabled}}>
+											{{edit_disabled}}>
 									<span class="glyphicon glyphicon-repeat"></span>
 								</button>
 							{{/rebootcontrol}}
 							<button class="btn btn-default btn-xs edit-btn" type="button" data-id="{{serverid}}"
 									  data-toggle="modal" data-target="#server-edit-modal" title="{{lang_settings}}"
-										{{perms.configure.proxy.disabled}}>
+										{{edit_disabled}}>
 								<span class="glyphicon glyphicon-cog"></span>
 							</button>
 						{{/machineuuid}}
 						{{^self}}
-							<button class="btn btn-danger btn-xs {{edit_disabled}}" name="server" value="{{serverid}}"
+							<button class="btn btn-danger btn-xs" name="server" value="{{serverid}}" {{edit_disabled}}
 									  onclick="return confirm('{{lang_wantToDelete}}')" title="{{lang_delete}}">
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>

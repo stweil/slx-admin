@@ -39,7 +39,7 @@ class Page_Dnbd3 extends Page
 			Message::addError('not-automatic-server', $server['ip']);
 			return;
 		}
-		User::assertPermission('configure.proxy');
+		$this->assertPermission($server);
 		$bgr = Request::post('bgr', false, 'bool');
 		$firewall = Request::post('firewall', false, 'bool');
 		$overrideIp = false;
@@ -87,11 +87,7 @@ class Page_Dnbd3 extends Page
 	private function saveServerLocations()
 	{
 		$server = $this->getServerById();
-		if (isset($server['machineuuid'])) {
-			User::assertPermission('configure.proxy');
-		} else {
-			User::assertPermission('configure.external');
-		}
+		$this->assertPermission($server);
 		$locids = Request::post('location', [], 'array');
 		if (empty($locids)) {
 			Database::exec('DELETE FROM dnbd3_server_x_location WHERE serverid = :serverid',
@@ -136,13 +132,11 @@ class Page_Dnbd3 extends Page
 	private function deleteServer()
 	{
 		$server = $this->getServerById();
+		$this->assertPermission($server);
 		if ($server['fixedip'] === '<self>')
 			return;
 		if (!is_null($server['machineuuid'])) {
-			User::assertPermission('configure.proxy');
 			RunMode::setRunMode($server['machineuuid'], 'dnbd3', null, null, null);
-		} else {
-			User::assertPermission('configure.external');
 		}
 		Database::exec('DELETE FROM dnbd3_server WHERE serverid = :serverid',
 			array('serverid' => $server['serverid']));
@@ -172,7 +166,7 @@ class Page_Dnbd3 extends Page
 		User::assertPermission('view.list');
 		$dynClients = RunMode::getForMode(Page::getModule(), 'proxy', true, true);
 		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastseen AS dnbd3lastseen,
-			s.uptime, s.totalup, s.totaldown, s.clientcount, s.disktotal, s.diskfree, Count(sxl.locationid) AS locations,
+			s.uptime, s.totalup, s.totaldown, s.clientcount, s.disktotal, s.diskfree, GROUP_CONCAT(sxl.locationid) AS locations,
 			s.errormsg
 			FROM dnbd3_server s
 			LEFT JOIN dnbd3_server_x_location sxl USING (serverid)
@@ -180,10 +174,22 @@ class Page_Dnbd3 extends Page
 		$servers = array();
 		$sort = array();
 		$NOW = time();
-		$permExt = User::hasPermission('configure.external');
-		$permRunmode = User::hasPermission('configure.proxy');
+		$externalAllowed = User::hasPermission('configure.external');
+		$locsRunmode = User::getAllowedLocations('configure.proxy');
 		while ($server = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (isset($dynClients[$server['machineuuid']])) {
+			if (!is_null($server['machineuuid'])) {
+				// Auto proxy
+				if (!isset($dynClients[$server['machineuuid']])) {
+					// Not in runmode dnbd3!?
+					if ($NOW - $server['dnbd3lastseen'] > 660) {
+						// Also seems to be down - delete
+						Database::exec('DELETE FROM dnbd3_server WHERE serverid = :serverid',
+							array('serverid' => $server['serverid']));
+						continue;
+					}
+					// Not in runmode but (still?) up -- show
+					$server += ['locationid' => null, 'hostname' => '<invalid>'];
+				}
 				$server += $dynClients[$server['machineuuid']];
 				unset($dynClients[$server['machineuuid']]);
 			}
@@ -211,21 +217,35 @@ class Page_Dnbd3 extends Page
 					$server['slxOk'] = true;
 				}
 			}
+			if (is_null($server['locations'])) {
+				$server['locations'] = 0;
+			} else {
+				$locations = explode(',', $server['locations']);
+				$server['locations'] = count($locations);
+			}
+			// Permission to edit
+			if (is_null($server['machineuuid'])) {
+				if (!$externalAllowed) {
+					$server['edit_disabled'] = 'disabled';
+				}
+			} else {
+				if (!array_key_exists('locationid', $server) || !in_array($server['locationid'], $locsRunmode)) {
+					$server['edit_disabled'] = 'disabled';
+				}
+			}
+			// Array for sorting
 			if ($server['self']) {
 				$sort[] = '---';
 			} else {
 				$sort[] = $server['fixedip'] . '.' . $server['machineuuid'];
 			}
-			// Permission to edit
-			if (!($permExt && is_null($server['machineuuid'])) && !($permRunmode && !is_null($server['machineuuid']))) {
-				$server['edit_disabled'] = 'disabled';
-			}
 			$servers[] = $server;
 		}
 		foreach ($dynClients as $server) {
+			$server['edit_disabled'] = 'disabled';
 			$servers[] = $server;
 			$sort[] = '-' . $server['machineuuid'];
-			Database::exec('INSERT INTO dnbd3_server (machineuuid) VALUES (:uuid)', array('uuid' => $server['machineuuid']));
+			Database::exec('INSERT IGNORE INTO dnbd3_server (machineuuid) VALUES (:uuid)', array('uuid' => $server['machineuuid']));
 		}
 		array_multisort($sort, SORT_ASC, $servers);
 		$data = array(
@@ -316,11 +336,7 @@ class Page_Dnbd3 extends Page
 	private function showServerLocationEdit()
 	{
 		$server = $this->getServerById();
-		if (isset($server['machineuuid'])) {
-			User::assertPermission('configure.proxy');
-		} else {
-			User::assertPermission('configure.external');
-		}
+		$this->assertPermission($server);
 		// Get selected ones
 		$res = Database::simpleQuery('SELECT locationid FROM dnbd3_server_x_location WHERE serverid = :serverid',
 			array('serverid' => $server['serverid']));
@@ -356,14 +372,14 @@ class Page_Dnbd3 extends Page
 			Message::addError('main.parameter-missing', 'server');
 			Util::redirect('?do=dnbd3');
 		}
-		$server = Database::queryFirst('SELECT s.serverid, s.machineuuid, s.fixedip, m.clientip, m.hostname
+		$server = Database::queryFirst('SELECT s.serverid, s.machineuuid, s.fixedip, m.clientip, m.hostname, m.locationid
 			FROM dnbd3_server s
 			LEFT JOIN machine m USING (machineuuid)
 			WHERE s.serverid = :serverId', compact('serverId'));
 		if ($server === false) {
 			if (AJAX)
 				die('Invalid server id');
-			Message::addError('server-non-existent', 'server');
+			Message::addError('server-non-existent', $serverId);
 			Util::redirect('?do=dnbd3');
 		}
 		if (!is_null($server['fixedip'])) {
@@ -374,6 +390,15 @@ class Page_Dnbd3 extends Page
 			$server['ip'] = '127.0.0.1';
 		}
 		return $server;
+	}
+
+	private function assertPermission($server)
+	{
+		if (isset($server['machineuuid'])) {
+			User::assertPermission('configure.proxy', $server['locationid'], '?do=dnbd3');
+		} else {
+			User::assertPermission('configure.external', null, '?do=dnbd3');
+		}
 	}
 
 	/*
@@ -399,6 +424,7 @@ class Page_Dnbd3 extends Page
 
 	private function ajaxServerTest()
 	{
+		User::assertPermission('configure.external');
 		Header('Content-Type: application/json; charset=utf-8');
 		$ip = Request::post('ip', false, 'string');
 		if ($ip === false)
@@ -435,6 +461,7 @@ class Page_Dnbd3 extends Page
 			echo 'Not automatic server.';
 			return;
 		}
+		$this->assertPermission($server);
 		$rm = RunMode::getForMode(Page::getModule(), 'proxy', false, true);
 		if (!isset($rm[$server['machineuuid']])) {
 			echo 'Error: RunMode entry missing.';
@@ -451,6 +478,7 @@ class Page_Dnbd3 extends Page
 		if (!isset($server['machineuuid'])) {
 			die('Not automatic server.');
 		}
+		$this->assertPermission($server);
 		if (!Module::isAvailable('rebootcontrol')) {
 			die('No rebootcontrol');
 		}

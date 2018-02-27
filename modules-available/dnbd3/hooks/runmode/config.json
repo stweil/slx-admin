@@ -4,5 +4,6 @@
 	"noSysconfig": true,
 	"systemdDefaultTarget": "dnbd3-proxy",
 	"allowGenericEditor": true,
-	"deleteUrlSnippet": "dummyparam="
+	"deleteUrlSnippet": "dummyparam=",
+	"permission": ".dnbd3.configure.proxy"
 }
