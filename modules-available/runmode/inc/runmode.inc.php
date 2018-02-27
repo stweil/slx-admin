@@ -28,7 +28,7 @@ class RunMode
 
 	/**
 	 * @param string $machineuuid
-	 * @param string $moduleId
+	 * @param string|\Module $moduleId
 	 * @param string|null $modeId an ID specific to the module to further specify the run mode, NULL to delete the run mode entry
 	 * @param string|null $modeData optional, additional data for the run mode
 	 * @param bool|null $isClient whether to count the machine as a client (in statistics etc.) NULL for looking at module's general runmode config
@@ -284,6 +284,11 @@ class RunModeModuleConfig
 	 */
 	public $deleteUrlSnippet = false;
 
+	/**
+	 * @var string|false Permission to check when accessing/assigning
+	 */
+	public $permission = false;
+
 	public function __construct($file)
 	{
 		$data = json_decode(file_get_contents($file), true);
@@ -298,6 +303,7 @@ class RunModeModuleConfig
 		$this->loadType($data, 'noSysconfig', 'boolean');
 		$this->loadType($data, 'allowGenericEditor', 'boolean');
 		$this->loadType($data, 'deleteUrlSnippet', 'string');
+		$this->loadType($data, 'permission', 'string');
 	}
 
 	private function loadType($data, $key, $type)
@@ -311,4 +317,10 @@ class RunModeModuleConfig
 		$this->{$key} = $data[$key];
 		return true;
 	}
+
+	public function userHasPermission($locationId)
+	{
+		return $this->permission === false || User::hasPermission($this->permission, $locationId);
+	}
+
 }

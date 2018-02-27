@@ -1,12 +1,7 @@
 <h1>{{lang_assignRunmodeToMachine}}</h1>
 <h2>{{moduleName}} // {{modeName}}</h2>
-<p>{{lang_assignMachineIntroText}}</p>
 
-<div class="hidden">
-	{{#machines}}
-		<div id="qex-{{machineuuid}}">{{hostname}}</div>
-	{{/machines}}
-</div>
+<p>{{lang_assignMachineIntroText}}</p>
 
 <h4>{{lang_addNewMachines}}</h4>
 <form method="post" action="?do=runmode">
@@ -15,12 +10,17 @@
 	<input type="hidden" name="module" value="{{module}}" id="i-module">
 	<input type="hidden" name="modeid" value="{{modeid}}" id="i-modeid">
 	<input type="hidden" name="redirect" value="{{redirect}}">
-	<select id="machine-sel" name="machines[]" multiple>
+	<select id="machine-sel" name="machines[]" multiple {{disabled}}>
 	</select>
 	<div class="buttonbar">
-		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+		<button type="submit" class="btn btn-primary" {{disabled}}>{{lang_save}}</button>
 	</div>
 </form>
+
+{{#add-only}}
+	<h4>{{lang_existingClients}}</h4>
+	<div id="existing-list"></div>
+{{/add-only}}
 
 <script type="application/javascript"><!--
 
@@ -58,7 +58,7 @@ function loadMachines(query, callback) {
 		}
 	}
 	$.ajax({
-		url: '?do=runmode&action=getmachines&query=' + encodeURIComponent(query),
+		url: '?do=runmode&action=getmachines&module={{module}}&query=' + encodeURIComponent(query),
 		type: 'GET',
 		dataType: 'json',
 		error: function () {
@@ -120,6 +120,17 @@ document.addEventListener('DOMContentLoaded', function () {
 		})();
 	});
 	var old = {{{machines}}} || [];
+	var list = $('#existing-list');
+	if (list.length !== 0) {
+		old.forEach(function (x) { list.append(renderMachineOption(x, function(str) {
+			return (str + '')
+					.replace(/&/g, '&amp;')
+					.replace(/</g, '&lt;')
+					.replace(/>/g, '&gt;')
+					.replace(/"/g, '&quot;');
+		}))});
+		old = [];
+	}
 	var $box = $('#machine-sel').selectize({
 		options: old,
 		items: old.map(function(x) { return x.machineuuid; }),
@@ -132,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		load: loadMachines,
 		maxItems: null,
 		sortField: 'hostname',
-		sortDirection: 'asc',
+		sortDirection: 'asc'
 	});
 });
 
