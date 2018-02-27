@@ -30,7 +30,7 @@ class Page_Roomplanner extends Page
 	{
 		User::load();
 
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
@@ -79,13 +79,22 @@ class Page_Roomplanner extends Page
 			$subnetMachines = $this->getPotentialMachines();
 			$machinesOnPlan = $this->getMachinesOnPlan($config['tutoruuid']);
 			$roomConfig = array_merge($furniture, $machinesOnPlan);
-			Render::addTemplate('page', [
+			$canEdit = User::hasPermission('edit', $this->locationid);
+			$params = [
 				'location' => $this->location,
 				'managerip' => $managerIp,
 				'dediMgrChecked' => $dediMgr,
 				'subnetMachines' => json_encode($subnetMachines),
 				'locationid' => $this->locationid,
-				'roomConfiguration' => json_encode($roomConfig)]);
+				'roomConfiguration' => json_encode($roomConfig),
+				'edit_disabled' => $canEdit ? '' : 'disabled'
+			];
+			Render::addTemplate('header', $params);
+			if ($canEdit) {
+				Render::addTemplate('item-selector', $params);
+			}
+			Render::addTemplate('main-roomplan', $params);
+			Render::addTemplate('footer', $params);
 		} else {
 			Message::addError('main.invalid-action', $this->action);
 		}
@@ -97,16 +106,30 @@ class Page_Roomplanner extends Page
 		$this->action = Request::any('action', false, 'string');
 
 		if ($this->action === 'getmachines') {
+
+			$locations = User::getAllowedLocations('edit');
+			if (empty($locations)) {
+				die('{"machines":[]}');
+			}
+
 			$query = Request::get('query', false, 'string');
 			$aquery = preg_replace('/[^\x01-\x7f]+/', '%', $query);
+			if (strlen(str_replace('%', '', $aquery)) < 2) {
+				$aquery = $query;
+			}
 
-			$result = Database::simpleQuery('SELECT machineuuid, macaddr, clientip, hostname, fixedlocationid '
-				. 'FROM machine '
-				. 'WHERE machineuuid LIKE :aquery '
-				. ' OR macaddr  	 LIKE :aquery '
-				. ' OR clientip    LIKE :aquery '
-				. ' OR hostname	 LIKE :query '
-				. ' LIMIT 100', ['query' => "%$query%", 'aquery' => "%$aquery%"]);
+			$condition = 'locationid IN (:locations)';
+			if (in_array(0, $locations)) {
+				$condition .= ' OR locationid IS NULL';
+			}
+
+			$result = Database::simpleQuery("SELECT machineuuid, macaddr, clientip, hostname, fixedlocationid
+				FROM machine
+				WHERE ($condition) AND machineuuid LIKE :aquery
+				 OR macaddr  	 LIKE :aquery
+				 OR clientip    LIKE :aquery
+				 OR hostname	 LIKE :query
+				 LIMIT 100", ['query' => "%$query%", 'aquery' => "%$aquery%", 'locations' => $locations]);
 
 			$returnObject = ['machines' => []];
 
@@ -134,7 +157,7 @@ class Page_Roomplanner extends Page
 
 	private function handleSaveRequest($isAjax)
 	{
-		/* save */
+		User::assertPermission('edit', $this->locationid);
 		$machinesOnPlan = $this->getMachinesOnPlan('invalid');
 		$config = Request::post('serializedRoom', null, 'string');
 		$config = json_decode($config, true);

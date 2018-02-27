@@ -3,5 +3,6 @@
 	"isClient": false,
 	"configHook": "PvsGenerator::runmodeConfigHook",
 	"allowGenericEditor": false,
-	"deleteUrlSnippet": "locationid="
+	"deleteUrlSnippet": "locationid=",
+	"permission": ".roomplanner.edit"
 }

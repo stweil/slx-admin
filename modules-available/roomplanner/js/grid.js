@@ -1,5 +1,9 @@
+var $gridInner = $('#draw-element-area');
+var $gridFrame = $('#drawpanel');
+var $grid = $('#drawarea');
+
 if (!roomplanner) var roomplanner = {
-		
+
 		getScaleFactor: function() {
 			return this.settings.scale/100;
 		},
@@ -280,7 +284,7 @@ if (!roomplanner) var roomplanner = {
 					"computers": []
 			};
 			
-			var furniture = $('#draw-element-area div[itemtype="furniture"]');
+			var furniture = $gridInner.find('div[itemtype="furniture"]');
 			furniture.each(function(idx,el) {
 				objects.furniture.push({
 					"gridRow" : $(el).attr('gridRow'),
@@ -291,7 +295,7 @@ if (!roomplanner) var roomplanner = {
 				});
 			});
 			
-			var computers = $('#draw-element-area div[itemtype="pc"]');
+			var computers = $gridInner.find('div[itemtype="pc"]');
 			computers.each(function(idx,el) {
 				
 				var object = {					
@@ -326,7 +330,7 @@ if (!roomplanner) var roomplanner = {
 				var objects = object;
 			}
 			
-			$('#draw-element-area').html('');
+			$gridInner.html('');
 			
 			function itemToHtml(item, itemtype, obstacle) {
 				var html = '<div itemtype="'+itemtype+'" style="position:absolute;"  ';
@@ -335,15 +339,18 @@ if (!roomplanner) var roomplanner = {
 					html += prop+'="'+item[prop]+'" ';
 				}
 				html += 'class="draggable ui-draggable';
-				html+= '"></div>';
-				return html; 
+				if (PLANNER_READ_ONLY) {
+					html += ' disabled';
+				}
+				html += '"></div>';
+				return html;
 			}
 			
 			if (objects.furniture) {
 				var furniture = objects.furniture;
 				for (var piece in furniture) {
 					var item = itemToHtml(furniture[piece], "furniture", true);
-					$('#draw-element-area').append(item);
+					$gridInner.append(item);
 					
 				}
 			}
@@ -353,51 +360,53 @@ if (!roomplanner) var roomplanner = {
 				var computers = objects.computers;
 				for (var piece in computers) {
 					var item = itemToHtml(computers[piece], "pc", false);
-					$('#draw-element-area').append(item);
+					$gridInner.append(item);
 				}
 			}
 			
-			$('#draw-element-area .draggable').each(function(idx,el) {
+			$gridInner.find('.draggable').each(function(idx,el) {
 				roomplanner.initDraggable(el);
 				roomplanner.initResizable(el);
-				roomplanner.initTooltip(el);
-				roomplanner.initRotation(el);
-				roomplanner.initDelete(el);
-				roomplanner.initTutor(el);
+				if (!PLANNER_READ_ONLY) {
+					roomplanner.initTooltip(el);
+					roomplanner.initRotation(el);
+					roomplanner.initDelete(el);
+					roomplanner.initTutor(el);
+				}
 			});
 			
 			roomplanner.grid.scale(roomplanner.settings.scale);
 			roomplanner.fitContent();
 		},
 		clear: function() {
-			$('#draw-element-area').html('');
+			$gridInner.html('');
 		}
 };
 
 roomplanner.grid = (function() {
 		var grid = {
 			resize: function() {
-				var w = Math.max($('#drawpanel .panel-body').width(),roomplanner.settings.room.width*roomplanner.settings.scale)
-				var h = Math.max($('#drawpanel .panel-body').height(),roomplanner.settings.room.height*roomplanner.settings.scale)
-				$('#drawarea').width(w);
-				$('#drawarea').height(h);
+				var w = Math.max($gridFrame.find('.panel-body').width(),roomplanner.settings.room.width*roomplanner.settings.scale)
+				var h = Math.max($gridFrame.find('.panel-body').height(),roomplanner.settings.room.height*roomplanner.settings.scale)
+				$grid.width(w);
+				$grid.height(h);
 			},
 			scale: function(num) {
 				
-				var area_left = parseInt($('#drawarea').css('left')) - $('#drawpanel .panel-body').width()/2 ;
-				var area_top = parseInt($('#drawarea').css('top')) - $('#drawpanel .panel-body').height()/2;
+				var area_left = parseInt($grid.css('left')) - $gridFrame.find('.panel-body').width()/2 ;
+				var area_top = parseInt($grid.css('top')) - $gridFrame.find('.panel-body').height()/2;
 				
 				var opts = {
-						left: ((parseInt(area_left) * num / roomplanner.settings.scale ) + $('#drawpanel .panel-body').width()/2)+ "px" ,
-						top: ((parseInt(area_top)  * num / roomplanner.settings.scale ) + $('#drawpanel .panel-body').height()/2)+ "px" 
+						left: ((parseInt(area_left) * num / roomplanner.settings.scale ) + $gridFrame.find('.panel-body').width()/2)+ "px" ,
+						top: ((parseInt(area_top)  * num / roomplanner.settings.scale ) + $gridFrame.find('.panel-body').height()/2)+ "px"
 					};
 				
-				$('#drawarea').css(opts);
+				$grid.css(opts);
 				
 				
-				$('#drawarea').css('background-size',num);
+				$grid.css('background-size',num);
 				roomplanner.settings.scale = num;
-				$('#draw-element-area .ui-draggable').each(function(idx,item) {
+				$gridInner.find('.ui-draggable').each(function(idx,item) {
 					var $item = $(item);
 					var h = $item.attr('data-height') * roomplanner.getScaleFactor();
 					var w = $item.attr('data-width') * roomplanner.getScaleFactor();
@@ -431,7 +440,7 @@ roomplanner.fitContent = function() {
 	var minY = 99999;
 	var maxX = -99999;
 	var maxY = -99999;
-	$('#draw-element-area .ui-draggable').each(function(idx,item) {
+	$gridInner.find('.ui-draggable').each(function(idx,item) {
 		var $item = $(item);
 
 		var l = parseInt($item.attr('gridcol')) * roomplanner.settings.cellsize;
@@ -446,8 +455,8 @@ roomplanner.fitContent = function() {
 	});
 	if (minX > maxX)
 		return;
-	var width = (maxX - minX) / $('#drawpanel .panel-body').width();
-	var height = (maxY - minY) / $('#drawpanel .panel-body').height();
+	var width = (maxX - minX) / $gridFrame.find('.panel-body').width();
+	var height = (maxY - minY) / $gridFrame.find('.panel-body').height();
 	var scale;
 	if (width > height) {
 		scale = Math.floor(100 / width);
@@ -461,7 +470,7 @@ roomplanner.fitContent = function() {
 		top: -(minY * (scale / 100)) + "px"
 	};
 
-	$('#drawarea').css(opts);
+	$grid.css(opts);
 };
 
 $(document).ready(function(){
@@ -480,12 +489,12 @@ $(document).ready(function(){
 		change: update,
 		slide: update,
 		stop: function(e, ui) {
-			$('#drawarea').trigger('checkposition');
+			$grid.trigger('checkposition');
 		}
 	
 	});
 	
-	$('#drawarea').bind('checkposition', function() {
+	$grid.bind('checkposition', function() {
 		if ($(this).offset().left > 0) {
 			$(this).css('left',0);
 		}
@@ -502,7 +511,7 @@ $(document).ready(function(){
 		}
 	});
 	
-	$('#drawarea').draggable({
+	$grid.draggable({
 		stop: function() {
 			$(this).trigger('checkposition');
 		}
@@ -512,7 +521,7 @@ $(document).ready(function(){
 	 * adds droppable functionality to the draw area for the elements.
 	 * drop event is only fired for elements added to the board from the toolbar.
 	 */
-	$('#draw-element-area').droppable({
+	$gridInner.droppable({
 		accept: ".draggable",
 		drop: function(event, ui) {
 			
@@ -528,8 +537,8 @@ $(document).ready(function(){
 				
 				
 				if (ui.helper != ui.draggable) {
-					var leftPos = parseInt($(el).css('left'))-parseInt($('#drawarea').css('left'))-$('#drawpanel').offset().left;
-					var topPos = parseInt($(el).css('top'))-parseInt($('#drawarea').css('top'))-($('#drawpanel').offset().top + $('#drawpanel .panel-heading').height());
+					var leftPos = parseInt($(el).css('left'))-parseInt($grid.css('left'))-$gridFrame.offset().left;
+					var topPos = parseInt($(el).css('top'))-parseInt($grid.css('top'))-($gridFrame.offset().top + $gridFrame.find('.panel-heading').height());
 					var cp = roomplanner.getCellPositionFromPixels(leftPos,topPos);
 					leftPos = cp[0];
 					topPos = cp[1];
@@ -575,8 +584,8 @@ $(document).ready(function(){
 			$(el).css('opacity',1);
 			
 			if (ui.helper != ui.draggable) {
-				var l = parseInt($(el).css('left'))-parseInt($('#drawarea').css('left'))-$('#drawpanel').offset().left;
-				var t = parseInt($(el).css('top'))-parseInt($('#drawarea').css('top'))-($('#drawpanel').offset().top + $('#drawpanel .panel-heading').height());
+				var l = parseInt($(el).css('left'))-parseInt($grid.css('left'))-$gridFrame.offset().left;
+				var t = parseInt($(el).css('top'))-parseInt($grid.css('top'))-($gridFrame.offset().top + $gridFrame.find('.panel-heading').height());
 				var cp = roomplanner.getCellPositionFromPixels(l,t);
 				$(el).css('left',cp[0]);
 				$(el).css('top',cp[1]);
@@ -596,7 +605,7 @@ $(document).ready(function(){
 				if ($(el).attr('itemtype') == "pc") {
 					
 					var uuids = [];
-					var computers = $('#draw-element-area div[itemtype="pc"]');
+					var computers = $gridInner.find('div[itemtype="pc"]');
 					computers.each(function(idx,el) {
 						if ($(el).attr('muuid')) {
 							uuids.push($(el).attr('muuid'));

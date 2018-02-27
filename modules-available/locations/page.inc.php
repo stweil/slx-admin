@@ -495,9 +495,7 @@ class Page_Locations extends Page
 	{
 		$locationId = Request::any('locationid', 0, 'integer');
 
-		if (!User::hasPermission("location.view", $locationId)) {
-			die('Permission denied');
-		}
+		User::assertPermission("location.view", $locationId);
 
 		$loc = Database::queryFirst('SELECT locationid, parentlocationid, locationname FROM location WHERE locationid = :lid',
 			array('lid' => $locationId));

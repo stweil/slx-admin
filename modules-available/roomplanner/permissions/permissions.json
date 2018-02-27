@@ -1,10 +1,5 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es5",
-		"sourceMap": true
-	},
-	"exclude": [
-		"node_modules"
-	]
+	"edit": {
+		"location-aware": true
+	}
 }

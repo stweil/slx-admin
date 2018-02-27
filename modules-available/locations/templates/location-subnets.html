@@ -75,9 +75,11 @@
 			</div>
 			<div class="col-md-4 text-center">
 				{{#roomplanner}}
-				<a class="btn btn-default {{perms.roomplanner.edit.disabled}}" href="?do=roomplanner&amp;locationid={{locationid}}" target="_blank"
+				<a class="btn btn-default" href="?do=roomplanner&amp;locationid={{locationid}}" target="_blank"
 					onclick="window.open(this.href, '_blank', 'toolbar=0,scrollbars,resizable');return false">
-					<span class="glyphicon glyphicon-move"></span> {{lang_editRoomplan}}
+					<span class="glyphicon glyphicon-move"></span>
+					{{^perms.roomplanner.edit.disabled}}{{lang_editRoomplan}}{{/perms.roomplanner.edit.disabled}}
+					{{#perms.roomplanner.edit.disabled}}{{lang_showRoomplan}}{{/perms.roomplanner.edit.disabled}}
 				</a>
 				{{/roomplanner}}
 			</div>

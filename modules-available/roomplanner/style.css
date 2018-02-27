@@ -715,6 +715,9 @@ div.draggable:hover .deleteHandle {
 	display:inline;
 	cursor: pointer;}
 
+.draggable.disabled {
+	pointer-events: none;
+}
 
 [itemtype="furniture"], [itemtype="furniture_drag"] {
 	z-index: 99;

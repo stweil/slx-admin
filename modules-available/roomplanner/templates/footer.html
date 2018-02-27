@@ -1,0 +1,59 @@
+<div class="pull-left">
+	<div class="input-group" style="width:1px">
+		<div class="input-group-addon">{{lang_managerIp}}</div>
+		<input class="form-control" type="text" id="manager-ip" value="{{managerip}}" placeholder="1.2.3.4"
+				 style="width:120px" {{edit_disabled}}>
+		<div class="input-group-addon checkbox">
+			<input id="dedi-mgr" type="checkbox" {{dediMgrChecked}} {{edit_disabled}}>
+			<label for="dedi-mgr">{{lang_dedicatedManager}}</label>
+		</div>
+	</div>
+</div>
+<div class="pull-right">
+	<button class="btn btn-default" onclick="triggerCancel()">{{lang_cancel}}</button>
+	<button id="saveBtn" class="btn btn-primary" {{edit_disabled}}>{{lang_save}}</button>
+</div>
+<div class="clearfix"></div>
+
+
+<script type="application/javascript"><!--
+var locationId = '{{locationid}}';
+var subnetMachines, roomConfiguration;
+var plannerLoadState = 'invalid';
+const PLANNER_READ_ONLY = '{{edit_disabled}}'.length !== 0;
+document.addEventListener("DOMContentLoaded", function () {
+
+	subnetMachines = makeCombinedField({{{subnetMachines}}});
+	roomConfiguration = {{{roomConfiguration}}};
+
+	$.when(
+		$.getScript("modules/roomplanner/js/lib/jquery-collision.js"),
+		$.getScript("modules/roomplanner/js/lib/jquery-ui-draggable-collision.js"),
+		$.getScript("modules/roomplanner/js/grid.js"),
+		$.Deferred(function( deferred ){
+			$( deferred.resolve );
+		})
+	).done(function() {
+		$.getScript("modules/roomplanner/js/init.js", function() {
+			initRoomplanner();
+			loadRoom();
+		});
+	});
+});
+
+function loadRoom() {
+	roomplanner.load(roomConfiguration); // TODO: Filter invalid PCs, they're currently invisible and cannot be removed
+	plannerLoadState = roomplanner.serialize();
+}
+
+function triggerCancel() {
+	if (roomplanner.serialize() !== plannerLoadState) {
+		if (!confirm('{{lang_confirmDiscardChanges}}'))
+			return;
+	}
+	window.close();
+	// In case this page wasn't opened via JS, it will not close on modern browsers, so let's reset
+	loadRoom();
+}
+
+// --></script>
