@@ -49,12 +49,10 @@
 		{{#rows}}
 		<tr>
 			<td data-sort-value="{{hostname}}" class="text-nowrap">
-			{{#deleteAllowed}}
-				<div class="checkbox checkbox-inline">
-					<input type="checkbox" name="uuid[]" value="{{machineuuid}}" class="deleteCheckboxes">
-					<label></label>
-				</div>
-			{{/deleteAllowed}}
+			<div class="checkbox checkbox-inline">
+				<input type="checkbox" name="uuid[]" value="{{machineuuid}}" class="deleteCheckboxes" {{delete_disabled}}>
+				<label></label>
+			</div>
 			{{#hasnotes}}
 				<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>
 			{{/hasnotes}}
@@ -70,7 +68,13 @@
 			{{#state_STANDBY}}
 			<span class="glyphicon glyphicon-off green" title="{{lang_machineStandby}}"></span>
 			{{/state_STANDBY}}
-				<a href="?do=Statistics&amp;uuid={{machineuuid}}"><b>{{hostname}}</b></a>
+				{{#link_details}}
+				<a href="?do=Statistics&amp;uuid={{machineuuid}}">
+				{{/link_details}}
+					<b>{{hostname}}</b>
+				{{#link_details}}
+				</a>
+				{{/link_details}}
 				<div class="small">{{machineuuid}}</div>
 			{{#rmmodule}}
 				<div class="small">{{lang_runMode}}:

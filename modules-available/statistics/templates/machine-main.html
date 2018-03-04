@@ -157,13 +157,19 @@
 								{{#hwname}}
 								<div class="pull-right btn-group btn-group-xs">
 									{{#projector}}
-									<a href="?do=statistics&amp;show=projectors" class="btn btn-default">{{lang_projector}}</a>
+									<a href="?do=statistics&amp;show=projectors" class="btn btn-default {{perms.hardware.projectors.view.disabled}}">
+										{{lang_projector}}
+									</a>
 									<button form="delprojector" type="submit" name="hwid" value="{{hwid}}"
-											  class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
+											  class="btn btn-danger" {{perms.hardware.projectors.edit.disabled}}>
+										<span class="glyphicon glyphicon-remove"></span>
+									</button>
 									{{/projector}}
 									{{^projector}}
 									<button form="addprojector" type="submit" name="hwid" value="{{hwid}}"
-											  class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> {{lang_projector}}</button>
+											  class="btn btn-success" {{perms.hardware.projectors.edit.disabled}}>
+										<span class="glyphicon glyphicon-plus"></span> {{lang_projector}}
+									</button>
 									{{/projector}}
 								</div>
 								{{/hwname}}

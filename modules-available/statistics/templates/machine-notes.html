@@ -8,9 +8,12 @@
 					<input type="hidden" name="token" value="{{token}}">
 					<input type="hidden" name="action" value="setnotes">
 					<input type="hidden" name="uuid" value="{{machineuuid}}">
-					<textarea name="content" class="form-control" cols="101" rows="10" {{^notesAllowed}}disabled{{/notesAllowed}}>{{notes}}</textarea>
+					<textarea name="content" class="form-control" cols="101" rows="10" {{perms.machine.note.edit.disabled}}>{{notes}}</textarea>
 					<br/>
-					<button type="submit" class="btn btn-primary pull-right" {{^notesAllowed}}disabled{{/notesAllowed}}><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+					<button type="submit" class="btn btn-primary pull-right" {{perms.machine.note.edit.disabled}}>
+						<span class="glyphicon glyphicon-floppy-disk"></span>
+						{{lang_save}}
+					</button>
 				</form>
 			</div>
 		</div>

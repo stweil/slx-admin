@@ -2,10 +2,25 @@
     "machine.delete": {
         "location-aware": true
     },
-    "machine.note": {
+    "machine.note.view": {
         "location-aware": true
     },
-    "view": {
+    "machine.note.edit": {
+        "location-aware": true
+    },
+    "hardware.projectors.view": {
+        "location-aware": false
+    },
+    "hardware.projectors.edit": {
+        "location-aware": false
+    },
+    "machine.view-details": {
+        "location-aware": true
+    },
+    "view.summary": {
+        "location-aware": true
+    },
+    "view.list": {
         "location-aware": true
     }
 }

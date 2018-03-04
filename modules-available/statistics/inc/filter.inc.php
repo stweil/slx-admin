@@ -18,7 +18,7 @@ class Filter
 	{
 		$this->column = trim($column);
 		$this->operator = trim($operator);
-		$this->argument = trim($argument);
+		$this->argument = is_array($argument) ? $argument : trim($argument);
 	}
 
 	/* returns a where clause and adds needed operators to the passed array */
@@ -245,7 +245,12 @@ class LocationFilter extends Filter
 		$recursive = (substr($this->operator, -1) === '~');
 		$this->operator = str_replace('~', '=', $this->operator);
 
-		settype($this->argument, 'int');
+		if (is_array($this->argument)) {
+			if ($recursive)
+				Util::traceError('Cannot use ~ operator for location with array');
+		} else {
+			settype($this->argument, 'int');
+		}
 		$neg = $this->operator === '=' ? '' : 'NOT';
 		if ($this->argument === 0) {
 			return "machine.locationid IS $neg NULL";
