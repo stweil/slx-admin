@@ -3,5 +3,6 @@
 	"isClient": false,
 	"configHook": "LocationInfo::configHook",
 	"noSysconfig": true,
-	"systemdDefaultTarget": "kiosk-mode"
+	"systemdDefaultTarget": "kiosk-mode",
+	"permission": ".locationinfo.panel.assign-client"
 }
