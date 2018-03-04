@@ -59,7 +59,7 @@ class Page_SysConfig extends Page
 	{
 		User::load();
 
-		if (!User::hasPermission('superadmin')) {
+		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main');
 		}
@@ -90,6 +90,7 @@ class Page_SysConfig extends Page
 
 		// Action: "addmodule" (upload new module)
 		if ($action === 'addmodule') {
+			User::assertPermission('module.edit');
 			$this->initAddModule();
 			AddModule_Base::preprocess();
 		}
@@ -97,18 +98,22 @@ class Page_SysConfig extends Page
 		if ($action === 'module') {
 			// Action: "delmodule" (delete module)
 			if (Request::post('del', 'no') !== 'no') {
+				User::assertPermission('module.edit');
 				$this->delModule();
 			}
 			if (Request::post('download', 'no') !== 'no') {
+				User::assertPermission('module.download');
 				$this->downloadModule();
 			}
 			if (Request::post('rebuild', 'no') !== 'no') {
+				User::assertPermission('module.edit');
 				$this->rebuildModule();
 			}
 		}
 
 		// Action: "addconfig" (compose config from one or more modules)
 		if ($action === 'addconfig') {
+			User::assertPermission('config.edit');
 			$this->initAddConfig();
 			AddConfig_Base::preprocess();
 		}
@@ -116,14 +121,17 @@ class Page_SysConfig extends Page
 		if ($action === 'config') {
 			// Action: "delconfig" (delete config)
 			if (Request::post('del', 'no') !== 'no') {
+				User::assertPermission('config.edit');
 				$this->delConfig();
 			}
 			// Action "activate" (set sysconfig as active)
 			if (Request::post('activate', 'no') !== 'no') {
+				User::assertPermission('config.assign', $this->currentLoc);
 				$this->activateConfig();
 			}
 			// Action "rebuild" (rebuild config.tgz from its modules)
 			if (Request::post('rebuild', 'no') !== 'no') {
+				User::assertPermission('config.edit');
 				$this->rebuildConfig();
 			}
 		}
@@ -141,15 +149,24 @@ class Page_SysConfig extends Page
 		$action = Request::any('action', 'list');
 		switch ($action) {
 		case 'addmodule':
+			User::assertPermission('module.edit');
 			AddModule_Base::render();
 			return;
 		case 'addconfig':
+			User::assertPermission('config.edit');
 			AddConfig_Base::render();
 			return;
 		case 'list':
+			$pMods = User::hasPermission('module.view-list');
+			$pConfs = User::hasPermission('config.view-list');
+			if (!($pMods || $pConfs)) {
+				Message::addError('main.no-permission');
+			}
 			Render::openTag('div', array('class' => 'row'));
-			$this->listConfigs();
-			if ($this->currentLoc === 0) {
+			if ($pConfs) {
+				$this->listConfigs();
+			}
+			if ($this->currentLoc === 0 && $pMods) {
 				$this->listModules();
 			}
 			Render::closeTag('div');
@@ -159,6 +176,7 @@ class Page_SysConfig extends Page
 			Render::addTemplate('js'); // Make this js snippet a template so i18n works
 			return;
 		case 'module':
+			User::assertPermission('module.view-list');
 			$listid = Request::post('list');
 			if ($listid !== false) {
 				$this->listModuleContents($listid);
@@ -166,6 +184,7 @@ class Page_SysConfig extends Page
 			}
 			break;
 		case 'config':
+			User::assertPermission('config.view-list');
 			$listid = Request::post('list');
 			if ($listid !== false) {
 				$this->listConfigContents($listid);
@@ -238,13 +257,16 @@ class Page_SysConfig extends Page
 				'needrebuild' => ($row['status'] !== 'OK')
 			);
 		}
-		Render::addTemplate('list-configs', array(
+		$data = array(
 			'locationid' => $this->currentLoc,
 			'locationname' => $locationName,
 			'havelocations' => Module::isAvailable('locations'),
 			'configs' => $configs,
 			'inheritConfig' => !$hasDefault,
-		));
+		);
+		Permission::addGlobalTags($data['perms'], null, ['config.edit']);
+		Permission::addGlobalTags($data['perms'], $this->currentLoc, ['config.assign']);
+		Render::addTemplate('list-configs', $data);
 	}
 
 	private function listModules()
@@ -254,10 +276,12 @@ class Page_SysConfig extends Page
 		$types = array_map(function ($mod) { return $mod->moduleType(); }, $modules);
 		$titles = array_map(function ($mod) { return $mod->title(); }, $modules);
 		array_multisort($types, SORT_ASC, $titles, SORT_ASC, $modules);
-		Render::addTemplate('list-modules', array(
+		$data = array(
 			'modules' => $modules,
 			'havemodules' => (count($modules) > 0)
-		));
+		);
+		Permission::addGlobalTags($data['perms'], null, ['module.edit', 'module.download']);
+		Render::addTemplate('list-modules', $data);
 	}
 
 	private function listModuleContents($moduleid)

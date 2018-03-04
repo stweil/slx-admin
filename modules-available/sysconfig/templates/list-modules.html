@@ -16,7 +16,10 @@
 						<td class="text-nowrap">
 							{{#allowDownload}}
 							<button class="btn btn-default btn-xs" name="list" value="{{id}}" title="{{lang_show}}"><span class="glyphicon glyphicon-eye-open"></span></button>
-							<button class="btn btn-default btn-xs" name="download" value="{{id}}" title="{{lang_download}}"><span class="glyphicon glyphicon-download-alt"></span></button>
+							<button class="btn btn-default btn-xs" name="download" value="{{id}}"
+										title="{{lang_download}}" {{perms.module.download.disabled}}>
+								<span class="glyphicon glyphicon-download-alt"></span>
+							</button>
 							{{/allowDownload}}
 						</td>
 						<td class="text-nowrap">
@@ -27,9 +30,18 @@
 							{{^needRebuild}}
 							class="refmod btn btn-default btn-xs"
 							{{/needRebuild}}
-							name="rebuild" value="{{id}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
-							<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addmodule&amp;step={{moduleType}}_Start&amp;edit={{id}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
-							<button class="btn btn-danger btn-xs confirm-delete" name="del" value="{{id}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
+							name="rebuild" value="{{id}}" title="{{lang_rebuild}}" {{perms.module.edit.disabled}}>
+								<span class="glyphicon glyphicon-refresh"></span>
+							</button>
+							<a class="btn btn-success btn-xs"
+										href="?do=SysConfig&amp;action=addmodule&amp;step={{moduleType}}_Start&amp;edit={{id}}"
+										title="{{lang_edit}}" {{perms.module.edit.disabled}}>
+								<span class="glyphicon glyphicon-edit"></span>
+							</a>
+							<button class="btn btn-danger btn-xs confirm-delete" name="del" value="{{id}}"
+										title="{{lang_delete}}" {{perms.module.edit.disabled}}>
+								<span class="glyphicon glyphicon-trash"></span>
+							</button>
 						</td>
 					</tr>
 					{{/modules}}
@@ -40,7 +52,9 @@
 			</form>
 		</div>
 		<div class="panel-footer text-right">
-			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addmodule">{{lang_newModule}}</a>
+			<a class="btn btn-primary {{perms.module.edit.disabled}}" href="?do=SysConfig&amp;action=addmodule">
+				{{lang_newModule}}
+			</a>
 		</div>
 	</div>
 

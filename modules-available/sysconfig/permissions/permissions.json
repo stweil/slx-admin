@@ -1,0 +1,20 @@
+{
+	"config.view-list": {
+		"location-aware": false
+	},
+	"config.assign": {
+		"location-aware": true
+	},
+	"config.edit": {
+		"location-aware": false
+	},
+	"module.view-list": {
+		"location-aware": false
+	},
+	"module.edit": {
+		"location-aware": false
+	},
+	"module.download": {
+		"location-aware": false
+	}
+}

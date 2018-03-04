@@ -26,7 +26,7 @@
 						</td>
 						<td>
 							{{^current}}
-							<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}">
+							<button class="btn btn-primary btn-xs" name="activate" value="{{configid}}" {{perms.config.assign.disabled}}>
 								<span class="glyphicon glyphicon-flag"></span>
 								{{lang_activate}}
 							</button>
@@ -54,13 +54,22 @@
 							{{^needrebuild}}
 							class="refconf btn btn-default btn-xs"
 							{{/needrebuild}}
-							name="rebuild" value="{{configid}}" title="{{lang_rebuild}}"><span class="glyphicon glyphicon-refresh"></span></button>
+							name="rebuild" value="{{configid}}" title="{{lang_rebuild}}"
+							{{perms.config.edit.disabled}}>
+								<span class="glyphicon glyphicon-refresh"></span>
+							</button>
 							{{/locationid}}
 						</td>
 						<td class="text-nowrap">
 							{{^locationid}}
-							<a class="btn btn-success btn-xs" href="?do=SysConfig&amp;action=addconfig&amp;edit={{configid}}" title="{{lang_edit}}"><span class="glyphicon glyphicon-edit"></span></a>
-							<button class="btn btn-danger btn-xs confirm-delete" name="del" value="{{configid}}" title="{{lang_delete}}"><span class="glyphicon glyphicon-trash"></span></button>
+							<a class="btn btn-success btn-xs {{perms.config.edit.disabled}}"
+										href="?do=SysConfig&amp;action=addconfig&amp;edit={{configid}}" title="{{lang_edit}}">
+								<span class="glyphicon glyphicon-edit"></span>
+							</a>
+							<button class="btn btn-danger btn-xs confirm-delete" name="del" value="{{configid}}"
+										title="{{lang_delete}}" {{perms.config.edit.disabled}}>
+								<span class="glyphicon glyphicon-trash"></span>
+							</button>
 							{{/locationid}}
 						</td>
 					</tr>
@@ -101,7 +110,9 @@
 		</div>
 		{{^locationid}}
 		<div class="panel-footer text-right">
-			<a class="btn btn-primary" href="?do=SysConfig&amp;action=addconfig">{{lang_newConfiguration}}</a>
+			<a class="btn btn-primary {{perms.config.edit.disabled}}" href="?do=SysConfig&amp;action=addconfig">
+				{{lang_newConfiguration}}
+			</a>
 		</div>
 		{{/locationid}}
 	</div>
