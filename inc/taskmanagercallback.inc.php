@@ -22,7 +22,7 @@ class TaskmanagerCallback
 		if (is_array($task) && isset($task['id']))
 			$task = $task['id'];
 		if (!is_string($task)) {
-			EventLog::warning("addCallback: Not a valid task id: $task");
+			EventLog::warning("addCallback: Not a valid task id: $task", print_r(debug_backtrace(), true));
 			return;
 		}
 		$data = array(
