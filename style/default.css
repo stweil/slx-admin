@@ -586,8 +586,12 @@ table.slx-ellipsis td {
 	white-space: nowrap;
 }
 
-div.disabled {
+div.disabled, ul.nav > li.disabled {
 	cursor: not-allowed;
+}
+
+ul.nav > li.disabled > a {
+	pointer-events: none;
 }
 
 div.disabled input, div.disabled label, div.disabled .btn {
