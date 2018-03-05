@@ -1,0 +1,20 @@
+{
+	"backend.edit": {
+		"location-aware": false
+	},
+	"backend.check": {
+		"location-aware": false
+	},
+	"location.edit": {
+		"location-aware": true
+	},
+	"panel.list": {
+		"location-aware": true
+	},
+	"panel.edit": {
+		"location-aware": true
+	},
+	"panel.assign-client": {
+		"location-aware": true
+	}
+}

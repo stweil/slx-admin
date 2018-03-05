@@ -17,10 +17,14 @@
 		<tr>
 			<td>
 				<div style="display:inline-block;width:{{depth}}em"></div>
+				{{#allowed}}
 				<a href="#" class="loc-name {{^depth}}slx-bold{{/depth}}" data-locationid="{{locationid}}">
+				{{/allowed}}
 					{{locationname}}
+				{{#allowed}}
 					<span class="glyphicon glyphicon-edit"></span>
 				</a>
+				{{/allowed}}
 			</td>
 			<td {{#backendMissing}}class="text-danger"{{/backendMissing}}>
 				{{backend}}

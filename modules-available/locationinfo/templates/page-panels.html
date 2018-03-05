@@ -34,19 +34,21 @@
 				</td>
 				{{#hasRunmode}}
 					<td>
-						<a class="btn btn-default btn-xs" href="?do=runmode&amp;module=locationinfo&amp;modeid={{paneluuid}}&amp;redirect=?do=locationinfo">
+						<a class="btn btn-default btn-xs {{runmode_disabled}}"
+							href="?do=runmode&amp;module=locationinfo&amp;modeid={{paneluuid}}&amp;redirect=?do=locationinfo">
 							<span class="glyphicon glyphicon-edit"></span>
 						</a>
 						{{assignedMachineCount}}
 					</td>
 				{{/hasRunmode}}
 				<td>
-					<a class="btn btn-default btn-xs" href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
+					<a class="btn btn-default btn-xs {{edit_disabled}}"
+						href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
 						<span class="glyphicon glyphicon-cog"></span>
 					</a>
 				</td>
 				<td>
-					<button type="submit" name="uuid" value="{{paneluuid}}" class="btn btn-danger btn-xs">
+					<button type="submit" name="uuid" value="{{paneluuid}}" class="btn btn-danger btn-xs" {{edit_disabled}}>
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
 				</td>

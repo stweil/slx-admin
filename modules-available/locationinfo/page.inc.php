@@ -2,16 +2,15 @@
 
 class Page_LocationInfo extends Page
 {
-
-	private $action;
+	private $show;
 
 	/**
 	 * Called before any page rendering happens - early hook to check parameters etc.
 	 */
 	protected function doPreprocess()
 	{
-		$show = Request::any('show', '', 'string');
-		if ($show === 'panel') {
+		$this->show = Request::any('show', false, 'string');
+		if ($this->show === 'panel') {
 			$this->showPanel();
 			exit(0);
 		}
@@ -20,30 +19,39 @@ class Page_LocationInfo extends Page
 			Message::addError('main.no-permission');
 			Util::redirect('?do=Main'); // does not return
 		}
-		$this->action = Request::post('action');
-		if ($this->action === 'writePanelConfig') {
+		$action = Request::post('action');
+		if ($action === 'writePanelConfig') {
 			$this->writePanelConfig();
-		} elseif ($this->action === 'writeLocationConfig') {
+		} elseif ($action === 'writeLocationConfig') {
 			$this->writeLocationConfig();
 			$show = 'locations';
-		} elseif ($this->action === 'deleteServer') {
+		} elseif ($action === 'deleteServer') {
 			$this->deleteServer();
-		} elseif ($this->action === 'deletePanel') {
+		} elseif ($action === 'deletePanel') {
 			$this->deletePanel();
-		} elseif ($this->action === 'checkConnection') {
+		} elseif ($action === 'checkConnection') {
 			$this->checkConnection(Request::post('serverid', 0, 'int'));
 			$show = 'backends';
-		} elseif ($this->action === 'updateServerSettings') {
+		} elseif ($action === 'updateServerSettings') {
 			$this->updateServerSettings();
 			$show = 'backends';
 		} elseif (Request::isPost()) {
-			Message::addWarning('main.invalid-action', $this->action);
+			Message::addWarning('main.invalid-action', $action);
 		}
-		if (Request::isPost()) {
+		if (Request::isPost() || $this->show === false) {
 			if (!empty($show)) {
-				$show = '&show=' . $show;
+				//
+			} elseif (User::hasPermission('panel.list')) {
+				$show = 'panels';
+			} elseif (User::hasPermission('location.*')) {
+				$show = 'locations';
+			} elseif (User::hasPermission('backend.*')) {
+				$show = 'backends';
+			} else {
+				Message::addError('main.no-permission');
+				Util::redirect('?do=main');
 			}
-			Util::redirect('?do=locationinfo' . $show);
+			Util::redirect('?do=locationinfo&show=' . $show);
 		}
 	}
 
@@ -53,10 +61,13 @@ class Page_LocationInfo extends Page
 	protected function doRender()
 	{
 		// Do this here so we always see backend errors
-		$backends = $this->loadBackends();
-		$show = Request::get('show', '', 'string');
-		Render::addTemplate('page-tabs', array('class-' . $show => 'active'));
-		switch ($show) {
+		if (User::hasPermission('backend.*')) {
+			$backends = $this->loadBackends();
+		}
+		$data = array('class-' . $this->show => 'active');
+		Permission::addGlobalTags($data['perms'], null, ['backend.*', 'location.*', 'panel.list']);
+		Render::addTemplate('page-tabs', $data);
+		switch ($this->show) {
 		case 'locations':
 			$this->showLocationsTable();
 			break;
@@ -66,7 +77,7 @@ class Page_LocationInfo extends Page
 		case 'edit-panel':
 			$this->showPanelConfig();
 			break;
-		case '':
+		case 'panels':
 			$this->showPanelsTable();
 			break;
 		default:
@@ -79,6 +90,7 @@ class Page_LocationInfo extends Page
 	 */
 	private function deleteServer()
 	{
+		User::assertPermission('backend.edit');
 		$id = Request::post('serverid', false, 'int');
 		if ($id === false) {
 			Message::addError('server-id-missing');
@@ -97,6 +109,7 @@ class Page_LocationInfo extends Page
 			Message::addError('main.parameter-missing', 'uuid');
 			return;
 		}
+		$this->assertPanelPermission($id, 'panel.edit');
 		$res = Database::exec("DELETE FROM `locationinfo_panel` WHERE paneluuid = :id", array('id' => $id));
 		if ($res !== 1) {
 			Message::addWarning('invalid-panel-id', $id);
@@ -123,6 +136,8 @@ class Page_LocationInfo extends Page
 			Message::addError('location.invalid-location-id', $locationid);
 			return false;
 		}
+		User::assertPermission('location.edit', $locationid);
+
 		$serverid = Request::post('serverid', 0, 'int');
 		if ($serverid === 0) {
 			$serverid = null;
@@ -304,6 +319,8 @@ class Page_LocationInfo extends Page
 			Util::redirect('?do=locationinfo');
 		}
 
+		// Permission
+		$this->assertPanelPermission($paneluuid, 'panel.edit', $params['locationids']);
 
 		if ($paneluuid === 'new') {
 			$paneluuid = Util::randomUuid();
@@ -379,6 +396,7 @@ class Page_LocationInfo extends Page
 	 */
 	private function updateServerSettings()
 	{
+		User::assertPermission('backend.edit');
 		$serverid = Request::post('id', -1, 'int');
 		$servername = Request::post('name', 'unnamed', 'string');
 		$servertype = Request::post('type', '', 'string');
@@ -423,6 +441,7 @@ class Page_LocationInfo extends Page
 		if ($serverid === 0) {
 			Util::traceError('checkConnection called with no server id');
 		}
+		User::assertPermission('backend.check');
 
 		$dbresult = Database::queryFirst("SELECT servertype, credentials
 				FROM `locationinfo_coursebackend`
@@ -482,14 +501,22 @@ class Page_LocationInfo extends Page
 	 */
 	private function showBackendsTable($serverlist)
 	{
-		// Pass the data to the html and render it.
-		Render::addTemplate('page-servers', array(
+		User::assertPermission('backend.*');
+		$data = array(
 			'serverlist' => $serverlist,
-		));
+		);
+		Permission::addGlobalTags($data['perms'], null, ['backend.edit', 'backend.check']);
+		// Pass the data to the html and render it.
+		Render::addTemplate('page-servers', $data);
 	}
 
 	private function showLocationsTable()
 	{
+		$allowedLocations = User::getAllowedLocations('location.edit');
+		if (empty($allowedLocations)) {
+			Message::addError('main.no-permission');
+			return;
+		}
 		$locations = Location::getLocations(0, 0, false, true);
 
 		// Get hidden state of all locations
@@ -499,7 +526,7 @@ class Page_LocationInfo extends Page
 
 		while ($row = $dbquery->fetch(PDO::FETCH_ASSOC)) {
 			$locid = (int)$row['locationid'];
-			if (!isset($locations[$locid]))
+			if (!isset($locations[$locid]) || !in_array($locid, $allowedLocations))
 				continue;
 			$glyph = !empty($row['openingtime']) ? 'ok' : '';
 			$backend = '';
@@ -517,6 +544,7 @@ class Page_LocationInfo extends Page
 		$stack = array();
 		$depth = -1;
 		foreach ($locations as &$location) {
+			$location['allowed'] = in_array($location['locationid'], $allowedLocations);
 			while ($location['depth'] <= $depth) {
 				array_pop($stack);
 				$depth--;
@@ -537,6 +565,13 @@ class Page_LocationInfo extends Page
 
 	private function showPanelsTable()
 	{
+		$visibleLocations = User::getAllowedLocations('panel.list');
+		$editLocations = User::getAllowedLocations('panel.edit');
+		$assignLocations = USer::getAllowedLocations('panel.assign-client');
+		if (empty($visibleLocations)) {
+			Message::addError('main.no-permission');
+			return;
+		}
 		$res = Database::simpleQuery('SELECT p.paneluuid, p.panelname, p.locationids, p.panelconfig,
 			p.paneltype FROM locationinfo_panel p
 			ORDER BY panelname ASC');
@@ -550,8 +585,17 @@ class Page_LocationInfo extends Page
 			if ($row['paneltype'] === 'URL') {
 				$url = json_decode($row['panelconfig'], true)['url'];
 				$row['locations'] = $row['locationurl'] = $url;
+				$row['edit_disabled'] = empty($editLocations) ? 'disabled' : '';
+				$row['runmode_disabled'] = empty($assignLocations) ? 'disabled' : '';
 			} else {
 				$lids = explode(',', $row['locationids']);
+				// Permissions
+				if (!empty(array_diff($lids, $visibleLocations))) {
+					continue;
+				}
+				$row['edit_disabled'] = !empty(array_diff($lids, $editLocations)) ? 'disabled' : '';
+				$row['runmode_disabled'] = !empty(array_diff($lids, $assignLocations)) ? 'disabled' : '';
+				// Locations
 				$locs = array_map(function ($id) use ($locations) {
 					return isset($locations[$id]) ? $locations[$id]['locationname'] : $id;
 				}, $lids);
@@ -594,6 +638,7 @@ class Page_LocationInfo extends Page
 	 */
 	private function ajaxServerSettings($id)
 	{
+		User::assertPermission('backend.edit');
 		$oldConfig = Database::queryFirst('SELECT servername, servertype, credentials
 				FROM `locationinfo_coursebackend` WHERE serverid = :id', array('id' => $id));
 
@@ -641,6 +686,7 @@ class Page_LocationInfo extends Page
 	 */
 	private function ajaxConfigLocation($id)
 	{
+		User::assertPermission('location.edit', $id);
 		$locConfig = Database::queryFirst("SELECT serverid, serverlocationid, openingtime FROM `locationinfo_locationconfig` WHERE locationid = :id", array('id' => $id));
 		if ($locConfig !== false) {
 			$openingtimes = json_decode($locConfig['openingtime'], true);
@@ -845,6 +891,9 @@ class Page_LocationInfo extends Page
 			$config = json_decode($panel['panelconfig'], true);
 		}
 
+		// Permission
+		$this->assertPanelPermission($panel, 'panel.edit');
+
 		$def = LocationInfo::defaultPanelConfig($panel['paneltype']);
 		if (!is_array($config)) {
 			$config = $def;
@@ -951,6 +1000,37 @@ class Page_LocationInfo extends Page
 
 		http_response_code(500);
 		die('Unknown panel type ' . $type);
+	}
+
+	/**
+	 * @param string|array $panelOrUuid UUID of panel, or array with keys paneltype and locationds
+	 * @param string $permission
+	 * @param null|int[] $additionalLocations
+	 */
+	private function assertPanelPermission($panelOrUuid, $permission, $additionalLocations = null)
+	{
+		if (is_array($panelOrUuid)) {
+			$panel = $panelOrUuid;
+		} else {
+			$panel = Database::queryFirst('SELECT paneltype, locationids FROM locationinfo_panel
+					WHERE paneluuid = :uuid', ['uuid' => $panelOrUuid]);
+		}
+		if ($panel === false || $panel['paneltype'] === 'URL' || empty($panel['locationids'])) {
+			if (empty($additionalLocations)) {
+				User::assertPermission($permission, null, '?do=locationinfo');
+			}
+		}
+		$allowed = User::getAllowedLocations($permission);
+		if (!empty($allowed)) {
+			$locations = explode(',', $panel['locationids']);
+			if (!empty($additionalLocations)) {
+				$locations = array_merge($locations, $additionalLocations);
+			}
+			if (empty(array_diff($locations, $allowed)))
+				return;
+		}
+		Message::addError('main.no-permission');
+		Util::redirect('?do=locationinfo');
 	}
 
 }

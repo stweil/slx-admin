@@ -1,0 +1,80 @@
+(Unfinished)
+
+			/*
+			error_log('Pre calendar: ' . print_r($calendar, true));
+			$bad = array();
+			for ($i = 0; $i < count($calendar); ++$i) { // Use for..count as we append while iterating
+				$entry =& $calendar[$i];
+				// YYYY-MM-DD<T>HH:MM:SS
+				$s = explode('T', $entry['start']);
+				$e = explode('T', $entry['end']);
+				if (count($s) !== 2 || count($e) !== 2) {
+					error_log('Ignoring invalid calendar entry from backend ' . $this->serverId . ': ' . json_encode($entry));
+					$bad[] = $i;
+					continue;
+				}
+				if ($e[0] === $s[0]) // Same day
+					continue;
+				$stime = explode(':', $s[1]);
+				$etime = explode(':', $e[1]);
+				if (count($stime) < 2 || count($etime) < 2) {
+					error_log('Ignoring invalid calendar entry from backend ' . $this->serverId . ': ' . json_encode($entry));
+					$bad[] = $i;
+					continue;
+				}
+				// Fix start
+				if ($stime[0] == 23 && $stime[1] >= 30) {
+					// clamp to next day
+					$day = strtotime($s[0] . ' 12:00 +1 day');
+					if ($day === false || $day <= 0) {
+						error_log('Ignoring invalid calendar entry from backend ' . $this->serverId . ': ' . json_encode($entry));
+						$bad[] = $i;
+						continue;
+					}
+					$day = date('Y-m-d', $day);
+					$bad[] = $i;
+					$calendar[] = array(
+						'title' => $entry['title'],
+						'start' => $day . 'T00:00:01',
+						'end' => $entry['end']
+					);
+					continue;
+				}
+
+				// Fix end
+				if ($etime[0] == 0 && $etime[1] <= 30) {
+					// clamp to next day
+					$day = strtotime($e[0] . ' 12:00 -1 day');
+					if ($day === false || $day <= 0) {
+						error_log('Ignoring invalid calendar entry from backend ' . $this->serverId . ': ' . json_encode($entry));
+						$bad[] = $i;
+						continue;
+					}
+					$day = date('Y-m-d', $day);
+					$bad[] = $i;
+					$calendar[] = array(
+						'title' => $entry['title'],
+						'start' => $day . 'T23:59:59',
+						'end' => $entry['end']
+					);
+					continue;
+				}
+				// Split
+				$nextday = strtotime($s[0] . ' 12:00 +1 day');
+				$nextday = date('Y-m-d', $nextday);
+				$calendar[] = array(
+					'title' => $entry['title'],
+					'start' => $nextday . 'T00:00:01',
+					'end' => $entry['end']
+				);
+				$entry['end'] = $s[0] . 'T23:59:59';
+			}
+			unset($entry);
+			if (!empty($bad)) {
+				foreach ($bad as $i) {
+					unset($calendar[$i]);
+				}
+				$calendar = array_values($calendar);
+			}
+			*/
+			error_log('Post calendar: ' . print_r($calendar, true));

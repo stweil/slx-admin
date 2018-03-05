@@ -22,18 +22,19 @@
 
 			<td align="center" nowrap>
 				<button class="btn btn-xs {{^autherror}}btn-default{{/autherror}}{{#autherror}}btn-danger{{/autherror}}"
-						data-server-edit="{{serverid}}" {{disabled}} type="button">
+						data-server-edit="{{serverid}}" {{disabled}} {{perms.backend.edit.disabled}} type="button">
 					<span class="glyphicon glyphicon-cog"></span>
 					{{lang_edit}}
 				</button>
-				<button class="btn btn-xs btn-primary server-check" {{disabled}} name="action" value="checkConnection"
-						type="submit">
+				<button class="btn btn-xs btn-primary server-check" {{disabled}} {{perms.backend.check.disabled}}
+						name="action" value="checkConnection" type="submit">
 					<span class="glyphicon glyphicon-refresh"></span>
 					{{lang_checkConnection}}
 				</button>
 			</td>
 			<td align="center" nowrap>
-				<button class="btn btn-xs btn-danger server-delete" type="submit" name="action" value="deleteServer">
+				<button class="btn btn-xs btn-danger server-delete" type="submit" name="action" value="deleteServer"
+					{{perms.backend.edit.disabled}}>
 					<span class="glyphicon glyphicon-trash"></span>
 					{{lang_delete}}
 				</button>
