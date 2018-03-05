@@ -89,15 +89,19 @@ class PermissionDbUpdate
 			$roleid = Database::lastInsertId();
 		}
 
-		$arg = array_map(function ($loc) use ($roleid) {
-			return compact('roleid', 'loc');
-		}, $locations);
-		Database::exec("INSERT IGNORE INTO role_x_location (roleid, locationid) VALUES :arg", ['arg' => $arg]);
+		if (!empty($locations)) {
+			$arg = array_map(function ($loc) use ($roleid) {
+				return compact('roleid', 'loc');
+			}, $locations);
+			Database::exec("INSERT IGNORE INTO role_x_location (roleid, locationid) VALUES :arg", ['arg' => $arg]);
+		}
 
-		$arg = array_map(function ($perm) use ($roleid) {
-			return compact('roleid', 'perm');
-		}, $permissions);
-		Database::exec("INSERT IGNORE INTO role_x_permission (roleid, permissionid) VALUES :arg", ['arg' => $arg]);
+		if (!empty($permissions)) {
+			$arg = array_map(function ($perm) use ($roleid) {
+				return compact('roleid', 'perm');
+			}, $permissions);
+			Database::exec("INSERT IGNORE INTO role_x_permission (roleid, permissionid) VALUES :arg", ['arg' => $arg]);
+		}
 	}
 
 }
