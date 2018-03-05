@@ -179,6 +179,13 @@ SADFACE;
 				$location .= '&' . implode('&', self::$redirectParams);
 			}
 		}
+		if (CONFIG_DEBUG) {
+			global $global_start;
+			$duration = microtime(true) - $global_start;
+			error_log('Redirect: ' . round($duration, 3) . 's, '
+				. Database::getQueryCount() . ' queries, '
+				. round(Database::getQueryTime(), 3) . 's query time total');
+		}
 		Header('Location: ' . $location);
 		exit(0);
 	}
