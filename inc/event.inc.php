@@ -111,6 +111,8 @@ class Event
 	public static function activeConfigChanged()
 	{
 		$task = Trigger::ldadp();
+		if ($task === false)
+			return;
 		TaskmanagerCallback::addCallback($task, 'ldadpStartup');
 	}
 
