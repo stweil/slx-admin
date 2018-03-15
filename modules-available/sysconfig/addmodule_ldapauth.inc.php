@@ -205,9 +205,11 @@ class LdapAuth_HomeDir extends AddModule_Base
 					$data[$key . '_c'] = 'checked="checked"';
 				}
 			}
-			$data['shareRemapMode_' . $this->edit->getData('shareRemapMode')] = 'selected="selected"';
-			$data['shareDomain'] = $this->edit->getData('shareDomain');
 			$letter = $this->edit->getData('shareHomeDrive');
+			$data['shareRemapMode_' . $this->edit->getData('shareRemapMode')] = 'selected="selected"';
+			foreach (['shareDomain', 'shareHomeMountOpts', 'ldapAttrMountOpts'] as $key) {
+				$data[$key] = $this->edit->getData($key);
+			}
 		} else {
 			$data['shareDownloads_c'] = $data['shareMedia_c'] = $data['shareDocuments_c'] = $data['shareRemapCreate_c'] = 'checked="checked"';
 			$data['shareRemapMode_1'] = 'selected="selected"';
@@ -238,8 +240,6 @@ class LdapAuth_Finish extends AddModule_Base
 
 	protected function preprocessInternal()
 	{
-		$binddn = Request::post('binddn');
-		$searchbase = Request::post('searchbase');
 		$title = Request::post('title');
 		if (empty($title))
 			$title = 'LDAP: ' . Request::post('server');
@@ -248,15 +248,12 @@ class LdapAuth_Finish extends AddModule_Base
 		else
 			$module = $this->edit;
 		$ssl = Request::post('ssl', 'off') === 'on';
-		$module->setData('server', Request::post('server'));
-		$module->setData('searchbase', $searchbase);
-		$module->setData('binddn', $binddn);
-		$module->setData('bindpw', Request::post('bindpw'));
-		$module->setData('home', Request::post('home'));
-		$module->setData('certificate', Request::post('certificate'));
+		foreach (['searchbase', 'binddn', 'server', 'bindpw', 'home', 'certificate', 'fixnumeric',
+						'ldapAttrMountOpts', 'shareHomeMountOpts'] as $key) {
+			$module->setData($key, Request::post($key, '', 'string'));
+		}
 		$module->setData('ssl', $ssl);
 		$module->setData('mapping', Request::post('mapping', false, 'array'));
-		$module->setData('fixnumeric', Request::post('fixnumeric', '', 'string'));
 		foreach (LdapAuth_HomeDir::getAttributes() as $key) {
 			$value = Request::post($key);
 			if (is_numeric($value)) {
