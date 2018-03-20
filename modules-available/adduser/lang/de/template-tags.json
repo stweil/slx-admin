@@ -1,8 +1,10 @@
 {
     "lang_addUser": "Nutzer hinzuf\u00fcgen",
+    "lang_assignRoles": "Rollen zuweisen",
     "lang_changeLoginHint": "Sie k\u00f6nnen den Namen, den der Nutzer beim Login angeben muss, \u00e4ndern. Dies ist nur bei lokalen Nutzern m\u00f6glich, die nicht \u00fcber LDAP\/AD authentifiziert werden.",
     "lang_changeOwnPasswordHint": "Ihr eigenes Passwort k\u00f6nnen Sie \u00fcber den Button \"Passwort \u00e4ndern\" im Men\u00fc \u00e4ndern.",
     "lang_changePassword": "Neues Passwort",
+    "lang_confirmDelete": "L\u00f6schen best\u00e4tigen",
     "lang_confirmation": "Wiederholen",
     "lang_createUser": "Benutzer anlegen",
     "lang_editUser": "Benutzer bearbeiten",
@@ -11,6 +13,8 @@
     "lang_login": "Login",
     "lang_name": "Name",
     "lang_phone": "Telefon",
+    "lang_role": "Rolle",
+    "lang_userDeleteConfirm": "M\u00f6chten Sie diesen Benutzer wirklich l\u00f6schen?",
     "lang_userManagement": "Benutzerverwaltung",
     "lang_userlist": "Benutzerliste"
 }
