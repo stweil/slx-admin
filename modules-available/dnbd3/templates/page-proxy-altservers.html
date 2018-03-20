@@ -1,11 +1,11 @@
-<div class="col-md-6">
+<div role="tabpanel" class="tab-pane" id="tab-altservers">
 	<h2>{{lang_altservers}}</h2>
 	<table class="table table-condensed">
 		<tr>
-			<th>{{lang_proxyServerTHead}}</th>
-			<th>{{lang_numFails}}</th>
-			<th class="text-right">{{lang_latency}}</th>
-			<th>{{lang_flags}}</th>
+			<th class="slx-smallcol">{{lang_proxyServerTHead}}</th>
+			<th class="slx-smallcol">{{lang_numFails}}</th>
+			<th class="text-right slx-smallcol">{{lang_latency}}</th>
+			<th class="slx-smallcol">{{lang_flags}}</th>
 			<th>{{lang_comment}}</th>
 		</tr>
 		{{#altservers}}
@@ -21,7 +21,7 @@
 						{{rtt}}&thinsp;ms
 					{{/isClientOnly}}
 				</td>
-				<td>
+				<td class="text-nowrap">
 					{{#isClientOnly}}
 						[CO]
 					{{/isClientOnly}}

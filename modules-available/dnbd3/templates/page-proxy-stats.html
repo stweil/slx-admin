@@ -1,9 +1,23 @@
 <div class="panel panel-default">
 	<div class="panel-body">
-		{{lang_sessionTx}}: <b>{{bytesSent_s}}</b>
-		––
-		{{lang_sessionRx}}: <b>{{bytesReceived_s}}</b>
-		––
-		{{lang_uptime}}: <b>{{uptime_s}}</b>
+		<div>
+			{{lang_sessionTx}}: <b>{{bytesSent_s}}</b>
+			––
+			{{lang_sessionRx}}: <b>{{bytesReceived_s}}</b>
+			––
+			{{lang_uptime}}: <b>{{uptime_s}}</b>
+		</div>
+		<div>
+			{{lang_storageSize}}: <b>{{spaceTotal_s}}</b>
+			––
+			{{lang_diskFree}}: <b>{{spaceFree_s}} ({{percentFree}}&thinsp;%)</b>
+		</div>
 	</div>
 </div>
+
+<ul class="nav nav-tabs text-center" role="tablist">
+	<li role="presentation" class="active"><a href="#tab-config" role="tab" data-toggle="tab">{{lang_proxyConfig}}</a></li>
+	<li role="presentation"><a href="#tab-clients" role="tab" data-toggle="tab">{{lang_clientList}}</a></li>
+	<li role="presentation"><a href="#tab-images" role="tab" data-toggle="tab">{{lang_imageList}}</a></li>
+	<li role="presentation"><a href="#tab-altservers" role="tab" data-toggle="tab">{{lang_altservers}}</a></li>
+</ul>
