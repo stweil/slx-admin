@@ -14,7 +14,7 @@ class SubPage
 		self::listOrganizations();
 	}
 
-	protected static function doAjax()
+	public static function doAjax()
 	{
 		User::load();
 
