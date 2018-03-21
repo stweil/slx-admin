@@ -151,24 +151,44 @@ class Parser {
 				$type = strtolower($out[4]);
 				if ($type === '5' || $type === 'f' || $type === '85') {
 					continue;
+				} elseif ($type === '44') {
+					$out[5] = 'OpenSLX-ID44';
+					$color = '#5c1';
+				} elseif ($type === '45') {
+					$out[5] = 'OpenSLX-ID45';
+					$color = '#0d7';
+				} elseif ($type === '82') {
+					$color = '#48f';
+				} else {
+					$color = '#e55';
 				}
+
 				$partsize = round(($out[3] - $out[2]) * $mbrToMbFactor);
 				$hdd['partitions'][] = array(
 					'id' => $out[1],
 					'name' => $out[1],
 					'size' => round($partsize / 1024, $partsize < 1024 ? 1 : 0),
-					'type' => ($type === '44' ? 'OpenSLX' : $out[5]),
+					'type' => $out[5],
 				);
 				$hdd['json'][] = array(
 					'label' => $out[1],
 					'value' => $partsize,
-					'color' => ($type === '44' ? '#4d4' : ($type === '82' ? '#48f' : '#e55')),
+					'color' => $color,
 				);
 				$hdd['used'] += $partsize;
 			} elseif (isset($hdd) && $sectorToMbFactor !== 0 && preg_match(',^\s*(\d+)\s+(\d+)[\+\-]?\s+(\d+)[\+\-]?\s+\S+\s+([0-9a-f]+)\s+(.*)$,i', $line, $out)) {
 				// --- GPT: Partition entry ---
 				// Some partition
 				$type = $out[5];
+				if ($type === 'OpenSLX-ID44') {
+					$color = '#5c1';
+				} elseif ($type === 'OpenSLX-ID45') {
+					$color = '#0d7';
+				} elseif ($type === 'Linux swap') {
+					$color = '#48f';
+				} else {
+					$color = '#e55';
+				}
 				$id = $hdd['devid'] . '-' . $out[1];
 				$partsize = round(($out[3] - $out[2]) * $sectorToMbFactor);
 				$hdd['partitions'][] = array(
@@ -180,7 +200,7 @@ class Parser {
 				$hdd['json'][] = array(
 					'label' => $id,
 					'value' => $partsize,
-					'color' => ($type === 'OpenSLX-ID44' ? '#4d4' : ($type === 'Linux swap' ? '#48f' : '#e55')),
+					'color' => $color,
 				);
 				$hdd['used'] += $partsize;
 			}
