@@ -9,7 +9,7 @@
     "lang_nfsHelp3": "The first line allows read\/write access for the satellite server. The second line grants read-only access for every other IP address. You could limit the second line to specific IP ranges only if desired.",
     "lang_nfsHelp4": "If using DNBD3 in exclusive mode, you can remove the second line completely, so only the satellite server has access to the NFS store.",
     "lang_noAdditionalInformation": "No additional cofiguration required",
-    "lang_path": "Path",
+    "lang_optionalMountOptions": "Mount options to use (optional):",
     "lang_readOnly": "Read-only Access",
     "lang_readWrite": "Read\/Write Access",
     "lang_vmLocation": "VM Storage Location",
