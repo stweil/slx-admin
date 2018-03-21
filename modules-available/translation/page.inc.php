@@ -999,6 +999,7 @@ class Page_Translation extends Page
 		//find the tag requests to change the file
 		$tags = Request::post('langtag', array(), 'array');
 		foreach ($tags as $tag => $value) {
+			error_log($tag . '=' . $value);
 			$tag = trim($tag);
 			if (empty($tag)) {
 				Message::addWarning('i18n-empty-tag');
