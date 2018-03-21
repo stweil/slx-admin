@@ -8,6 +8,6 @@
     "tab.dmsdlog": "Zugriff auf bwLehrpool-Suite-Server Statusausgabe.",
     "tab.ldadplog": "Zugriff auf LDAP\/AD-Proxy Logs.",
     "tab.lighttpdlog": "Zugriff auf Webserver-Logs.",
-    "tab.netstat": "Zeige Aufgabe von netstat.",
+    "tab.netstat": "Zeige Ausgabe von netstat.",
     "tab.pslist": "Zeige Prozessliste."
 }

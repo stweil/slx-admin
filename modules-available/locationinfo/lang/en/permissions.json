@@ -1,0 +1,8 @@
+{
+    "backend.check": "Test backend connection",
+    "backend.edit": "Edit backend",
+    "location.edit": "Edit location settings",
+    "panel.assign-client": "Set client as infoscreen",
+    "panel.edit": "Edit panel",
+    "panel.list": "List panels"
+}

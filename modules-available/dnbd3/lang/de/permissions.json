@@ -1,0 +1,8 @@
+{
+    "configure.external": "Externen Proxy bearbeiten",
+    "configure.proxy": "Automatischen Proxy bearbeiten",
+    "refresh": "Serverliste aktualisieren",
+    "toggle-usage": "Aktivieren\/Deaktivieren",
+    "view.details": "Proxydetails anzeigen",
+    "view.list": "Proxyliste anzeigen"
+}
