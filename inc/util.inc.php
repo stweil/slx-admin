@@ -234,18 +234,22 @@ SADFACE;
 	 * 
 	 * @param float|int $bytes numeric value of the filesize to make readable
 	 * @param int $decimals number of decimals to show, -1 for automatic
-	 * @return string human readable string representing the given filesize
+	 * @return string human readable string representing the given file size
 	 */
 	public static function readableFileSize($bytes, $decimals = -1)
 	{
+		$bytes = round($bytes);
 		static $sz = array('Byte', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB');
 		$factor = (int)floor((strlen($bytes) - 1) / 3);
-		if ($factor == 0) {
+		if ($factor === 0) {
 			$decimals = 0;
-		} elseif ($decimals === -1) {
-			$decimals = 2 - floor((strlen($bytes) - 1) % 3);
+		} else {
+			$bytes = round($bytes / pow(1024, $factor));
+			if ($decimals === -1) {
+				$decimals = 2 - floor(strlen((int)$bytes) - 1);
+			}
 		}
-		return sprintf("%.{$decimals}f ", $bytes / pow(1024, $factor)) . $sz[$factor];
+		return sprintf("%.{$decimals}f", $bytes) . "\xe2\x80\x89" . $sz[$factor];
 	}
 
 	public static function sanitizeFilename($name)
