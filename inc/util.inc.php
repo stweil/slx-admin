@@ -244,7 +244,7 @@ SADFACE;
 		if ($factor === 0) {
 			$decimals = 0;
 		} else {
-			$bytes = round($bytes / pow(1024, $factor));
+			$bytes = $bytes / pow(1024, $factor);
 			if ($decimals === -1) {
 				$decimals = 2 - floor(strlen((int)$bytes) - 1);
 			}
