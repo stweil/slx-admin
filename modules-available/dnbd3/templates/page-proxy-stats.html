@@ -16,8 +16,12 @@
 </div>
 
 <ul class="nav nav-tabs text-center" role="tablist">
-	<li role="presentation" class="active"><a href="#tab-config" role="tab" data-toggle="tab">{{lang_proxyConfig}}</a></li>
-	<li role="presentation"><a href="#tab-clients" role="tab" data-toggle="tab">{{lang_clientList}}</a></li>
+	{{#tab_config}}
+	<li role="presentation"><a href="#tab-config" role="tab" data-toggle="tab">{{lang_proxyConfig}}</a></li>
+	{{/tab_config}}
+	<li role="presentation" class="active"><a href="#tab-clients" role="tab" data-toggle="tab">{{lang_clientList}}</a></li>
 	<li role="presentation"><a href="#tab-images" role="tab" data-toggle="tab">{{lang_imageList}}</a></li>
+	{{#tab_altservers}}
 	<li role="presentation"><a href="#tab-altservers" role="tab" data-toggle="tab">{{lang_altservers}}</a></li>
+	{{/tab_altservers}}
 </ul>

@@ -264,7 +264,7 @@ class Page_Dnbd3 extends Page
 		User::assertPermission('view.details');
 		$server = $this->getServerById();
 		Render::addTemplate('page-proxy-header', $server);
-		$stats = Dnbd3Rpc::query($server['ip'], 5003, true, true, true, true);
+		$stats = Dnbd3Rpc::query($server['ip'], 5003, true, true, true, true, true, true);
 		if (!is_array($stats) || !isset($stats['runId'])) {
 			Message::addError('server-unreachable');
 			return;
@@ -277,9 +277,10 @@ class Page_Dnbd3 extends Page
 			$stats['percentFree'] = round($stats['percentFree'], $stats['percentFree'] < 10 ? 1 : 0);
 		}
 		$stats['uptime_s'] = floor($stats['uptime'] / 86400) . 'd ' . gmdate('H:i:s', $stats['uptime']);
+		$stats['tab_config'] = is_string($stats['config']);
+		$stats['tab_altservers'] = is_array($stats['altservers']);
 		Render::addTemplate('page-proxy-stats', $stats);
 		Render::openTag('div', ['class' => 'tab-content']);
-		$confAlts = Dnbd3Rpc::query($server['ip'], 5003, false, false, false, false, true, true);
 		$ips = array();
 		$sort = array();
 		foreach ($stats['clients'] as &$c) {
@@ -290,15 +291,15 @@ class Page_Dnbd3 extends Page
 		$ips = array_keys($ips);
 		array_multisort($sort, SORT_DESC, $stats['clients']);
 		// Config
-		if (is_string($confAlts['config'])) {
-			Render::addTemplate('page-proxy-config', $confAlts);
+		if (is_string($stats['config'])) {
+			Render::addTemplate('page-proxy-config', $stats);
 		}
-		if (is_array($confAlts['altservers'])) {
-			foreach ($confAlts['altservers'] as &$as) {
+		if (is_array($stats['altservers'])) {
+			foreach ($stats['altservers'] as &$as) {
 				$as['rtt'] = round(array_sum($as['rtt']) / count($as['rtt']) / 1000, 2);
 			}
 			unset($as);
-			Render::addTemplate('page-proxy-altservers', $confAlts);
+			Render::addTemplate('page-proxy-altservers', $stats);
 		}
 		// Count locations
 		$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt FROM machine
