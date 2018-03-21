@@ -227,7 +227,7 @@ class Page_Statistics extends Page
 			if (in_array($row['locationid'], $allowedLocations)) {
 				$delete[] = $row['machineuuid'];
 			} else {
-				Message::addError('no-permission-location', $row['locationid']);
+				Message::addError('locations.no-permission-location', $row['locationid']);
 			}
 		}
 		if (!empty($delete)) {

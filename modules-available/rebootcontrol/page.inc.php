@@ -38,7 +38,7 @@ class Page_RebootControl extends Page
 			// Filter ones with no permission
 			foreach (array_keys($actualClients) as $idx) {
 				if (!User::hasPermission('action.' . $this->action, $actualClients[$idx]['locationid'])) {
-					Message::addWarning('main.location-no-permission', $actualClients[$idx]['locationid']);
+					Message::addWarning('locations.no-permission-location', $actualClients[$idx]['locationid']);
 					unset($actualClients[$idx]);
 				} else {
 					$locationId = $actualClients[$idx]['locationid'];
