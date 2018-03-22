@@ -19,7 +19,7 @@ class SubPage
 			Util::traceError('Param hwid missing');
 		}
 		if ($action === 'addprojector') {
-			Database::exec('INSERT INTO statistic_hw_prop (hwid, prop, value)'
+			Database::exec('INSERT IGNORE INTO statistic_hw_prop (hwid, prop, value)'
 				. ' VALUES (:hwid, :prop, :value)', array(
 				'hwid' => $hwid,
 				'prop' => 'projector',
