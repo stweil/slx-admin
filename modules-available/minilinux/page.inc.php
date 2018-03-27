@@ -12,7 +12,7 @@ class Page_MiniLinux extends Page
 			Util::redirect('?do=Main');
 		}
 
-		User::assertPermission('show');
+		User::assertPermission('view');
 	}
 
 	protected function doRender()
