@@ -57,6 +57,15 @@
 			var $this = $(this);
 			var checked = $this.prop("checked");
 			$this.closest('li').find("input[type=checkbox]").prop("checked", checked);
+
+			if (!checked) {
+				var parent = $(this).parent().parent();
+				while (!parent.hasClass("tree-panel")) {
+					parent = parent.parent().parent();
+					if (parent.hasClass("tree-container")) parent = parent.parent().parent();
+					parent.find("input[type=checkbox]:first").prop("checked", false);
+				}
+			}
 		});
 		$("input.master-checkbox").change(function () {
 			// (Un)Mark everything within the panel when the master checkbox on top is clicked
