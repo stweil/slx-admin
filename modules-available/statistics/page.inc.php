@@ -266,7 +266,7 @@ class Page_Statistics extends Page
 
 		if (!$filterSet->setAllowedLocationsFromPermission('view.' . $this->show)) {
 			Message::addError('main.no-permission');
-			Util::redirect('?do=statistics');
+			Util::redirect('?do=main');
 		}
 
 		if ($this->show === 'list') {
@@ -866,7 +866,7 @@ class Page_Statistics extends Page
 					Parser::parsePci($client['lspci1'], $client['lspci2'], $section[2]);
 				}
 				if (isset($hdds['hdds']) && $section[1] === 'smartctl') {
-					// This currently required that the partition table section comes first...
+					// This currently requires that the partition table section comes first...
 					Parser::parseSmartctl($hdds['hdds'], $section[2]);
 				}
 			}
