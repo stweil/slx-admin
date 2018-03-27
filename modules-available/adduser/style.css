@@ -13,3 +13,7 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+
+#add-msg {
+    height: 1em;
+}
