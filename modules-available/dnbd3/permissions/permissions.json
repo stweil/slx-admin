@@ -1,11 +1,11 @@
 {
+	"access-page": {
+		"location-aware": false
+	},
 	"toggle-usage": {
 		"location-aware": false
 	},
 	"refresh": {
-		"location-aware": false
-	},
-	"view.list": {
 		"location-aware": false
 	},
 	"view.details": {

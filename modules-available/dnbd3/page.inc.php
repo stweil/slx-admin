@@ -163,7 +163,7 @@ class Page_Dnbd3 extends Page
 
 	private function showServerList()
 	{
-		User::assertPermission('view.list');
+		User::assertPermission('access-page');
 		$dynClients = RunMode::getForMode(Page::getModule(), 'proxy', true, true);
 		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastseen AS dnbd3lastseen,
 			s.uptime, s.totalup, s.totaldown, s.clientcount, s.disktotal, s.diskfree, GROUP_CONCAT(sxl.locationid) AS locations,
