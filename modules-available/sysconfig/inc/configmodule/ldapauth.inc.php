@@ -19,5 +19,5 @@ ConfigModule::registerModule(
 	Dictionary::translateFileModule('sysconfig', 'config-module', 'ldapAuth_title'), // Title
 	Dictionary::translateFileModule('sysconfig', 'config-module', 'ldapAuth_description'), // Description
 	Dictionary::translateFileModule('sysconfig', 'config-module', 'group_authentication'), // Group
-	true // Only one per config?
+	false // Only one per config?
 );

@@ -43,6 +43,7 @@ $res[] = tableCreate('user', "
 	`email` varchar(100) DEFAULT NULL,
 	`permissions` int(10) unsigned NOT NULL,
 	`lasteventid` int(10) unsigned NOT NULL DEFAULT '0',
+	`serverid` int(10) unsigned NULL DEFAULT NULL,
 	PRIMARY KEY (`userid`),
 	UNIQUE KEY `login` (`login`)
 ");
@@ -70,6 +71,20 @@ if (!tableHasColumn('user', 'lasteventid')) {
 // Extend config module db table, add argument feature to callbacks
 if (!tableHasColumn('callback', 'args')) {
 	Database::exec("ALTER TABLE `callback` ADD `args` TEXT NOT NULL DEFAULT ''");
+}
+
+// #######################
+// ##### 2018-03-19
+// In preparation for LDAP/AD auth: Column to rembember origin server
+if (!tableHasColumn('user', 'serverid')) {
+	Database::exec("ALTER TABLE `user` ADD `serverid` int(10) unsigned NULL DEFAULT NULL");
+}
+
+// Make sure that if any users exist, one of the has UID=1, otherwise if the permission module is
+// used we'd lock out everyone
+$someUser = Database::queryFirst('SELECT userid FROM user ORDER BY userid ASC LIMIT 1');
+if ($someUser !== false && (int)$someUser['userid'] !== 1) {
+	Database::exec('UPDATE user SET userid = 1 WHERE userid = :oldid', ['oldid' => $someUser['userid']]);
 }
 
 // Create response for browser

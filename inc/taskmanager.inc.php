@@ -210,7 +210,7 @@ class Taskmanager
 	private static function readReply($seq)
 	{
 		$tries = 0;
-		while (($bytes = socket_recvfrom(self::$sock, $buf, 90000, 0, $bla1, $bla2)) !== false || socket_last_error() === 11) {
+		while (($bytes = @socket_recvfrom(self::$sock, $buf, 90000, 0, $bla1, $bla2)) !== false || socket_last_error() === 11) {
 			$parts = explode(',', $buf, 2);
 			// Do we have compressed data?
 			if (substr($parts[0], 0, 3) === '+z:') {

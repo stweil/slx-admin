@@ -1,0 +1,31 @@
+<div role="tabpanel" class="tab-pane" id="tab-images">
+	<h2>{{lang_imageList}}</h2>
+	<table class="table table-condensed">
+		<tr>
+			<th>{{lang_image}}</th>
+			<th class="text-right slx-smallcol">{{lang_clients}}</th>
+			<th class="text-right slx-smallcol">{{lang_size}}</th>
+			<th class="text-right slx-smallcol">{{lang_complete}}</th>
+			<th class="slx-smallcol">{{lang_uplink}}</th>
+		</tr>
+		{{#images}}
+			<tr>
+				<td class="text-nowrap">
+					{{name}}:{{rid}}
+				</td>
+				<td class="text-right text-nowrap">
+					{{users}}
+				</td>
+				<td class="text-right text-nowrap">
+					{{size_s}}
+				</td>
+				<td class="text-right text-nowrap">
+					{{complete}}&thinsp;%
+				</td>
+				<td class="text-nowrap">
+					{{uplinkServer}}
+				</td>
+			</tr>
+		{{/images}}
+	</table>
+</div>

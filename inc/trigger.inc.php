@@ -127,14 +127,21 @@ class Trigger
 		}
 		if ($storetype === 'nfs') {
 			$addr = $vmstore['nfsaddr'];
+			$opts = 'nfsopts';
 		} elseif ($storetype === 'cifs') {
 			$addr = $vmstore['cifsaddr'];
+			$opts = 'cifsopts';
 		} else {
+			$opts = null;
 			$addr = 'null';
+		}
+		if (isset($vmstore[$opts])) {
+			$opts = $vmstore[$opts];
 		}
 		return Taskmanager::submit('MountVmStore', array(
 				'address' => $addr,
 				'type' => 'images',
+				'opts' => $opts,
 				'username' => $vmstore['cifsuser'],
 				'password' => $vmstore['cifspasswd']
 		));

@@ -1,8 +1,11 @@
 {
     "adduser-success": "User successfully added",
+    "cannot-delete-1-self": "Cannot delete user with ID 1 or yourself",
     "db-error": "Database error: {{0}}",
     "password-changed": "Password changed",
     "password-mismatch": "Password and password confirmation do not match",
+    "roles-updated": "Roles have been updated",
+    "user-deleted": "Deleted user {{0}} (ID={{1}})",
     "user-edited": "User data has been updated",
     "user-not-found": "User with ID {{0}} not found"
 }

@@ -38,7 +38,7 @@
 					<input type="text" class="form-control switchable {{#missing}}txt-empty{{/missing}}" value="{{translation}}" ondblclick="slxMb(this)" name="langtag[{{tag}}]" placeholder="{{placeholder}}">
 					{{/big}}
 					{{#big}}
-					<textarea rows="3" class="form-control {{#missing}}txt-empty{{/missing}}" name="lang#!#{{tag}}" placeholder="{{placeholder}}">{{translation}}</textarea>
+					<textarea rows="3" class="form-control {{#missing}}txt-empty{{/missing}}" name="langtag[{{tag}}]" placeholder="{{placeholder}}">{{translation}}</textarea>
 					{{/big}}
 				</td>
 
@@ -81,7 +81,7 @@
 	var slxNewTagCounter = 0;
 	function slxAddTag()
 	{
-		$('#moduleTable tr:last').after(
+		$('#moduleTable').find('tr:last').after(
 			'<tr id="new-delete-' + slxNewTagCounter + '">' +
 			'	<td class="col-sm-3">' +
 			'		<input type="text" name="new-id[' + slxNewTagCounter + ']" class="form-control">' +

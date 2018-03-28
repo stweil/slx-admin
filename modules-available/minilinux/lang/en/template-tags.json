@@ -1,5 +1,4 @@
 {
-    "lang_uptodate": "Up to date",
     "lang_canUpdate1": "At least one component of",
     "lang_canUpdate2": "Can be updated. For a smooth operation, it is recommended to keep all components up to date.",
     "lang_configurationPackageNotFound": "Configuration package not found!",
@@ -10,5 +9,7 @@
     "lang_outdated": "Outdated",
     "lang_redownload": "Download again",
     "lang_systemUpdated": "The system is up to date.",
-    "lang_update": "Update"
+    "lang_update": "Update",
+    "lang_updateAll": "Update all modules",
+    "lang_uptodate": "Up to date"
 }

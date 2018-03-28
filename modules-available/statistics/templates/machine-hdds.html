@@ -20,7 +20,7 @@
 					<div>{{lang_powerOnTime}}: {{s_PowerOnHours}}&thinsp;{{lang_hours}} ({{PowerOnTime}})</div>
 					{{/s_PowerOnHours}}
 					<div class="row">
-						<div class="col-sm-6">
+						<div class="col-sm-7">
 							<table class="table table-condensed table-striped table-responsive">
 								<tr>
 									<th>{{lang_partName}}</th>
@@ -30,14 +30,14 @@
 								{{#partitions}}
 									<tr id="{{id}}">
 										<td>{{name}}</td>
-										<td class="text-right">{{size}}&thinsp;GiB</td>
+										<td class="text-right text-nowrap">{{size}}&thinsp;GiB</td>
 										<td>{{type}}</td>
 									</tr>
 								{{/partitions}}
 							</table>
 							<div class="slx-bold">{{lang_total}}: {{size}}&thinsp;GiB</div>
 						</div>
-						<div class="col-sm-6">
+						<div class="col-sm-5">
 							<canvas id="{{devid}}-chart" style="width:100%;height:250px"></canvas>
 							<script type="text/javascript">
 								document.addEventListener("DOMContentLoaded", function() {

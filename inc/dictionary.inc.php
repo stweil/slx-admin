@@ -17,6 +17,8 @@ class Dictionary
 	{
 		self::$languages = array();
 		foreach (glob('lang/??', GLOB_ONLYDIR) as $lang) {
+			if (!file_exists($lang . '/name.txt') && !file_exists($lang . '/flag.png'))
+				continue;
 			$lang = basename($lang);
 			if ($lang === '..')
 				continue;
@@ -191,6 +193,8 @@ class Dictionary
 			foreach (self::$languages as $lang) {
 				if (file_exists("lang/$lang/name.txt")) {
 					$name = file_get_contents("lang/$lang/name.txt");
+				} else {
+					$name = false;
 				}
 				if (!isset($name) || $name === false) {
 					$name = $lang;

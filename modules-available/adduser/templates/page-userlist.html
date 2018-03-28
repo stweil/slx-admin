@@ -18,7 +18,7 @@
 		<tbody>
 		{{#list}}
 			<tr>
-				<td>{{login}}</td>
+				<td id="user-{{userid}}">{{login}}</td>
 				<td>{{fullname}}</td>
 				<td>{{phone}}</td>
 				<td>{{email}}</td>
@@ -27,8 +27,8 @@
 						<span class="glyphicon glyphicon-edit"></span>
 					</button>
 					{{^hide_delete}}
-					<button type="button" {{perms.user.remove.disabled}} class="btn btn-danger btn-xs"
-							  data-target="#delete-modal" data-toggle="modal" onclick="$('#delete-userid').val({{userid}})">
+					<button type="button" {{perms.user.remove.disabled}} class="btn btn-danger btn-xs del-user-btn"
+							  data-target="#delete-modal" data-toggle="modal" data-user="{{userid}}">
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
 					{{/hide_delete}}
@@ -44,6 +44,19 @@
 		</a>
 	</div>
 </form>
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		$('.del-user-btn').click(function (e) {
+			var uid = $(this).data('user');
+			if (!uid) {
+				alert('ERROR');
+				return false;
+			}
+			$('#delete-userid').val(uid);
+			$('#delete-user-field').text($('#user-' + uid).text());
+		});
+	});
+</script>
 
 <!-- Modals -->
 <div class ="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -52,11 +65,10 @@
 			<form method="post">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">{{lang_confirmDelete}}</h4>
+					<h4 class="modal-title" id="myModalLabel">{{lang_confirmDelete}}: <span id="delete-user-field"></span></h4>
 				</div>
 				<div class="modal-body">
-					<p>{{lang_roleDeleteConfirm}}</p>
-					{{lang_numAssignedUsers}}: <span id="delete-role-users"></span>
+					<p>{{lang_userDeleteConfirm}}</p>
 				</div>
 				<div class="modal-footer">
 					<input type="hidden" name="action" value="deleteuser">

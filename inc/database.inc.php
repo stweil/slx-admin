@@ -132,7 +132,7 @@ class Database
 			if (!isset(self::$statements[$query])) {
 				self::$statements[$query] = self::$dbh->prepare($query);
 			} else {
-				self::$statements[$query]->closeCursor();
+				//self::$statements[$query]->closeCursor();
 			}
 			$start = microtime(true);
 			if (self::$statements[$query]->execute($args) === false) {

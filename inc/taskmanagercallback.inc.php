@@ -22,7 +22,7 @@ class TaskmanagerCallback
 		if (is_array($task) && isset($task['id']))
 			$task = $task['id'];
 		if (!is_string($task)) {
-			EventLog::warning("addCallback: Not a valid task id: $task");
+			EventLog::warning("addCallback: Not a valid task id: $task", print_r(debug_backtrace(), true));
 			return;
 		}
 		$data = array(
@@ -172,7 +172,8 @@ class TaskmanagerCallback
 			Property::setVmStoreConfig($args);
 			return;
 		}
-		if ($task['data']['exitCode'] > 0) {
+		// If code is 99 then the script failed to even unmount -- don't change anything
+		if ($task['data']['exitCode'] != 99) {
 			// Manual mount failed with non-taskmanager related error - reset storage type to reflect situation
 			$data = Property::getVmStoreConfig();
 			if (isset($data['storetype'])) {

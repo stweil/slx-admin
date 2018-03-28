@@ -163,7 +163,7 @@ class Page_Dnbd3 extends Page
 
 	private function showServerList()
 	{
-		User::assertPermission('view.list');
+		User::assertPermission('access-page');
 		$dynClients = RunMode::getForMode(Page::getModule(), 'proxy', true, true);
 		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastseen AS dnbd3lastseen,
 			s.uptime, s.totalup, s.totaldown, s.clientcount, s.disktotal, s.diskfree, GROUP_CONCAT(sxl.locationid) AS locations,
@@ -264,41 +264,46 @@ class Page_Dnbd3 extends Page
 		User::assertPermission('view.details');
 		$server = $this->getServerById();
 		Render::addTemplate('page-proxy-header', $server);
-		$stats = Dnbd3Rpc::query($server['ip'], 5003, true, true, false, true);
+		$stats = Dnbd3Rpc::query($server['ip'], 5003, true, true, true, true, true, true);
 		if (!is_array($stats) || !isset($stats['runId'])) {
 			Message::addError('server-unreachable');
 			return;
 		}
-		$stats['bytesSent_s'] = Util::readableFileSize($stats['bytesSent']);
-		$stats['bytesReceived_s'] = Util::readableFileSize($stats['bytesReceived']);
+		foreach (['bytesSent', 'bytesReceived', 'spaceTotal', 'spaceFree'] as $key) {
+			$stats[$key . '_s'] = Util::readableFileSize($stats[$key]);
+		}
+		if ($stats['spaceTotal'] > 0) {
+			$stats['percentFree'] = ($stats['spaceFree'] / $stats['spaceTotal']) * 100;
+			$stats['percentFree'] = round($stats['percentFree'], $stats['percentFree'] < 10 ? 1 : 0);
+		}
 		$stats['uptime_s'] = floor($stats['uptime'] / 86400) . 'd ' . gmdate('H:i:s', $stats['uptime']);
+		$stats['tab_config'] = is_string($stats['config']);
+		$stats['tab_altservers'] = is_array($stats['altservers']);
 		Render::addTemplate('page-proxy-stats', $stats);
-		// TODO $images = Dnbd3Rpc::query($server['ip'], 5003, false, false, true);
-		$confAlts = Dnbd3Rpc::query($server['ip'], 5003, false, false, false, false, true, true);
+		Render::openTag('div', ['class' => 'tab-content']);
 		$ips = array();
 		$sort = array();
 		foreach ($stats['clients'] as &$c) {
 			$c['bytesSent_s'] = Util::readableFileSize($c['bytesSent']);
 			$sort[] = $c['bytesSent'];
-			$ips[] = preg_replace('/:\d+$/', '', $c['address']);
+			$ips[preg_replace('/:\d+$/', '', $c['address'])] = true;
 		}
+		$ips = array_keys($ips);
 		array_multisort($sort, SORT_DESC, $stats['clients']);
-		Render::openTag('div', ['class' => 'row']);
 		// Config
-		if (is_string($confAlts['config'])) {
-			Render::addTemplate('page-proxy-config', $confAlts);
+		if (is_string($stats['config'])) {
+			Render::addTemplate('page-proxy-config', $stats);
 		}
-		if (is_array($confAlts['altservers'])) {
-			foreach ($confAlts['altservers'] as &$as) {
+		if (is_array($stats['altservers'])) {
+			foreach ($stats['altservers'] as &$as) {
 				$as['rtt'] = round(array_sum($as['rtt']) / count($as['rtt']) / 1000, 2);
 			}
 			unset($as);
-			Render::addTemplate('page-proxy-altservers', $confAlts);
+			Render::addTemplate('page-proxy-altservers', $stats);
 		}
-		Render::closeTag('div');
-		Render::openTag('div', ['class' => 'row']);
 		// Count locations
-		$res = Database::simpleQuery('SELECT locationid, Count(*) AS cnt FROM machine WHERE clientip IN (:ips) GROUP BY locationid', compact('ips'));
+		$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt FROM machine
+				WHERE clientip IN (:ips) AND state IN ('IDLE', 'OCCUPIED') GROUP BY locationid", compact('ips'));
 		$locCount = Location::getLocationsAssoc();
 		$locCount[0] = array(
 			'locationname' => '/',
@@ -326,10 +331,17 @@ class Page_Dnbd3 extends Page
 			}
 		}
 		if ($showLocs) {
-			$locCount = array_filter($locCount, function ($v) { return isset($v['keep']); });
-			Render::addTemplate('page-proxy-loclist', array('list' => array_values($locCount)));
+			$stats['loclist'] = array_values(array_filter($locCount, function ($v) { return isset($v['keep']); }));
 		}
 		Render::addTemplate('page-proxy-clients', $stats);
+		$sort1 = $sort2 = [];
+		foreach ($stats['images'] as &$image) {
+			$image['size_s'] = Util::readableFileSize($image['size']);
+			$sort1[] = $image['users'];
+			$sort2[] = $image['name'];
+		}
+		array_multisort($sort1, SORT_NUMERIC | SORT_DESC, $sort2, SORT_ASC, $stats['images']);
+		Render::addTemplate('page-proxy-images', $stats);
 		Render::closeTag('div');
 	}
 

@@ -464,19 +464,21 @@ class Page_Translation extends Page
 			$allFiles = array_merge($allFiles, $this->getAllFiles('apis', '.php'), $this->getAllFiles('inc', '.php'));
 			$allFiles[] = 'index.php';
 		}
-		$tags = $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"](?<module>[^\'"\.]*)\.(?<tag>[^\'"]*)[\'"]\s*(?<data>\)|\,.*)/i',
+		$full = $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"](?<tag>[^\'"\.]*\.[^\'"]*)[\'"]\s*(?<data>\)|\,.*)/i',
 			$allFiles);
+		$tags = [];
 		// Filter out tags that don't refer to this module
-		foreach (array_keys($tags) as $tag) {
+		foreach ($full as $tag) {
+			$p = explode('.', $tag['tag'], 2);
 			// Figure out if this is a message from this module or not
-			if ($tags[$tag]['module'] === $module->getIdentifier()) {
+			if ($p[0] === $module->getIdentifier()) {
 				// Direct reference to this module via module.id
-				continue;
+				$tag['tag'] = $p[1];
+				$tags[$p[1]] = $tag;
 			}
-			unset($tags[$tag]);
 		}
-		$tags += $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"](?<tag>[^\'"\.]*)[\'"]\s*(?<data>\)|\,.*)/i',
-			$this->getModulePhpFiles($module));
+		$tags = $this->loadTagsFromPhp('/Message\s*::\s*add\w+\s*\(\s*[\'"](?<tag>[^\'"\.]*)[\'"]\s*(?<data>\)|\,.*)/i',
+			$this->getModulePhpFiles($module), $tags);
 		return $tags;
 	}
 
@@ -831,12 +833,12 @@ class Page_Translation extends Page
 	 *
 	 * @param string $regexp regular expression
 	 * @param array $files list of files to scan
+	 * @param array $tags existing tag array to append to
 	 * @return array of all tags found, where the tag is the key, and the value is as described above
 	 */
-	private function loadTagsFromPhp($regexp, $files)
+	private function loadTagsFromPhp($regexp, $files, $tags = [])
 	{
 		// Get all php files, so we can find all strings that need to be translated
-		$tags = array();
 		// Now find all tags in all php files. Only works for literal usage, not something like $foo = 'bar'; Dictionary::translate($foo);
 		foreach ($files as $file) {
 			$content = file_get_contents($file);
@@ -999,6 +1001,7 @@ class Page_Translation extends Page
 		//find the tag requests to change the file
 		$tags = Request::post('langtag', array(), 'array');
 		foreach ($tags as $tag => $value) {
+			error_log($tag . '=' . $value);
 			$tag = trim($tag);
 			if (empty($tag)) {
 				Message::addWarning('i18n-empty-tag');

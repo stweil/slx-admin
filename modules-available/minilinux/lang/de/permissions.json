@@ -1,4 +1,4 @@
 {
-	"show": "Zeige Komponenten des Minilinux. Wird nicht benötigt, wenn Nutzer eine der anderen Rechte hat.",
+	"view": "Zeige Komponenten des Minilinux. Wird nicht benötigt, wenn Nutzer eine der anderen Rechte hat.",
 	"update": "Aktualisieren von Komponenten des Minilinux."
 }

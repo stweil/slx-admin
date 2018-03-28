@@ -1,0 +1,8 @@
+{
+    "config.assign": "Assign system configuration",
+    "config.edit": "Edit system configuration",
+    "config.view-list": "Show system configurations",
+    "module.download": "Download configuration module",
+    "module.edit": "Edit configuration module",
+    "module.view-list": "Show configuration modules"
+}

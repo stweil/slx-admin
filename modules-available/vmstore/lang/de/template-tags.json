@@ -9,7 +9,7 @@
     "lang_nfsHelp3": "Die erste Zeile erlaubt den Lese- und Schreibzugriff des\r\nSatellitenservers. Die zweite Zeile erteilt allen anderen Rechnern\r\nausschlie\u00dflich Lesezugriff. Sie k\u00f6nnen dies nat\u00fcrlich auch auf\r\nspezielle Subnetze oder IP-Bereiche beschr\u00e4nken.",
     "lang_nfsHelp4": "Wenn exklusiv DNBD3 verwendet wird, kann die zweite Zeile ausgelassen\r\nwerden. Dies erh\u00f6ht die Sicherheit.",
     "lang_noAdditionalInformation": "Keine weitere Konfiguration notwendig",
-    "lang_path": "Pfad",
+    "lang_optionalMountOptions": "Zu verwendende Mount-Optionen (optional):",
     "lang_readOnly": "Nur-Lese-Zugangsdaten",
     "lang_readWrite": "Lese\/Schreib-Zugangsdaten",
     "lang_vmLocation": "VM Speicherort",

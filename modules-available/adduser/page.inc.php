@@ -129,7 +129,7 @@ class Page_AddUser extends Page
 			return;
 		}
 		//\\
-		$user = Database::queryFirst('SELECT userid, login, fullname, phone, email
+		$user = Database::queryFirst('SELECT userid, login
 					FROM user WHERE userid = :userid', compact('userid'));
 		if ($user === false) {
 			Message::addError('user-not-found', $userid);
@@ -140,7 +140,7 @@ class Page_AddUser extends Page
 			return;
 		}
 		Database::exec('DELETE FROM user WHERE userid = :userid', compact('userid'));
-		Message::addSuccess('user-deleted', $userid);
+		Message::addSuccess('user-deleted', $user['login'], $userid);
 	}
 
 	private function saveRoles($userid)

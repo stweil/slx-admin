@@ -36,8 +36,13 @@ class Page_VmStore extends Page
 	private function setStore()
 	{
 		$vmstore = array();
-		foreach (array('storetype', 'nfsaddr', 'cifsaddr', 'cifsuser', 'cifspasswd', 'cifsuserro', 'cifspasswdro') as $key) {
+		foreach (array('storetype', 'nfsaddr', 'nfsopts', 'cifsaddr', 'cifsuser', 'cifspasswd', 'cifsuserro', 'cifspasswdro', 'cifsopts') as $key) {
 			$vmstore[$key] = trim(Request::post($key, '', 'string'));
+			// Remove rw setting
+			if ($key === 'cifsopts' || $key === 'nfsopts') {
+				$vmstore[$key] = preg_replace('/\s+,\s+/', ',', $vmstore[$key]);
+				$vmstore[$key] = preg_replace('/^rw,|,rw$/', '', str_replace(',rw,', ',', $vmstore[$key]));
+			}
 		}
 		$storetype = $vmstore['storetype'];
 		if (!in_array($storetype, array('internal', 'nfs', 'cifs'))) {

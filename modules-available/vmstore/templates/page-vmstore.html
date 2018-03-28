@@ -32,6 +32,9 @@
 		<div class="panel-body">
 			<label for="nfsaddr">NFS-Export</label>
 			<input type="text" class="form-control" name="nfsaddr" value="{{nfsaddr}}" placeholder="1.2.3.4:/export/bwlp" id="nfsaddr">
+			<br>
+			<label for="nfsopts">{{lang_optionalMountOptions}}</label>
+			<input type="text" class="form-control" name="nfsopts" value="{{nfsopts}}" placeholder="vers=4.0,async,nolock" id="nfsopts">
 		</div>
 	</div>
 
@@ -48,6 +51,9 @@
 		<div class="panel-body">
 			<label for="cifsaddr">UNC-Pfad</label>
 			<input type="text" class="form-control" name="cifsaddr" value="{{cifsaddr}}" placeholder="\\samba.server.example.com\bwlp" id="cifsaddr">
+			<br>
+			<label for="cifsopts">{{lang_optionalMountOptions}}</label>
+			<input type="text" class="form-control" name="cifsopts" value="{{cifsopts}}" placeholder="vers=3.0,sec=ntlmssp,nobrl,nounix" id="cifsopts">
 			<br>
 			<label for="cifsuser">{{lang_readWrite}}</label>
 			<div class="input-group">
