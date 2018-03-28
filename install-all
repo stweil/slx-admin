@@ -51,5 +51,9 @@ while true; do
 	fi
 	NEXT=$MODULE
 done
+
+echo "Rebuilding config.tgz modules"
+php api.php sysconfig --action rebuild
+
 echo "Done."
 
