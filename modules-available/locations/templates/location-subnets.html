@@ -69,7 +69,14 @@
 				{{/haveDozmod}}
 				{{#haveStatistics}}
 				<div>
-					<span class="slx-ga2">{{lang_matchingMachines}}:</span> <a href="?do=Statistics&amp;show=list&amp;filters=location={{locationid}}">{{machines}} / {{machines_online}} / {{machines_used}} ({{used_percent}}%)</a>
+					<span class="slx-ga2">{{lang_matchingMachines}}:</span>
+					{{#statsLink}}
+					<a href="?do=Statistics&amp;show={{statsLink}}&amp;filters=location={{locationid}}">
+					{{/statsLink}}
+						{{machines}} / {{machines_online}} / {{machines_used}} ({{used_percent}}%)
+					{{#statsLink}}
+					</a>
+					{{/statsLink}}
 				</div>
 				{{/haveStatistics}}
 			</div>

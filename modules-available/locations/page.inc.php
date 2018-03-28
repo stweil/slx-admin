@@ -357,6 +357,11 @@ class Page_Locations extends Page
 			} else {
 				$locationList[$lid]['havesysconfig'] = false;
 			}
+			if (User::hasPermission('.statistics.view.list', $lid)) {
+				$visibleLocationIds[] = $lid;
+			} else {
+				$locationList[$lid]['havestatistics'] = false;
+			}
 			if (!in_array($lid, $visibleLocationIds)) {
 				unset($locationList[$lid]);
 			} elseif (!in_array($lid, $allowedLocationIds)) {
@@ -554,6 +559,12 @@ class Page_Locations extends Page
 				}
 			}
 			$data['haveStatistics'] = true;
+			// Link
+			if (User::hasPermission('.statistics.view.list')) {
+				$data['statsLink'] = 'list';
+			} elseif (User::hasPermission('.statistics.view.summary')) {
+				$data['statsLink'] = 'summary';
+			}
 		}
 		$data['machines'] = $count;
 		$data['machines_online'] = $online;
