@@ -22,7 +22,11 @@
 				<tbody>
 					{{#users}}
 					<tr>
-						<td class="text-left text-nowrap"><a href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{userid}}">{{lastname}}, {{firstname}}</a></td>
+						<td class="text-left text-nowrap">
+							<{{nameTag}} href="?do=dozmod&amp;section=actionlog&amp;action=showuser&amp;uuid={{userid}}">
+								{{lastname}}, {{firstname}}
+							</{{nameTag}}>
+						</td>
 						<td class="text-left text-nowrap">{{orgname}}</td>
 						<td class="text-left text-nowrap">{{lastlogin}}</td>
 						<td class="text-left text-nowrap"><a href="mailto:{{email}}">{{email}}</a></td>

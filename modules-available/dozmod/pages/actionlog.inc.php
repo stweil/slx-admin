@@ -8,6 +8,7 @@ class SubPage
 
 	public static function doPreprocess()
 	{
+		User::assertPermission("actionlog.view");
 		self::$action = Request::get('action', '', 'string');
 		if (self::$action !== '' && self::$action !== 'showtarget' && self::$action !== 'showuser') {
 			Util::traceError('Invalid action for actionlog: "' . self::$action . '"');
@@ -29,13 +30,9 @@ class SubPage
 				. " LEFT JOIN sat.lecture l ON (l.lectureid = targetid)"
 				. " ORDER BY al.dateline DESC LIMIT 500", array(), true, true);
 		} elseif (self::$action === 'showuser') {
-			if (User::hasPermission("actionlog.showuser")) {
-				self::listUser();
-			}
+			self::listUser();
 		} else {
-			if (User::hasPermission("actionlog.showtarget")) {
-				self::listTarget();
-			}
+			self::listTarget();
 		}
 	}
 
@@ -155,8 +152,6 @@ class SubPage
 			$data['showTarget'] = true;
 		}
 
-		$data['allowedShowUser'] = User::hasPermission("actionlog.showuser");
-		$data['allowedShowTarget'] = User::hasPermission("actionlog.showtarget");
 		Render::addTemplate('actionlog-log', $data);
 	}
 

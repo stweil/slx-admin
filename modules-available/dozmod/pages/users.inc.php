@@ -48,7 +48,10 @@ class SubPage
 			$row['lastlogin'] = date('d.m.Y', $row['lastlogin']);
 			$rows[] = $row;
 		}
-		Render::addTemplate('userlist', array('users' => $rows));
+		Render::addTemplate('userlist', array(
+			'users' => $rows,
+			'nameTag' => User::hasPermission('actionlog.view') ? 'a' : 'span',
+		));
 	}
 
 	private static function listOrganizations()

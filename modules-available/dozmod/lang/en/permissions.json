@@ -1,14 +1,13 @@
 {
-    "actionlog.showtarget": "Show Target Data in Log.",
-    "actionlog.showuser": "Show User Data in Log.",
+    "actionlog.view": "View action log.",
     "expiredimages.delete": "Delete images marked for deletion.",
     "mailconfig.save": "Save SMTP configuration for sending mails.",
-    "mailconfig.testmail": "Send a testmail.",
     "runtimeconfig.save": "Save limits and defaults of a runtime configuration.",
     "templates.reset": "Reset email templates.",
     "templates.save": "Save email templates.",
-    "users.setorglogin": "Enalbe\/Disable Login for Users from certain organisations.",
     "users.setlogin": "Enable\/Disable Login.",
     "users.setmail": "Enable\/Disable Email Notification.",
-    "users.setsu": "Set User to superuser."
+    "users.setorglogin": "Enalbe\/Disable Login for Users from certain organisations.",
+    "users.setsu": "Set User to superuser.",
+    "users.view": "View user list."
 }

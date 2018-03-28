@@ -2,10 +2,7 @@
     "expiredimages.delete": {
         "location-aware": false
     },
-    "actionlog.showtarget": {
-        "location-aware": false
-    },
-    "actionlog.showuser": {
+    "actionlog.view": {
         "location-aware": false
     },
     "mailconfig.save": {
@@ -30,6 +27,9 @@
         "location-aware": false
     },
     "users.setsu": {
+        "location-aware": false
+    },
+    "users.view": {
         "location-aware": false
     }
 }
