@@ -28,11 +28,19 @@ if (!empty($_REQUEST['do'])) {
 	$module = preg_replace('/[^a-z0-9]/', '', $_REQUEST['do']);
 } elseif (!empty($argv[1])) {
 	$module = preg_replace('/[^a-z0-9]/', '', $argv[1]);
-	$argc = count($argv) - 1;
+	$argc = count($argv);
 	for ($i = 2; $i < $argc; ++$i) {
 		if (substr($argv[$i], 0, 2) === '--') {
-			$_GET[substr($argv[$i], 2)] = $argv[$i+1];
-			++$i;
+			// Handle --arg=value and --arg value
+			$key = substr($argv[$i], 2);
+			if (($pos = strpos($key, '=')) !== false) {
+				$val = substr($key, $pos + 1);
+				$key = substr($key, 0, $pos);
+				$_REQUEST[$key] = $_GET[$key] = $val;
+			} elseif ($i + 1 < $argc) {
+				$_REQUEST[$key] = $_GET[$key] = $argv[$i + 1];
+				++$i;
+			}
 		}
 	}
 } else {
