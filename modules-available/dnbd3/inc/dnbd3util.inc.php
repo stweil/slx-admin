@@ -188,7 +188,11 @@ class Dnbd3Util {
 	 */
 	private static function range2Cidr($start, $end)
 	{
-		$bin = decbin((int)$start ^ (int)$end);
+		if (PHP_INT_SIZE > 4) {
+			$bin = decbin((int)$start ^ (int)$end);
+		} else {
+			$bin = decbin((int)(float)$start ^ (int)(float)$end);
+		}
 		if ($bin === '0')
 			return long2ip($start);
 		$mask = 32 - strlen($bin);
