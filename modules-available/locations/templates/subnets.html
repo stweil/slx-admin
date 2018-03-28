@@ -17,9 +17,9 @@
 			{{#list}}
 				<tr class="cidrmagic">
 					<td>{{subnetid}}</td>
-					<td class="{{^editThisSubnetAllowed}}disabled{{/editThisSubnetAllowed}}"><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}"></td>
-					<td class="{{^editThisSubnetAllowed}}disabled{{/editThisSubnetAllowed}}"><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}"></td>
-					<td class="{{^deleteThisSubnetAllowed}}disabled{{/deleteThisSubnetAllowed}}">
+					<td><input class="form-control cidrstart" type="text" name="startaddr[{{subnetid}}]" value="{{startaddr}}"></td>
+					<td><input class="form-control cidrend" type="text" name="endaddr[{{subnetid}}]" value="{{endaddr}}"></td>
+					<td>
 						<select class="form-control" name="location[{{subnetid}}]">
 							{{#locations}}
 							<option {{disabled}} value="{{locationid}}" {{#selected}}selected="selected"{{/selected}}>{{locationpad}} {{locationname}}</option>
@@ -30,7 +30,7 @@
 			{{/list}}
 		</table>
 		<div class="text-right" style="margin-bottom: 20px">
-			<button {{^editSubnetAllowed}}disabled{{/editSubnetAllowed}} type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+			<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 		</div>
 	</form>
 </div>
