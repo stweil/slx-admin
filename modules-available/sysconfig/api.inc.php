@@ -32,7 +32,7 @@ if (Module::isAvailable('runmode')) {
 	}
 }
 if ($runmode !== false && $runmode->noSysconfig && file_exists(SysConfig::GLOBAL_MINIMAL_CONFIG)) {
-	$row = array('filepath' => SysConfig::GLOBAL_MINIMAL_CONFIG);
+	$row = array('filepath' => SysConfig::GLOBAL_MINIMAL_CONFIG, 'title' => 'config');
 } else {
 	$locationId = false;
 	if (Module::isAvailable('locations')) {

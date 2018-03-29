@@ -63,7 +63,7 @@ class ConfigTgz
 		foreach ($moduleIds as $module) {
 			$idstr .= ',' . (int)$module; // Casting to int should make it safe
 		}
-		$res = Database::simpleQuery("SELECT moduleid, filepath, status FROM configtgz_module WHERE moduleid IN ($idstr)");
+		$res = Database::simpleQuery("SELECT moduleid, moduletype, filepath, status FROM configtgz_module WHERE moduleid IN ($idstr)");
 		// Delete old connections
 		Database::exec("DELETE FROM configtgz_x_module WHERE configid = :configid", array('configid' => $this->configId));
 		// Make connection
@@ -98,8 +98,13 @@ class ConfigTgz
 		$files = array();
 		// Get all config modules for system config
 		foreach ($this->modules as $module) {
-			if (!empty($module['filepath']) && file_exists($module['filepath']))
+			if (!empty($module['filepath']) && file_exists($module['filepath'])) {
 				$files[] = $module['filepath'];
+			}
+			if ($module['moduletype'] === 'SshConfig') {
+				// HACK XXX TODO Global + SSH ugly
+				self::rebuildEmptyGlobalConfig();
+			}
 		}
 
 		$task = self::recompress($files, $this->file);
@@ -222,13 +227,39 @@ class ConfigTgz
 		));
 		$res = Database::simpleQuery("SELECT configid FROM configtgz");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$module = self::get($row['configid']);
-			if ($module !== false) {
-				$module->generate();
+			$configTgz = self::get($row['configid']);
+			if ($configTgz !== false) {
+				$configTgz->generate();
 			}
 		}
 		// Build the global "empty" config that just includes global hooks
-		self::recompress([], SysConfig::GLOBAL_MINIMAL_CONFIG);
+		self::rebuildEmptyGlobalConfig();
+	}
+
+	/**
+	 * Rebuild the general "empty" config that only contains global hook modules
+	 * and forced ones.
+	 */
+	private static function rebuildEmptyGlobalConfig()
+	{
+		static $onceOnly = false;
+		if ($onceOnly)
+			return;
+		$onceOnly = true;
+		// HACK TODO XXX -- just stuff (global) ssh config into this one for now, needs proper fix :-(
+		$res = Database::simpleQuery("SELECT DISTINCT cm.filepath FROM configtgz_module cm
+				INNER JOIN configtgz_x_module cxm USING (moduleid)
+				INNER JOIN configtgz_location cl USING (configid)
+				WHERE cm.moduletype = 'SshConfig' AND cm.status = 'OK'
+				ORDER BY locationid ASC");
+		$extra = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (file_exists($row['filepath'])) {
+				$extra[] = $row['filepath'];
+				break;
+			}
+		}
+		self::recompress($extra, SysConfig::GLOBAL_MINIMAL_CONFIG);
 	}
 
 	/**
