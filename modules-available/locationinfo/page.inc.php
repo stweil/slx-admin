@@ -1022,8 +1022,14 @@ class Page_LocationInfo extends Page
 			}
 		}
 		$allowed = User::getAllowedLocations($permission);
+		if (in_array(0, $allowed))
+			return;
 		if (!empty($allowed)) {
-			$locations = explode(',', $panel['locationids']);
+			if (isset($panel['locationids'])) {
+				$locations = explode(',', $panel['locationids']);
+			} else {
+				$locations = [];
+			}
 			if (!empty($additionalLocations)) {
 				$locations = array_merge($locations, $additionalLocations);
 			}
