@@ -389,20 +389,32 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 		$t.html('<span class="glyphicon glyphicon-refresh slx-rotation"></span>');
 		var sid = rebootServerId;
+		var taskId = false;
+		var lastText;
 		var query = function() {
+			data = {"token": TOKEN, "action": "reboot", "server": sid};
+			if (taskId !== false) data['taskid'] = taskId;
 			$.ajax({
-				"data": {"token": TOKEN, "action": "reboot", "server": sid},
+				"data": data,
 				"method": "POST",
-				"dataType": "text",
+				"dataType": "json",
 				"url": "?do=dnbd3"
 			}).done(function (data) {
-				$t.text(data);
-				if (data.indexOf('REBOOTING') !== -1 || data.indexOf('CONNECTING') !== -1) {
-					setTimeout(query, 5000);
-					$t.append($('<span class="glyphicon glyphicon-refresh slx-rotation"></span>'));
+				if (!data || !data.taskId) return;
+				if (taskId === false) taskId = data.taskId;
+				if (data.error) data.rebootStatus += ' (' + data.error + ')';
+				if (data.rebootStatus !== lastText) {
+					$t.empty().text(data.rebootStatus);
 				}
+				if (data.taskStatus === 'TASK_PROCESSING' || data.taskStatus === 'TASK_WAITING') {
+					setTimeout(query, 5000);
+					if (data.rebootStatus !== lastText) {
+						$t.append($('<span class="glyphicon glyphicon-refresh slx-rotation"></span>'));
+					}
+				}
+				lastText = data.rebootStatus;
 			}).fail(function () {
-				$.text('Failed');
+				$t.text('Failed');
 			});
 		};
 		query();

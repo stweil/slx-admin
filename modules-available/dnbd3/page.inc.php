@@ -490,24 +490,37 @@ class Page_Dnbd3 extends Page
 		if (!isset($server['machineuuid'])) {
 			die('Not automatic server.');
 		}
-		$this->assertPermission($server);
-		if (!Module::isAvailable('rebootcontrol')) {
-			die('No rebootcontrol');
-		}
 		$uuid = $server['machineuuid'];
-		$task = RebootControl::reboot([ $uuid ]);
+		$task = Request::any('taskid', false, 'string');
 		if ($task === false) {
-			die('Taskmanager unreachable');
-		}
-		$task = Taskmanager::waitComplete($task, 2000);
-		if (is_array($task) && isset($task['data']) && isset($task['data']['clientStatus']) && isset($task['data']['clientStatus'][$uuid])) {
-			$status = $task['data']['clientStatus'][$uuid];
-			if (!empty($task['data']['error'])) {
-				$status .= "\n --- \n" . $task['data']['error'];
+			$this->assertPermission($server);
+			if (!Module::isAvailable('rebootcontrol')) {
+				die('No rebootcontrol');
 			}
-			die($status);
+			$task = RebootControl::reboot([$uuid]);
+			if ($task === false) {
+				die('Taskmanager unreachable');
+			}
 		}
-		die('Unknown :-(');
+		$task = Taskmanager::waitComplete($task, 1000);
+		if (is_array($task) && isset($task['data']['clientStatus'][$uuid])) {
+			$status = [
+				'rebootStatus' => $task['data']['clientStatus'][$uuid],
+				'taskStatus' => $task['statusCode'],
+				'taskId' => $task['id'],
+			];
+			if (!empty($task['data']['error'])) {
+				$status['error'] = $task['data']['error'];
+			}
+		} else {
+			$status = [
+				'rebootStatus' => 'FAILURE',
+				'taskStatus' => 'FAILURE',
+				'taskId' => $task['id'],
+			];
+		}
+		Header('Content-Type: application/json; charset=utf-8');
+		die(json_encode($status));
 	}
 
 }
