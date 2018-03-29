@@ -50,6 +50,15 @@ class Page_PermissionManager extends Page
 	{
 		$show = Request::get("show", false, 'string');
 
+		// "Public" page -- nice "permission denied" message
+		if ($show === 'denied') {
+			Render::addTemplate('page-permission-denied', [
+				'name' => User::getName(),
+				'permission' => Request::get('permission', false, 'string'),
+			]);
+			return;
+		}
+
 		if ($show === false) {
 			foreach (['roles', 'users', 'locations'] as $show) {
 				if (User::hasPermission($show . '.*'))

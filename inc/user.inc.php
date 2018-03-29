@@ -55,15 +55,24 @@ class User
 	{
 		if (User::hasPermission($permission, $locationid))
 			return;
-		Message::addError('main.no-permission');
 		if (AJAX) {
 			Message::renderList();
 			exit;
 		}
-		if (is_null($redirect)) {
-			Util::redirect('?do=main');
-		} else {
+		if (!is_null($redirect)) {
+			Message::addError('main.no-permission');
 			Util::redirect($redirect);
+		} elseif (Module::isAvailable('permissionmanager')) {
+			if ($permission{0} !== '.') {
+				$module = Page::getModule();
+				if ($module !== false) {
+					$permission = '.' . $module->getIdentifier() . '.' . $permission;
+				}
+			}
+			Util::redirect('?do=permissionmanager&show=denied&permission=' . urlencode($permission));
+		} else {
+			Message::addError('main.no-permission');
+			Util::redirect('?do=main');
 		}
 	}
 

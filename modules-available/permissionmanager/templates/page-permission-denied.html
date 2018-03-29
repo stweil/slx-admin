@@ -1,0 +1,21 @@
+<br><br>
+<div class="jumbotron">
+	<h1>
+		<span class="text-danger">
+			<span class="glyphicon glyphicon-ban-circle"></span>
+			{{lang_permissionDeniedHeader}}
+		</span>
+	</h1>
+	<br><br>
+	<p>
+		{{lang_permissionDeniedBody}}
+	</p>
+	{{#permission}}
+	<div>
+		{{lang_permission}}: <b>{{permission}}</b>
+	</div>
+	{{/permission}}
+	<div>
+		{{lang_user}}: <b>{{name}}</b>
+	</div>
+</div>

@@ -59,3 +59,8 @@ td > .label {
 .btn-group-muted > button {
     color: #aaa;
 }
+
+h1 span.glyphicon {
+    top: 9px;
+}
+
