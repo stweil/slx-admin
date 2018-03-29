@@ -1,6 +1,6 @@
 <?php
 
-if (Dnbd3::isEnabled()) {
+if (Dnbd3::isEnabled() && User::hasPermission('.dnbd3.access-page')) {
 	$res = Database::simpleQuery('SELECT s.fixedip, s.lastseen AS dnbd3lastseen, s.errormsg, m.clientip, m.hostname
 			FROM dnbd3_server s
 			LEFT JOIN machine m USING (machineuuid)
