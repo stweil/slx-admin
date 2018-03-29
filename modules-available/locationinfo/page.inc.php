@@ -1018,6 +1018,7 @@ class Page_LocationInfo extends Page
 		if ($panel === false || $panel['paneltype'] === 'URL' || empty($panel['locationids'])) {
 			if (empty($additionalLocations)) {
 				User::assertPermission($permission, null, '?do=locationinfo');
+				return;
 			}
 		}
 		$allowed = User::getAllowedLocations($permission);
