@@ -289,7 +289,7 @@ class ConfigTgz
 		foreach ($moduleIds as $module) {
 			$idstr .= ',' . (int)$module; // Casting to int should make it safe
 		}
-		$res = Database::simpleQuery("SELECT moduleid, filepath, status FROM configtgz_module WHERE moduleid IN ($idstr)");
+		$res = Database::simpleQuery("SELECT moduleid, moduletype, filepath, status FROM configtgz_module WHERE moduleid IN ($idstr)");
 		// Make connection
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			Database::exec("INSERT INTO configtgz_x_module (configid, moduleid) VALUES (:configid, :moduleid)", array(
@@ -312,7 +312,7 @@ class ConfigTgz
 		$instance->configId = $ret['configid'];
 		$instance->configTitle = $ret['title'];
 		$instance->file = $ret['filepath'];
-		$ret = Database::simpleQuery("SELECT moduleid, filepath, status FROM configtgz_x_module "
+		$ret = Database::simpleQuery("SELECT moduleid, moduletype, filepath, status FROM configtgz_x_module "
 			. " INNER JOIN configtgz_module USING (moduleid) "
 			. " WHERE configid = :configid", array('configid' => $instance->configId));
 		$instance->modules = array();
@@ -341,7 +341,7 @@ class ConfigTgz
 			$instance->configId = $row['configid'];
 			$instance->configTitle = $row['title'];
 			$instance->file = $row['filepath'];
-			$innerRes = Database::simpleQuery("SELECT moduleid, filepath, status FROM configtgz_x_module "
+			$innerRes = Database::simpleQuery("SELECT moduleid, moduletype, filepath, status FROM configtgz_x_module "
 				. " INNER JOIN configtgz_module USING (moduleid) "
 				. " WHERE configid = :configid", array('configid' => $instance->configId));
 			$instance->modules = array();

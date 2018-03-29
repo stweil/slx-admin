@@ -54,6 +54,7 @@ done
 
 echo "Rebuilding config.tgz modules"
 php api.php sysconfig --action rebuild
+echo ""
 
 echo "Done."
 
