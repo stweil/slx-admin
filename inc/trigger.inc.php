@@ -137,6 +137,8 @@ class Trigger
 		}
 		if (isset($vmstore[$opts])) {
 			$opts = $vmstore[$opts];
+		}else {
+			$opts = null;
 		}
 		return Taskmanager::submit('MountVmStore', array(
 				'address' => $addr,
