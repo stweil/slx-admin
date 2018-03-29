@@ -99,6 +99,7 @@ class User
 			self::$user = Database::queryFirst('SELECT * FROM user WHERE userid = :uid LIMIT 1', array(':uid' => $uid));
 			if (self::$user === false)
 				self::logout();
+			settype(self::$user['userid'], 'int');
 			return true;
 		}
 		return false;
