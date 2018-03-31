@@ -103,6 +103,7 @@ class Dnbd3Util {
 	 */
 	public static function runmodeConfigHook($machineUuid, $mode, $modeData)
 	{
+		$self = Property::getServerIp();
 		// Get all directly assigned locations
 		$res = Database::simpleQuery('SELECT locationid FROM dnbd3_server
 				INNER JOIN dnbd3_server_x_location USING (serverid)
@@ -124,10 +125,20 @@ class Dnbd3Util {
 			}
 			$res = Database::simpleQuery('SELECT startaddr, endaddr FROM subnet WHERE locationid IN (:locs)',
 				array('locs' => array_values($recursiveLocs)));
-			// Got subnets, build whitelist
-			// TODO: Coalesce overlapping ranges
-			$opt = '';
+			// Coalesce overlapping ranges
+			$floatIp = ip2long($self); // Float for 32bit php :/
+			if (PHP_INT_SIZE === 4) {
+				$floatIp = (float)sprintf('%u', $floatIp); // Float for 32bit php :/
+			}
+			$ranges = [['startaddr' => $floatIp, 'endaddr' => $floatIp]];
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				settype($row['startaddr'], PHP_INT_SIZE === 4 ? 'float' : 'int');
+				settype($row['endaddr'], PHP_INT_SIZE === 4 ? 'float' : 'int');
+				self::mergeRanges($ranges, $row);
+			}
+			// Got subnets, build whitelist
+			$opt = '';
+			foreach ($ranges as $row) {
 				$opt .= ' ' . self::range2Cidr($row['startaddr'], $row['endaddr']);
 			}
 			if (!empty($opt)) {
@@ -141,7 +152,6 @@ class Dnbd3Util {
 				WHERE s.machineuuid <> :uuid OR s.machineuuid IS NULL', array('uuid' => $machineUuid));
 		$public = array();
 		$private = array();
-		$self = Property::getServerIp();
 		$public[$self] = $self;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$ip = $row['fixedip'] ? $row['fixedip'] : $row['clientip'];
@@ -197,6 +207,36 @@ class Dnbd3Util {
 			return long2ip($start);
 		$mask = 32 - strlen($bin);
 		return long2ip($start) . '/' . $mask;
+	}
+
+	private static function mergeRanges(&$ranges, $row)
+	{
+		if ($row['startaddr'] >= $row['endaddr'])
+			return; // Don't even bother
+		foreach (array_keys($ranges) as $key) {
+			if ($row['startaddr'] <= $ranges[$key]['startaddr'] && $row['endaddr'] >= $ranges[$key]['endaddr']) {
+				// Fully dominated
+				unset($ranges[$key]);
+				continue; // Might partially overlap with additional ranges, keep going
+			}
+			if ($ranges[$key]['startaddr'] <= $row['startaddr'] && $ranges[$key]['endaddr'] >= $row['startaddr']) {
+				// $row['startaddr'] lies within existing range
+				if ($ranges[$key]['startaddr'] <= $row['endaddr'] && $ranges[$key]['endaddr'] >= $row['endaddr'])
+					return; // Fully in existing range, do nothing
+				// $row['endaddr'] seems to extend range we're checking against but $row['startaddr'] lies within this range, update and keep going
+				$row['startaddr'] = $ranges[$key]['startaddr'];
+				unset($ranges[$key]);
+				continue;
+			}
+			// Last possibility: $row['startaddr'] is before range, $row['endaddr'] within range
+			if ($ranges[$key]['startaddr'] <= $row['endaddr'] && $ranges[$key]['endaddr'] >= $row['endaddr']) {
+				// $row['startaddr'] must lie before range start, otherwise we'd have hit the case above
+				$row['endaddr'] = $ranges[$key]['endaddr'];
+				unset($ranges[$key]);
+				continue;
+			}
+		}
+		$ranges[] = $row;
 	}
 
 	public static function defaultRunmodeConfig()
