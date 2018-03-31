@@ -157,8 +157,7 @@ class Page_Statistics extends Page
 			} elseif (User::hasPermission('view.list')) {
 				$this->show = 'list';
 			} else {
-				Message::addError('main.no-permission');
-				Util::redirect('?do=main');
+				User::assertPermission('view.summary');
 			}
 		} else {
 			$this->show = preg_replace('/[^a-z0-9_\-]/', '', $this->show);
