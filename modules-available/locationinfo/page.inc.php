@@ -48,8 +48,7 @@ class Page_LocationInfo extends Page
 			} elseif (User::hasPermission('backend.*')) {
 				$show = 'backends';
 			} else {
-				Message::addError('main.no-permission');
-				Util::redirect('?do=main');
+				User::assertPermission('panel.list');
 			}
 			Util::redirect('?do=locationinfo&show=' . $show);
 		}
