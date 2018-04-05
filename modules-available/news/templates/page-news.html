@@ -57,7 +57,7 @@
 									</td>
 									<td class="text-center">
 										<input type="hidden" name="news-type" value="news">
-										<button {{perms.news.delete.disabled}} class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
+										<button {{perms.news.delete.disabled}} class="btn btn-danger btn-xs btn-delete" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
 									</td>
 								</tr>
 								{{/list}}
@@ -108,7 +108,7 @@
 									</td>
 									<td class="text-center">
 										<input type="hidden" name="news-type" value="help">
-										<button {{perms.help.delete.disabled}} class="btn btn-danger btn-xs" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
+										<button {{perms.help.delete.disabled}} class="btn btn-danger btn-xs btn-delete" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
 									</td>
 								</tr>
 								{{/listHelp}}
@@ -130,5 +130,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 	$('.summernote[readonly]').each(function() { $(this).summernote('disable'); });
+	$('.btn-delete').click(function (event) {
+		if (confirm('{{lang_confirmDelete}}'))
+			return;
+		event.preventDefault();
+	});
 }, false);
 // --></script>
