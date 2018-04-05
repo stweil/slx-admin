@@ -42,7 +42,7 @@ function toInt(str) {
  * computes the time difference between 2 Date objects
  * @param {Date} a
  * @param {Date} b
- * @param {Array} globalConfig
+ * @param {Object} globalConfig
  * @returns {string} printable time
  */
 function GetTimeDiferenceAsString(a, b, globalConfig) {

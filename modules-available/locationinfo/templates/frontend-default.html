@@ -369,7 +369,6 @@ optional:
 </div>
 </body>
 
-<!--suppress RedundantIfStatementJS -->
 <script type="text/javascript">
 	var rooms = {};
 	var lastRoomUpdate = 0;
@@ -983,7 +982,7 @@ optional:
 
 		if (room.config.scaledaysauto) {
 			var result = ($cal.weekCalendar("option", "daysToShow") * columnWidth) / 130;
-			result = parseInt(Math.min(Math.max(Math.abs(result), 1), 7));
+			result = Math.min(Math.max(Math.abs(result), 1), 7);
 			if (result !== $cal.weekCalendar("option", "daysToShow")) {
 				$cal.weekCalendar("option", "daysToShow", result);
 				columnWidth = $cal.find(".wc-day-1").width();
@@ -1107,10 +1106,10 @@ optional:
 	/**
 	 * Sets the free PCs number in the right corner and updates the square color accordingly
 	 * @param room Room
-	 * @param seats Number of free PC's in the room
 	 */
 	function SetFreeSeats(room) {
 		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '');
+		room.$.seatsCounter.data('state', JSON.stringify(room.state));
 		if (room.freePcs > 0 && room.state && room.state.free) {
 				room.$.seatsBackground.css('background-color', '#250');
 		} else if (room.freePcs === -1) {
@@ -1153,7 +1152,7 @@ optional:
 		if (newTime !== false) {
 			room.$.currentRemain.text(newTime);
 		}
-		if (room.lastFreeSeats !== seats) {
+		if (room.lastFreeSeats !== seats || !same) {
 			SetFreeSeats(room);
 			room.lastFreeSeats = seats;
 		}
@@ -1224,7 +1223,7 @@ optional:
 			console.log('getNextEvent called with something not array: ' + typeof(calEvents));
 			return null;
 		}
-		var event;
+		var event = null;
 		var now = MyDate();
 		for (var i = 0; i < calEvents.length; i++) {
 			//event is now active
