@@ -370,6 +370,9 @@ class BackendProperty {
 	 * @param mixed $current current value of this property.
 	 */
 	public function initForRender($current = null) {
+		if ($current === null) {
+			$current = $this->default;
+		}
 		if (is_array($this->type)) {
 			$this->template = 'dropdown';
 			$this->select_list = [];
@@ -391,7 +394,7 @@ class BackendProperty {
 		} elseif ($this->type === 'password') {
 			$this->inputtype = Property::getPasswordFieldType();
 		}
-		$this->currentvalue = $current === null ? $this->default : $current;
+		$this->currentvalue = $current;
 	}
 	public $inputtype;
 	public $template;
