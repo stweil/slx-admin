@@ -8,7 +8,7 @@
 	"user.remove": {
 		"location-aware": false
 	},
-	"list.view": {
+	"user.view-list": {
 		"location-aware": false
 	}
 }

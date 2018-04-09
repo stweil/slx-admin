@@ -191,7 +191,7 @@ class Page_AddUser extends Page
 				Render::closeTag('form');
 			}
 		} elseif ($show === 'list') {
-			User::assertPermission('list.view');
+			User::assertPermission('user.view-list');
 			$page = new Paginate('SELECT userid, login, fullname, phone, email FROM user ORDER BY login', 50);
 			$data = ['list' => $page->exec()->fetchAll(PDO::FETCH_ASSOC)];
 			foreach ($data['list'] as &$u) {
