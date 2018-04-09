@@ -441,16 +441,9 @@ class Page_Exams extends Page
 
 	protected function doRender()
 	{
-		if (Request::isPost()) {
-			$examid = Request::post('examid', 0, 'int');
-		} else if (Request::isGet()) {
-			$examid = Request::get('examid', 0, 'int');
-		} else {
-			die('Neither Post nor Get Request send.');
-		}
-
 		if ($this->action === "show") {
 
+			User::assertPermission('exams.view');
 			// General title and description
 			Render::addTemplate('page-main-heading');
 			// List of defined exam periods

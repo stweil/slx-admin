@@ -28,6 +28,10 @@ class Page_WebInterface extends Page
 				$this->actionCustomization();
 				break;
 		}
+		if (Request::isPost()) {
+			Util::redirect('?do=webinterface');
+		}
+		User::assertPermission('access-page');
 	}
 
 	private function actionConfigureHttps()

@@ -1,4 +1,7 @@
 {
+    "access-page": {
+        "location-aware": false
+    },
     "edit.design": {
         "location-aware": false
     },

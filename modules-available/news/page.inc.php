@@ -46,14 +46,8 @@ class Page_News extends Page
 
 		// check which action we need to do
 		$action = Request::any('action', 'show');
-		if ($action === 'clear') {
-			// clear news input fields
-			// TODO: is this the right way?
-			$this->newsId = false;
-			$this->newsTitle = false;
-			$this->newsContent = false;
-			$this->newsDate = false;
-		} elseif ($action === 'show') {
+		if ($action === 'show') {
+			User::assertPermission('access-page');
 			/* load latest things */
 			$this->loadLatest('help');
 			$this->loadLatest('news');

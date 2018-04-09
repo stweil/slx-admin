@@ -84,6 +84,7 @@ class Page_Statistics_Reporting extends Page
 				die(json_encode($report));
 			}
 		}
+		User::assertPermission('*');
 	}
 
 	/**

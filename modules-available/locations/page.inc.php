@@ -24,6 +24,9 @@ class Page_Locations extends Page
 		} elseif ($this->action === 'updatesubnets') {
 			$this->updateSubnets();
 		}
+		if (Request::isPost()) {
+			Util::redirect('?do=locations');
+		}
 	}
 
 	private function updateSubnets()
@@ -306,10 +309,16 @@ class Page_Locations extends Page
 
 	protected function doRender()
 	{
-		$getAction = Request::get('action');
-		if (empty($getAction)) {
-			// Until we have a main landing page?
-			Util::redirect('?do=Locations&action=showlocations');
+		$getAction = Request::get('action', false, 'string');
+		if ($getAction === false) {
+			if (User::hasPermission('location.view')) {
+				Util::redirect('?do=locations&action=showlocations');
+			} elseif (User::hasPermission('subnets.edit')) {
+				Util::redirect('?do=locations&action=showsubnets');
+			} else {
+				// Trigger permission denied by asserting non-existent permission
+				User::assertPermission('location.view');
+			}
 		}
 		if ($getAction === 'showsubnets') {
 			User::assertPermission('subnets.edit', NULL, '?do=locations');
@@ -324,6 +333,8 @@ class Page_Locations extends Page
 			Render::addTemplate('subnets', array('list' => $rows));
 		} elseif ($getAction === 'showlocations') {
 			$this->showLocationList();
+		} else {
+			Util::redirect('?do=locations');
 		}
 	}
 

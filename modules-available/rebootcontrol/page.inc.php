@@ -79,11 +79,14 @@ class Page_RebootControl extends Page
 				//location you want to see, default are "not  assigned" clients
 				$requestedLocation = Request::get('location', false, 'int');
 				$allowedLocs = User::getAllowedLocations("action.*");
+				if (empty($allowedLocs)) {
+					User::assertPermission('action.*');
+				}
 
 				if ($requestedLocation === false) {
 					if (in_array(0, $allowedLocs)) {
 						$requestedLocation = 0;
-					} elseif (!empty($allowedLocs)) {
+					} else {
 						$requestedLocation = reset($allowedLocs);
 					}
 				}
@@ -105,8 +108,8 @@ class Page_RebootControl extends Page
 				Render::addTemplate('header', $data);
 
 				// only fill table if user has at least one permission for the location
-				if ($requestedLocation === false) {
-					Message::addError('main.no-permission');
+				if (!in_array($requestedLocation, $allowedLocs)) {
+					Message::addError('locations.no-permission-location', $requestedLocation);
 				} else {
 					$data['data'] = RebootQueries::getMachineTable($requestedLocation);
 					Render::addTemplate('_page', $data);

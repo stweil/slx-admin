@@ -23,6 +23,7 @@ class Page_Backup extends Page
 			User::assertPermission("restore");
 			$this->restore();
 		}
+		User::assertPermission('*');
 	}
 
 	protected function doRender()

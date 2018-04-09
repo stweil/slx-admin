@@ -160,7 +160,7 @@ class Page_SysConfig extends Page
 			$pMods = User::hasPermission('module.view-list');
 			$pConfs = User::hasPermission('config.view-list');
 			if (!($pMods || $pConfs)) {
-				Message::addError('main.no-permission');
+				User::assertPermission('config.view-list');
 			}
 			Render::openTag('div', array('class' => 'row'));
 			if ($pConfs) {

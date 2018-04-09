@@ -18,6 +18,7 @@ class Page_SystemStatus extends Page
 			User::assertPermission("serverreboot");
 			$this->rebootTask = Taskmanager::submit('Reboot');
 		}
+		User::assertPermission('*');
 	}
 
 	protected function doRender()

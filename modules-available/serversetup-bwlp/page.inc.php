@@ -43,6 +43,12 @@ class Page_ServerSetup extends Page
 			// iPXE stuff changes
 			$this->updatePxeMenu();
 		}
+
+		if (Request::isPost()) {
+			Util::redirect('?do=serversetup');
+		}
+
+		User::assertPermission('access-page');
 	}
 
 	protected function doRender()

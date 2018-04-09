@@ -25,6 +25,7 @@ class Page_SysLog extends Page
 			}
 			Util::redirect('?do=syslog');
 		}
+		User::assertPermission('*');
 	}
 
 	protected function doRender()
