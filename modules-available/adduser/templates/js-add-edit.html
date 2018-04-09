@@ -1,0 +1,26 @@
+<script><!--
+document.addEventListener('DOMContentLoaded', function() {
+	var $login = $('#login');
+	var $pass1 = $('#pass1');
+	var $pass2 = $('#pass2');
+	var $fullname = $('#fullname');
+	var $msg = $('#add-msg');
+	var $btn = $('.save-btn');
+	var ev = function() {
+		var msg = '';
+		if ($login.val().length < 2) {
+			msg = '{{lang_loginTooShort}}';
+		} else if ($pass1.val() !== $pass2.val()) {
+			msg = '{{lang_passwordsDontMatch}}';
+		} else if ((!SLX_EDITUSER || $pass1.val().length > 0) && $pass1.val().length < 2) {
+			msg = '{{lang_passwordTooShort}}';
+		} else if ($fullname.val().length < 1) {
+			msg = '{{lang_fullnameMissing}}';
+		}
+		$msg.text(msg);
+		$btn.prop('disabled', !!msg);
+	};
+	$('.event-box').change(ev).keyup(ev);
+	if (SLX_EDITUSER)	ev();
+});
+//--></script>

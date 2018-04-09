@@ -106,7 +106,7 @@ class Page_AddUser extends Page
 				if ($ret > 0) {
 					Message::addSuccess('user-edited');
 				}
-				if (!empty($pass1)) {
+				if (!empty($pass1) && $userid !== User::getId()) {
 					$data = [
 						'pass' => Crypto::hash6($pass1),
 						'userid' => $userid,
@@ -168,6 +168,7 @@ class Page_AddUser extends Page
 			}
 			Render::openTag('form', ['class' => 'form-adduser', 'action' => '?do=adduser', 'method' => 'post']);
 			Render::addTemplate('page-adduser');
+			Render::addTemplate('js-add-edit');
 			if ($hasUsers) {
 				$this->showRoles();
 			}
@@ -184,9 +185,11 @@ class Page_AddUser extends Page
 			if ($user === false) {
 				Message::addError('user-not-found', $userid);
 			} else {
+				$user['password_disabled'] = User::getId() === $userid ? 'disabled' : false;
 				// TODO: LDAP -> disallow pw change, maybe other fields too?
 				Render::openTag('form', ['class' => 'form-adduser', 'action' => '?do=adduser', 'method' => 'post']);
 				Render::addTemplate('page-edituser', $user);
+				Render::addTemplate('js-add-edit');
 				$this->showRoles($userid);
 				Render::closeTag('form');
 			}

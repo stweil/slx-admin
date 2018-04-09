@@ -30,34 +30,12 @@
 <div class="row">
 	<div class="col-md-4"></div>
 	<div class="col-md-8">
-		<button id="add-btn" class="btn btn-lg btn-primary btn-block" type="submit" disabled>{{lang_createUser}}</button>
+		<button class="btn btn-lg btn-primary btn-block save-btn" type="submit" disabled>
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+			{{lang_createUser}}
+		</button>
 		<div id="add-msg" class="text-danger slx-bold"></div>
 	</div>
 </div>
 <input type="hidden" name="action" value="adduser">
 <input type="hidden" name="token" value="{{token}}">
-<script><!--
-document.addEventListener('DOMContentLoaded', function() {
-	var $login = $('#login');
-	var $pass1 = $('#pass1');
-	var $pass2 = $('#pass2');
-	var $fullname = $('#fullname');
-	var $msg = $('#add-msg');
-	var $btn = $('#add-btn');
-	var ev = function() {
-		var msg = '';
-		if ($login.val().length < 2) {
-			msg = '{{lang_loginTooShort}}';
-		} else if ($pass1.val() !== $pass2.val()) {
-			msg = '{{lang_passwordsDontMatch}}';
-		} else if ($pass1.val().length < 2) {
-			msg = '{{lang_passwordTooShort}}';
-		} else if ($fullname.val().length < 1) {
-			msg = '{{lang_fullnameMissing}}';
-		}
-		$msg.text(msg);
-		$btn.prop('disabled', !!msg);
-	};
-	$('.event-box').change(ev).keyup(ev);
-});
-//--></script>
