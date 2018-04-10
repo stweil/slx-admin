@@ -701,23 +701,14 @@ ul.toollist li {
 	display:none;
 	float: right;}
 
-.rotationHandle,
-.tutorHandle {
+.pcHandle {
 	display:none;
 	float: left;}
 
-div.draggable:hover .rotationHandle,
-div.draggable:hover .tutorHandle{
+div.ui-draggable:hover > .deleteHandle,
+div.ui-draggable:hover > .pcHandle {
 	display:inline;
 	cursor: pointer;}
-
-div.draggable:hover .deleteHandle {
-	display:inline;
-	cursor: pointer;}
-
-.draggable.disabled {
-	pointer-events: none;
-}
 
 [itemtype="furniture"], [itemtype="furniture_drag"] {
 	z-index: 99;

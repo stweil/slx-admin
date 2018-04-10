@@ -87,7 +87,8 @@ class Page_Roomplanner extends Page
 				'subnetMachines' => json_encode($subnetMachines),
 				'locationid' => $this->locationid,
 				'roomConfiguration' => json_encode($roomConfig),
-				'edit_disabled' => $canEdit ? '' : 'disabled'
+				'edit_disabled' => $canEdit ? '' : 'disabled',
+				'statistics_disabled' => Module::get('statistics') !== false && User::hasPermission('.statistics.machine.view-details') ? '' : 'disabled',
 			];
 			Render::addTemplate('header', $params);
 			if ($canEdit) {

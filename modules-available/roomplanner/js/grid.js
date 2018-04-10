@@ -40,9 +40,10 @@ if (!roomplanner) var roomplanner = {
 			if (!(new RegExp(".*(east|south|west|north)$").test($(el).attr('itemlook')))) {
 				return;
 			}
-			
-			$(el).append('<div class="rotationHandle glyphicon glyphicon-repeat"></div>');
-			$(el).find('.rotationHandle').click(function () {
+
+			var $e = $('<div class="pcHandle glyphicon glyphicon-repeat"></div>');
+			$(el).append($e);
+			$e.click(function () {
 				var str = $(el).attr('itemlook');
 				if (str.indexOf('-') > -1){
 					var values =str.split('-');
@@ -93,16 +94,34 @@ if (!roomplanner) var roomplanner = {
 				}
 			});
 		},
-		initTutor: function(el) {
+		initPcButtons: function(el) {
 			if ($(el).attr('itemtype') !== 'pc') return;
-			$(el).append('<div class="tutorHandle glyphicon glyphicon-blackboard"></div>');
-			$(el).find('.tutorHandle').click(function() {
-				var wasTutor = ($(this).parent().attr('istutor') === 'true');
-				$('[itemtype="pc"]').removeAttr('istutor');
-				if (!wasTutor) {
-					$(this).parent().attr('istutor', 'true');
-				}
-			});
+			var $e;
+			if (!PLANNER_READ_ONLY) {
+				$e = $('<div class="pcHandle glyphicon glyphicon-blackboard"></div>');
+				$(el).append($e);
+				$e.click(function () {
+					var wasTutor = ($(this).parent().attr('istutor') === 'true');
+					$('[itemtype="pc"]').removeAttr('istutor');
+					if (!wasTutor) {
+						$(this).parent().attr('istutor', 'true');
+					}
+				});
+			}
+			if (CAN_OPEN_STATS) {
+				$e = $('<div class="pcHandle glyphicon glyphicon-eye-open"></div>');
+				$(el).append($e);
+				$e.click(function () {
+					var uuid = $(this).parent().attr('muuid');
+					console.log('Click: ', uuid);
+					var url = '?do=statistics&uuid=' + uuid;
+					if (roomplanner.serialize() !== plannerLoadState) {
+						window.open(url);
+					} else {
+						window.location.href = url;
+					}
+				});
+			}
 		},
 		initTooltip: function(el) {
 			if ($(el).attr('itemtype') === 'pc') {
@@ -338,9 +357,9 @@ if (!roomplanner) var roomplanner = {
 					if (!item.hasOwnProperty(prop)) continue;
 					html += prop+'="'+item[prop]+'" ';
 				}
-				html += 'class="draggable ui-draggable';
-				if (PLANNER_READ_ONLY) {
-					html += ' disabled';
+				html += 'class="ui-draggable';
+				if (!PLANNER_READ_ONLY) {
+					html += ' draggable';
 				}
 				html += '"></div>';
 				return html;
@@ -367,12 +386,12 @@ if (!roomplanner) var roomplanner = {
 			$gridInner.find('.draggable').each(function(idx,el) {
 				roomplanner.initDraggable(el);
 				roomplanner.initResizable(el);
-				if (!PLANNER_READ_ONLY) {
-					roomplanner.initTooltip(el);
-					roomplanner.initRotation(el);
-					roomplanner.initDelete(el);
-					roomplanner.initTutor(el);
-				}
+				roomplanner.initTooltip(el);
+				roomplanner.initRotation(el);
+				roomplanner.initDelete(el);
+			});
+			$gridInner.find('.ui-draggable').each(function(idx,el) {
+				roomplanner.initPcButtons(el);
 			});
 			
 			roomplanner.grid.scale(roomplanner.settings.scale);
@@ -415,10 +434,11 @@ roomplanner.grid = (function() {
 					var pos = roomplanner.getCellPositionFromGrid($item.attr('gridRow'),$item.attr('gridCol'));
 					
 					$item.css({width: w+"px", height: h+"px", left: pos[0]+"px", top: pos[1]+"px"});
-					$item.draggable("option","grid",[(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)]);
-					
-					if (roomplanner.isElementResizable(item)) {
-						$item.resizable("option","grid",[(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)]);
+					if ($item.hasClass('draggable')) {
+						$item.draggable("option", "grid", [(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)]);
+						if (roomplanner.isElementResizable(item)) {
+							$item.resizable("option", "grid", [(roomplanner.settings.scale / 4), (roomplanner.settings.scale / 4)]);
+						}
 					}
 				});
 				this.resize();
@@ -622,10 +642,10 @@ $(document).ready(function(){
 							roomplanner.initTooltip(el);
 						}
 					});
-				}			
-				roomplanner.initDelete(el);				
+				}
 				roomplanner.initRotation(el);
-				roomplanner.initTutor(el);
+				roomplanner.initDelete(el);
+				roomplanner.initPcButtons(el);
 			}
 			
 		}

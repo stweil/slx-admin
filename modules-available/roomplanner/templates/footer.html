@@ -21,6 +21,7 @@ var locationId = '{{locationid}}';
 var subnetMachines, roomConfiguration;
 var plannerLoadState = 'invalid';
 const PLANNER_READ_ONLY = '{{edit_disabled}}'.length !== 0;
+const CAN_OPEN_STATS = '{{statistics_disabled}}'.length === 0;
 document.addEventListener("DOMContentLoaded", function () {
 
 	subnetMachines = makeCombinedField({{{subnetMachines}}});
