@@ -1,6 +1,7 @@
 {
-	"news.save": "Änderungen am News Text speichern.",
-	"news.delete": "Alte News Texte löschen.",
-	"help.save": "Änderungen am Hilfe Text speichern.",
-	"help.delete": "Alte Hilfe Texte löschen."
+    "access-page": "Seite sehen.",
+    "help.delete": "Alte Hilfe Texte l\u00f6schen.",
+    "help.save": "\u00c4nderungen am Hilfe Text speichern.",
+    "news.delete": "Alte News Texte l\u00f6schen.",
+    "news.save": "\u00c4nderungen am News Text speichern."
 }

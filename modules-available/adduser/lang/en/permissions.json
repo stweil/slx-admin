@@ -1,6 +1,6 @@
 {
-    "list.view": "Show userlist",
     "user.add": "Add new user",
     "user.edit": "Edit user",
-    "user.remove": "Remove user"
+    "user.remove": "Remove user",
+    "user.view-list": "Show userlist"
 }

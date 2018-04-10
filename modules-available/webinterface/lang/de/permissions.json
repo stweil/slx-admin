@@ -1,5 +1,6 @@
 {
-	"edit.https": "HTTPS Einstellungen bearbeiten.",
-	"edit.password": "Ändern, ob Passwortfelder in der Web-Schnittstelle maskiert werden sollen.",
-	"edit.design": "Seitentitel und Hintergrundfarbe des Logos bearbeiten."
+    "access-page": "Seite sehen.",
+    "edit.design": "Seitentitel und Hintergrundfarbe des Logos bearbeiten.",
+    "edit.https": "HTTPS Einstellungen bearbeiten.",
+    "edit.password": "\u00c4ndern, ob Passwortfelder in der Web-Schnittstelle maskiert werden sollen."
 }

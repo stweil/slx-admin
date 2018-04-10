@@ -1,5 +1,6 @@
 {
-	"edit.https": "Edit HTTPS settings.",
-	"edit.password": "Change whether password fields should be masked or not.",
-	"edit.design": "Edit page title and logo background color."
+    "access-page": "View page.",
+    "edit.design": "Edit page title and logo background color.",
+    "edit.https": "Edit HTTPS settings.",
+    "edit.password": "Change whether password fields should be masked or not."
 }

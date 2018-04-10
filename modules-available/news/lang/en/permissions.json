@@ -1,6 +1,7 @@
 {
-	"news.save": "Save new news.",
-	"news.delete": "Delete old news.",
-	"help.save": "Save new help texts.",
-	"help.delete": "Delete old help texts"
+    "access-page": "View page.",
+    "help.delete": "Delete old help texts.",
+    "help.save": "Save new help texts.",
+    "news.delete": "Delete old news.",
+    "news.save": "Save new news."
 }

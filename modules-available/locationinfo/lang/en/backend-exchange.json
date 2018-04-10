@@ -1,0 +1,14 @@
+{
+    "clientVersion": "Version",
+    "clientVersion_helptext": "Used exchange version",
+    "password": "Password",
+    "password_helptext": "User password in exchange",
+    "serverAddress": "Server-IP",
+    "serverAddress_helptext": "IP of the exchange server",
+    "username": "Username",
+    "username_helptext": "User needs at least reviewer rights on calendar",
+    "verifyCert": "Verify certificate",
+    "verifyCert_helptext": "If the certificate expired or was not signed by a known CA, the connection will be aborted",
+    "verifyHostname": "Verify host name",
+    "verifyHostname_helptext": "The certificate's host name must match the host name given in the URL, otherwise the connection will be aborted."
+}
