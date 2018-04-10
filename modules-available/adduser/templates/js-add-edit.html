@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	var $fullname = $('#fullname');
 	var $msg = $('#add-msg');
 	var $btn = $('.save-btn');
+	if (typeof SLX_EDITUSER === 'undefined') {
+		SLX_EDITUSER = false;
+	}
 	var ev = function() {
 		var msg = '';
 		if ($login.val().length < 2) {
