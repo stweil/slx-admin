@@ -5,7 +5,8 @@ class SubPage
 
 	public static function doPreprocess()
 	{
-
+		// Currently there's only one view, actions are ajax
+		User::assertPermission('users.view');
 	}
 
 	public static function doRender()
