@@ -457,7 +457,7 @@ class Page_Exams extends Page
 			} else {
 				Render::addTemplate('page-upcoming-lectures', [
 					'pending_lectures' => $upcoming,
-					'allowedToEdit' => $this->userCanEditExam(),
+					'allowedToAdd' => $this->userCanEditExam(),
 					'decollapse' => array_key_exists('class', end($upcoming))
 				]);
 			}
