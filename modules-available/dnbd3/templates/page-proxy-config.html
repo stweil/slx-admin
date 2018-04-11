@@ -1,4 +1,18 @@
+<style>
+.tt { font-family:monospace }
+.tt .eq { margin:0 1ex }
+.tt .usel { user-select:none }
+.tt .usel::before { content: attr(data-con) }
+</style>
 <div role="tabpanel" class="tab-pane" id="tab-config">
 	<h2>{{lang_proxyConfig}}</h2>
-	<pre>{{config}}</pre>
+	<div class="well tt" style="font-family:monospace">
+		{{#config}}
+		<span class="{{class1}}">{{text1}}</span>{{#text2}}<span class="eq">=</span>{{/text2}}<span class="{{class2}}">{{text2}}</span>
+		{{#extra}}
+		<span class="text-muted usel" data-con=" ; {{extra}}"></span>
+		{{/extra}}
+		<br>
+		{{/config}}
+	</div>
 </div>

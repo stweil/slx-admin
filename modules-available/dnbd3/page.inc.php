@@ -292,6 +292,30 @@ class Page_Dnbd3 extends Page
 		array_multisort($sort, SORT_DESC, $stats['clients']);
 		// Config
 		if (is_string($stats['config'])) {
+			preg_match_all('/^((?<sec>\[.*\])|(?<key>[^=]+)=(?<val>.*)|(?<other>[^\[][^=]*))$/m', $stats['config'], $out, PREG_SET_ORDER);
+			$stats['config'] = [];
+			foreach ($out as $line) {
+				if (!empty($line['sec'])) {
+					$stats['config'][] = ['class1' => 'text-primary', 'text1' => $line['sec']];
+				} elseif (!empty($line['other'])) {
+					$stats['config'][] = ['class1' => 'text-muted', 'text1' => $line['other']];
+				} else {
+					$extra = '';
+					$class2 = 'slx-bold';
+					if (in_array($line['key'], ['serverPenalty', 'clientPenalty'])) {
+						$extra = round($line['val'] / 1000, 1) . 'ms';
+					} elseif (in_array($line['key'], ['uplinkTimeout', 'clientTimeout'])) {
+						$extra = round($line['val'] / 1000, 1) . 's';
+					} elseif (in_array($line['key'], ['maxPayload', 'maxReplicationSize'])) {
+						$extra = Util::readableFilesize($line['val']);
+					} elseif ($line['val'] === 'true') {
+						$class2 .= ' text-success';
+					} elseif ($line['val'] === 'false') {
+						$class2 .= ' text-danger';
+					}
+					$stats['config'][] = ['text1' => $line['key'], 'class2' => $class2, 'text2' => $line['val'] . ' ', 'extra' => $extra];
+				}
+			}
 			Render::addTemplate('page-proxy-config', $stats);
 		}
 		if (is_array($stats['altservers'])) {
