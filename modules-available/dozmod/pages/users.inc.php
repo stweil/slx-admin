@@ -46,7 +46,7 @@ class SubPage
 			$row['canlogin'] = self::checked($row['canlogin']);
 			$row['issuperuser'] = self::checked($row['issuperuser']);
 			$row['emailnotifications'] = self::checked($row['emailnotifications']);
-			$row['lastlogin'] = date('d.m.Y', $row['lastlogin']);
+			$row['lastlogin_s'] = date('d.m.Y', $row['lastlogin']);
 			$rows[] = $row;
 		}
 		Render::addTemplate('userlist', array(
