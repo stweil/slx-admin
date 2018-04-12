@@ -43,10 +43,13 @@ class SubPage
 			. ' ORDER BY lastname ASC, firstname ASC');
 		$rows = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			settype($row['lastlogin'], 'int');
 			$row['canlogin'] = self::checked($row['canlogin']);
 			$row['issuperuser'] = self::checked($row['issuperuser']);
 			$row['emailnotifications'] = self::checked($row['emailnotifications']);
-			$row['lastlogin_s'] = date('d.m.Y', $row['lastlogin']);
+			if ($row['lastlogin'] !== 0) {
+				$row['lastlogin_s'] = date('d.m.Y', $row['lastlogin']);
+			}
 			$rows[] = $row;
 		}
 		Render::addTemplate('userlist', array(
