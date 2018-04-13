@@ -1,5 +1,0 @@
-fix translations path (lang/<lang>/...) for de, pt
-fix translations page for templates/modules
-fix sql setup scripts for c3sl's new stuff
-fix support page
-rework/fix c3sl's partition / user config variables (baseconfig)
