@@ -51,7 +51,7 @@
 		should_redraw: function(sort_info){
 			return true;
 		},
-		will_manually_build_table: false
+		will_manually_build_table: true // OpenSLX
 	};
 	$.fn.stupidtable.dir = {ASC: "asc", DESC: "desc"};
 	$.fn.stupidtable.default_sort_fns = {
