@@ -37,6 +37,20 @@
 				$(this).stupidsort();
 			});
 
+			// OpenSLX -- sort arrow; pointer cursor
+			var $sortThs = $table.find('th[data-sort]');
+			$sortThs.addClass('slx-pointer').append('<span class="glyphicon glyphicon-chevron-up sortarrow invisible"></span>');
+			var $arrows = $sortThs.find('.sortarrow');
+			var dir = $.fn.stupidtable.dir;
+			$table.on("aftertablesort", function (e, data) {
+				$arrows.addClass('invisible');
+				var addArrow = data.direction !== dir.ASC ? "down" : "up";
+				var remArrow = data.direction === dir.ASC ? "down" : "up";
+				console.log(data);
+				data.$th.find('.sortarrow').removeClass('invisible glyphicon-chevron-' + remArrow).addClass('glyphicon-chevron-' + addArrow);
+			});
+			// End OpenSLX
+
 			// Sort th immediately if data-sort-onload="yes" is specified. Limit to
 			// the first one found - only one default sort column makes sense anyway.
 			var $th_onload_sort = $table.find("th[data-sort-onload=yes]").eq(0);
@@ -304,6 +318,7 @@
 
 })(jQuery);
 
+// OpenSLX -- apply to all elements with class stupidtable
 document.addEventListener("DOMContentLoaded", function() {
 	var table = $(".stupidtable");
 	if (table.length) {
