@@ -84,7 +84,7 @@ class GetPermissionData
 		if (!empty($joins)) {
 			$joins .= ' GROUP BY r.roleid';
 		}
-		return Database::queryAll("SELECT r.roleid, r.rolename $cols FROM role r
+		return Database::queryAll("SELECT r.roleid, r.rolename, r.roledescription $cols FROM role r
 			$joins
 			ORDER BY rolename ASC");
 	}
@@ -97,7 +97,7 @@ class GetPermissionData
 	 */
 	public static function getRoleData($roleid)
 	{
-		$query = "SELECT roleid, rolename FROM role WHERE roleid = :roleid";
+		$query = "SELECT roleid, rolename, roledescription FROM role WHERE roleid = :roleid";
 		$data = Database::queryFirst($query, array("roleid" => $roleid));
 		$query = "SELECT roleid, locationid FROM role_x_location WHERE roleid = :roleid";
 		$res = Database::simpleQuery($query, array("roleid" => $roleid));

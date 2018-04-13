@@ -54,7 +54,7 @@ class PermissionDbUpdate
 	/**
 	 * Delete role from the role table.
 	 *
-	 * @param string $roleid roleid
+	 * @param int $roleid roleid
 	 */
 	public static function deleteRole($roleid)
 	{
@@ -64,41 +64,42 @@ class PermissionDbUpdate
 	/**
 	 * Save changes to a role or create a new one.
 	 *
-	 * @param string $rolename rolename
+	 * @param string $roleName rolename
 	 * @param int[] $locations array of locations
 	 * @param string[] $permissions array of permissions
-	 * @param string|null $roleid roleid or null if the role does not exist yet
+	 * @param int|null $roleId roleid or null if the role does not exist yet
 	 */
-	public static function saveRole($rolename, $locations, $permissions, $roleid = null)
+	public static function saveRole($roleName, $roleDescription, $locations, $permissions, $roleId = null)
 	{
 		foreach ($permissions as &$permission) {
 			$permission = strtolower($permission);
 		}
 		unset($permission);
-		if ($roleid) {
-			Database::exec("UPDATE role SET rolename = :rolename WHERE roleid = :roleid",
-				array("rolename" => $rolename, "roleid" => $roleid));
+		if ($roleId) {
+			Database::exec("UPDATE role SET rolename = :rolename, roledescription = :roledescription WHERE roleid = :roleid",
+				array("rolename" => $roleName, "roledescription" => $roleDescription, "roleid" => $roleId));
 			Database::exec("DELETE FROM role_x_location
 					WHERE roleid = :roleid AND (locationid NOT IN (:locations) OR locationid IS NULL)",
-				array("roleid" => $roleid, 'locations' => $locations));
+				array("roleid" => $roleId, 'locations' => $locations));
 			Database::exec("DELETE FROM role_x_permission
 					WHERE roleid = :roleid AND permissionid NOT IN (:permissions)",
-				array("roleid" => $roleid, 'permissions' => $permissions));
+				array("roleid" => $roleId, 'permissions' => $permissions));
 		} else {
-			Database::exec("INSERT INTO role (rolename) VALUES (:rolename)", array("rolename" => $rolename));
-			$roleid = Database::lastInsertId();
+			Database::exec("INSERT INTO role (rolename, roledescription) VALUES (:rolename, :roledescription)",
+				array("rolename" => $roleName, "roledescription" => $roleDescription));
+			$roleId = Database::lastInsertId();
 		}
 
 		if (!empty($locations)) {
-			$arg = array_map(function ($loc) use ($roleid) {
-				return compact('roleid', 'loc');
+			$arg = array_map(function ($loc) use ($roleId) {
+				return compact('roleId', 'loc');
 			}, $locations);
 			Database::exec("INSERT IGNORE INTO role_x_location (roleid, locationid) VALUES :arg", ['arg' => $arg]);
 		}
 
 		if (!empty($permissions)) {
-			$arg = array_map(function ($perm) use ($roleid) {
-				return compact('roleid', 'perm');
+			$arg = array_map(function ($perm) use ($roleId) {
+				return compact('roleId', 'perm');
 			}, $permissions);
 			Database::exec("INSERT IGNORE INTO role_x_permission (roleid, permissionid) VALUES :arg", ['arg' => $arg]);
 		}

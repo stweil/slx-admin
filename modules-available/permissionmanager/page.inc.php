@@ -28,15 +28,24 @@ class Page_PermissionManager extends Page
 			PermissionDbUpdate::removeRoleFromUser($users, $roles);
 		} elseif ($action === 'deleteRole') {
 			User::assertPermission('roles.edit');
-			$id = Request::post('deleteId', false, 'string');
+			$id = Request::post('deleteId', false, 'int');
 			PermissionDbUpdate::deleteRole($id);
 		} elseif ($action === 'saveRole') {
 			User::assertPermission('roles.edit');
-			$roleID = Request::post("roleid", false);
-			$rolename = Request::post("rolename");
-			$locations = self::processLocations(Request::post("locations"));
+			$roleID = Request::post("roleid", false, 'int');
+			if ($roleID === false) {
+				Message::addError('main.parameter-missing', 'roleid');
+				Util::redirect('?do=permissionmanager');
+			}
+			$roleName = Request::post("rolename", '', 'string');
+			if (empty($roleName)) {
+				Message::addError('main.parameter-empty', 'rolename');
+				Util::redirect('?do=permissionmanager');
+			}
+			$roleDescription = Request::post('roledescription', '', 'string');
+			$locations = self::processLocations(Request::post("locations", [], 'array'));
 			$permissions = self::processPermissions(Request::post("permissions"));
-			PermissionDbUpdate::saveRole($rolename, $locations, $permissions, $roleID);
+			PermissionDbUpdate::saveRole($roleName, $roleDescription, $locations, $permissions, $roleID);
 		}
 		if (Request::isPost()) {
 			Util::redirect('?do=permissionmanager&show=' . Request::get("show", "roles"));
@@ -100,18 +109,16 @@ class Page_PermissionManager extends Page
 			Render::addTemplate('locationstable', $data);
 		} elseif ($show === "roleEditor") {
 			User::assertPermission('roles.*');
-			$data = array("cancelShow" => Request::get("cancel", "roles"));
+			$data = array("cancelShow" => Request::get("cancel", "roles", 'string'));
 			Permission::addGlobalTags($data['perms'], null, ['roles.edit']);
 
 			$selectedPermissions = array();
 			$selectedLocations = array();
 			$roleid = Request::get("roleid", false, 'int');
 			if ($roleid !== false) {
-				$roleData = GetPermissionData::getRoleData($roleid);
-				$data["roleid"] = $roleid;
-				$data["rolename"] = $roleData["rolename"];
-				$selectedPermissions = $roleData["permissions"];
-				$selectedLocations = $roleData["locations"];
+				$data += GetPermissionData::getRoleData($roleid);
+				$selectedPermissions = $data["permissions"];
+				$selectedLocations = $data["locations"];
 			}
 
 			$data["permissionHTML"] = self::generatePermissionHTML(PermissionUtil::getPermissions(), $selectedPermissions,

@@ -5,6 +5,7 @@ $res = array();
 $res[] = tableCreate('role', "
 	roleid int(10) unsigned NOT NULL AUTO_INCREMENT,
 	rolename varchar(200) NOT NULL,
+	roledescription TEXT,
 	PRIMARY KEY (roleid)
 ");
 
@@ -100,6 +101,108 @@ if (!tableExists('user') || !tableExists('location')) {
 		$res[] = UPDATE_DONE;
 	}
 }
+
+// 2018-04-13 role description field; add a couple default roles
+if (!tableHasColumn('role', 'roledescription')) {
+	$alter = Database::exec("ALTER TABLE role ADD roledescription TEXT");
+	if ($alter === false)
+		finalResponse(UPDATE_FAILED, 'Cannot add roledescription field to table role: ' . Database::lastError());
+	$res[] = UPDATE_DONE;
+}
+
+if (!tableHasColumn('role', 'roledescription')) {
+	finalResponse(UPDATE_RETRY, 'Try again later');
+}
+
+if (Database::exec("INSERT INTO `role` VALUES
+			(1,'Super-Admin', 'Hat keinerlei Zugriffsbeschränkungen'),
+			(2,'Admin', 'Alles bis auf Rechte-/Nutzerverwaltung'),
+			(3,'Prüfungsadmin', 'Kann E-Prüfungen verwalten, Prüfungsmodus einschalten, etc.'),
+			(4,'Lesezugriff', 'Kann auf die meisten Seiten zugreifen, jedoch keine Änderungen vornehmen')") !== false) {
+	// Success, there probably were no roles before, keep going
+	// Assign roles to location (all)
+	Database::exec("INSERT INTO `role_x_location` VALUES (1,NULL),(2,NULL),(3,NULL),(4,NULL)");
+	// Assign permissions to roles
+	Database::exec("INSERT INTO `role_x_permission` VALUES
+			(3,'exams.exams.*'),
+			(3,'rebootcontrol.action.*'),
+			(3,'statistics.hardware.projectors.view'),
+			(3,'statistics.machine.note.*'),
+			(3,'statistics.machine.view-details'),
+			(3,'statistics.view.*'),
+			(3,'syslog.view'),
+			
+			(1,'*'),
+			
+			(4,'adduser.user.view-list'),
+			(4,'backup.create'),
+			(4,'baseconfig.view'),
+			(4,'dnbd3.access-page'),
+			(4,'dnbd3.refresh'),
+			(4,'dnbd3.view.details'),
+			(4,'dozmod.actionlog.view'),
+			(4,'dozmod.users.view'),
+			(4,'eventlog.view'),
+			(4,'exams.exams.view'),
+			(4,'locationinfo.backend.check'),
+			(4,'locationinfo.panel.list'),
+			(4,'locations.location.view'),
+			(4,'minilinux.view'),
+			(4,'news.*'),
+			(4,'permissionmanager.locations.view'),
+			(4,'permissionmanager.roles.view'),
+			(4,'permissionmanager.users.view'),
+			(4,'runmode.list-all'),
+			(4,'serversetup.access-page'),
+			(4,'serversetup.download'),
+			(4,'statistics.hardware.projectors.view'),
+			(4,'statistics.machine.note.view'),
+			(4,'statistics.machine.view-details'),
+			(4,'statistics.view.*'),
+			(4,'statistics_reporting.reporting.download'),
+			(4,'statistics_reporting.table.export'),
+			(4,'statistics_reporting.table.view.*'),
+			(4,'sysconfig.config.view-list'),
+			(4,'sysconfig.module.download'),
+			(4,'sysconfig.module.view-list'),
+			(4,'syslog.view'),
+			(4,'systemstatus.show.overview.*'),
+			(4,'systemstatus.tab.*'),
+			(4,'webinterface.access-page'),
+			
+			(2,'adduser.user.view-list'),
+			(2,'backup.*'),
+			(2,'baseconfig.*'),
+			(2,'dnbd3.*'),
+			(2,'dozmod.*'),
+			(2,'eventlog.view'),
+			(2,'exams.exams.*'),
+			(2,'locationinfo.*'),
+			(2,'locations.*'),
+			(2,'minilinux.*'),
+			(2,'news.*'),
+			(2,'permissionmanager.locations.view'),
+			(2,'permissionmanager.roles.view'),
+			(2,'permissionmanager.users.view'),
+			(2,'rebootcontrol.*'),
+			(2,'roomplanner.edit'),
+			(2,'runmode.list-all'),
+			(2,'serversetup.*'),
+			(2,'statistics.*'),
+			(2,'statistics_reporting.*'),
+			(2,'sysconfig.*'),
+			(2,'syslog.*'),
+			(2,'systemstatus.*'),
+			(2,'vmstore.edit'),
+			(2,'webinterface.*')");
+	// Asign the first user to the superadmin role
+	Database::exec("INSERT INTO `role_x_user` VALUES (1,1)");
+	$res[] = UPDATE_DONE;
+}
+
+//
+//
+
 if (in_array(UPDATE_DONE, $res)) {
 	finalResponse(UPDATE_DONE, 'Tables created successfully');
 }

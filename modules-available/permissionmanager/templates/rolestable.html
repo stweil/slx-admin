@@ -11,6 +11,7 @@
 				<thead>
 					<tr>
 						<th data-sort="string">{{lang_roles}}</th>
+						<th data-sort="string">{{lang_description}}</th>
 						<th class="text-center slx-smallcol">
 							{{#perms.roles.edit.disabled}}
 							{{lang_view}}
@@ -27,8 +28,9 @@
 				{{#roles}}
 					<tr>
 						<td class="rolename">{{rolename}}</td>
+						<td class="text-muted"><table class="slx-ellipsis"><tr><td>{{roledescription}}</td></tr></table></td>
 						<td class="text-center">
-							<a class="btn btn-xs btn-primary" href="?do=permissionmanager&show=roleEditor&roleid={{roleid}}"><span class="glyphicon glyphicon-edit"></span></a>
+							<a class="btn btn-xs btn-primary" href="?do=permissionmanager&amp;show=roleEditor&amp;roleid={{roleid}}"><span class="glyphicon glyphicon-edit"></span></a>
 						</td>
 						<td class="text-center">
 							<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteRole('{{roleid}}', '{{users}}')" {{perms.roles.edit.disabled}}>
@@ -66,7 +68,7 @@
 </form>
 
 <div class="text-right">
-	<a href="?do=permissionmanager&show=roleEditor" class="btn btn-success {{perms.roles.edit.disabled}}"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</a>
+	<a href="?do=permissionmanager&amp;show=roleEditor" class="btn btn-success {{perms.roles.edit.disabled}}"><span class="glyphicon glyphicon-plus"></span> {{lang_newRole}}</a>
 </div>
 
 <script>
