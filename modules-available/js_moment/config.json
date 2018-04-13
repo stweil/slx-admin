@@ -1,9 +1,10 @@
 {
-	"dependencies" : [],
-	"css": {
-		"style.css": true
-	},
-	"scripts": {
-		"clientscript.js": true
-	}
+	"dependencies": [],
+	"css": [
+	    "style.css"
+	],
+	"scripts": [
+	    "clientscript.js"
+	],
+	"client-plugin": true
 }

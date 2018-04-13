@@ -1,4 +1,7 @@
 {
-	"dependencies": [ "statistics", "js_selectize" ],
-	"permission":"0"
+	"dependencies": [
+	    "statistics",
+	    "js_selectize"
+	],
+	"permission": "0"
 }

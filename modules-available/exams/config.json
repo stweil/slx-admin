@@ -1,5 +1,12 @@
 {
-	"category":"main.content",
-	"dependencies": [ "locations", "js_vis", "js_stupidtable", "bootstrap_datepicker", "bootstrap_timepicker", "bootstrap_multiselect"],
+	"category": "main.content",
+	"dependencies": [
+	    "locations",
+	    "js_vis",
+	    "js_stupidtable",
+	    "bootstrap_datepicker",
+	    "bootstrap_timepicker",
+	    "bootstrap_multiselect"
+	],
 	"permission": "0"
 }

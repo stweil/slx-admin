@@ -1,4 +1,7 @@
 {
-	"category":"main.settings-server",
-	"dependencies":["locations","runmode"]
+	"category": "main.settings-server",
+	"dependencies": [
+	    "locations",
+	    "runmode"
+	]
 }

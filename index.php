@@ -79,7 +79,7 @@ abstract class Page
 		if (self::$module === false) {
 			Util::traceError('Invalid Module: ' . $name);
 		}
-		self::$module->activate();
+		self::$module->activate(null, null);
 		self::$instance = self::$module->newPage();
 	}
 

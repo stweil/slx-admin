@@ -1,8 +1,9 @@
 {
-	"css": {
-		"style.css": true
-	},
-	"scripts": {
-		"clientscript.js": true
-	}
+	"css": [
+	    "style.css"
+	],
+	"scripts": [
+	    "clientscript.js"
+	],
+	"client-plugin": true
 }

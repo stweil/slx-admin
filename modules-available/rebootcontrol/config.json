@@ -1,4 +1,7 @@
 {
-	"category":"main.beta",
-	"dependencies": [ "locations", "js_stupidtable" ]
+	"category": "main.beta",
+	"dependencies": [
+	    "locations",
+	    "js_stupidtable"
+	]
 }

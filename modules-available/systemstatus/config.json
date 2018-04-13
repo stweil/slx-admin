@@ -1,4 +1,6 @@
 {
-	"category":"main.status",
-	"dependencies": [ "js_circles" ]
+	"category": "main.status",
+	"dependencies": [
+	    "js_circles"
+	]
 }

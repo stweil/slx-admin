@@ -35,7 +35,7 @@ class Module
 		if ($module === false)
 			return false;
 		if ($activate) {
-			$module->activate();
+			$module->activate(1, true);
 		}
 		return !$module->hasMissingDependencies();
 	}
@@ -139,9 +139,11 @@ class Module
 	 */
 
 	private $category = false;
+	private $clientPlugin = false;
 	private $depsMissing = false;
 	private $depsChecked = false;
 	private $activated = false;
+	private $directActivation = false;
 	private $dependencies = array();
 	private $name;
 	/**
@@ -165,6 +167,9 @@ class Module
 		if (isset($json['category']) && is_string($json['category'])) {
 			$this->category = $json['category'];
 		}
+		if (isset($json['client-plugin'])) {
+			$this->clientPlugin = (bool)$json['client-plugin'];
+		}
 		$this->name = $name;
 	}
 	
@@ -184,21 +189,33 @@ class Module
 		return new $class();
 	}
 
-	public function activate($depth = 1)
+	public function activate($depth, $direct)
 	{
-		if ($this->activated !== false || $this->depsMissing)
-			return $this->activated !== false;
+		if ($this->depsMissing)
+			return false;
+		if ($this->activated !== false && ($this->directActivation || !$direct))
+			return true;
+		if ($depth === null && $direct === null) {
+			// This is the current page, always load its scripts
+			$this->clientPlugin = true;
+			$direct = true;
+		}
+		if ($this->activated === false) {
+			spl_autoload_register(function ($class) {
+				$file = 'modules/' . $this->name . '/inc/' . preg_replace('/[^a-z0-9]/', '', strtolower($class)) . '.inc.php';
+				if (!file_exists($file))
+					return;
+				require_once $file;
+			});
+		}
 		$this->activated = $depth;
-		spl_autoload_register(function($class) {
-			$file = 'modules/' . $this->name . '/inc/' . preg_replace('/[^a-z0-9]/', '', strtolower($class)) . '.inc.php';
-			if (!file_exists($file))
-				return;
-			require_once $file;
-		});
+		if ($direct) {
+			$this->directActivation = true;
+		}
 		foreach ($this->dependencies as $dep) {
 			$get = self::get($dep);
 			if ($get !== false) {
-				$get->activate($depth + 1);
+				$get->activate($depth + 1, $direct && $this->clientPlugin);
 			}
 		}
 		return true;
@@ -263,26 +280,26 @@ class Module
 		return 'modules/' . $this->name;
 	}
 
-	public function getScripts($externalOnly)
+	public function getScripts()
 	{
-		if (!$externalOnly) {
-			if (!isset($this->scripts['clientscript.js']) && file_exists($this->getDir() . '/clientscript.js')) {
-				$this->scripts['clientscript.js'] = false;
+		if ($this->directActivation && $this->clientPlugin) {
+			if (!in_array('clientscript.js', $this->scripts)) {
+				$this->scripts[] = 'clientscript.js';
 			}
-			return array_keys($this->scripts);
+			return $this->scripts;
 		}
-		return array_keys(array_filter($this->scripts));
+		return [];
 	}
 
-	public function getCss($externalOnly)
+	public function getCss()
 	{
-		if (!$externalOnly) {
-			if (!isset($this->css['style.css']) && file_exists($this->getDir() . '/style.css')) {
-				$this->css['style.css'] = false;
+		if ($this->directActivation && $this->clientPlugin) {
+			if (!in_array('style.css', $this->css)) {
+				$this->css[] = 'style.css';
 			}
-			return array_keys($this->css);
+			return $this->css;
 		}
-		return array_keys(array_filter($this->css));
+		return [];
 	}
 
 }

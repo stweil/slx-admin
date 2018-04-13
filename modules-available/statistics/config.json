@@ -1,5 +1,9 @@
 {
-	"category":"main.status",
-	"dependencies": [ "js_chart", "js_selectize", "bootstrap_datepicker"],
-	"permission":"0"
+	"category": "main.status",
+	"dependencies": [
+	    "js_chart",
+	    "js_selectize",
+	    "bootstrap_datepicker"
+	],
+	"permission": "0"
 }

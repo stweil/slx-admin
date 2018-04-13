@@ -1,4 +1,8 @@
 {
-	"category":"main.content",
-	"dependencies": [ "locations", "js_stupidtable", "js_selectize" ]
+	"category": "main.content",
+	"dependencies": [
+	    "locations",
+	    "js_stupidtable",
+	    "js_selectize"
+	]
 }

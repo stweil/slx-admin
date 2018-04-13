@@ -1,3 +1,10 @@
 {
-	"dependencies": ["js_jqueryui", "js_selectize", "bootstrap_dialog", "statistics", "locations", "runmode"]
+	"dependencies": [
+	    "js_jqueryui",
+	    "js_selectize",
+	    "bootstrap_dialog",
+	    "statistics",
+	    "locations",
+	    "runmode"
+	]
 }
