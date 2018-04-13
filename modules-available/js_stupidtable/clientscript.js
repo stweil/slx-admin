@@ -1,9 +1,9 @@
 /*
- Stupid jQuery table plugin.
+ Stupid jQuery table plugin. v1.1.3
 
  https://github.com/joequery/Stupid-Table-Plugin
 
- Copyright (c) 2012 Joseph McCullough
+ Copyright (c) 2012-2017 Joseph McCullough
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -31,19 +31,53 @@
 			sortFns = sortFns || {};
 			sortFns = $.extend({}, $.fn.stupidtable.default_sort_fns, sortFns);
 			$table.data('sortFns', sortFns);
+			$table.stupidtable_build();
 
 			$table.on("click.stupidtable", "thead th", function() {
 				$(this).stupidsort();
 			});
 
-			// to show the sort-arrow next to the table header
-			$table.on("aftertablesort", function (event, data) {
-				var th = $(this).find("th");
-				th.find(".arrow").remove();
-				var dir = $.fn.stupidtable.dir;
-				var arrow = data.direction === dir.ASC ? "down" : "up";
-				th.eq(data.column).append(' <span class="arrow glyphicon glyphicon-chevron-'+arrow+'"></span>');
-			});
+			// Sort th immediately if data-sort-onload="yes" is specified. Limit to
+			// the first one found - only one default sort column makes sense anyway.
+			var $th_onload_sort = $table.find("th[data-sort-onload=yes]").eq(0);
+			$th_onload_sort.stupidsort();
+		});
+	};
+
+	// ------------------------------------------------------------------
+	// Default settings
+	// ------------------------------------------------------------------
+	$.fn.stupidtable.default_settings = {
+		should_redraw: function(sort_info){
+			return true;
+		},
+		will_manually_build_table: false
+	};
+	$.fn.stupidtable.dir = {ASC: "asc", DESC: "desc"};
+	$.fn.stupidtable.default_sort_fns = {
+		"int": function(a, b) {
+			return parseInt(a, 10) - parseInt(b, 10);
+		},
+		"float": function(a, b) {
+			return parseFloat(a) - parseFloat(b);
+		},
+		"string": function(a, b) {
+			return a.toString().localeCompare(b.toString());
+		},
+		"string-ins": function(a, b) {
+			a = a.toString().toLocaleLowerCase();
+			b = b.toString().toLocaleLowerCase();
+			return a.localeCompare(b);
+		}
+	};
+
+	// Allow specification of settings on a per-table basis. Call on a table
+	// jquery object. Call *before* calling .stuidtable();
+	$.fn.stupidtable_settings = function(settings) {
+		return this.each(function() {
+			var $table = $(this);
+			var final_settings = $.extend({}, $.fn.stupidtable.default_settings, settings);
+			$table.stupidtable.settings = final_settings;
 		});
 	};
 
@@ -52,9 +86,6 @@
 	// Call on a table header.
 	$.fn.stupidsort = function(force_direction){
 		var $this_th = $(this);
-		var th_index = 0; // we'll increment this soon
-		var dir = $.fn.stupidtable.dir;
-		var $table = $this_th.closest("table");
 		var datatype = $this_th.data("sort") || null;
 
 		// No datatype? Nothing to do.
@@ -62,30 +93,27 @@
 			return;
 		}
 
-		// Account for colspans
-		$this_th.parents("tr").find("th").slice(0, $(this).index()).each(function() {
-			var cols = $(this).attr("colspan") || 1;
-			th_index += parseInt(cols,10);
-		});
+		var dir = $.fn.stupidtable.dir;
+		var $table = $this_th.closest("table");
 
-		var sort_dir;
-		if(arguments.length == 1){
-			sort_dir = force_direction;
-		}
-		else{
-			sort_dir = force_direction || $this_th.data("sort-default") || dir.ASC;
-			if ($this_th.data("sort-dir"))
-				sort_dir = $this_th.data("sort-dir") === dir.ASC ? dir.DESC : dir.ASC;
+		var sort_info = {
+			$th: $this_th,
+			$table: $table,
+			datatype: datatype
+		};
+
+
+		// Bring in default settings if none provided
+		if(!$table.stupidtable.settings){
+			$table.stupidtable.settings = $.extend({}, $.fn.stupidtable.default_settings);
 		}
 
-		// Bail if already sorted in this direction
-		if ($this_th.data("sort-dir") === sort_dir) {
-			return;
-		}
-		// Go ahead and set sort-dir.  If immediately subsequent calls have same sort-dir they will bail
-		$this_th.data("sort-dir", sort_dir);
+		sort_info.compare_fn = $table.data('sortFns')[datatype];
+		sort_info.th_index = calculateTHIndex(sort_info);
+		sort_info.sort_dir = calculateSortDir(force_direction, sort_info);
 
-		$table.trigger("beforetablesort", {column: th_index, direction: sort_dir});
+		$this_th.data("sort-dir", sort_info.sort_dir);
+		$table.trigger("beforetablesort", {column: sort_info.th_index, direction: sort_info.sort_dir, $th: $this_th});
 
 		// More reliable method of forcing a redraw
 		$table.css("display");
@@ -93,60 +121,22 @@
 		// Run sorting asynchronously on a timout to force browser redraw after
 		// `beforetablesort` callback. Also avoids locking up the browser too much.
 		setTimeout(function() {
-			// Gather the elements for this column
-			var column = [];
-			var sortFns = $table.data('sortFns');
-			var sortMethod = sortFns[datatype];
-			var collapsedCount = $table.children("tbody").children("tr.collapse").length;
-			var trs = $table.children("tbody").children("tr:not(.slx-decollapse)");
-
-			// Extract the data for the column that needs to be sorted and pair it up
-			// with the TR itself into a tuple. This way sorting the values will
-			// incidentally sort the trs.
-			trs.each(function(index,tr) {
-				var $e = $(tr).children().eq(th_index);
-				var sort_val = $e.data("sort-value");
-
-				// Store and read from the .data cache for display text only sorts
-				// instead of looking through the DOM every time
-				if(typeof(sort_val) === "undefined"){
-					var txt = $e.text();
-					$e.data('sort-value', txt);
-					sort_val = txt;
-				}
-				column.push([sort_val, tr]);
-			});
-
-			// Sort by the data-order-by value
-			column.sort(function(a, b) { return sortMethod(a[0], b[0]); });
-			if (sort_dir != dir.ASC)
-				column.reverse();
-
-			// Replace the content of tbody with the sorted rows. Strangely
-			// enough, .append accomplishes this for us.
-			trs = $.map(column, function(kv) { return kv[1]; });
-
-			if (collapsedCount > 0) {
-				var showCount = trs.length - collapsedCount;
-				for (var i = 0; i < trs.length; i++) {
-					if (i < showCount) {
-						$(trs[i]).removeClass("collapse");
-					} else {
-						$(trs[i]).addClass("collapse");
-					}
-				}
+			if(!$table.stupidtable.settings.will_manually_build_table){
+				$table.stupidtable_build();
 			}
+			var table_structure = sortTable(sort_info);
+			var trs = getTableRowsFromTableStructure(table_structure, sort_info);
 
-			$table.children("tbody").prepend(trs);
+			if(!$table.stupidtable.settings.should_redraw(sort_info)){
+				return;
+			}
+			$table.children("tbody").append(trs);
 
-			// Reset siblings
-			$table.find("th").data("sort-dir", null).removeClass("sorting-desc sorting-asc");
-			$this_th.data("sort-dir", sort_dir).addClass("sorting-"+sort_dir);
-
-			$table.trigger("aftertablesort", {column: th_index, direction: sort_dir});
+			updateElementData(sort_info);
+			$table.trigger("aftertablesort", {column: sort_info.th_index, direction: sort_info.sort_dir, $th: $this_th});
 			$table.css("display");
-		}, 10);
 
+		}, 10);
 		return $this_th;
 	};
 
@@ -164,35 +154,154 @@
 		return $this_td;
 	};
 
-	// ------------------------------------------------------------------
-	// Default settings
-	// ------------------------------------------------------------------
-	$.fn.stupidtable.dir = {ASC: "asc", DESC: "desc"};
-	$.fn.stupidtable.default_sort_fns = {
-		"int": function(a, b) {
-			return parseInt(a, 10) - parseInt(b, 10);
-		},
-		"float": function(a, b) {
-			return parseFloat(a) - parseFloat(b);
-		},
-		"string": function(a, b) {
-			return a.toString().localeCompare(b.toString());
-		},
-		"string-ins": function(a, b) {
-			a = a.toString().toLocaleLowerCase();
-			b = b.toString().toLocaleLowerCase();
-			return a.localeCompare(b);
-		},
-		"ipv4":function(a,b){
-			var aa = a.split(".");
-			var bb = b.split(".");
 
-			var resulta = aa[0]*0x1000000 + aa[1]*0x10000 + aa[2]*0x100 + aa[3]*1;
-			var resultb = bb[0]*0x1000000 + bb[1]*0x10000 + bb[2]*0x100 + bb[3]*1;
+	$.fn.stupidtable_build = function(){
+		return this.each(function() {
+			var $table = $(this);
+			var table_structure = [];
+			var trs = $table.children("tbody").children("tr");
+			trs.each(function(index,tr) {
 
-			return resulta-resultb;
-		}
+				// ====================================================================
+				// Transfer to using internal table structure
+				// ====================================================================
+				var ele = {
+					$tr: $(tr),
+					columns: [],
+					index: index
+				};
+
+				$(tr).children('td').each(function(idx, td){
+					var sort_val = $(td).data("sort-value");
+
+					// Store and read from the .data cache for display text only sorts
+					// instead of looking through the DOM every time
+					if(typeof(sort_val) === "undefined"){
+						var txt = $(td).text();
+						$(td).data('sort-value', txt);
+						sort_val = txt;
+					}
+					ele.columns.push(sort_val);
+				});
+				table_structure.push(ele);
+			});
+			$table.data('stupidsort_internaltable', table_structure);
+		});
 	};
+
+	// ====================================================================
+	// Private functions
+	// ====================================================================
+	var sortTable = function(sort_info){
+		var table_structure = sort_info.$table.data('stupidsort_internaltable');
+		var th_index = sort_info.th_index;
+		var $th = sort_info.$th;
+
+		var multicolumn_target_str = $th.data('sort-multicolumn');
+		var multicolumn_targets;
+		if(multicolumn_target_str){
+			multicolumn_targets = multicolumn_target_str.split(',');
+		}
+		else{
+			multicolumn_targets = [];
+		}
+		var multicolumn_th_targets = $.map(multicolumn_targets, function(identifier, i){
+			return get_th(sort_info.$table, identifier);
+		});
+
+		table_structure.sort(function(e1, e2){
+			var multicolumns = multicolumn_th_targets.slice(0); // shallow copy
+			var diff = sort_info.compare_fn(e1.columns[th_index], e2.columns[th_index]);
+			while(diff === 0 && multicolumns.length){
+				var multicolumn = multicolumns[0];
+				var datatype = multicolumn.$e.data("sort");
+				var multiCloumnSortMethod = sort_info.$table.data('sortFns')[datatype];
+				diff = multiCloumnSortMethod(e1.columns[multicolumn.index], e2.columns[multicolumn.index]);
+				multicolumns.shift();
+			}
+			// Sort by position in the table if values are the same. This enforces a
+			// stable sort across all browsers. See https://bugs.chromium.org/p/v8/issues/detail?id=90
+			if (diff === 0)
+				return e1.index - e2.index;
+			else
+				return diff;
+
+		});
+
+		if (sort_info.sort_dir != $.fn.stupidtable.dir.ASC){
+			table_structure.reverse();
+		}
+		return table_structure;
+	};
+
+	var get_th = function($table, identifier){
+		// identifier can be a th id or a th index number;
+		var $table_ths = $table.find('th');
+		var index = parseInt(identifier, 10);
+		var $th;
+		if(!index && index !== 0){
+			$th = $table_ths.siblings('#' + identifier);
+			index = $table_ths.index($th);
+		}
+		else{
+			$th = $table_ths.eq(index);
+		}
+		return {index: index, $e: $th};
+	};
+
+	var getTableRowsFromTableStructure = function(table_structure, sort_info){
+		// Gather individual column for callbacks
+		var column = $.map(table_structure, function(ele, i){
+			return [[ele.columns[sort_info.th_index], ele.$tr, i]];
+		});
+
+		/* Side effect */
+		sort_info.column = column;
+
+		// Replace the content of tbody with the sorted rows. Strangely
+		// enough, .append accomplishes this for us.
+		return $.map(table_structure, function(ele) { return ele.$tr; });
+
+	};
+
+	var updateElementData = function(sort_info){
+		var $table = sort_info.$table;
+		var $this_th = sort_info.$th;
+		var sort_dir = $this_th.data('sort-dir');
+		var th_index = sort_info.th_index;
+
+
+		// Reset siblings
+		$table.find("th").data("sort-dir", null).removeClass("sorting-desc sorting-asc");
+		$this_th.data("sort-dir", sort_dir).addClass("sorting-"+sort_dir);
+	};
+
+	var calculateSortDir = function(force_direction, sort_info){
+		var sort_dir;
+		var $this_th = sort_info.$th;
+		var dir = $.fn.stupidtable.dir;
+
+		if(!!force_direction){
+			sort_dir = force_direction;
+		}
+		else{
+			sort_dir = force_direction || $this_th.data("sort-default") || dir.ASC;
+			if ($this_th.data("sort-dir"))
+				sort_dir = $this_th.data("sort-dir") === dir.ASC ? dir.DESC : dir.ASC;
+		}
+		return sort_dir;
+	};
+
+	var calculateTHIndex = function(sort_info){
+		var th_index = 0;
+		var base_index = sort_info.$th.index();
+		sort_info.$th.parents("tr").find("th").slice(0, base_index).each(function() {
+			var cols = $(this).attr("colspan") || 1;
+			th_index += parseInt(cols,10);
+		});
+		return th_index;
+	};
+
 })(jQuery);
 
 document.addEventListener("DOMContentLoaded", function() {
