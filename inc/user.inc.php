@@ -90,8 +90,12 @@ class User
 			return PermissionUtil::getAllowedLocations(self::$user['userid'], $permission);
 		}
 		if (self::$user['permissions'] & Permission::get('superadmin')) {
-			$a = array_keys(Location::getLocationsAssoc());
-			$a[] = 0;
+			if (Module::isAvailable('locations')) {
+				$a = array_keys(Location::getLocationsAssoc());
+				$a[] = 0;
+			} else {
+				$a = [0];
+			}
 			return $a;
 		}
 		return array();
