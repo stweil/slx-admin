@@ -6,6 +6,10 @@ class CourseBackend_Davinci extends CourseBackend
 	private $location;
 	private $verifyHostname = true;
 	private $verifyCert = true;
+	/**
+	 * @var bool|resource
+	 */
+	private $curlHandle = false;
 
 	public function setCredentialsInternal($data)
 	{
@@ -69,7 +73,9 @@ class CourseBackend_Davinci extends CourseBackend
 	{
 		$url = $this->location . "content=xml&type=room&name=" . urlencode($roomId)
 			. "&startdate=" . $startDate->format('d.m.Y') . "&enddate=" . $endDate->format('d.m.Y');
-		$ch = curl_init();
+		if ($this->curlHandle === false) {
+			$this->curlHandle = curl_init();
+		}
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_FOLLOWLOCATION => true,
@@ -78,16 +84,15 @@ class CourseBackend_Davinci extends CourseBackend
 			CURLOPT_URL => $url,
 		);
 
-		curl_setopt_array($ch, $options);
-		$output = curl_exec($ch);
+		curl_setopt_array($this->curlHandle, $options);
+		$output = curl_exec($this->curlHandle);
 		if ($output === false) {
-			$this->error = 'Curl error: ' . curl_error($ch);
+			$this->error = 'Curl error: ' . curl_error($this->curlHandle);
 			return false;
 		} else {
 			$this->error = false;
 			///Operation completed successfully
 		}
-		curl_close($ch);
 		return $output;
 
 	}
@@ -141,5 +146,12 @@ class CourseBackend_Davinci extends CourseBackend
 			$schedules[$roomId] = $timetable;
 		}
 		return $schedules;
+	}
+
+	public function __destruct()
+	{
+		if ($this->curlHandle !== false) {
+			curl_close($this->curlHandle);
+		}
 	}
 }
