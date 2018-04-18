@@ -8,6 +8,10 @@ class CourseBackend_HisInOne extends CourseBackend
 	private $location;
 	private $verifyHostname = true;
 	private $verifyCert = true;
+	/**
+	 * @var bool|resource
+	 */
+	private $curlHandle = false;
 
 
 	public function setCredentialsInternal($data)
@@ -27,7 +31,10 @@ class CourseBackend_HisInOne extends CourseBackend
 		}
 
 		$this->error = false;
-		$this->username = $data['username'] . "\t" . $data['role'];
+		$this->username = $data['username'];
+		if (!empty($data['role'])) {
+			$this->username .= "\t" . $data['role'];
+		}
 		$this->password = $data['password'];
 		$this->open = $data['open'] !== 'CourseService';
 		$url = preg_replace('#(/+qisserver(/+services\d+(/+OpenCourseService)?)?)?\W*$#i', '', $data['baseUrl']);
@@ -60,7 +67,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		if (empty($this->location)) {
 			$this->error = "Credentials are not set";
 		} else {
-			$this->findUnit(123456789, true);
+			$this->findUnit(123456789, date('Y-m-d'), true);
 		}
 		return $this->error === false;
 	}
@@ -70,18 +77,8 @@ class CourseBackend_HisInOne extends CourseBackend
 	 * @param bool $connectionCheckOnly true will only check if no soapError is returned, return value will be empty
 	 * @return array|bool if successful an array with the event ids that take place in the room
 	 */
-	public function findUnit($roomId, $connectionCheckOnly = false)
+	public function findUnit($roomId, $day, $connectionCheckOnly = false)
 	{
-		$termYear = date('Y');
-		$termType1 = date('n');
-		if ($termType1 > 3 && $termType1 < 10) {
-			$termType = 2;
-		} elseif ($termType1 > 10) {
-			$termType = 1;
-			$termYear = $termYear + 1;
-		} else {
-			$termType = 1;
-		}
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 		$envelope = $doc->createElementNS('http://schemas.xmlsoap.org/soap/envelope/', 'SOAP-ENV:Envelope');
@@ -90,18 +87,15 @@ class CourseBackend_HisInOne extends CourseBackend
 			$envelope->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:ns1', 'http://www.his.de/ws/OpenCourseService');
 		} else {
 			$envelope->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:ns1', 'http://www.his.de/ws/CourseService');
-			$header = $this->getHeader($doc);
-			$envelope->appendChild($header);
 		}
+		$header = $this->getHeader($doc);
+		$envelope->appendChild($header);
 		//Body of the request
 		$body = $doc->createElement('SOAP-ENV:Body');
 		$envelope->appendChild($body);
 		$findUnit = $doc->createElement('ns1:findUnit');
 		$body->appendChild($findUnit);
-		$findUnit->appendChild($doc->createElement('termYear', $termYear));
-		if ($termType1 != 3 && $termType1 != 10) {
-			$findUnit->appendChild($doc->createElement('termTypeValueId', $termType));
-		}
+		$findUnit->appendChild($doc->createElement('ns1:individualDatesExecutionDate', $day));
 		$findUnit->appendChild($doc->createElement('ns1:roomId', $roomId));
 
 		$soap_request = $doc->saveXML();
@@ -146,7 +140,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		$idList = $this->getArrayPath($idSubDoc, $subpath);
 		if ($idList === false) {
 			$this->error = 'Cannot find ' . $subpath . ' after ' . $path;
-			@file_put_contents('/tmp/findUnit-2.' . $roomId . '.' . microtime(true), print_r($idSubDoc, true));
+			@file_put_contents('/tmp/bwlp-findUnit-2.' . $roomId . '.' . microtime(true), print_r($idSubDoc, true));
 		}
 		return $idList;
 	}
@@ -188,7 +182,9 @@ class CourseBackend_HisInOne extends CourseBackend
 			"Content-length: " . strlen($request),
 		);
 
-		$soap_do = curl_init();
+		if ($this->curlHandle === false) {
+			$this->curlHandle = curl_init();
+		}
 
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true,
@@ -200,17 +196,16 @@ class CourseBackend_HisInOne extends CourseBackend
 			CURLOPT_HTTPHEADER => $header,
 		);
 
-		curl_setopt_array($soap_do, $options);
+		curl_setopt_array($this->curlHandle, $options);
 
-		$output = curl_exec($soap_do);
+		$output = curl_exec($this->curlHandle);
 
 		if ($output === false) {
-			$this->error = 'Curl error: ' . curl_error($soap_do);
+			$this->error = 'Curl error: ' . curl_error($this->curlHandle);
 		} else {
 			$this->error = false;
 			///Operation completed successfully
 		}
-		curl_close($soap_do);
 		return $output;
 	}
 
@@ -236,21 +231,28 @@ class CourseBackend_HisInOne extends CourseBackend
 		if (empty($requestedRoomIds)) {
 			return array();
 		}
+		$currentWeek = $this->getCurrentWeekDates();
 		$tTables = [];
 		//get all eventIDs in a given room
 		$eventIds = [];
 		foreach ($requestedRoomIds as $roomId) {
-			$roomEventIds = $this->findUnit($roomId);
-			if ($roomEventIds === false) {
-				if ($this->error !== false) {
-					error_log('Cannot findUnit(' . $roomId . '): ' . $this->error);
-					$this->error = false;
+			$ok = false;
+			foreach ($currentWeek as $day) {
+				$roomEventIds = $this->findUnit($roomId, $day, false);
+				if ($roomEventIds === false) {
+					if ($this->error !== false) {
+						error_log('Cannot findUnit(' . $roomId . '): ' . $this->error);
+						$this->error = false;
+					}
+					// TODO: Error gets swallowed
+					continue;
 				}
-				// TODO: Error gets swallowed
-				continue;
+				$ok = true;
+				$eventIds = array_merge($eventIds, $roomEventIds);
 			}
-			$tTables[$roomId] = [];
-			$eventIds = array_merge($eventIds, $roomEventIds);
+			if ($ok) {
+				$tTables[$roomId] = [];
+			}
 		}
 		$eventIds = array_unique($eventIds);
 		if (empty($eventIds)) {
@@ -268,7 +270,6 @@ class CourseBackend_HisInOne extends CourseBackend
 			}
 			$eventDetails = array_merge($eventDetails, $event);
 		}
-		$currentWeek = $this->getCurrentWeekDates();
 		$name = false;
 		foreach ($eventDetails as $event) {
 			foreach (array('/hisdefaulttext',
@@ -323,9 +324,9 @@ class CourseBackend_HisInOne extends CourseBackend
 			$envelope->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:ns1', 'http://www.his.de/ws/OpenCourseService');
 		} else {
 			$envelope->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:ns1', 'http://www.his.de/ws/CourseService');
-			$header = $this->getHeader($doc);
-			$envelope->appendChild($header);
 		}
+		$header = $this->getHeader($doc);
+		$envelope->appendChild($header);
 		//body of the request
 		$body = $doc->createElement('SOAP-ENV:Body');
 		$envelope->appendChild($body);
@@ -359,10 +360,17 @@ class CourseBackend_HisInOne extends CourseBackend
 	{
 		$returnValue = array();
 		$startDate = time();
-		for ($i = 0; $i <= 7; $i++) {
+		for ($i = 0; $i < 7; $i++) {
 			$returnValue[] = date('Y-m-d', strtotime("+{$i} day 12:00", $startDate));
 		}
 		return $returnValue;
+	}
+
+	public function __destruct()
+	{
+		if ($this->curlHandle !== false) {
+			curl_close($this->curlHandle);
+		}
 	}
 
 }
