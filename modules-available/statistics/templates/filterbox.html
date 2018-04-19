@@ -169,16 +169,16 @@ document.addEventListener("DOMContentLoaded", function () {
 			}));
 		});
 		/* also set the type of the input */
-		if (columns[col]['type'] == 'date') {
+		if (columns[col]['type'] === 'date') {
 			$('#argumentInput').datepicker({format : 'yyyy-mm-dd'});
 			$('#argumentSelect').hide();
-		} else if(columns[col]['type'] == 'enum') {
+		} else if(columns[col]['type'] === 'enum') {
 			$('#argumentSelect').empty();
 			$('#argumentInput').hide();
 			$('#argumentSelect').show();
 			columns[col]['values'].forEach(function (v) {
 				var t = v;
-				var disabled = true;
+				var disabled = (col === 'location');
 				if (col === 'location' && slxLocations['L' + v]) {
 					t = slxLocations['L' + v].pad + ' ' + slxLocations['L' + v].name;
 					disabled = slxLocations['L' + v].disabled;
