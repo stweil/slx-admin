@@ -56,6 +56,8 @@ class Page_AddUser extends Page
 				if ($ret !== false) {
 					EventLog::clear();
 				}
+				// same for permissionmanager
+				Database::exec("INSERT INTO `role_x_user` (userid, roleid) VALUES (:id, 1)", ['id' => $id], true);
 				EventLog::info('Created first user ' . $login);
 			} else {
 				EventLog::info(User::getName() . ' created user ' . $login);
