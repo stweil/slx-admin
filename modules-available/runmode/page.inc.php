@@ -170,7 +170,7 @@ class Page_RunMode extends Page
 			Message::addError('main.no-such-module', $moduleId);
 			Util::redirect('?do=runmode');
 		}
-		$module->activate();
+		$module->activate(1, false);
 		$config = RunMode::getModuleConfig($moduleId);
 		if ($config === false) {
 			Message::addError('module-hasnt-runmode', $moduleId);

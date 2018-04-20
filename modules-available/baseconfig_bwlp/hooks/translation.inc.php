@@ -20,7 +20,7 @@ $HANDLER['subsections'] = array(
  * @return array
  */
 $HANDLER['grep_config-variable-categories'] = function($module) {
-	if (!$module->activate())
+	if (!$module->activate(1, false))
 		return array();
 	$want = BaseConfigUtil::getCategories($module);
 	foreach ($want as &$entry) {
@@ -35,7 +35,7 @@ $HANDLER['grep_config-variable-categories'] = function($module) {
  * @return array
  */
 $HANDLER['grep_config-variables'] = function($module) {
-	if (!$module->activate())
+	if (!$module->activate(1, false))
 		return array();
 	$want = BaseConfigUtil::getVariables($module);
 	foreach ($want as &$entry) {

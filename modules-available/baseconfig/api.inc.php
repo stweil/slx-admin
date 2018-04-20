@@ -140,7 +140,7 @@ foreach (glob('modules/*/baseconfig/getconfig.inc.php') as $file) {
 	$mod = Module::get($out[1]);
 	if ($mod === false)
 		continue;
-	$mod->activate();
+	$mod->activate(1, false);
 	foreach ($mod->getDependencies() as $dep) {
 		$depFile = 'modules/' . $dep . '/baseconfig/getconfig.inc.php';
 		if (file_exists($depFile) && Module::isAvailable($dep)) {
