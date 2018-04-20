@@ -241,7 +241,7 @@ class Page_SystemStatus extends Page
 		$data = array('services' => array());
 		$tasks = array();
 
-		$todo = ['dmsd', 'atftpd'];
+		$todo = ['dmsd', 'tftpd-hpa'];
 		if (Module::isAvailable('dnbd3') && Dnbd3::isEnabled()) {
 			$todo[] = 'dnbd3-server';
 		}
