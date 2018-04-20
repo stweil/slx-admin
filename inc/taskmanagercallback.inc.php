@@ -136,7 +136,7 @@ class TaskmanagerCallback
 		$mod = Module::get('sysconfig');
 		if ($mod === false)
 			return;
-		$mod->activate();
+		$mod->activate(1, false);
 		if (Taskmanager::isFailed($task)) {
 			ConfigModule::generateFailed($task, $args);
 		} else {
@@ -155,7 +155,7 @@ class TaskmanagerCallback
 		$mod = Module::get('sysconfig');
 		if ($mod === false)
 			return;
-		$mod->activate();
+		$mod->activate(1, false);
 		if (Taskmanager::isFailed($task)) {
 			ConfigTgz::generateFailed($task, $args);
 		} else {
