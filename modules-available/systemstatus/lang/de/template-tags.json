@@ -26,7 +26,7 @@
     "lang_storeMissingExpected": "VM-Store nicht eingebunden. Erwartet:",
     "lang_storeNotConfigured": "Kein VM-Store konfiguriert!",
     "lang_swapUsage": "swap-Nutzung",
-    "lang_swapWarning": "Es wird swap-Speicher genutzt. Dies kann ein Hinweis darauf sein, dass dem Satelliten-Server zu wenig physikalischer Speicher zur Verf\u00fcgung steht. Im Falle von Performance-Problemen oder Instabilit\u00e4t des Servers sollten Sie erw\u00e4gen, den Server mit mehr RAM auszustatten.",
+    "lang_swapWarning": "Es wird swap-Speicher genutzt. Dies kann ein Hinweis darauf sein, dass dem Satellitenserver zu wenig physikalischer Speicher zur Verf\u00fcgung steht. Im Falle von Performance-Problemen oder Instabilit\u00e4t des Servers sollten Sie erw\u00e4gen, den Server mit mehr RAM auszustatten.",
     "lang_system": "System",
     "lang_systemPartition": "Systempartition",
     "lang_systemStoreError": "Fehler beim Ermitteln des verf\u00fcgbaren Systemspeichers",
