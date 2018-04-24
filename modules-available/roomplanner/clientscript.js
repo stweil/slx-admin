@@ -184,6 +184,7 @@ function onPcDelete(muuid) {
                 value = subnetMachines[i];
             }
         });
+        if (!value) return;
     }
     value.fixedlocationid = null;
     makeCombinedFieldSingle(value);
