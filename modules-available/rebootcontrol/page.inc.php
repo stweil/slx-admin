@@ -49,7 +49,13 @@ class Page_RebootControl extends Page
 				Message::addError('no-clients-selected');
 				Util::redirect();
 			}
-
+			usort($actualClients, function($a, $b) {
+				$a = ($a['state'] === 'IDLE' || $a['state'] === 'OCCUPIED');
+				$b = ($b['state'] === 'IDLE' || $b['state'] === 'OCCUPIED');
+				if ($a === $b)
+					return 0;
+				return $a ? -1 : 1;
+			});
 			$task = RebootControl::execute($actualClients, $this->action === 'shutdown', $minutes, $locationId);
 			Util::redirect("?do=rebootcontrol&taskid=".$task["id"]);
 		}
