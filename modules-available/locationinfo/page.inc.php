@@ -604,8 +604,8 @@ class Page_LocationInfo extends Page
 				$row['locations'] = implode(', ', $locs);
 			}
 			$len = mb_strlen($row['panelname']);
-			if ($len < 5) {
-				$row['panelname'] .= str_repeat('…', 5 - $len);
+			if ($len < 3) {
+				$row['panelname'] .= str_repeat(' ', 3 - $len);
 			}
 			if ($hasRunmode && isset($runmodes[$row['paneluuid']])) {
 				$row['assignedMachineCount'] = count($runmodes[$row['paneluuid']]);
