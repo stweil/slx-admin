@@ -41,11 +41,14 @@
 			</div>
 			<div class="modal-body">
 				<p>{{lang_pubKey}}</p>
-				<pre>{{pubKey}}</pre>
+				<pre id="pubkey">{{pubKey}}</pre>
 				<p>{{lang_newKeypairExplanation}}</p>
 			</div>
 			<div class="modal-footer">
-				<button {{perms.newkeypair.disabled}} class="btn btn-danger pull-right" onclick="generateNewKeypair()" type="button"><span class="glyphicon glyphicon-refresh"></span> {{lang_genNew}}</button>
+				<button {{perms.newkeypair.disabled}} class="btn btn-danger pull-right" onclick="generateNewKeypair()" type="button">
+					<span class="glyphicon glyphicon-refresh"></span>
+					{{lang_genNew}}
+				</button>
 			</div>
 		</div>
 	</div>
@@ -58,6 +61,19 @@
 		var dropdown = $("#locationDropdown");
 		var location = dropdown.val();
 		window.location.replace("?do=rebootcontrol&location="+location);
+	}
+
+	function generateNewKeypair() {
+		if (!confirm('{{lang_confirmNewKeypair}}'))
+			return;
+		$.ajax({
+			url: '?do=rebootcontrol',
+			type: 'POST',
+			data: { action: "generateNewKeypair", token: TOKEN },
+			success: function(value) {
+				$('#pubkey').text(value);
+			}
+		});
 	}
 
 </script>
