@@ -83,13 +83,17 @@ class Taskmanager
 	 * Checks whether the given task id corresponds to a known task in the taskmanager.
 	 * Returns true iff the taskmanager is reachable and the status of the task
 	 * is different from NO_SUCH_TASK.
+	 * If you pass an array it is assumed that it was already queried and is evaluated
+	 * directly.
 	 *
-	 * @param string $taskid a task id
+	 * @param string|array $taskid a task id or a task array returned by ::status or ::submit
 	 * @return boolean true if taskid exists in taskmanager
 	 */
-	public static function isTask($taskid)
+	public static function isTask($task)
 	{
-		$task = self::status($taskid);
+		if (is_string($task)) {
+			$task = self::status($task);
+		}
 		return isset($task['statusCode']) && $task['statusCode'] !== NO_SUCH_TASK;
 	}
 
