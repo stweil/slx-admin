@@ -75,7 +75,7 @@ class LocationInfo
 	{
 		if ($type === 'DEFAULT') {
 			return array(
-				'language' => 'en',
+				'language' => defined('LANG') ? LANG : 'en',
 				'mode' => 1,
 				'vertical' => false,
 				'eco' => false,
@@ -92,7 +92,7 @@ class LocationInfo
 		}
 		if ($type === 'SUMMARY') {
 			return array(
-				'language' => 'en',
+				'language' => defined('LANG') ? LANG : 'en',
 				'calupdate' => 30,
 				'roomupdate' => 15,
 				'configupdate' => 180,
