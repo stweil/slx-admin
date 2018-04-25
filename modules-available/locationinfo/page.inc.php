@@ -113,7 +113,9 @@ class Page_LocationInfo extends Page
 		if ($res !== 1) {
 			Message::addWarning('invalid-panel-id', $id);
 		}
-		RunMode::deleteMode(Page::getModule(), $id);
+		if (Module::isAvailable('runmode')) {
+			RunMode::deleteMode(Page::getModule(), $id);
+		}
 	}
 
 	private function getTime($str)
