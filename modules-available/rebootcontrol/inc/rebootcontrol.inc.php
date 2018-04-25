@@ -66,7 +66,7 @@ class RebootControl
 				continue;
 			$id = $p[1];
 			$task = Taskmanager::status($id);
-			if ($task === false) {
+			if (!Taskmanager::isTask($task)) {
 				Property::removeFromList(RebootControl::KEY_TASKLIST, $entry);
 				continue;
 			}

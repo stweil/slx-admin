@@ -82,7 +82,7 @@ class Taskmanager
 	/**
 	 * Checks whether the given task id corresponds to a known task in the taskmanager.
 	 * Returns true iff the taskmanager is reachable and the status of the task
-	 * is different from NO_SUCH_TASK.
+	 * is different from NO_SUCH_INSTANCE/_TASK.
 	 * If you pass an array it is assumed that it was already queried and is evaluated
 	 * directly.
 	 *
@@ -91,10 +91,13 @@ class Taskmanager
 	 */
 	public static function isTask($task)
 	{
+		if ($task === false)
+			return false;
 		if (is_string($task)) {
 			$task = self::status($task);
 		}
-		return isset($task['statusCode']) && $task['statusCode'] !== NO_SUCH_TASK;
+		return isset($task['statusCode']) && $task['statusCode'] !== NO_SUCH_INSTANCE
+			&& $task['statusCode'] !== NO_SUCH_TASK;
 	}
 
 	/**
@@ -242,6 +245,6 @@ class Taskmanager
 
 }
 
-foreach (array('TASK_FINISHED', 'TASK_ERROR', 'TASK_WAITING', 'NO_SUCH_TASK', 'TASK_PROCESSING') as $i) {
+foreach (array('TASK_FINISHED', 'TASK_ERROR', 'TASK_WAITING', 'NO_SUCH_TASK', 'NO_SUCH_INSTANCE', 'TASK_PROCESSING') as $i) {
 	define($i, $i);
 }
