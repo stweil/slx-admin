@@ -1,13 +1,17 @@
 {
+    "lang_activeTasks": "Active tasks",
     "lang_authFail": "Authentication failed",
     "lang_client": "Client",
+    "lang_clientCount": "# clients",
     "lang_confirmNewKeypair": "Really create new key pair?",
     "lang_connecting": "Connecting...",
     "lang_error": "Not available",
     "lang_genNew": "Generate new keypair",
     "lang_ip": "IP",
+    "lang_kexecRebootCheck": "Quick reboot straight to bwLehrpool (kexec)",
     "lang_location": "Location",
     "lang_minutes": " Minutes",
+    "lang_mode": "Mode",
     "lang_newKeypairExplanation": "You can create a new keypair, which will replace the old one. Please note that after doing so, you cannot poweroff or reboot clients that are already running, since they still use the old key. They have to be rebooted manually first.",
     "lang_off": "Off",
     "lang_on": "On",
@@ -18,6 +22,7 @@
     "lang_rebootButton": "Reboot",
     "lang_rebootCheck": "Do you really want to reboot the selected clients?",
     "lang_rebootControl": "Reboot Control",
+    "lang_rebootIn": "Reboot in:",
     "lang_rebooting": "Rebooting...",
     "lang_selectall": "Select all",
     "lang_selected": "Selected",
@@ -29,5 +34,6 @@
     "lang_shutdownCheck": "Do you really want to shut down the selected clients?",
     "lang_shutdownIn": "Shutdown in: ",
     "lang_status": "Status",
+    "lang_time": "Time",
     "lang_unselectall": "Unselect all"
 }

@@ -44,13 +44,13 @@ class RebootQueries
 	/**
 	 * Get machines by list of UUIDs
 	 * @param string[] $list list of system UUIDs
-	 * @return array list of machines with machineuuid, clientip, state and locationid
+	 * @return array list of machines with machineuuid, hostname, clientip, state and locationid
 	 */
 	public static function getMachinesByUuid($list)
 	{
 		if (empty($list))
 			return array();
-		$res = Database::simpleQuery("SELECT machineuuid, clientip, state, locationid FROM machine
+		$res = Database::simpleQuery("SELECT machineuuid, hostname, clientip, state, locationid FROM machine
 				WHERE machineuuid IN (:list)", compact('list'));
 		return $res->fetchAll(PDO::FETCH_ASSOC);
 	}

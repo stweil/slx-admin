@@ -27,7 +27,6 @@ class Page_RebootControl extends Page
 				Message::addError('no-clients-selected');
 				Util::redirect();
 			}
-			$minutes = Request::post('minutes', 0, 'int');
 
 			$actualClients = RebootQueries::getMachinesByUuid($requestedClients);
 			if (count($actualClients) !== count($requestedClients)) {
@@ -56,8 +55,22 @@ class Page_RebootControl extends Page
 					return 0;
 				return $a ? -1 : 1;
 			});
-			$task = RebootControl::execute($actualClients, $this->action === 'shutdown', $minutes, $locationId);
-			Util::redirect("?do=rebootcontrol&taskid=".$task["id"]);
+			if ($this->action === 'shutdown') {
+				$mode = 'SHUTDOWN';
+				$minutes = Request::post('s-minutes', 0, 'int');
+			} elseif (Request::any('quick', false, 'string') === 'on') {
+				$mode = 'KEXEC_REBOOT';
+				$minutes = Request::post('r-minutes', 0, 'int');
+			} else {
+				$mode = 'REBOOT';
+				$minutes = Request::post('r-minutes', 0, 'int');
+			}
+			$task = RebootControl::execute($actualClients, $mode, $minutes, $locationId);
+			if (Taskmanager::isTask($task)) {
+				Util::redirect("?do=rebootcontrol&taskid=" . $task["id"]);
+			} else {
+				Util::redirect("?do=rebootcontrol");
+			}
 		}
 
 	}
@@ -71,15 +84,22 @@ class Page_RebootControl extends Page
 		if ($this->action === 'show') {
 
 			$data = [];
-			$taskId = Request::get("taskid");
+			$task = Request::get("taskid", false, 'string');
+			if ($task !== false) {
+				$task = Taskmanager::status($task);
+			}
 
-			if ($taskId && Taskmanager::isTask($taskId)) {
-				$task = Taskmanager::status($taskId);
-				$data['taskId'] = $taskId;
+			if (Taskmanager::isTask($task)) {
+
+				$data['taskId'] = $task['id'];
 				$data['locationId'] = $task['data']['locationId'];
 				$data['locationName'] = Location::getName($task['data']['locationId']);
-				$data['clients'] = $task['data']['clients'];
+				$uuids = array_map(function($entry) {
+					return $entry['machineuuid'];
+				}, $task['data']['clients']);
+				$data['clients'] = RebootQueries::getMachinesByUuid($uuids);
 				Render::addTemplate('status', $data);
+
 			} else {
 
 				//location you want to see, default are "not  assigned" clients
@@ -103,6 +123,8 @@ class Page_RebootControl extends Page
 				foreach ($data['locations'] as &$loc) {
 					if (!in_array($loc["locationid"], $allowedLocs)) {
 						$loc["disabled"] = "disabled";
+					} elseif ($loc["locationid"] == $requestedLocation) {
+						$data['location'] = $loc['locationname'];
 					}
 				}
 				// Always show public key (it's public, isn't it?)
@@ -119,6 +141,16 @@ class Page_RebootControl extends Page
 				} else {
 					$data['data'] = RebootQueries::getMachineTable($requestedLocation);
 					Render::addTemplate('_page', $data);
+				}
+
+				// Append list of active reboot/shutdown tasks
+				$active = RebootControl::getActiveTasks($allowedLocs);
+				if (!empty($active)) {
+					foreach ($active as &$entry) {
+						$entry['locationName'] = Location::getName($entry['locationId']);
+					}
+					unset($entry);
+					Render::addTemplate('task-list', ['list' => $active]);
 				}
 
 			}

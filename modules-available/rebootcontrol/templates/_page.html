@@ -1,4 +1,6 @@
-<form id="tableDataForm" method="post" action="?do=rebootcontrol" class="form-inline">
+<h3>{{location}}</h3>
+
+<form method="post" action="?do=rebootcontrol" class="form-inline">
 	<input type="hidden" name="token" value="{{token}}">
 	<div class="row">
 		<div class="col-md-12">
@@ -45,9 +47,7 @@
 		</div>
 	</div>
 
-
 	<!-- Modals -->
-
 	<div class ="modal fade" id="rebootModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
@@ -56,17 +56,27 @@
 					<h4 class="modal-title" id="myModalLabel">{{lang_rebootButton}}</h4>
 				</div>
 				<div class="modal-body">
-					{{lang_rebootCheck}}
+					<div>{{lang_rebootCheck}}</div>
+					<div>{{lang_rebootIn}} <input name="r-minutes" title="{{lang_shutdownIn}}" type="number" value="0" min="0" pattern="\d+"> {{lang_minutes}}</div>
+					<div>
+						<div class="checkbox checkbox-inline">
+							<input name="quick" type="checkbox" value="on" id="rb-quick">
+							<label for="rb-quick">{{lang_kexecRebootCheck}}</label>
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" {{perms.action.reboot.disabled}} name="action" value="reboot" class="btn btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_reboot}}</button>
+					<button type="submit" {{perms.action.reboot.disabled}} name="action" value="reboot" class="btn btn-warning">
+						<span class="glyphicon glyphicon-repeat"></span>
+						{{lang_reboot}}
+					</button>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class ="modal fade" id="shutdownModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class ="modal fade" id="shutdownModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -74,12 +84,15 @@
 					<h4 class="modal-title" id="myModalLabel2">{{lang_shutdownButton}}</h4>
 				</div>
 				<div class="modal-body">
-					{{lang_shutdownCheck}}
-					{{lang_shutdownIn}} <input id="shutdownTimer" name="minutes" title="{{lang_shutdownIn}}" type="number" value="0" min="0" pattern="\d+"> {{lang_minutes}}
+					<div>{{lang_shutdownCheck}}</div>
+					{{lang_shutdownIn}} <input name="s-minutes" title="{{lang_shutdownIn}}" type="number" value="0" min="0" pattern="\d+"> {{lang_minutes}}
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" {{perms.action.shutdown.disabled}} name="action" value="shutdown" class="btn btn-danger"><span class="glyphicon glyphicon-off"></span> {{lang_shutdownButton}}</button>
+					<button type="submit" {{perms.action.shutdown.disabled}} name="action" value="shutdown" class="btn btn-danger">
+						<span class="glyphicon glyphicon-off"></span>
+						{{lang_shutdownButton}}
+					</button>
 				</div>
 			</div>
 		</div>
@@ -166,19 +179,6 @@
 		} else {
 			$rows.removeClass('active');
 		}
-	}
-
-	function generateNewKeypair() {
-		if (!confirm('{{lang_confirmNewKeypair}}'))
-			return;
-		$.ajax({
-			url: '?do=rebootcontrol',
-			type: 'POST',
-			data: { action: "generateNewKeypair", token: TOKEN },
-			success: function(value) {
-				$('#pubKey').text(value);
-			}
-		});
 	}
 
 </script>

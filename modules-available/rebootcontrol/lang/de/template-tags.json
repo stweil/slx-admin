@@ -1,13 +1,17 @@
 {
+    "lang_activeTasks": "Laufende Jobs",
     "lang_authFail": "Authentifizierung fehlgeschlagen",
     "lang_client": "Client",
+    "lang_clientCount": "# Clients",
     "lang_confirmNewKeypair": "Wirklich neues Schl\u00fcsselpaar erzeugen?",
     "lang_connecting": "Verbinde...",
     "lang_error": "Nicht erreichbar",
     "lang_genNew": "Neues Schl\u00fcsselpaar generieren",
     "lang_ip": "IP",
+    "lang_kexecRebootCheck": "Schneller Reboot direkt in bwLehrpool",
     "lang_location": "Standort",
     "lang_minutes": " Minuten",
+    "lang_mode": "Modus",
     "lang_newKeypairExplanation": "Sie k\u00f6nnen ein neues Schl\u00fcsselpaar erzeugen lassen. In diesem Fall wird das alte Schl\u00fcsselpaar verworfen, sodass alle zum jetzigen Zeitpunkt bereits gestarteten Rechner nicht mehr aus der Ferne bedient werden k\u00f6nnen, bis diese manuell neugestartet wurden.",
     "lang_off": "Aus",
     "lang_on": "An",
@@ -18,6 +22,7 @@
     "lang_rebootButton": "Neustarten",
     "lang_rebootCheck": "Wollen Sie die ausgew\u00e4hlten Rechner wirklich neustarten?",
     "lang_rebootControl": "Reboot Control",
+    "lang_rebootIn": "Neustart in:",
     "lang_rebooting": "Neustart...",
     "lang_selectall": "Alle ausw\u00e4hlen",
     "lang_selected": "Ausgew\u00e4hlt",
@@ -29,5 +34,6 @@
     "lang_shutdownCheck": "Wollen Sie die ausgew\u00e4hlten Rechner wirklich herunterfahren?",
     "lang_shutdownIn": "Herunterfahren in: ",
     "lang_status": "Status",
+    "lang_time": "Zeit",
     "lang_unselectall": "Alle abw\u00e4hlen"
 }

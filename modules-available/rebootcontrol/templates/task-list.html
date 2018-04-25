@@ -1,0 +1,33 @@
+<h3>{{lang_activeTasks}}</h3>
+<table class="table">
+	<thead>
+		<tr>
+			<th>{{lang_mode}}</th>
+			<th>{{lang_location}}</th>
+			<th>{{lang_time}}</th>
+			<th>{{lang_clientCount}}</th>
+			<th>{{lang_status}}</th>
+		</tr>
+	</thead>
+	<tbody>
+	{{#list}}
+		<tr>
+			<td>
+				<a href="?do=rebootcontrol&amp;taskid={{taskId}}">{{mode}}</a>
+			</td>
+			<td>
+				{{locationName}}
+			</td>
+			<td>
+				{{time}}
+			</td>
+			<td>
+				{{clientCount}}
+			</td>
+			<td>
+				{{status}}
+			</td>
+		</tr>
+	{{/list}}
+	</tbody>
+</table>
