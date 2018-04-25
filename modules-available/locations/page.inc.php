@@ -404,8 +404,8 @@ class Page_Locations extends Page
 				if (!isset($loc['clientCount'])) {
 					$loc['clientCount'] = 0;
 					$loc['clientLoad'] = '0%';
-					$loc['clientCountSum'] += $loc['clientCount'];
 				}
+				$loc['clientCountSum'] += $loc['clientCount'];
 				foreach ($loc['parents'] as $pid) {
 					if (!in_array($pid, $allowedLocationIds))
 						continue;
