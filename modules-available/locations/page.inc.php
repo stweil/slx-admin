@@ -345,8 +345,10 @@ class Page_Locations extends Page
 		Location::getOverlappingSubnets($overlapSelf, $overlapOther);
 		//$locs = Location::getLocations(0, 0, false, true);
 		$locationList = Location::getLocationsAssoc();
+		unset($locationList[0]);
 		// Statistics: Count machines for each subnet
 		$unassigned = false;
+		$unassignedLoad = 0;
 
 		// Filter view: Remove locations we can't reach at all, but show parents to locations
 		// we have permission to, so the tree doesn't look all weird
@@ -383,15 +385,20 @@ class Page_Locations extends Page
 		// Client statistics
 		if (Module::get('statistics') !== false) {
 			$unassigned = 0;
+			$extra = '';
+			if (in_array(0, $allowedLocationIds)) {
+				$extra = ' OR locationid IS NULL';
+			}
 			$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt, Sum(If(state = 'OCCUPIED', 1, 0)) AS used
- 				 FROM machine WHERE locationid IN (:allowedLocationIds) GROUP BY locationid", compact('allowedLocationIds'));
+ 				 FROM machine WHERE (locationid IN (:allowedLocationIds) $extra) GROUP BY locationid", compact('allowedLocationIds'));
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				$locId = (int)$row['locationid'];
 				if (isset($locationList[$locId])) {
 					$locationList[$locId]['clientCount'] = $row['cnt'];
-					$locationList[$locId]['clientLoad'] = round(100 * $row['used'] / $row['cnt']) . '%';
+					$locationList[$locId]['clientLoad'] = round(100 * $row['used'] / $row['cnt']) . ' %';
 				} else {
 					$unassigned += $row['cnt'];
+					$unassignedLoad += $row['used'];
 				}
 			}
 			unset($loc);
@@ -482,6 +489,7 @@ class Page_Locations extends Page
 			'haveOverlapSelf' => !empty($overlapSelf),
 			'haveOverlapOther' => !empty($overlapOther),
 			'unassignedCount' => $unassigned,
+			'unassignedLoad' => round(($unassignedLoad / $unassigned) * 100) . ' %',
 			'defaultConfig' => $defaultConfig,
 			'addAllowedList' => array_values($addAllowedList),
 		);
