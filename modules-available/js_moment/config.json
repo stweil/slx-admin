@@ -1,8 +1,5 @@
 {
 	"dependencies": [],
-	"css": [
-	    "style.css"
-	],
 	"scripts": [
 	    "clientscript.js"
 	],

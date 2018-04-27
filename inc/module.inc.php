@@ -283,7 +283,7 @@ class Module
 	public function getScripts()
 	{
 		if ($this->directActivation && $this->clientPlugin) {
-			if (!in_array('clientscript.js', $this->scripts)) {
+			if (!in_array('clientscript.js', $this->scripts) && file_exists($this->getDir() . '/clientscript.js')) {
 				$this->scripts[] = 'clientscript.js';
 			}
 			return $this->scripts;
@@ -294,7 +294,7 @@ class Module
 	public function getCss()
 	{
 		if ($this->directActivation && $this->clientPlugin) {
-			if (!in_array('style.css', $this->css)) {
+			if (!in_array('style.css', $this->css) && file_exists($this->getDir() . '/style.css')) {
 				$this->css[] = 'style.css';
 			}
 			return $this->css;
