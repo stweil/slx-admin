@@ -16,6 +16,7 @@ $foofoo = function($machineUuid) {
 	if ($config->systemdDefaultTarget !== false) {
 		ConfigHolder::add('SLX_SYSTEMD_TARGET', $config->systemdDefaultTarget, 10000);
 	}
+	ConfigHolder::add('SLX_RUNMODE_MODULE', $res['module']);
 };
 
 $foofoo($uuid);
