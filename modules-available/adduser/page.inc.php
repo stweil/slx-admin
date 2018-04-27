@@ -202,9 +202,13 @@ class Page_AddUser extends Page
 			foreach ($data['list'] as &$u) {
 				// Don't allow deleting user 1 and self
 				$u['hide_delete'] = $u['userid'] == 1 || $u['userid'] == User::getId();
+				if ($u['userid'] == 1) {
+					$u['userClass'] = 'slx-bold';
+				}
 			}
 			unset($u);
 			Permission::addGlobalTags($data['perms'], null, ['user.add', 'user.edit', 'user.remove']);
+			Module::isAvailable('js_stupidtable');
 			$page->render('page-userlist', $data);
 		}
 	}

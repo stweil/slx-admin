@@ -5,20 +5,22 @@
 <form method="get">
 	<input type="hidden" name="do" value="adduser">
 	<input type="hidden" name="show" value="edituser">
-	<table class="table">
+	<table class="table stupidtable">
 		<thead>
 		<tr>
-			<th>{{lang_login}}</th>
-			<th>{{lang_name}}</th>
-			<th>{{lang_phone}}</th>
-			<th>{{lang_email}}</th>
+			<th data-sort="int" class="slx-smallcol">{{lang_userIdCol}}</th>
+			<th data-sort="string">{{lang_login}}</th>
+			<th data-sort="string">{{lang_name}}</th>
+			<th data-sort="string">{{lang_phone}}</th>
+			<th data-sort="string">{{lang_email}}</th>
 			<th width="1"></th>
 		</tr>
 		</thead>
 		<tbody>
 		{{#list}}
 			<tr>
-				<td id="user-{{userid}}">{{login}}</td>
+				<td class="text-right {{userClass}}">{{userid}}</td>
+				<td id="user-{{userid}}" class="{{userClass}}">{{login}}</td>
 				<td>{{fullname}}</td>
 				<td>{{phone}}</td>
 				<td>{{email}}</td>
