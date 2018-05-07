@@ -195,7 +195,7 @@ if (Database::exec("INSERT INTO `role` VALUES
 			(2,'systemstatus.*'),
 			(2,'vmstore.edit'),
 			(2,'webinterface.*')");
-	// Asign the first user to the superadmin role
+	// Asign the first user to the superadmin role (if one exists)
 	Database::exec("INSERT INTO `role_x_user` VALUES (1,1)");
 	$res[] = UPDATE_DONE;
 }
