@@ -54,9 +54,15 @@ class Page_ServerSetup extends Page
 	protected function doRender()
 	{
 		Render::addTemplate("heading");
-		$taskid = Request::any('taskid');
-		if ($taskid !== false && Taskmanager::isTask($taskid)) {
-			Render::addTemplate('ipxe_update', array('taskid' => $taskid));
+		$task = Property::get('ipxe-task-id');
+		if ($task !== false) {
+			$task = Taskmanager::status($task);
+			if (!Taskmanager::isTask($task) || Taskmanager::isFinished($task)) {
+				$task = false;
+			}
+		}
+		if ($task !== false) {
+			Render::addTemplate('ipxe_update', array('taskid' => $task['id']));
 		}
 
 		Permission::addGlobalTags($perms, null, ['edit.menu', 'edit.address', 'download']);
@@ -137,9 +143,7 @@ class Page_ServerSetup extends Page
 		}
 		if ($valid) {
 			Property::setServerIp($newAddress);
-			global $tidIpxe;
-			if (isset($tidIpxe) && $tidIpxe !== false)
-				Util::redirect('?do=ServerSetup&taskid=' . $tidIpxe);
+			Util::redirect('?do=ServerSetup');
 		} else {
 			Message::addError('invalid-ip', $newAddress);
 		}
@@ -163,8 +167,8 @@ class Page_ServerSetup extends Page
 		else
 			$this->currentMenu['masterpassword'] = Crypto::hash6($this->currentMenu['masterpasswordclear']);
 		Property::setBootMenu($this->currentMenu);
-		$id = Trigger::ipxe();
-		Util::redirect('?do=ServerSetup&taskid=' . $id);
+		Trigger::ipxe();
+		Util::redirect('?do=ServerSetup');
 	}
 
 	private function handleGetImage()

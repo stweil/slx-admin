@@ -25,6 +25,7 @@ class Trigger
 		$task = Taskmanager::submit('CompileIPxe', $data);
 		if (!isset($task['id']))
 			return false;
+		Property::set('ipxe-task-id', $task['id'], 15);
 		return $task['id'];
 	}
 
