@@ -9,8 +9,10 @@
 			<span class="glyphicon glyphicon-ok"></span>
 			{{lang_usbBuilt}}
 		</div>
-		<div id="genfailed" class="alert alert-danger collapse">
-			{{lang_generationFailed}}
+		<div id="genfailed" class="collapse">
+			<div class="alert alert-danger">
+				{{lang_generationFailed}}
+			</div>
 		</div>
 		<div data-tm-id="{{taskid}}" data-tm-log="log" data-tm-log-height="31em" data-tm-callback="ipxeGenCb">{{lang_menuGeneration}}</div>
 	</div>

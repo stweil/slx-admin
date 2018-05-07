@@ -11,7 +11,7 @@
     "lang_downloadImage": "USB-Image herunterladen",
     "lang_downloadRufus": "Rufus herunterladen",
     "lang_example": "Beispiel",
-    "lang_generationFailed": "Erzeugen des Bootmen\u00fcs fehlgeschlagen. Der Netzwerkboot von bwLehrpool wird wahrscheinlich nicht funktionieren. Wenn Sie den Fehler nicht selbst beheben k\u00f6nnen, melden Sie bitte obenstehende Fehlermeldung an das bwLehrpool-Projekt.",
+    "lang_generationFailed": "Erzeugen des Bootmen\u00fcs fehlgeschlagen. Der Netzwerkboot von bwLehrpool wird wahrscheinlich nicht funktionieren. Wenn Sie den Fehler nicht selbst beheben k\u00f6nnen, melden Sie bitte die Logausgabe an das bwLehrpool-Projekt.",
     "lang_localHDD": "Lokale HDD",
     "lang_masterPassword": "Master-Passwort",
     "lang_masterPasswordHelp": "Das Master-Passwort wird ben\u00f6tigt, um einen Booteintrag direkt am Client tempor\u00e4r durch Dr\u00fccken der Tab-Taste zu editieren. Da dies f\u00fcr Manipulation am Client genutzt werden kann, sollte diese Funktion unbedingt mit einem Passwort gesch\u00fctzt werden.",

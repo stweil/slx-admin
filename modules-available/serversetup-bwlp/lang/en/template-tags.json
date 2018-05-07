@@ -11,7 +11,7 @@
     "lang_downloadImage": "Download USB Image",
     "lang_downloadRufus": "Download Rufus",
     "lang_example": "Example",
-    "lang_generationFailed": "Could not generate boot menu. The bwLehrpool-System might not work properly. If you can't fix the problem, please report the error message above to the bwLehrpool project.",
+    "lang_generationFailed": "Could not generate boot menu. The bwLehrpool-System might not work properly. If you can't fix the problem, please report the error log below to the bwLehrpool project.",
     "lang_localHDD": "Local HDD",
     "lang_masterPassword": "Master Password",
     "lang_masterPasswordHelp": "The master password is required to edit a boot menu entry. This should be set for security reasons.",
