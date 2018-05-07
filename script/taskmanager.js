@@ -16,7 +16,13 @@ function tmInit()
 			item.append('<div class="data-tm-progress"><div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div></div>');
 		}
 		if (item.is('[data-tm-log]')) {
-			item.append('<pre class="data-tm-log" style="display:none" />');
+			var lh = item.data('tm-log-height');
+			if (!lh) {
+				lh = '';
+			} else {
+				lh = 'min-height:' + lh;
+			}
+			item.append('<pre class="data-tm-log collapse" style="' + lh + '" />');
 		}
 		item.prepend('<span class="data-tm-icon" />');
 	});
@@ -123,8 +129,7 @@ function tmResult(data, status)
 		if (log) {
 			var lKey = obj.attr('data-tm-log');
 			if (task.data && task.data[lKey]) {
-				log.text(task.data[lKey]);
-				log.attr('style', (task.data[lKey] !== '' ? '' : 'display:none'));
+				log.text(task.data[lKey]).show();
 			}
 		}
 		var cb = obj.attr('data-tm-callback');
