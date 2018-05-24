@@ -6,6 +6,13 @@
 class Taskmanager
 {
 
+	const NO_SUCH_TASK = 'NO_SUCH_TASK';
+	const TASK_FINISHED = 'TASK_FINISHED';
+	const TASK_ERROR = 'TASK_ERROR';
+	const TASK_WAITING = 'TASK_WAITING';
+	const NO_SUCH_INSTANCE = 'NO_SUCH_INSTANCE';
+	const TASK_PROCESSING = 'TASK_PROCESSING';
+
 	/**
 	 * UDP socket used for communication with the task manager
 	 * @var resource
@@ -49,7 +56,7 @@ class Taskmanager
 		if ($async)
 			return true;
 		$reply = self::readReply($seq);
-		if ($reply === false || !is_array($reply) || !isset($reply['id']) || (isset($reply['statusCode']) && $reply['statusCode'] === NO_SUCH_TASK)) {
+		if ($reply === false || !is_array($reply) || !isset($reply['id']) || (isset($reply['statusCode']) && $reply['statusCode'] === Taskmanager::NO_SUCH_TASK)) {
 			self::addErrorMessage($reply);
 			return false;
 		}
@@ -82,7 +89,7 @@ class Taskmanager
 	/**
 	 * Checks whether the given task id corresponds to a known task in the taskmanager.
 	 * Returns true iff the taskmanager is reachable and the status of the task
-	 * is different from NO_SUCH_INSTANCE/_TASK.
+	 * is different from Taskmanager::NO_SUCH_INSTANCE/_TASK.
 	 * If you pass an array it is assumed that it was already queried and is evaluated
 	 * directly.
 	 *
@@ -96,8 +103,8 @@ class Taskmanager
 		if (is_string($task)) {
 			$task = self::status($task);
 		}
-		return isset($task['statusCode']) && $task['statusCode'] !== NO_SUCH_INSTANCE
-			&& $task['statusCode'] !== NO_SUCH_TASK;
+		return isset($task['statusCode']) && $task['statusCode'] !== Taskmanager::NO_SUCH_INSTANCE
+			&& $task['statusCode'] !== Taskmanager::NO_SUCH_TASK;
 	}
 
 	/**
@@ -110,7 +117,7 @@ class Taskmanager
 	public static function waitComplete($task, $timeout = 2500)
 	{
 		if (is_array($task) && isset($task['id'])) {
-			if ($task['statusCode'] !== TASK_PROCESSING && $task['statusCode'] !== TASK_WAITING) {
+			if ($task['statusCode'] !== Taskmanager::TASK_PROCESSING && $task['statusCode'] !== Taskmanager::TASK_WAITING) {
 				self::release($task['id']);
 				return $task;
 			}
@@ -124,7 +131,7 @@ class Taskmanager
 			$status = self::status($task);
 			if (!isset($status['statusCode']))
 				break;
-			if ($status['statusCode'] !== TASK_PROCESSING && $status['statusCode'] !== TASK_WAITING) {
+			if ($status['statusCode'] !== Taskmanager::TASK_PROCESSING && $status['statusCode'] !== Taskmanager::TASK_WAITING) {
 				$done = true;
 				break;
 			}
@@ -147,7 +154,7 @@ class Taskmanager
 	{
 		if (!is_array($task) || !isset($task['statusCode']) || !isset($task['id']))
 			return true;
-		if ($task['statusCode'] !== TASK_WAITING && $task['statusCode'] !== TASK_PROCESSING && $task['statusCode'] !== TASK_FINISHED)
+		if ($task['statusCode'] !== Taskmanager::TASK_WAITING && $task['statusCode'] !== Taskmanager::TASK_PROCESSING && $task['statusCode'] !== Taskmanager::TASK_FINISHED)
 			return true;
 		return false;
 	}
@@ -163,7 +170,7 @@ class Taskmanager
 	{
 		if (!is_array($task) || !isset($task['statusCode']) || !isset($task['id']))
 			return false;
-		if ($task['statusCode'] !== TASK_WAITING && $task['statusCode'] !== TASK_PROCESSING)
+		if ($task['statusCode'] !== Taskmanager::TASK_WAITING && $task['statusCode'] !== Taskmanager::TASK_PROCESSING)
 			return true;
 		return false;
 	}
@@ -243,8 +250,4 @@ class Taskmanager
 		return false;
 	}
 
-}
-
-foreach (array('TASK_FINISHED', 'TASK_ERROR', 'TASK_WAITING', 'NO_SUCH_TASK', 'NO_SUCH_INSTANCE', 'TASK_PROCESSING') as $i) {
-	define($i, $i);
 }

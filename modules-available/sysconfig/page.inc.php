@@ -425,12 +425,12 @@ class Page_SysConfig extends Page
 		$task = Taskmanager::submit('DeleteFile', array(
 			'file' => $row['filepath']
 		));
-		if (isset($task['statusCode']) && $task['statusCode'] === TASK_WAITING) {
+		if (isset($task['statusCode']) && $task['statusCode'] === Taskmanager::TASK_WAITING) {
 			$task = Taskmanager::waitComplete($task['id']);
 		}
-		if (!isset($task['statusCode']) || $task['statusCode'] === TASK_ERROR) {
+		if (!isset($task['statusCode']) || $task['statusCode'] === Taskmanager::TASK_ERROR) {
 			Message::addWarning('main.task-error', $task['data']['error']);
-		} elseif ($task['statusCode'] === TASK_FINISHED) {
+		} elseif ($task['statusCode'] === Taskmanager::TASK_FINISHED) {
 			Message::addSuccess('module-deleted', $row['title']);
 		}
 		Database::exec("DELETE FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));

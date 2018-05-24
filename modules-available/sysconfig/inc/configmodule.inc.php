@@ -354,7 +354,7 @@ abstract class ConfigModule
 		// Wait for generation if requested
 		if ($timeoutMs > 0 && isset($ret['id']) && !Taskmanager::isFinished($ret))
 			$ret = Taskmanager::waitComplete($ret, $timeoutMs);
-		if ($ret === true || (isset($ret['statusCode']) && $ret['statusCode'] === TASK_FINISHED)) {
+		if ($ret === true || (isset($ret['statusCode']) && $ret['statusCode'] === Taskmanager::TASK_FINISHED)) {
 			// Already Finished
 			if (file_exists($this->moduleArchive) && !file_exists($tmpTgz))
 				$tmpTgz = false; // If generateInternal succeeded and there's no tmpTgz, it means the file didn't have to be updated

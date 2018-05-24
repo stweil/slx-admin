@@ -62,7 +62,7 @@ class CustomModule_ProcessUpload extends AddModule_Base
 			unlink($tempfile);
 			$this->tmError();
 		}
-		if ($status['statusCode'] != TASK_FINISHED) {
+		if ($status['statusCode'] != Taskmanager::TASK_FINISHED) {
 			unlink($tempfile);
 			$this->taskError($status);
 		}
@@ -128,7 +128,7 @@ class CustomModule_CompressModule extends AddModule_Base
 		if (!isset($status['statusCode'])) {
 			$this->tmError();
 		}
-		if ($status['statusCode'] != TASK_FINISHED) {
+		if ($status['statusCode'] != Taskmanager::TASK_FINISHED) {
 			$this->taskError($status);
 		}
 		// Seems ok, create entry

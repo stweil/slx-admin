@@ -112,7 +112,7 @@ class ConfigTgz
 		// Wait for completion
 		if ($timeoutMs > 0 && !Taskmanager::isFailed($task) && !Taskmanager::isFinished($task))
 			$task = Taskmanager::waitComplete($task, $timeoutMs);
-		if ($task === true || (isset($task['statusCode']) && $task['statusCode'] === TASK_FINISHED)) {
+		if ($task === true || (isset($task['statusCode']) && $task['statusCode'] === Taskmanager::TASK_FINISHED)) {
 			// Success!
 			$this->markUpdated();
 			return true;

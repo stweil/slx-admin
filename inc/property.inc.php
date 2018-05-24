@@ -168,7 +168,7 @@ class Property
 		if (!Taskmanager::isFinished($task)) {
 			$task = Taskmanager::waitComplete($task['id'], 5000);
 		}
-		if ($task['statusCode'] !== TASK_FINISHED || !isset($task['data']['content'])) {
+		if ($task['statusCode'] !== Taskmanager::TASK_FINISHED || !isset($task['data']['content'])) {
 			return isset($task['data']['error']) ? $task['data']['error'] : 'Timeout';
 		}
 		$data = json_decode($task['data']['content'], true);
