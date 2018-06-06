@@ -679,6 +679,7 @@ class Page_Statistics extends Page
 					$row['modeName'] = $data['modeName'];
 				}
 			}
+			$row['locationname'] = Location::getName($row['locationid']);
 			$rows[] = $row;
 		}
 		if ($singleMachine !== false && $singleMachine !== 'none') {

@@ -34,6 +34,11 @@
 					<span class="glyphicon glyphicon-filter"></span>
 				</button>
 			</td>
+			<td>
+				<button type="button" class="btn btn-default btn-xs" onclick="popupFilter('location')">
+					<span class="glyphicon glyphicon-filter"></span>
+				</button>
+			</td>
 		</tr>
 		<tr>
 			<th data-sort="string">{{lang_machine}}</th>
@@ -43,6 +48,7 @@
 			<th data-sort="int" class="text-right">{{lang_gbRam}}</th>
 			<th data-sort="int" class="text-right">{{lang_tmpGb}}</th>
 			<th data-sort="int">{{lang_cpuModel}}</th>
+			<th data-sort="string">{{lang_location}}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -97,6 +103,7 @@
 				</div>{{/nohdd}}
 			</td>
 			<td data-sort-value="{{realcores}}">{{lang_realCores}}: {{realcores}}<div class="small">{{cpumodel}}</div></td>
+			<td data-sort-value="{{locationname}}">{{locationname}}</td>
 		</tr>
 		{{/rows}}
 	</tbody>
