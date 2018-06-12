@@ -1,3 +1,6 @@
 {
-	"category": "main.settings-server"
+	"category": "main.settings-server",
+	"dependencies" : [
+		"locations"
+	]
 }

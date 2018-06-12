@@ -1,0 +1,36 @@
+<h2>{{lang_listOfMenus}}</h2>
+
+<table class="table">
+	<thead>
+	<tr>
+		<th>{{lang_menuTitle}}</th>
+		<th class="slx-smallcol">{{lang_locationCount}}</th>
+		<th class="slx-smallcol">{{lang_isDefault}}</th>
+		<th class="slx-smallcol">{{lang_edit}}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{{#table}}
+		<tr>
+			<td>
+				{{title}}
+			</td>
+			<td class="text-right">
+				{{locationCount}}
+			</td>
+			<td>
+				{{#isdefault}}
+					<span class="glyphicon glyphicon-ok"></span>
+				{{/isdefault}}
+			</td>
+			<td>
+				{{#allowEdit}}
+					<a href="?do=serversetup&amp;show=editmenu&amp;id={{menuid}}" class="btn btn-xs btn-default">
+						<span class="glyphicon glyphicon-edit"></span>
+					</a>
+				{{/allowEdit}}
+			</td>
+		</tr>
+	{{/table}}
+	</tbody>
+</table>
