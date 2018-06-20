@@ -12,6 +12,7 @@
 			<input type="hidden" name="token" value="{{token}}">
 			<input type="hidden" name="action" value="savemenu">
 			<input type="hidden" name="menuid" value="{{menuid}}">
+
 			<div class="row list-group-item">
 				<div class="col-sm-3">
 					<label for="panel-title">{{lang_menuTitle}}</label>
@@ -47,23 +48,29 @@
 					<thead>
 					<tr>
 						<th></th>
+						<th></th>
 						<th>{{lang_entryId}}</th>
 						<th>{{lang_title}}</th>
 						<th>{{lang_hotkey}}</th>
-						<th>{{lang_sortOrder}}</th>
 						<th>{{lang_password}}</th>
 					</tr>
 					</thead>
-					<tbody>
+					<tbody id="tableBody" style="overflow: auto;">
 					{{#entries}}
-						<tr>
-							<td class="slx-smallcol">
-								<div class="radio radio-inline">
+						<tr id="{{menuentryid}}">
+							<input type="hidden" class="form-control sort-val" name="entry[{{menuentryid}}][sortval]" id="entry-sortval-{{menuentryid}}" value="{{sortval}}" {{readonly}}>
+							<td class="drag-handler" style="cursor: pointer;text-align: center; vertical-align: middle;">
+								<span class="glyphicon glyphicon-th-list"></span>
+							</td>
+
+							<td class="slx-smallcol" style="text-align: center; vertical-align: middle;">
+								<div class="radio radio-inline" style="margin: 0px;">
 									<input type="radio" name="defaultentry" value="{{menuentryid}}"
 											 {{#isdefault}}checked{{/isdefault}} {{perms.ipxe.menu.edit.disabled}} {{disabled}}>
 									<label></label>
 								</div>
 							</td>
+
 							<td class="text-nowrap">
 								{{#entryid}}
 									<select class="form-control" name="entry[{{menuentryid}}][entryid]" {{readonly}}>
@@ -91,9 +98,7 @@
 									</select>
 								</td>
 							{{/entryid}}
-							<td>
-								<input class="form-control" name="entry[{{menuentryid}}][sortval]" value="{{sortval}}" {{readonly}}>
-							</td>
+
 							<td>
 								<input class="form-control" name="entry[{{menuentryid}}][plainpass]" id="panel-passwd" type="{{password_type}}"
 										 value="{{plainpass}}" {{readonly}}>
@@ -112,3 +117,24 @@
 		</form>
 	</div>
 </div>
+
+<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded", function() {
+		$('#tableBody').sortable({
+			opacity: 0.8,
+			handle: '.drag-handler',
+			start: function(evt, ui) {
+				ui.placeholder.css("visibility", "visible");
+				ui.placeholder.css("opacity", "0.152");
+				ui.placeholder.css("background-color", "LawnGreen");
+			},
+			stop: function() {
+				var startValue = 1;
+				$('.sort-val').each(function(index, element) {
+					element.value = startValue * 10;
+					startValue++;
+				});
+			}
+		});
+	});
+</script>

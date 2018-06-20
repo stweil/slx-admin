@@ -189,6 +189,7 @@ class Page_ServerSetup extends Page
 			serversetup_menuentry WHERE menuid = :id", compact('id'));
 		$keyList = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
 		$entryList = Database::queryAll("SELECT entryid, title, hotkey FROM serversetup_bootentry ORDER BY title ASC");
+		$sortVals = array();
 		foreach ($menu['entries'] as &$entry) {
 			$entry['isdefault'] = ($entry['menuentryid'] == $menu['defaultentryid']);
 			$entry['keys'] = $keyList;
@@ -206,7 +207,12 @@ class Page_ServerSetup extends Page
 					$item['title'] = $item['entryid'];
 				}
 			}
+			$sortVals[] = $entry['sortval'];
 		}
+		$arr = $menu['entries'];
+		$keys = array_keys($arr);
+		array_multisort( $sortVals, SORT_ASC, $arr, $keys);
+		$menu['entries'] = $arr;
 		// TODO: Make assigned locations editable
 		Permission::addGlobalTags($menu['perms'], 0, ['ipxe.menu.edit']);
 		Render::addTemplate('menu-edit', $menu);
@@ -298,11 +304,12 @@ class Page_ServerSetup extends Page
 		}
 		// TODO: Validate new locations to be saved (and actually save them)
 
-		Database::exec('UPDATE serversetup_menu SET title = :title, timeoutms = :timeoutms
+		Database::exec('UPDATE serversetup_menu SET title = :title, timeoutms = :timeoutms, defaultentryid = :defaultentryid
 					WHERE menuid = :menuid', [
 			'menuid' => $id,
 			'title' => IPxe::sanitizeIpxeString(Request::post('title', '', 'string')),
 			'timeoutms' => abs(Request::post('timeoutms', 0, 'int') * 1000),
+			'defaultentryid' => Request::post('defaultentry', false, 'int'),
 		]);
 		if (User::hasPermission('ipxe.menu.edit', 0)) {
 			Database::exec('UPDATE serversetup_menu SET isdefault = (menuid = :menuid)', ['menuid' => $id]);
@@ -310,6 +317,7 @@ class Page_ServerSetup extends Page
 
 		$keepIds = [];
 		$entries = Request::post('entry', false, 'array');
+
 		foreach ($entries as $key => $entry) {
 			$params = [
 				'entryid' => $entry['entryid'], // TODO validate
@@ -340,9 +348,11 @@ class Page_ServerSetup extends Page
 					]);
 				}
 			}
+
 			if ($ret === false) {
 				Message::addWarning('error-saving-entry', $entry['title'], Database::lastError());
 			}
+
 		}
 		Message::addSuccess('menu-saved');
 	}

@@ -1,6 +1,7 @@
 {
 	"category": "main.settings-server",
 	"dependencies" : [
-		"locations"
+		"locations",
+		"js_jqueryui"
 	]
 }
