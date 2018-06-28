@@ -186,10 +186,9 @@ class Page_ServerSetup extends Page
 		}
 		$menu['timeout'] = round($menu['timeoutms'] / 1000);
 		$menu['entries'] = Database::queryAll("SELECT menuentryid, entryid, hotkey, title, hidden, sortval, plainpass FROM
-			serversetup_menuentry WHERE menuid = :id", compact('id'));
+			serversetup_menuentry WHERE menuid = :id ORDER BY sortval ASC", compact('id'));
 		$keyList = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
 		$entryList = Database::queryAll("SELECT entryid, title, hotkey FROM serversetup_bootentry ORDER BY title ASC");
-		$sortVals = array();
 		foreach ($menu['entries'] as &$entry) {
 			$entry['isdefault'] = ($entry['menuentryid'] == $menu['defaultentryid']);
 			$entry['keys'] = $keyList;
@@ -207,12 +206,7 @@ class Page_ServerSetup extends Page
 					$item['title'] = $item['entryid'];
 				}
 			}
-			$sortVals[] = $entry['sortval'];
 		}
-		$arr = $menu['entries'];
-		$keys = array_keys($arr);
-		array_multisort( $sortVals, SORT_ASC, $arr, $keys);
-		$menu['entries'] = $arr;
 		// TODO: Make assigned locations editable
 		Permission::addGlobalTags($menu['perms'], 0, ['ipxe.menu.edit']);
 		Render::addTemplate('menu-edit', $menu);
