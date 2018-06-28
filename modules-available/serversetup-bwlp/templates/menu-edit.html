@@ -55,10 +55,10 @@
 						<th>{{lang_password}}</th>
 					</tr>
 					</thead>
-					<tbody id="tableBody" style="overflow: auto;">
+					<tbody id="table-body" style="overflow: auto;">
 					{{#entries}}
 						<tr id="{{menuentryid}}">
-							<input type="hidden" class="form-control sort-val" name="entry[{{menuentryid}}][sortval]" id="entry-sortval-{{menuentryid}}" value="{{sortval}}" {{readonly}}>
+							<input type="hidden" class="sort-val" name="entry[{{menuentryid}}][sortval]" value="{{sortval}}">
 							<td class="drag-handler" style="cursor: pointer;text-align: center; vertical-align: middle;">
 								<span class="glyphicon glyphicon-th-list"></span>
 							</td>
@@ -120,13 +120,13 @@
 
 <script type="text/javascript">
 	document.addEventListener("DOMContentLoaded", function() {
-		$('#tableBody').sortable({
+		$('#table-body').sortable({
 			opacity: 0.8,
 			handle: '.drag-handler',
 			start: function(evt, ui) {
 				ui.placeholder.css("visibility", "visible");
 				ui.placeholder.css("opacity", "0.152");
-				ui.placeholder.css("background-color", "LawnGreen");
+				ui.placeholder.css("background-color", "#ddd");
 			},
 			stop: function() {
 				var startValue = 1;
