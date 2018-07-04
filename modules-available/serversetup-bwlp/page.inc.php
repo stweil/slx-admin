@@ -343,20 +343,24 @@ class Page_ServerSetup extends Page
 				$ret = Database::exec("INSERT INTO serversetup_menuentry
 					(menuid, entryid, hotkey, title, hidden, sortval, plainpass, md5pass)
 					VALUES (:menuid, :entryid, :hotkey, :title, :hidden, :sortval, :plainpass, '')", $params, true);
-				if ($ret && !empty($entry['plainpass'])) {
+				if ($ret) {
 					$key = Database::lastInsertId();
-					Database::exec('UPDATE serversetup_menuentry SET md5pass = :md5pass WHERE menuentryid = :id', [
-						'md5pass' => IPxe::makeMd5Pass($entry['plainpass'], $key),
-						'key' => $id,
-					]);
+					$keepIds[] = (int)$key;
+					if (!empty($entry['plainpass'])) {
+						Database::exec('UPDATE serversetup_menuentry SET md5pass = :md5pass WHERE menuentryid = :id', [
+							'md5pass' => IPxe::makeMd5Pass($entry['plainpass'], $key),
+							'id' => $key,
+						]);
+					}
 				}
 			}
 
 			if ($ret === false) {
 				Message::addWarning('error-saving-entry', $entry['title'], Database::lastError());
 			}
-
 		}
+		Database::exec('DELETE FROM serversetup_menuentry WHERE menuid = :menuid AND menuentryid NOT IN (:keep)',
+			['menuid' => $menu['menuid'], 'keep' => $keepIds]);
 		Message::addSuccess('menu-saved');
 	}
 
