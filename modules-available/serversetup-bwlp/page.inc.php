@@ -187,25 +187,11 @@ class Page_ServerSetup extends Page
 		$menu['timeout'] = round($menu['timeoutms'] / 1000);
 		$menu['entries'] = Database::queryAll("SELECT menuentryid, entryid, hotkey, title, hidden, sortval, plainpass FROM
 			serversetup_menuentry WHERE menuid = :id ORDER BY sortval ASC", compact('id'));
-		$keyList = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
-		$entryList = Database::queryAll("SELECT entryid, title, hotkey FROM serversetup_bootentry ORDER BY title ASC");
+		$menu['keys'] = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
+		$menu['entrylist'] = Database::queryAll("SELECT entryid, title, hotkey FROM serversetup_bootentry ORDER BY title ASC");
 		foreach ($menu['entries'] as &$entry) {
 			$entry['isdefault'] = ($entry['menuentryid'] == $menu['defaultentryid']);
-			$entry['keys'] = $keyList;
-			foreach ($entry['keys'] as &$key) {
-				if ($key['key'] === $entry['hotkey']) {
-					$key['selected'] = 'selected'; // TODO: plainpass only when permissions
-				}
-			}
-			$entry['entrylist'] = $entryList;
-			foreach ($entry['entrylist'] as &$item) {
-				if ($item['entryid'] == $entry['entryid']) {
-					$item['selected'] = 'selected';
-				}
-				if (empty($item['title'])) {
-					$item['title'] = $item['entryid'];
-				}
-			}
+			// TODO: plainpass only when permissions
 		}
 		// TODO: Make assigned locations editable
 		Permission::addGlobalTags($menu['perms'], 0, ['ipxe.menu.edit']);
@@ -303,7 +289,7 @@ class Page_ServerSetup extends Page
 			'menuid' => $id,
 			'title' => IPxe::sanitizeIpxeString(Request::post('title', '', 'string')),
 			'timeoutms' => abs(Request::post('timeoutms', 0, 'int') * 1000),
-			'defaultentryid' => Request::post('defaultentry', false, 'int'),
+			'defaultentryid' => Request::post('defaultentry', null, 'int'),
 		]);
 		if (User::hasPermission('ipxe.menu.edit', 0)) {
 			Database::exec('UPDATE serversetup_menu SET isdefault = (menuid = :menuid)', ['menuid' => $id]);
@@ -313,15 +299,38 @@ class Page_ServerSetup extends Page
 		$entries = Request::post('entry', false, 'array');
 
 		foreach ($entries as $key => $entry) {
+			if (!isset($entry['sortval'])) {
+				error_log(print_r($entry, true));
+				continue;
+			}
+			// Fallback defaults
+			$entry += [
+				'entryid' => null,
+				'title' => '',
+				'hidden' => 0,
+				'plainpass' => '',
+			];
 			$params = [
-				'entryid' => $entry['entryid'], // TODO validate
-				'hotkey' => MenuEntry::filterKeyName($entry['hotkey']),
 				'title' => IPxe::sanitizeIpxeString($entry['title']),
-				'hidden' => (int)$entry['hidden'],
 				'sortval' => (int)$entry['sortval'],
-				'plainpass' => $entry['plainpass'],
 				'menuid' => $menu['menuid'],
 			];
+			if (empty($entry['entryid'])) {
+				// Spacer
+				$params += [
+					'entryid' => null,
+					'hotkey' => '',
+					'hidden' => 0, // Doesn't make any sense
+					'plainpass' => '', // Doesn't make any sense
+				];
+			} else {
+				$params += [
+					'entryid' => $entry['entryid'], // TODO validate?
+					'hotkey' => MenuEntry::filterKeyName($entry['hotkey']),
+					'hidden' => (int)$entry['hidden'], // TODO (needs hotkey to make sense)
+					'plainpass' => $entry['plainpass'],
+				];
+			}
 			if (is_numeric($key)) {
 				$keepIds[] = $key;
 				$params['menuentryid'] = $key;

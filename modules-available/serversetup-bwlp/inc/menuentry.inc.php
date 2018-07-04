@@ -162,6 +162,7 @@ class MenuEntry
 	 */
 	public static function filterKeyName($keyName)
 	{
+		$data = self::getKeyArray();
 		if (isset($data[$keyName]))
 			return $keyName;
 		return '';
