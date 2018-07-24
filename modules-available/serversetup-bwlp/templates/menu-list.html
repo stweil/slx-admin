@@ -7,10 +7,11 @@
 		<th class="slx-smallcol">{{lang_locationCount}}</th>
 		<th class="slx-smallcol">{{lang_isDefault}}</th>
 		<th class="slx-smallcol">{{lang_edit}}</th>
+		<th class="slx-smallcol">{{lang_delete}}</th>
 	</tr>
 	</thead>
 	<tbody>
-	{{#table}}
+	{{#menuTable}}
 		<tr>
 			<td>
 				{{title}}
@@ -18,19 +19,62 @@
 			<td class="text-right">
 				{{locationCount}}
 			</td>
-			<td>
+			<td align="center">
 				{{#isdefault}}
 					<span class="glyphicon glyphicon-ok"></span>
 				{{/isdefault}}
 			</td>
-			<td>
+			<td align="center">
 				{{#allowEdit}}
 					<a href="?do=serversetup&amp;show=editmenu&amp;id={{menuid}}" class="btn btn-xs btn-default">
 						<span class="glyphicon glyphicon-edit"></span>
 					</a>
 				{{/allowEdit}}
 			</td>
+			<td align="center">
+				{{#allowDelete}}
+					<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteMenu('{{menuid}}')">
+						<span class="glyphicon glyphicon-trash"></span>
+					</button>
+				{{/allowDelete}}
+			</td>
 		</tr>
-	{{/table}}
+	{{/menuTable}}
 	</tbody>
 </table>
+<div class="pull-right">
+	<a href="?do=serversetup&amp;show=editmenu&amp;id=0" class="btn btn-success {{allowAddMenu}}">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_addMenu}}
+	</a>
+</div>
+
+
+<!-- Modals -->
+<form method="post" action="?do=serversetup">
+	<input type="hidden" name="token" value="{{token}}">
+	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">{{lang_delete}}</h4>
+				</div>
+				<div class="modal-body">
+					<p>{{lang_menuDeleteConfirm}}</p>
+				</div>
+				<div class="modal-footer">
+					<input type="hidden" id="delete-menu-id" name="deleteid" value="">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="deleteMenu" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<script>
+	function deleteMenu(menuid) {
+		$("#delete-menu-id").val(menuid);
+	}
+</script>

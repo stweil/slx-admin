@@ -60,6 +60,11 @@ class Page_ServerSetup extends Page
 			$this->saveMenu();
 		}
 
+		if ($action === 'deleteMenu') {
+			User::assertPermission('ipxe.menu.delete');
+			$this->deleteMenu();
+		}
+
 		if (Request::isPost()) {
 			Util::redirect('?do=serversetup');
 		}
@@ -132,26 +137,35 @@ class Page_ServerSetup extends Page
 	private function showMenuList()
 	{
 		$allowedEdit = User::getAllowedLocations('ipxe.menu.edit');
+		$allowedDelete = User::getAllowedLocations('ipxe.menu.delete');
 
 		// TODO Permission::addGlobalTags($perms, null, ['edit.menu', 'edit.address', 'download']);
 
 		$res = Database::simpleQuery("SELECT m.menuid, m.title, m.isdefault, GROUP_CONCAT(l.locationid) AS locations
 			FROM serversetup_menu m LEFT JOIN serversetup_menu_location l USING (menuid) GROUP BY menuid ORDER BY title");
-		$table = [];
+		$menuTable = [];
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (empty($row['locations'])) {
 				$locations = [];
 				$row['allowEdit'] = in_array(0, $allowedEdit);
+				$row['allowDelete'] = in_array(0, $allowedDelete);
 			} else {
 				$locations = explode(',', $row['locations']);
 				$row['allowEdit'] = empty(array_diff($locations, $allowedEdit));
+				$row['allowDelete'] = empty(array_diff($locations, $allowedDelete));
 			}
 			$row['locationCount'] = empty($locations) ? '' : count($locations);
-			$table[] = $row;
+			$menuTable[] = $row;
+		}
+
+		$allowAddMenu = 'disabled';
+		if (User::hasPermission('ipxe.menu.add')) {
+			$allowAddMenu = '';
 		}
 
 		Render::addTemplate('menu-list', array(
-			'table' => $table,
+			'menuTable' => $menuTable,
+			'allowAddMenu' => $allowAddMenu
 		));
 	}
 
@@ -173,8 +187,19 @@ class Page_ServerSetup extends Page
 	private function showEditMenu()
 	{
 		$id = Request::get('id', false, 'int');
-		$menu = Database::queryFirst("SELECT menuid, timeoutms, title, defaultentryid, isdefault
+		// if = edit, else = add new
+		if ($id != 0) {
+			$menu = Database::queryFirst("SELECT menuid, timeoutms, title, defaultentryid, isdefault
 			FROM serversetup_menu WHERE menuid = :id", compact('id'));
+		} else {
+			$menu = [];
+			$menu['menuid'] = 0;
+			$menu['timeoutms'] = 0;
+			$menu['title'] = '';
+			$menu['defaultentryid'] = null;
+			$menu['isdefault'] = false;
+		}
+
 		if ($menu === false) {
 			Message::addError('invalid-menu-id', $id);
 			Util::redirect('?do=serversetup&show=menu');
@@ -263,6 +288,22 @@ class Page_ServerSetup extends Page
 		return true;
 	}
 
+	private function deleteMenu()
+	{
+		$id = Request::post('deleteid', false, 'int');
+		if ($id === false) {
+			Message::addError('main.parameter-missing', 'menuid');
+			return;
+		}
+		if (!$this->hasMenuPermission($id, 'ipxe.menu.delete')) {
+			Message::addError('locations.no-permission-location', 'TODO');
+			return;
+		}
+		Database::exec("DELETE FROM serversetup_menu WHERE menuid = :menuid", array("menuid" => $id));
+		Message::addSuccess('menu-deleted');
+
+	}
+
 	private function saveMenu()
 	{
 		$id = Request::post('menuid', false, 'int');
@@ -284,15 +325,27 @@ class Page_ServerSetup extends Page
 		}
 		// TODO: Validate new locations to be saved (and actually save them)
 
-		Database::exec('UPDATE serversetup_menu SET title = :title, timeoutms = :timeoutms, defaultentryid = :defaultentryid
+		if ($id == 0) {
+			Database::exec("INSERT IGNORE INTO serversetup_menu (title, timeoutms, defaultentryid) VALUES (:title, :timeoutms, :defaultentryid)", [
+				'title' => IPxe::sanitizeIpxeString(Request::post('title', '', 'string')),
+				'timeoutms' => abs(Request::post('timeout', 0, 'int') * 1000),
+				'defaultentryid' => Request::post('defaultentry', null, 'int')
+			]);
+		} else {
+			Database::exec('UPDATE serversetup_menu SET title = :title, timeoutms = :timeoutms, defaultentryid = :defaultentryid
 					WHERE menuid = :menuid', [
-			'menuid' => $id,
-			'title' => IPxe::sanitizeIpxeString(Request::post('title', '', 'string')),
-			'timeoutms' => abs(Request::post('timeoutms', 0, 'int') * 1000),
-			'defaultentryid' => Request::post('defaultentry', null, 'int'),
-		]);
+				'menuid' => $id,
+				'title' => IPxe::sanitizeIpxeString(Request::post('title', '', 'string')),
+				'timeoutms' => abs(Request::post('timeout', 0, 'int') * 1000),
+				'defaultentryid' => Request::post('defaultentry', null, 'int'),
+			]);
+		}
+
+		$defmenu = Request::post('defmenu', false, 'boolean');
 		if (User::hasPermission('ipxe.menu.edit', 0)) {
-			Database::exec('UPDATE serversetup_menu SET isdefault = (menuid = :menuid)', ['menuid' => $id]);
+			if ($defmenu) {
+				Database::exec('UPDATE serversetup_menu SET isdefault = (menuid = :menuid)', ['menuid' => $id]);
+			}
 		}
 
 		$keepIds = [];

@@ -20,6 +20,12 @@
     "ipxe.menu.edit": {
         "location-aware": true
     },
+    "ipxe.menu.add": {
+        "location-aware": false
+    },
+    "ipxe.menu.delete": {
+        "location-aware": true
+    },
     "ipxe.localboot.edit": {
         "location-aware": false
     }
