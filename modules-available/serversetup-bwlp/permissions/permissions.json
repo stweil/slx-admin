@@ -14,6 +14,12 @@
     "ipxe.bootentry.edit": {
         "location-aware": false
     },
+    "ipxe.bootentry.add": {
+        "location-aware": false
+    },
+    "ipxe.bootentry.delete": {
+        "location-aware": false
+    },
     "ipxe.menu.view": {
         "location-aware": false
     },

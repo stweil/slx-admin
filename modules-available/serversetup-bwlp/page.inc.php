@@ -55,6 +55,11 @@ class Page_ServerSetup extends Page
 			$this->saveBootEntry();
 		}
 
+		if ($action === 'deleteBootentry') {
+			User::assertPermission('ipxe.bootentry.delete');
+			$this->deleteBootEntry();
+		}
+
 		if ($action === 'savemenu') {
 			User::assertPermission('ipxe.menu.edit');
 			$this->saveMenu();
@@ -73,6 +78,7 @@ class Page_ServerSetup extends Page
 
 		if (User::hasPermission('ipxe.*')) {
 			Dashboard::addSubmenu('?do=serversetup&show=menu', Dictionary::translate('submenu_menu', true));
+			Dashboard::addSubmenu('?do=serversetup&show=bootentry', Dictionary::translate('submenu_bootentry', true));
 		}
 		if (User::hasPermission('edit.address')) {
 			Dashboard::addSubmenu('?do=serversetup&show=address', Dictionary::translate('submenu_address', true));
@@ -122,6 +128,10 @@ class Page_ServerSetup extends Page
 			User::assertPermission('ipxe.menu.view');
 			$this->showMenuList();
 			break;
+		case 'bootentry':
+			User::assertPermission('ipxe.bootentry.view');
+			$this->showBootentryList();
+			break;
 		default:
 			Util::redirect('?do=serversetup');
 			break;
@@ -132,6 +142,29 @@ class Page_ServerSetup extends Page
 	{
 		// TODO: Make nicer, support more variants (taskmanager-plugin)
 		Render::addTemplate('download');
+	}
+
+	private function showBootentryList()
+	{
+		$allowEdit = User::hasPermission('ipxe.bootentry.edit');
+		$allowDelete = User::hasPermission('ipxe.bootentry.delete');
+		$allowAdd = 'disabled';
+		if (User::hasPermission('ipxe.bootentry.add')) {
+			$allowAdd = '';
+		}
+
+		$res = Database::simpleQuery("SELECT entryid, hotkey, title FROM serversetup_bootentry");
+		$bootentryTable = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$bootentryTable[] = $row;
+		}
+
+		Render::addTemplate('bootentry-list', array(
+			'bootentryTable' => $bootentryTable,
+			'allowAdd' => $allowAdd,
+			'allowEdit' => $allowEdit,
+			'allowDelete' => $allowDelete
+		));
 	}
 
 	private function showMenuList()
@@ -288,11 +321,22 @@ class Page_ServerSetup extends Page
 		return true;
 	}
 
+	private function deleteBootEntry() {
+		$id = Request::post('deleteid', false, 'string');
+		if ($id === false) {
+			Message::addError('main.parameter-missing', 'deleteid');
+			return;
+		}
+		Database::exec("DELETE FROM serversetup_bootentry WHERE entryid = :entryid", array("entryid" => $id));
+		// TODO: Redirect to &show=bootentry
+		Message::addSuccess('bootentry-deleted');
+	}
+
 	private function deleteMenu()
 	{
 		$id = Request::post('deleteid', false, 'int');
 		if ($id === false) {
-			Message::addError('main.parameter-missing', 'menuid');
+			Message::addError('main.parameter-missing', 'deleteid');
 			return;
 		}
 		if (!$this->hasMenuPermission($id, 'ipxe.menu.delete')) {
@@ -512,6 +556,7 @@ class Page_ServerSetup extends Page
 			$params['oldid'] = $oldEntryId;
 			Database::exec('UPDATE serversetup_bootentry SET entryid = :entryid, title = :title, data = :data
 				WHERE entryid = :oldid AND builtin = 0', $params);
+			// TODO: Redirect to &show=bootentry
 			Message::addSuccess('boot-entry-updated', $newId);
 		}
 	}
