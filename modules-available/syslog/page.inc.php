@@ -31,7 +31,7 @@ class Page_SysLog extends Page
 	protected function doRender()
 	{
 		$data = ['anondays' => Property::get(self::PROP_ANON_DAYS, 0)];
-		Permission::addGlobalTags($data['perms'], NULL, ['configure-anonymization']);
+		Permission::addGlobalTags($data['perms'], NULL, ['configure-anonymization', 'export-user-data']);
 		Render::addTemplate("heading", $data);
 
 		if (!User::hasPermission("view")) {

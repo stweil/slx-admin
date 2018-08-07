@@ -5,8 +5,12 @@
     "lang_clientLog": "Client Log",
     "lang_details": "Details",
     "lang_event": "Event",
+    "lang_export": "Export",
+    "lang_exportUserDesc": "This exports all data from the database relating to the given user login. Please specify the user name exactly the way they would provide it when logging in on a client.",
     "lang_filter": "Filter",
     "lang_not": "not",
     "lang_settings": "Settings",
+    "lang_userExport": "User export",
+    "lang_userLogin": "User login",
     "lang_when": "When"
 }

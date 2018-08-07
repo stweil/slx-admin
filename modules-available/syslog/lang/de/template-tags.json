@@ -5,8 +5,12 @@
     "lang_clientLog": "Client Log",
     "lang_details": "Details",
     "lang_event": "Ereignis",
+    "lang_export": "Exportieren",
+    "lang_exportUserDesc": "Mit dieser Funktion k\u00f6nnen Sie alle in der Datenbank vorhandenen Datens\u00e4tze zu einem bestimmten Benutzer exportieren. Bitte geben Sie den Benutzernamen genau so ein, wie ihn der Nutzer beim Login am Client angeben muss.",
     "lang_filter": "Filter",
     "lang_not": "not",
     "lang_settings": "Einstellungen",
+    "lang_userExport": "Nutzer-Export",
+    "lang_userLogin": "Benutzer-Login",
     "lang_when": "Wann"
 }
