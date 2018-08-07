@@ -76,7 +76,7 @@
     "lang_remoteSchedule": "Time table retrieval",
     "lang_room": "Room",
     "lang_roomId": "Room ID",
-    "lang_roomIdTooltip": "The ID of the room the server needs, for querying the calendar data",
+    "lang_roomIdTooltip": "The ID of the room the server needs, for querying the calendar data (when using exchange the room mailbox)",
     "lang_roomupdateTooltip": "Time the PCs in the room gets updated (in seconds)",
     "lang_rotation": "Rotation",
     "lang_rotation0": "0\u00b0",

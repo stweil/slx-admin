@@ -34,8 +34,15 @@ class User
 			if ($permission{0} === '.') {
 				$permission = substr($permission, 1);
 			} else {
-				$module = Page::getModule();
-				$permission = $module ? $module->getIdentifier() . "." . $permission : $permission;
+				if (class_exists('Page')) {
+					$module = Page::getModule();
+					if ($module !== false) {
+						$module = $module->getIdentifier();
+					}
+				} else {
+					$module = strtolower(Request::any('do'));
+				}
+				$permission = $module ? $module . "." . $permission : $permission;
 			}
 			return PermissionUtil::userHasPermission(self::$user['userid'], $permission, $locationid);
 		}
