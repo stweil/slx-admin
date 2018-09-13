@@ -135,8 +135,9 @@ class StandardBootEntry extends BootEntry
 			$script .= "-r ";
 		}
 		$script .= "{$this->executable}";
+		$rdBase = basename($this->initRd);
 		if (!empty($this->commandLine)) {
-			$script .= " {$this->commandLine}";
+			$script .= " initrd=$rdBase {$this->commandLine}";
 		}
 		$script .= " || goto $failLabel\n";
 		if ($this->resetConsole) {
