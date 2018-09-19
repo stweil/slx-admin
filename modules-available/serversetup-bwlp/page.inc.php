@@ -279,6 +279,7 @@ class Page_ServerSetup extends Page
 			$entry->addFormFields($params);
 			$params['title'] = $row['title'];
 			$params['oldentryid'] = $params['entryid'] = $row['entryid'];
+			$params['builtin'] = $row['builtin'];
 		}
 		Render::addTemplate('ipxe-new-boot-entry', $params);
 	}
@@ -543,7 +544,7 @@ class Page_ServerSetup extends Page
 		}
 		if ($entry === null) {
 			Message::addError('main.empty-field');
-			return;
+			Util::redirect('?do=serversetup&show=bootentry');
 		}
 		$params = [
 			'entryid' => $newId,
@@ -560,10 +561,10 @@ class Page_ServerSetup extends Page
 			// Edit existing entry
 			$params['oldid'] = $oldEntryId;
 			Database::exec('UPDATE serversetup_bootentry SET entryid = :entryid, title = :title, data = :data
-				WHERE entryid = :oldid AND builtin = 0', $params);
-			// TODO: Redirect to &show=bootentry
+				WHERE entryid = :oldid', $params);
 			Message::addSuccess('boot-entry-updated', $newId);
 		}
+		Util::redirect('?do=serversetup&show=bootentry');
 	}
 
 }

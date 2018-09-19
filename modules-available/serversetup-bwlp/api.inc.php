@@ -1,5 +1,7 @@
 <?php
 
+// TODO: Check if required arguments are given; if not, spit out according script (identical to what is embedded)
+
 $BOOT_METHODS = [
 	'EXIT' => 'exit 1',
 	'COMBOOT' => 'chain /tftp/chain.c32 hd0',
@@ -22,12 +24,14 @@ $platform = strtoupper(Request::any('platform', 'PCBIOS', 'string'));
 $localboot = false;
 $model = false;
 if ($uuid !== false && Module::get('statistics') !== false) {
+	// If we have the machine table, we rather try to look up the system model from there, using the UUID
 	$row = Database::queryFirst('SELECT systemmodel FROM machine WHERE machineuuid = :uuid', ['uuid' => $uuid]);
 	if ($row !== false && !empty($row['systemmodel'])) {
 		$model = $row['systemmodel'];
 	}
 }
 if ($model === false) {
+	// Otherwise use what iPXE sent us
 	function modfilt($str)
 	{
 		if (empty($str) || preg_match('/product\s+name|be\s+filled|unknown|default\s+string/i', $str))
@@ -69,6 +73,8 @@ if (isset($BOOT_METHODS[$localboot])) {
 	unset($BOOT_METHODS[$localboot]);
 	$BOOT_METHODS = array_reverse($BOOT_METHODS);
 }
+
+// TODO: Feature check for our own iPXE extensions, stay compatible to stock iPXE
 
 $output = <<<HERE
 #!ipxe
@@ -139,7 +145,7 @@ console --left 55 --top 88 --right 63 --bottom 64 --quick --keep --picture bg-me
 
 HERE;
 
-$output .= $menu->getMenuDefinition('target');
+$output .= $menu->getMenuDefinition('target', $platform);
 
 $output .= <<<HERE
 
@@ -151,7 +157,9 @@ goto start
 
 HERE;
 
-$output .= $menu->getItemsCode();
+$output .= $menu->getItemsCode($platform);
+
+// TODO: Work out memtest stuff. Needs to be put on server (install/update script) -- PCBIOS only? Chain EFI -> BIOS?
 
 /*
 :i1

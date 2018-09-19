@@ -58,8 +58,10 @@ class MenuEntry
 		settype($this->menuentryid, 'int');
 	}
 
-	public function getMenuItemScript($lblPrefix, $requestedDefaultId)
+	public function getMenuItemScript($lblPrefix, $requestedDefaultId, $mode)
 	{
+		if ($this->bootEntry !== null && !$this->bootEntry->supportsMode($mode))
+			return '';
 		$str = 'item ';
 		if ($this->gap) {
 			$str .= '--gap ';
@@ -81,9 +83,9 @@ class MenuEntry
 		return $str . " || prompt Could not create menu item for {$lblPrefix}_{$this->menuentryid}\n";
 	}
 
-	public function getBootEntryScript($lblPrefix, $failLabel)
+	public function getBootEntryScript($lblPrefix, $failLabel, $mode)
 	{
-		if ($this->bootEntry === null)
+		if ($this->bootEntry === null || !$this->bootEntry->supportsMode($mode))
 			return '';
 		$str = ":{$lblPrefix}_{$this->menuentryid}\n";
 		if (!empty($this->md5pass)) {
@@ -94,7 +96,7 @@ class MenuEntry
 				. "goto slx_pass_check || goto $failLabel\n"
 				. ":{$lblPrefix}_ok\n";
 		}
-		return $str . $this->bootEntry->toScript($failLabel);
+		return $str . $this->bootEntry->toScript($failLabel, $mode);
 	}
 
 	/*

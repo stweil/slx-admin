@@ -14,7 +14,9 @@ abstract class BootEntry
 		}
 	}
 
-	public abstract function toScript($failLabel);
+	public abstract function supportsMode($mode);
+
+	public abstract function toScript($failLabel, $mode);
 
 	public abstract function toArray();
 
@@ -46,9 +48,19 @@ abstract class BootEntry
 
 	public static function newStandardBootEntry($initData)
 	{
-		if (empty($initData['executable']))
-			return null;
-		return new StandardBootEntry($initData);
+		$ret = new StandardBootEntry($initData);
+		$list = [];
+		if ($ret->arch() !== StandardBootEntry::EFI) {
+			$list[] = StandardBootEntry::BIOS;
+		}
+		if ($ret->arch() === StandardBootEntry::EFI || $ret->arch() === StandardBootEntry::BOTH) {
+			$list[] = StandardBootEntry::EFI;
+		}
+		foreach ($list as $mode) {
+			if (empty($initData['executable'][$mode]))
+				return null;
+		}
+		return $ret;
 	}
 
 	public static function newCustomBootEntry($initData)
@@ -83,6 +95,12 @@ class StandardBootEntry extends BootEntry
 	protected $replace;
 	protected $autoUnload;
 	protected $resetConsole;
+	protected $arch; // true == available, false == not available
+
+	const BIOS = 'PCBIOS'; // Only valid for legacy BIOS boot
+	const EFI = 'EFI'; // Only valid for EFI boot
+	const BOTH = 'PCBIOS-EFI'; // Supports both via distinct entry
+	const AGNOSTIC = 'agnostic'; // Supports both via same entry (PCBIOS entry)
 
 	public function __construct($data = false)
 	{
@@ -109,38 +127,70 @@ class StandardBootEntry extends BootEntry
 		} else {
 			parent::__construct($data);
 		}
+		// Convert legacy DB format
+		foreach (['executable', 'initRd', 'commandLine', 'replace', 'autoUnload', 'resetConsole'] as $key) {
+			if (!is_array($this->{$key})) {
+				$this->{$key} = [ 'PCBIOS' => $this->{$key}, 'EFI' => '' ];
+			}
+		}
+		if ($this->arch === null) {
+			$this->arch = self::AGNOSTIC;
+		}
 	}
 
-	public function toScript($failLabel)
+	public function arch()
 	{
+		return $this->arch;
+	}
+
+	public function supportsMode($mode)
+	{
+		if ($mode === $this->arch || $this->arch === self::AGNOSTIC)
+			return true;
+		if ($mode === self::BIOS || $mode === self::EFI) {
+			return $this->arch === self::BOTH;
+		}
+		error_log('Unknown iPXE platform: ' . $mode);
+		return false;
+	}
+
+	public function toScript($failLabel, $mode)
+	{
+		if (!$this->supportsMode($mode)) {
+			return "prompt Entry doesn't have an executable for mode $mode\n";
+		}
+		if ($this->arch === self::AGNOSTIC) {
+			$mode = self::BIOS;
+		}
+
 		$script = '';
-		if ($this->resetConsole) {
+		if ($this->resetConsole[$mode]) {
 			$script .= "console ||\n";
 		}
-		if (!empty($this->initRd)) {
+		if (!empty($this->initRd[$mode])) {
 			$script .= "imgfree ||\n";
-			if (!is_array($this->initRd)) {
-				$script .= "initrd {$this->initRd} || goto $failLabel\n";
+			if (!is_array($this->initRd[$mode])) {
+				$script .= "initrd {$this->initRd[$mode]} || goto $failLabel\n";
 			} else {
-				foreach ($this->initRd as $initrd) {
+				foreach ($this->initRd[$mode] as $initrd) {
 					$script .= "initrd $initrd || goto $failLabel\n";
 				}
 			}
 		}
 		$script .= "boot ";
-		if ($this->autoUnload) {
+		if ($this->autoUnload[$mode]) {
 			$script .= "-a ";
 		}
-		if ($this->replace) {
+		if ($this->replace[$mode]) {
 			$script .= "-r ";
 		}
-		$script .= "{$this->executable}";
-		$rdBase = basename($this->initRd);
-		if (!empty($this->commandLine)) {
-			$script .= " initrd=$rdBase {$this->commandLine}";
+		$script .= $this->executable[$mode];
+		$rdBase = basename($this->initRd[$mode]);
+		if (!empty($this->commandLine[$mode])) {
+			$script .= " initrd=$rdBase {$this->commandLine[$mode]}";
 		}
 		$script .= " || goto $failLabel\n";
-		if ($this->resetConsole) {
+		if ($this->resetConsole[$mode]) {
 			$script .= "goto start ||\n";
 		}
 		return $script;
@@ -148,14 +198,19 @@ class StandardBootEntry extends BootEntry
 
 	public function addFormFields(&$array)
 	{
-		$array['entry'] = [
-			'executable' => $this->executable,
-			'initRd' => $this->initRd,
-			'commandLine' => $this->commandLine,
-			'replace_checked' => $this->replace ? 'checked' : '',
-			'autoUnload_checked' => $this->autoUnload ? 'checked' : '',
-			'resetConsole_checked' => $this->resetConsole ? 'checked' : '',
-		];
+		$array[$this->arch . '_selected'] = 'selected';
+		foreach ([self::BIOS, self::EFI] as $mode) {
+			$array['entries'][] = [
+				'is' . $mode => true,
+				'mode' => $mode,
+				'executable' => $this->executable[$mode],
+				'initRd' => $this->initRd[$mode],
+				'commandLine' => $this->commandLine[$mode],
+				'replace_checked' => $this->replace[$mode] ? 'checked' : '',
+				'autoUnload_checked' => $this->autoUnload[$mode] ? 'checked' : '',
+				'resetConsole_checked' => $this->resetConsole[$mode] ? 'checked' : '',
+			];
+		}
 		$array['exec_checked'] = 'checked';
 	}
 
@@ -168,6 +223,7 @@ class StandardBootEntry extends BootEntry
 			'replace' => $this->replace,
 			'autoUnload' => $this->autoUnload,
 			'resetConsole' => $this->resetConsole,
+			'arch' => $this->arch,
 		];
 	}
 }
@@ -176,7 +232,12 @@ class CustomBootEntry extends BootEntry
 {
 	protected $script;
 
-	public function toScript($failLabel)
+	public function supportsMode($mode)
+	{
+		return true;
+	}
+
+	public function toScript($failLabel, $mode)
 	{
 		return str_replace('%fail%', $failLabel, $this->script) . "\n";
 	}
