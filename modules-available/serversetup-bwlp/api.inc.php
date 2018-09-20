@@ -1,6 +1,44 @@
 <?php
 
-// TODO: Check if required arguments are given; if not, spit out according script (identical to what is embedded)
+// Menu mode
+
+// Check if required arguments are given; if not, spit out according script and chain to self
+$uuid = Request::any('uuid', false, 'string');
+// Get platform - EFI or PCBIOS
+$platform = Request::any('platform', false, 'string');
+$manuf = Request::any('manuf', false, 'string');
+$product = Request::any('product', false, 'string');
+
+if ($platform === false || ($uuid === false && $product === false)) {
+	$url = parse_url($_SERVER['REQUEST_URI']);
+	$urlbase = $url['path'];
+	if (empty($url['query'])) {
+		$arr = [];
+	} else {
+		parse_str($url['query'], $arr);
+		$arr = array_map('urlencode', $arr);
+	}
+	$arr['uuid'] = '${uuid:uristring}';
+	$arr['mac'] = '${mac}';
+	$arr['manuf'] = '${manufacturer:uristring}';
+	$arr['product'] = '${product:uristring}';
+	$arr['platform'] = '${platform:uristring}';
+	$query = '?';
+	foreach ($arr as $k => $v) {
+		$query .= $k . '=' . $v . '&';
+	}
+	$query = substr($query, 0, -1);
+	echo <<<HERE
+#!ipxe
+:retry
+chain -ar $urlbase$query ||
+echo Chaining to self failed with \${errno}, retrying in a bit...
+sleep 5
+goto retry
+HERE;
+	exit;
+}
+$platform = strtoupper($platform);
 
 $BOOT_METHODS = [
 	'EXIT' => 'exit 1',
@@ -14,11 +52,8 @@ $ip = $_SERVER['REMOTE_ADDR'];
 if (substr($ip, 0, 7) === '::ffff:') {
 	$ip = substr($ip, 7);
 }
-$uuid = Request::any('uuid', false, 'string');
 $menu = IPxeMenu::forClient($ip, $uuid);
 
-// Get platform - EFI or PCBIOS
-$platform = strtoupper(Request::any('platform', 'PCBIOS', 'string'));
 
 // Get preferred localboot method, depending on system model
 $localboot = false;
@@ -38,8 +73,8 @@ if ($model === false) {
 			return false;
 		return trim(preg_replace('/\s+/', ' ', $str));
 	}
-	$manuf = modfilt(Request::any('manuf', false, 'string'));
-	$product = modfilt(Request::any('product', false, 'string'));
+	$manuf = modfilt($manuf);
+	$product = modfilt($product);
 	if (!empty($product)) {
 		$model = $product;
 		if (!empty($manuf)) {
@@ -114,16 +149,12 @@ goto fail
 # start
 :init
 
-iseq \${nic} \${} && set nic 0 ||
-
-set ipappend1 ip=\${net\${nic}/ip}:{$serverIp}:\${net\${nic}/gateway}:\${net\${nic}/netmask}
-set ipappend2 BOOTIF=01-\${net\${nic}/mac:hexhyp}
+set ipappend1 ip=\${ip}:{$serverIp}:\${gateway}:\${netmask}
+set ipappend2 BOOTIF=01-\${mac:hexhyp}
 set serverip $serverIp ||
 
 # Clean up in case we've been chained to
 imgfree ||
-
-ifopen ||
 
 imgfetch --name bg-load /tftp/openslx.png ||
 
@@ -162,40 +193,11 @@ $output .= $menu->getItemsCode($platform);
 // TODO: Work out memtest stuff. Needs to be put on server (install/update script) -- PCBIOS only? Chain EFI -> BIOS?
 
 /*
-:i1
-#console ||
-echo Welcome to Shell ||
-shell
-goto slx_menu
-
-:i2
-imgfree ||
-kernel /boot/default/kernel slxbase=boot/default slxsrv=$serverIp splash BOOTIF=01-\${net\${nic}/mac:hexhyp} || echo Could not download kernel
-initrd /boot/default/initramfs-stage31 || echo Could not download initrd
-boot -ar || goto fail
-
-:i3
-chain -ar \${self} ||
-chain -ar /tftp/undionly.kpxe || goto fail
-
-:i4
-imgfree ||
-sanboot --no-describe --drive 0x80 || goto fail
 
 :i5
 chain -a /tftp/memtest.0 passes=1 onepass || goto membad
 prompt Memory OK. Press a key.
 goto init
-
-:i6
-console --left 60 --top 130 --right 67 --bottom 96 --quick --picture bg-load --keep ||
-echo Welcome to Shell ||
-shell
-goto slx_menu
-
-:i7
-chain -ar tftp://132.230.4.6/ipxelinux.0 || prompt FAILED PRESS A KEY
-goto slx_menu
 
 :i8
 set x:int32 0
@@ -205,16 +207,6 @@ console --left 55 --top 88 --right 63 --bottom 64 --picture bg-menu --keep --qui
 inc x
 iseq \${x} 20 || goto again
 prompt DONE. Press dein Knie.
-goto slx_menu
-
-:i9
-reboot ||
-prompt Reboot failed. Press a key.
-goto slx_menu
-
-:i10
-poweroff ||
-prompt Poweroff failed. Press a key.
 goto slx_menu
 
 :membad
