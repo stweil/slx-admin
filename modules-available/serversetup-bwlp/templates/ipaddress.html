@@ -20,7 +20,7 @@
 					{{/default}}
 					{{^default}}
 					<td>
-						<button class="btn btn-primary btn-xs" name="ip" value="{{ip}}" {{perms.edit.address.disabled}}>
+						<button class="btn btn-primary btn-xs" name="ip" value="{{ip}}">
 							<span class="glyphicon glyphicon-flag"></span>
 							{{lang_set}}
 						</button>
@@ -30,8 +30,15 @@
 				{{/ips}}
 			</table>
 			<p>
-				{{lang_bootHint}}
+				{{lang_recompileHint}}
 			</p>
+		</form>
+		<form method="post" action="?do=ServerSetup">
+			<input type="hidden" name="token" value="{{token}}">
+			<button class="btn btn-default" name="action" value="compile">
+				<span class="glyphicon glyphicon-refresh"></span>
+				{{lang_forceRecompile}}
+			</button>
 		</form>
 	</div>
 </div>

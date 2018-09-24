@@ -37,17 +37,17 @@ class Page_ServerSetup extends Page
 			$this->getLocalAddresses();
 		}
 
+		if ($action === 'compile') {
+			User::assertPermission("edit.address");
+			Trigger::ipxe();
+			Util::redirect('?do=serversetup');
+		}
+
 		if ($action === 'ip') {
 			User::assertPermission("edit.address");
 			// New address is to be set
 			$this->getLocalAddresses();
 			$this->updateLocalAddress();
-		}
-
-		if ($action === 'ipxe') {
-			User::assertPermission("edit.menu");
-			// iPXE stuff changes
-			$this->updatePxeMenu();
 		}
 
 		if ($action === 'savebootentry') {
@@ -131,6 +131,10 @@ class Page_ServerSetup extends Page
 		case 'bootentry':
 			User::assertPermission('ipxe.bootentry.view');
 			$this->showBootentryList();
+			break;
+		case 'address':
+			User::assertPermission('edit.address');
+			$this->showEditAddress();
 			break;
 		default:
 			Util::redirect('?do=serversetup');
@@ -282,6 +286,14 @@ class Page_ServerSetup extends Page
 			$params['builtin'] = $row['builtin'];
 		}
 		Render::addTemplate('ipxe-new-boot-entry', $params);
+	}
+
+	private function showEditAddress()
+	{
+		Render::addTemplate('ipaddress', array(
+			'ips' => $this->taskStatus['data']['addresses'],
+			'chooseHintClass' => $this->hasIpSet ? '' : 'alert alert-danger',
+		));
 	}
 
 	// -----------------------------------------------------------------------------------------------
@@ -469,7 +481,7 @@ class Page_ServerSetup extends Page
 
 	private function updateLocalAddress()
 	{
-		$newAddress = Request::post('ip', 'none');
+		$newAddress = Request::post('ip', 'none', 'string');
 		$valid = false;
 		foreach ($this->taskStatus['data']['addresses'] as $item) {
 			if ($item['ip'] !== $newAddress)
@@ -484,27 +496,6 @@ class Page_ServerSetup extends Page
 			Message::addError('invalid-ip', $newAddress);
 		}
 		Util::redirect();
-	}
-
-	private function updatePxeMenu()
-	{
-		$timeout = Request::post('timeout', 10);
-		if ($timeout === '')
-			$timeout = 0;
-		if (!is_numeric($timeout) || $timeout < 0) {
-			Message::addError('main.value-invalid', 'timeout', $timeout);
-		}
-		$this->currentMenu['defaultentry'] = Request::post('defaultentry', 'net');
-		$this->currentMenu['timeout'] = $timeout;
-		$this->currentMenu['custom'] = Request::post('custom', '');
-		$this->currentMenu['masterpasswordclear'] = Request::post('masterpassword', '');
-		if (empty($this->currentMenu['masterpasswordclear']))
-			$this->currentMenu['masterpassword'] = 'invalid';
-		else
-			$this->currentMenu['masterpassword'] = Crypto::hash6($this->currentMenu['masterpasswordclear']);
-		Property::setBootMenu($this->currentMenu);
-		Trigger::ipxe();
-		Util::redirect('?do=ServerSetup');
 	}
 
 	private function handleGetImage()
