@@ -2,23 +2,40 @@
 
 // Menu mode
 
+$serverIp = Property::getServerIp();
+
 // Check if required arguments are given; if not, spit out according script and chain to self
 $uuid = Request::any('uuid', false, 'string');
 // Get platform - EFI or PCBIOS
 $platform = Request::any('platform', false, 'string');
 $manuf = Request::any('manuf', false, 'string');
 $product = Request::any('product', false, 'string');
+$slxExtensions = Request::any('slx-extensions', false, 'int');
 
-if ($platform === false || ($uuid === false && $product === false)) {
+if ($platform === false || ($uuid === false && $product === false) || $slxExtensions === false) {
+	error_log(print_r($_SERVER, true));
+	sleep(1);
 	$url = parse_url($_SERVER['REQUEST_URI']);
-	$urlbase = $url['path'];
+	if (isset($_SERVER['SCRIPT_URI']) && preg_match('#(\w+://[^/]+)#', $_SERVER['SCRIPT_URI'], $out)) {
+		$urlbase = $out[1];
+	} elseif (isset($_SERVER['REQUEST_SCHEME']) && isset($_SERVER['SERVER_NAME'])) {
+		$urlbase = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'];
+	} elseif (isset($_SERVER['REQUEST_SCHEME']) && isset($_SERVER['SERVER_ADDR'])) {
+		$urlbase = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_ADDR'];
+	} else {
+		$urlbase = 'http://' . $serverIp;
+	}
+	$urlbase .= $url['path'];
 	if (empty($url['query'])) {
 		$arr = [];
 	} else {
 		parse_str($url['query'], $arr);
-		$arr = array_map('urlencode', $arr);
+		foreach ($arr as &$v) {
+			$v = urlencode($v);
+		}
+		unset($v);
 	}
-	$arr['uuid'] = '${uuid:uristring}';
+	$arr['uuid'] = '${uuid}';
 	$arr['mac'] = '${mac}';
 	$arr['manuf'] = '${manufacturer:uristring}';
 	$arr['product'] = '${product:uristring}';
@@ -27,11 +44,16 @@ if ($platform === false || ($uuid === false && $product === false)) {
 	foreach ($arr as $k => $v) {
 		$query .= $k . '=' . $v . '&';
 	}
-	$query = substr($query, 0, -1);
+	//$query = substr($query, 0, -1);
 	echo <<<HERE
 #!ipxe
+set slxtest:string something ||
+iseq \${slxtest:md5} \${} && set slxext 0 || set slxext 1 ||
+clear slxtest ||
+set self {$urlbase}{$query}slx-extensions=\${slxext}
 :retry
-chain -ar $urlbase$query ||
+echo Chaining to \${self}
+chain -ar \${self} ||
 echo Chaining to self failed with \${errno}, retrying in a bit...
 sleep 5
 goto retry
@@ -45,8 +67,6 @@ $BOOT_METHODS = [
 	'COMBOOT' => 'chain /tftp/chain.c32 hd0',
 	'SANBOOT' => 'sanboot --no-describe',
 ];
-
-$serverIp = Property::getServerIp();
 
 $ip = $_SERVER['REMOTE_ADDR'];
 if (substr($ip, 0, 7) === '::ffff:') {
@@ -109,7 +129,11 @@ if (isset($BOOT_METHODS[$localboot])) {
 	$BOOT_METHODS = array_reverse($BOOT_METHODS);
 }
 
-// TODO: Feature check for our own iPXE extensions, stay compatible to stock iPXE
+if ($slxExtensions) {
+	$slxConsoleUpdate = '--update';
+} else {
+	$slxConsoleUpdate = '';
+}
 
 $output = <<<HERE
 #!ipxe
@@ -172,15 +196,15 @@ cpair --foreground 7 --background 9 0
 
 :slx_menu
 
-console --left 55 --top 88 --right 63 --bottom 64 --quick --keep --picture bg-menu ||
+console --left 55 --top 88 --right 63 --bottom 64 $slxConsoleUpdate --keep --picture bg-menu ||
 
 HERE;
 
-$output .= $menu->getMenuDefinition('target', $platform);
+$output .= $menu->getMenuDefinition('target', $platform, $slxExtensions);
 
 $output .= <<<HERE
 
-console --left 60 --top 130 --right 67 --bottom 86 --quick ||
+console --left 60 --top 130 --right 67 --bottom 86 $slxConsoleUpdate ||
 goto \${target} ||
 echo Could not find menu entry in script.
 prompt Press any key to continue.
@@ -189,8 +213,6 @@ goto start
 HERE;
 
 $output .= $menu->getItemsCode($platform);
-
-// TODO: Work out memtest stuff. Needs to be put on server (install/update script) -- PCBIOS only? Chain EFI -> BIOS?
 
 /*
 
@@ -202,8 +224,8 @@ goto init
 :i8
 set x:int32 0
 :again
-console --left 60 --top 130 --right 67 --bottom 96 --picture bg-load --keep --quick ||
-console --left 55 --top 88 --right 63 --bottom 64 --picture bg-menu --keep --quick ||
+console --left 60 --top 130 --right 67 --bottom 96 --picture bg-load --keep ||
+console --left 55 --top 88 --right 63 --bottom 64 --picture bg-menu --keep ||
 inc x
 iseq \${x} 20 || goto again
 prompt DONE. Press dein Knie.

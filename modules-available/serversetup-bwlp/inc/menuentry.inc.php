@@ -58,7 +58,7 @@ class MenuEntry
 		settype($this->menuentryid, 'int');
 	}
 
-	public function getMenuItemScript($lblPrefix, $requestedDefaultId, $mode)
+	public function getMenuItemScript($lblPrefix, $requestedDefaultId, $mode, $slxExtensions)
 	{
 		if ($this->bootEntry !== null && !$this->bootEntry->supportsMode($mode))
 			return '';
@@ -66,7 +66,7 @@ class MenuEntry
 		if ($this->gap) {
 			$str .= '--gap ';
 		} else {
-			if ($this->hidden) {
+			if ($this->hidden && $slxExtensions) {
 				if ($this->hotkey === false)
 					return ''; // Hidden entries without hotkey are illegal
 				$str .= '--hidden ';
@@ -79,7 +79,11 @@ class MenuEntry
 			}
 			$str .= "{$lblPrefix}_{$this->menuentryid} ";
 		}
-		$str .= $this->title;
+		if (empty($this->title)) {
+			$str .= '${}';
+		} else {
+			$str .= $this->title;
+		}
 		return $str . " || prompt Could not create menu item for {$lblPrefix}_{$this->menuentryid}\n";
 	}
 

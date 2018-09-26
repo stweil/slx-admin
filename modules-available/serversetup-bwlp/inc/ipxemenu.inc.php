@@ -36,11 +36,11 @@ class IPxeMenu
 		}
 	}
 
-	public function getMenuDefinition($targetVar, $mode)
+	public function getMenuDefinition($targetVar, $mode, $slxExtensions)
 	{
-		$str = "menu {$this->title}\n";
+		$str = "menu -- {$this->title}\n";
 		foreach ($this->items as $item) {
-			$str .= $item->getMenuItemScript("m_{$this->menuid}", $this->defaultEntryId, $mode);
+			$str .= $item->getMenuItemScript("m_{$this->menuid}", $this->defaultEntryId, $mode, $slxExtensions);
 		}
 		if ($this->defaultEntryId === null) {
 			$defaultLabel = "mx_{$this->menuid}_poweroff";
