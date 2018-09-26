@@ -14,7 +14,7 @@
 				{{lang_generationFailed}}
 			</div>
 		</div>
-		<div data-tm-id="{{taskid}}" data-tm-log="log" data-tm-log-height="31em" data-tm-callback="ipxeGenCb">{{lang_menuGeneration}}</div>
+		<div id="tm-compile-div" data-tm-id="{{taskid}}" data-tm-log="log" data-tm-log-height="36em" data-tm-callback="ipxeGenCb">{{lang_menuGeneration}}</div>
 	</div>
 </div>
 
@@ -26,6 +26,9 @@
 		if (task.data) {
 			if (task.data.pxeDone) $('#built-pxe').removeClass('invisible');
 			if (task.data.usbDone) $('#built-usb').removeClass('invisible');
+		}
+		if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'TASK_FINISHED') {
+			$('#tm-compile-div').find('pre').hide();
 		}
 		if (task.statusCode === 'TASK_ERROR') {
 			var $gf = $('#genfailed');

@@ -3,10 +3,25 @@
 class Page_ServerSetup extends Page
 {
 
-	private $taskStatus;
+	private $addrListTask;
+	private $compileTask = null;
 	private $currentAddress;
 	private $currentMenu;
 	private $hasIpSet = false;
+
+	private function getCompileTask()
+	{
+		if ($this->compileTask !== null)
+			return $this->compileTask;
+		$this->compileTask = Property::get('ipxe-task-id');
+		if ($this->compileTask !== false) {
+			$this->compileTask = Taskmanager::status($this->compileTask);
+			if (!Taskmanager::isTask($this->compileTask) || Taskmanager::isFinished($this->compileTask)) {
+				$this->compileTask = false;
+			}
+		}
+		return $this->compileTask;
+	}
 
 	protected function doPreprocess()
 	{
@@ -39,7 +54,9 @@ class Page_ServerSetup extends Page
 
 		if ($action === 'compile') {
 			User::assertPermission("edit.address");
-			Trigger::ipxe();
+			if ($this->getCompileTask() === false) {
+				Trigger::ipxe();
+			}
 			Util::redirect('?do=serversetup');
 		}
 
@@ -100,13 +117,7 @@ class Page_ServerSetup extends Page
 	{
 		Render::addTemplate("heading");
 
-		$task = Property::get('ipxe-task-id');
-		if ($task !== false) {
-			$task = Taskmanager::status($task);
-			if (!Taskmanager::isTask($task) || Taskmanager::isFinished($task)) {
-				$task = false;
-			}
-		}
+		$task = $this->getCompileTask();
 		if ($task !== false) {
 			Render::addTemplate('ipxe_update', array('taskid' => $task['id']));
 		}
@@ -291,8 +302,9 @@ class Page_ServerSetup extends Page
 	private function showEditAddress()
 	{
 		Render::addTemplate('ipaddress', array(
-			'ips' => $this->taskStatus['data']['addresses'],
+			'ips' => $this->addrListTask['data']['addresses'],
 			'chooseHintClass' => $this->hasIpSet ? '' : 'alert alert-danger',
+			'disabled' => ($this->getCompileTask() === false) ? '' : 'disabled',
 		));
 	}
 
@@ -300,27 +312,27 @@ class Page_ServerSetup extends Page
 
 	private function getLocalAddresses()
 	{
-		$this->taskStatus = Taskmanager::submit('LocalAddressesList', array());
+		$this->addrListTask = Taskmanager::submit('LocalAddressesList', array());
 
-		if ($this->taskStatus === false) {
-			$this->taskStatus['data']['addresses'] = false;
+		if ($this->addrListTask === false) {
+			$this->addrListTask['data']['addresses'] = false;
 			return false;
 		}
 
-		if (!Taskmanager::isFinished($this->taskStatus)) { // TODO: Async if just displaying
-			$this->taskStatus = Taskmanager::waitComplete($this->taskStatus['id'], 4000);
+		if (!Taskmanager::isFinished($this->addrListTask)) { // TODO: Async if just displaying
+			$this->addrListTask = Taskmanager::waitComplete($this->addrListTask['id'], 4000);
 		}
 
-		if (Taskmanager::isFailed($this->taskStatus) || !isset($this->taskStatus['data']['addresses'])) {
-			$this->taskStatus['data']['addresses'] = false;
+		if (Taskmanager::isFailed($this->addrListTask) || !isset($this->addrListTask['data']['addresses'])) {
+			$this->addrListTask['data']['addresses'] = false;
 			return false;
 		}
 
 		$sortIp = array();
-		foreach (array_keys($this->taskStatus['data']['addresses']) as $key) {
-			$item = & $this->taskStatus['data']['addresses'][$key];
+		foreach (array_keys($this->addrListTask['data']['addresses']) as $key) {
+			$item = & $this->addrListTask['data']['addresses'][$key];
 			if (!isset($item['ip']) || !preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $item['ip']) || substr($item['ip'], 0, 4) === '127.') {
-				unset($this->taskStatus['data']['addresses'][$key]);
+				unset($this->addrListTask['data']['addresses'][$key]);
 				continue;
 			}
 			if ($this->currentAddress === $item['ip']) {
@@ -330,7 +342,7 @@ class Page_ServerSetup extends Page
 			$sortIp[] = $item['ip'];
 		}
 		unset($item);
-		array_multisort($sortIp, SORT_STRING, $this->taskStatus['data']['addresses']);
+		array_multisort($sortIp, SORT_STRING, $this->addrListTask['data']['addresses']);
 		return true;
 	}
 
@@ -483,7 +495,7 @@ class Page_ServerSetup extends Page
 	{
 		$newAddress = Request::post('ip', 'none', 'string');
 		$valid = false;
-		foreach ($this->taskStatus['data']['addresses'] as $item) {
+		foreach ($this->addrListTask['data']['addresses'] as $item) {
 			if ($item['ip'] !== $newAddress)
 				continue;
 			$valid = true;

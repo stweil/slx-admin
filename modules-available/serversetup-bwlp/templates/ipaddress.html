@@ -20,7 +20,7 @@
 					{{/default}}
 					{{^default}}
 					<td>
-						<button class="btn btn-primary btn-xs" name="ip" value="{{ip}}">
+						<button class="btn btn-primary btn-xs" name="ip" value="{{ip}}" {{disabled}}>
 							<span class="glyphicon glyphicon-flag"></span>
 							{{lang_set}}
 						</button>
@@ -35,7 +35,7 @@
 		</form>
 		<form method="post" action="?do=ServerSetup">
 			<input type="hidden" name="token" value="{{token}}">
-			<button class="btn btn-default" name="action" value="compile">
+			<button class="btn btn-default" name="action" value="compile" {{disabled}}>
 				<span class="glyphicon glyphicon-refresh"></span>
 				{{lang_forceRecompile}}
 			</button>
