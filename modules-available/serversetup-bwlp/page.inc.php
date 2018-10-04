@@ -261,7 +261,11 @@ class Page_ServerSetup extends Page
 		$menu['entries'] = Database::queryAll("SELECT menuentryid, entryid, hotkey, title, hidden, sortval, plainpass FROM
 			serversetup_menuentry WHERE menuid = :id ORDER BY sortval ASC", compact('id'));
 		$menu['keys'] = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
-		$menu['entrylist'] = Database::queryAll("SELECT entryid, title, hotkey FROM serversetup_bootentry ORDER BY title ASC");
+		$menu['entrylist'] = Database::queryAll("SELECT entryid, title, hotkey, data FROM serversetup_bootentry ORDER BY title ASC");
+		foreach ($menu['entrylist'] as &$bootentry) {
+			$bootentry['json'] = $bootentry['data'];
+			$bootentry['data'] = json_decode($bootentry['data']);
+		}
 		foreach ($menu['entries'] as &$entry) {
 			$entry['isdefault'] = ($entry['menuentryid'] == $menu['defaultentryid']);
 			// TODO: plainpass only when permissions
