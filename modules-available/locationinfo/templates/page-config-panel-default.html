@@ -293,7 +293,7 @@
 
 						</ul>
 						<div class="dropdown pull-right">
-							<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+							<button id="addLocDdBtn" type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
 							<ul class="dropdown-menu" id="location-list">
@@ -309,8 +309,10 @@
 
 		</div>
 	</div>
-	<a href="?do=locationinfo&amp;show=panels" class="btn btn-default">{{lang_cancel}}</a>
-	<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	<div class="text-right">
+		<a href="?do=locationinfo&amp;show=panels" class="btn btn-default">{{lang_cancel}}</a>
+		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	</div>
 </form>
 
 <div class="modal fade" id="no-locations-message" tabindex="-1" role="dialog">
@@ -336,6 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	var $selLocs = $('#selected-locations');
 	var $locList = $('#location-list');
 	var $locInput = $('#locationids');
+	var $addLocDbBtn = $('#addLocDdBtn');
 
 	// Initialize fancy tooltips
 	$('p.helptext').tooltip();
@@ -372,6 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Adding/removing locations
 	$locList.find('a').click(function(ev) {
 		ev.preventDefault();
+		ev.stopPropagation();
 		var $this = $(this);
 		var name = $this.find('.name').text();
 		var id = $this.data('lid');
@@ -388,13 +392,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	function addLocation(id, name) {
 		$selLocs.find('li[data-lid="' + id + '"]').remove();
-		var delButton = $('<button class="btn btn-danger btn-xs" type="button">').append($('<span class="glyphicon glyphicon-remove">')).click(delParent);
-		$selLocs.append($('<li>').attr('data-lid', id).text(name).prepend(delButton));
+		var delButton = $('<button style="margin-right: 5px;" class="btn btn-danger btn-xs" type="button">').append($('<span class="glyphicon glyphicon-remove">')).click(delParent);
+		$selLocs.append($('<li style="margin-top: 5px;">').attr('data-lid', id).text(name).prepend(delButton));
+
+		if ($selLocs.find('li').length >= 4) {
+			$addLocDbBtn.prop("disabled",true);
+			var $addLocBtnParent = $addLocDbBtn.parent();
+			if ($addLocBtnParent.hasClass('open')) {
+				$addLocBtnParent.removeClass('open');
+			}
+		}
 	}
 
 	function delParent() {
 		$(this).parent().remove();
 		serializeLocs();
+		if ($selLocs.find('li').length < 4) {
+			$addLocDbBtn.prop("disabled",false);
+		}
 	}
 
 	function serializeLocs() {
