@@ -8,7 +8,7 @@
 		<th>{{lang_locationName}}</th>
 		<th>{{lang_backend}}</th>
 		<th>{{lang_lastCalendarUpdate}}</th>
-		<th>{{lang_openingtimes}}</th>
+		<th class="text-center slx-smallcol">{{lang_openingtimes}}</th>
 	</tr>
 	</thead>
 
@@ -29,12 +29,12 @@
 			<td {{#backendMissing}}class="text-danger"{{/backendMissing}}>
 				{{backend}}
 			</td>
-			<td>
+			<td class="text-center">
 				{{#backend}}
 					{{lastCalendarUpdate}}
 				{{/backend}}
 			</td>
-			<td>
+			<td class="text-center">
 				<span class="glyphicon glyphicon-{{openingGlyph}}"></span>
 			</td>
 		</tr>
