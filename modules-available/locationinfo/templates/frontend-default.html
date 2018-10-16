@@ -327,6 +327,7 @@ optional:
 		.wc-scrollable-grid {
 			transition: height 500ms;
 			background: rgba(0, 0, 0, 0);
+			overflow-y: hidden !important;
 		}
 
 		.wc-grid-timeslot-header,
@@ -735,7 +736,7 @@ optional:
 			timeslotHeight: 30,
 			daysToShow: daysToShow,
 			height: function () {
-				if (room.config.mode === 1 && room.config.vertical && (!room.timetable || !room.timetable.length)) return 20;
+				// if (room.config.mode === 1 && room.config.vertical && (!room.timetable || !room.timetable.length)) return 20;
 				var height = $(window).height();
 				if (roomIds.length === 4) {
 					height /= 2;
