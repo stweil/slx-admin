@@ -771,7 +771,9 @@ optional:
 			timeSeparator: " - ",
 			startOnFirstDayOfWeek: false,
 			displayFreeBusys: true,
-			defaultFreeBusy: {free: false}
+			defaultFreeBusy: {free: false},
+			allowCalEventOverlap: true,
+			overlapEventsSeparate: true
 		});
 	}
 
@@ -919,7 +921,7 @@ optional:
 	const SEVEN_DAYS = 7 * 86400 * 1000;
 
 	/**
-	 * applays new calendar data to the calendar plugin and also saves it to the room object
+	 * applies new calendar data to the calendar plugin and also saves it to the room object
 	 * @param {Array} json Calendar data
 	 * @param room Room Object
 	 */
@@ -946,9 +948,14 @@ optional:
 			console.log('Notice: Calendar has no current events for ' + room.name);
 		}
 		try {
+			for (var i = json.length - 1; i > 0; i--) {
+				// if title, start and end are the same, "merge" two events by removing one of them
+				if (json[i].title === json[i-1].title && json[i].start === json[i-1].start && json[i].end === json[i-1].end) {
+					json.splice(i, 1);
+				}
+			}
 			room.timetable = json;
 			if (room.config.mode !== 3) {
-				// TODO: Check if they're the same
 				var cal = room.$.calendar;
 				cal.weekCalendar('option', 'data', {events: json});
 				cal.weekCalendar("refresh");
