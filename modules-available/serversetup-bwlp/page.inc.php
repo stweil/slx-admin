@@ -87,6 +87,11 @@ class Page_ServerSetup extends Page
 			$this->deleteMenu();
 		}
 
+		if ($action === 'setDefaultMenu') {
+			User::assertPermission('ipxe.menu.edit', 0);
+			$this->setDefaultMenu();
+		}
+
 		if (Request::isPost()) {
 			Util::redirect('?do=serversetup');
 		}
@@ -213,7 +218,8 @@ class Page_ServerSetup extends Page
 
 		Render::addTemplate('menu-list', array(
 			'menuTable' => $menuTable,
-			'allowAddMenu' => $allowAddMenu
+			'allowAddMenu' => $allowAddMenu,
+			'showSetDefault' => User::hasPermission('ipxe.menu.edit', 0)
 		));
 	}
 
@@ -252,11 +258,15 @@ class Page_ServerSetup extends Page
 			Message::addError('invalid-menu-id', $id);
 			Util::redirect('?do=serversetup&show=menu');
 		}
-		if (!$this->hasMenuPermission($id, 'ipxe.menu.edit')) {
+		if ($id !== 0 && !$this->hasMenuPermission($id, 'ipxe.menu.edit')) {
 			$menu['readonly'] = 'readonly';
 			$menu['disabled'] = 'disabled';
 			$menu['plainpass'] = '';
 		}
+		if (!User::hasPermission('ipxe.menu.edit', 0)) {
+			$menu['globalMenuWarning'] = true;
+		}
+
 		$menu['timeout'] = round($menu['timeoutms'] / 1000);
 		$menu['entries'] = Database::queryAll("SELECT menuentryid, entryid, hotkey, title, hidden, sortval, plainpass FROM
 			serversetup_menuentry WHERE menuid = :id ORDER BY sortval ASC", compact('id'));
@@ -264,13 +274,50 @@ class Page_ServerSetup extends Page
 		$menu['entrylist'] = Database::queryAll("SELECT entryid, title, hotkey, data FROM serversetup_bootentry ORDER BY title ASC");
 		foreach ($menu['entrylist'] as &$bootentry) {
 			$bootentry['json'] = $bootentry['data'];
-			$bootentry['data'] = json_decode($bootentry['data']);
+			$bootentry['data'] = json_decode($bootentry['data'], true);
+			if (array_key_exists('arch', $bootentry['data'])) {
+				$bootentry['data']['PCBIOS'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
+																'initRd' => $bootentry['data']['initRd']['PCBIOS'],
+																'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
+				$bootentry['data']['EFI'] = array('executable' => $bootentry['data']['executable']['EFI'],
+															'initRd' => $bootentry['data']['initRd']['EFI'],
+															'commandLine' => $bootentry['data']['commandLine']['EFI']);
+
+				if ($bootentry['data']['arch'] === 'PCBIOS') {
+					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_biosOnly', true);
+					unset($bootentry['data']['EFI']);
+				} else if ($bootentry['data']['arch'] === 'EFI') {
+					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_efiOnly', true);
+					unset($bootentry['data']['PCBIOS']);
+				} else {
+					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archBoth', true);
+				}
+
+			} else {
+				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archAgnostic', true);
+				$bootentry['data']['archAgnostic'] = array('executable' => $bootentry['data']['executable'],
+																		'initRd' => $bootentry['data']['initRd'],
+																		'commandLine' => $bootentry['data']['commandLine']);
+			}
 		}
 		foreach ($menu['entries'] as &$entry) {
 			$entry['isdefault'] = ($entry['menuentryid'] == $menu['defaultentryid']);
 			// TODO: plainpass only when permissions
 		}
 		// TODO: Make assigned locations editable
+
+		$currentLocations = Database::queryColumnArray('SELECT locationid FROM serversetup_menu_location
+																					WHERE menuid = :menuid', array('menuid' => $id));
+		$menu['locations'] = Location::getLocations($currentLocations);
+
+		// if user has no permission to edit for this location, disable the location in the select
+		$allowedEditLocations = User::getAllowedLocations('ipxe.menu.edit');
+		foreach ($menu['locations'] as &$loc) {
+			if (!in_array($loc["locationid"], $allowedEditLocations)) {
+				$loc["disabled"] = "disabled";
+			}
+		}
+
 		Permission::addGlobalTags($menu['perms'], 0, ['ipxe.menu.edit']);
 		Render::addTemplate('menu-edit', $menu);
 	}
@@ -300,6 +347,7 @@ class Page_ServerSetup extends Page
 			$params['oldentryid'] = $params['entryid'] = $row['entryid'];
 			$params['builtin'] = $row['builtin'];
 		}
+
 		Render::addTemplate('ipxe-new-boot-entry', $params);
 	}
 
@@ -361,6 +409,17 @@ class Page_ServerSetup extends Page
 		Message::addSuccess('bootentry-deleted');
 	}
 
+	private function setDefaultMenu()
+	{
+		$id = Request::post('menuid', false, 'int');
+		if ($id === false) {
+			Message::addError('main.parameter-missing', 'menuid');
+			return;
+		}
+		Database::exec('UPDATE serversetup_menu SET isdefault = (menuid = :menuid)', ['menuid' => $id]);
+		Message::addSuccess('menu-set-default');
+	}
+
 	private function deleteMenu()
 	{
 		$id = Request::post('deleteid', false, 'int');
@@ -374,7 +433,6 @@ class Page_ServerSetup extends Page
 		}
 		Database::exec("DELETE FROM serversetup_menu WHERE menuid = :menuid", array("menuid" => $id));
 		Message::addSuccess('menu-deleted');
-
 	}
 
 	private function saveMenu()
@@ -384,13 +442,30 @@ class Page_ServerSetup extends Page
 			Message::addError('main.parameter-missing', 'menuid');
 			return;
 		}
-		// TODO: Validate new locations to be saved (and actually save them)
+
+		$locationids = Request::post('locations', [], "ARRAY");
+		// check if the user is allowed to edit the menu on the affected locations
+		$allowedEditLocations = User::getAllowedLocations('ipxe.menu.edit');
+		$currentLocations = Database::queryColumnArray('SELECT locationid FROM serversetup_menu_location
+																					WHERE menuid = :menuid', array('menuid' => $id));
+		// permission denied if the user tries to assign or remove a menu to/from locations he has no edit rights for
+		// or if the user tries to save a menu without locations but does not have the permission for the root location (0)
+		if (!in_array(0, $allowedEditLocations)
+				&& (
+					(!empty(array_diff($locationids, $allowedEditLocations)) && !empty(array_diff($currentLocations, $allowedEditLocations)))
+					|| empty($locationids)
+				)
+			) {
+			Message::addError('main.no-permission');
+			Util::redirect('?do=serversetup');
+		}
+
 		$insertParams = [
 			'title' => IPxe::sanitizeIpxeString(Request::post('title', '', 'string')),
 			'timeoutms' => abs(Request::post('timeout', 0, 'int') * 1000),
 		];
 		if ($id === 0) {
-			Database::exec("INSERT INTO serversetup_menu (title, timeoutms) VALUES (:title, :timeoutms)", $insertParams);
+			Database::exec("INSERT INTO serversetup_menu (title, timeoutms, isdefault) VALUES (:title, :timeoutms, 0)", $insertParams);
 			$menu['menuid'] = $id = Database::lastInsertId();
 		} else {
 			$menu = Database::queryFirst("SELECT m.menuid, GROUP_CONCAT(l.locationid) AS locations
@@ -410,88 +485,98 @@ class Page_ServerSetup extends Page
 					WHERE menuid = :menuid', $insertParams);
 		}
 
-		if (User::hasPermission('ipxe.menu.edit', 0)
-				&& Request::post('defmenu', false, 'boolean')) {
-			Database::exec('UPDATE serversetup_menu SET isdefault = (menuid = :menuid)', ['menuid' => $id]);
-		}
-
 		$keepIds = [];
 		$entries = Request::post('entry', false, 'array');
 		$wantedDefaultEntryId = Request::post('defaultentry', null, 'string');
 		$defaultEntryId = null;
 
-		foreach ($entries as $key => $entry) {
-			if (!isset($entry['sortval'])) {
-				error_log(print_r($entry, true));
-				continue;
-			}
-			// Fallback defaults
-			$entry += [
-				'entryid' => null,
-				'title' => '',
-				'hidden' => 0,
-				'plainpass' => '',
-			];
-			$params = [
-				'title' => IPxe::sanitizeIpxeString($entry['title']),
-				'sortval' => (int)$entry['sortval'],
-				'menuid' => $menu['menuid'],
-			];
-			if (empty($entry['entryid'])) {
-				// Spacer
-				$params += [
-					'entryid' => null,
-					'hotkey' => '',
-					'hidden' => 0, // Doesn't make any sense
-					'plainpass' => '', // Doesn't make any sense
-				];
-			} else {
-				$params += [
-					'entryid' => $entry['entryid'], // TODO validate?
-					'hotkey' => MenuEntry::filterKeyName($entry['hotkey']),
-					'hidden' => (int)$entry['hidden'], // TODO (needs hotkey to make sense)
-					'plainpass' => $entry['plainpass'],
-				];
-			}
-			if (is_numeric($key)) {
-				if ((string)$key === $wantedDefaultEntryId) { // Check now that we have generated our key
-					$defaultEntryId = $key;
+		if ($entries) {
+			foreach ($entries as $key => $entry) {
+				if (!isset($entry['sortval'])) {
+					error_log(print_r($entry, true));
+					continue;
 				}
-				$keepIds[] = $key;
-				$params['menuentryid'] = $key;
-				$params['md5pass'] = IPxe::makeMd5Pass($entry['plainpass'], $key);
-				$ret = Database::exec('UPDATE serversetup_menuentry
+				// Fallback defaults
+				$entry += [
+					'entryid' => null,
+					'title' => '',
+					'hidden' => 0,
+					'plainpass' => '',
+				];
+				$params = [
+					'title' => IPxe::sanitizeIpxeString($entry['title']),
+					'sortval' => (int)$entry['sortval'],
+					'menuid' => $menu['menuid'],
+				];
+				if (empty($entry['entryid'])) {
+					// Spacer
+					$params += [
+						'entryid' => null,
+						'hotkey' => '',
+						'hidden' => 0, // Doesn't make any sense
+						'plainpass' => '', // Doesn't make any sense
+					];
+				} else {
+					$params += [
+						'entryid' => $entry['entryid'], // TODO validate?
+						'hotkey' => MenuEntry::filterKeyName($entry['hotkey']),
+						'hidden' => (int)$entry['hidden'], // TODO (needs hotkey to make sense)
+						'plainpass' => $entry['plainpass'],
+					];
+				}
+				if (is_numeric($key)) {
+					if ((string)$key === $wantedDefaultEntryId) { // Check now that we have generated our key
+						$defaultEntryId = $key;
+					}
+					$keepIds[] = $key;
+					$params['menuentryid'] = $key;
+					$params['md5pass'] = IPxe::makeMd5Pass($entry['plainpass'], $key);
+					$ret = Database::exec('UPDATE serversetup_menuentry
 					SET entryid = :entryid, hotkey = :hotkey, title = :title, hidden = :hidden, sortval = :sortval,
 						plainpass = :plainpass, md5pass = :md5pass
 					WHERE menuid = :menuid AND menuentryid = :menuentryid', $params, true);
-			} else {
-				$ret = Database::exec("INSERT INTO serversetup_menuentry
+				} else {
+					$ret = Database::exec("INSERT INTO serversetup_menuentry
 					(menuid, entryid, hotkey, title, hidden, sortval, plainpass, md5pass)
 					VALUES (:menuid, :entryid, :hotkey, :title, :hidden, :sortval, :plainpass, '')", $params, true);
-				if ($ret) {
-					$newKey = Database::lastInsertId();
-					if ((string)$key === $wantedDefaultEntryId) { // Check now that we have generated our key
-						$defaultEntryId = $newKey;
-					}
-					$keepIds[] = (int)$newKey;
-					if (!empty($entry['plainpass'])) {
-						Database::exec('UPDATE serversetup_menuentry SET md5pass = :md5pass WHERE menuentryid = :id', [
-							'md5pass' => IPxe::makeMd5Pass($entry['plainpass'], $newKey),
-							'id' => $newKey,
-						]);
+					if ($ret) {
+						$newKey = Database::lastInsertId();
+						if ((string)$key === $wantedDefaultEntryId) { // Check now that we have generated our key
+							$defaultEntryId = $newKey;
+						}
+						$keepIds[] = (int)$newKey;
+						if (!empty($entry['plainpass'])) {
+							Database::exec('UPDATE serversetup_menuentry SET md5pass = :md5pass WHERE menuentryid = :id', [
+								'md5pass' => IPxe::makeMd5Pass($entry['plainpass'], $newKey),
+								'id' => $newKey,
+							]);
+						}
 					}
 				}
-			}
 
-			if ($ret === false) {
-				Message::addWarning('error-saving-entry', $entry['title'], Database::lastError());
+				if ($ret === false) {
+					Message::addWarning('error-saving-entry', $entry['title'], Database::lastError());
+				}
+			}
+			Database::exec('DELETE FROM serversetup_menuentry WHERE menuid = :menuid AND menuentryid NOT IN (:keep)',
+				['menuid' => $menu['menuid'], 'keep' => $keepIds]);
+			// Set default entry
+			Database::exec('UPDATE serversetup_menu SET defaultentryid = :default WHERE menuid = :menuid',
+				['menuid' => $menu['menuid'], 'default' => $defaultEntryId]);
+		} else {
+			Database::exec('DELETE FROM serversetup_menuentry WHERE menuid = :menuid', ['menuid' => $menu['menuid']]);
+			Database::exec('UPDATE serversetup_menu SET defaultentryid = NULL WHERE menuid = :menuid', ['menuid' => $menu['menuid']]);
+		}
+
+		Database::exec('DELETE FROM serversetup_menu_location WHERE menuid = :menuid', ['menuid' => $menu['menuid']]);
+		if (!empty($locationids)) {
+			Database::exec('DELETE FROM serversetup_menu_location WHERE locationid IN (:locationids)', ['locationids' => $locationids]);
+			foreach ($locationids as $locationid) {
+				Database::exec('INSERT INTO serversetup_menu_location (menuid, locationid) VALUES (:menuid, :locationid)',
+					['menuid' => $menu['menuid'], 'locationid' => $locationid]);
 			}
 		}
-		Database::exec('DELETE FROM serversetup_menuentry WHERE menuid = :menuid AND menuentryid NOT IN (:keep)',
-			['menuid' => $menu['menuid'], 'keep' => $keepIds]);
-		// Set default entry
-		Database::exec('UPDATE serversetup_menu SET defaultentryid = :default WHERE menuid = :menuid',
-			['menuid' => $menu['menuid'], 'default' => $defaultEntryId]);
+
 		Message::addSuccess('menu-saved');
 	}
 

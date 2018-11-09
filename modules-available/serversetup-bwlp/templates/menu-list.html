@@ -20,13 +20,22 @@
 				{{locationCount}}
 			</td>
 			<td align="center">
+				{{^isdefault}}
+					<form method="post" action="?do=serversetup" {{^showSetDefault}}style="display: none;"{{/showSetDefault}}>
+						<input type="hidden" name="token" value="{{token}}">
+						<input type="hidden" name="menuid" value="{{menuid}}">
+						<button type="submit" name="action" value="setDefaultMenu" class="btn btn-xs btn-info">
+							<span class="glyphicon glyphicon-ok"></span>
+						</button>
+					</form>
+				{{/isdefault}}
 				{{#isdefault}}
 					<span class="glyphicon glyphicon-ok"></span>
 				{{/isdefault}}
 			</td>
 			<td align="center">
 				{{#allowEdit}}
-					<a href="?do=serversetup&amp;show=editmenu&amp;id={{menuid}}" class="btn btn-xs btn-default">
+					<a href="?do=serversetup&amp;show=editmenu&amp;id={{menuid}}" class="btn btn-xs btn-primary">
 						<span class="glyphicon glyphicon-edit"></span>
 					</a>
 				{{/allowEdit}}

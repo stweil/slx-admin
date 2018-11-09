@@ -38,12 +38,17 @@
 			</div>
 			<div class="row list-group-item">
 				<div class="col-sm-3">
+					<label for="panel-locations">{{lang_menuLocations}}</label>
 				</div>
 				<div class="col-sm-9">
-					<div class="checkbox">
-						<input name="defmenu" id="panel-defmenu" type="checkbox" {{#isdefault}}checked disabled{{/isdefault}} {{disabled}}>
-						<label for="panel-defmenu">{{lang_defaultMenu}}</label>
-					</div>
+					<select id="panel-locations" multiple name="locations[]">
+						{{#locations}}
+						<option value="{{locationid}}" {{disabled}} {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
+						{{/locations}}
+					</select>
+					{{#globalMenuWarning}}
+						<span id="global-menu-warning" style="margin-left: 20px; color: red; display: none;">{{lang_globalMenuWarning}}</span>
+					{{/globalMenuWarning}}
 				</div>
 			</div>
 			<div>
@@ -56,7 +61,7 @@
 						<th>{{lang_title}}</th>
 						<th style="width: 150px">{{lang_hotkey}}</th>
 						<th style="width: 200px">{{lang_password}}</th>
-						<th style="width: 10px"></th>
+						<th style="width: 10px"><span class="glyphicon glyphicon-eye-close"></span></th>
 						<th style="width: 10px"></th>
 					</tr>
 					</thead>
@@ -124,7 +129,7 @@
 			</div>
 			<div class="text-right">
 				<a href="?do=serversetup&show=menu" type="button" class="btn btn-default">{{lang_cancel}}</a>
-				<button type="submit" class="btn btn-primary" {{disabled}}>
+				<button id="save-button" type="submit" class="btn btn-primary" {{disabled}}>
 					<span class="glyphicon glyphicon-floppy-disk"></span>
 					{{lang_save}}
 				</button>
@@ -154,29 +159,69 @@
 							</div>
 							{{#data}}
 								{{#script}}
-								<div class="form-group">
-									<label for="{{entryid}}-script">{{lang_scriptContent}}</label>
-									<pre id="{{entryid}}-script">{{.}}</pre>
-								</div>
+									<div class="form-group">
+										<label for="{{entryid}}-script">{{lang_scriptContent}}</label>
+										<pre id="{{entryid}}-script">{{.}}</pre>
+									</div>
 								{{/script}}
-								{{#executable}}
-								<div class="form-group">
-									<label for="{{entryid}}-executable">{{lang_imageToLoad}}</label>
-									<pre id="{{entryid}}-executable">{{.}}</pre>
-								</div>
-								{{/executable}}
-								{{#initRd}}
-								<div class="form-group">
-									<label for="{{entryid}}-initRd">{{lang_initRd}}</label>
-									<pre id="{{entryid}}-initRd">{{.}}</pre>
-								</div>
-								{{/initRd}}
-								{{#commandLine}}
-								<div class="form-group">
-									<label for="{{entryid}}-commandLine">{{lang_commandLine}}</label>
-									<pre id="{{entryid}}-commandLine" >{{.}}</pre>
-								</div>
-								{{/commandLine}}
+								{{^script}}
+									<div class="form-group">
+										<label for="{{entryid}}-script">{{lang_archSelector}}</label>
+										<pre id="{{entryid}}-arch">{{arch}}</pre>
+									</div>
+									{{#archAgnostic}}
+										<div class="form-group">
+											<label for="{{entryid}}-executable">{{lang_imageToLoad}}</label>
+											<pre id="{{entryid}}-executable">{{executable}}</pre>
+										</div>
+										<div class="form-group">
+											<label for="{{entryid}}-initRd">{{lang_initRd}}</label>
+											<pre id="{{entryid}}-initRd">{{initRd}}</pre>
+										</div>
+										<div class="form-group">
+											<label for="{{entryid}}-commandLine">{{lang_commandLine}}</label>
+											<pre id="{{entryid}}-commandLine" >{{commandLine}}</pre>
+										</div>
+									{{/archAgnostic}}
+									{{#PCBIOS}}
+										<div class="panel panel-default">
+											<div class="panel-heading">PCBIOS</div>
+											<div class="panel-body">
+												<div class="form-group">
+													<label for="{{entryid}}-executable">{{lang_imageToLoad}}</label>
+													<pre id="{{entryid}}-executable">{{executable}}</pre>
+												</div>
+												<div class="form-group">
+													<label for="{{entryid}}-initRd">{{lang_initRd}}</label>
+													<pre id="{{entryid}}-initRd">{{initRd}}</pre>
+												</div>
+												<div class="form-group">
+													<label for="{{entryid}}-commandLine">{{lang_commandLine}}</label>
+													<pre id="{{entryid}}-commandLine" >{{commandLine}}</pre>
+												</div>
+											</div>
+										</div>
+									{{/PCBIOS}}
+									{{#EFI}}
+										<div class="panel panel-default">
+											<div class="panel-heading">EFI</div>
+											<div class="panel-body">
+												<div class="form-group">
+													<label for="{{entryid}}-executable">{{lang_imageToLoad}}</label>
+													<pre id="{{entryid}}-executable">{{executable}}</pre>
+												</div>
+												<div class="form-group">
+													<label for="{{entryid}}-initRd">{{lang_initRd}}</label>
+													<pre id="{{entryid}}-initRd">{{initRd}}</pre>
+												</div>
+												<div class="form-group">
+													<label for="{{entryid}}-commandLine">{{lang_commandLine}}</label>
+													<pre id="{{entryid}}-commandLine" >{{commandLine}}</pre>
+												</div>
+											</div>
+										</div>
+									{{/EFI}}
+								{{/script}}
 							{{/data}}
 						</div>
 						{{/entrylist}}
@@ -244,6 +289,29 @@
 	var spacerText = "{{lang_spacer}}";
 
 	document.addEventListener("DOMContentLoaded", function() {
+		var locationSelect = $('#panel-locations');
+		locationSelect.multiselect({numberDisplayed: 1});
+		var globalMenuWarning = $('#global-menu-warning');
+		if (globalMenuWarning.length) {
+			var saveButton = $('#save-button');
+			if (locationSelect.val() !== null) {
+				saveButton.prop('disabled', false);
+				globalMenuWarning.hide();
+			} else {
+				saveButton.prop('disabled', true);
+				globalMenuWarning.show();
+			}
+			locationSelect.change(function () {
+				if ($(this).val() !== null) {
+					saveButton.prop('disabled', false);
+					globalMenuWarning.hide();
+				} else {
+					saveButton.prop('disabled', true);
+					globalMenuWarning.show();
+				}
+			});
+		}
+
 		function reassignSortValues() {
 			var startValue = 1;
 			$('.sort-val').each(function(index, element) {
