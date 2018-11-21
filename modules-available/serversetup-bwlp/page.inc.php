@@ -345,7 +345,7 @@ class Page_ServerSetup extends Page
 			}
 			$entry = BootEntry::fromJson($row['data']);
 			if ($entry === null) {
-				Message::addError('unknown-boot-entry-type', $id);
+				Message::addError('unknown-bootentry-type', $id);
 				Util::redirect('?do=serversetup');
 			}
 			$entry->addFormFields($params);
@@ -628,7 +628,7 @@ class Page_ServerSetup extends Page
 		}
 		$data = Request::post('entry', false);
 		if (!is_array($data)) {
-			Message::addError('missing-entry-data');
+			Message::addError('missing-bootentry-data');
 			return;
 		}
 		$type = Request::post('type', false, 'string');
@@ -637,7 +637,7 @@ class Page_ServerSetup extends Page
 		} elseif ($type === 'script') {
 			$entry = BootEntry::newCustomBootEntry($data);
 		} else {
-			Message::addError('unknown-entry-type', $type);
+			Message::addError('unknown-bootentry-type', $type);
 			return;
 		}
 		if ($entry === null) {
