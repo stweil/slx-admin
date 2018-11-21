@@ -72,7 +72,7 @@
     "lang_moduleConfiguration": "Konfigurationsmodule",
     "lang_moduleName": "Modulname",
     "lang_moduleTitle": "Titel",
-    "lang_mountOptionsNote": "Diese Einstellungen beziehen sich nur auf Linux und \u00e4hnliche Systeme (sowohl das MiiLinux als auch laufende VMs) und beeinflussen die Optionen, die beim Mounten des Verzeichnisses verwendet werden sollen. Sofern es im LDAP\/AD ein Nutzerattribut gibt, welches die passenden Optionen enth\u00e4lt, k\u00f6nnen Sie dieses hier angeben. Das Attribut wird dann vorrangig behandelt. Ist das Attribut leer oder nicht vorhanden, werden die Optionen verwendet, die Sie im Feld \"feste Mount-Optionen\" eingetragen haben. Sind beide Felder leer, werden verschiedene Optionen automatisch durchprobiert.",
+    "lang_mountOptionsNote": "Diese Einstellungen beziehen sich nur auf Linux und \u00e4hnliche Systeme (sowohl das MiniLinux als auch laufende VMs) und beeinflussen die Optionen, die beim Mounten des Verzeichnisses verwendet werden sollen. Sofern es im LDAP\/AD ein Nutzerattribut gibt, welches die passenden Optionen enth\u00e4lt, k\u00f6nnen Sie dieses hier angeben. Das Attribut wird dann vorrangig behandelt. Ist das Attribut leer oder nicht vorhanden, werden die Optionen verwendet, die Sie im Feld \"feste Mount-Optionen\" eingetragen haben. Sind beide Felder leer, werden verschiedene Optionen automatisch durchprobiert.",
     "lang_name": "Name",
     "lang_newConfiguration": "Neue Konfiguration",
     "lang_newModule": "Neues Modul",
