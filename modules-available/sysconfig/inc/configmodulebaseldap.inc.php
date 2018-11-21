@@ -8,7 +8,7 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 	private static $REQUIRED_FIELDS = array('server', 'searchbase');
 	private static $OPTIONAL_FIELDS = array('binddn', 'bindpw', 'home', 'ssl', 'fixnumeric', 'fingerprint', 'certificate', 'homeattr',
 		'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia',
-		'shareOther', 'shareHomeDrive', 'shareDomain', 'credentialPassthrough', 'mapping',
+		'shareOther', 'shareHomeDrive', 'shareDomain', 'credentialPassthrough', 'mapping', 'genuid',
 		'ldapAttrMountOpts', 'shareHomeMountOpts');
 
 	public static function getMapping($config = false, &$empty = true)

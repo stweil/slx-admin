@@ -9,7 +9,7 @@ class LdapAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		$LDAPAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'certificate', 'mapping');
+		$LDAPAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'genuid', 'certificate', 'mapping');
 		$data = array();
 		if ($this->edit !== false) {
 			moduleToArray($this->edit, $data, $LDAPAUTH_COMMON_FIELDS);
@@ -81,6 +81,7 @@ class LdapAuth_CheckConnection extends AddModule_Base
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl'),
 			'fixnumeric' => Request::post('fixnumeric'),
+			'genuid' => Request::post('genuid'),
 			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id'],
 			'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
@@ -152,6 +153,7 @@ class LdapAuth_CheckCredentials extends AddModule_Base
 				'home' => Request::post('home'),
 				'ssl' => Request::post('ssl') === 'on',
 				'fixnumeric' => Request::post('fixnumeric'),
+				'genuid' => Request::post('genuid'),
 				'fingerprint' => Request::post('fingerprint'),
 				'certificate' => Request::post('certificate', ''),
 				'mapping' => ConfigModuleBaseLdap::getMapping(Request::post('mapping', false, 'array')),
@@ -192,6 +194,7 @@ class LdapAuth_HomeDir extends AddModule_Base
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fixnumeric' => Request::post('fixnumeric'),
+			'genuid' => Request::post('genuid'),
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => Request::post('originalbinddn'),
@@ -248,7 +251,7 @@ class LdapAuth_Finish extends AddModule_Base
 		else
 			$module = $this->edit;
 		$ssl = Request::post('ssl', 'off') === 'on';
-		foreach (['searchbase', 'binddn', 'server', 'bindpw', 'home', 'certificate', 'fixnumeric',
+		foreach (['searchbase', 'binddn', 'server', 'bindpw', 'home', 'certificate', 'fixnumeric', 'genuid',
 						'ldapAttrMountOpts', 'shareHomeMountOpts'] as $key) {
 			$module->setData($key, Request::post($key, '', 'string'));
 		}

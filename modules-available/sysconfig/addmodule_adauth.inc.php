@@ -13,7 +13,7 @@ class AdAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'certificate', 'mapping');
+		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'genuid', 'certificate', 'mapping');
 		$data = array();
 		if ($this->edit !== false) {
 			moduleToArray($this->edit, $data, $ADAUTH_COMMON_FIELDS);
@@ -107,6 +107,7 @@ class AdAuth_CheckConnection extends AddModule_Base
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl'),
 			'fixnumeric' => Request::post('fixnumeric'),
+			'genuid' => Request::post('genuid'),
 			'certificate' => Request::post('certificate', ''),
 			'taskid' => $this->scanTask['id'],
 			'mapping' => ConfigModuleBaseLdap::getMapping($mapping),
@@ -208,6 +209,7 @@ class AdAuth_SelfSearch extends AddModule_Base
 			'home' => Request::post('home'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fixnumeric' => Request::post('fixnumeric'),
+			'genuid' => Request::post('genuid'),
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => $this->originalBindDn,
@@ -285,6 +287,7 @@ class AdAuth_HomeAttrCheck extends AddModule_Base
 				'home' => Request::post('home'),
 				'ssl' => Request::post('ssl') === 'on',
 				'fixnumeric' => Request::post('fixnumeric'),
+				'genuid' => Request::post('genuid'),
 				'fingerprint' => Request::post('fingerprint'),
 				'certificate' => Request::post('certificate', ''),
 				'originalbinddn' => Request::post('originalbinddn'),
@@ -357,6 +360,7 @@ class AdAuth_CheckCredentials extends AddModule_Base
 				'homeattr' => Request::post('homeattr'),
 				'ssl' => Request::post('ssl') === 'on',
 				'fixnumeric' => Request::post('fixnumeric'),
+				'genuid' => Request::post('genuid'),
 				'fingerprint' => Request::post('fingerprint'),
 				'certificate' => Request::post('certificate', ''),
 				'originalbinddn' => Request::post('originalbinddn'),
@@ -421,6 +425,7 @@ class AdAuth_HomeDir extends AddModule_Base
 			'homeattr' => Request::post('homeattr'),
 			'ssl' => Request::post('ssl') === 'on',
 			'fixnumeric' => Request::post('fixnumeric'),
+			'genuid' => Request::post('genuid'),
 			'fingerprint' => Request::post('fingerprint'),
 			'certificate' => Request::post('certificate', ''),
 			'originalbinddn' => Request::post('originalbinddn'),
@@ -477,7 +482,7 @@ class AdAuth_Finish extends AddModule_Base
 		else
 			$module = $this->edit;
 		$ssl = Request::post('ssl', 'off') === 'on';
-		foreach (['searchbase', 'binddn', 'server', 'bindpw', 'home', 'homeattr', 'certificate', 'fixnumeric',
+		foreach (['searchbase', 'binddn', 'server', 'bindpw', 'home', 'homeattr', 'certificate', 'fixnumeric', 'genuid',
 					'ldapAttrMountOpts', 'shareHomeMountOpts'] as $key) {
 			$module->setData($key, Request::post($key, '', 'string'));
 		}
