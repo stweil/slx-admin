@@ -1,4 +1,8 @@
 {
     "module_name": "iPXE \/ Boot Menu",
-    "page_title": "PXE- und Boot-Einstellungen"
+    "page_title": "PXE- und Boot-Einstellungen",
+    "submenu_address": "Server-Adresse",
+    "submenu_bootentry": "Booteintr\u00e4ge verwalten",
+    "submenu_download": "Downloads",
+    "submenu_menu": "Men\u00fcs verwalten"
 }
