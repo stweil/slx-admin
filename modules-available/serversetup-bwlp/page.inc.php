@@ -124,7 +124,13 @@ class Page_ServerSetup extends Page
 
 		$task = $this->getCompileTask();
 		if ($task !== false) {
-			Render::addTemplate('ipxe_update', array('taskid' => $task['id']));
+			$files = [];
+			if ($task['data'] && $task['data']['files']) {
+				foreach ($task['data']['files'] as $k => $v) {
+					$files[] = ['name' => $k, 'namehyphen' => str_replace(['/', '.'], '-', $k)];
+				}
+			}
+			Render::addTemplate('ipxe_update', array('taskid' => $task['id'], 'files' => $files));
 		}
 
 		switch (Request::get('show')) {

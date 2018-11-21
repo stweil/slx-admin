@@ -1,13 +1,13 @@
 <div class="panel panel-default">
 	<div class="panel-heading">{{lang_menuGeneration}}</div>
 	<div class="panel-body">
-		<div id="built-pxe" class="invisible">
-			<span class="glyphicon glyphicon-ok"></span>
-			{{lang_pxeBuilt}}
-		</div>
-		<div id="built-usb" class="invisible">
-			<span class="glyphicon glyphicon-ok"></span>
-			{{lang_usbBuilt}}
+		<div id="file-list">
+			{{#files}}
+			<div id="built-{{namehyphen}}">
+				<span class="glyphicon glyphicon-question-sign"></span>
+				{{name}}
+			</div>
+			{{/files}}
 		</div>
 		<div id="genfailed" class="collapse">
 			<div class="alert alert-danger">
@@ -19,15 +19,16 @@
 </div>
 
 <script type="text/javascript">
+	document.addEventListener('DOMContentLoaded', function() {
+		var slxFileList = $('#file-list').find('.glyphicon');
+	});
+
 	function ipxeGenCb(task)
 	{
 		if (!task || !task.statusCode)
 			return;
-		if (task.data) {
-			if (task.data.pxeDone) $('#built-pxe').removeClass('invisible');
-			if (task.data.usbDone) $('#built-usb').removeClass('invisible');
-		}
-		if (task.statusCode === 'TASK_ERROR' || task.statusCode === 'TASK_FINISHED') {
+
+		if (task.statusCode === 'TASK_FINISHED') {
 			$('#tm-compile-div').find('pre').hide();
 		}
 		if (task.statusCode === 'TASK_ERROR') {
@@ -36,6 +37,18 @@
 				$gf.append($('<pre>').text(task.data.errors));
 			}
 			$gf.show('slow');
+			slxFileList.find('.glyphicon-question-sign').removeClass('glyphicon-question-sign').addClass('glyphicon-stop');
+		} else {
+			// Working or finished
+			if (task.data && task.data.files && task.data.files) {
+				for (var k in task.data.files) {
+					if (!task.data.files[k])
+						continue;
+					var f = '#built-' + k.replace('/', '-').replace('.', '-');
+					var $e = $(f);
+					$e.find('.glyphicon-question-sign').removeClass('glyphicon-question-sign').addClass('glyphicon-ok text-success');
+				}
+			}
 		}
 	}
 </script>
