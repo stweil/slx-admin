@@ -5,6 +5,12 @@
     "actionlog.view": {
         "location-aware": false
     },
+    "ldapfilters.view": {
+        "location-aware": false
+    },
+    "ldapfilters.save": {
+        "location-aware": false
+    },
     "mailconfig.save": {
         "location-aware": false
     },

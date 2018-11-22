@@ -1,6 +1,8 @@
 {
     "actionlog.view": "View action log.",
     "expiredimages.delete": "Delete images marked for deletion.",
+    "ldapfilters.save": "Save LDAP filter.",
+    "ldapfilters.view": "View LDAP filters. ",
     "mailconfig.save": "Save SMTP configuration for sending mails.",
     "runtimeconfig.save": "Save limits and defaults of a runtime configuration.",
     "templates.reset": "Reset email templates.",

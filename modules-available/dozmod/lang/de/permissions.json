@@ -1,6 +1,8 @@
 {
     "actionlog.view": "Aktions-Log einsehen.",
     "expiredimages.delete": "Zur L\u00f6schung vorgemerkete Abbilder l\u00f6schen.",
+    "ldapfilters.save": "LDAP Filter speichern.",
+    "ldapfilters.view": "LDAP Filter einsehen.",
     "mailconfig.save": "\u00c4nderungen an der SMTP-Konfiguration zum Versenden von Mails speichern.",
     "runtimeconfig.save": "\u00c4nderungen an der Laufzeit-Konfiguration speichern.",
     "templates.reset": "E-Mail Templates zur\u00fccksetzen.",
