@@ -4,6 +4,8 @@
     "dozmod-error": "Error communicating with the bwLehrpool-Suite server: {{0}}",
     "images-pending-delete-exist": "VMs marked for deletion: {{0}}",
     "mail-config-saved": "Mail config saved",
+    "networkshare-deleted": "Network share deleted",
+    "networkshare-saved": "Network share saved",
     "no-expired-images": "No expired VMs",
     "nothing-submitted": "There was nothing submitted",
     "runtimelimits-config-saved": "Configuration saved successfully",

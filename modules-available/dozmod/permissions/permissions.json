@@ -8,6 +8,12 @@
     "mailconfig.save": {
         "location-aware": false
     },
+    "networkshares.view": {
+        "location-aware": false
+    },
+    "networkshares.save": {
+        "location-aware": false
+    },
     "runtimeconfig.save": {
         "location-aware": false
     },

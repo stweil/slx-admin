@@ -1,0 +1,85 @@
+<h1>{{lang_networkshares}}</h1>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_editNetworkshare}}
+	</div>
+	<div class="panel-body">
+		<form method="post" action="?do=dozmod">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="section" value="networkshares">
+			<input type="hidden" name="shareid" value="{{shareid}}">
+
+			<div class="input-group">
+				<label class="input-group-addon" for="name">{{lang_name}}</label>
+				<input required type="text" name="sharename" id="name" class="form-control" value="{{sharename}}">
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="path">{{lang_path}}</label>
+				<input required type="text" name="path" id="path" class="form-control" value="{{path}}">
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="target">{{lang_target}}</label>
+				<select class="form-control" name="target" id="target">
+					<option value="" ></option>
+					<option value="D">D:</option><option value="E">E:</option><option value="F">F:</option>
+					<option value="G">G:</option><option value="H">H:</option><option value="I">I:</option>
+					<option value="J">J:</option><option value="K">K:</option><option value="L">L:</option>
+					<option value="M">M:</option><option value="N">N:</option><option value="O">O:</option>
+					<option value="P">P:</option><option value="Q">Q:</option><option value="R">R:</option>
+					<option value="S">S:</option><option value="T">T:</option><option value="U">U:</option>
+					<option value="V">V:</option><option value="W">W:</option><option value="X">X:</option>
+					<option value="Y">Y:</option><option value="Z">Z:</option>
+				</select>
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="auth">{{lang_authMethod}}</label>
+				<select class="form-control" id="auth">
+					<option value="loggedInUser" {{loggedInUser}}>{{lang_loggedInUser}}</option>
+					<option value="specificUser" {{specificUser}}>{{lang_specificUser}}</option>
+				</select>
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="username">{{lang_username}}</label>
+				<input required type="text" name="username" id ="username" class="form-control" value="{{username}}" {{#loggedInUser}}disabled{{/loggedInUser}}>
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="password">{{lang_password}}</label>
+				<input required type="password" name="password" id ="password" class="form-control" value="{{password}}" {{#loggedInUser}}disabled{{/loggedInUser}}>
+			</div>
+			<div class="text-right" style="margin-top: 20px">
+				<a href="?do=dozmod&amp;section=networkshares" class="btn btn-default">
+					{{lang_cancel}}
+				</a>
+				<button type="submit" class="btn btn-primary" name="action" value="save">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	document.addEventListener("DOMContentLoaded", function () {
+
+		$('#target').val('{{target}}');
+
+		$('#auth').change(function () {
+			var username = $('#username');
+			var password = $('#password');
+			if ($(this).val() === 'specificUser') {
+				username.prop('disabled', false);
+				password.prop('disabled', false);
+			} else {
+				username.prop('disabled', true);
+				password.prop('disabled', true);
+				username.val('');
+				password.val('');
+			}
+		});
+
+	})
+
+</script>

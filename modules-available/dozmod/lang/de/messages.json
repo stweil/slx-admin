@@ -4,6 +4,8 @@
     "dozmod-error": "Fehler bei der Kommunikation mit dem bwLehrpool-Suite server: {{0}}",
     "images-pending-delete-exist": "Zur L\u00f6schung markierte VM-Versionen: {{0}}",
     "mail-config-saved": "Mail-Konfiguration gespeichert",
+    "networkshare-deleted": "Netzlaufwerk gel\u00f6scht",
+    "networkshare-saved": "Netzlaufwerk gespeichert",
     "no-expired-images": "Keine Abgelaufenen VM-Versionen",
     "nothing-submitted": "Es wurde nichts \u00fcbermittelt",
     "runtimelimits-config-saved": "Einstellungen gespeichert",

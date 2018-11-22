@@ -1,0 +1,95 @@
+<h1>{{lang_networkshares}}</h1>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>{{lang_name}}</th>
+			<th>{{lang_path}}</th>
+			<th>{{lang_target}}</th>
+			<th>{{lang_authMethod}}</th>
+			<th>{{lang_username}}</th>
+			{{#hasEditPermissions}}
+			<th class="slx-smallcol">{{lang_active}}</th>
+			<th class="slx-smallcol">{{lang_edit}}</th>
+			<th class="slx-smallcol">{{lang_delete}}</th>
+			{{/hasEditPermissions}}
+		</tr>
+	</thead>
+	<tbody>
+	{{#networkshares}}
+		<tr>
+			<td>{{sharename}}</td>
+			<td>{{path}}</td>
+			<td>{{#target}}{{.}}:{{/target}}</td>
+			<td>{{#specificUser}}{{lang_specificUser}}{{/specificUser}}{{^specificUser}}{{lang_loggedInUser}}{{/specificUser}}</td>
+			<td>{{#specificUser}}{{username}}{{/specificUser}}</td>
+			{{#hasEditPermissions}}
+			<td align="center">
+				<form method="post" action="?do=dozmod">
+					<input type="hidden" name="token" value="{{token}}">
+					<input type="hidden" name="section" value="networkshares">
+					<input type="hidden" name="shareid" value="{{shareid}}">
+					<button type="submit" name="action" value="toggleActive" class="btn btn-xs {{^active}}btn-default{{/active}}{{#active}}btn-info{{/active}}">
+						<span class="glyphicon {{^active}}glyphicon-flag{{/active}}{{#active}}glyphicon-ok{{/active}}"></span>
+					</button>
+				</form>
+			</td>
+			<td align="center">
+				<a href="?do=dozmod&amp;section=networkshares&amp;show=edit&amp;shareid={{shareid}}" class="btn btn-xs btn-primary">
+					<span class="glyphicon glyphicon-edit"></span>
+				</a>
+			</td>
+			<td align="center">
+				<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteShare('{{shareid}}')">
+					<span class="glyphicon glyphicon-trash"></span>
+				</button>
+			</td>
+			{{/hasEditPermissions}}
+		</tr>
+	{{/networkshares}}
+	</tbody>
+</table>
+{{#hasEditPermissions}}
+<div class="text-right">
+	<a href="?do=dozmod&amp;section=networkshares&amp;show=edit" class="btn btn-success {{allowAddShare}}">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_addShare}}
+	</a>
+</div>
+{{/hasEditPermissions}}
+
+<!-- Modals -->
+<form method="post" action="?do=dozmod">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="section" value="networkshares">
+	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">{{lang_delete}}</h4>
+				</div>
+				<div class="modal-body">
+					<p>{{lang_shareDeleteConfirm}}</p>
+				</div>
+				<div class="modal-footer">
+					<input type="hidden" id="delete-share-id" name="shareid" value="">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="delete" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+
+	function deleteShare(shareid) {
+		$("#delete-share-id").val(shareid);
+	}
+
+	document.addEventListener("DOMContentLoaded", function () {
+
+	})
+
+</script>
