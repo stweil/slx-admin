@@ -67,6 +67,7 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 		if (!isset($config['fixnumeric'])) {
 			$config['fixnumeric'] = 's';
 		}
+		$config['genuid'] = isset($config['genuid']) && !empty($config['genuid']);
 		$this->preTaskmanagerHook($config);
 		$task = Taskmanager::submit('CreateLdapConfig', $config);
 		if (is_array($task) && isset($task['id'])) {
