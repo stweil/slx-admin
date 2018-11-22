@@ -1,0 +1,39 @@
+<h1>{{lang_ldapfilters}}</h1>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_ldapFilterEdit}}
+	</div>
+	<div class="panel-body">
+
+		<p>{{lang_ldapFilterDescription}}</p>
+		<form method="post" action="?do=dozmod&section=ldapfilters">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" id="filterid" name="filterid" value="{{filterid}}">
+
+			<div class="input-group">
+				<label class="input-group-addon" for="filtername">{{lang_ldapFilterName}}</label>
+				<input type="text" name="filtername" id ="filtername" class="form-control" placeholder="" value="{{filtername}}" required>
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="attribute">{{lang_ldapFilterAttribute}}</label>
+				<input type="text" name="attribute" id ="attribute" class="form-control" placeholder="" value="{{attribute}}" required>
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="value">{{lang_ldapFilterValue}}</label>
+				<input type="text" name="value" id ="value" class="form-control" placeholder="" value="{{value}}" required>
+			</div>
+
+			<div class="text-right" style="margin-top: 20px;">
+				<a type="button" class="btn btn-default" href="?do=dozmod&section=ldapfilters">{{lang_cancel}}</a>
+				<button class="btn btn-primary" type="submit" name="action" value="saveFilter">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+</script>
