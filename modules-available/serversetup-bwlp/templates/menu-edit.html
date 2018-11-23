@@ -84,7 +84,7 @@
 
 						<td class="text-nowrap">
 							<input class="entry-id" type="hidden" name="entry[{{menuentryid}}][entryid]" value="{{entryid}}">
-							<button type="button" class="btn btn-default" style="width: 100%; text-align: left" {{disabled}} data-toggle="modal" data-target="#entry-chosser-modal">
+							<button type="button" class="btn btn-default" style="width: 100%; text-align: left" {{disabled}} data-toggle="modal" data-target="#entry-chooser-modal">
 								{{#entryid}}
 									{{entryid}}
 								{{/entryid}}
@@ -136,7 +136,7 @@
 			</div>
 		</form>
 
-		<div class="modal fade" id="entry-chosser-modal" tabindex="-1" role="dialog">
+		<div class="modal fade" id="entry-chooser-modal" tabindex="-1" role="dialog">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -259,7 +259,7 @@
 
 		<td class="text-nowrap">
 			<input class="entry-id" type="hidden" name="entry[%new%][entryid]" value="">
-			<button type="button" class="btn btn-default" style="width: 100%; text-align: left" {{disabled}} data-toggle="modal" data-target="#entry-chosser-modal">
+			<button type="button" class="btn btn-default" style="width: 100%; text-align: left" {{disabled}} data-toggle="modal" data-target="#entry-chooser-modal">
 				{{lang_spacer}}
 			</button>
 		</td>
@@ -363,21 +363,21 @@
 		});
 
 		$('#entry-list').change(function(e) {
-			var modal = $('#entry-chosser-modal');
+			var modal = $('#entry-chooser-modal');
 			modal.find('.entrydata').hide();
 			modal.find('#entrydata-' + $(this).val()).show();
 		});
 
 		var currentEntryButton = null;
 
-		$('#entry-chosser-modal').on('show.bs.modal', function(e) {
+		$('#entry-chooser-modal').on('show.bs.modal', function(e) {
 			currentEntryButton = $(e.relatedTarget);
 			var entryId = currentEntryButton.parent().find('.entry-id').val();
 			$('#entry-list').val(entryId).change();
 		});
 
 		$('#choose-entry').click(function() {
-			$('#entry-chosser-modal').modal('hide');
+			$('#entry-chooser-modal').modal('hide');
 			var entryId = $('#entry-list').val();
 			currentEntryButton.parent().find('.entry-id').val(entryId);
 			currentEntryButton.text(entryId || spacerText);
@@ -390,6 +390,16 @@
 			} else {
 				tableRow.find('.no-spacer').show();
 			}
+			var $title = tableRow.find('.title');
+			var oldval = $title.data('old');
+			if (oldval === '#stop#')
+				return;
+			if (oldval !== '#new#' && oldval !== $title.val()) {
+				$title.data('old', '#stop#');
+				return;
+			}
+			var text = $('#' + entryId + '-name').text();
+			$title.val(text).data('old', text);
 		});
 	});
 </script>
