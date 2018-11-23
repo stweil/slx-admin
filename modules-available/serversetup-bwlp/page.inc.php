@@ -335,6 +335,10 @@ class Page_ServerSetup extends Page
 		if ($id === false) {
 			$params['exec_checked'] = 'checked';
 			$params['entryid'] = 'u-' . dechex(mt_rand(0x1000, 0xffff)) . '-' . dechex(time());
+			$params['entries'] = [
+				['mode' => 'PCBIOS'],
+				['mode' => 'EFI'],
+			];
 		} else {
 			// Query existing entry
 			$row = Database::queryFirst('SELECT entryid, title, builtin, data FROM serversetup_bootentry
