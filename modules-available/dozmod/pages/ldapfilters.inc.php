@@ -23,7 +23,8 @@ class SubPage
 	{
 		if (self::$show === false) {
 			// Get all ldapfilters from the sat db.
-			$ldapfilters = Database::simpleQuery("SELECT * FROM sat.ldapfilter");
+			$ldapfilters = Database::queryAll("SELECT filterid, filtername, filterkey, filtervalue FROM sat.presetlecturefilter
+					WHERE filtertype ='LDAP' ORDER BY filtername ASC");
 
 			$data = array(
 				'ldapfilters' => $ldapfilters,
@@ -39,27 +40,23 @@ class SubPage
 					'filterid' => 0
 				));
 			} else {
-				$ldapfilter = Database::queryFirst("SELECT * FROM sat.ldapfilter WHERE filterid=:id", array( 'id' => $filterid));
+				$ldapfilter = Database::queryFirst("SELECT filterid, filtername, filterkey, filtervalue FROM sat.presetlecturefilter
+						WHERE filterid = :id AND filtertype = 'LDAP'", array( 'id' => $filterid));
+				// TODO: Show error if not exists
 
-				$data = array(
-					'filterid' => $filterid,
-					'filtername' => $ldapfilter['filtername'],
-					'attribute' => $ldapfilter['attribute'],
-					'value' => $ldapfilter['value']
-				);
-				Render::addTemplate('ldapfilter-add', $data);
+				Render::addTemplate('ldapfilter-add', $ldapfilter);
 			}
 		}
 	}
 
-	private function deleteLdapFilter() {
+	private static function deleteLdapFilter() {
 		User::assertPermission('ldapfilters.save');
 		$filterid = Request::post('filterid', false, 'int');
 		if ($filterid === false) {
 			Message::addError('ldap-filter-id-missing');
 			return;
 		}
-		$res = Database::exec("DELETE FROM sat.ldapfilter WHERE filterid=:id", array('id' => $filterid));
+		$res = Database::exec("DELETE FROM sat.presetlecturefilter WHERE filterid = :id AND filtertype = 'LDAP'", array('id' => $filterid));
 		if ($res !== 1) {
 			Message::addWarning('ldap-invalid-filter-id', $filterid);
 		} else {
@@ -67,7 +64,7 @@ class SubPage
 		}
 	}
 
-	private function saveLdapFilter() {
+	private static function saveLdapFilter() {
 		$filterid = Request::post('filterid', '', 'int');
 		$filtername = Request::post('filtername', false, 'string');
 		$filterattribute = Request::post('attribute', false, 'string');
@@ -80,7 +77,8 @@ class SubPage
 
 		if ($filterid === 0) {
 			// Insert filter in the db.
-			$res = Database::exec("INSERT INTO sat.ldapfilter (filtername, attribute, value) VALUES (:filtername, :attribute, :value)", array(
+			$res = Database::exec("INSERT INTO sat.presetlecturefilter (filtertype, filtername, filterkey, filtervalue)
+					VALUES ('LDAP', :filtername, :attribute, :value)", array(
 				'filtername' => $filtername,
 				'attribute' => $filterattribute,
 				'value' => $filtervalue
@@ -94,7 +92,9 @@ class SubPage
 
 		} else {
 			// Update filter in the db.
-			$res = Database::exec("UPDATE sat.ldapfilter SET filtername=:filtername, attribute=:attribute, value=:value WHERE filterid=:filterid", array(
+			$res = Database::exec("UPDATE sat.presetlecturefilter SET
+					filtername = :filtername, filterkey = :attribute, filtervalue = :value
+					WHERE filterid = :filterid AND filtertype = 'LDAP'", array(
 				'filterid' => $filterid,
 				'filtername' => $filtername,
 				'attribute' => $filterattribute,
@@ -104,7 +104,7 @@ class SubPage
 			if ($res !== 1) {
 				Message::addError('ldap-filter-insert-failed');
 			} else {
-				Message::addSuccess('ldap-filter-created');
+				Message::addSuccess('ldap-filter-saved');
 			}
 
 		}
