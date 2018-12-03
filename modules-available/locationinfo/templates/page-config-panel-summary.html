@@ -70,6 +70,22 @@
 								</div>
 							</div>
 						</div>
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="input-roomplaner">{{lang_useRoomplaner}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input id="input-roomplaner" type="checkbox" name="roomplaner" {{roomplaner_checked}}>
+								</div>
+								<div class="col-sm-2">
+									<p class="btn btn-static helptext" title="{{lang_roomplanerTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</p>
+								</div>
+							</div>
+						</div>
 <!--
 						<div class="list-group-item">
 							<div class="row">
@@ -87,6 +103,34 @@
 							</div>
 						</div>
 -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">{{lang_updateRates}}</div>
+				<div class="panel-body">
+					<div class="list-group">
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="form-panelupdate">{{lang_panel}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input class="form-control" name="panelupdate" type="number" min="15" id="form-panelupdate"
+											 max="86400" value="{{panelupdate}}" required>
+								</div>
+								<div class="col-sm-2">
+									<p class="btn btn-static helptext" title="{{lang_panelupdateTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</p>
+								</div>
+							</div>
+						</div>
+
 					</div>
 				</div>
 			</div>

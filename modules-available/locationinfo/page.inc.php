@@ -359,6 +359,7 @@ class Page_LocationInfo extends Page
 			'vertical' => Request::post('vertical', false, 'bool'),
 			'eco' => Request::post('eco', false, 'bool'),
 			'prettytime' => Request::post('prettytime', false, 'bool'),
+			'roomplaner' => Request::post('roomplaner', false, 'bool'),
 			'scaledaysauto' => Request::post('scaledaysauto', false, 'bool'),
 			'daystoshow' => Request::post('daystoshow', 7, 'int'),
 			'rotation' => Request::post('rotation', 0, 'int'),
@@ -388,9 +389,19 @@ class Page_LocationInfo extends Page
 
 	private function preparePanelConfigSummary()
 	{
+		// Build json structure
+		$conf = array(
+			'language' => Request::post('language', 'en', 'string'),
+			'eco' => Request::post('eco', false, 'bool'),
+			'roomplaner' => Request::post('roomplaner', false, 'bool'),
+			'panelupdate' => Request::post('panelupdate', 30, 'int')
+		);
+		if ($conf['panelupdate'] < 15) {
+			$conf['panelupdate'] = 15;
+		}
 		// Check locations
 		$locationids = self::getLocationIdsFromRequest(true);
-		return array('locationids' => $locationids);
+		return array('config' => $conf, 'locationids' => $locationids);
 	}
 
 	/**
@@ -922,6 +933,7 @@ class Page_LocationInfo extends Page
 				'vertical_checked' => $config['vertical'] ? 'checked' : '',
 				'eco_checked' => $config['eco'] ? 'checked' : '',
 				'prettytime_checked' => $config['prettytime'] ? 'checked' : '',
+				'roomplaner_checked' => $config['roomplaner'] ? 'checked' : '',
 				'scaledaysauto_checked' => $config['scaledaysauto'] ? 'checked' : '',
 				'daystoshow' => $config['daystoshow'],
 				'rotation' => $config['rotation'],
@@ -947,9 +959,11 @@ class Page_LocationInfo extends Page
 				'uuid' => $id,
 				'panelname' => $panel['panelname'],
 				'languages' => $langs,
-				'roomupdate' => $config['roomupdate'],
+				'panelupdate' => $config['panelupdate'],
+				'roomplaner_checked' => $config['roomplaner'] ? 'checked' : '',
 				'locations' => Location::getLocations(),
 				'locationids' => $panel['locationids'],
+				'eco_checked' => $config['eco'] ? 'checked' : '',
 			));
 		}
 	}

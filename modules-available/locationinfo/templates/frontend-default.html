@@ -619,6 +619,11 @@ optional:
 			generateProgressBar();
 		}
 
+		// Manually initialize mode 2, as initRoomLayout isn't called for this mode
+		if (room.config.mode === 2) {
+			queryCalendars();
+			queryRooms();
+		}
 		mainUpdateLoop();
 		setInterval(mainUpdateLoop, 10000);
 		setInterval(updateHeaders, globalConfig.eco ? 10000 : 1000);
@@ -1116,12 +1121,11 @@ optional:
 	 * @param room Room
 	 */
 	function SetFreeSeats(room) {
-		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '');
+		// if room has no allowed value, set text in the box to -
+		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '-');
 		room.$.seatsCounter.data('state', JSON.stringify(room.state));
 		if (room.freePcs > 0 && room.state && room.state.free) {
-				room.$.seatsBackground.css('background-color', '#250');
-		} else if (room.freePcs === -1) {
-			room.$.seatsBackground.css('background-color', 'red');
+			room.$.seatsBackground.css('background-color', '#250');
 		} else {
 			room.$.seatsBackground.css('background-color', 'red');
 		}
@@ -1148,7 +1152,8 @@ optional:
 			if (!same) newText = t("closed");
 		} else if (tmp.state === "CalendarEvent") {
 			if (!same) newText = tmp.title;
-			seats = -1;
+			// whilst event is running set freePcs to -, hopefully not breaking anything else with this
+			room.freePcs = "-";
 		} else if (tmp.state === "Free") {
 			if (!same) newText = t("free");
 		} else if (tmp.state === "FreeNoEnd") {
@@ -1496,8 +1501,14 @@ optional:
 		for (var i = 0; i < update.length; i++) {
 			var $div = $("#pc_" + room.id + "_" + update[i].id);
 			// Pc free
-			if (update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY") {
-				freePcs++;
+			if (room.config.roomplaner === true) {
+				if ((update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY") && !isNaN(update[i].x) && !isNaN(update[i].y)) {
+					freePcs++;
+				}
+			} else {
+				if ((update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY")) {
+					freePcs++;
+				}
 			}
 
 			$div.removeClass('BROKEN OFFLINE IDLE OCCUPIED STANDBY'.replace(update[i].pcState, '')).addClass(update[i].pcState);

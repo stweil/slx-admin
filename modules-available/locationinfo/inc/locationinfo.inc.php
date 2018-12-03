@@ -80,6 +80,7 @@ class LocationInfo
 				'vertical' => false,
 				'eco' => false,
 				'prettytime' => true,
+				'roomplaner' => true,
 				'scaledaysauto' => true,
 				'daystoshow' => 7,
 				'rotation' => 0,
@@ -93,9 +94,9 @@ class LocationInfo
 		if ($type === 'SUMMARY') {
 			return array(
 				'language' => defined('LANG') ? LANG : 'en',
-				'calupdate' => 30,
-				'roomupdate' => 15,
-				'configupdate' => 180,
+				'roomplaner' => true,
+				'eco' => false,
+				'panelupdate' => 60,
 			);
 		}
 		return array();

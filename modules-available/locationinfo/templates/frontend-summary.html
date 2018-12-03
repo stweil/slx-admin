@@ -116,6 +116,7 @@
 		var startdate;
 		var roomidsString = "";
 		var config = {{{config}}};
+		var lastPanelUpdate = 0;
 
 		$(document).ready(function () {
 			init();
@@ -139,6 +140,7 @@
 			SetUpDate(time);
 			generateLayout(config.tree);
 			update();
+			setInterval(update, 10000);
 		}
 
 		function SetUpDate(d) {
@@ -165,7 +167,7 @@
 		 */
 		function generateObject(json, myParent, outermost) {
 			var obj;
-			if (!json.children || json.children.length == 0) {
+			if (!json.children || json.children.length === 0) {
 				obj = generateChild(myParent, json.locationid, json.locationname, outermost);
 			} else {
 				obj = generateParent(myParent, json.locationid, json.locationname, outermost);
@@ -178,59 +180,24 @@
 		}
 
 		/**
-		 * Helper function to generate id string used in query functions
-		 * @param list A string, wicht contains ids or not(for now)
-		 * @param id An ID which should be added to the list
+		 * Main Update loop, this loop runs every 10 seconds
 		 */
-		function addIdToUpdateList(list, id) {
-			if (list == "") {
-				list += id;
-			} else {
-				list += ("," + id);
-			}
-			return list;
-		}
-
-
-		const ROOMUPDATE_MS = 2*60*1000;
-		const CALUPDATE_MS = 20*60*1000;
-      var timeout = null;
-
 		function update() {
-			var calendarUpdateIds = "";
-			var rommUpdateIds = "";
-			var count = 0;
-			var nextUpdate = 15000;
-			var property;
-			// TODO: Only query a few rooms is not possible with the new api stuff ...
-			for (property in rooms) {
-				if (rooms[property].lastCalendarUpdate === null || rooms[property].lastCalendarUpdate + CALUPDATE_MS < MyDate().getTime()) {
-					// TODO: NOT NECESSARY ANYMORE?!
-					calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
-					count++;
-					rooms[property].lastCalendarUpdate = MyDate().getTime();
-				}
-				if (rooms[property].lastRoomUpdate === null || rooms[property].lastRoomUpdate + ROOMUPDATE_MS < MyDate().getTime()) {
-					// TODO: NOT NECESSARY ANYMORE?!
-					rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
-					count++;
-					rooms[property].lastRoomUpdate = MyDate().getTime();
-				}
-				// TODO if (count > 7) break;
-			}
-			if (calendarUpdateIds !== "") {
-				queryCalendars();
-				nextUpdate = 1000;
-			}
-			if (rommUpdateIds !== "") {
+			var date = MyDate();
+			var now = date.getTime();
+			if (lastPanelUpdate + (config.panelupdate * 1000) < now) {
+				// Set Roomupdate Interval has passed, update.
 				queryRooms();
-				nextUpdate = 1000;
-			}
-			if (nextUpdate !== 1000) {
+				queryCalendars();
+				lastPanelUpdate = now;
+				for (var property in rooms) {
+					rooms[property].lastCalendarUpdate = now;
+					rooms[property].lastRoomUpdate = now;
+				}
+			} else {
+				// Set Roomupdate Interval has NOT passed, check if panel was changed since last call and reload if true.
 				queryPanelChange();
 			}
-			clearTimeout(timeout);
-			setTimeout(update, nextUpdate);
 		}
 
 		function cleanDate(d) {
@@ -283,7 +250,6 @@
 				cache: false,
 				timeout: 30000,
 				success: function (result) {
-					var l = result.length;
 					if (result[0] == null) {
 						console.log("Error: Backend reported null back for RoomUpdate, this might happend if the room isn't" +
 								"configurated.");
@@ -331,7 +297,7 @@
 		function updatePcStates(json) {
 			var l = json.length;
 			for (var i = 0; i < l; i++) {
-				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].offline, json[i].broken, json[i].standby)
+				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].offline, json[i].broken, json[i].standby);
 			}
 
 		}
@@ -428,8 +394,8 @@
 
 		/**
 		 * computes state of a room, states are:
-		 * closed, FreeNoEnd, Free, ClaendarEvent.
-		 * @param Room Object
+		 * closed, FreeNoEnd, Free, CalendarEvent.
+		 * @param room Object
 		 */
 		function ComputeCurrentState(room) {
 			if (room.lastRoomUpdate === null) {
@@ -479,7 +445,7 @@
 		/**
 		 * checks if a room is open
 		 * @param room Room object
-		 * @returns bool for open or not
+		 * @returns boolean for open or not
 		 */
 		function IsOpenNow(room) {
 			var now = new MyDate();
