@@ -291,6 +291,8 @@ class CourseBackend_HisInOne extends CourseBackend
 				continue;
 			}
 			foreach ($planElements as $planElement) {
+				if (empty($planElement['hisplannedDates']))
+					continue;
 				$unitPlannedDates = $this->getArrayPath($planElement,
 					'/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
 				if ($unitPlannedDates === false) {
