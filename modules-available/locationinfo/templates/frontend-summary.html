@@ -466,7 +466,7 @@
 				var closeDate = new MyDate();
 				closeDate.setHours(tmp[i].HourClose);
 				closeDate.setMinutes(tmp[i].MinutesClose);
-				if (openDate < now && closeDate > now) {
+				if (openDate <= now && closeDate > now) {
 					return true;
 				}
 			}
