@@ -15,7 +15,7 @@ function IsOpen(date, room) {
 		openDate.setMinutes(tmp[i].MinutesOpen);
 		closeDate.setHours(tmp[i].HourClose);
 		closeDate.setMinutes(tmp[i].MinutesClose);
-		if (openDate < date && closeDate > date) {
+		if (openDate <= date && closeDate > date) {
 			return true;
 		}
 	}
