@@ -128,11 +128,13 @@ class LocationInfo
 		} elseif ($row['paneltype'] === 'URL') {
 			// Check if we should set the insecure SSL mode (accept invalid/self signed certs etc.)
 			$data = json_decode($row['panelconfig'], true);
-			if ($data && $data['insecure-ssl']) {
-				ConfigHolder::add('SLX_BROWSER_INSECURE', '1');
-			}
-			if ($data && $data['reload-minutes']) {
-				ConfigHolder::add('SLX_BROWSER_RELOAD_SECS', $data['reload-minutes'] * 60);
+			if (is_array($data)) {
+				if (isset($data['insecure-ssl']) && $data['insecure-ssl']) {
+					ConfigHolder::add('SLX_BROWSER_INSECURE', '1');
+				}
+				if (isset($data['reload-minutes']) && $data['reload-minutes']) {
+					ConfigHolder::add('SLX_BROWSER_RELOAD_SECS', $data['reload-minutes'] * 60);
+				}
 			}
 		}
 		ConfigHolder::add('SLX_BROWSER_URL', 'http://' . $_SERVER['SERVER_ADDR'] . '/panel/' . $panelUuid);
