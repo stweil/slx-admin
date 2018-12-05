@@ -359,7 +359,7 @@ class Page_LocationInfo extends Page
 			'vertical' => Request::post('vertical', false, 'bool'),
 			'eco' => Request::post('eco', false, 'bool'),
 			'prettytime' => Request::post('prettytime', false, 'bool'),
-			'roomplaner' => Request::post('roomplaner', false, 'bool'),
+			'roomplanner' => Request::post('roomplanner', false, 'bool'),
 			'scaledaysauto' => Request::post('scaledaysauto', false, 'bool'),
 			'daystoshow' => Request::post('daystoshow', 7, 'int'),
 			'rotation' => Request::post('rotation', 0, 'int'),
@@ -393,7 +393,7 @@ class Page_LocationInfo extends Page
 		$conf = array(
 			'language' => Request::post('language', 'en', 'string'),
 			'eco' => Request::post('eco', false, 'bool'),
-			'roomplaner' => Request::post('roomplaner', false, 'bool'),
+			'roomplanner' => Request::post('roomplanner', false, 'bool'),
 			'panelupdate' => Request::post('panelupdate', 30, 'int')
 		);
 		if ($conf['panelupdate'] < 15) {
@@ -933,7 +933,7 @@ class Page_LocationInfo extends Page
 				'vertical_checked' => $config['vertical'] ? 'checked' : '',
 				'eco_checked' => $config['eco'] ? 'checked' : '',
 				'prettytime_checked' => $config['prettytime'] ? 'checked' : '',
-				'roomplaner_checked' => $config['roomplaner'] ? 'checked' : '',
+				'roomplanner_checked' => $config['roomplanner'] ? 'checked' : '',
 				'scaledaysauto_checked' => $config['scaledaysauto'] ? 'checked' : '',
 				'daystoshow' => $config['daystoshow'],
 				'rotation' => $config['rotation'],
@@ -960,7 +960,7 @@ class Page_LocationInfo extends Page
 				'panelname' => $panel['panelname'],
 				'languages' => $langs,
 				'panelupdate' => $config['panelupdate'],
-				'roomplaner_checked' => $config['roomplaner'] ? 'checked' : '',
+				'roomplanner_checked' => $config['roomplanner'] ? 'checked' : '',
 				'locations' => Location::getLocations(),
 				'locationids' => $panel['locationids'],
 				'eco_checked' => $config['eco'] ? 'checked' : '',
