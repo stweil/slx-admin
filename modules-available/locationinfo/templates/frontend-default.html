@@ -621,8 +621,12 @@ optional:
 
 		// Manually initialize mode 2, as initRoomLayout isn't called for this mode
 		if (room.config.mode === 2) {
+			var date = MyDate();
+			var now = date.getTime();
 			queryCalendars();
 			queryRooms();
+			lastCalendarUpdate = now;
+			lastRoomUpdate = now;
 		}
 		mainUpdateLoop();
 		setInterval(mainUpdateLoop, 10000);
@@ -960,6 +964,10 @@ optional:
 				}
 			}
 			room.timetable = json;
+			for (var property in room.timetable) {
+				room.timetable[property].start = cleanDate(room.timetable[property].start);
+				room.timetable[property].end = cleanDate(room.timetable[property].end);
+			}
 			if (room.config.mode !== 3) {
 				var cal = room.$.calendar;
 				cal.weekCalendar('option', 'data', {events: json});
@@ -978,6 +986,27 @@ optional:
 			console.log("Error: Couldnt add calendar data");
 			console.log(e);
 		}
+	}
+
+	function cleanDate(d) {
+		if (typeof d === 'string') {
+			// if is numeric
+			if (!isNaN(Number(d))) {
+				return cleanDate(parseInt(d, 10));
+			}
+
+			// this is a human readable date
+			if (d[d.length - 1] !== 'Z') d += 'Z';
+			var o = new Date(d);
+			o.setTime(o.getTime() + (o.getTimezoneOffset() * 60 * 1000));
+			return o;
+		}
+
+		if (typeof d === 'number') {
+			return new Date(d);
+		}
+
+		return d;
 	}
 
 	/**
@@ -1179,11 +1208,10 @@ optional:
 	function ComputeCurrentState(room) {
 		if (!IsOpen(MyDate(), room)) {
 			room.state = {state: "closed", end: GetNextOpening(room), title: "", next: ""};
-
 			return;
 		}
-		var closing = GetNextClosing(room);
 
+		var closing = GetNextClosing(room);
 		var event = getNextEvent(room.timetable);
 
 		// no event and no closing
@@ -1604,7 +1632,7 @@ optional:
 
 	/**
 	 * Function for translation
-	 * @param toTranslate key which we wan't to translate
+	 * @param toTranslate key which we want to translate
 	 * @returns r translated string
 	 */
 	function t(toTranslate) {
