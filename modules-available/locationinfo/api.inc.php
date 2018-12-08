@@ -110,7 +110,7 @@ function getPcStates($idList, $paneluuid)
 		foreach ($locationInfo['machines'] as $pc) {
 			$key = strtolower($pc['pcState']);
 			if (isset($pcStates[$id][$key])) {
-				if ($config['roomplaner']) {
+				if ($config['roomplanner']) {
 					if (isset($pc['x']) && isset($pc['y'])) {
 						$pcStates[$id][$key]++;
 					}

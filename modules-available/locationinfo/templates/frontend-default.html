@@ -1529,7 +1529,7 @@ optional:
 		for (var i = 0; i < update.length; i++) {
 			var $div = $("#pc_" + room.id + "_" + update[i].id);
 			// Pc free
-			if (room.config.roomplaner === true) {
+			if (room.config.roomplanner === true) {
 				if ((update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY") && !isNaN(update[i].x) && !isNaN(update[i].y)) {
 					freePcs++;
 				}
