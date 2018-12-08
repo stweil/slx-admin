@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{language}}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
 <head>
 	<script type='text/javascript' src='{{dirprefix}}script/jquery.js'></script>
@@ -106,6 +106,10 @@
 			box-shadow: 0 0 3px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 0, 0, 0.1) inset;
 			box-shadow: 0 0 0.2vmin rgba(0, 0, 0, 0.4), 0 0 1vmin rgba(0, 0, 0, 0.1) inset;
 			border-radius: 1px;
+		}
+
+		#i18n {
+			display: none;
 		}
 
 
@@ -278,14 +282,14 @@
 				updateCourseText(room.id, state.titel);
 				updateCoursTimer(room.id, GetTimeDiferenceAsString(state.end, MyDate()));
 			} else if (state.state == "Free") {
-				updateCourseText(room.id, "Frei");
+				updateCourseText(room.id, t("free"));
 				updateCoursTimer(room.id, GetTimeDiferenceAsString(state.end, MyDate()));
 			} else if (state.state == "FreeNoEnd") {
-				updateCourseText(room.id, "Frei");
+				updateCourseText(room.id, t("free"));
 				updateCoursTimer(room.id, "");
 			}
 			else if (state.state == "closed") {
-				updateCourseText(room.id, "Geschlossen");
+				updateCourseText(room.id, t("closed"));
 				updateCoursTimer(room.id, "");
 			}
 		}
@@ -757,9 +761,43 @@
 			})
 		}
 
+		/**
+		 * Function for translation
+		 * @param toTranslate key which we want to translate
+		 * @returns r translated string
+		 */
+		function t(toTranslate) {
+			if (tCache[toTranslate])
+				return tCache[toTranslate];
+			var r = $('#i18n').find('[data-tag="' + toTranslate + '"]');
+			return tCache[toTranslate] = (r.length === 0 ? toTranslate : r.text());
+		}
+		var tCache = {};
+
 	</script>
 </head>
 <body>
 <div id="main"></div>
+
+<div id="i18n">
+	<span data-tag="room">{{lang_room}}</span>
+	<span data-tag="closed">{{lang_closed}}</span>
+	<span data-tag="free">{{lang_free}}</span>
+	<span data-tag="shortSun">{{lang_shortSun}}</span>
+	<span data-tag="shortMon">{{lang_shortMon}}</span>
+	<span data-tag="shortTue">{{lang_shortTue}}</span>
+	<span data-tag="shortWed">{{lang_shortWed}}</span>
+	<span data-tag="shortThu">{{lang_shortThu}}</span>
+	<span data-tag="shortFri">{{lang_shortFri}}</span>
+	<span data-tag="shortSat">{{lang_shortSat}}</span>
+	<span data-tag="longSun">{{lang_longSun}}</span>
+	<span data-tag="longMon">{{lang_longMon}}</span>
+	<span data-tag="longTue">{{lang_longTue}}</span>
+	<span data-tag="longWed">{{lang_longWed}}</span>
+	<span data-tag="longThu">{{lang_longThu}}</span>
+	<span data-tag="longFri">{{lang_longFri}}</span>
+	<span data-tag="longSat">{{lang_longSat}}</span>
+	<span data-tag="to">{{lang_to}}</span>
+</div>
 </body>
 </html>
