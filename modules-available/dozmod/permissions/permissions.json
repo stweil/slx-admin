@@ -23,6 +23,12 @@
     "runtimeconfig.save": {
         "location-aware": false
     },
+    "runscripts.view": {
+        "location-aware": false
+    },
+    "runscripts.save": {
+        "location-aware": false
+    },
     "templates.reset": {
         "location-aware": false
     },

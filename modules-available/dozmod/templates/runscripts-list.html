@@ -1,0 +1,89 @@
+<h1>{{lang_scriptsHead}}</h1>
+
+<p>
+	{{lang_scriptsIntro}}
+</p>
+
+<table class="table">
+	<thead>
+	<tr>
+		<th>{{lang_name}}</th>
+		<th class="slx-smallcol">{{lang_scriptExtensionHead}}</th>
+		<th class="slx-smallcol">{{lang_scriptVisibilityHead}}</th>
+		<th class="slx-smallcol">{{lang_scriptPassCredentialsHead}}</th>
+		<th class="slx-smallcol">{{lang_scriptIsGlobalHead}}</th>
+		{{#hasEditPermission}}
+			<th class="slx-smallcol">{{lang_edit}}</th>
+			<th class="slx-smallcol">{{lang_delete}}</th>
+		{{/hasEditPermission}}
+	</tr>
+	</thead>
+	<tbody>
+	{{#list}}
+		<tr>
+			<td>{{scriptname}}</td>
+			<td>.{{extension}}</td>
+			<td><span class="glyphicon glyphicon-{{visibility}}"></span></td>
+			<td>
+				{{#passcreds}}
+					<span class="glyphicon glyphicon-ok"></span>
+				{{/passcreds}}
+			</td>
+			<td>
+				{{#isglobal}}
+					<span class="glyphicon glyphicon-ok"></span>
+				{{/isglobal}}
+			</td>
+			{{#hasEditPermission}}
+				<td class="text-center">
+					<a class="btn btn-xs btn-primary" href="?do=dozmod&amp;section=runscripts&amp;show=edit&amp;runscriptid={{runscriptid}}">
+						<span class="glyphicon glyphicon-edit"></span>
+					</a>
+				</td>
+				<td class="text-center">
+					<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="setDeleteId('{{runscriptid}}')">
+						<span class="glyphicon glyphicon-trash"></span>
+					</button>
+				</td>
+			{{/hasEditPermission}}
+		</tr>
+	{{/list}}
+	</tbody>
+</table>
+
+{{#hasEditPermission}}
+	<div class="text-right">
+		<a class="btn btn-sm btn-success" href="?do=dozmod&amp;section=runscripts&amp;show=edit&amp;runscriptid=0">
+			<span class="glyphicon glyphicon-plus"></span>
+			{{lang_runScriptAdd}}
+		</a>
+	</div>
+{{/hasEditPermission}}
+
+<form method="post" action="?do=dozmod&amp;section=runscripts">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" id="deleteAction" name="runscriptid" value="">
+	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">{{lang_delete}}</h4>
+				</div>
+				<div class="modal-body">
+					<p>{{lang_runScriptDeleteConfirmation}}</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="delete" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+	function setDeleteId(id) {
+		$('#deleteAction').val(id)
+	}
+</script>

@@ -5,7 +5,7 @@ class Page_DozMod extends Page
 	/** @var bool true if we have a proper subpage */
 	private $haveSubPage = false;
 
-	private $validSections = ['expiredimages', 'mailconfig', 'templates', 'runtimeconfig', 'users', 'actionlog', 'networkshares', 'ldapfilters'];
+	private $validSections = ['expiredimages', 'mailconfig', 'templates', 'runtimeconfig', 'users', 'actionlog', 'networkshares', 'ldapfilters', 'runscripts'];
 
 	private $section;
 
@@ -62,6 +62,7 @@ class Page_DozMod extends Page
 		Dictionary::translate('submenu_actionlog', true);
 		Dictionary::translate('submenu_networkshares', true);
 		Dictionary::translate('submenu_ldapfilters', true);
+		Dictionary::translate('submenu_runscripts', true);
 		*/
 
 		/* add sub-menus */

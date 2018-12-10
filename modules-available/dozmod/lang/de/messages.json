@@ -18,6 +18,8 @@
     "networkshare-saved": "Netzlaufwerk gespeichert",
     "no-expired-images": "Keine Abgelaufenen VM-Versionen",
     "nothing-submitted": "Es wurde nichts \u00fcbermittelt",
+    "runscript-invalid-id": "Ung\u00fcltige Script-ID: {{0}}",
+    "runscript-saved": "Script gespeichert",
     "runtimelimits-config-saved": "Einstellungen gespeichert",
     "templates-saved": "Templates wurden gespeichert",
     "timeout": "Zeit\u00fcberschreitung",
