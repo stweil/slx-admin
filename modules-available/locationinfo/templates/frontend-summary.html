@@ -279,7 +279,7 @@
 			var state = room.getState();
 
 			if (state.state == "CalendarEvent") {
-				updateCourseText(room.id, state.titel);
+				updateCourseText(room.id, state.title);
 				updateCoursTimer(room.id, GetTimeDiferenceAsString(state.end, MyDate()));
 			} else if (state.state == "Free") {
 				updateCourseText(room.id, t("free"));
@@ -287,8 +287,7 @@
 			} else if (state.state == "FreeNoEnd") {
 				updateCourseText(room.id, t("free"));
 				updateCoursTimer(room.id, "");
-			}
-			else if (state.state == "closed") {
+			} else if (state.state == "closed") {
 				updateCourseText(room.id, t("closed"));
 				updateCoursTimer(room.id, "");
 			}
@@ -402,105 +401,82 @@
 		 * @param room Object
 		 */
 		function ComputeCurrentState(room) {
-			if (room.lastRoomUpdate === null) {
-				room.state = {state: 'unknown'};
+			if (!IsOpen(MyDate(), room)) {
+				room.state = {state: "closed", end: GetNextOpening(room), title: "", next: ""};
 				return;
 			}
-			if (!IsOpenNow(room)) {
-				room.state = {state: "closed", end: GetNextOpening(room), titel: "", next: ""};
 
-				return;
-			}
+			console.log("Timetable", room.id, room.timetable);
+
 			var closing = GetNextClosing(room);
-
 			var event = getNextEvent(room.timetable);
+
+			console.log("Event", room.id, event);
+
 			// no event and no closing
-			if (closing == null && event == null) {
-				room.state = {state: "FreeNoEnd", end: "", titel: "", next: ""};
+			if (!closing && !event) {
+				room.state = {state: "FreeNoEnd", end: "", title: "", next: "", free: true};
 				return;
 			}
 
 			// no event so closing is next
-			if (event == null) {
-				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
+			if (!event) {
+				room.state = {state: "Free", end: closing, title: "", next: "closing", free: true};
 				return;
 			}
 
 			// event is at the moment
-			if ((closing == null || event.start.getTime() < closing.getTime()) && event.start.getTime() < new MyDate()) {
-				room.state = {state: "CalendarEvent", end: event.end, titel: event.title, next: ""};
+			if ((!closing || event.start.getTime() < closing.getTime()) && event.start.getTime() < MyDate()) {
+				room.state = {
+					state: "CalendarEvent",
+					end: event.end,
+					title: event.title,
+					next: ""
+				};
+				console.log("CalendarEvent", room.id, room.state);
 				return;
 			}
 
 			// no closing so event is next
-			if (closing == null) {
-				room.state = {state: "Free", end: event.start, titel: "", next: "event"};
+			if (!closing) {
+				room.state = {state: "Free", end: event.start, title: "", next: "event", free: true};
 				return;
 			}
 
 			// event sooner then closing
 			if (event.start.getTime() < closing) {
-				room.state = {state: "Free", end: event.start, titel: "", next: "event"};
-			} else if (event.start.getTime() > closing) {
-				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
-			}
-		}
-
-		/**
-		 * checks if a room is open
-		 * @param room Room object
-		 * @returns boolean for open or not
-		 */
-		function IsOpenNow(room) {
-			var now = new MyDate();
-			if (room.openingTimes == null) {
-
-				// changes from falls needs testing
-				return true;
+				room.state = {state: "Free", end: event.start, title: "", next: "event", free: true};
+			} else {
+				room.state = {state: "Free", end: closing, title: "", next: "closing", free: true};
 			}
 
-			var tmp = room.openingTimes[now.getDay()];
-			if (tmp == null) {
-				return false;
-			}
-			for (var i = 0; i < tmp.length; i++) {
-				var openDate = new MyDate();
-				openDate.setHours(tmp[i].HourOpen);
-				openDate.setMinutes(tmp[i].MinutesOpen);
-				var closeDate = new MyDate();
-				closeDate.setHours(tmp[i].HourClose);
-				closeDate.setMinutes(tmp[i].MinutesClose);
-				if (openDate <= now && closeDate > now) {
-					return true;
-				}
-			}
-			return false;
 		}
 
 		/**
 		 * returns next event from a given json of events
-		 * @param json Json which contains the calendar data.
-		 * @returns event next Carlendar Event
+		 * @param calEvents Json which contains the calendar data.
+		 * @returns event next Calendar Event
 		 */
-		function getNextEvent(json) {
-			if (json == null) {
-				return;
+		function getNextEvent(calEvents) {
+			if (!calEvents) return null;
+			if (calEvents.constructor !== Array) {
+				console.log('getNextEvent called with something not array: ' + typeof(calEvents));
+				return null;
 			}
-			var event;
-			var now = new MyDate();
-			for (var i = 0; i < json.length; i++) {
+			var event = null;
+			var now = MyDate();
+			for (var i = 0; i < calEvents.length; i++) {
 				//event is now active
-				if (json[i].start.getTime() < now.getTime() && json[i].end.getTime() > now.getTime()) {
-					return json[i];
+				if (calEvents[i].start.getTime() < now.getTime() && calEvents[i].end.getTime() > now.getTime()) {
+					return calEvents[i];
 				}
 				//first element to consider
-				if (event == null) {
-					if (json[i].start.getTime() > now.getTime()) {
-						event = json[i];
+				if (!event) {
+					if (calEvents[i].start.getTime() > now.getTime()) {
+						event = calEvents[i];
 					}
-				}
-				if (json[i].start.getTime() > now.getTime() && event.start.getTime() > json[i].start.getTime()) {
-					event = json[i];
+				} else if (calEvents[i].start.getTime() > now.getTime() && event.start.getTime() > calEvents[i].start.getTime()) {
+					event = calEvents[i];
 				}
 			}
 			return event;
