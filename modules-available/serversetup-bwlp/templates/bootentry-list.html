@@ -24,21 +24,23 @@
 			{{/allowEdit}}
 		</td>
 		<td align="center">
-			{{#allowDelete}}
-			<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteBootentry('{{entryid}}')">
+			{{#allowEdit}}
+			<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteBootentry('{{entryid}}', '{{builtin}}')">
 				<span class="glyphicon glyphicon-trash"></span>
 			</button>
-			{{/allowDelete}}
+			{{/allowEdit}}
 		</td>
 	</tr>
 	{{/bootentryTable}}
 	</tbody>
 </table>
 <div class="pull-right">
-	<a href="?do=serversetup&amp;show=editbootentry" class="btn btn-success {{allowAdd}}">
-		<span class="glyphicon glyphicon-plus"></span>
-		{{lang_addBootentry}}
-	</a>
+	{{#allowEdit}}
+		<a href="?do=serversetup&amp;show=editbootentry" class="btn btn-success">
+			<span class="glyphicon glyphicon-plus"></span>
+			{{lang_addBootentry}}
+		</a>
+	{{/allowEdit}}
 </div>
 
 <!-- Modals -->

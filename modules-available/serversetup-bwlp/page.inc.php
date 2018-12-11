@@ -73,7 +73,7 @@ class Page_ServerSetup extends Page
 		}
 
 		if ($action === 'deleteBootentry') {
-			User::assertPermission('ipxe.bootentry.delete');
+			User::assertPermission('ipxe.bootentry.edit');
 			$this->deleteBootEntry();
 		}
 
@@ -83,7 +83,7 @@ class Page_ServerSetup extends Page
 		}
 
 		if ($action === 'deleteMenu') {
-			User::assertPermission('ipxe.menu.delete');
+			// Permcheck in function
 			$this->deleteMenu();
 		}
 
@@ -173,13 +173,8 @@ class Page_ServerSetup extends Page
 	private function showBootentryList()
 	{
 		$allowEdit = User::hasPermission('ipxe.bootentry.edit');
-		$allowDelete = User::hasPermission('ipxe.bootentry.delete');
-		$allowAdd = 'disabled';
-		if (User::hasPermission('ipxe.bootentry.add')) {
-			$allowAdd = '';
-		}
 
-		$res = Database::simpleQuery("SELECT entryid, hotkey, title FROM serversetup_bootentry");
+		$res = Database::simpleQuery("SELECT entryid, hotkey, title, builtin FROM serversetup_bootentry");
 		$bootentryTable = [];
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$bootentryTable[] = $row;
@@ -187,16 +182,13 @@ class Page_ServerSetup extends Page
 
 		Render::addTemplate('bootentry-list', array(
 			'bootentryTable' => $bootentryTable,
-			'allowAdd' => $allowAdd,
 			'allowEdit' => $allowEdit,
-			'allowDelete' => $allowDelete
 		));
 	}
 
 	private function showMenuList()
 	{
 		$allowedEdit = User::getAllowedLocations('ipxe.menu.edit');
-		$allowedDelete = User::getAllowedLocations('ipxe.menu.delete');
 
 		// TODO Permission::addGlobalTags($perms, null, ['edit.menu', 'edit.address', 'download']);
 
@@ -207,24 +199,16 @@ class Page_ServerSetup extends Page
 			if (empty($row['locations'])) {
 				$locations = [];
 				$row['allowEdit'] = in_array(0, $allowedEdit);
-				$row['allowDelete'] = in_array(0, $allowedDelete);
 			} else {
 				$locations = explode(',', $row['locations']);
 				$row['allowEdit'] = empty(array_diff($locations, $allowedEdit));
-				$row['allowDelete'] = empty(array_diff($locations, $allowedDelete));
 			}
 			$row['locationCount'] = empty($locations) ? '' : count($locations);
 			$menuTable[] = $row;
 		}
 
-		$allowAddMenu = 'disabled';
-		if (User::hasPermission('ipxe.menu.add')) {
-			$allowAddMenu = '';
-		}
-
 		Render::addTemplate('menu-list', array(
 			'menuTable' => $menuTable,
-			'allowAddMenu' => $allowAddMenu,
 			'showSetDefault' => User::hasPermission('ipxe.menu.edit', 0)
 		));
 	}
@@ -437,8 +421,8 @@ class Page_ServerSetup extends Page
 			Message::addError('main.parameter-missing', 'deleteid');
 			return;
 		}
-		if (!$this->hasMenuPermission($id, 'ipxe.menu.delete')) {
-			Message::addError('locations.no-permission-location', 'TODO');
+		if (!$this->hasMenuPermission($id, 'ipxe.menu.edit')) {
+			Message::addError('locations.no-permission-location', $id);
 			return;
 		}
 		Database::exec("DELETE FROM serversetup_menu WHERE menuid = :menuid", array("menuid" => $id));
