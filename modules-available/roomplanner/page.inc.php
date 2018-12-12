@@ -108,6 +108,7 @@ class Page_Roomplanner extends Page
 
 		if ($this->action === 'getmachines') {
 
+			User::load();
 			$locations = User::getAllowedLocations('edit');
 			if (empty($locations)) {
 				die('{"machines":[]}');

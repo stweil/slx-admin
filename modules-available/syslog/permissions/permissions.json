@@ -4,5 +4,8 @@
     },
     "configure-anonymization": {
         "location-aware": false
+    },
+    "export-user-data": {
+        "location-aware": false
     }
 }

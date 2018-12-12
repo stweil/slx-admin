@@ -75,6 +75,8 @@ class InfoPanel
 	}
 
 	/**
+	 * 	{"language":"de","mode":1,"vertical":true,"eco":false,"scaledaysauto":true,"daystoshow":7,"rotation":0,"scale":56,"switchtime":10,"calupdate":120,"roomupdate":20,
+	 * "overrides": { "12" : { "mode":4} }
 	 * Gets the location info of the given locations.
 	 * Append to passed array which is expected to
 	 * map location ids to properties of that location.
@@ -157,6 +159,8 @@ class InfoPanel
 		// Iterate over the locations we're actually interested in
 		$locations = Location::getLocationsAssoc();
 		foreach ($idList as $locationId) {
+			if (empty($locationId))
+				continue;
 			// Start checking at actual location...
 			$currentId = $locationId;
 			while ($currentId !== 0) {
@@ -175,6 +179,8 @@ class InfoPanel
 					}
 				}
 				// Keep trying with parent
+				if (!isset($locations[$currentId]))
+					break;
 				$currentId = $locations[$currentId]['parentlocationid'];
 			}
 		}

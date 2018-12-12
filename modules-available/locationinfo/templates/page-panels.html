@@ -9,16 +9,13 @@
 		<th>{{lang_panelType}}</th>
 		<th>{{lang_locations}}</th>
 		{{#hasRunmode}}
-			<th class="slx-smallcol">{{lang_runmodeTHead}}</th>
+			<th class="text-center slx-smallcol">{{lang_runmodeTHead}}</th>
 		{{/hasRunmode}}
-		<th class="slx-smallcol">{{lang_edit}}</th>
-		<th class="slx-smallcol">{{lang_delete}}</th>
+		<th class="text-center slx-smallcol">{{lang_edit}}</th>
+		<th class="text-center slx-smallcol">{{lang_delete}}</th>
 	</tr>
 	</thead>
 	<tbody>
-	<form method="post" action="?do=locationinfo" onsubmit="return confirm('{{lang_areYouSure}}')">
-		<input type="hidden" name="token" value="{{token}}">
-		<input type="hidden" name="action" value="deletePanel">
 		{{#panels}}
 			<tr>
 				<td>
@@ -33,7 +30,7 @@
 					{{#locationurl}}</a>{{/locationurl}}
 				</td>
 				{{#hasRunmode}}
-					<td>
+					<td class="text-center" style="vertical-align: middle">
 						<a class="btn btn-default btn-xs {{runmode_disabled}}"
 							href="?do=runmode&amp;module=locationinfo&amp;modeid={{paneluuid}}&amp;redirect=?do=locationinfo">
 							<span class="glyphicon glyphicon-edit"></span>
@@ -41,20 +38,19 @@
 						{{assignedMachineCount}}
 					</td>
 				{{/hasRunmode}}
-				<td>
+				<td class="text-center" style="vertical-align: middle">
 					<a class="btn btn-default btn-xs {{edit_disabled}}"
 						href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
 						<span class="glyphicon glyphicon-cog"></span>
 					</a>
 				</td>
-				<td>
-					<button type="submit" name="uuid" value="{{paneluuid}}" class="btn btn-danger btn-xs" {{edit_disabled}}>
+				<td class="text-center" style="vertical-align: middle">
+					<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deletePanel('{{paneluuid}}')" {{edit_disabled}}>
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
 				</td>
 			</tr>
 		{{/panels}}
-	</form>
 	</tbody>
 </table>
 
@@ -72,3 +68,32 @@
 		{{lang_urlPanel}}
 	</a>
 </div>
+
+<form method="post" action="?do=locationinfo">
+<input type="hidden" name="token" value="{{token}}">
+
+<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">{{lang_delete}}</h4>
+			</div>
+			<div class="modal-body">
+				<p>{{lang_deleteConfirmation}}</p>
+			</div>
+			<div class="modal-footer">
+				<input type="hidden" id="delete-panel-id" name="uuid" value="">
+				<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+				<button type="submit" name="action" value="deletePanel" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+			</div>
+		</div>
+	</div>
+</div>
+</form>
+
+<script>
+	function deletePanel(panelid) {
+		$("#delete-panel-id").val(panelid);
+	}
+</script>

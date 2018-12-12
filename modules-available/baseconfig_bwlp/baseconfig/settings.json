@@ -186,6 +186,12 @@
 			]
 		}
 	},
+	"SLX_PREFERRED_SOUND_OUTPUT": {
+		"catid": "sysconfig",
+		"defaultvalue": "SOUNDCARD",
+		"permissions": "2",
+		"validator": "list:HDMI|SOUNDCARD"
+	},
 	"SLX_PVS_DEFAULT": {
 		"catid": "vmchooser",
 		"defaultvalue": "OFF",

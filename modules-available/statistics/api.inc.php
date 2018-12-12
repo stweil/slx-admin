@@ -267,6 +267,10 @@ if ($type{0} === '~') {
 			foreach ($screens as $port => $screen) {
 				if (!array_key_exists('name', $screen))
 					continue;
+				// Filter bogus data
+				$screen['name'] = iconv('UTF-8', 'UTF-8//IGNORE', $screen['name']);
+				if (empty($screen['name']))
+					continue;
 				if (array_key_exists($screen['name'], $hwids)) {
 					$hwid = $hwids[$screen['name']];
 				} else {

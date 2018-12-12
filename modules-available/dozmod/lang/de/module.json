@@ -3,7 +3,10 @@
     "page_title": "Verwalten der bwLehrpool-Suite",
     "submenu_actionlog": "Aktions-Log",
     "submenu_expiredimages": "Abgelaufene VM-Versionen",
+    "submenu_ldapfilters": "LDAP-Filter",
     "submenu_mailconfig": "Email-Konfiguration",
+    "submenu_networkshares": "Netzlaufwerke",
+    "submenu_runscripts": "Startskripte",
     "submenu_runtimeconfig": "Limits und Standardwerte",
     "submenu_templates": "Textbausteine f\u00fcr E-Mails",
     "submenu_users": "Benutzer und Berechtigungen"

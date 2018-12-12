@@ -1,5 +1,44 @@
 <?php
 
+// Check for user data export
+if (($user = Request::post('export-user', false, 'string')) !== false) {
+	User::load();
+	User::assertPermission('export-user-data', null, '?do=syslog');
+	if (!Util::verifyToken()) {
+		die('Invalid Token');
+	}
+	$puser = preg_quote($user);
+	$exp = "$puser logged|^\[$puser\]";
+	Header('Content-Type: text/plain; charset=utf-8');
+	Header('Content-Disposition: attachment; filename=bwlehrpool-export-' .Util::sanitizeFilename($user) . '-' . date('Y-m-d') . '.txt');
+	$srcs = [];
+	$srcs[] = ['res' => Database::simpleQuery("SELECT dateline, logtypeid AS typeid, clientip, description FROM clientlog
+		WHERE description REGEXP :exp
+		ORDER BY dateline ASC", ['exp' => $exp])];
+	if (Module::get('statistics') !== false) {
+		$srcs[] = ['res' => Database::simpleQuery("SELECT dateline, typeid, clientip, data AS description FROM statistic
+			WHERE username = :user
+			ORDER BY dateline ASC", ['user' => $user])];
+	}
+	echo "# Begin log\n";
+	for (;;) {
+		unset($best);
+		foreach ($srcs as &$src) {
+			if (!isset($src['row'])) {
+				$src['row'] = $src['res']->fetch(PDO::FETCH_ASSOC);
+			}
+			if ($src['row'] !== false && (!isset($best) || $src['row']['dateline'] < $best['dateline'])) {
+				$best =& $src['row'];
+			}
+		}
+		if (!isset($best))
+			break;
+		echo date('Y-m-d H:i:s', $best['dateline']), "\t", $best['typeid'], "\t", $best['clientip'], "\t", $best['description'], "\n";
+		$best = null; // so we repopulate on next iteration
+	}
+	die("# End log\n");
+}
+
 if (empty($_POST['type'])) die('Missing options.');
 $type = mb_strtolower($_POST['type']);
 

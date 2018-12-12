@@ -7,7 +7,7 @@
 HandleParameters();
 
 /**
- * Handles the API paramenters.
+ * Handles the API parameters.
  */
 function HandleParameters()
 {
@@ -20,7 +20,7 @@ function HandleParameters()
 	} elseif ($get === "machines") {
 		$locationIds = LocationInfo::getLocationsOr404($uuid);
 		$output = array();
-		InfoPanel::appendMachineData($output, $locationIds, false);
+		InfoPanel::appendMachineData($output, $locationIds, true);
 		$output = array_values($output);
 	} elseif ($get === "config") {
 		$type = InfoPanel::getConfig($uuid, $output);
@@ -30,7 +30,7 @@ function HandleParameters()
 		}
 	} elseif ($get === "pcstates") {
 		$locationIds = LocationInfo::getLocationsOr404($uuid);
-		$output = getPcStates($locationIds);
+		$output = getPcStates($locationIds, $uuid);
 	} elseif ($get === "locationtree") {
 		$locationIds = LocationInfo::getLocationsOr404($uuid);
 		$output = getLocationTree($locationIds);
@@ -84,7 +84,7 @@ function getLastChangeTs($paneluuid)
  * @param int[] $idList list of the location ids.
  * @return array aggregated PC states
  */
-function getPcStates($idList)
+function getPcStates($idList, $paneluuid)
 {
 	$pcStates = array();
 	foreach ($idList as $id) {
@@ -99,13 +99,24 @@ function getPcStates($idList)
 	}
 
 	$locationInfoList = array();
-	InfoPanel::appendMachineData($locationInfoList, $idList);
+	InfoPanel::appendMachineData($locationInfoList, $idList, true);
+
+	$panel = Database::queryFirst('SELECT paneluuid, panelconfig FROM locationinfo_panel WHERE paneluuid = :paneluuid',
+		compact('paneluuid'));
+	$config = json_decode($panel['panelconfig'], true);
+
 	foreach ($locationInfoList as $locationInfo) {
 		$id = $locationInfo['id'];
 		foreach ($locationInfo['machines'] as $pc) {
 			$key = strtolower($pc['pcState']);
 			if (isset($pcStates[$id][$key])) {
-				$pcStates[$id][$key]++;
+				if ($config['roomplanner']) {
+					if (isset($pc['x']) && isset($pc['y'])) {
+						$pcStates[$id][$key]++;
+					}
+				} else {
+					$pcStates[$id][$key]++;
+				}
 			}
 		}
 	}

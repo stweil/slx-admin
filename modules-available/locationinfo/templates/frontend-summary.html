@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{language}}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
 <head>
 	<script type='text/javascript' src='{{dirprefix}}script/jquery.js'></script>
@@ -108,6 +108,10 @@
 			border-radius: 1px;
 		}
 
+		#i18n {
+			display: none;
+		}
+
 
 	</style>
 	<script type='text/javascript'>
@@ -116,6 +120,7 @@
 		var startdate;
 		var roomidsString = "";
 		var config = {{{config}}};
+		var lastPanelUpdate = 0;
 
 		$(document).ready(function () {
 			init();
@@ -139,6 +144,7 @@
 			SetUpDate(time);
 			generateLayout(config.tree);
 			update();
+			setInterval(update, 10000);
 		}
 
 		function SetUpDate(d) {
@@ -165,7 +171,7 @@
 		 */
 		function generateObject(json, myParent, outermost) {
 			var obj;
-			if (!json.children || json.children.length == 0) {
+			if (!json.children || json.children.length === 0) {
 				obj = generateChild(myParent, json.locationid, json.locationname, outermost);
 			} else {
 				obj = generateParent(myParent, json.locationid, json.locationname, outermost);
@@ -178,59 +184,24 @@
 		}
 
 		/**
-		 * Helper function to generate id string used in query functions
-		 * @param list A string, wicht contains ids or not(for now)
-		 * @param id An ID which should be added to the list
+		 * Main Update loop, this loop runs every 10 seconds
 		 */
-		function addIdToUpdateList(list, id) {
-			if (list == "") {
-				list += id;
-			} else {
-				list += ("," + id);
-			}
-			return list;
-		}
-
-
-		const ROOMUPDATE_MS = 2*60*1000;
-		const CALUPDATE_MS = 20*60*1000;
-      var timeout = null;
-
 		function update() {
-			var calendarUpdateIds = "";
-			var rommUpdateIds = "";
-			var count = 0;
-			var nextUpdate = 15000;
-			var property;
-			// TODO: Only query a few rooms is not possible with the new api stuff ...
-			for (property in rooms) {
-				if (rooms[property].lastCalendarUpdate === null || rooms[property].lastCalendarUpdate + CALUPDATE_MS < MyDate().getTime()) {
-					// TODO: NOT NECESSARY ANYMORE?!
-					calendarUpdateIds = addIdToUpdateList(calendarUpdateIds, rooms[property].id);
-					count++;
-					rooms[property].lastCalendarUpdate = MyDate().getTime();
-				}
-				if (rooms[property].lastRoomUpdate === null || rooms[property].lastRoomUpdate + ROOMUPDATE_MS < MyDate().getTime()) {
-					// TODO: NOT NECESSARY ANYMORE?!
-					rommUpdateIds = addIdToUpdateList(rommUpdateIds, rooms[property].id);
-					count++;
-					rooms[property].lastRoomUpdate = MyDate().getTime();
-				}
-				// TODO if (count > 7) break;
-			}
-			if (calendarUpdateIds !== "") {
-				queryCalendars();
-				nextUpdate = 1000;
-			}
-			if (rommUpdateIds !== "") {
+			var date = MyDate();
+			var now = date.getTime();
+			if (lastPanelUpdate + (config.panelupdate * 1000) < now) {
+				// Set Roomupdate Interval has passed, update.
 				queryRooms();
-				nextUpdate = 1000;
-			}
-			if (nextUpdate !== 1000) {
+				queryCalendars();
+				lastPanelUpdate = now;
+				for (var property in rooms) {
+					rooms[property].lastCalendarUpdate = now;
+					rooms[property].lastRoomUpdate = now;
+				}
+			} else {
+				// Set Roomupdate Interval has NOT passed, check if panel was changed since last call and reload if true.
 				queryPanelChange();
 			}
-			clearTimeout(timeout);
-			setTimeout(update, nextUpdate);
 		}
 
 		function cleanDate(d) {
@@ -283,7 +254,6 @@
 				cache: false,
 				timeout: 30000,
 				success: function (result) {
-					var l = result.length;
 					if (result[0] == null) {
 						console.log("Error: Backend reported null back for RoomUpdate, this might happend if the room isn't" +
 								"configurated.");
@@ -309,17 +279,16 @@
 			var state = room.getState();
 
 			if (state.state == "CalendarEvent") {
-				updateCourseText(room.id, state.titel);
+				updateCourseText(room.id, state.title);
 				updateCoursTimer(room.id, GetTimeDiferenceAsString(state.end, MyDate()));
 			} else if (state.state == "Free") {
-				updateCourseText(room.id, "Frei");
+				updateCourseText(room.id, t("free"));
 				updateCoursTimer(room.id, GetTimeDiferenceAsString(state.end, MyDate()));
 			} else if (state.state == "FreeNoEnd") {
-				updateCourseText(room.id, "Frei");
+				updateCourseText(room.id, t("free"));
 				updateCoursTimer(room.id, "");
-			}
-			else if (state.state == "closed") {
-				updateCourseText(room.id, "Geschlossen");
+			} else if (state.state == "closed") {
+				updateCourseText(room.id, t("closed"));
 				updateCoursTimer(room.id, "");
 			}
 		}
@@ -331,7 +300,7 @@
 		function updatePcStates(json) {
 			var l = json.length;
 			for (var i = 0; i < l; i++) {
-				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].offline, json[i].broken, json[i].standby)
+				updateRoomUsage(json[i].id, json[i].idle, json[i].occupied, json[i].offline, json[i].broken, json[i].standby);
 			}
 
 		}
@@ -428,109 +397,86 @@
 
 		/**
 		 * computes state of a room, states are:
-		 * closed, FreeNoEnd, Free, ClaendarEvent.
-		 * @param Room Object
+		 * closed, FreeNoEnd, Free, CalendarEvent.
+		 * @param room Object
 		 */
 		function ComputeCurrentState(room) {
-			if (room.lastRoomUpdate === null) {
-				room.state = {state: 'unknown'};
+			if (!IsOpen(MyDate(), room)) {
+				room.state = {state: "closed", end: GetNextOpening(room), title: "", next: ""};
 				return;
 			}
-			if (!IsOpenNow(room)) {
-				room.state = {state: "closed", end: GetNextOpening(room), titel: "", next: ""};
 
-				return;
-			}
+			console.log("Timetable", room.id, room.timetable);
+
 			var closing = GetNextClosing(room);
-
 			var event = getNextEvent(room.timetable);
+
+			console.log("Event", room.id, event);
+
 			// no event and no closing
-			if (closing == null && event == null) {
-				room.state = {state: "FreeNoEnd", end: "", titel: "", next: ""};
+			if (!closing && !event) {
+				room.state = {state: "FreeNoEnd", end: "", title: "", next: "", free: true};
 				return;
 			}
 
 			// no event so closing is next
-			if (event == null) {
-				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
+			if (!event) {
+				room.state = {state: "Free", end: closing, title: "", next: "closing", free: true};
 				return;
 			}
 
 			// event is at the moment
-			if ((closing == null || event.start.getTime() < closing.getTime()) && event.start.getTime() < new MyDate()) {
-				room.state = {state: "CalendarEvent", end: event.end, titel: event.title, next: ""};
+			if ((!closing || event.start.getTime() < closing.getTime()) && event.start.getTime() < MyDate()) {
+				room.state = {
+					state: "CalendarEvent",
+					end: event.end,
+					title: event.title,
+					next: ""
+				};
+				console.log("CalendarEvent", room.id, room.state);
 				return;
 			}
 
 			// no closing so event is next
-			if (closing == null) {
-				room.state = {state: "Free", end: event.start, titel: "", next: "event"};
+			if (!closing) {
+				room.state = {state: "Free", end: event.start, title: "", next: "event", free: true};
 				return;
 			}
 
 			// event sooner then closing
 			if (event.start.getTime() < closing) {
-				room.state = {state: "Free", end: event.start, titel: "", next: "event"};
-			} else if (event.start.getTime() > closing) {
-				room.state = {state: "Free", end: closing, titel: "", next: "closing"};
-			}
-		}
-
-		/**
-		 * checks if a room is open
-		 * @param room Room object
-		 * @returns bool for open or not
-		 */
-		function IsOpenNow(room) {
-			var now = new MyDate();
-			if (room.openingTimes == null) {
-
-				// changes from falls needs testing
-				return true;
+				room.state = {state: "Free", end: event.start, title: "", next: "event", free: true};
+			} else {
+				room.state = {state: "Free", end: closing, title: "", next: "closing", free: true};
 			}
 
-			var tmp = room.openingTimes[now.getDay()];
-			if (tmp == null) {
-				return false;
-			}
-			for (var i = 0; i < tmp.length; i++) {
-				var openDate = new MyDate();
-				openDate.setHours(tmp[i].HourOpen);
-				openDate.setMinutes(tmp[i].MinutesOpen);
-				var closeDate = new MyDate();
-				closeDate.setHours(tmp[i].HourClose);
-				closeDate.setMinutes(tmp[i].MinutesClose);
-				if (openDate < now && closeDate > now) {
-					return true;
-				}
-			}
-			return false;
 		}
 
 		/**
 		 * returns next event from a given json of events
-		 * @param json Json which contains the calendar data.
-		 * @returns event next Carlendar Event
+		 * @param calEvents Json which contains the calendar data.
+		 * @returns event next Calendar Event
 		 */
-		function getNextEvent(json) {
-			if (json == null) {
-				return;
+		function getNextEvent(calEvents) {
+			if (!calEvents) return null;
+			if (calEvents.constructor !== Array) {
+				console.log('getNextEvent called with something not array: ' + typeof(calEvents));
+				return null;
 			}
-			var event;
-			var now = new MyDate();
-			for (var i = 0; i < json.length; i++) {
+			var event = null;
+			var now = MyDate();
+			for (var i = 0; i < calEvents.length; i++) {
 				//event is now active
-				if (json[i].start.getTime() < now.getTime() && json[i].end.getTime() > now.getTime()) {
-					return json[i];
+				if (calEvents[i].start.getTime() < now.getTime() && calEvents[i].end.getTime() > now.getTime()) {
+					return calEvents[i];
 				}
 				//first element to consider
-				if (event == null) {
-					if (json[i].start.getTime() > now.getTime()) {
-						event = json[i];
+				if (!event) {
+					if (calEvents[i].start.getTime() > now.getTime()) {
+						event = calEvents[i];
 					}
-				}
-				if (json[i].start.getTime() > now.getTime() && event.start.getTime() > json[i].start.getTime()) {
-					event = json[i];
+				} else if (calEvents[i].start.getTime() > now.getTime() && event.start.getTime() > calEvents[i].start.getTime()) {
+					event = calEvents[i];
 				}
 			}
 			return event;
@@ -791,9 +737,43 @@
 			})
 		}
 
+		/**
+		 * Function for translation
+		 * @param toTranslate key which we want to translate
+		 * @returns r translated string
+		 */
+		function t(toTranslate) {
+			if (tCache[toTranslate])
+				return tCache[toTranslate];
+			var r = $('#i18n').find('[data-tag="' + toTranslate + '"]');
+			return tCache[toTranslate] = (r.length === 0 ? toTranslate : r.text());
+		}
+		var tCache = {};
+
 	</script>
 </head>
 <body>
 <div id="main"></div>
+
+<div id="i18n">
+	<span data-tag="room">{{lang_room}}</span>
+	<span data-tag="closed">{{lang_closed}}</span>
+	<span data-tag="free">{{lang_free}}</span>
+	<span data-tag="shortSun">{{lang_shortSun}}</span>
+	<span data-tag="shortMon">{{lang_shortMon}}</span>
+	<span data-tag="shortTue">{{lang_shortTue}}</span>
+	<span data-tag="shortWed">{{lang_shortWed}}</span>
+	<span data-tag="shortThu">{{lang_shortThu}}</span>
+	<span data-tag="shortFri">{{lang_shortFri}}</span>
+	<span data-tag="shortSat">{{lang_shortSat}}</span>
+	<span data-tag="longSun">{{lang_longSun}}</span>
+	<span data-tag="longMon">{{lang_longMon}}</span>
+	<span data-tag="longTue">{{lang_longTue}}</span>
+	<span data-tag="longWed">{{lang_longWed}}</span>
+	<span data-tag="longThu">{{lang_longThu}}</span>
+	<span data-tag="longFri">{{lang_longFri}}</span>
+	<span data-tag="longSat">{{lang_longSat}}</span>
+	<span data-tag="to">{{lang_to}}</span>
+</div>
 </body>
 </html>

@@ -3,7 +3,9 @@
     "page_title": "Manage the bwLehrpool-Suite",
     "submenu_actionlog": "action log",
     "submenu_expiredimages": "Expired VM versions",
+    "submenu_ldapfilters": "LDAP filters",
     "submenu_mailconfig": "email configuration",
+    "submenu_networkshares": "Network Shares",
     "submenu_runtimeconfig": "limits and defaults",
     "submenu_templates": "templates",
     "submenu_users": "users and permissions"

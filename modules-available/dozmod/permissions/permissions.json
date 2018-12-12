@@ -5,10 +5,28 @@
     "actionlog.view": {
         "location-aware": false
     },
+    "ldapfilters.view": {
+        "location-aware": false
+    },
+    "ldapfilters.save": {
+        "location-aware": false
+    },
     "mailconfig.save": {
         "location-aware": false
     },
+    "networkshares.view": {
+        "location-aware": false
+    },
+    "networkshares.save": {
+        "location-aware": false
+    },
     "runtimeconfig.save": {
+        "location-aware": false
+    },
+    "runscripts.view": {
+        "location-aware": false
+    },
+    "runscripts.save": {
         "location-aware": false
     },
     "templates.reset": {

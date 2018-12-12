@@ -327,6 +327,7 @@ optional:
 		.wc-scrollable-grid {
 			transition: height 500ms;
 			background: rgba(0, 0, 0, 0);
+			overflow-y: hidden !important;
 		}
 
 		.wc-grid-timeslot-header,
@@ -618,6 +619,15 @@ optional:
 			generateProgressBar();
 		}
 
+		// Manually initialize mode 2, as initRoomLayout isn't called for this mode
+		if (room.config.mode === 2) {
+			var date = MyDate();
+			var now = date.getTime();
+			queryCalendars();
+			queryRooms();
+			lastCalendarUpdate = now;
+			lastRoomUpdate = now;
+		}
 		mainUpdateLoop();
 		setInterval(mainUpdateLoop, 10000);
 		setInterval(updateHeaders, globalConfig.eco ? 10000 : 1000);
@@ -735,7 +745,7 @@ optional:
 			timeslotHeight: 30,
 			daysToShow: daysToShow,
 			height: function () {
-				if (room.config.mode === 1 && room.config.vertical && (!room.timetable || !room.timetable.length)) return 20;
+				// if (room.config.mode === 1 && room.config.vertical && (!room.timetable || !room.timetable.length)) return 20;
 				var height = $(window).height();
 				if (roomIds.length === 4) {
 					height /= 2;
@@ -770,7 +780,9 @@ optional:
 			timeSeparator: " - ",
 			startOnFirstDayOfWeek: false,
 			displayFreeBusys: true,
-			defaultFreeBusy: {free: false}
+			defaultFreeBusy: {free: false},
+			allowCalEventOverlap: true,
+			overlapEventsSeparate: true
 		});
 	}
 
@@ -918,7 +930,7 @@ optional:
 	const SEVEN_DAYS = 7 * 86400 * 1000;
 
 	/**
-	 * applays new calendar data to the calendar plugin and also saves it to the room object
+	 * applies new calendar data to the calendar plugin and also saves it to the room object
 	 * @param {Array} json Calendar data
 	 * @param room Room Object
 	 */
@@ -945,9 +957,18 @@ optional:
 			console.log('Notice: Calendar has no current events for ' + room.name);
 		}
 		try {
+			for (var i = json.length - 1; i > 0; i--) {
+				// if title, start and end are the same, "merge" two events by removing one of them
+				if (json[i].title === json[i-1].title && json[i].start === json[i-1].start && json[i].end === json[i-1].end) {
+					json.splice(i, 1);
+				}
+			}
 			room.timetable = json;
+			for (var property in room.timetable) {
+				room.timetable[property].start = cleanDate(room.timetable[property].start);
+				room.timetable[property].end = cleanDate(room.timetable[property].end);
+			}
 			if (room.config.mode !== 3) {
-				// TODO: Check if they're the same
 				var cal = room.$.calendar;
 				cal.weekCalendar('option', 'data', {events: json});
 				cal.weekCalendar("refresh");
@@ -965,6 +986,27 @@ optional:
 			console.log("Error: Couldnt add calendar data");
 			console.log(e);
 		}
+	}
+
+	function cleanDate(d) {
+		if (typeof d === 'string') {
+			// if is numeric
+			if (!isNaN(Number(d))) {
+				return cleanDate(parseInt(d, 10));
+			}
+
+			// this is a human readable date
+			if (d[d.length - 1] !== 'Z') d += 'Z';
+			var o = new Date(d);
+			o.setTime(o.getTime() + (o.getTimezoneOffset() * 60 * 1000));
+			return o;
+		}
+
+		if (typeof d === 'number') {
+			return new Date(d);
+		}
+
+		return d;
 	}
 
 	/**
@@ -1108,12 +1150,11 @@ optional:
 	 * @param room Room
 	 */
 	function SetFreeSeats(room) {
-		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '');
+		// if room has no allowed value, set text in the box to -
+		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '-');
 		room.$.seatsCounter.data('state', JSON.stringify(room.state));
 		if (room.freePcs > 0 && room.state && room.state.free) {
-				room.$.seatsBackground.css('background-color', '#250');
-		} else if (room.freePcs === -1) {
-			room.$.seatsBackground.css('background-color', 'red');
+			room.$.seatsBackground.css('background-color', '#250');
 		} else {
 			room.$.seatsBackground.css('background-color', 'red');
 		}
@@ -1140,7 +1181,8 @@ optional:
 			if (!same) newText = t("closed");
 		} else if (tmp.state === "CalendarEvent") {
 			if (!same) newText = tmp.title;
-			seats = -1;
+			// whilst event is running set freePcs to -, hopefully not breaking anything else with this
+			room.freePcs = "-";
 		} else if (tmp.state === "Free") {
 			if (!same) newText = t("free");
 		} else if (tmp.state === "FreeNoEnd") {
@@ -1166,11 +1208,10 @@ optional:
 	function ComputeCurrentState(room) {
 		if (!IsOpen(MyDate(), room)) {
 			room.state = {state: "closed", end: GetNextOpening(room), title: "", next: ""};
-
 			return;
 		}
-		var closing = GetNextClosing(room);
 
+		var closing = GetNextClosing(room);
 		var event = getNextEvent(room.timetable);
 
 		// no event and no closing
@@ -1488,8 +1529,14 @@ optional:
 		for (var i = 0; i < update.length; i++) {
 			var $div = $("#pc_" + room.id + "_" + update[i].id);
 			// Pc free
-			if (update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY") {
-				freePcs++;
+			if (room.config.roomplanner === true) {
+				if ((update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY") && !isNaN(update[i].x) && !isNaN(update[i].y)) {
+					freePcs++;
+				}
+			} else {
+				if ((update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY")) {
+					freePcs++;
+				}
 			}
 
 			$div.removeClass('BROKEN OFFLINE IDLE OCCUPIED STANDBY'.replace(update[i].pcState, '')).addClass(update[i].pcState);
@@ -1585,7 +1632,7 @@ optional:
 
 	/**
 	 * Function for translation
-	 * @param toTranslate key which we wan't to translate
+	 * @param toTranslate key which we want to translate
 	 * @returns r translated string
 	 */
 	function t(toTranslate) {

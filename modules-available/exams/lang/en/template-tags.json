@@ -29,7 +29,7 @@
     "lang_headingMain": "bwLehrpool Exam Mode",
     "lang_id": "ID",
     "lang_lectureName": "Lecture name",
-    "lang_lectureOutOfRange": "Hint: Start or end date of given lecture lies outside of exam period given above",
+    "lang_lectureOutOfRange": "Hint: The exam period given above is shorter than the duration of the given lecture",
     "lang_location": "Room\/Location",
     "lang_locationInfo": "Select the rooms and locations you want to enable the exam mode in. Selecting nothing at all means that all clients will boot into exam mode during the given time period.",
     "lang_locations": "Rooms\/Locations",

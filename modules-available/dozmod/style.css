@@ -49,3 +49,23 @@
 .table > tbody > tr > td > div {
   display: inline-block;
 }
+
+/* number of columns in tree view depending on screen size */
+.column-list {
+  column-gap: 20px;
+  column-count: 2;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (min-width: 768px) {
+  .column-list {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 992px) {
+  .column-list {
+    column-count: 4;
+  }
+}

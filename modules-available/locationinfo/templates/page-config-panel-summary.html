@@ -70,6 +70,22 @@
 								</div>
 							</div>
 						</div>
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="input-roomplanner">{{lang_useRoomplanner}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input id="input-roomplanner" type="checkbox" name="roomplanner" {{roomplanner_checked}}>
+								</div>
+								<div class="col-sm-2">
+									<p class="btn btn-static helptext" title="{{lang_roomplannerTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</p>
+								</div>
+							</div>
+						</div>
 <!--
 						<div class="list-group-item">
 							<div class="row">
@@ -91,6 +107,34 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">{{lang_updateRates}}</div>
+				<div class="panel-body">
+					<div class="list-group">
+
+						<div class="list-group-item">
+							<div class="row">
+								<div class="col-sm-3">
+									<label for="form-panelupdate">{{lang_panel}}</label>
+								</div>
+								<div class="col-sm-7">
+									<input class="form-control" name="panelupdate" type="number" min="15" id="form-panelupdate"
+											 max="86400" value="{{panelupdate}}" required>
+								</div>
+								<div class="col-sm-2">
+									<p class="btn btn-static helptext" title="{{lang_panelupdateTooltip}}">
+										<span class="glyphicon glyphicon-question-sign"></span>
+									</p>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="modify-inputs">
@@ -101,7 +145,7 @@
 					<div class="panel-heading">{{lang_locations}}</div>
 					<div class="panel-body">
 						<input type="hidden" name="locationids" value="{{locationids}}" id="locationids">
-						<p>{{lang_fourLocsHint}}</p>
+						<p>{{lang_locsHint}}</p>
 						<ul id="selected-locations" class="list-unstyled">
 
 						</ul>
@@ -122,8 +166,10 @@
 
 		</div>
 	</div>
-	<a href="?do=locationinfo&amp;show=panels" class="btn btn-default">{{lang_cancel}}</a>
-	<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	<div class="text-right">
+		<a href="?do=locationinfo&amp;show=panels" class="btn btn-default">{{lang_cancel}}</a>
+		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+	</div>
 </form>
 
 <div class="modal fade" id="no-locations-message" tabindex="-1" role="dialog">
@@ -171,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Adding/removing locations
 	$locList.find('a').click(function(ev) {
 		ev.preventDefault();
+		ev.stopPropagation();
 		var $this = $(this);
 		var name = $this.find('.name').text();
 		var id = $this.data('lid');
@@ -187,8 +234,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	function addLocation(id, name) {
 		$selLocs.find('li[data-lid="' + id + '"]').remove();
-		var delButton = $('<button class="btn btn-danger btn-xs" type="button">').append($('<span class="glyphicon glyphicon-remove">')).click(delParent);
-		$selLocs.append($('<li>').attr('data-lid', id).text(name).prepend(delButton));
+		var delButton = $('<button style="margin-right: 5px;" class="btn btn-danger btn-xs" type="button">').append($('<span class="glyphicon glyphicon-remove">')).click(delParent);
+		$selLocs.append($('<li style="margin-top: 5px;">').attr('data-lid', id).text(name).prepend(delButton));
 	}
 
 	function delParent() {

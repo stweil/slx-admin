@@ -274,8 +274,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		foreach ($eventDetails as $event) {
 			foreach (array('/hisdefaulttext',
 							'/hisshorttext',
-							'/hisshortcomment',
-							'/hisplanelements/hisplanelement/hisdefaulttext') as $path) {
+							'/hisshortcomment') as $path) {
 				$name = $this->getArrayPath($event, $path);
 				if (!empty($name) && !empty($name[0]))
 					break;
@@ -284,25 +283,40 @@ class CourseBackend_HisInOne extends CourseBackend
 			if ($name === false) {
 				$name = ['???'];
 			}
-			$unitPlannedDates = $this->getArrayPath($event,
-				'/hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
-			if ($unitPlannedDates === false) {
-				$this->error = 'Cannot find ./hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate';
-				error_log('Cannot find ./hisplanelements/hisplanelement/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
+			$planElements = $this->getArrayPath($event, '/hisplanelements/hisplanelement');
+			if ($planElements === false) {
+				$this->error = 'Cannot find ./hisplanelements/hisplanelement';
+				error_log('Cannot find ./hisplanelements/hisplanelement');
 				error_log(print_r($event, true));
 				continue;
 			}
-			foreach ($unitPlannedDates as $plannedDate) {
-				$eventRoomId = $this->getArrayPath($plannedDate, '/hisroomId')[0];
-				$eventDate = $this->getArrayPath($plannedDate, '/hisexecutiondate')[0];
-				if (in_array($eventRoomId, $requestedRoomIds) && in_array($eventDate, $currentWeek)) {
-					$startTime = $this->getArrayPath($plannedDate, '/hisstarttime')[0];
-					$endTime = $this->getArrayPath($plannedDate, '/hisendtime')[0];
-					$tTables[$eventRoomId][] = array(
-						'title' => $name[0],
-						'start' => $eventDate . "T" . $startTime,
-						'end' => $eventDate . "T" . $endTime
-					);
+			foreach ($planElements as $planElement) {
+				if (empty($planElement['hisplannedDates']))
+					continue;
+				$unitPlannedDates = $this->getArrayPath($planElement,
+					'/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
+				if ($unitPlannedDates === false) {
+					$this->error = 'Cannot find ./hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate';
+					error_log('Cannot find ./hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
+					error_log(print_r($planElement, true));
+					continue;
+				}
+				$localName = $this->getArrayPath($planElement, '/hisdefaulttext');
+				if ($localName === false || empty($localName[0])) {
+					$localName = $name;
+				}
+				foreach ($unitPlannedDates as $plannedDate) {
+					$eventRoomId = $this->getArrayPath($plannedDate, '/hisroomId')[0];
+					$eventDate = $this->getArrayPath($plannedDate, '/hisexecutiondate')[0];
+					if (in_array($eventRoomId, $requestedRoomIds) && in_array($eventDate, $currentWeek)) {
+						$startTime = $this->getArrayPath($plannedDate, '/hisstarttime')[0];
+						$endTime = $this->getArrayPath($plannedDate, '/hisendtime')[0];
+						$tTables[$eventRoomId][] = array(
+							'title' => $localName[0],
+							'start' => $eventDate . "T" . $startTime,
+							'end' => $eventDate . "T" . $endTime
+						);
+					}
 				}
 			}
 		}

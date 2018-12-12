@@ -1,0 +1,89 @@
+<h1>{{lang_scriptsHead}}</h1>
+
+<form method="post" action="?do=dozmod&section=runscripts">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" id="runscriptid" name="runscriptid" value="{{runscriptid}}">
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_editScript}}
+		</div>
+		<div class="panel-body">
+			<div class="input-group">
+				<label class="input-group-addon" for="scriptname">{{lang_name}}</label>
+				<input type="text" name="scriptname" id="scriptname" class="form-control"
+						 value="{{scriptname}}" required>
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="extension">{{lang_scriptExtension}}</label>
+				<input type="text" name="extension" id="extension" class="form-control" value="{{extension}}"
+						 list="default-exts">
+				<datalist id="default-exts">
+					<option value="bat">
+					<option value="ps">
+					<option value="py">
+					<option value="sh">
+				</datalist>
+			</div>
+			<div class="input-group">
+				<label class="input-group-addon" for="visibility">{{lang_scriptVisibility}}</label>
+				<select type="text" name="visibility" id="visibility" class="form-control" required>
+					<option value="0" {{visibility_0_selected}}>{{lang_hidden}}</option>
+					<option value="1" {{visibility_1_selected}}>{{lang_normal}}</option>
+					<option value="2" {{visibility_2_selected}}>{{lang_minimized}}</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<div class="checkbox">
+					<input type="checkbox" name="passcreds" value="1" {{passcreds_checked}} id="passcreds"
+							 class="form-control">
+					<label for="passcreds">
+						{{lang_scriptPassCredentials}}
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="radio">
+					<input type="radio" name="isglobal" value="1" {{isglobal_1_checked}} id="isglobal1" class="form-control">
+					<label for="isglobal1">
+						{{lang_scriptIsGlobal}}
+					</label>
+				</div>
+				<div class="radio">
+					<input type="radio" name="isglobal" value="0" {{isglobal_0_checked}} id="isglobal0" class="form-control">
+					<label for="isglobal0">
+						{{lang_scriptIsPredefined}}
+					</label>
+				</div>
+			</div>
+			<div>
+				<label for="content">{{lang_scriptContent}}</label>
+				<textarea name="content" id="content" rows="20" cols="80" class="form-control">{{content}}</textarea>
+			</div>
+
+			<div class="panel panel-body column-list">
+				{{#oslist}}
+					<div class="checkbox">
+						<input type="checkbox" name="osid[]" value="{{osid}}" {{checked}} id="osid{{osid}}" class="form-control">
+						<label for="osid{{osid}}">
+							{{displayname}}
+						</label>
+					</div>
+				{{/oslist}}
+			</div>
+
+			<div class="text-right" style="margin-top: 20px;">
+				<a type="button" class="btn btn-default" href="?do=dozmod&section=runscripts">{{lang_cancel}}</a>
+				<button class="btn btn-primary" type="submit" name="action" value="save">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
+			</div>
+
+		</div>
+	</div>
+
+</form>
+
+<script type="text/javascript">
+</script>
