@@ -40,8 +40,10 @@ $res[] = tableCreate('serversetup_menuentry', "
 $res[] = tableCreate('serversetup_menu_location', '
   `menuid` int(11) NOT NULL,
   `locationid` int(11) NOT NULL,
+  `defaultentryid` int(11) DEFAULT NULL,
   PRIMARY KEY (`menuid`,`locationid`),
-  UNIQUE `locationid` (`locationid`)
+  UNIQUE `locationid` (`locationid`),
+  KEY `defaultentryid` (`defaultentryid`)
 ');
 
 $res[] = tableCreate('serversetup_localboot', "
@@ -49,6 +51,15 @@ $res[] = tableCreate('serversetup_localboot', "
   `bootmethod` enum('EXIT','COMBOOT','SANBOOT') CHARACTER SET ascii NOT NULL,
   PRIMARY KEY (`systemmodel`)
 ");
+
+// Add defaultentry override column
+if (!tableHasColumn('serversetup_menu_location', 'defaultentryid')) {
+	if (Database::exec('ALTER TABLE serversetup_menu_location ADD COLUMN `defaultentryid` int(11) DEFAULT NULL')) {
+		$res[] = UPDATE_DONE;
+	} else {
+		$res[] = UPDATE_FAILED;
+	}
+}
 
 $res[] = tableAddConstraint('serversetup_menu', 'defaultentryid', 'serversetup_menuentry', 'menuentryid',
 	'ON DELETE SET NULL');
@@ -61,6 +72,9 @@ $res[] = tableAddConstraint('serversetup_menuentry', 'menuid', 'serversetup_menu
 
 $res[] = tableAddConstraint('serversetup_menu_location', 'menuid', 'serversetup_menu', 'menuid',
 	'ON UPDATE CASCADE ON DELETE CASCADE');
+
+$res[] = tableAddConstraint('serversetup_menu_location', 'defaultentryid', 'serversetup_menuentry', 'menuentryid',
+	'ON UPDATE CASCADE ON DELETE SET NULL');
 
 if (Module::get('location') !== false) {
 	if (!tableExists('location')) {
