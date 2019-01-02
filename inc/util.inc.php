@@ -495,7 +495,7 @@ SADFACE;
 		settype($ts, 'int');
 		if ($ts === 0)
 			return '???';
-		static $TODAY = false, $ETODAY = false, $YESTERDAY = false, $YEAR = false;
+		static $TODAY = false, $ETODAY = false, $YESTERDAY = false, $YEARCUTOFF = false;
 		if (!$ETODAY) $ETODAY = strtotime('today 23:59:59');
 		if ($ts > $ETODAY) // TODO: Do we need strings for future too?
 			return date('d.m.Y H:i', $ts);
@@ -505,8 +505,8 @@ SADFACE;
 		if (!$YESTERDAY) $YESTERDAY = strtotime('yesterday 0:00');
 		if ($ts >= $YESTERDAY)
 			return Dictionary::translate('lang_yesterday') . ' ' . date('H:i', $ts);
-		if (!$YEAR) $YEAR = strtotime('this year 1/1');
-		if ($ts >= $YEAR)
+		if (!$YEARCUTOFF) $YEARCUTOFF = min(strtotime('-3 month'), strtotime('this year 1/1'));
+		if ($ts >= $YEARCUTOFF)
 			return date('d.m. H:i', $ts);
 		return date('d.m.Y', $ts);
 	}
