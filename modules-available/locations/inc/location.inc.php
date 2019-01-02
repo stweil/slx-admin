@@ -429,7 +429,7 @@ class Location
 			foreach ($self as $entry) {
 				if (!isset($locs[$entry]))
 					continue;
-				$overlapSelf[]['locationname'] = $locs[$entry['locationid']]['locationname'];
+				$overlapSelf[]['locationname'] = $locs[$entry]['locationname'];
 			}
 		}
 		if ($overlapOther) {
