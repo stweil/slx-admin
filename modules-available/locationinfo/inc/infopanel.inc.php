@@ -37,6 +37,9 @@ class InfoPanel
 					$overrides = $json['overrides'];
 				}
 				unset($json['overrides']);
+				if (!isset($json['roomplanner'])) {
+					$config['roomplanner'] = false;
+				}
 				$config = $json + $config;
 			}
 		}

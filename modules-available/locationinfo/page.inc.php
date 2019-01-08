@@ -902,6 +902,9 @@ class Page_LocationInfo extends Page
 			}
 
 			$config = json_decode($panel['panelconfig'], true);
+			if (!isset($config['roomplanner'])) {
+				$config['roomplanner'] = false;
+			}
 		}
 
 		// Permission
