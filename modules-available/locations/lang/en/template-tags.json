@@ -3,6 +3,7 @@
     "lang_areYouSureNoUndo": "Are you sure? This cannot be undone!",
     "lang_assignSubnetExplanation": "Client machines which fall into an IP range listed below will be assigned to this location and will see an according lecture list (e.g. they will see lectures that are exclusively assigned to this location).",
     "lang_assignedSubnets": "Assigned subnets \/ IP ranges",
+    "lang_bootMenu": "Boot menu",
     "lang_deleteChildLocations": "Delete child locations aswell",
     "lang_deleteLocation": "Delete location",
     "lang_deleteSubnet": "Delete range",
