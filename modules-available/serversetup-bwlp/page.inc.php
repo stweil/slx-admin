@@ -176,8 +176,44 @@ class Page_ServerSetup extends Page
 
 	private function showDownload()
 	{
-		// TODO: Make nicer, support more variants (taskmanager-plugin)
-		Render::addTemplate('download');
+		$list = glob('/srv/openslx/www/boot/download/*', GLOB_NOSORT);
+		usort($list, function ($a, $b) {
+			return strcmp(substr($a, -4), substr($b, -4)) * 100 + strcmp($a, $b);
+		});
+		$files = [];
+		$strings = [
+			'efi' => [Dictionary::translate('dl-efi', true) => 50],
+			'pcbios' => [Dictionary::translate('dl-pcbios', true) => 51],
+			'usb' => [Dictionary::translate('dl-usb', true) => 80],
+			'hd' => [Dictionary::translate('dl-hd', true) => 81],
+			'lkrn' => [Dictionary::translate('dl-lkrn', true) => 82],
+			'i386' => [Dictionary::translate('dl-i386', true) => 10],
+			'x86_64' => [Dictionary::translate('dl-x86_64', true) => 11],
+			'ecm' => [Dictionary::translate('dl-usbnic', true) => 60],
+			'ncm' => [Dictionary::translate('dl-usbnic', true) => 61],
+			'ipxe' => [Dictionary::translate('dl-pcinic', true) => 62],
+			'snp' => [Dictionary::translate('dl-snp', true) => 63],
+		];
+		foreach ($list as $file) {
+			if ($file{0} === '.')
+				continue;
+			if (is_file($file)) {
+				$base = basename($file);
+				$features = [];
+				foreach (preg_split('/[\-\.\/]+/', $base, -1, PREG_SPLIT_NO_EMPTY) as $p) {
+					if (array_key_exists($p, $strings)) {
+						$features += $strings[$p];
+					}
+				}
+				asort($features);
+				$files[] = [
+					'name' => $base,
+					'class' => substr($base, -4) === '.usb' ? 'slx-bold' : '',
+					'features' => implode(', ', array_keys($features)),
+				];
+			}
+		}
+		Render::addTemplate('download', ['files' => $files]);
 	}
 
 	private function showBootentryList()

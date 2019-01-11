@@ -1,12 +1,17 @@
-<div class="panel-footer">
-	<div>
-		<div class="btn-group" role="group">
-			<a class="btn btn-default" href="?do=ServerSetup&amp;action=getimage">
-				<span class="glyphicon glyphicon-download-alt"></span>
-				{{lang_downloadImage}}
-			</a>
-			<span class="btn btn-default" data-toggle="modal" data-target="#help-usbimg"><span class="glyphicon glyphicon-question-sign"></span></span>
-		</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_downloadBootImage}}
+	</div>
+	<div class="panel-body">
+		<ul>
+			{{#files}}
+				<li><a class="{{class}}" href="/boot/download/{{name}}">{{name}}</a> ({{features}})</li>
+			{{/files}}
+		</ul>
+		<span class="btn btn-default" data-toggle="modal" data-target="#help-usbimg">
+			<span class="glyphicon glyphicon-question-sign"></span>
+			{{lang_usbImgHelpBtn}}
+		</span>
 	</div>
 </div>
 
