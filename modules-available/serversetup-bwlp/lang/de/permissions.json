@@ -6,6 +6,7 @@
     "ipxe.bootentry.edit": "Einen Boot-Eintrag bearbeiten.",
     "ipxe.bootentry.view": "Liste aller Boot-Eintr\u00e4ge sehen.",
     "ipxe.localboot.edit": "Ausnahmeliste f\u00fcr Localboot-Modus bearbeiten.",
+    "ipxe.menu.assign": "Men\u00fc einem Raum\/Ort zuweisen.",
     "ipxe.menu.edit": "Men\u00fc editieren.",
     "ipxe.menu.view": "Liste der Men\u00fcs sehen."
 }
