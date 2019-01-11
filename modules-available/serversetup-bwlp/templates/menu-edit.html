@@ -36,33 +36,18 @@
 					</div>
 				</div>
 			</div>
-			<div class="row list-group-item">
-				<div class="col-sm-3">
-					<label for="panel-locations">{{lang_menuLocations}}</label>
-				</div>
-				<div class="col-sm-9">
-					<select id="panel-locations" multiple name="locations[]">
-						{{#locations}}
-						<option value="{{locationid}}" {{disabled}} {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
-						{{/locations}}
-					</select>
-					{{#globalMenuWarning}}
-						<span id="global-menu-warning" style="margin-left: 20px; color: red; display: none;">{{lang_globalMenuWarning}}</span>
-					{{/globalMenuWarning}}
-				</div>
-			</div>
 			<div>
 				<table class="table">
 					<thead>
 					<tr>
-						<th style="width: 10px"></th>
-						<th style="width: 10px"></th>
-						<th style="width: 10px">{{lang_entryId}}</th>
+						<th class="slx-smallcol"></th>
+						<th class="slx-smallcol"></th>
+						<th class="slx-smallcol">{{lang_entryId}}</th>
 						<th>{{lang_title}}</th>
-						<th style="width: 150px">{{lang_hotkey}}</th>
-						<th style="width: 200px">{{lang_password}}</th>
-						<th style="width: 10px"><span class="glyphicon glyphicon-eye-close"></span></th>
-						<th style="width: 10px"></th>
+						<th width="11%">{{lang_hotkey}}</th>
+						<th width="15%">{{lang_password}}</th>
+						<th class="slx-smallcol"><span class="glyphicon glyphicon-eye-close"></span></th>
+						<th class="slx-smallcol"></th>
 					</tr>
 					</thead>
 					<tbody id="table-body" style="overflow: auto;">
@@ -289,28 +274,6 @@
 	var spacerText = "{{lang_spacer}}";
 
 	document.addEventListener("DOMContentLoaded", function() {
-		var locationSelect = $('#panel-locations');
-		locationSelect.multiselect({numberDisplayed: 1});
-		var globalMenuWarning = $('#global-menu-warning');
-		if (globalMenuWarning.length) {
-			var saveButton = $('#save-button');
-			if (locationSelect.val() !== null) {
-				saveButton.prop('disabled', false);
-				globalMenuWarning.hide();
-			} else {
-				saveButton.prop('disabled', true);
-				globalMenuWarning.show();
-			}
-			locationSelect.change(function () {
-				if ($(this).val() !== null) {
-					saveButton.prop('disabled', false);
-					globalMenuWarning.hide();
-				} else {
-					saveButton.prop('disabled', true);
-					globalMenuWarning.show();
-				}
-			});
-		}
 
 		function reassignSortValues() {
 			var startValue = 1;

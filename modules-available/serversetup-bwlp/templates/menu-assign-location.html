@@ -1,0 +1,69 @@
+<h2>{{lang_assignMenuToLocation}}</h2>
+<h3>{{locationName}}</h3>
+
+<form method="post" action="?do=serversetup">
+
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="savelocation">
+	<input type="hidden" name="locationid" value="{{locationid}}">
+	<table class="table">
+		<thead>
+		<tr>
+			<th class="slx-smallcol"></th>
+			<th>{{lang_menuTitle}}</th>
+			<th class="slx-smallcol">{{lang_menuEntryOverride}}</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>
+				<div class="radio radio-inline">
+					<input type="radio" name="menuid" value="0" {{default_selected}}>
+					<label></label>
+				</div>
+			</td>
+			<td>
+				<i>{{lang_useDefaultMenu}}</i>
+			</td>
+			<td></td>
+		</tr>
+		{{#list}}
+			<tr>
+				<td>
+					<div class="radio radio-inline">
+						<input type="radio" name="menuid" value="{{menuid}}" {{menu_selected}}>
+						<label></label>
+					</div>
+				</td>
+				<td>
+					{{title}}
+				</td>
+				<td class="text-right">
+					<select name="defaultentryid-{{menuid}}" class="form-control">
+						<option value="0" style="font-style:italic">{{lang_useDefaultMenuEntry}}</option>
+						{{#entries}}
+							<option value="{{id}}" {{selected}}>{{title}}</option>
+						{{/entries}}
+					</select>
+				</td>
+			</tr>
+		{{/list}}
+		</tbody>
+	</table>
+
+	<div class="pull-right">
+		<button type="submit" class="btn btn-primary">
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+			{{lang_save}}
+		</button>
+	</div>
+
+</form>
+
+<div class="clearfix"></div>
+
+<script>
+	function deleteMenu(menuid) {
+		$("#delete-menu-id").val(menuid);
+	}
+</script>

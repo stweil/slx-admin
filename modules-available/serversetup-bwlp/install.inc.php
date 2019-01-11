@@ -54,7 +54,8 @@ $res[] = tableCreate('serversetup_localboot', "
 
 // Add defaultentry override column
 if (!tableHasColumn('serversetup_menu_location', 'defaultentryid')) {
-	if (Database::exec('ALTER TABLE serversetup_menu_location ADD COLUMN `defaultentryid` int(11) DEFAULT NULL')) {
+	if (Database::exec('ALTER TABLE serversetup_menu_location ADD COLUMN `defaultentryid` int(11) DEFAULT NULL,
+		ADD KEY `defaultentryid` (`defaultentryid`)') !== false) {
 		$res[] = UPDATE_DONE;
 	} else {
 		$res[] = UPDATE_FAILED;

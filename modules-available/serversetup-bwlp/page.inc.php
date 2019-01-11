@@ -82,6 +82,12 @@ class Page_ServerSetup extends Page
 			$this->saveMenu();
 		}
 
+		if ($action === 'savelocation') {
+			// Permcheck in function
+			$this->saveLocationMenu();
+			Util::redirect('?do=locations');
+		}
+
 		if ($action === 'deleteMenu') {
 			// Permcheck in function
 			$this->deleteMenu();
@@ -157,6 +163,10 @@ class Page_ServerSetup extends Page
 		case 'address':
 			User::assertPermission('edit.address');
 			$this->showEditAddress();
+			break;
+		case 'assignlocation':
+			// Permcheck in function
+			$this->showEditLocation();
 			break;
 		default:
 			Util::redirect('?do=serversetup');
@@ -294,19 +304,6 @@ class Page_ServerSetup extends Page
 			$entry['isdefault'] = ($entry['menuentryid'] == $menu['defaultentryid']);
 			// TODO: plainpass only when permissions
 		}
-		// TODO: Make assigned locations editable
-
-		$currentLocations = Database::queryColumnArray('SELECT locationid FROM serversetup_menu_location
-																					WHERE menuid = :menuid', array('menuid' => $id));
-		$menu['locations'] = Location::getLocations($currentLocations);
-
-		// if user has no permission to edit for this location, disable the location in the select
-		$allowedEditLocations = User::getAllowedLocations('ipxe.menu.edit');
-		foreach ($menu['locations'] as &$loc) {
-			if (!in_array($loc["locationid"], $allowedEditLocations)) {
-				$loc["disabled"] = "disabled";
-			}
-		}
 
 		Permission::addGlobalTags($menu['perms'], 0, ['ipxe.menu.edit']);
 		Render::addTemplate('menu-edit', $menu);
@@ -437,23 +434,6 @@ class Page_ServerSetup extends Page
 			return;
 		}
 
-		$locationids = Request::post('locations', [], "ARRAY");
-		// check if the user is allowed to edit the menu on the affected locations
-		$allowedEditLocations = User::getAllowedLocations('ipxe.menu.edit');
-		$currentLocations = Database::queryColumnArray('SELECT locationid FROM serversetup_menu_location
-																					WHERE menuid = :menuid', array('menuid' => $id));
-		// permission denied if the user tries to assign or remove a menu to/from locations he has no edit rights for
-		// or if the user tries to save a menu without locations but does not have the permission for the root location (0)
-		if (!in_array(0, $allowedEditLocations)
-				&& (
-					(!empty(array_diff($locationids, $allowedEditLocations)) && !empty(array_diff($currentLocations, $allowedEditLocations)))
-					|| empty($locationids)
-				)
-			) {
-			Message::addError('main.no-permission');
-			Util::redirect('?do=serversetup');
-		}
-
 		$insertParams = [
 			'title' => IPxe::sanitizeIpxeString(Request::post('title', '', 'string')),
 			'timeoutms' => abs(Request::post('timeout', 0, 'int') * 1000),
@@ -462,16 +442,11 @@ class Page_ServerSetup extends Page
 			Database::exec("INSERT INTO serversetup_menu (title, timeoutms, isdefault) VALUES (:title, :timeoutms, 0)", $insertParams);
 			$menu['menuid'] = $id = Database::lastInsertId();
 		} else {
-			$menu = Database::queryFirst("SELECT m.menuid, GROUP_CONCAT(l.locationid) AS locations
+			$menu = Database::queryFirst("SELECT m.menuid
 			FROM serversetup_menu m
-			LEFT JOIN serversetup_menu_location l USING (menuid)
 			WHERE menuid = :id", compact('id'));
 			if ($menu === false) {
 				Message::addError('no-such-menu', $id);
-				return;
-			}
-			if (!$this->hasMenuPermission($id, 'ipxe.menu.edit')) {
-				Message::addError('locations.no-permission-location', 'TODO');
 				return;
 			}
 			$insertParams['menuid'] = $id;
@@ -562,15 +537,6 @@ class Page_ServerSetup extends Page
 			Database::exec('UPDATE serversetup_menu SET defaultentryid = NULL WHERE menuid = :menuid', ['menuid' => $menu['menuid']]);
 		}
 
-		Database::exec('DELETE FROM serversetup_menu_location WHERE menuid = :menuid', ['menuid' => $menu['menuid']]);
-		if (!empty($locationids)) {
-			Database::exec('DELETE FROM serversetup_menu_location WHERE locationid IN (:locationids)', ['locationids' => $locationids]);
-			foreach ($locationids as $locationid) {
-				Database::exec('INSERT INTO serversetup_menu_location (menuid, locationid) VALUES (:menuid, :locationid)',
-					['menuid' => $menu['menuid'], 'locationid' => $locationid]);
-			}
-		}
-
 		Message::addSuccess('menu-saved');
 	}
 
@@ -651,6 +617,83 @@ class Page_ServerSetup extends Page
 			Message::addSuccess('boot-entry-updated', $newId);
 		}
 		Util::redirect('?do=serversetup&show=bootentry');
+	}
+
+	private function showEditLocation()
+	{
+		$locationId = Request::get('locationid', false, 'int');
+		$loc = Location::get($locationId);
+		if ($loc === false) {
+			Message::addError('locations.invalid-location-id', $locationId);
+			return;
+		}
+		User::assertPermission('ipxe.menu.assign', $locationId);
+		// List of menu entries
+		$res = Database::simpleQuery('SELECT menuentryid, title FROM serversetup_menuentry');
+		$menuEntries = $res->fetchAll(PDO::FETCH_KEY_PAIR);
+		// List of menus
+		$data = [
+			'locationid' => $locationId,
+			'locationName' => $loc['locationname'],
+		];
+		$res = Database::simpleQuery('SELECT m.menuid, m.title, ml.locationid, ml.defaultentryid, GROUP_CONCAT(me.menuentryid) AS entries FROM serversetup_menu m
+				LEFT JOIN serversetup_menu_location ml ON (m.menuid = ml.menuid AND ml.locationid = :locationid)
+				INNER JOIN serversetup_menuentry me ON (m.menuid = me.menuid AND me.entryid IS NOT NULL)
+				GROUP BY menuid
+				ORDER BY m.title ASC', ['locationid' => $locationId]);
+		$menus = [];
+		$hasDefault = false;
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$eids = explode(',', $row['entries']);
+			$row['entries'] = [];
+			foreach ($eids as $eid) {
+				$row['entries'][] = [
+					'id' => $eid,
+					'title' => $menuEntries[$eid],
+					'selected' => ($eid == $row['defaultentryid'] ? 'selected' : ''),
+				];
+			}
+			if ($row['locationid'] !== null) {
+				$hasDefault = true;
+				$row['menu_selected'] = 'checked';
+			}
+			$menus[] = $row;
+		}
+		if (!$hasDefault) {
+			$data['default_selected'] = 'checked';
+		}
+		$data['list'] = $menus;
+		Render::addTemplate('menu-assign-location', $data);
+	}
+
+	private function saveLocationMenu()
+	{
+		$locationId = Request::post('locationid', false, 'int');
+		$loc = Location::get($locationId);
+		if ($loc === false) {
+			Message::addError('locations.invalid-location-id', $locationId);
+			return;
+		}
+		User::assertPermission('ipxe.menu.assign', $locationId);
+		$menuId = Request::post('menuid', false, 'int');
+		if ($menuId === 0) {
+			Database::exec('DELETE FROM serversetup_menu_location WHERE locationid = :locationid',
+				['locationid' => $locationId]);
+			Message::addSuccess('location-use-default', $loc['locationname']);
+			return;
+		}
+		$defaultEntryId = Request::post('defaultentryid-' . $menuId, 0, 'int');
+		if ($defaultEntryId === 0) {
+			$defaultEntryId = null;
+		}
+		Database::exec('INSERT INTO serversetup_menu_location (menuid, locationid, defaultentryid)
+				VALUES (:menuid, :locationid, :defaultentryid)
+				ON DUPLICATE KEY UPDATE menuid = :menuid, defaultentryid = :defaultentryid', [
+			'menuid' => $menuId,
+			'locationid' => $locationId,
+			'defaultentryid' => $defaultEntryId
+		]);
+		Message::addSuccess('location-menu-assigned', $loc['locationname']);
 	}
 
 }
