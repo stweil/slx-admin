@@ -17,7 +17,7 @@ if (!Module::isAvailable('locations')) {
 
 define('LIST_URL', CONFIG_DOZMOD_URL . '/vmchooser/list');
 define('VMX_URL', CONFIG_DOZMOD_URL . '/vmchooser/lecture');
-$availableRessources = ['list', 'vmx', 'netrules', 'runscript', 'metadata'];
+$availableRessources = ['list', 'vmx', 'netrules', 'runscript', 'metadata', 'netshares'];
 
 /* BEGIN: A simple caching mechanism ---------------------------- */
 
