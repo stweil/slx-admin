@@ -17,7 +17,7 @@ if (!Module::isAvailable('locations')) {
 
 define('LIST_URL', CONFIG_DOZMOD_URL . '/vmchooser/list');
 define('VMX_URL', CONFIG_DOZMOD_URL . '/vmchooser/lecture');
-$availableRessources = ['list', 'vmx', 'test', 'netrules', 'runscript', 'netshares'];
+$availableRessources = ['list', 'vmx', 'netrules', 'runscript', 'metadata'];
 
 /* BEGIN: A simple caching mechanism ---------------------------- */
 
@@ -216,6 +216,13 @@ function _getVmData($lecture_uuid, $subResource = false)
 /** Caching wrapper around _getVmData() **/
 function outputResource($lecture_uuid, $resource)
 {
+	if ($resource === 'metadata') {
+		// HACK: config.tgz is compressed, don't use gzip output handler
+		@ob_end_clean();
+		Header('Content-Type: application/gzip');
+	} else {
+		Header('Content-Type: text/plain; charset=utf-8');
+	}
 	$key = $resource . '_' . $lecture_uuid;
 	if (cache_has($key)) {
 		cache_get_passthru($key);
@@ -268,7 +275,8 @@ if ($resource === false) {
 }
 
 if (!in_array($resource, $availableRessources)) {
-	Util::traceError("unknown resource: $resource");
+	Header('HTTP/1.1 400 Bad Request');
+	die("unknown resource: $resource");
 }
 
 $ip = $_SERVER['REMOTE_ADDR'];
