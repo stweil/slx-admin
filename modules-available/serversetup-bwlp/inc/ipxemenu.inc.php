@@ -82,7 +82,7 @@ class IPxeMenu
 			$chain = Location::getLocationRootChain($locationId);
 		}
 		if (!empty($chain)) {
-			$res = Database::simpleQuery("SELECT m.menuid, m.timeoutms, m.title, m.defaultentryid, ml.locationid
+			$res = Database::simpleQuery("SELECT m.menuid, m.timeoutms, m.title, IFNULL(ml.defaultentryid, m.defaultentryid) AS defaultentryid, ml.locationid
 			FROM serversetup_menu m
 			INNER JOIN serversetup_menu_location ml USING (menuid)
 			WHERE ml.locationid IN (:chain)", ['chain' => $chain]);
