@@ -3,15 +3,25 @@
 		{{lang_downloadBootImage}}
 	</div>
 	<div class="panel-body">
-		<ul>
+		<table class="slx-table">
 			{{#files}}
-				<li><a class="{{class}}" href="/boot/download/{{name}}">{{name}}</a> ({{features}})</li>
+				<tr>
+					<td><a class="{{class}}" href="/boot/download/{{name}}">{{name}}</a></td>
+					<td class="text-right">{{size}}</td>
+					<td class="text-right">{{modified}}</td>
+					<td>({{features}})</td>
+				</tr>
 			{{/files}}
-		</ul>
-		<span class="btn btn-default" data-toggle="modal" data-target="#help-usbimg">
-			<span class="glyphicon glyphicon-question-sign"></span>
-			{{lang_usbImgHelpBtn}}
-		</span>
+		</table>
+		<p>
+			<span class="btn btn-default" data-toggle="modal" data-target="#help-usbimg">
+				<span class="glyphicon glyphicon-question-sign"></span>
+				{{lang_usbImgHelpBtn}}
+			</span>
+		</p>
+		<p>
+			{{lang_additionalInfoLink}} <a href="https://ipxe.org/appnote/buildtargets" target="_blank">{{lang_ipxeWikiUrl}}</a>
+		</p>
 	</div>
 </div>
 
@@ -35,7 +45,7 @@
 					{{lang_usbImgHelpWindows}}
 				</p>
 				<p>
-					<a href="https://rufus.akeo.ie/#download">{{lang_downloadRufus}}</a>
+					<a href="https://rufus.akeo.ie/#download" target="_blank">{{lang_downloadRufus}}</a>
 				</p>
 			</div>
 		</div>

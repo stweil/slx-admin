@@ -208,6 +208,8 @@ class Page_ServerSetup extends Page
 				asort($features);
 				$files[] = [
 					'name' => $base,
+					'size' => Util::readableFileSize(filesize($file)),
+					'modified' => Util::prettyTime(filemtime($file)),
 					'class' => substr($base, -4) === '.usb' ? 'slx-bold' : '',
 					'features' => implode(', ', array_keys($features)),
 				];
