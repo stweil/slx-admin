@@ -106,7 +106,7 @@ if ($model !== false) {
 	}
 }
 if ($localboot === false || !isset($BOOT_METHODS[$localboot])) {
-	$localboot = Property::get('serversetup.localboot', 'AUTO');
+	$localboot = Property::get(Localboot::PROPERTY_KEY, 'AUTO');
 	if (!isset($BOOT_METHODS[$localboot])) {
 		$localboot = 'AUTO';
 	}

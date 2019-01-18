@@ -245,7 +245,7 @@ class Page_ServerSetup extends Page
 	private function showLocalbootConfig()
 	{
 		// Default setting
-		$default = Property::get('serversetup.localboot', false);
+		$default = Property::get(Localboot::PROPERTY_KEY, 'AUTO');
 		if (!array_key_exists($default, Localboot::BOOT_METHODS)) {
 			$default = 'AUTO';
 		}
@@ -796,6 +796,7 @@ class Page_ServerSetup extends Page
 			Message::addError('localboot-invalid-method', $default);
 			return;
 		}
+		Property::set(Localboot::PROPERTY_KEY, $default);
 		$overrides = Request::post('override', [], 'array');
 		Database::exec('TRUNCATE TABLE serversetup_localboot');
 		foreach ($overrides as $model => $mode) {
