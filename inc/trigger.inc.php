@@ -23,12 +23,13 @@ class Trigger
 		$hooks = Hook::load('ipxe-update');
 		$taskId = false;
 		foreach ($hooks as $hook) {
-			$ret = (function($taskId) use ($hook) {
+			$ret = function($taskId) use ($hook) {
 				$ret = include_once($hook->file);
 				if (is_string($ret))
 					return $ret;
 				return isset($taskId) ? $taskId : false;
-			})($taskId);
+			};
+			$ret = $ret($taskId);
 			if (is_string($ret)) {
 				$taskId = $ret;
 			} elseif (is_array($ret) && isset($ret['id'])) {
