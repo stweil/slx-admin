@@ -14,5 +14,6 @@
     "submenu_address": "Server-Adresse",
     "submenu_bootentry": "Booteintr\u00e4ge verwalten",
     "submenu_download": "Downloads",
+    "submenu_localboot": "HDD-Boot",
     "submenu_menu": "Men\u00fcs verwalten"
 }

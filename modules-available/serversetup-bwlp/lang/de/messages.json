@@ -7,6 +7,8 @@
     "invalid-boot-entry": "Ung\u00fcltiger Booteintrag: {{0}}",
     "invalid-ip": "Kein Interface ist auf die Adresse {{0}} konfiguriert",
     "invalid-menu-id": "Ung\u00fcltige Men\u00fc-ID: {{0}}",
+    "localboot-invalid-method": "Ung\u00fcltige localboot-Methode: {{0}}",
+    "localboot-saved": "Einstellungen gespeichert",
     "location-menu-assigned": "{{0}} wurde ein Men\u00fc zugewiesen",
     "location-use-default": "{{0}} verwendet jetzt das Standardmen\u00fc",
     "menu-deleted": "Men\u00fc gel\u00f6scht",

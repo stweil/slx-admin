@@ -88,6 +88,11 @@ class Page_ServerSetup extends Page
 			Util::redirect('?do=locations');
 		}
 
+		if ($action === 'savelocalboot') {
+			User::assertPermission('ipxe.localboot.edit');
+			$this->saveLocalboot();
+		}
+
 		if ($action === 'deleteMenu') {
 			// Permcheck in function
 			$this->deleteMenu();
@@ -113,6 +118,9 @@ class Page_ServerSetup extends Page
 		}
 		if (User::hasPermission('download')) {
 			Dashboard::addSubmenu('?do=serversetup&show=download', Dictionary::translate('submenu_download', true));
+		}
+		if (User::hasPermission('ipxe.localboot.*')) {
+			Dashboard::addSubmenu('?do=serversetup&show=localboot', Dictionary::translate('submenu_localboot', true));
 		}
 		if (Request::get('show') === false) {
 			$subs = Dashboard::getSubmenus();
@@ -168,6 +176,10 @@ class Page_ServerSetup extends Page
 			// Permcheck in function
 			$this->showEditLocation();
 			break;
+		case 'localboot':
+			User::assertPermission('ipxe.localboot.*');
+			$this->showLocalbootConfig();
+			break;
 		default:
 			Util::redirect('?do=serversetup');
 			break;
@@ -216,6 +228,49 @@ class Page_ServerSetup extends Page
 			}
 		}
 		Render::addTemplate('download', ['files' => $files]);
+	}
+
+	private function makeSelectArray($list, $default)
+	{
+		$ret = [];
+		foreach (array_keys($list) as $k) {
+			$ret[] = [
+				'key' => $k,
+				'selected' => ($k === $default ? 'selected' : ''),
+			];
+		}
+		return $ret;
+	}
+
+	private function showLocalbootConfig()
+	{
+		// Default setting
+		$default = Property::get('serversetup.localboot', false);
+		if (!array_key_exists($default, Localboot::BOOT_METHODS)) {
+			$default = 'AUTO';
+		}
+		$optionList = $this->makeSelectArray(Localboot::BOOT_METHODS, $default);
+		// Exceptions
+		$cutoff = strtotime('-90 days');
+		$models = [];
+		$res = Database::simpleQuery('SELECT m.systemmodel, cnt, sl.bootmethod FROM (
+				SELECT m2.systemmodel, Count(*) AS cnt FROM machine m2
+				WHERE m2.lastseen > :cutoff
+				GROUP BY systemmodel
+			) m
+			LEFT JOIN serversetup_localboot sl USING (systemmodel)
+			ORDER BY systemmodel', ['cutoff' => $cutoff]);
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['options'] = $this->makeSelectArray(Localboot::BOOT_METHODS, $row['bootmethod']);
+			$models[] = $row;
+		}
+		// Output
+		$data = [
+			'default' => $default,
+			'options' => $optionList,
+			'exceptions' => $models,
+		];
+		Render::addTemplate('localboot', $data);
 	}
 
 	private function showBootentryList()
@@ -732,6 +787,29 @@ class Page_ServerSetup extends Page
 			'defaultentryid' => $defaultEntryId
 		]);
 		Message::addSuccess('location-menu-assigned', $loc['locationname']);
+	}
+
+	private function saveLocalboot()
+	{
+		$default = Request::post('default', 'AUTO', 'string');
+		if (!array_key_exists($default, Localboot::BOOT_METHODS)) {
+			Message::addError('localboot-invalid-method', $default);
+			return;
+		}
+		$overrides = Request::post('override', [], 'array');
+		Database::exec('TRUNCATE TABLE serversetup_localboot');
+		foreach ($overrides as $model => $mode) {
+			if (empty($mode)) // No override
+				continue;
+			if (!array_key_exists($mode, Localboot::BOOT_METHODS)) {
+				Message::addWarning('localboot-invalid-method', $mode);
+				continue;
+			}
+			Database::exec('INSERT INTO serversetup_localboot (systemmodel, bootmethod)
+					VALUES (:model, :mode)', compact('model', 'mode'));
+		}
+		Message::addSuccess('localboot-saved');
+		Util::redirect('?do=serversetup&show=localboot');
 	}
 
 }

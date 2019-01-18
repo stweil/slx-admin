@@ -13,10 +13,9 @@ $product = Request::any('product', false, 'string');
 $slxExtensions = Request::any('slx-extensions', false, 'int');
 
 if ($platform === false || ($uuid === false && $product === false) || $slxExtensions === false) {
-	error_log(print_r($_SERVER, true));
-	sleep(1);
+	// Redirect to self with added parameters
 	$url = parse_url($_SERVER['REQUEST_URI']);
-	if (isset($_SERVER['SCRIPT_URI']) && preg_match('#(\w+://[^/]+)#', $_SERVER['SCRIPT_URI'], $out)) {
+	if (isset($_SERVER['SCRIPT_URI']) && preg_match('#^(\w+://[^/]+)#', $_SERVER['SCRIPT_URI'], $out)) {
 		$urlbase = $out[1];
 	} elseif (isset($_SERVER['REQUEST_SCHEME']) && isset($_SERVER['SERVER_NAME'])) {
 		$urlbase = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'];
@@ -62,11 +61,7 @@ HERE;
 }
 $platform = strtoupper($platform);
 
-$BOOT_METHODS = [
-	'EXIT' => 'exit 1',
-	'COMBOOT' => 'chain /tftp/chain.c32 hd0',
-	'SANBOOT' => 'sanboot --no-describe',
-];
+$BOOT_METHODS = Localboot::BOOT_METHODS;
 
 $ip = $_SERVER['REMOTE_ADDR'];
 if (substr($ip, 0, 7) === '::ffff:') {
@@ -111,15 +106,9 @@ if ($model !== false) {
 	}
 }
 if ($localboot === false || !isset($BOOT_METHODS[$localboot])) {
-	$localboot = Property::get('serversetup.localboot', false);
-	if ($localboot === false) {
-		if ($platform === 'EFI') {
-			// It seems most (all) EFI platforms won't enumerate any drives in ipxe.
-			// No idea if this can be fixed in ipxe code in the future.
-			$localboot = 'EXIT';
-		} else {
-			$localboot = 'SANBOOT';
-		}
+	$localboot = Property::get('serversetup.localboot', 'AUTO');
+	if (!isset($BOOT_METHODS[$localboot])) {
+		$localboot = 'AUTO';
 	}
 }
 if (isset($BOOT_METHODS[$localboot])) {
