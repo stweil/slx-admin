@@ -161,6 +161,11 @@ if ($type{0} === '~') {
 		// Check for suspicious hardware changes
 		if ($old !== false) {
 			checkHardwareChange($old, $new);
+
+			// Log potential crash
+			if ($old['state'] === 'IDLE' || $old['state'] === 'OCCUPIED') {
+				writeClientLog('machine-mismatch-poweron', 'Client sent poweron event, but previous known state is ' . $old['state']);
+			}
 		}
 
 		// Write statistics data
@@ -400,6 +405,18 @@ function writeStatisticLog($type, $username, $data)
 		'client' => $ip,
 		'username' => $username,
 		'data' => $data,
+	));
+}
+
+function writeClientLog($type, $description)
+{
+	global $ip, $uuid;
+	Database::exec('INSERT INTO clientlog (dateline, logtypeid, clientip, machineuuid, description, extra) VALUES (UNIX_TIMESTAMP(), :type, :client, :uuid, :description, :longdesc)', array(
+		'type'        => $type,
+		'client'      => $ip,
+		'description' => $description,
+		'longdesc'    => '',
+		'uuid'        => $uuid,
 	));
 }
 

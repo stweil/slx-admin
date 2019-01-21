@@ -187,20 +187,24 @@ class Id44Filter extends Filter
 	public function whereClause(&$args, &$joins)
 	{
 		global $SIZE_ID44;
-		$lower = floor(Page_Statistics::findBestValue($SIZE_ID44, $this->argument, false) * 1024 - 100);
-		$upper = ceil(Page_Statistics::findBestValue($SIZE_ID44, $this->argument, true) * 1024 + 100);
+		if ($this->operator === '=' || $this->operator === '!=') {
+			$lower = floor(Page_Statistics::findBestValue($SIZE_ID44, $this->argument, false) * 1024 - 100);
+			$upper = ceil(Page_Statistics::findBestValue($SIZE_ID44, $this->argument, true) * 1024 + 100);
+		} else {
+			$lower = $upper = round($this->argument * 1024);
+		}
 
-		if ($this->operator == '=') {
+		if ($this->operator === '=') {
 			return " id44mb BETWEEN $lower AND $upper";
-		} elseif ($this->operator == '!=') {
+		} elseif ($this->operator === '!=') {
 			return " id44mb < $lower OR id44mb > $upper";
-		} elseif ($this->operator == '<=') {
-			return " id44mb < $upper";
-		} elseif ($this->operator == '>=') {
-			return " id44mb > $lower";
-		} elseif ($this->operator == '<') {
+		} elseif ($this->operator === '<=') {
+			return " id44mb <= $upper";
+		} elseif ($this->operator === '>=') {
+			return " id44mb >= $lower";
+		} elseif ($this->operator === '<') {
 			return " id44mb < $lower";
-		} elseif ($this->operator == '>') {
+		} elseif ($this->operator === '>') {
 			return " id44mb > $upper";
 		} else {
 			error_log("unimplemented operator in Id44Filter: $this->operator");

@@ -23,6 +23,19 @@ function state_cleanup()
 	// Fix online state of machines that crashed
 	$standby = time() - 86400 * 2; // Reset standby machines after two days
 	$on = time() - 610; // Reset others after ~10 minutes
+	// Query for logging
+	$res = Database::simpleQuery("SELECT machineuuid, clientip, state FROM machine WHERE lastseen < If(state = 'STANDBY', $standby, $on) AND state <> 'OFFLINE'");
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		Database::exec('INSERT INTO clientlog (dateline, logtypeid, clientip, machineuuid, description, extra)
+					VALUES (UNIX_TIMESTAMP(), :type, :client, :uuid, :description, :longdesc)', array(
+			'type'        => 'machine-mismatch-cron',
+			'client'      => $row['clientip'],
+			'description' => 'Client timed out, last known state is ' . $row['state'],
+			'longdesc'    => '',
+			'uuid'        => $row['machineuuid'],
+		));
+	}
+	// Update -- yes this is not atomic. Should be sufficient for simple warnings though.
 	Database::exec("UPDATE machine SET state = 'OFFLINE' WHERE lastseen < If(state = 'STANDBY', $standby, $on) AND state <> 'OFFLINE'");
 }
 
