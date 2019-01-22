@@ -63,7 +63,7 @@
 		}
 
 		.pc-idle, .pc-occupied, .pc-offline, .pc-broken, .pc-standby {
-			padding: 2px 1px;
+			padding: 2px 0px;
 			text-align: center;
 			font-size: 90%;
 			font-weight: 800;
@@ -604,7 +604,11 @@
 			// TODO: Add seconds again with a better update rate.
 			var time_split = time.split(":");
 			if (time != "") {
-				$("#div_Time_" + id).text(time_split[0] + ":" + time_split[1]);
+				if (time_split[0] > 0) {
+					$("#div_Time_" + id).text(t("for") + " " + time_split[0] + "h " + time_split[1]+"min");
+				} else {
+					$("#div_Time_" + id).text(t("for") + " " + time_split[1]+"min");
+				}
 			} else {
 				$("#div_Time_" + id).text(time);
 			}
@@ -759,6 +763,7 @@
 	<span data-tag="room">{{lang_room}}</span>
 	<span data-tag="closed">{{lang_closed}}</span>
 	<span data-tag="free">{{lang_free}}</span>
+	<span data-tag="for">{{lang_for}}</span>
 	<span data-tag="shortSun">{{lang_shortSun}}</span>
 	<span data-tag="shortMon">{{lang_shortMon}}</span>
 	<span data-tag="shortTue">{{lang_shortTue}}</span>
