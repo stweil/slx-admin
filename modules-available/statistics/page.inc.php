@@ -910,16 +910,18 @@ class Page_Statistics extends Page
 		//if ($cutoff < $client['firstseen']) $cutoff = $client['firstseen'];
 		$scale = 100 / ($NOW - $cutoff);
 		$res = Database::simpleQuery('SELECT dateline, typeid, data FROM statistic'
-			. " WHERE dateline > :cutoff AND typeid IN ('~session-length', '~offline-length') AND machineuuid = :uuid ORDER BY dateline ASC", array(
+			. " WHERE dateline > :cutoff AND typeid IN (:sessionLength, :offlineLength) AND machineuuid = :uuid ORDER BY dateline ASC", array(
 			'cutoff' => $cutoff - 86400 * 14,
 			'uuid' => $uuid,
+			'sessionLength' => Statistics::SESSION_LENGTH,
+			'offlineLength' => Statistics::OFFLINE_LENGTH,
 		));
 		$spans['rows'] = array();
 		$spans['graph'] = '';
 		$last = false;
 		$first = true;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (!$client['isclient'] && $row['typeid'] === '~session-length')
+			if (!$client['isclient'] && $row['typeid'] === Statistics::SESSION_LENGTH)
 				continue; // Don't differentiate between session and idle for non-clients
 			if ($first && $row['dateline'] > $cutoff && $client['lastboot'] > $cutoff) {
 				// Special case: offline before
@@ -945,9 +947,12 @@ class Page_Statistics extends Page
 			}
 			$row['from'] = Util::prettyTime($row['dateline']);
 			$row['duration'] = floor($row['data'] / 86400) . 'd ' . gmdate('H:i', $row['data']);
-			if ($row['typeid'] === '~offline-length') {
+			if ($row['typeid'] === Statistics::OFFLINE_LENGTH) {
 				$row['glyph'] = 'off';
 				$color = '#444';
+			} elseif ($row['typeid'] === Statistics::SUSPEND_LENGTH) {
+				$row['glyph'] = 'pause';
+				$color = '#686';
 			} else {
 				$row['glyph'] = 'user';
 				$color = '#e77';
@@ -967,8 +972,26 @@ class Page_Statistics extends Page
 		}
 		if ($client['state'] === 'OCCUPIED') {
 			$spans['graph'] .= '<div style="background:#e99;left:' . round(($client['logintime'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['logintime'] + 900) * $scale, 2) . '%">&nbsp;</div>';
+			$spans['rows'][] = [
+				'from' => Util::prettyTime($client['logintime']),
+				'duration' => '-',
+				'glyph' => 'user',
+			];
+			$row['duration'] = floor($row['data'] / 86400) . 'd ' . gmdate('H:i', $row['data']);
 		} elseif ($client['state'] === 'OFFLINE') {
 			$spans['graph'] .= '<div style="background:#444;left:' . round(($client['lastseen'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['lastseen'] + 900) * $scale, 2) . '%">&nbsp;</div>';
+			$spans['rows'][] = [
+				'from' => Util::prettyTime($client['lastseen']),
+				'duration' => '-',
+				'glyph' => 'off',
+			];
+		} elseif ($client['state'] === 'STANDBY') {
+			$spans['graph'] .= '<div style="background:#686;left:' . round(($client['lastseen'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['lastseen'] + 900) * $scale, 2) . '%">&nbsp;</div>';
+			$spans['rows'][] = [
+				'from' => Util::prettyTime($client['lastseen']),
+				'duration' => '-',
+				'glyph' => 'pause',
+			];
 		}
 		$t = explode('-', date('Y-n-j-G', $cutoff));
 		if ($t[3] >= 8 && $t[3] <= 22) {

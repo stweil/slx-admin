@@ -21,10 +21,11 @@ function logstats()
 function state_cleanup()
 {
 	// Fix online state of machines that crashed
-	$standby = time() - 86400 * 2; // Reset standby machines after two days
+	$standby = time() - 86400 * 4; // Reset standby machines after four days
 	$on = time() - 610; // Reset others after ~10 minutes
 	// Query for logging
-	$res = Database::simpleQuery("SELECT machineuuid, clientip, state FROM machine WHERE lastseen < If(state = 'STANDBY', $standby, $on) AND state <> 'OFFLINE'");
+	$res = Database::simpleQuery("SELECT machineuuid, clientip, state, logintime, lastseen FROM machine
+			WHERE lastseen < If(state = 'STANDBY', $standby, $on) AND state <> 'OFFLINE'");
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		Database::exec('INSERT INTO clientlog (dateline, logtypeid, clientip, machineuuid, description, extra)
 					VALUES (UNIX_TIMESTAMP(), :type, :client, :uuid, :description, :longdesc)', array(
@@ -34,9 +35,20 @@ function state_cleanup()
 			'longdesc'    => '',
 			'uuid'        => $row['machineuuid'],
 		));
+		if ($row['state'] === 'OCCUPIED') {
+			$length = $row['lastseen'] - $row['logintime'];
+			if ($length > 0 && $length < 86400 * 7) {
+				Statistics::logMachineState($row['machineuuid'], $row['clientip'], Statistics::SESSION_LENGTH, $row['logintime'], $length);
+			}
+		} elseif ($row['state'] === 'STANDBY') {
+			$length = time() - $row['lastseen'];
+			if ($length > 0 && $length < 86400 * 7) {
+				Statistics::logMachineState($row['machineuuid'], $row['clientip'], Statistics::SUSPEND_LENGTH, $row['lastseen'], $length);
+			}
+		}
 	}
-	// Update -- yes this is not atomic. Should be sufficient for simple warnings though.
-	Database::exec("UPDATE machine SET state = 'OFFLINE' WHERE lastseen < If(state = 'STANDBY', $standby, $on) AND state <> 'OFFLINE'");
+	// Update -- yes this is not atomic. Should be sufficient for simple warnings and bookkeeping though.
+	Database::exec("UPDATE machine SET logintime = 0, state = 'OFFLINE' WHERE lastseen < If(state = 'STANDBY', $standby, $on) AND state <> 'OFFLINE'");
 }
 
 state_cleanup();

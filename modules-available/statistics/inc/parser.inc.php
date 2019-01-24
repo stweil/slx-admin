@@ -104,10 +104,12 @@ class Parser {
 		foreach ($lines as $line) {
 			if (preg_match('/^Disk (\S+):.* (\d+) bytes/i', $line, $out)) {
 				// --- Beginning of MBR disk ---
+				unset($hdd);
 				if ($out[2] < 10000) // sometimes vmware reports lots of 512byte disks
 					continue;
+				if (substr($out[1], 0, 8) === '/dev/dm-') // Ignore device mapper
+					continue;
 				// disk total size and name
-				unset($hdd);
 				$mbrToMbFactor = 0; // This is != 0 for mbr
 				$sectorToMbFactor = 0; // This is != for gpt
 				$hdd = array(
@@ -122,10 +124,12 @@ class Parser {
 				$hdds[] = &$hdd;
 			} elseif (preg_match('/^Disk (\S+):\s+(\d+)\s+sectors,/i', $line, $out)) {
 				// --- Beginning of GPT disk ---
+				unset($hdd);
 				if ($out[2] < 1000) // sometimes vmware reports lots of 512byte disks
 					continue;
+				if (substr($out[1], 0, 8) === '/dev/dm-') // Ignore device mapper
+					continue;
 				// disk total size and name
-				unset($hdd);
 				$mbrToMbFactor = 0; // This is != 0 for mbr
 				$sectorToMbFactor = 0; // This is != for gpt
 				$hdd = array(
@@ -213,7 +217,7 @@ class Parser {
 				$hdd['size'] = round(($hdd['sectors'] * $sectorToMbFactor) / 1024);
 			}
 			$free = $hdd['size'] - $hdd['used'];
-			if ($free > 5 || ($free / $hdd['size']) > 0.1) {
+			if ($hdd['size'] > 0 && ($free > 5 || ($free / $hdd['size']) > 0.1)) {
 				$hdd['partitions'][] = array(
 					'id' => 'free-id-' . $i,
 					'name' => Dictionary::translate('unused'),
