@@ -59,6 +59,7 @@ goto retry
 HERE;
 	exit;
 }
+// ipxe has it lowercase, but we use uppercase
 $platform = strtoupper($platform);
 
 $BOOT_METHODS = Localboot::BOOT_METHODS;
