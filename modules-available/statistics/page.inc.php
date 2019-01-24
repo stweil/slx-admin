@@ -1,7 +1,6 @@
 <?php
 
 global $STATS_COLORS, $SIZE_ID44, $SIZE_RAM;
-global $unique_key;
 
 $STATS_COLORS = array();
 for ($i = 0; $i < 10; ++$i) {
@@ -14,9 +13,9 @@ $SIZE_RAM = array(1, 2, 3, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128, 192, 25
 class Page_Statistics extends Page
 {
 	/* some constants, TODO: Find a better place */
-	public static $op_nominal;
-	public static $op_ordinal;
-	public static $op_stringcmp;
+	const OP_NOMINAL = ['!=', '='];
+	const OP_ORDINAL = ['!=', '<=', '>=', '=', '<', '>'];
+	const OP_STRCMP = ['!~', '~', '=', '!='];
 	public static $columns;
 
 	private $query;
@@ -27,123 +26,120 @@ class Page_Statistics extends Page
 	 */
 	private $haveSubpage;
 
-	/* PHP sucks, no static, const array definitions... Or am I missing something? */
-	public function initConstants()
+	/**
+	 * Do this here instead of const since we need to check for available modules while building array.
+	 */
+	public static function initConstants()
 	{
-		Page_Statistics::$op_nominal = ['!=', '='];
-		Page_Statistics::$op_ordinal = ['!=', '<=', '>=', '=', '<', '>'];
-		Page_Statistics::$op_stringcmp = ['!~', '~', '=', '!='];
 
 		Page_Statistics::$columns = [
 			'machineuuid' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => true,
 			],
 			'macaddr' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => true,
 			],
 			'firstseen' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'date',
 				'column' => true,
 			],
 			'lastseen' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'date',
 				'column' => true,
 			],
 			'logintime' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'date',
 				'column' => true,
 			],
 			'realcores' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'column' => true,
 			],
 			'systemmodel' => [
-				'op' => Page_Statistics::$op_stringcmp,
+				'op' => Page_Statistics::OP_STRCMP,
 				'type' => 'string',
 				'column' => true,
 			],
 			'cpumodel' => [
-				'op' => Page_Statistics::$op_stringcmp,
+				'op' => Page_Statistics::OP_STRCMP,
 				'type' => 'string',
 				'column' => true,
 			],
 			'hddgb' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'column' => false,
 				'map_sort' => 'id44mb'
 			],
 			'gbram' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'map_sort' => 'mbram',
 				'column' => false,
 			],
 			'kvmstate' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'enum',
 				'column' => true,
 				'values' => ['ENABLED', 'DISABLED', 'UNSUPPORTED']
 			],
 			'badsectors' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'column' => true
 			],
 			'clientip' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => true
 			],
 			'hostname' => [
-				'op' => Page_Statistics::$op_stringcmp,
+				'op' => Page_Statistics::OP_STRCMP,
 				'type' => 'string',
 				'column' => true
 			],
 			'subnet' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => false
 			],
 			'currentuser' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => true
 			],
 			'state' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'enum',
 				'column' => true,
 				'values' => ['occupied', 'on', 'off', 'idle', 'standby']
 			],
 			'runtime' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'int',
 				'column' => true
 			],
 		];
 		if (Module::isAvailable('locations')) {
 			Page_Statistics::$columns['location'] = [
-				'op' => Page_Statistics::$op_stringcmp,
+				'op' => Page_Statistics::OP_STRCMP,
 				'type' => 'enum',
 				'column' => false,
 				'values' => array_keys(Location::getLocationsAssoc()),
 			];
 		}
-		/* TODO ... */
 	}
 
 	protected function doPreprocess()
 	{
-		$this->initConstants();
 		User::load();
 		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
@@ -1127,3 +1123,5 @@ class Page_Statistics extends Page
 			), true);
 	}
 }
+
+Page_Statistics::initConstants();

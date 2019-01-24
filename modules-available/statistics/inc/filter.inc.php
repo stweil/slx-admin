@@ -14,6 +14,13 @@ class Filter
 	public $operator;
 	public $argument;
 
+	private static $keyCounter = 0;
+
+	public static function getNewKey($colname)
+	{
+		return $colname . '_' . (self::$keyCounter++);
+	}
+
 	public function __construct($column, $operator, $argument = null)
 	{
 		$this->column = trim($column);
@@ -24,8 +31,7 @@ class Filter
 	/* returns a where clause and adds needed operators to the passed array */
 	public function whereClause(&$args, &$joins)
 	{
-		global $unique_key;
-		$key = $this->column . '_arg' . ($unique_key++);
+		$key = Filter::getNewKey($this->column);
 		$addendum = '';
 
 		/* check if we have to do some parsing*/
@@ -226,8 +232,7 @@ class StateFilter extends Filter
 		$map = [ 'on' => ['IDLE', 'OCCUPIED'], 'off' => ['OFFLINE'], 'idle' => ['IDLE'], 'occupied' => ['OCCUPIED'], 'standby' => ['STANDBY'] ];
 		$neg = $this->operator == '!=' ? 'NOT ' : '';
 		if (array_key_exists($this->argument, $map)) {
-			global $unique_key;
-			$key = $this->column . '_arg' . ($unique_key++);
+			$key = Filter::getNewKey($this->column);
 			$args[$key] = $map[$this->argument];
 			return " machine.state $neg IN ( :$key ) ";
 		} else {
@@ -259,8 +264,7 @@ class LocationFilter extends Filter
 		if ($this->argument === 0) {
 			return "machine.locationid IS $neg NULL";
 		} else {
-			global $unique_key;
-			$key = $this->column . '_arg' . ($unique_key++);
+			$key = Filter::getNewKey($this->column);
 			if ($recursive) {
 				$args[$key] = array_keys(Location::getRecursiveFlat($this->argument));
 			} else {
