@@ -1,3 +1,4 @@
+{{%FILTERS}}
 <h1>
 	{{hostname}} {{#hostname}}–{{/hostname}} {{clientip}}
 	{{#notes}}<a href="#usernotes"><span class="glyphicon glyphicon-exclamation-sign"></span></a>{{/notes}}
@@ -117,9 +118,23 @@
 					<tr class="{{ramclass}}">
 						<td class="text-nowrap">{{lang_ram}}</td>
 						<td>
-							{{gbram}}&thinsp;GiB
-							{{#maxram}}({{lang_maximumAbbrev}} {{maxram}}){{/maxram}}
-							{{ramtype}}
+							<div>
+								{{gbram}}&thinsp;GiB
+								{{#maxram}}({{lang_maximumAbbrev}} {{maxram}}){{/maxram}}
+								{{ramtype}}
+							</div>
+							{{#live_memsize}}
+							<div class="meter">
+								<div class="text">{{live_memfree_s}} {{lang_free}}</div>
+								<div class="bar" style="width:{{live_mempercent}}%"></div>
+							</div>
+							{{/live_memsize}}
+							{{#live_swapsize}}
+							<div class="meter">
+								<div class="text">{{live_swapfree_s}} {{lang_free}}</div>
+								<div class="bar" style="width:{{live_swappercent}}%"></div>
+							</div>
+							{{/live_swapsize}}
 						</td>
 					</tr>
 					{{#extram}}
@@ -135,7 +150,17 @@
 					{{/extram}}
 					<tr class="{{hddclass}}">
 						<td class="text-nowrap">{{lang_tempPart}}</td>
-						<td>{{gbtmp}}&thinsp;GiB</td>
+						<td>
+							<div>
+									{{gbtmp}}&thinsp;GiB
+							</div>
+							{{#live_tmpsize}}
+								<div class="meter">
+									<div class="text">{{live_tmpfree_s}} {{lang_free}}</div>
+									<div class="bar" style="width:{{live_tmppercent}}%"></div>
+								</div>
+							{{/live_tmpsize}}
+						</td>
 					</tr>
 					<tr class="{{kvmclass}}">
 						<td class="text-nowrap">{{lang_64bitSupport}}</td>

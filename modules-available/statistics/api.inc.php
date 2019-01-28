@@ -34,7 +34,8 @@ if ($type{0} === '~') {
 	// External mode of operation?
 	$mode = Request::post('mode', false, 'string');
 	$NOW = time();
-	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot, state, mbram, cpumodel FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
+	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot, state, mbram, cpumodel, live_memfree, live_swapfree, live_tmpfree
+			FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 	if ($old !== false) {
 		settype($old['logintime'], 'integer');
 		settype($old['lastseen'], 'integer');
@@ -114,6 +115,7 @@ if ($type{0} === '~') {
 				. ' cpumodel = :cpumodel,'
 				. ' systemmodel = :systemmodel,'
 				. ' id44mb = :id44mb,'
+				. ' live_tmpsize = 0, live_swapsize = 0, live_memsize = 0,'
 				. ' badsectors = :badsectors,'
 				. ' data = :data,'
 				. ' state = :state    '
@@ -152,7 +154,10 @@ if ($type{0} === '~') {
 
 			// Log potential crash
 			if ($old['state'] === 'IDLE' || $old['state'] === 'OCCUPIED') {
-				writeClientLog('machine-mismatch-poweron', 'Client sent poweron event, but previous known state is ' . $old['state']);
+				writeClientLog('machine-mismatch-poweron', 'Poweron event, but previous known state is ' . $old['state']
+					. '. RAM: ' . Util::readableFileSize($old['live_memfree'], -1, 2)
+					. ', Swap: ' . Util::readableFileSize($old['live_swapfree'], -1, 2)
+					. ', ID44: ' . Util::readableFileSize($old['live_memfree'], -1, 2));
 			}
 		}
 
@@ -189,6 +194,10 @@ if ($type{0} === '~') {
 					}
 				}
 			}
+		}
+		foreach (['memsize', 'tmpsize', 'swapsize', 'memfree', 'tmpfree', 'swapfree'] as $item) {
+			$strUpdateBoottime .= ' live_' . $item . ' = :_' . $item . ', ';
+			$params['_' . $item] = ceil(Request::post($item, 0, 'int') / 1024);
 		}
 		// Figure out what's happening - state changes
 		if ($used === 0 && $old['state'] !== 'IDLE') {

@@ -122,8 +122,18 @@ class Page_Statistics extends Page
 				'column' => true,
 				'values' => ['occupied', 'on', 'off', 'idle', 'standby']
 			],
-			'runtime' => [
-				'op' => Page_Statistics::OP_NOMINAL,
+			'live_swapfree' => [
+				'op' => Page_Statistics::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true
+			],
+			'live_memfree' => [
+				'op' => Page_Statistics::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true
+			],
+			'live_tmpfree' => [
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'column' => true
 			],
@@ -764,9 +774,9 @@ class Page_Statistics extends Page
 					$row['currentsession'] = $lecture['displayname'];
 					$row['lectureid'] = $lecture['lectureid'];
 				}
+				$row['session'] = $row['currentsession'];
+				return;
 			}
-			$row['session'] = $row['currentsession'];
-			return;
 		}
 		$res = Database::simpleQuery('SELECT dateline, username, data FROM statistic'
 			. " WHERE clientip = :ip AND typeid = '.vmchooser-session-name'"
@@ -783,14 +793,17 @@ class Page_Statistics extends Page
 		}
 		if ($session !== false) {
 			$row['session'] = $session['data'];
-			$row['username'] = $session['username'];
+			if (empty($row['currentuser'])) {
+				$row['username'] = $session['username'];
+			}
 		}
 	}
 
 	private function showMachine($uuid)
 	{
-		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot, state,'
-			. ' mbram, kvmstate, cpumodel, id44mb, data, hostname, currentuser, currentsession, notes FROM machine WHERE machineuuid = :uuid',
+		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot, state,
+			mbram, live_tmpsize, live_tmpfree, live_swapsize, live_swapfree, live_memsize, live_memfree,
+			kvmstate, cpumodel, id44mb, data, hostname, currentuser, currentsession, notes FROM machine WHERE machineuuid = :uuid',
 			array('uuid' => $uuid));
 		if ($client === false) {
 			Message::addError('unknown-machine', $uuid);
@@ -826,6 +839,7 @@ class Page_Statistics extends Page
 		$client['state_' . $client['state']] = true;
 		$client['firstseen_s'] = date('d.m.Y H:i', $client['firstseen']);
 		$client['lastseen_s'] = date('d.m.Y H:i', $client['lastseen']);
+		$client['logintime_s'] = date('d.m.Y H:i', $client['logintime']);
 		if ($client['lastboot'] == 0) {
 			$client['lastboot_s'] = '-';
 		} else {
@@ -835,9 +849,14 @@ class Page_Statistics extends Page
 				$client['lastboot_s'] .= ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
 			}
 		}
-		$client['logintime_s'] = date('d.m.Y H:i', $client['logintime']);
-		$client['gbram'] = round(round($client['mbram'] / 500) / 2, 1);
+		$client['gbram'] = round(ceil($client['mbram'] / 512) / 2, 1);
 		$client['gbtmp'] = round($client['id44mb'] / 1024);
+		foreach (['tmp', 'swap', 'mem'] as $item) {
+			if ($client['live_' . $item . 'size'] == 0)
+				continue;
+			$client['live_' . $item . 'percent'] = round(($client['live_' . $item . 'free'] / $client['live_' . $item . 'size']) * 100, 2);
+			$client['live_' . $item . 'free_s'] = Util::readableFileSize($client['live_' . $item . 'free'], -1, 2);
+		}
 		$client['ramclass'] = $this->ramColorClass($client['mbram']);
 		$client['kvmclass'] = $this->kvmColorClass($client['kvmstate']);
 		$client['hddclass'] = $this->hddColorClass($client['gbtmp']);

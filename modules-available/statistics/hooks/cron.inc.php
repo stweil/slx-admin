@@ -24,14 +24,17 @@ function state_cleanup()
 	$standby = time() - 86400 * 4; // Reset standby machines after four days
 	$on = time() - 610; // Reset others after ~10 minutes
 	// Query for logging
-	$res = Database::simpleQuery("SELECT machineuuid, clientip, state, logintime, lastseen FROM machine
-			WHERE lastseen < If(state = 'STANDBY', $standby, $on) AND state <> 'OFFLINE'");
+	$res = Database::simpleQuery("SELECT machineuuid, clientip, state, logintime, lastseen, live_memfree, live_swapfree, live_tmpfree
+			FROM machine WHERE lastseen < If(state = 'STANDBY', $standby, $on) AND state <> 'OFFLINE'");
 	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 		Database::exec('INSERT INTO clientlog (dateline, logtypeid, clientip, machineuuid, description, extra)
 					VALUES (UNIX_TIMESTAMP(), :type, :client, :uuid, :description, :longdesc)', array(
 			'type'        => 'machine-mismatch-cron',
 			'client'      => $row['clientip'],
-			'description' => 'Client timed out, last known state is ' . $row['state'],
+			'description' => 'Client timed out, last known state is ' . $row['state']
+				. '. RAM: ' . Util::readableFileSize($row['live_memfree'], -1, 2)
+				. ', Swap: ' . Util::readableFileSize($row['live_swapfree'], -1, 2)
+				. ', ID44: ' . Util::readableFileSize($row['live_memfree'], -1, 2),
 			'longdesc'    => '',
 			'uuid'        => $row['machineuuid'],
 		));

@@ -234,5 +234,22 @@ if (!tableHasColumn('machine', 'state')) {
 	$res[] = UPDATE_DONE;
 }
 
+// 2019-01-25: Add memory/temp stats column
+if (!tableHasColumn('machine', 'live_tmpsize')) {
+	$ret = Database::exec("ALTER TABLE `machine`
+		ADD COLUMN `live_tmpsize` int(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `id44mb`,
+		ADD COLUMN `live_tmpfree` int(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `live_tmpsize`,
+		ADD COLUMN `live_swapsize` int(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `live_tmpfree`,
+		ADD COLUMN `live_swapfree` int(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `live_swapsize`,
+		ADD COLUMN `live_memsize` int(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `live_swapfree`,
+		ADD COLUMN `live_memfree` int(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `live_memsize`,
+		ADD INDEX `live_tmpfree` (`live_tmpfree`),
+		ADD INDEX `live_memfree` (`live_memfree`)");
+	if ($ret === false) {
+		finalResponse(UPDATE_FAILED, 'Adding state column to machine table failed: ' . Database::lastError());
+	}
+	$res[] = UPDATE_DONE;
+}
+
 // Create response
 responseFromArray($res);
