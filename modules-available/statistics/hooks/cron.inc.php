@@ -34,7 +34,7 @@ function state_cleanup()
 			'description' => 'Client timed out, last known state is ' . $row['state']
 				. '. RAM: ' . Util::readableFileSize($row['live_memfree'], -1, 2)
 				. ', Swap: ' . Util::readableFileSize($row['live_swapfree'], -1, 2)
-				. ', ID44: ' . Util::readableFileSize($row['live_memfree'], -1, 2),
+				. ', ID44: ' . Util::readableFileSize($row['live_tmpfree'], -1, 2),
 			'longdesc'    => '',
 			'uuid'        => $row['machineuuid'],
 		));

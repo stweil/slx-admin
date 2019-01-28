@@ -157,7 +157,7 @@ if ($type{0} === '~') {
 				writeClientLog('machine-mismatch-poweron', 'Poweron event, but previous known state is ' . $old['state']
 					. '. RAM: ' . Util::readableFileSize($old['live_memfree'], -1, 2)
 					. ', Swap: ' . Util::readableFileSize($old['live_swapfree'], -1, 2)
-					. ', ID44: ' . Util::readableFileSize($old['live_memfree'], -1, 2));
+					. ', ID44: ' . Util::readableFileSize($old['live_tmpfree'], -1, 2));
 			}
 		}
 
