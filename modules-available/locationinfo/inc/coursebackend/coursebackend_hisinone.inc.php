@@ -271,6 +271,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			$eventDetails = array_merge($eventDetails, $event);
 		}
 		$name = false;
+		$now = time();
 		foreach ($eventDetails as $event) {
 			foreach (array('/hisdefaulttext',
 							'/hisshorttext',
@@ -293,6 +294,12 @@ class CourseBackend_HisInOne extends CourseBackend
 			foreach ($planElements as $planElement) {
 				if (empty($planElement['hisplannedDates']))
 					continue;
+				$checkDate = $this->getArrayPath($planElement, '/hisplannedDates/hisplannedDate/hisenddate');
+				if (!empty($checkDate) && strtotime($checkDate[0]) + 86400 < $now)
+					continue; // Course ended
+				$checkDate = $this->getArrayPath($planElement, '/hisplannedDates/hisplannedDate/hisstartdate');
+				if (!empty($checkDate) && strtotime($checkDate[0]) - 86400 > $now)
+					continue; // Course didn't start yet
 				$unitPlannedDates = $this->getArrayPath($planElement,
 					'/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
 				if ($unitPlannedDates === false) {
