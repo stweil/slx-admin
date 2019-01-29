@@ -334,7 +334,7 @@ abstract class CourseBackend
 	{
 		$cleanresponse = preg_replace('/(<\/?)(\w+):([^>]*>)/', '$1$2$3', $response);
 		try {
-			$xml = new SimpleXMLElement($cleanresponse);
+			$xml = @new SimpleXMLElement($cleanresponse); // This spams before throwing exception
 		} catch (Exception $e) {
 			$this->error = 'Could not parse reply as XML, got ' . get_class($e) . ': ' . $e->getMessage();
 			if (CONFIG_DEBUG) {
