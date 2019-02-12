@@ -14,6 +14,12 @@
     "mailconfig.save": {
         "location-aware": false
     },
+    "networkrules.view": {
+        "location-aware": false
+    },
+    "networkrules.save": {
+        "location-aware": false
+    },
     "networkshares.view": {
         "location-aware": false
     },

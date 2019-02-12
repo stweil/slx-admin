@@ -5,7 +5,7 @@ class Page_DozMod extends Page
 	/** @var bool true if we have a proper subpage */
 	private $haveSubPage = false;
 
-	private $validSections = ['expiredimages', 'mailconfig', 'templates', 'runtimeconfig', 'users', 'actionlog', 'networkshares', 'ldapfilters', 'runscripts'];
+	private $validSections = ['expiredimages', 'mailconfig', 'templates', 'runtimeconfig', 'users', 'actionlog', 'networkshares', 'ldapfilters', 'runscripts', 'networkrules'];
 
 	private $section;
 

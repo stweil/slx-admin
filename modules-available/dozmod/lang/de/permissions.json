@@ -4,6 +4,8 @@
     "ldapfilters.save": "LDAP Filter speichern.",
     "ldapfilters.view": "LDAP Filter einsehen.",
     "mailconfig.save": "\u00c4nderungen an der SMTP-Konfiguration zum Versenden von Mails speichern.",
+    "networkrules.save": "Netzwerk-Regeln einsehen.",
+    "networkrules.view": "\u00c4nderungen an den Netzwerk-Regeln speichern.",
     "networkshares.save": "Netzlaufwerke einsehen.",
     "networkshares.view": "\u00c4nderungen an den Netzlaufwerken speichern.",
     "runscripts.save": "Startkripte erstellen\/bearbeiten",

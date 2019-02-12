@@ -5,6 +5,7 @@
     "submenu_expiredimages": "Expired VM versions",
     "submenu_ldapfilters": "LDAP filters",
     "submenu_mailconfig": "email configuration",
+    "submenu_networkrules": "Network Rules",
     "submenu_networkshares": "Network Shares",
     "submenu_runtimeconfig": "limits and defaults",
     "submenu_templates": "templates",
