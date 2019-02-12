@@ -213,7 +213,7 @@ class Render
 	 * @param string $module name of module to load template from; defaults to currently active module
 	 * @return string Rendered template
 	 */
-	public static function parse($template, $params = false, $module = false)
+	public static function parse($template, $params = false, $module = false, $lang = false)
 	{
 		if ($module === false && class_exists('Page')) {
 			$module = Page::getModule()->getIdentifier();
@@ -228,7 +228,7 @@ class Render
 		}
 		// Now find all language tags in this array
 		if (preg_match_all('/{{\s*(lang_.+?)\s*}}/', $html, $out) > 0) {
-			$dictionary = Dictionary::getArray($module, 'template-tags');
+			$dictionary = Dictionary::getArray($module, 'template-tags', $lang);
 			$fallback = false;
 			foreach ($out[1] as $tag) {
 				if ($fallback === false && empty($dictionary[$tag])) {

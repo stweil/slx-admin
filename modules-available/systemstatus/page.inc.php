@@ -209,7 +209,7 @@ class Page_SystemStatus extends Page
 			$data['swapTotal'] = Util::readableFileSize($info['SwapTotal'] * 1024);
 			$data['swapUsed'] = Util::readableFileSize(($info['SwapTotal'] - $info['SwapFree']) * 1024);
 			$data['swapPercent'] = 100 - round(($info['SwapFree'] / $info['SwapTotal']) * 100);
-			$data['swapWarning'] = ($data['swapPercent'] > 50 || ($info['SwapTotal'] - $info['SwapFree']) > 200000);
+			$data['swapWarning'] = ($data['swapPercent'] > 50 || $info['SwapFree'] < 400000);
 		}
 		if (isset($info['CpuIdle']) && isset($info['CpuSystem']) && isset($info['CpuTotal'])) {
 			$data['cpuLoad'] = 100 - round(($info['CpuIdle'] / $info['CpuTotal']) * 100);

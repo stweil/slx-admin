@@ -70,4 +70,21 @@ class Statistics
 		return $list;
 	}
 
+	const SESSION_LENGTH = '~session-length';
+	const OFFLINE_LENGTH = '~offline-length';
+	const SUSPEND_LENGTH = '~suspend-length';
+
+	public static function logMachineState($uuid, $ip, $type, $start, $length, $username = '')
+	{
+		return Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
+			. " VALUES (:start, :type, :uuid, :clientip, :username, :length)", array(
+			'start' => $start,
+			'type'  => $type,
+			'uuid'  => $uuid,
+			'clientip' => $ip,
+			'username' => $username,
+			'length'   => $length,
+		));
+	}
+
 }

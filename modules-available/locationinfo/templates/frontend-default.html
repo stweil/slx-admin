@@ -352,6 +352,7 @@ optional:
 	<span data-tag="room">{{lang_room}}</span>
 	<span data-tag="closed">{{lang_closed}}</span>
 	<span data-tag="free">{{lang_free}}</span>
+	<span data-tag="for">{{lang_for}}</span>
 	<span data-tag="shortSun">{{lang_shortSun}}</span>
 	<span data-tag="shortMon">{{lang_shortMon}}</span>
 	<span data-tag="shortTue">{{lang_shortTue}}</span>
@@ -1151,7 +1152,7 @@ optional:
 	 */
 	function SetFreeSeats(room) {
 		// if room has no allowed value, set text in the box to -
-		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '-');
+		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '\u2014');
 		room.$.seatsCounter.data('state', JSON.stringify(room.state));
 		if (room.freePcs > 0 && room.state && room.state.free) {
 			room.$.seatsBackground.css('background-color', '#250');
@@ -1174,8 +1175,6 @@ optional:
 		var seats = room.freePcs;
 		if (tmp.state === 'closed' || tmp.state === 'CalendarEvent' || tmp.state === 'Free') {
 			newTime = GetTimeDiferenceAsString(tmp.end, MyDate(), globalConfig);
-		} else if (!same) {
-			newTime = '';
 		}
 		if (tmp.state === "closed") {
 			if (!same) newText = t("closed");
@@ -1183,16 +1182,14 @@ optional:
 			if (!same) newText = tmp.title;
 			// whilst event is running set freePcs to -, hopefully not breaking anything else with this
 			room.freePcs = "-";
-		} else if (tmp.state === "Free") {
-			if (!same) newText = t("free");
-		} else if (tmp.state === "FreeNoEnd") {
+		} else if (tmp.state === "Free" || tmp.state === "FreeNoEnd") {
 			if (!same) newText = t("free");
 		}
 		if (newText !== false) {
 			room.$.currentEvent.text(newText);
 		}
 		if (newTime !== false) {
-			room.$.currentRemain.text(newTime);
+			room.$.currentRemain.text(t("for") + " " +newTime);
 		}
 		if (room.lastFreeSeats !== seats || !same) {
 			SetFreeSeats(room);

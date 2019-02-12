@@ -1002,7 +1002,7 @@ class Page_LocationInfo extends Page
 				'language' => $config['language'],
 			);
 
-			die(Render::parse('frontend-default', $data));
+			die(Render::parse('frontend-default', $data, $module = false, $lang = $config['language']));
 		}
 
 		if ($type === 'SUMMARY') {
@@ -1014,7 +1014,7 @@ class Page_LocationInfo extends Page
 				'language' => $config['language'],
 			);
 
-			die(Render::parse('frontend-summary', $data));
+			die(Render::parse('frontend-summary', $data, $module = false, $lang = $config['language']));
 		}
 
 		http_response_code(500);

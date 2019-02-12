@@ -34,7 +34,8 @@ if ($type{0} === '~') {
 	// External mode of operation?
 	$mode = Request::post('mode', false, 'string');
 	$NOW = time();
-	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot, state, mbram, cpumodel FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
+	$old = Database::queryFirst('SELECT clientip, logintime, lastseen, lastboot, state, mbram, cpumodel, live_memfree, live_swapfree, live_tmpfree
+			FROM machine WHERE machineuuid = :uuid', array('uuid' => $uuid));
 	if ($old !== false) {
 		settype($old['logintime'], 'integer');
 		settype($old['lastseen'], 'integer');
@@ -114,6 +115,7 @@ if ($type{0} === '~') {
 				. ' cpumodel = :cpumodel,'
 				. ' systemmodel = :systemmodel,'
 				. ' id44mb = :id44mb,'
+				. ' live_tmpsize = 0, live_swapsize = 0, live_memsize = 0,'
 				. ' badsectors = :badsectors,'
 				. ' data = :data,'
 				. ' state = :state    '
@@ -123,32 +125,20 @@ if ($type{0} === '~') {
 			}
 		}
 		// Maybe log old crashed session
-		if ($uptime < 120) {
+		if ($uptime < 150 && $old !== false) {
 			// See if we have a lingering session, create statistic entry if so
-			if ($old !== false && $old['logintime'] !== 0) {
+			if ($old['state'] === 'OCCUPIED' && $old['logintime'] !== 0) {
 				$sessionLength = $old['lastseen'] - $old['logintime'];
 				if ($sessionLength > 30 && $sessionLength < 86400*2) {
-					Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
-						. " VALUES (:start, '~session-length', :uuid, :clientip, '', :length)", array(
-						'start'     => $old['logintime'],
-						'uuid'     => $uuid,
-						'clientip'  => $ip,
-						'length'    => $sessionLength
-					));
+					Statistics::logMachineState($uuid, $ip, Statistics::SESSION_LENGTH, $old['logintime'], $sessionLength);
 				}
 			}
 			// Write poweroff period length to statistic table
-			if ($old !== false && $old['lastseen'] !== 0) {
+			if ($old['lastseen'] !== 0) {
 				$lastSeen = $old['lastseen'];
 				$offtime = ($NOW - $uptime) - $lastSeen;
-				if ($offtime > 300 && $offtime < 86400 * 90) {
-					Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
-						. " VALUES (:shutdown, '~offline-length', :uuid, :clientip, '', :length)", array(
-						'shutdown' => $lastSeen,
-						'uuid'     => $uuid,
-						'clientip' => $ip,
-						'length'   => $offtime
-					));
+				if ($offtime > 90 && $offtime < 86400 * 30) {
+					Statistics::logMachineState($uuid, $ip, $old['state'] === 'STANDBY' ? Statistics::SUSPEND_LENGTH : Statistics::OFFLINE_LENGTH, $lastSeen, $offtime);
 				}
 			}
 		}
@@ -164,7 +154,10 @@ if ($type{0} === '~') {
 
 			// Log potential crash
 			if ($old['state'] === 'IDLE' || $old['state'] === 'OCCUPIED') {
-				writeClientLog('machine-mismatch-poweron', 'Client sent poweron event, but previous known state is ' . $old['state']);
+				writeClientLog('machine-mismatch-poweron', 'Poweron event, but previous known state is ' . $old['state']
+					. '. RAM: ' . Util::readableFileSize($old['live_memfree'], -1, 2)
+					. ', Swap: ' . Util::readableFileSize($old['live_swapfree'], -1, 2)
+					. ', ID44: ' . Util::readableFileSize($old['live_tmpfree'], -1, 2));
 			}
 		}
 
@@ -173,36 +166,45 @@ if ($type{0} === '~') {
 	} else if ($type === '~runstate') {
 		// Usage (occupied/free)
 		$sessionLength = 0;
+		$strUpdateBoottime = '';
 		if ($old === false) die("Unknown machine.\n");
 		if ($old['clientip'] !== $ip) {
 			EventLog::warning("[runstate] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
 			die("Address changed.\n");
 		}
 		$used = Request::post('used', 0, 'integer');
-		if ($old['state'] === 'OFFLINE' && $NOW - $old['lastseen'] > 600) {
-			$strUpdateBoottime = ' lastboot = UNIX_TIMESTAMP(), ';
-		} else {
-			$strUpdateBoottime = '';
-		}
-		// 1) Log last session length if we didn't see the machine for a while
-		if ($NOW - $old['lastseen'] > 610 && $old['lastseen'] !== 0) {
-			// Old session timed out - might be caused by hard reboot
-			if ($old['logintime'] !== 0) {
-				if ($old['lastseen'] > $old['logintime']) {
-					$sessionLength = $old['lastseen'] - $old['logintime'];
-				}
-				$old['logintime'] = 0;
-			}
-		}
-		// Figure out what's happening - state changes
 		$params = array(
 			'uuid' => $uuid,
 			'oldlastseen' => $old['lastseen'],
 			'oldstate' => $old['state'],
 		);
+		if ($old['state'] === 'OFFLINE') {
+			// This should never happen -- we expect a poweron event before runstate, which would set the state to IDLE
+			// So it might be that the poweron event got lost, or that a couple of runstate events got lost, which
+			// caused our cron.inc.php to time out the client and reset it to OFFLINE
+			if ($NOW - $old['lastseen'] > 900) {
+				$strUpdateBoottime = ' lastboot = UNIX_TIMESTAMP(), ';
+			}
+			// 1) Log last session length if we didn't see the machine for a while
+			if ($NOW - $old['lastseen'] > 900 && $old['lastseen'] !== 0) {
+				// Old session timed out - might be caused by hard reboot
+				if ($old['logintime'] !== 0) {
+					if ($old['lastseen'] > $old['logintime']) {
+						$sessionLength = $old['lastseen'] - $old['logintime'];
+					}
+				}
+			}
+		}
+		foreach (['memsize', 'tmpsize', 'swapsize', 'memfree', 'tmpfree', 'swapfree'] as $item) {
+			$strUpdateBoottime .= ' live_' . $item . ' = :_' . $item . ', ';
+			$params['_' . $item] = ceil(Request::post($item, 0, 'int') / 1024);
+		}
+		// Figure out what's happening - state changes
 		if ($used === 0 && $old['state'] !== 'IDLE') {
-			// Is not in use, was in use before
-			$sessionLength = $NOW - $old['logintime'];
+			if ($old['state'] === 'OCCUPIED' && $sessionLength === 0) {
+				// Is not in use, was in use before
+				$sessionLength = $NOW - $old['logintime'];
+			}
 			$res = Database::exec('UPDATE machine SET lastseen = UNIX_TIMESTAMP(),'
 				. $strUpdateBoottime
 				. " logintime = 0, currentuser = NULL, state = 'IDLE' "
@@ -232,13 +234,7 @@ if ($type{0} === '~') {
 		}
 		// 9) Log last session length if applicable
 		if ($mode === false && $sessionLength > 0 && $sessionLength < 86400*2 && $old['logintime'] !== 0) {
-			Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
-				. " VALUES (:start, '~session-length', :uuid, :clientip, '', :length)", array(
-				'start'     =>  $old['logintime'],
-				'uuid'     => $uuid,
-				'clientip'  => $ip,
-				'length'    => $sessionLength
-			));
+			Statistics::logMachineState($uuid, $ip, Statistics::SESSION_LENGTH, $old['logintime'], $sessionLength);
 		}
 	} elseif ($type === '~poweroff') {
 		if ($old === false) die("Unknown machine.\n");
@@ -246,16 +242,10 @@ if ($type{0} === '~') {
 			EventLog::warning("[poweroff] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
 			die("Address changed.\n");
 		}
-		if ($mode === false && $old['logintime'] !== 0) {
+		if ($mode === false && $old['state'] === 'OCCUPIED' && $old['logintime'] !== 0) {
 			$sessionLength = $old['lastseen'] - $old['logintime'];
 			if ($sessionLength > 0 && $sessionLength < 86400*2) {
-				Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
-					. " VALUES (:start, '~session-length', :uuid, :clientip, '', :length)", array(
-					'start'     => $old['logintime'],
-					'uuid'     => $uuid,
-					'clientip'  => $ip,
-					'length'    => $sessionLength
-				));
+				Statistics::logMachineState($uuid, $ip, Statistics::SESSION_LENGTH, $old['logintime'], $sessionLength);
 			}
 		}
 		Database::exec("UPDATE machine SET logintime = 0, lastseen = UNIX_TIMESTAMP(), state = 'OFFLINE'
@@ -368,13 +358,7 @@ if ($type{0} === '~') {
 				$lastSeen = $old['lastseen'];
 				$duration = $NOW - $lastSeen;
 				if ($duration > 500 && $duration < 86400 * 14) {
-					Database::exec('INSERT INTO statistic (dateline, typeid, machineuuid, clientip, username, data)'
-						. " VALUES (:suspend, '~suspend-length', :uuid, :clientip, '', :length)", array(
-						'suspend' => $lastSeen,
-						'uuid'     => $uuid,
-						'clientip' => $ip,
-						'length'   => $duration
-					));
+					Statistics::logMachineState($uuid, $ip, Statistics::SUSPEND_LENGTH, $lastSeen, $duration);
 				}
 			}
 		} else {
@@ -449,9 +433,14 @@ if ($type{0} === '.') {
 function checkHardwareChange($old, $new)
 {
 	if ($new['mbram'] !== 0) {
-		if ($new['mbram'] + 1000 < $old['mbram']) {
-			$ram1 = round($old['mbram'] / 512) / 2;
-			$ram2 = round($new['mbram'] / 512) / 2;
+		if ($new['mbram'] < 6200) {
+			$ram1 = ceil($old['mbram'] / 512) / 2;
+			$ram2 = ceil($new['mbram'] / 512) / 2;
+		} else {
+			$ram1 = ceil($old['mbram'] / 1024);
+			$ram2 = ceil($new['mbram'] / 1024);
+		}
+		if ($ram1 !== $ram2) {
 			EventLog::warning('[poweron] Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): RAM decreased from {$ram1}GB to {$ram2}GB");
 		}
 		if (!empty($old['cpumodel']) && !empty($new['cpumodel']) && $new['cpumodel'] !== $old['cpumodel']) {

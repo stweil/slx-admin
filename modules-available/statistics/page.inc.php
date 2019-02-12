@@ -1,7 +1,6 @@
 <?php
 
 global $STATS_COLORS, $SIZE_ID44, $SIZE_RAM;
-global $unique_key;
 
 $STATS_COLORS = array();
 for ($i = 0; $i < 10; ++$i) {
@@ -14,9 +13,9 @@ $SIZE_RAM = array(1, 2, 3, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128, 192, 25
 class Page_Statistics extends Page
 {
 	/* some constants, TODO: Find a better place */
-	public static $op_nominal;
-	public static $op_ordinal;
-	public static $op_stringcmp;
+	const OP_NOMINAL = ['!=', '='];
+	const OP_ORDINAL = ['!=', '<=', '>=', '=', '<', '>'];
+	const OP_STRCMP = ['!~', '~', '=', '!='];
 	public static $columns;
 
 	private $query;
@@ -27,123 +26,130 @@ class Page_Statistics extends Page
 	 */
 	private $haveSubpage;
 
-	/* PHP sucks, no static, const array definitions... Or am I missing something? */
-	public function initConstants()
+	/**
+	 * Do this here instead of const since we need to check for available modules while building array.
+	 */
+	public static function initConstants()
 	{
-		Page_Statistics::$op_nominal = ['!=', '='];
-		Page_Statistics::$op_ordinal = ['!=', '<=', '>=', '=', '<', '>'];
-		Page_Statistics::$op_stringcmp = ['!~', '~', '=', '!='];
 
 		Page_Statistics::$columns = [
 			'machineuuid' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => true,
 			],
 			'macaddr' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => true,
 			],
 			'firstseen' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'date',
 				'column' => true,
 			],
 			'lastseen' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'date',
 				'column' => true,
 			],
 			'logintime' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'date',
 				'column' => true,
 			],
 			'realcores' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'column' => true,
 			],
 			'systemmodel' => [
-				'op' => Page_Statistics::$op_stringcmp,
+				'op' => Page_Statistics::OP_STRCMP,
 				'type' => 'string',
 				'column' => true,
 			],
 			'cpumodel' => [
-				'op' => Page_Statistics::$op_stringcmp,
+				'op' => Page_Statistics::OP_STRCMP,
 				'type' => 'string',
 				'column' => true,
 			],
 			'hddgb' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'column' => false,
 				'map_sort' => 'id44mb'
 			],
 			'gbram' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'map_sort' => 'mbram',
 				'column' => false,
 			],
 			'kvmstate' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'enum',
 				'column' => true,
 				'values' => ['ENABLED', 'DISABLED', 'UNSUPPORTED']
 			],
 			'badsectors' => [
-				'op' => Page_Statistics::$op_ordinal,
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'column' => true
 			],
 			'clientip' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => true
 			],
 			'hostname' => [
-				'op' => Page_Statistics::$op_stringcmp,
+				'op' => Page_Statistics::OP_STRCMP,
 				'type' => 'string',
 				'column' => true
 			],
 			'subnet' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => false
 			],
 			'currentuser' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'string',
 				'column' => true
 			],
 			'state' => [
-				'op' => Page_Statistics::$op_nominal,
+				'op' => Page_Statistics::OP_NOMINAL,
 				'type' => 'enum',
 				'column' => true,
 				'values' => ['occupied', 'on', 'off', 'idle', 'standby']
 			],
-			'runtime' => [
-				'op' => Page_Statistics::$op_ordinal,
+			'live_swapfree' => [
+				'op' => Page_Statistics::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true
+			],
+			'live_memfree' => [
+				'op' => Page_Statistics::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true
+			],
+			'live_tmpfree' => [
+				'op' => Page_Statistics::OP_ORDINAL,
 				'type' => 'int',
 				'column' => true
 			],
 		];
 		if (Module::isAvailable('locations')) {
 			Page_Statistics::$columns['location'] = [
-				'op' => Page_Statistics::$op_stringcmp,
+				'op' => Page_Statistics::OP_STRCMP,
 				'type' => 'enum',
 				'column' => false,
 				'values' => array_keys(Location::getLocationsAssoc()),
 			];
 		}
-		/* TODO ... */
 	}
 
 	protected function doPreprocess()
 	{
-		$this->initConstants();
 		User::load();
 		if (!User::isLoggedIn()) {
 			Message::addError('main.no-permission');
@@ -768,9 +774,9 @@ class Page_Statistics extends Page
 					$row['currentsession'] = $lecture['displayname'];
 					$row['lectureid'] = $lecture['lectureid'];
 				}
+				$row['session'] = $row['currentsession'];
+				return;
 			}
-			$row['session'] = $row['currentsession'];
-			return;
 		}
 		$res = Database::simpleQuery('SELECT dateline, username, data FROM statistic'
 			. " WHERE clientip = :ip AND typeid = '.vmchooser-session-name'"
@@ -787,14 +793,17 @@ class Page_Statistics extends Page
 		}
 		if ($session !== false) {
 			$row['session'] = $session['data'];
-			$row['username'] = $session['username'];
+			if (empty($row['currentuser'])) {
+				$row['username'] = $session['username'];
+			}
 		}
 	}
 
 	private function showMachine($uuid)
 	{
-		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot, state,'
-			. ' mbram, kvmstate, cpumodel, id44mb, data, hostname, currentuser, currentsession, notes FROM machine WHERE machineuuid = :uuid',
+		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot, state,
+			mbram, live_tmpsize, live_tmpfree, live_swapsize, live_swapfree, live_memsize, live_memfree,
+			kvmstate, cpumodel, id44mb, data, hostname, currentuser, currentsession, notes FROM machine WHERE machineuuid = :uuid',
 			array('uuid' => $uuid));
 		if ($client === false) {
 			Message::addError('unknown-machine', $uuid);
@@ -830,6 +839,7 @@ class Page_Statistics extends Page
 		$client['state_' . $client['state']] = true;
 		$client['firstseen_s'] = date('d.m.Y H:i', $client['firstseen']);
 		$client['lastseen_s'] = date('d.m.Y H:i', $client['lastseen']);
+		$client['logintime_s'] = date('d.m.Y H:i', $client['logintime']);
 		if ($client['lastboot'] == 0) {
 			$client['lastboot_s'] = '-';
 		} else {
@@ -839,9 +849,14 @@ class Page_Statistics extends Page
 				$client['lastboot_s'] .= ' (Up ' . floor($uptime / 86400) . 'd ' . gmdate('H:i', $uptime) . ')';
 			}
 		}
-		$client['logintime_s'] = date('d.m.Y H:i', $client['logintime']);
-		$client['gbram'] = round(round($client['mbram'] / 500) / 2, 1);
+		$client['gbram'] = round(ceil($client['mbram'] / 512) / 2, 1);
 		$client['gbtmp'] = round($client['id44mb'] / 1024);
+		foreach (['tmp', 'swap', 'mem'] as $item) {
+			if ($client['live_' . $item . 'size'] == 0)
+				continue;
+			$client['live_' . $item . 'percent'] = round(($client['live_' . $item . 'free'] / $client['live_' . $item . 'size']) * 100, 2);
+			$client['live_' . $item . 'free_s'] = Util::readableFileSize($client['live_' . $item . 'free'], -1, 2);
+		}
 		$client['ramclass'] = $this->ramColorClass($client['mbram']);
 		$client['kvmclass'] = $this->kvmColorClass($client['kvmstate']);
 		$client['hddclass'] = $this->hddColorClass($client['gbtmp']);
@@ -910,16 +925,18 @@ class Page_Statistics extends Page
 		//if ($cutoff < $client['firstseen']) $cutoff = $client['firstseen'];
 		$scale = 100 / ($NOW - $cutoff);
 		$res = Database::simpleQuery('SELECT dateline, typeid, data FROM statistic'
-			. " WHERE dateline > :cutoff AND typeid IN ('~session-length', '~offline-length') AND machineuuid = :uuid ORDER BY dateline ASC", array(
+			. " WHERE dateline > :cutoff AND typeid IN (:sessionLength, :offlineLength) AND machineuuid = :uuid ORDER BY dateline ASC", array(
 			'cutoff' => $cutoff - 86400 * 14,
 			'uuid' => $uuid,
+			'sessionLength' => Statistics::SESSION_LENGTH,
+			'offlineLength' => Statistics::OFFLINE_LENGTH,
 		));
 		$spans['rows'] = array();
 		$spans['graph'] = '';
 		$last = false;
 		$first = true;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (!$client['isclient'] && $row['typeid'] === '~session-length')
+			if (!$client['isclient'] && $row['typeid'] === Statistics::SESSION_LENGTH)
 				continue; // Don't differentiate between session and idle for non-clients
 			if ($first && $row['dateline'] > $cutoff && $client['lastboot'] > $cutoff) {
 				// Special case: offline before
@@ -945,9 +962,12 @@ class Page_Statistics extends Page
 			}
 			$row['from'] = Util::prettyTime($row['dateline']);
 			$row['duration'] = floor($row['data'] / 86400) . 'd ' . gmdate('H:i', $row['data']);
-			if ($row['typeid'] === '~offline-length') {
+			if ($row['typeid'] === Statistics::OFFLINE_LENGTH) {
 				$row['glyph'] = 'off';
 				$color = '#444';
+			} elseif ($row['typeid'] === Statistics::SUSPEND_LENGTH) {
+				$row['glyph'] = 'pause';
+				$color = '#686';
 			} else {
 				$row['glyph'] = 'user';
 				$color = '#e77';
@@ -967,8 +987,26 @@ class Page_Statistics extends Page
 		}
 		if ($client['state'] === 'OCCUPIED') {
 			$spans['graph'] .= '<div style="background:#e99;left:' . round(($client['logintime'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['logintime'] + 900) * $scale, 2) . '%">&nbsp;</div>';
+			$spans['rows'][] = [
+				'from' => Util::prettyTime($client['logintime']),
+				'duration' => '-',
+				'glyph' => 'user',
+			];
+			$row['duration'] = floor($row['data'] / 86400) . 'd ' . gmdate('H:i', $row['data']);
 		} elseif ($client['state'] === 'OFFLINE') {
 			$spans['graph'] .= '<div style="background:#444;left:' . round(($client['lastseen'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['lastseen'] + 900) * $scale, 2) . '%">&nbsp;</div>';
+			$spans['rows'][] = [
+				'from' => Util::prettyTime($client['lastseen']),
+				'duration' => '-',
+				'glyph' => 'off',
+			];
+		} elseif ($client['state'] === 'STANDBY') {
+			$spans['graph'] .= '<div style="background:#686;left:' . round(($client['lastseen'] - $cutoff) * $scale, 2) . '%;width:' . round(($NOW - $client['lastseen'] + 900) * $scale, 2) . '%">&nbsp;</div>';
+			$spans['rows'][] = [
+				'from' => Util::prettyTime($client['lastseen']),
+				'duration' => '-',
+				'glyph' => 'pause',
+			];
 		}
 		$t = explode('-', date('Y-n-j-G', $cutoff));
 		if ($t[3] >= 8 && $t[3] <= 22) {
@@ -1104,3 +1142,5 @@ class Page_Statistics extends Page
 			), true);
 	}
 }
+
+Page_Statistics::initConstants();

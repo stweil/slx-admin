@@ -234,9 +234,10 @@ SADFACE;
 	 * 
 	 * @param float|int $bytes numeric value of the filesize to make readable
 	 * @param int $decimals number of decimals to show, -1 for automatic
+	 * @param int $shift how many units to skip, i.e. if you pass in KiB or MiB
 	 * @return string human readable string representing the given file size
 	 */
-	public static function readableFileSize($bytes, $decimals = -1)
+	public static function readableFileSize($bytes, $decimals = -1, $shift = 0)
 	{
 		$bytes = round($bytes);
 		static $sz = array('Byte', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB');
@@ -249,7 +250,7 @@ SADFACE;
 				$decimals = 2 - floor(strlen((int)$bytes) - 1);
 			}
 		}
-		return sprintf("%.{$decimals}f", $bytes) . "\xe2\x80\x89" . $sz[$factor];
+		return sprintf("%.{$decimals}f", $bytes) . "\xe2\x80\x89" . $sz[$factor + $shift];
 	}
 
 	public static function sanitizeFilename($name)

@@ -30,10 +30,15 @@ class Dictionary
 		if ($lang !== false && in_array($lang, self::$languages)) {
 			setcookie('lang', $lang, time() + 60 * 60 * 24 * 30 * 12);
 			$url = Request::get('url');
-			if ($url === false && isset($_SERVER['HTTP_REFERER']))
+			if ($url === false && isset($_SERVER['HTTP_REFERER'])) {
 				$url = $_SERVER['HTTP_REFERER'];
-			if ($url === false)
-				$url = '?do=Main';
+			}
+			$parts = parse_url($url);
+			if ($url === false || $parts === false || empty($parts['query'])) {
+				$url = '?do=main';
+			} else {
+				$url = '?' . $parts['query'];
+			}
 			Util::redirect($url);
 		}
 
