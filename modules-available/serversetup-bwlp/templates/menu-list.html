@@ -1,5 +1,9 @@
 <h2>{{lang_listOfMenus}}</h2>
 
+<p>
+	{{lang_menuListIntro}}
+</p>
+
 <table class="table">
 	<thead>
 	<tr>
@@ -17,7 +21,7 @@
 				{{title}}
 			</td>
 			<td class="text-right">
-				{{locationCount}}
+				<span class="badge" data-toggle="tooltip" data-placement="top" title="{{locnames}}">{{locationCount}}</span>
 			</td>
 			<td align="center">
 				{{^isdefault}}
@@ -37,7 +41,7 @@
 			</td>
 			<td align="center">
 				{{#allowEdit}}
-					<a href="?do=serversetup&amp;show=editmenu&amp;id={{menuid}}" class="btn btn-xs btn-primary">
+					<a href="?do=serversetup&amp;show=editmenu&amp;id={{menuid}}" class="btn btn-xs btn-default">
 						<span class="glyphicon glyphicon-edit"></span>
 					</a>
 				{{/allowEdit}}
@@ -59,6 +63,8 @@
 		{{lang_addMenu}}
 	</a>
 </div>
+
+<div class="clearfix"></div>
 
 
 <!-- Modals -->
@@ -88,4 +94,7 @@
 	function deleteMenu(menuid) {
 		$("#delete-menu-id").val(menuid);
 	}
+	document.addEventListener('DOMContentLoaded', function() {
+		$('[data-toggle="tooltip"]').tooltip();
+	});
 </script>

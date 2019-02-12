@@ -3,8 +3,16 @@
 class IPxe
 {
 
+	/**
+	 * Import all IP-Range based pxe menus from the given directory.
+	 *
+	 * @param string $configPath The pxelinux.cfg path where to look for menu files in hexadecimal IP format.
+	 * @return Number of menus imported
+	 */
 	public static function importPxeMenus($configPath)
 	{
+		$importCount = 0;
+		$menus = [];
 		foreach (glob($configPath . '/*', GLOB_NOSORT) as $file) {
 			if (!is_file($file) || !preg_match('~/[A-F0-9]{1,8}$~', $file))
 				continue;
@@ -29,14 +37,53 @@ class IPxe
 				unset($loc);
 				$locations[] = $row;
 			}
-			$menuId = self::insertMenu($content, 'Imported', false, 0, [], []);
+			$menu = PxeLinux::parsePxeLinux($content);
+			$key = $menu->hash(true);
+			if (isset($menus[$key])) {
+				$menuId = $menus[$key];
+				$defId = null;
+				// Figure out the default label, get it's label name
+				foreach ($menu->sections as $section) {
+					if ($section->isDefault) {
+						$defId = $section;
+					} elseif ($defId === null && $section->label === $menu->timeoutLabel) {
+						$defId = $section;
+					}
+				}
+				if ($defId !== null) {
+					$defId = self::cleanLabelFixLocal($defId);
+					// Confirm it actually exists (it should since the menu seems identical) and get menuEntryId
+					$me = Database::queryFirst('SELECT m.defaultentryid, me.menuentryid FROM serversetup_bootentry be
+							INNER JOIN serversetup_menuentry me ON (be.entryid = me.entryid)
+							INNER JOIN serversetup_menu m ON (m.menuid = me.menuid)
+							WHERE be.entryid = :id AND me.menuid = :menuid',
+						['id' => $defId, 'menuid' => $menuId]);
+					if ($me === false || $me['defaultentryid'] == $me['menuentryid']) {
+						$defId = null; // Not found, or is already default - don't override if it's the same
+					} else {
+						$defId = $me['menuentryid'];
+					}
+				}
+			} else {
+				$menuId = self::insertMenu($menu, 'Imported', false, 0, [], []);
+				$menus[$key] = $menuId;
+				$defId = null;
+				$importCount++;
+			}
 			if ($menuId === false)
 				continue;
 			foreach ($locations as $loc) {
-				Database::exec('INSERT IGNORE INTO serversetup_menu_x_location (menuid, locationid)
-						VALUES (:menuid, :locationid)', ['menuid' => $menuId, 'locationid' => $loc['locationid']]);
+				if ($loc === false)
+					continue;
+				Database::exec('INSERT IGNORE INTO serversetup_menu_location (menuid, locationid, defaultentryid)
+						VALUES (:menuid, :locationid, :def)', [
+					'menuid' => $menuId,
+					'locationid' => $loc['locationid'],
+					'def' => $defId,
+				]);
 			}
 		}
+		return $importCount;
 	}
 
 	public static function importLegacyMenu($force = false)
@@ -76,16 +123,25 @@ class IPxe
 			'',
 			'poweroff' => false,
 		];
-		return self::insertMenu($pxeConfig, $menuTitle, $defaultLabel, $timeoutSecs, $prepend, $append);
+		return self::insertMenu(PxeLinux::parsePxeLinux($pxeConfig), $menuTitle, $defaultLabel, $timeoutSecs, $prepend, $append);
 	}
 
-	private static function insertMenu($pxeConfig, $menuTitle, $defaultLabel, $defaultTimeoutSeconds, $prepend, $append)
+	/**
+	 * @param PxeMenu $pxeMenu
+	 * @param string $menuTitle
+	 * @param string|false $defaultLabel
+	 * @param $defaultTimeoutSeconds
+	 * @param $prepend
+	 * @param $append
+	 * @return bool|int
+	 */
+	private static function insertMenu($pxeMenu, $menuTitle, $defaultLabel, $defaultTimeoutSeconds, $prepend, $append)
 	{
 		$timeoutMs = [];
 		$menuEntries = $prepend;
 		settype($menuEntries, 'array');
-		if (!empty($pxeConfig)) {
-			$pxe = PxeLinux::parsePxeLinux($pxeConfig);
+		if (!empty($pxeMenu)) {
+			$pxe =& $pxeMenu;
 			if (!empty($pxe->title)) {
 				$menuTitle = $pxe->title;
 			}
@@ -95,11 +151,10 @@ class IPxe
 			$timeoutMs[] = $pxe->timeoutMs;
 			$timeoutMs[] = $pxe->totalTimeoutMs;
 			foreach ($pxe->sections as $section) {
-				if ($section->localBoot || preg_match('/chain.c32$/i', $section->kernel)) {
+				if ($section->localBoot || preg_match('/chain\.c32$/i', $section->kernel)) {
 					$menuEntries['localboot'] = 'localboot';
 					continue;
 				}
-				$section->mangle();
 				if ($section->label === null) {
 					if (!$section->isHidden && !empty($section->title)) {
 						$menuEntries[] = $section->title;
@@ -221,7 +276,7 @@ class IPxe
 				'data' => json_encode([
 					'executable' => '/boot/default/kernel',
 					'initRd' => '/boot/default/initramfs-stage31',
-					'commandLine' => 'slxbase=boot/default quiet splash loglevel=5 rd.systemd.show_status=auto ${ipappend1} ${ipappend2}',
+					'commandLine' => 'slxbase=boot/default quiet splash loglevel=5 rd.systemd.show_status=auto intel_iommu=igfx_off ${ipappend1} ${ipappend2}',
 					'replace' => true,
 					'autoUnload' => true,
 					'resetConsole' => true,
@@ -235,7 +290,7 @@ class IPxe
 				'data' => json_encode([
 					'executable' => '/boot/default/kernel',
 					'initRd' => '/boot/default/initramfs-stage31',
-					'commandLine' => 'slxbase=boot/default loglevel=7 ${ipappend1} ${ipappend2}',
+					'commandLine' => 'slxbase=boot/default loglevel=7 intel_iommu=igfx_off ${ipappend1} ${ipappend2}',
 					'replace' => true,
 					'autoUnload' => true,
 					'resetConsole' => true,
@@ -314,7 +369,7 @@ class IPxe
 	 */
 	private static function pxe2BootEntry($section)
 	{
-		if (preg_match('/(pxechain.com|pxechn.c32)$/i', $section->kernel)) {
+		if (preg_match('/(pxechain\.com|pxechn\.c32)$/i', $section->kernel)) {
 			// Chaining -- create script
 			$args = preg_split('/\s+/', $section->append);
 			$script = '';

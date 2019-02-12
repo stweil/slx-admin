@@ -1,10 +1,10 @@
 {
-    "boot-entry-created": "Booteintrag {{0}} erzeugt",
-    "boot-entry-updated": "Booteintrag {{0}} aktualisiert",
-    "bootentry-deleted": "Booteintrag gel\u00f6scht",
+    "boot-entry-created": "Men\u00fceintrag {{0}} erzeugt",
+    "boot-entry-updated": "Men\u00fceintrag {{0}} aktualisiert",
+    "bootentry-deleted": "Men\u00fceintrag gel\u00f6scht",
     "error-saving-entry": "Fehler beim Speichern des Eintrags {{0}}: {{1}}",
     "image-not-found": "USB-Image nicht gefunden. Generieren Sie das Bootmen\u00fc neu.",
-    "invalid-boot-entry": "Ung\u00fcltiger Booteintrag: {{0}}",
+    "invalid-boot-entry": "Ung\u00fcltiger Men\u00fceintrag: {{0}}",
     "invalid-ip": "Kein Interface ist auf die Adresse {{0}} konfiguriert",
     "invalid-menu-id": "Ung\u00fcltige Men\u00fc-ID: {{0}}",
     "localboot-invalid-method": "Ung\u00fcltige localboot-Methode: {{0}}",
@@ -14,7 +14,7 @@
     "menu-deleted": "Men\u00fc gel\u00f6scht",
     "menu-saved": "Men\u00fc wurde gespeichert",
     "menu-set-default": "Standardmen\u00fc wurde gesetzt",
-    "missing-bootentry-data": "Fehlende Daten f\u00fcr den Booteintrag",
+    "missing-bootentry-data": "Fehlende Daten f\u00fcr den Men\u00fceintrag",
     "no-ip-addr-set": "Bitte w\u00e4hlen Sie die prim\u00e4re IP-Adresse des Servers",
     "no-such-menu": "Men\u00fc mit ID {{0}} existiert nicht",
     "unknown-bootentry-type": "Unbekannter Eintrags-Typ: {{0}}"

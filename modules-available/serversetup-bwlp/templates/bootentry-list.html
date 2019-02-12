@@ -1,8 +1,15 @@
+<h2>{{lang_bootentryHead}}</h2>
+
+<p>
+	{{lang_bootentryIntro}}
+</p>
+
 <table class="table">
 	<thead>
 	<tr>
 		<th>{{lang_bootentryTitle}}</th>
-		<th>Hotkey</th>
+		<th>{{lang_hotkey}}</th>
+		<th class="slx-smallcol">{{lang_refCount}}</th>
 		<th class="slx-smallcol">{{lang_edit}}</th>
 		<th class="slx-smallcol">{{lang_delete}}</th>
 	</tr>
@@ -15,6 +22,9 @@
 		</td>
 		<td>
 			{{hotkey}}
+		</td>
+		<td align="right">
+			{{refs}}
 		</td>
 		<td align="center">
 			{{#allowEdit}}

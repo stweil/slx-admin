@@ -32,12 +32,6 @@ class Page_ServerSetup extends Page
 			Util::redirect('?do=Main');
 		}
 
-		if (Request::any('bla') == 'blu') {
-			IPxe::importLegacyMenu();
-			IPxe::importPxeMenus('/srv/openslx/tftp/pxelinux.cfg');
-			die('DONE');
-		}
-
 		if (Request::any('action') === 'getimage') {
 			User::assertPermission("download");
 			$this->handleGetImage();
@@ -277,7 +271,10 @@ class Page_ServerSetup extends Page
 	{
 		$allowEdit = User::hasPermission('ipxe.bootentry.edit');
 
-		$res = Database::simpleQuery("SELECT entryid, hotkey, title, builtin FROM serversetup_bootentry");
+		$res = Database::simpleQuery("SELECT be.entryid, be.hotkey, be.title, be.builtin, Count(*) AS refs FROM serversetup_bootentry be
+				INNER JOIN serversetup_menuentry sm USING (entryid)
+				GROUP BY be.entryid
+				ORDER BY be.title ASC");
 		$bootentryTable = [];
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$bootentryTable[] = $row;
@@ -295,8 +292,13 @@ class Page_ServerSetup extends Page
 
 		// TODO Permission::addGlobalTags($perms, null, ['edit.menu', 'edit.address', 'download']);
 
-		$res = Database::simpleQuery("SELECT m.menuid, m.title, m.isdefault, GROUP_CONCAT(l.locationid) AS locations
-			FROM serversetup_menu m LEFT JOIN serversetup_menu_location l USING (menuid) GROUP BY menuid ORDER BY title");
+		$res = Database::simpleQuery("SELECT m.menuid, m.title, m.isdefault, GROUP_CONCAT(l.locationid) AS locations,
+				GROUP_CONCAT(ll.locationname SEPARATOR ', ') AS locnames
+				FROM serversetup_menu m
+				LEFT JOIN serversetup_menu_location l USING (menuid)
+				LEFT JOIN location ll USING (locationid)
+				GROUP BY menuid
+				ORDER BY title");
 		$menuTable = [];
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if (empty($row['locations'])) {
@@ -351,6 +353,7 @@ class Page_ServerSetup extends Page
 			Message::addError('invalid-menu-id', $id);
 			Util::redirect('?do=serversetup&show=menu');
 		}
+		$highlight = Request::get('highlight', false, 'string');
 		if ($id !== 0 && !$this->hasMenuPermission($id, 'ipxe.menu.edit')) {
 			$menu['readonly'] = 'readonly';
 			$menu['disabled'] = 'disabled';
@@ -361,12 +364,19 @@ class Page_ServerSetup extends Page
 		}
 
 		$menu['timeout'] = round($menu['timeoutms'] / 1000);
-		$menu['entries'] = Database::queryAll("SELECT menuentryid, entryid, hotkey, title, hidden, sortval, plainpass FROM
+		$menu['entries'] = [];
+		$res = Database::simpleQuery("SELECT menuentryid, entryid, hotkey, title, hidden, sortval, plainpass FROM
 			serversetup_menuentry WHERE menuid = :id ORDER BY sortval ASC", compact('id'));
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($row['entryid'] == $highlight) {
+				$row['highlight'] = 'active';
+			}
+			$menu['entries'][] = $row;
+		}
 		$menu['keys'] = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
 		$menu['entrylist'] = Database::queryAll("SELECT entryid, title, hotkey, data FROM serversetup_bootentry ORDER BY title ASC");
 		foreach ($menu['entrylist'] as &$bootentry) {
-			$bootentry['json'] = $bootentry['data'];
+			//$bootentry['json'] = $bootentry['data'];
 			$bootentry['data'] = json_decode($bootentry['data'], true);
 			if (array_key_exists('arch', $bootentry['data'])) {
 				$bootentry['data']['PCBIOS'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
@@ -386,7 +396,7 @@ class Page_ServerSetup extends Page
 					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archBoth', true);
 				}
 
-			} else {
+			} elseif (!array_key_exists('script', $bootentry['data'])) {
 				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archAgnostic', true);
 				$bootentry['data']['archAgnostic'] = array('executable' => $bootentry['data']['executable'],
 																		'initRd' => $bootentry['data']['initRd'],
@@ -428,8 +438,11 @@ class Page_ServerSetup extends Page
 			}
 			$entry->addFormFields($params);
 			$params['title'] = $row['title'];
-			$params['oldentryid'] = $params['entryid'] = $row['entryid'];
+			$params['entryid'] = $row['entryid'];
 			$params['builtin'] = $row['builtin'];
+			$params['menus'] = Database::queryAll('SELECT m.menuid, m.title FROM serversetup_menu m
+					INNER JOIN serversetup_menuentry me ON (me.menuid = m.menuid)
+					WHERE me.entryid = :entryid', ['entryid' => $row['entryid']]);
 		}
 
 		Render::addTemplate('ipxe-new-boot-entry', $params);

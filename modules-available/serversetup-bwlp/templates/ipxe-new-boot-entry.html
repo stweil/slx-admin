@@ -14,7 +14,7 @@
 		<form method="post" action="?do=serversetup">
 			<input type="hidden" name="token" value="{{token}}">
 			<input type="hidden" name="action" value="savebootentry">
-			<input type="hidden" name="entryid" value="{{oldentryid}}">
+			<input type="hidden" name="entryid" value="{{entryid}}">
 
 			<div class="form-group">
 				<div class="radio">
@@ -120,6 +120,13 @@
 					{{lang_editBuiltinWarn}}
 				</div>
 			{{/builtin}}
+
+			<p class="slx-bold">{{lang_referencingMenus}}:</p>
+			<ul>
+			{{#menus}}
+				<a href="?do=serversetup&amp;show=editmenu&amp;id={{menuid}}&amp;highlight={{entryid}}">{{title}}</a>
+			{{/menus}}
+			</ul>
 
 			<div class="buttonbar text-right">
 				<button type="submit" class="btn btn-primary">

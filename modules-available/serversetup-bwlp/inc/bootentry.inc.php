@@ -95,7 +95,7 @@ class StandardBootEntry extends BootEntry
 	protected $replace;
 	protected $autoUnload;
 	protected $resetConsole;
-	protected $arch; // true == available, false == not available
+	protected $arch; // Constants below
 
 	const BIOS = 'PCBIOS'; // Only valid for legacy BIOS boot
 	const EFI = 'EFI'; // Only valid for EFI boot
@@ -105,6 +105,7 @@ class StandardBootEntry extends BootEntry
 	public function __construct($data = false)
 	{
 		if ($data instanceof PxeSection) {
+			// Gets arrayfied below
 			$this->executable = $data->kernel;
 			$this->initRd = $data->initrd;
 			$this->commandLine = ' ' . str_replace('vga=current', '', $data->append) . ' ';

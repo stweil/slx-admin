@@ -86,6 +86,9 @@ class PxeLinux
 		if ($section !== null) {
 			$menu->sections[] = $section;
 		}
+		foreach ($menu->sections as $section) {
+			$section->mangle();
+		}
 		return $menu;
 	}
 
@@ -131,6 +134,7 @@ class PxeLinux
  */
 class PxeMenu
 {
+
 	/**
 	 * @var string menu title, shown at the top of the menu
 	 */
@@ -160,6 +164,40 @@ class PxeMenu
 	 * @var PxeSection[] list of sections the menu contains
 	 */
 	public $sections = [];
+
+	public function hash($fuzzy)
+	{
+		$ctx = hash_init('md5');
+		if (!$fuzzy) {
+			hash_update($ctx, $this->title);
+			hash_update($ctx, $this->timeoutLabel);
+		}
+		hash_update($ctx, $this->timeoutMs);
+		foreach ($this->sections as $section) {
+			if ($fuzzy) {
+				hash_update($ctx, mb_strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $section->title)));
+			} else {
+				hash_update($ctx, $section->label);
+				hash_update($ctx, $section->title);
+				hash_update($ctx, $section->indent);
+				hash_update($ctx, $section->helpText);
+				hash_update($ctx, $section->isDefault);
+				hash_update($ctx, $section->hotkey);
+			}
+			hash_update($ctx, $section->kernel);
+			hash_update($ctx, $section->append);
+			hash_update($ctx, $section->ipAppend);
+			hash_update($ctx, $section->passwd);
+			hash_update($ctx, $section->isHidden);
+			hash_update($ctx, $section->isDisabled);
+			hash_update($ctx, $section->localBoot);
+			foreach ($section->initrd as $initrd) {
+				hash_update($ctx, $initrd);
+			}
+		}
+		return hash_final($ctx, false);
+	}
+
 }
 
 /**
@@ -170,6 +208,7 @@ class PxeMenu
  */
 class PxeSection
 {
+
 	/**
 	 * @var string label used internally in PXEMENU definition to address this entry
 	 */
@@ -258,5 +297,6 @@ class PxeSection
 			$this->initrd = [];
 		}
 	}
+
 }
 
