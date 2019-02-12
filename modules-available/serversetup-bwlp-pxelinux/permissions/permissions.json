@@ -1,0 +1,14 @@
+{
+    "access-page": {
+        "location-aware": false
+    },
+    "download": {
+        "location-aware": false
+    },
+    "edit.address": {
+        "location-aware": false
+    },
+    "edit.menu": {
+        "location-aware": false
+    }
+}

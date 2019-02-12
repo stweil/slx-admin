@@ -5,6 +5,6 @@ $data = [
 ];
 $task = Taskmanager::submit('CompileIPxeNew', $data);
 if (!isset($task['id']))
-return false;
+	return false;
 Property::set('ipxe-task-id', $task['id'], 15);
 return $task['id'];

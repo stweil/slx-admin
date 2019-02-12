@@ -1,0 +1,38 @@
+<div class="panel panel-default">
+	<div class="panel-heading">{{lang_menuGeneration}}</div>
+	<div class="panel-body">
+		<div id="built-pxe" class="invisible">
+			<span class="glyphicon glyphicon-ok"></span>
+			{{lang_pxeBuilt}}
+		</div>
+		<div id="built-usb" class="invisible">
+			<span class="glyphicon glyphicon-ok"></span>
+			{{lang_usbBuilt}}
+		</div>
+		<div id="genfailed" class="collapse">
+			<div class="alert alert-danger">
+				{{lang_generationFailed}}
+			</div>
+		</div>
+		<div data-tm-id="{{taskid}}" data-tm-log="log" data-tm-log-height="31em" data-tm-callback="ipxeGenCb">{{lang_menuGeneration}}</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	function ipxeGenCb(task)
+	{
+		if (!task || !task.statusCode)
+			return;
+		if (task.data) {
+			if (task.data.pxeDone) $('#built-pxe').removeClass('invisible');
+			if (task.data.usbDone) $('#built-usb').removeClass('invisible');
+		}
+		if (task.statusCode === 'TASK_ERROR') {
+			var $gf = $('#genfailed');
+			if (task.data && task.data.errors) {
+				$gf.append($('<pre>').text(task.data.errors));
+			}
+			$gf.show('slow');
+		}
+	}
+</script>
