@@ -340,10 +340,8 @@ class Page_Dnbd3 extends Page
 		$showLocs = false;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			settype($row['locationid'], 'int');
-			trigger_error('Bla: ' . $row['locationid'] . ', blu: ' . isset($locCount[$row['locationid']]));
 			$loc =& $locCount[$row['locationid']];
 			$loc['clientCount'] = $row['cnt'];
-			trigger_error('Setting ' . $row['locationid'] . ' to ' . $row['cnt'] . ', rec was ' . $loc['recCount']);
 			$loc['recCount'] += $row['cnt'];
 			if ($row['locationid'] !== 0) {
 				$showLocs = true;
@@ -352,7 +350,6 @@ class Page_Dnbd3 extends Page
 			if (isset($loc['parents'])) {
 				foreach ($loc['parents'] as $p) {
 					$locCount[$p]['keep'] = true;
-					trigger_error('[' . $p . '] Adding ' . $row['cnt'] . ' to ' . $locCount[$p]['recCount']);
 					$locCount[$p]['recCount'] += $row['cnt'];
 				}
 			}
