@@ -77,6 +77,19 @@ class Database
 	}
 
 	/**
+	 * Fetch the first column of the query as a plain list-of-values array.
+	 *
+	 * @return array|bool List of values representing first column of query
+	 */
+	public static function queryColumnArray($query, $args = array(), $ignoreError = null)
+	{
+		$res = self::simpleQuery($query, $args, $ignoreError);
+		if ($res === false)
+			return false;
+		return $res->fetchAll(PDO::FETCH_COLUMN, 0);
+	}
+
+	/**
 	 * Execute the given query and return the number of rows affected.
 	 * Mostly useful for UPDATEs or INSERTs
 	 *

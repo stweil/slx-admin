@@ -1,0 +1,8 @@
+{
+	"category": "main.settings-server",
+	"dependencies" : [
+		"locations",
+		"js_jqueryui",
+		"bootstrap_multiselect"
+	]
+}

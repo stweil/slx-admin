@@ -20,13 +20,24 @@ class Trigger
 	 */
 	public static function ipxe()
 	{
-		$data = Property::getBootMenu();
-		$data['ipaddress'] = Property::getServerIp();
-		$task = Taskmanager::submit('CompileIPxe', $data);
-		if (!isset($task['id']))
-			return false;
-		Property::set('ipxe-task-id', $task['id'], 15);
-		return $task['id'];
+		$hooks = Hook::load('ipxe-update');
+		$taskId = false;
+		foreach ($hooks as $hook) {
+			$ret = function($taskId) use ($hook) {
+				$ret = include_once($hook->file);
+				if (is_string($ret))
+					return $ret;
+				return isset($taskId) ? $taskId : false;
+			};
+			$ret = $ret($taskId);
+			if (is_string($ret)) {
+				$taskId = $ret;
+			} elseif (is_array($ret) && isset($ret['id'])) {
+				$taskId = $ret['id'];
+			}
+		}
+		Property::set('ipxe-task-id', $taskId, 15);
+		return $taskId;
 	}
 
 	/**

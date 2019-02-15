@@ -1,0 +1,83 @@
+<h2>{{lang_bootentryHead}}</h2>
+
+<p>
+	{{lang_bootentryIntro}}
+</p>
+
+<table class="table">
+	<thead>
+	<tr>
+		<th>{{lang_bootentryTitle}}</th>
+		<th>{{lang_hotkey}}</th>
+		<th class="slx-smallcol">{{lang_refCount}}</th>
+		<th class="slx-smallcol">{{lang_edit}}</th>
+		<th class="slx-smallcol">{{lang_delete}}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{{#bootentryTable}}
+	<tr>
+		<td>
+			{{title}}
+		</td>
+		<td>
+			{{hotkey}}
+		</td>
+		<td align="right">
+			{{refs}}
+		</td>
+		<td align="center">
+			{{#allowEdit}}
+			<a href="?do=serversetup&amp;show=editbootentry&amp;id={{entryid}}" class="btn btn-xs btn-default">
+				<span class="glyphicon glyphicon-edit"></span>
+			</a>
+			{{/allowEdit}}
+		</td>
+		<td align="center">
+			{{#allowEdit}}
+			<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteBootentry('{{entryid}}', '{{builtin}}')">
+				<span class="glyphicon glyphicon-trash"></span>
+			</button>
+			{{/allowEdit}}
+		</td>
+	</tr>
+	{{/bootentryTable}}
+	</tbody>
+</table>
+<div class="pull-right">
+	{{#allowEdit}}
+		<a href="?do=serversetup&amp;show=editbootentry" class="btn btn-success">
+			<span class="glyphicon glyphicon-plus"></span>
+			{{lang_addBootentry}}
+		</a>
+	{{/allowEdit}}
+</div>
+
+<!-- Modals -->
+<form method="post" action="?do=serversetup">
+	<input type="hidden" name="token" value="{{token}}">
+	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">{{lang_delete}}</h4>
+				</div>
+				<div class="modal-body">
+					<p>{{lang_bootentryDeleteConfirm}}</p>
+				</div>
+				<div class="modal-footer">
+					<input type="hidden" id="delete-bootentry-id" name="deleteid" value="">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" name="action" value="deleteBootentry" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<script>
+	function deleteBootentry(entryid) {
+		$("#delete-bootentry-id").val(entryid);
+	}
+</script>

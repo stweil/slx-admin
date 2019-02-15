@@ -1,0 +1,59 @@
+<h2>{{lang_localBootHead}}</h2>
+
+<p>{{lang_localBootIntro}}</p>
+
+<form method="post" action="?do=serversetup">
+
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="savelocalboot">
+
+	<br>
+	<div class="form-group">
+		<label for="default-selector">
+			{{lang_localBootDefault}}
+		</label>
+		<select id="default-selector" class="form-control" name="default">
+			{{#options}}
+			<option {{selected}}>{{key}}</option>
+			{{/options}}
+		</select>
+	</div>
+
+	<br>
+	<h3>
+			{{lang_localBootExceptions}}
+	</h3>
+	<table class="table">
+		<tr>
+			<th>{{lang_systemmodel}}</th>
+			<th class="slx-smallcol">{{lang_count}}</th>
+			<th class="slx-smallcol">{{lang_override}}</th>
+		</tr>
+		{{#exceptions}}
+			<tr>
+				<td><a href="?do=statistics&show=list&filters=systemmodel+%3D+{{systemmodel}}">{{systemmodel}}</a></td>
+				<td class="text-right">{{cnt}}</td>
+				<td>
+					<select class="form-control" name="override[{{systemmodel}}]">
+						<option value="" {{^bootmethod}}selected{{/bootmethod}}>{{lang_none}}</option>
+						{{#options}}
+						<option {{selected}}>{{key}}</option>
+						{{/options}}
+					</select>
+				</td>
+			</tr>
+		{{/exceptions}}
+	</table>
+
+	<div class="text-right">
+		<button class="btn btn-warning" type="reset">
+			<span class="glyphicon glyphicon-refresh"></span>
+			{{lang_reset}}
+		</button>
+		<button class="btn btn-primary" type="submit">
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+			{{lang_save}}
+		</button>
+	</div>
+
+</form>

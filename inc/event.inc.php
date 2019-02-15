@@ -24,6 +24,17 @@ class Event
 		Property::clearList('cron.key.status');
 		Property::clearList('cron.key.blocked');
 
+		// Hooks
+		foreach (Hook::load('bootup') as $hook) {
+			// Isolate for local vars
+			$fun = function() use ($hook) {
+				include_once($hook->file);
+			};
+			$fun();
+		}
+
+		// TODO: Modularize (hooks)
+
 		// Tasks: fire away
 		$mountStatus = false;
 		$mountId = Trigger::mount();

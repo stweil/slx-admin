@@ -3,6 +3,7 @@
     "lang_areYouSureNoUndo": "Sind Sie sicher? Diese Aktion kann nicht r\u00fcckg\u00e4ngig gemacht werden.",
     "lang_assignSubnetExplanation": "Rechner, die in einen der hier aufgef\u00fchrten Adressbereiche fallen, werden diesem Ort zugeschrieben und erhalten damit z.B. f\u00fcr diesen Raum angepasste Veranstaltungslisten.",
     "lang_assignedSubnets": "Zugeordnete Subnetze bzw. IP-Bereiche",
+    "lang_bootMenu": "Bootmen\u00fc",
     "lang_deleteChildLocations": "Untergeordnete Orte ebenfalls l\u00f6schen",
     "lang_deleteLocation": "Ort l\u00f6schen",
     "lang_deleteSubnet": "Bereich l\u00f6schen",

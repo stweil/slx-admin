@@ -1,0 +1,368 @@
+<h2>{{lang_editMenuHead}}</h2>
+
+<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="position:absolute;top:-2000px" tabindex="-1">
+<input type="password" name="password_fake" id="password_fake" value=""  style="position:absolute;top:-2000px" tabindex="-1">
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{title}}
+		{{^title}}
+		{{lang_newMenu}}
+		{{/title}}
+	</div>
+	<div class="panel-body list-group">
+		<form method="post" action="?do=serversetup">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="savemenu">
+			<input type="hidden" name="menuid" value="{{menuid}}">
+
+			<div class="row list-group-item">
+				<div class="col-sm-3">
+					<label for="panel-title">{{lang_menuTitle}}</label>
+				</div>
+				<div class="col-sm-9">
+					<input class="form-control" name="title" id="panel-title" type="text" value="{{title}}" {{readonly}}>
+				</div>
+			</div>
+			<div class="row list-group-item">
+				<div class="col-sm-3">
+					<label for="panel-timeout">{{lang_menuTimeout}}</label>
+				</div>
+				<div class="col-sm-9">
+					<div class="input-group">
+						<input class="form-control" name="timeout" id="panel-timeout" type="number" min="0" max="9999"
+								 value="{{timeout}}" {{readonly}}>
+						<span class="input-group-addon">{{lang_seconds}}</span>
+					</div>
+				</div>
+			</div>
+			<div>
+				<table class="table">
+					<thead>
+					<tr>
+						<th class="slx-smallcol"></th>
+						<th class="slx-smallcol"></th>
+						<th class="slx-smallcol">{{lang_entryId}}</th>
+						<th>{{lang_title}}</th>
+						<th width="11%">{{lang_hotkey}}</th>
+						<th width="15%">{{lang_password}}</th>
+						<th class="slx-smallcol"><span class="glyphicon glyphicon-eye-close"></span></th>
+						<th class="slx-smallcol"></th>
+					</tr>
+					</thead>
+					<tbody id="table-body" style="overflow: auto;">
+					{{#entries}}
+					<tr class="{{highlight}}">
+						<input type="hidden" class="sort-val" name="entry[{{menuentryid}}][sortval]" value="{{sortval}}">
+						<input type="hidden" name="entry[{{menuentryid}}][hidden]" value="0">
+						<td class="drag-handler" style="cursor: pointer;text-align: center; vertical-align: middle;">
+							<span class="glyphicon glyphicon-th-list"></span>
+						</td>
+
+						<td class="slx-smallcol" style="text-align: center; vertical-align: middle;">
+							<div class="radio radio-inline no-spacer" style="margin: 0;{{^entryid}}display: none;{{/entryid}}">
+								<input type="radio" name="defaultentry" value="{{menuentryid}}"
+										 {{#isdefault}}checked{{/isdefault}} {{perms.ipxe.menu.edit.disabled}} {{disabled}}>
+								<label></label>
+							</div>
+						</td>
+
+						<td class="text-nowrap">
+							<input class="entry-id" type="hidden" name="entry[{{menuentryid}}][entryid]" value="{{entryid}}">
+							<button type="button" class="btn btn-default" style="width: 100%; text-align: left" {{disabled}} data-toggle="modal" data-target="#entry-chooser-modal">
+								{{#entryid}}
+									{{entryid}}
+								{{/entryid}}
+								{{^entryid}}
+									{{lang_spacer}}
+								{{/entryid}}
+							</button>
+						</td>
+						<td>
+							<input class="form-control title" name="entry[{{menuentryid}}][title]" value="{{title}}"
+									 maxlength="100" {{readonly}}>
+						</td>
+
+						<td>
+							<select class="form-control key-list no-spacer" {{^entryid}}style="display: none;"{{/entryid}} name="entry[{{menuentryid}}][hotkey]" {{readonly}} data-default="{{hotkey}}">
+							</select>
+						</td>
+
+						<td>
+							<input class="form-control no-spacer" {{^entryid}}style="display: none;"{{/entryid}} name="entry[{{menuentryid}}][plainpass]" type="{{password_type}}"
+									 value="{{plainpass}}" {{readonly}}>
+						</td>
+						<td class="slx-smallcol" style="text-align: center; vertical-align: middle;">
+							<div class="checkbox checkbox-inline no-spacer" style="text-align: left;margin: 0;{{^entryid}}display: none;{{/entryid}}">
+								<input name="entry[{{menuentryid}}][hidden]" value="1" type="checkbox" {{#hidden}}checked{{/hidden}}>
+								<label></label>
+							</div>
+						</td>
+						<td class="slx-smallcol" style="text-align: center; vertical-align: middle;">
+							<button type="button" class="btn btn-default remove-button"><span class="glyphicon glyphicon-remove"></span></button>
+						</td>
+					</tr>
+					{{/entries}}
+					</tbody>
+				</table>
+			</div>
+			<div class="text-right" style="margin-bottom: 20px">
+				<button id="add-btn" type="button" class="btn btn-success" {{disabled}}>
+					<span class="glyphicon glyphicon-plus-sign"></span>
+					{{lang_add}}
+				</button>
+			</div>
+			<div class="text-right">
+				<a href="?do=serversetup&show=menu" type="button" class="btn btn-default">{{lang_cancel}}</a>
+				<button id="save-button" type="submit" class="btn btn-primary" {{disabled}}>
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
+			</div>
+		</form>
+
+		<div class="modal fade" id="entry-chooser-modal" tabindex="-1" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">{{lang_entryChooserTitle}}</h5>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<select id="entry-list" class="form-control">
+								<option value="">{{lang_spacer}}</option>
+								{{#entrylist}}
+								<option value="{{entryid}}">{{entryid}}</option>
+								{{/entrylist}}
+							</select>
+						</div>
+						{{#entrylist}}
+						<div id="entrydata-{{entryid}}" class="entrydata">
+							<div class="form-group">
+								<label for="{{entryid}}-name">{{lang_entryTitle}}</label>
+								<pre id="{{entryid}}-name">{{title}}</pre>
+							</div>
+							{{#data}}
+								{{#script}}
+									<div class="form-group">
+										<label for="{{entryid}}-script">{{lang_scriptContent}}</label>
+										<pre id="{{entryid}}-script">{{.}}</pre>
+									</div>
+								{{/script}}
+								{{^script}}
+									<div class="form-group">
+										<label for="{{entryid}}-script">{{lang_archSelector}}</label>
+										<pre id="{{entryid}}-arch">{{arch}}</pre>
+									</div>
+									{{#archAgnostic}}
+										<div class="form-group">
+											<label for="{{entryid}}-executable">{{lang_imageToLoad}}</label>
+											<pre id="{{entryid}}-executable">{{executable}}</pre>
+										</div>
+										<div class="form-group">
+											<label for="{{entryid}}-initRd">{{lang_initRd}}</label>
+											<pre id="{{entryid}}-initRd">{{initRd}}</pre>
+										</div>
+										<div class="form-group">
+											<label for="{{entryid}}-commandLine">{{lang_commandLine}}</label>
+											<pre id="{{entryid}}-commandLine" >{{commandLine}}</pre>
+										</div>
+									{{/archAgnostic}}
+									{{#PCBIOS}}
+										<div class="panel panel-default">
+											<div class="panel-heading">PCBIOS</div>
+											<div class="panel-body">
+												<div class="form-group">
+													<label for="{{entryid}}-executable">{{lang_imageToLoad}}</label>
+													<pre id="{{entryid}}-executable">{{executable}}</pre>
+												</div>
+												<div class="form-group">
+													<label for="{{entryid}}-initRd">{{lang_initRd}}</label>
+													<pre id="{{entryid}}-initRd">{{initRd}}</pre>
+												</div>
+												<div class="form-group">
+													<label for="{{entryid}}-commandLine">{{lang_commandLine}}</label>
+													<pre id="{{entryid}}-commandLine" >{{commandLine}}</pre>
+												</div>
+											</div>
+										</div>
+									{{/PCBIOS}}
+									{{#EFI}}
+										<div class="panel panel-default">
+											<div class="panel-heading">EFI</div>
+											<div class="panel-body">
+												<div class="form-group">
+													<label for="{{entryid}}-executable">{{lang_imageToLoad}}</label>
+													<pre id="{{entryid}}-executable">{{executable}}</pre>
+												</div>
+												<div class="form-group">
+													<label for="{{entryid}}-initRd">{{lang_initRd}}</label>
+													<pre id="{{entryid}}-initRd">{{initRd}}</pre>
+												</div>
+												<div class="form-group">
+													<label for="{{entryid}}-commandLine">{{lang_commandLine}}</label>
+													<pre id="{{entryid}}-commandLine" >{{commandLine}}</pre>
+												</div>
+											</div>
+										</div>
+									{{/EFI}}
+								{{/script}}
+							{{/data}}
+						</div>
+						{{/entrylist}}
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+						<button type="button" class="btn btn-primary" id="choose-entry">{{lang_save}}</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="hidden">
+	<select id="key-list-template">
+		<option value="">{{lang_none}}</option>
+		{{#keys}}
+		<option value="{{key}}">{{key}}</option>
+		{{/keys}}
+	</select>
+</div>
+<table class="hidden" id="row-template">
+	<tr>
+		<input type="hidden" class="sort-val" name="entry[%new%][sortval]" value="99999">
+		<td class="drag-handler" style="cursor: pointer;text-align: center; vertical-align: middle;">
+			<span class="glyphicon glyphicon-th-list"></span>
+		</td>
+
+		<td class="slx-smallcol" style="text-align: center; vertical-align: middle;">
+			<div class="radio radio-inline no-spacer" style="margin: 0; display: none;">
+				<input type="radio" name="defaultentry" value="%new%">
+				<label></label>
+			</div>
+		</td>
+
+		<td class="text-nowrap">
+			<input class="entry-id" type="hidden" name="entry[%new%][entryid]" value="">
+			<button type="button" class="btn btn-default" style="width: 100%; text-align: left" {{disabled}} data-toggle="modal" data-target="#entry-chooser-modal">
+				{{lang_spacer}}
+			</button>
+		</td>
+		<td>
+			<input class="form-control title" data-old="#new#" name="entry[%new%][title]" maxlength="100">
+		</td>
+		<td>
+			<select class="form-control key-list no-spacer" style="display: none;" name="entry[%new%][hotkey]">
+			</select>
+		</td>
+		<td>
+			<input class="form-control no-spacer" style="display: none;" name="entry[%new%][plainpass]" type="{{password_type}}">
+		</td>
+		<td class="slx-smallcol" style="text-align: center; vertical-align: middle;">
+			<div class="checkbox checkbox-inline no-spacer" style="text-align: left;margin: 0;{{^entryid}}display: none;{{/entryid}}">
+				<input name="entry[%new%][hidden]" value="1" type="checkbox">
+				<label></label>
+			</div>
+		</td>
+		<td class="slx-smallcol" style="text-align: center; vertical-align: middle;">
+			<button type="button" class="btn btn-default remove-button"><span class="glyphicon glyphicon-remove"></span></button>
+		</td>
+	</tr>
+</table>
+
+<script type="text/javascript">
+	var spacerText = "{{lang_spacer}}";
+
+	document.addEventListener("DOMContentLoaded", function() {
+
+		function reassignSortValues() {
+			var startValue = 1;
+			$('.sort-val').each(function(index, element) {
+				element.value = startValue * 10;
+				startValue++;
+			});
+		}
+
+		$('#table-body').sortable({
+			opacity: 0.8,
+			handle: '.drag-handler',
+			start: function(evt, ui) {
+				ui.placeholder.css("visibility", "visible");
+				ui.placeholder.css("opacity", "0.152");
+				ui.placeholder.css("background-color", "#ddd");
+			},
+			stop: reassignSortValues
+		});
+
+		$('.key-list').each(function() {
+			$select = $(this);
+			$source  = $('#key-list-template').find('option');
+			var def = $select.data('default');
+			$select.append($source.clone(true));
+			$select.find('option[value="' + def + '"]').attr('selected', true);
+		});
+		var newIndex = 0;
+		$('#add-btn').click(function() {
+			var $new = $('#row-template').find('tr').clone(true);
+			newIndex++;
+			$('#table-body').append($new);
+			$new.find('[name]').each(function() {
+				var $this = $(this);
+				var val = $this.val();
+				var name = $this.attr('name');
+				if (name) {
+					$this.attr('name', name.replace('%new%', 'new-' + newIndex));
+				}
+				if (val) {
+					$this.val(val.replace('%new%', 'new-' + newIndex));
+				}
+			});
+			reassignSortValues();
+		});
+
+		$('.remove-button').click(function() {
+			$(this).parent().parent().remove();
+			reassignSortValues();
+		});
+
+		$('#entry-list').change(function(e) {
+			var modal = $('#entry-chooser-modal');
+			modal.find('.entrydata').hide();
+			modal.find('#entrydata-' + $(this).val()).show();
+		});
+
+		var currentEntryButton = null;
+
+		$('#entry-chooser-modal').on('show.bs.modal', function(e) {
+			currentEntryButton = $(e.relatedTarget);
+			var entryId = currentEntryButton.parent().find('.entry-id').val();
+			$('#entry-list').val(entryId).change();
+		});
+
+		$('#choose-entry').click(function() {
+			$('#entry-chooser-modal').modal('hide');
+			var entryId = $('#entry-list').val();
+			currentEntryButton.parent().find('.entry-id').val(entryId);
+			currentEntryButton.text(entryId || spacerText);
+			var tableRow = currentEntryButton.parent().parent();
+			if (!entryId) {
+				tableRow.find('.no-spacer').hide();
+				tableRow.find('input.no-spacer').val('');
+				tableRow.find('div.no-spacer').find('input').prop('checked', false);
+
+			} else {
+				tableRow.find('.no-spacer').show();
+			}
+			var $title = tableRow.find('.title');
+			var oldval = $title.data('old');
+			if (oldval === '#stop#')
+				return;
+			if (oldval !== '#new#' && oldval !== $title.val()) {
+				$title.data('old', '#stop#');
+				return;
+			}
+			var text = $('#' + entryId + '-name').text();
+			$title.val(text).data('old', text);
+		});
+	});
+</script>

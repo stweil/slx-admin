@@ -103,5 +103,10 @@ class Dashboard
 	{
 		self::$subMenu[] = array('url' => $url, 'name' => $name);
 	}
+
+	public static function getSubmenus()
+	{
+		return self::$subMenu;
+	}
 	
 }

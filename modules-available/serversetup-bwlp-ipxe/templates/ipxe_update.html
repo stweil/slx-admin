@@ -1,0 +1,54 @@
+<div class="panel panel-default">
+	<div class="panel-heading">{{lang_menuGeneration}}</div>
+	<div class="panel-body">
+		<div id="file-list">
+			{{#files}}
+			<div id="built-{{namehyphen}}">
+				<span class="glyphicon glyphicon-question-sign"></span>
+				{{name}}
+			</div>
+			{{/files}}
+		</div>
+		<div id="genfailed" class="collapse">
+			<div class="alert alert-danger">
+				{{lang_generationFailed}}
+			</div>
+		</div>
+		<div id="tm-compile-div" data-tm-id="{{taskid}}" data-tm-log="log" data-tm-log-height="36em" data-tm-callback="ipxeGenCb">{{lang_menuGeneration}}</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	document.addEventListener('DOMContentLoaded', function() {
+		var slxFileList = $('#file-list').find('.glyphicon');
+	});
+
+	function ipxeGenCb(task)
+	{
+		if (!task || !task.statusCode)
+			return;
+
+		if (task.statusCode === 'TASK_FINISHED') {
+			$('#tm-compile-div').find('pre').hide();
+		}
+		if (task.statusCode === 'TASK_ERROR') {
+			var $gf = $('#genfailed');
+			if (task.data && task.data.errors) {
+				$gf.append($('<pre>').text(task.data.errors));
+			}
+			$gf.show('slow');
+			slxFileList.find('.glyphicon-question-sign').removeClass('glyphicon-question-sign').addClass('glyphicon-stop');
+		} else {
+			// Working or finished
+			if (task.data && task.data.files && task.data.files) {
+				for (var k in task.data.files) {
+					if (!task.data.files[k])
+						continue;
+					var f = '#built-' + k.replace('/', '-').replace('.', '-');
+					var $e = $(f);
+					$e.find('.glyphicon-question-sign').removeClass('glyphicon-question-sign').addClass('glyphicon-ok text-success');
+				}
+			}
+		}
+	}
+</script>

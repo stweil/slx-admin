@@ -375,6 +375,11 @@ class Page_Locations extends Page
 			} else {
 				$locationList[$lid]['havestatistics'] = false;
 			}
+			if (User::hasPermission('.serversetup.ipxe.menu.assign', $lid)) {
+				$visibleLocationIds[] = $lid;
+			} else {
+				$locationList[$lid]['haveipxe'] = false;
+			}
 			if (!in_array($lid, $visibleLocationIds)) {
 				unset($locationList[$lid]);
 			} elseif (!in_array($lid, $allowedLocationIds)) {
@@ -440,22 +445,7 @@ class Page_Locations extends Page
 					$locationList[$locId] += array('configName' => $conf['title'], 'configClass' => 'slx-bold');
 				}
 			}
-			$depth = array();
-			foreach ($locationList as &$loc) {
-				$d = $loc['depth'];
-				if (!isset($loc['configName'])) {
-					// Has no explicit config assignment
-					if ($d === 0) {
-						$loc['configName'] = $defaultConfig;
-					} else {
-						$loc['configName'] = $depth[$d - 1];
-					}
-					$loc['configClass'] = 'gray';
-				}
-				$depth[$d] = $loc['configName'];
-				unset($depth[$d + 1]);
-			}
-			unset($loc);
+			$this->propagateFields($locationList, $defaultConfig, 'configName', 'configClass');
 		}
 		// Count overridden config vars
 		if (Module::get('baseconfig') !== false) {
@@ -467,6 +457,24 @@ class Page_Locations extends Page
 					$locationList[$lid]['overriddenVars'] = $row['cnt'];
 				}
 			}
+			// Confusing because the count might be inaccurate within a branch
+			//$this->propagateFields($locationList, '', 'overriddenVars', 'overriddenClass');
+		}
+		// Show ipxe menu
+		if (Module::get('serversetup') !== false) {
+			$res = Database::simpleQuery("SELECT ml.locationid, m.title, ml.defaultentryid FROM serversetup_menu m
+				INNER JOIN serversetup_menu_location ml USING (menuid)
+				WHERE locationid IN (:allowedLocationIds) GROUP BY locationid", compact('allowedLocationIds'));
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$lid = (int)$row['locationid'];
+				if (isset($locationList[$lid])) {
+					if ($row['defaultentryid'] !== null) {
+						$row['title'] .= '(*)';
+					}
+					$locationList[$lid]['customMenu'] = $row['title'];
+				}
+			}
+			$this->propagateFields($locationList, '', 'customMenu', 'customMenuClass');
 		}
 
 		$addAllowedLocs = User::getAllowedLocations("location.add");
@@ -484,6 +492,7 @@ class Page_Locations extends Page
 			'havestatistics' => Module::get('statistics') !== false,
 			'havebaseconfig' => Module::get('baseconfig') !== false,
 			'havesysconfig' => Module::get('sysconfig') !== false,
+			'haveipxe' => Module::get('serversetup') !== false,
 			'overlapSelf' => $overlapSelf,
 			'overlapOther' => $overlapOther,
 			'haveOverlapSelf' => !empty($overlapSelf),
@@ -635,6 +644,25 @@ class Page_Locations extends Page
 			return false;
 		}
 		return $result;
+	}
+
+	private function propagateFields(&$locationList, $defaultValue, $name, $class)
+	{
+		$depth = array();
+		foreach ($locationList as &$loc) {
+			$d = $loc['depth'];
+			if (!isset($loc[$name])) {
+				// Has no explicit config assignment
+				if ($d === 0) {
+					$loc[$name] = $defaultValue;
+				} else {
+					$loc[$name] = $depth[$d - 1];
+				}
+				$loc[$class] = 'gray';
+			}
+			$depth[$d] = $loc[$name];
+			unset($depth[$d + 1]);
+		}
 	}
 
 }

@@ -37,6 +37,9 @@
 			<th class="text-nowrap">
 				{{#havesysconfig}}{{lang_sysConfig}}{{/havesysconfig}}
 			</th>
+			<th class="text-nowrap">
+				{{#haveipxe}}{{lang_bootMenu}}{{/haveipxe}}
+			</th>
 		</tr>
 		{{#list}}
 			<tr>
@@ -67,7 +70,7 @@
 					{{clientLoad}}
 					{{/havestatistics}}
 				</td>
-				<td class="text-nowrap">
+				<td class="text-nowrap {{overriddenClass}}">
 					{{#havebaseconfig}}
 					<div class="pull-right" style="z-index:-1">
 						<a class="btn btn-default btn-xs" href="?do=baseconfig&amp;module=locations&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
@@ -86,6 +89,16 @@
 					{{configName}}&emsp;&emsp;
 					</span>
 					{{/havesysconfig}}
+				</td>
+				<td class="text-nowrap">
+					{{#haveipxe}}
+						<div class="pull-right">
+							<a class="btn btn-default btn-xs" href="?do=serversetup&amp;show=assignlocation&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
+						</div>
+						<span class="{{customMenuClass}}">
+					{{customMenu}}&emsp;&emsp;
+					</span>
+					{{/haveipxe}}
 				</td>
 			</tr>
 		{{/list}}
@@ -170,7 +183,7 @@ function slxOpenLocation(e, lid) {
 		}
 		return;
 	}
-	var td = $('<td>').attr('colspan', '5').css('padding', '0px 0px 12px');
+	var td = $('<td>').attr('colspan', '6').css('padding', '0px 0px 12px');
 	var tr = $('<tr>').attr('id', 'location-details-' + lid);
 	tr.append(td);
 	$(e).closest('tr').addClass('active slx-bold').after(tr);

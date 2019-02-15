@@ -1,0 +1,165 @@
+<h2>{{lang_newBootEntryHead}}</h2>
+
+{{#builtin}}
+	<div class="alert alert-warning">
+		{{lang_editBuiltinWarn}}
+	</div>
+{{/builtin}}
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_bootEntryData}}
+	</div>
+	<div class="panel-body">
+		<form method="post" action="?do=serversetup">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="savebootentry">
+			<input type="hidden" name="entryid" value="{{entryid}}">
+
+			<div class="form-group">
+				<div class="radio">
+					<input class="type-radio" type="radio" name="type" value="exec" id="type-exec" {{exec_checked}}>
+					<label for="type-exec">{{lang_typeExecEntry}}</label>
+				</div>
+				<div class="radio">
+					<input class="type-radio" type="radio" name="type" value="script" id="type-script" {{script_checked}}>
+					<label for="type-script">{{lang_typeScriptEntry}}</label>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="input-id">
+					{{lang_entryId}} {{lang_idFormatHint}}
+				</label>
+				<input id="input-id" class="form-control" name="newid" value="{{entryid}}" pattern="^[a-z0-9\-_]{1,16}$" minlength="1" maxlength="16" required>
+			</div>
+			<div class="form-group">
+				<label for="input-title">
+					{{lang_entryTitle}}
+				</label>
+				<input id="input-title" class="form-control" name="title" value="{{title}}" maxlength="100">
+			</div>
+			<div class="form-group">
+				<label for="arch-selector">
+					{{lang_archSelector}}
+				</label>
+				<select id="arch-selector" class="form-control" name="entry[arch]">
+					<option value="agnostic" {{agnostic_selected}}>{{lang_archAgnostic}}</option>
+					<option value="PCBIOS" {{PCBIOS_selected}}>{{lang_biosOnly}}</option>
+					<option value="EFI" {{EFI_selected}}>{{lang_efiOnly}}</option>
+					<option value="PCBIOS-EFI" {{PCBIOS-EFI_selected}}>{{lang_archBoth}}</option>
+				</select>
+			</div>
+
+			<div class="type-form" id="form-exec">
+				<div class="row">
+					{{#entries}}
+						<div class="mode-class col-md-6" id="col-{{mode}}">
+							<div class="panel panel-default">
+								<div class="panel-body">
+									<h4 class="arch-heading">{{mode}}</h4>
+									<div class="form-group">
+										<label for="input-ex">
+											{{lang_imageToLoad}}
+										</label>
+										<input id="input-ex" class="form-control" name="entry[executable][{{mode}}]" value="{{executable}}">
+									</div>
+									<div class="form-group">
+										<label for="input-rd">
+											{{lang_initRd}}
+										</label>
+										<input id="input-rd" class="form-control" name="entry[initRd][{{mode}}]" value="{{initRd}}">
+									</div>
+									<div class="form-group">
+										<label for="input-cmd">
+											{{lang_commandLine}}
+										</label>
+										<input id="input-cmd" class="form-control" name="entry[commandLine][{{mode}}]"
+												 value="{{commandLine}}">
+									</div>
+									<div class="form-group">
+										<div class="checkbox checkbox-inline">
+											<input id="exec-replace-{{mode}}" class="form-control" type="checkbox"
+													 name="entry[replace][{{mode}}]" {{replace_checked}}>
+											<label for="exec-replace-{{mode}}">{{lang_execReplace}}</label>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="checkbox checkbox-inline">
+											<input id="exec-au-{{mode}}" class="form-control" type="checkbox"
+													 name="entry[autoUnload][{{mode}}]" {{autoUnload_checked}}>
+											<label for="exec-au-{{mode}}">{{lang_execAutoUnload}}</label>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="checkbox checkbox-inline">
+											<input id="exec-reset-{{mode}}" class="form-control" type="checkbox"
+													 name="entry[resetConsole][{{mode}}]" {{resetConsole_checked}}>
+											<label for="exec-reset-{{mode}}">{{lang_execResetConsole}}</label>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					{{/entries}}
+				</div>
+			</div>
+
+			<div class="type-form" id="form-script">
+				<div class="form-group">
+					<label for="script-ta">
+						{{lang_scriptContent}}
+					</label>
+					<textarea id="script-ta" class="form-control" rows="10"
+								 name="entry[script]">{{entry.script}}</textarea>
+				</div>
+			</div>
+
+			{{#builtin}}
+				<div class="alert alert-warning">
+					{{lang_editBuiltinWarn}}
+				</div>
+			{{/builtin}}
+
+			<p class="slx-bold">{{lang_referencingMenus}}:</p>
+			<ul>
+			{{#menus}}
+				<a href="?do=serversetup&amp;show=editmenu&amp;id={{menuid}}&amp;highlight={{entryid}}">{{title}}</a>
+			{{/menus}}
+			</ul>
+
+			<div class="buttonbar text-right">
+				<button type="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script><!--
+document.addEventListener('DOMContentLoaded', function () {
+	$('.type-radio').click(function () {
+		$('.type-form').hide();
+		$('#form-' + $(this).val()).show();
+	});
+	$('.type-radio[checked]').click();
+	var $as = $('#arch-selector');
+	$as.change(function() {
+		var v = $as.val();
+		if (v === 'agnostic') {
+			v = 'PCBIOS';
+			$('.arch-heading').hide();
+		} else {
+			$('.arch-heading').show();
+		}
+		var vs = v.split('-');
+		var cols = 12 / vs.length;
+		$('.mode-class').hide();
+		for (var i = 0; i < vs.length; ++i) {
+			$('#col-' + vs[i]).attr('class', 'mode-class col-md-' + cols).show();
+		}
+	}).change();
+});
+// --></script>

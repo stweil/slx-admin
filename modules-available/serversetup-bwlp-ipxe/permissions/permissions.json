@@ -1,0 +1,29 @@
+{
+    "access-page": {
+        "location-aware": false
+    },
+    "download": {
+        "location-aware": false
+    },
+    "edit.address": {
+        "location-aware": false
+    },
+    "ipxe.bootentry.view": {
+        "location-aware": false
+    },
+    "ipxe.bootentry.edit": {
+        "location-aware": false
+    },
+    "ipxe.menu.view": {
+        "location-aware": false
+    },
+    "ipxe.menu.edit": {
+        "location-aware": false
+    },
+    "ipxe.menu.assign": {
+        "location-aware": true
+    },
+    "ipxe.localboot.edit": {
+        "location-aware": false
+    }
+}
