@@ -170,8 +170,6 @@ set serverip $serverIp ||
 # Clean up in case we've been chained to
 imgfree ||
 
-imgfetch --name bg-load /tftp/openslx.png ||
-
 imgfetch --name bg-menu /tftp/pxe-menu.png ||
 
 :start
