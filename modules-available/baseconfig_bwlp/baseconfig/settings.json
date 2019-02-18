@@ -121,6 +121,18 @@
 		"permissions": "2",
 		"validator": "regex:\/^\\d*$\/"
 	},
+	"SLX_SCREEN_SAVER_TIMEOUT": {
+		"catid": "power",
+		"defaultvalue": "540",
+		"permissions": "2",
+		"validator": "regex:\/^\\d*$\/"
+	},
+	"SLX_SCREEN_SAVER_GRACE_TIMEOUT": {
+		"catid": "power",
+		"defaultvalue": "15",
+		"permissions": "2",
+		"validator": "regex:\/^\\d*$\/"
+	},
 	"SLX_SCREEN_STANDBY_TIMEOUT": {
 		"catid": "power",
 		"defaultvalue": "600",
