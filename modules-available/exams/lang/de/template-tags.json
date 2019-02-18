@@ -1,5 +1,4 @@
 {
-    "lang_actions": "Aktionen",
     "lang_addExam": "Zeitraum hinzuf\u00fcgen",
     "lang_addingBasedOnLecture": "F\u00fcge neuen Pr\u00fcfungszeitraum basierend auf vorhandener Veranstaltung an",
     "lang_allExamPeriods": "Alle Pr\u00fcfungszeitr\u00e4ume",
@@ -16,7 +15,6 @@
     "lang_deleteConfirmation": "Wirklich l\u00f6schen?",
     "lang_description": "Beschreibung",
     "lang_duration": "Dauer",
-    "lang_editExam": "Zeitraum bearbeiten",
     "lang_end": "Ende",
     "lang_end_date": "Ende Datum",
     "lang_end_time": "Uhrzeit",

@@ -63,6 +63,7 @@ class Page_DozMod extends Page
 		Dictionary::translate('submenu_networkshares', true);
 		Dictionary::translate('submenu_ldapfilters', true);
 		Dictionary::translate('submenu_runscripts', true);
+		Dictionary::translate('submenu_networkrules', true);
 		*/
 
 		/* add sub-menus */

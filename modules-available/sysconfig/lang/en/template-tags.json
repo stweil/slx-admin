@@ -47,6 +47,8 @@
     "lang_fixNumeric": "Numeric account names have to be prefixed by 's'",
     "lang_fixNumericDescription": "If enabled, users with account names that consist entirely of digits have to prefix their user id by 's' when logging in. This is required with the old login manager (KDM) to prevent crashes. The new lightdm-based login manager will accept numeric account names, so you can leave this option disabled. If your organization doesn't have any numeric account names, this option will have no effect.",
     "lang_folderRedirection": "Folder Redirection",
+    "lang_genUid": "Generate uid numbers",
+    "lang_genUidDescription": "When selected, the satellite server will generate numeric IDs for the users, instead of extracting them from AD\/LDAP.",
     "lang_generateModule": "Generating module",
     "lang_handlingNotes": "Here you can configure how network shares (like the user's home directory) are mapped inside the VM. Old Versions of bwLehrpool used the VMware Shared Folder technique, which could cause problems with certain file servers. The new \"native mode\" works much better, but on Windows guests, it requires that you (1) use an smb\/cifs file server (Windows Server, Linux with Samba) and (2) have openslx.exe setup to autorun in the VM (this is already configured for bwLehrpool templates).",
     "lang_helpHomeAttrHead": "Name of the home directory attribute",

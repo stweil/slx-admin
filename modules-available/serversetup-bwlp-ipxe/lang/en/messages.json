@@ -1,5 +1,20 @@
 {
+    "boot-entry-created": "Created menu item {{0}}",
+    "boot-entry-updated": "Updated menu item {{0}}",
+    "bootentry-deleted": "Deleted menu item",
+    "error-saving-entry": "Error saving item {{0}}: {{1}}",
     "image-not-found": "USB image not found. Try regenerating the boot menu first.",
+    "invalid-boot-entry": "Invalid menu item: {{0}}",
     "invalid-ip": "No interface is configured with the address {{0}}",
-    "no-ip-addr-set": "Please set the server's primary IP address"
+    "invalid-menu-id": "Invalid menu id: {{0}}",
+    "localboot-invalid-method": "Invalid localboot method: {{0}}",
+    "localboot-saved": "Localboot settings have been saved",
+    "location-menu-assigned": "Assigned menu to {{0}}",
+    "location-use-default": "{{0}} is now using the inherited\/default menu",
+    "menu-deleted": "Menu deleted",
+    "menu-saved": "Menu saved",
+    "menu-set-default": "Default menu has been set",
+    "missing-bootentry-data": "Missing data for menu item",
+    "no-ip-addr-set": "Please set the server's primary IP address",
+    "unknown-bootentry-type": "Unknown item type: {{0}}"
 }

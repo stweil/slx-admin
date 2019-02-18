@@ -1,3 +1,19 @@
 {
-    "module_name": "iPXE \/ Boot Menu"
+    "dl-efi": "UEFI",
+    "dl-hd": "HDD partition image",
+    "dl-i386": "32 bit",
+    "dl-lkrn": "wrapped in kernel header",
+    "dl-pcbios": "legacy BIOS",
+    "dl-pcinic": "with PCI(e) NIC drivers",
+    "dl-snp": "uses SNP\/NII interface",
+    "dl-usb": "thumb drive image",
+    "dl-usbnic": "with USB NIC drivers",
+    "dl-x86_64": "64 bit",
+    "module_name": "iPXE \/ Boot Menu",
+    "page_title": "iPXE and boot settings",
+    "submenu_address": "Server address",
+    "submenu_bootentry": "Manage menu items",
+    "submenu_download": "Downloads",
+    "submenu_localboot": "HDD boot",
+    "submenu_menu": "Manage menus"
 }

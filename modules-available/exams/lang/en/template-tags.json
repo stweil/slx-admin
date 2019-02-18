@@ -1,5 +1,4 @@
 {
-    "lang_actions": "Actions",
     "lang_addExam": "Add exam period",
     "lang_addingBasedOnLecture": "Adding exam period based on lecture",
     "lang_allExamPeriods": "All Exam Periods",
@@ -16,7 +15,6 @@
     "lang_deleteConfirmation": "Are you sure?",
     "lang_description": "Description",
     "lang_duration": "Duration",
-    "lang_editExam": "Edit exam period",
     "lang_end": "End",
     "lang_end_date": "End Date",
     "lang_end_time": "Time",

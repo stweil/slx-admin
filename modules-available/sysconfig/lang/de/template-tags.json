@@ -47,6 +47,8 @@
     "lang_fixNumeric": "Numerischen Account-Namen muss ein 's' vorangestellt werden",
     "lang_fixNumericDescription": "Wenn Sie diese Option aktivieren, m\u00fcssen Benutzer, deren Account-Name nur aus Ziffern besteht, diesem ein 's' voranstellen beim Login. Diese Option ist beim alten Login-Manager (KDM) zwingend erforderlich, da sonst der Loginvorgang fehlschl\u00e4gt. Mit dem neuen lightdm-basierten Login-Screen lassen sich numerische Account-Namen jedoch direkt verwenden. Wenn Sie an Ihrer Einrichtung keine numerischen Account-Namen verwenden, hat diese Option keine Auswirkung.",
     "lang_folderRedirection": "Folder Redirection",
+    "lang_genUid": "uid-Nummern generieren",
+    "lang_genUidDescription": "Wenn aktiviert, generiert der Satellitenserver nummerische IDs f\u00fcr die Benutzer, anstatt diese aus dem LDAP\/AD zu extrahieren.",
     "lang_generateModule": "Modul erzeugen",
     "lang_handlingNotes": "Hier k\u00f6nnen Sie festlegen, wie Netzwerk-Shares (inkl. des Home-Verzeichnisses) an Virtuelle Maschinen durchgereicht werden. In \u00e4lteren Versionen von bwLehrpool wurden die VMware Shared Folders genutzt, was mit bestimmten file servern Probleme verursachen konnte. Der neue native Modus funktioniert deutlich besser, ist aber bei Windows-G\u00e4sten darauf angewiesen, dass (1) der file server smb\/cifs spricht (z.B. Windows Server, Samba unter Linux) und (2) die openslx.exe im Autostart eingebunden ist (bei den bwLehrpool Vorlagen bereits der Fall).",
     "lang_helpHomeAttrHead": "Name des Home-Verzeichnis-Attributs",

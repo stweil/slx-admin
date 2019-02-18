@@ -2,7 +2,6 @@
     "access-page": "Seite sehen.",
     "download": "USB-Image herunterladen.",
     "edit.address": "Boot-Adresse des Servers ausw\u00e4hlen.",
-    "edit.menu": "Bootmen\u00fc anpassen.",
     "ipxe.bootentry.edit": "Einen Boot-Eintrag bearbeiten.",
     "ipxe.bootentry.view": "Liste aller Boot-Eintr\u00e4ge sehen.",
     "ipxe.localboot.edit": "Ausnahmeliste f\u00fcr Localboot-Modus bearbeiten.",

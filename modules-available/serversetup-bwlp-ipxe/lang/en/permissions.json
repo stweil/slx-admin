@@ -2,5 +2,10 @@
     "access-page": "View page.",
     "download": "Download USB Image.",
     "edit.address": "Choose boot address of the server.",
-    "edit.menu": "Customize boot menu."
+    "ipxe.bootentry.edit": "Edit menu items.",
+    "ipxe.bootentry.view": "View menu items.",
+    "ipxe.localboot.edit": "Edit local boot settings.",
+    "ipxe.menu.assign": "Assign menus to locations.",
+    "ipxe.menu.edit": "Edit menus.",
+    "ipxe.menu.view": "View menus."
 }

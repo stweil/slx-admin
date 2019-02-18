@@ -552,7 +552,7 @@ class Page_ServerSetup extends Page
 			FROM serversetup_menu m
 			WHERE menuid = :id", compact('id'));
 			if ($menu === false) {
-				Message::addError('no-such-menu', $id);
+				Message::addError('invalid-menu-id', $id);
 				return;
 			}
 			$insertParams['menuid'] = $id;
