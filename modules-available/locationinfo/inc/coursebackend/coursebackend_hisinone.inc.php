@@ -294,12 +294,17 @@ class CourseBackend_HisInOne extends CourseBackend
 			foreach ($planElements as $planElement) {
 				if (empty($planElement['hisplannedDates']))
 					continue;
+				// Do not use -- is set improperly for some courses :-(
+				/*
 				$checkDate = $this->getArrayPath($planElement, '/hisplannedDates/hisplannedDate/hisenddate');
 				if (!empty($checkDate) && strtotime($checkDate[0]) + 86400 < $now)
 					continue; // Course ended
 				$checkDate = $this->getArrayPath($planElement, '/hisplannedDates/hisplannedDate/hisstartdate');
 				if (!empty($checkDate) && strtotime($checkDate[0]) - 86400 > $now)
 					continue; // Course didn't start yet
+				*/
+				$cancelled = $this->getArrayPath($planElement, '/hiscancelled');
+				$cancelled = $cancelled !== false && is_array($cancelled) && ($cancelled[0] > 0 || strtolower($cancelled[0]) === 'true');
 				$unitPlannedDates = $this->getArrayPath($planElement,
 					'/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
 				if ($unitPlannedDates === false) {
@@ -321,7 +326,8 @@ class CourseBackend_HisInOne extends CourseBackend
 						$tTables[$eventRoomId][] = array(
 							'title' => $localName[0],
 							'start' => $eventDate . "T" . $startTime,
-							'end' => $eventDate . "T" . $endTime
+							'end' => $eventDate . "T" . $endTime,
+							'cancelled' => $cancelled,
 						);
 					}
 				}
