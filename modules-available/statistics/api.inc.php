@@ -441,7 +441,8 @@ function checkHardwareChange($old, $new)
 			$ram2 = ceil($new['mbram'] / 1024);
 		}
 		if ($ram1 !== $ram2) {
-			EventLog::warning('[poweron] Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): RAM decreased from {$ram1}GB to {$ram2}GB");
+			$word = $ram1 > $ram2 ? 'decreased' : 'increased';
+			EventLog::warning('[poweron] Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): RAM $word from {$ram1}GB to {$ram2}GB");
 		}
 		if (!empty($old['cpumodel']) && !empty($new['cpumodel']) && $new['cpumodel'] !== $old['cpumodel']) {
 			EventLog::warning('[poweron] Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): CPU changed from '{$old['cpumodel']}' to '{$new['cpumodel']}'");
