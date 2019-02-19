@@ -132,7 +132,7 @@ function MyDate() {
         eventHeader: function(calEvent, calendar) {
           var options = calendar.weekCalendar('option');
           var one_hour = 3600000;
-          var displayTitleWithTime = calEvent.end.getTime() - calEvent.start.getTime() <= (one_hour / options.timeslotsPerHour);
+          var displayTitleWithTime = calEvent.end.getTime() - calEvent.start.getTime() < (one_hour / options.timeslotsPerHour);
           if (displayTitleWithTime) {
             return calendar.weekCalendar(
                         'formatTime', calEvent.start) +
