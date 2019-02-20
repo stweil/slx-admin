@@ -189,7 +189,7 @@ abstract class CourseBackend
 		}
 		// Mark requested locations as used
 		Database::exec("UPDATE locationinfo_locationconfig SET lastuse = :now WHERE locationid IN (:locations)",
-			['locations' => $requestedLocationIds]);
+			['locations' => $requestedLocationIds, 'now' => $NOW]);
 		// Check if we should refresh other rooms recently requested by front ends
 		$extraLocs = self::TRY_NUM_LOCATIONS - count($remoteIds);
 		if ($this->getRefreshTime() > $this->getCacheTime() && $extraLocs > 0) {
