@@ -23,9 +23,9 @@ abstract class CourseBackend
 	 */
 	protected $serverId;
 	/**
-	 * @const int max number of additional locations to fetch (for backends that benefit from request coalesc.)
+	 * @const int try to fetch this many locations from one backend if less are requested (for backends that benefit from request coalesc.)
 	 */
-	const MAX_ADDIDIONAL_LOCATIONS = 5;
+	const TRY_NUM_LOCATIONS = 6;
 
 	/**
 	 * CourseBackend constructor.
@@ -133,16 +133,16 @@ abstract class CourseBackend
 	/**
 	 * Internal version of fetch, to be overridden by subclasses.
 	 *
-	 * @param $roomIds array with local ID as key and serverId as value
+	 * @param $roomIds array with remote IDs for wanted rooms
 	 * @return array a recursive array that uses the roomID as key
-	 * and has the schedule array as value. A shedule array contains an array in this format:
-	 * ["start"=>'JJJJ-MM-DD HH:MM:SS',"end"=>'JJJJ-MM-DD HH:MM:SS',"title"=>string]
+	 * and has the schedule array as value. A schedule array contains an array in this format:
+	 * ["start"=>'JJJJ-MM-DD"T"HH:MM:SS',"end"=>'JJJJ-MM-DD"T"HH:MM:SS',"title"=>string]
 	 */
 	protected abstract function fetchSchedulesInternal($roomId);
 
 	private static function fixTime(&$start, &$end)
 	{
-		if (!preg_match('/^\d+-\d+-\d+T\d+:\d+:\d+$/', $start) || !preg_match('/^\d+-\d+-\d+T\d+:\d+:\d+$/', $start))
+		if (!preg_match('/^\d+-\d+-\d+T\d+:\d+:\d+$/', $start) || !preg_match('/^\d+-\d+-\d+T\d+:\d+:\d+$/', $end))
 			return false;
 		$start = strtotime($start);
 		$end = strtotime($end);
@@ -187,11 +187,12 @@ abstract class CourseBackend
 			return $returnValue;
 		}
 		// Check if we should refresh other rooms recently requested by front ends
-		if ($this->getRefreshTime() > $this->getCacheTime()) {
+		$extraLocs = self::TRY_NUM_LOCATIONS - count($remoteIds);
+		if ($this->getRefreshTime() > $this->getCacheTime() && $extraLocs > 0) {
 			$dbquery4 = Database::simpleQuery("SELECT locationid, serverlocationid FROM locationinfo_locationconfig
 					WHERE serverid = :serverid AND serverlocationid NOT IN (:skiplist)
 					AND lastcalendarupdate BETWEEN :lowerage AND :upperage
-					LIMIT " . self::MAX_ADDIDIONAL_LOCATIONS, array(
+					LIMIT $extraLocs", array(
 						'serverid' => $this->serverId,
 						'skiplist' => array_values($remoteIds),
 						'lowerage' => $NOW - $this->getRefreshTime(),
@@ -201,11 +202,25 @@ abstract class CourseBackend
 				$remoteIds[$row['locationid']] = $row['serverlocationid'];
 			}
 		}
-		$backendResponse = $this->fetchSchedulesInternal($remoteIds);
+		if ($this->getCacheTime() > 0) {
+			// Update the last update timestamp of the ones we are working on, so they won't be queried in parallel
+			// if another request comes in while we're in fetchSchedulesInternal. Currently done without locking the
+			// table. I think it's unlikely enough that we still get a race during those three queries here, and even
+			// if, nothing bad will happen...
+			Database::exec("UPDATE locationinfo_locationconfig SET lastcalendarupdate = :time
+						WHERE lastcalendarupdate < :time AND serverid = :serverid AND serverlocationid IN (:slocs)", [
+							'time' => $NOW - $this->getCacheTime() / 2,
+							'serverid' => $this->serverId,
+							'slocs' => array_values($remoteIds),
+			]);
+		}
+		$backendResponse = $this->fetchSchedulesInternal(array_unique($remoteIds));
 		if ($backendResponse === false) {
 			return false;
 		}
 
+		// Fetching might have taken a while, get current time again
+		$NOW = time();
 		foreach ($backendResponse as $serverRoomId => &$calendar) {
 			$calendar = array_values($calendar);
 			for ($i = 0; $i < count($calendar); ++$i) {
