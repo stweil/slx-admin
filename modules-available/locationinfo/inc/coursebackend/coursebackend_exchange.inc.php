@@ -135,7 +135,7 @@ class CourseBackend_Exchange extends CourseBackend
 	 */
 	public function getCacheTime()
 	{
-		return 0;
+		return 15 * 60;
 	}
 
 	/**
@@ -144,7 +144,7 @@ class CourseBackend_Exchange extends CourseBackend
 	 */
 	public function getRefreshTime()
 	{
-		return 0;
+		return 30 * 60;
 	}
 
 	/**
@@ -177,8 +177,8 @@ class CourseBackend_Exchange extends CourseBackend
 
 				$schedules[$roomId][] = array(
 					'title' => $item->Subject,
-					'start' => $start->format('Y-m-d') . "T" . $start->format('G:i:s'),
-					'end' => $end->format('Y-m-d') . "T" . $end->format('G:i:s')
+					'start' => $start->format('Y-m-d') . "T" . $start->format('H:i:s'),
+					'end' => $end->format('Y-m-d') . "T" . $end->format('H:i:s')
 				);
 			}
 		}
@@ -232,8 +232,8 @@ class CourseBackend_Exchange extends CourseBackend
 		$client = new Client($this->serverAddress, $this->username, $this->password, $this->clientVersion);
 		$client->setTimezone($this->timezone);
 		$client->setCurlOptions(array(
-			CURLOPT_SSL_VERIFYPEER => $this->verifyHostname,
-			CURLOPT_SSL_VERIFYHOST => $this->verifyCert
+			CURLOPT_SSL_VERIFYPEER => $this->verifyHostname ? 2 : 0,
+			CURLOPT_SSL_VERIFYHOST => $this->verifyCert ? 1 : 0,
 		));
 
 		return $client;
