@@ -167,10 +167,11 @@ abstract class CourseBackend
 		}
 		if (empty($requestedLocationIds))
 			return array();
+		$requestedLocationIds = array_values($requestedLocationIds);
 		$NOW = time();
 		$dbquery1 = Database::simpleQuery("SELECT locationid, calendar, serverlocationid, lastcalendarupdate
 				FROM locationinfo_locationconfig WHERE locationid IN (:locations)",
-				array('locations' => array_values($requestedLocationIds)));
+				array('locations' => $requestedLocationIds));
 		$returnValue = [];
 		$remoteIds = [];
 		while ($row = $dbquery1->fetch(PDO::FETCH_ASSOC)) {
@@ -186,17 +187,20 @@ abstract class CourseBackend
 		if (empty($remoteIds)) {
 			return $returnValue;
 		}
+		// Mark requested locations as used
+		Database::exec("UPDATE locationinfo_locationconfig SET lastuse = :now WHERE locationid IN (:locations)",
+			['locations' => $requestedLocationIds]);
 		// Check if we should refresh other rooms recently requested by front ends
 		$extraLocs = self::TRY_NUM_LOCATIONS - count($remoteIds);
 		if ($this->getRefreshTime() > $this->getCacheTime() && $extraLocs > 0) {
 			$dbquery4 = Database::simpleQuery("SELECT locationid, serverlocationid FROM locationinfo_locationconfig
 					WHERE serverid = :serverid AND serverlocationid NOT IN (:skiplist)
-					AND lastcalendarupdate BETWEEN :lowerage AND :upperage
+					AND lastcalendarupdate < :minage AND lastuse > :lastuse
 					LIMIT $extraLocs", array(
 						'serverid' => $this->serverId,
 						'skiplist' => array_values($remoteIds),
-						'lowerage' => $NOW - $this->getRefreshTime(),
-						'upperage' => $NOW - $this->getCacheTime(),
+						'lastuse' => $NOW - $this->getRefreshTime(),
+						'minage' => $NOW - $this->getCacheTime(),
 			));
 			while ($row = $dbquery4->fetch(PDO::FETCH_ASSOC)) {
 				$remoteIds[$row['locationid']] = $row['serverlocationid'];

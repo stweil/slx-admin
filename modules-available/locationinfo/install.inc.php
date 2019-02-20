@@ -9,6 +9,7 @@ $t1 = $res[] = tableCreate('locationinfo_locationconfig', '
 	`openingtime` BLOB,
 	`calendar` BLOB,
 	`lastcalendarupdate` INT(10) UNSIGNED NOT NULL DEFAULT 0,
+	`lastuse` INT(10) UNSIGNED NOT NULL DEFAULT 0,
 	`lastchange` int(10) UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY (`locationid`)
 ');
@@ -78,6 +79,15 @@ if ($t3 === UPDATE_NOOP) {
 
 // 2017-07-26 Add servername key
 Database::exec("ALTER TABLE `locationinfo_coursebackend` ADD KEY `servername` (`servername`)");
+
+// 2019-02-20 Add lastuse column
+if (!tableHasColumn('locationinfo_locationconfig', 'lastuse')) {
+	if (Database::exec("ALTER TABLE locationinfo_locationconfig
+			ADD `lastuse` INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER `lastcalendarupdate`") === false) {
+		finalResponse(UPDATE_FAILED, 'Could not add lastuse column');
+	}
+	$res[] = UPDATE_DONE;
+}
 
 // Create response for browser
 
