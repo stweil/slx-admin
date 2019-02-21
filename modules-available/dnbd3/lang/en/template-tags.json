@@ -62,6 +62,7 @@
     "lang_storageSize": "Storage size",
     "lang_test": "Test",
     "lang_txTotal": "Total sent",
+    "lang_unusedFor": "Unused",
     "lang_uplink": "Uplink",
     "lang_uptime": "Uptime",
     "lang_wantToDelete": "Do you really want to delete this server? (Reboot\/Shutdown has to be done manually)"

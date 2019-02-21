@@ -6,6 +6,7 @@
 			<th class="text-right slx-smallcol">{{lang_clients}}</th>
 			<th class="text-right slx-smallcol">{{lang_size}}</th>
 			<th class="text-right slx-smallcol">{{lang_complete}}</th>
+			<th class="text-right slx-smallcol">{{lang_unusedFor}}</th>
 			<th class="slx-smallcol">{{lang_uplink}}</th>
 		</tr>
 		{{#images}}
@@ -21,6 +22,9 @@
 				</td>
 				<td class="text-right text-nowrap">
 					{{complete}}&thinsp;%
+				</td>
+				<td class="text-right text-nowrap">
+					{{idle_s}}
 				</td>
 				<td class="text-nowrap">
 					{{uplinkServer}}

@@ -197,7 +197,7 @@ class Page_Dnbd3 extends Page
 				$server['uptime'] += ($NOW - $server['dnbd3lastseen']);
 			}
 			$server['dnbd3lastseen_s'] = $server['dnbd3lastseen'] ? Util::prettyTime($server['dnbd3lastseen']) : '-';
-			$server['uptime_s'] = $server['uptime'] ? floor($server['uptime'] / 86400) . 'd ' . gmdate('H:i', $server['uptime']) : '-';
+			$server['uptime_s'] = $server['uptime'] ? Util::formatDuration($server['uptime']) : '-';
 			$server['totalup_s'] = Util::readableFileSize($server['totalup']);
 			$server['totaldown_s'] = Util::readableFileSize($server['totaldown']);
 			if ($server['disktotal'] > 0) {
@@ -362,6 +362,15 @@ class Page_Dnbd3 extends Page
 		$sort1 = $sort2 = [];
 		foreach ($stats['images'] as &$image) {
 			$image['size_s'] = Util::readableFileSize($image['size']);
+			if (isset($image['idle'])) {
+				if ($image['idle'] < 90) {
+					$image['idle_s'] = Dictionary::translate('now');
+				} elseif ($image['idle'] < $stats['uptime']) {
+					$image['idle_s'] = Util::formatDuration($image['idle'], false);
+				} else {
+					$image['idle_s'] = '∞';
+				}
+			}
 			$sort1[] = $image['users'];
 			$sort2[] = $image['name'];
 		}

@@ -512,4 +512,25 @@ SADFACE;
 		return date('d.m.Y', $ts);
 	}
 
+	/**
+	 * Format a duration, in seconds, into a readable string.
+	 * @param int $seconds The number to format
+	 * @param int $showSecs whether to show seconds, or rather cut after minutes
+	 * @return string
+	 */
+	public static function formatDuration($seconds, $showSecs = true)
+	{
+		settype($seconds, 'int');
+		static $UNITS = ['y' => 31536000, 'mon' => 2592000, 'd' => 86400];
+		$parts = [];
+		foreach ($UNITS as $k => $v) {
+			if ($seconds < $v)
+				continue;
+			$n = floor($seconds / $v);
+			$seconds -= $n * $v;
+			$parts[] = $n. $k;
+		}
+		return implode(' ', $parts) . ' ' . gmdate($showSecs ? 'H:i:s' : 'H:i', $seconds);
+	}
+
 }
