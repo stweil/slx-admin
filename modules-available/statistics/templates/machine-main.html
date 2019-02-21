@@ -63,7 +63,7 @@
 							{{^username}}
 							<span class="glyphicon glyphicon-user red"></span> {{lang_machineOccupied}}
 							{{/username}}
-							<div>{{logintime_s}}</div>
+							<div>{{#logintime}}{{logintime_s}}{{/logintime}}</div>
 							{{/state_OCCUPIED}}
 							{{#state_STANDBY}}
 							<span class="glyphicon glyphicon-off green"></span> {{lang_machineStandby}}

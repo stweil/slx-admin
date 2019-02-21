@@ -632,7 +632,7 @@ class Page_Statistics extends Page
 			$xtra .= ', data';
 		}
 		if (Module::isAvailable('runmode')) {
-			$xtra .= ', runmode.module AS rmmodule';
+			$xtra .= ', runmode.module AS rmmodule, runmode.isclient';
 			if (strpos($join, 'runmode') === false) {
 				$join .= ' LEFT JOIN runmode USING (machineuuid) ';
 			}
@@ -654,7 +654,6 @@ class Page_Statistics extends Page
 			// TODO: This only makes sense as long as there is only one action to perform on selected clients; reboot/shutdown is planned
 			$row['delete_disabled'] = in_array($row['locationid'], $deleteAllowedLocations) ? '' : 'disabled';
 			$row['link_details'] = in_array($row['locationid'], $detailsAllowedLocations);
-			$row['state_' . $row['state']] = true;
 			//$row['firstseen'] = Util::prettyTime($row['firstseen']);
 			$row['lastseen_int'] = $row['lastseen'];
 			$row['lastseen'] = Util::prettyTime($row['lastseen']);
@@ -684,7 +683,11 @@ class Page_Statistics extends Page
 					$row['moduleName'] = $data['moduleName'];
 					$row['modeName'] = $data['modeName'];
 				}
+				if (!$row['isclient']) {
+					$row['state'] = 'OCCUPIED';
+				}
 			}
+			$row['state_' . $row['state']] = true;
 			$row['locationname'] = Location::getName($row['locationid']);
 			$rows[] = $row;
 		}
