@@ -196,32 +196,15 @@ if ($addTrigger) {
 	if (Module::isAvailable('locations')) {
 		if (tableExists('subnet')) {
 			AutoLocation::rebuildAll();
-		} else {
-			finalResponse(UPDATE_RETRY, 'Locations module not installed yet, retry later');
 		}
 	}
 	$res[] = UPDATE_DONE;
 }
 
-if ($machineHwCreate === UPDATE_DONE) {
-	$ret = Database::exec('ALTER TABLE `machine_x_hw`
-		ADD CONSTRAINT `machine_x_hw_ibfk_1` FOREIGN KEY (`hwid`) REFERENCES `statistic_hw` (`hwid`) ON DELETE CASCADE,
-		ADD CONSTRAINT `machine_x_hw_ibfk_2` FOREIGN KEY (`machineuuid`) REFERENCES `machine` (`machineuuid`) ON DELETE CASCADE');
-	if ($ret === false) {
-		finalResponse(UPDATE_FAILED, 'Adding constraints to machine_x_hw failed: ' . Database::lastError());
-	}
-	$ret = Database::exec('ALTER TABLE `machine_x_hw_prop`
-		ADD CONSTRAINT `machine_x_hw_prop_ibfk_1` FOREIGN KEY (`machinehwid`) REFERENCES `machine_x_hw` (`machinehwid`) ON DELETE CASCADE');
-	if ($ret === false) {
-		finalResponse(UPDATE_FAILED, 'Adding constraint to machine_x_hw_prop failed: ' . Database::lastError());
-	}
-	$ret = Database::exec('ALTER TABLE `statistic_hw_prop`
-		ADD CONSTRAINT `statistic_hw_prop_ibfk_1` FOREIGN KEY (`hwid`) REFERENCES `statistic_hw` (`hwid`) ON DELETE CASCADE');
-	if ($ret === false) {
-		finalResponse(UPDATE_FAILED, 'Adding constraint to statistic_hw_prop failed: ' . Database::lastError());
-	}
-	$res[] = UPDATE_DONE;
-}
+$res[] = tableAddConstraint('machine_x_hw', 'hwid', 'statistic_hw', 'hwid', 'ON DELETE CASCADE');
+$res[] = tableAddConstraint('machine_x_hw', 'machineuuid', 'machine', 'machineuuid', 'ON DELETE CASCADE ON UPDATE CASCADE');
+$res[] = tableAddConstraint('machine_x_hw_prop', 'machinehwid', 'machine_x_hw', 'machinehwid', 'ON DELETE CASCADE');
+$res[] = tableAddConstraint('statistic_hw_prop', 'hwid', 'statistic_hw', 'hwid', 'ON DELETE CASCADE');
 
 // 2017-11-27: Add state column
 if (!tableHasColumn('machine', 'state')) {
@@ -249,6 +232,20 @@ if (!tableHasColumn('machine', 'live_tmpsize')) {
 		finalResponse(UPDATE_FAILED, 'Adding state column to machine table failed: ' . Database::lastError());
 	}
 	$res[] = UPDATE_DONE;
+}
+
+// 2019-02-20: Convert bogus UUIDs
+$res2 = Database::simpleQuery("SELECT machineuuid, macaddr FROM machine WHERE machineuuid LIKE '000000000000001-%'");
+while ($row = $res2->fetch(PDO::FETCH_ASSOC)) {
+	$new = strtoupper('baad1d00-9491-4716-b98b-' . preg_replace('/[^0-9a-f]/i', '', $row['macaddr']));
+	error_log('Replacing ' . $row['machineuuid'] . ' with ' . $new);
+	if (strlen($new) === 36) {
+		if (Database::exec("UPDATE machine SET machineuuid = :new WHERE machineuuid = :old",
+					['old' => $row['machineuuid'], 'new' => $new]) === false) {
+			error_log('Result: ' . Database::lastError());
+			Database::exec("DELETE FROM machine WHERE machineuuid = :old", ['old' => $row['machineuuid']]);
+		}
+	}
 }
 
 // Create response

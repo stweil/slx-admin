@@ -14,23 +14,20 @@ if (substr($ip, 0, 7) === '::ffff:') $ip = substr($ip, 7);
 if ($type{0} === '~') {
 	// UUID is mandatory
 	$uuid = Request::post('uuid', '', 'string');
-	if (strlen($uuid) !== 36) die("Invalid UUID.\n");
-	$macaddr = Request::post('macaddr', '', 'string');
-	if (!empty($macaddr) && substr($uuid, 0, 16) === '000000000000001-') {
-		// Override uuid if the mac is known and unique
-		$res = Database::simpleQuery('SELECT machineuuid FROM machine WHERE macaddr = :macaddr AND machineuuid <> :uuid', compact('macaddr', 'uuid'));
-		$override = false;
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if ($override !== false) {
-				$override = false;
-				break;
-			}
-			$override = $row['machineuuid'];
-		}
-		if ($override !== false) {
-			$uuid = $override;
+	$macaddr = Request::post('macaddr', false, 'string');
+	if ($macaddr !== false) {
+		$macaddr = strtolower(str_replace(':', '-', $macaddr));
+		if (strlen($macaddr) !== 17 || $macaddr{2} !== '-') {
+			$macaddr = false;
 		}
 	}
+	if ($macaddr !== false && $uuid{8} !== '-' && substr($uuid, 0, 16) === '000000000000001-') {
+		$uuid = 'baad1d00-9491-4716-b98b-' . str_replace('-', '', $macaddr);
+	}
+	if (strlen($uuid) !== 36 || !preg_match('/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i', $uuid)) {
+		die("Invalid UUID.\n");
+	}
+	$uuid = strtoupper($uuid);
 	// External mode of operation?
 	$mode = Request::post('mode', false, 'string');
 	$NOW = time();
@@ -45,7 +42,7 @@ if ($type{0} === '~') {
 	if ($mode === false && $type === '~poweron') {
 		// Poweron & hw stats
 		$uptime = Request::post('uptime', 0, 'integer');
-		if (strlen($macaddr) > 17) die("Invalid MAC.\n");
+		if ($macaddr === false) die("No/Invalid MAC address.\n");
 		if ($uptime < 0 || $uptime > 4000000) die("Implausible uptime.\n");
 		$realcores = Request::post('realcores', 0, 'integer');
 		if ($realcores < 0 || $realcores > 512) $realcores = 0;

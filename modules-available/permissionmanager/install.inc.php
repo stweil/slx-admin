@@ -51,50 +51,40 @@ if (tableHasColumn('role_x_location', 'id')) {
 if (!tableExists('user') || !tableExists('location')) {
 	finalResponse(UPDATE_RETRY, 'Cannot add constraint yet. Please retry.');
 } else {
-	$c = tableGetContraints('role_x_user', 'userid', 'user', 'userid');
-	if ($c === false)
-		finalResponse(UPDATE_FAILED, 'Cannot get constraints of user table: ' . Database::lastError());
-	if (empty($c)) {
+	$c = tableGetConstraints('role_x_user', 'userid', 'user', 'userid');
+	if ($c === false) {
 		$alter = Database::exec('ALTER TABLE role_x_user ADD FOREIGN KEY (userid) REFERENCES user (userid) ON DELETE CASCADE ON UPDATE CASCADE');
 		if ($alter === false)
 			finalResponse(UPDATE_FAILED, 'Cannot add userid constraint referencing user table: ' . Database::lastError());
 		$res[] = UPDATE_DONE;
 	}
 
-	$c = tableGetContraints('role_x_user', 'roleid', 'role', 'roleid');
-	if ($c === false)
-		finalResponse(UPDATE_FAILED, 'Cannot get constraints of role table: ' . Database::lastError());
-	if (empty($c)) {
+	$c = tableGetConstraints('role_x_user', 'roleid', 'role', 'roleid');
+	if ($c === false) {
 		$alter = Database::exec('ALTER TABLE role_x_user ADD FOREIGN KEY (roleid) REFERENCES role (roleid) ON DELETE CASCADE ON UPDATE CASCADE');
 		if ($alter === false)
 			finalResponse(UPDATE_FAILED, 'Cannot add roleid constraint referencing role table: ' . Database::lastError());
 		$res[] = UPDATE_DONE;
 	}
 
-	$c = tableGetContraints('role_x_location', 'roleid', 'role', 'roleid');
-	if ($c === false)
-		finalResponse(UPDATE_FAILED, 'Cannot get constraints of role table: ' . Database::lastError());
-	if (empty($c)) {
+	$c = tableGetConstraints('role_x_location', 'roleid', 'role', 'roleid');
+	if ($c === false) {
 		$alter = Database::exec('ALTER TABLE role_x_location ADD FOREIGN KEY (roleid) REFERENCES role (roleid) ON DELETE CASCADE ON UPDATE CASCADE');
 		if ($alter === false)
 			finalResponse(UPDATE_FAILED, 'Cannot add roleid constraint referencing role table: ' . Database::lastError());
 		$res[] = UPDATE_DONE;
 	}
 
-	$c = tableGetContraints('role_x_location', 'locationid', 'location', 'locationid');
-	if ($c === false)
-		finalResponse(UPDATE_FAILED, 'Cannot get constraints of location table: ' . Database::lastError());
-	if (empty($c)) {
+	$c = tableGetConstraints('role_x_location', 'locationid', 'location', 'locationid');
+	if ($c === false) {
 		$alter = Database::exec('ALTER TABLE role_x_location ADD FOREIGN KEY (locationid) REFERENCES location (locationid) ON DELETE CASCADE ON UPDATE CASCADE');
 		if ($alter === false)
 			finalResponse(UPDATE_FAILED, 'Cannot add locationid constraint referencing location table: ' . Database::lastError());
 		$res[] = UPDATE_DONE;
 	}
 
-	$c = tableGetContraints('role_x_permission', 'roleid', 'role', 'roleid');
-	if ($c === false)
-		finalResponse(UPDATE_FAILED, 'Cannot get constraints of role table: ' . Database::lastError());
-	if (empty($c)) {
+	$c = tableGetConstraints('role_x_permission', 'roleid', 'role', 'roleid');
+	if ($c === false) {
 		$alter = Database::exec('ALTER TABLE role_x_permission ADD FOREIGN KEY (roleid) REFERENCES role (roleid) ON DELETE CASCADE ON UPDATE CASCADE');
 		if ($alter === false)
 			finalResponse(UPDATE_FAILED, 'Cannot add roleid constraint referencing role table: ' . Database::lastError());

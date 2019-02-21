@@ -90,7 +90,7 @@ class Parser {
 			}
 		}
 		if (empty($row['ramslotcount'])) {
-			$row['ramslotcount'] = count($row['ramslot']);
+			$row['ramslotcount'] = isset($row['ramslot']) ? count($row['ramslot']) : 0;
 		}
 	}
 

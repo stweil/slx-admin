@@ -50,13 +50,38 @@ define('UPDATE_FAILED', 'UPDATE_FAILED'); // Fatal error occured, retry will not
 function tableHasColumn($table, $column)
 {
 	$table = preg_replace('/\W/', '', $table);
-	$column = preg_replace('/\W/', '', $column);
 	$res = Database::simpleQuery("DESCRIBE `$table`", array(), true);
 	if ($res !== false) {
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ((is_array($column) && in_array($row['Field'], $column)) || (is_string($column) && $row['Field'] === $column))
 				return true;
 		}
+	}
+	return false;
+}
+
+function tableHasIndex($table, $index)
+{
+	$table = preg_replace('/\W/', '', $table);
+	if (!is_array($index)) {
+		$index = [$index];
+	}
+	$res = Database::simpleQuery("SHOW INDEX FROM `$table`", array(), true);
+	if ($res !== false) {
+		$matches = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$i = $row['Seq_in_index'] - 1;
+			if (isset($index[$i]) && $index[$i] === $row['Column_name']) {
+				if (!isset($matches[$row['Key_name']])) {
+					$matches[$row['Key_name']] = 0;
+				}
+				$matches[$row['Key_name']]++;
+			}
+		}
+	}
+	foreach ($matches as $m) {
+		if ($m === count($index))
+			return true;
 	}
 	return false;
 }
@@ -91,13 +116,13 @@ function tableRename($old, $new) {
 
 
 /**
- * Get all constraints from given table+column to another table+column.
+ * Get all constraint details for given combo.
  *
  * @param string $table source table, being constrained
  * @param string $column source column
  * @param string $refTable referenced table, dictating the constraints
  * @param string $refColumn referenced column
- * @return false|string[] list of constraints matching the request, false on error
+ * @return false|string[] false == doesn't exist, assoc array otherwise
  */
 function tableGetConstraints($table, $column, $refTable, $refColumn)
 {
@@ -110,21 +135,12 @@ function tableGetConstraints($table, $column, $refTable, $refColumn)
 			define('CONFIG_SQL_DB', $db);
 		}
 	}
-	$res = Database::simpleQuery('SELECT `CONSTRAINT_NAME` FROM information_schema.KEY_COLUMN_USAGE'
-		. ' WHERE `TABLE_SCHEMA` = :db AND `TABLE_NAME` = :table AND `COLUMN_NAME` = :column'
-		. ' AND `REFERENCED_TABLE_NAME` = :refTable AND `REFERENCED_COLUMN_NAME` = :refColumn',
+	return Database::queryFirst('SELECT b.CONSTRAINT_NAME, b.UPDATE_RULE, b.DELETE_RULE
+			FROM information_schema.KEY_COLUMN_USAGE a
+			INNER JOIN information_schema.REFERENTIAL_CONSTRAINTS b USING (CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME)
+			WHERE a.TABLE_SCHEMA = :db AND a.TABLE_NAME = :table AND a.COLUMN_NAME = :column
+			AND a.REFERENCED_TABLE_NAME = :refTable AND a.REFERENCED_COLUMN_NAME = :refColumn',
 		compact('db', 'table', 'column', 'refTable', 'refColumn'));
-	if ($res === false)
-		return false;
-	return $res->fetchAll(PDO::FETCH_COLUMN, 0);
-}
-
-/**
- * Because I'm stupid and can't type properly.
- */
-function tableGetContraints($table, $column, $refTable, $refColumn)
-{
-	return tableGetConstraints($table, $column, $refTable, $refColumn);
 }
 
 /**
@@ -138,28 +154,42 @@ function tableGetContraints($table, $column, $refTable, $refColumn)
  * @param string $actions "ON xxx ON yyy" string
  * @return string UPDATE_* result code
  */
-function tableAddConstraint($table, $column, $refTable, $refColumn, $actions)
+function tableAddConstraint($table, $column, $refTable, $refColumn, $actions, $ignoreError = false)
 {
 	$test = tableExists($refTable) && tableHasColumn($refTable, $refColumn);
 	if ($test === false) {
 		// Most likely, destination table does not exist yet or isn't up to date
 		return UPDATE_RETRY;
 	}
-	$test = tableGetConstraints($table, $column, $refTable, $refColumn);
-	if ($test === false) {
-		// Should never happen!?
-		finalResponse(UPDATE_FAILED, 'DB: Cannot query constraints: ' . Database::lastError());
+	// TODO: Refactor function, make this two args
+	$update = 'RESTRICT';
+	$delete = 'RESTRICT';
+	if (preg_match('/on\s+update\s+(RESTRICT|SET\s+NULL|CASCADE)/ims', $actions, $out)) {
+		$update = preg_replace('/\s+/ms', ' ', strtoupper($out[1]));
 	}
-	if (!empty($test)) {
-		// Already exists
-		return UPDATE_NOOP;
+	if (preg_match('/on\s+delete\s+(RESTRICT|SET\s+NULL|CASCADE)/ims', $actions, $out)) {
+		$delete = preg_replace('/\s+/ms', ' ', strtoupper($out[1]));
+	}
+	$test = tableGetConstraints($table, $column, $refTable, $refColumn);
+	if ($test !== false) {
+		// Exists, check if same
+		if ($test['UPDATE_RULE'] === $update && $test['DELETE_RULE'] === $delete) {
+			// Yep, nothing more to do here
+			return UPDATE_NOOP;
+		}
+		// Kill the old one
+		$ret = tableDeleteConstraint($table, $test['CONSTRAINT_NAME']);
 	}
 	// Need to create
 	$ret = Database::exec("ALTER TABLE `$table` ADD CONSTRAINT FOREIGN KEY (`$column`)
 			REFERENCES `$refTable` (`$refColumn`)
-			$actions");
+			ON DELETE $delete ON UPDATE $update");
 	if ($ret === false) {
-		finalResponse(UPDATE_FAILED, 'DB: Cannot add constraint: ' . Database::lastError());
+		if ($ignoreError) {
+			return UPDATE_FAILED;
+		} else {
+			finalResponse(UPDATE_FAILED, 'DB: Cannot add constraint: ' . Database::lastError());
+		}
 	}
 	return UPDATE_DONE;
 }

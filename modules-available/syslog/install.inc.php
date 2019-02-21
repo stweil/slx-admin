@@ -14,7 +14,7 @@ $res[] = $tc = tableCreate('clientlog', "
 	KEY `dateline` (`dateline`),
 	KEY `logtypeid` (`logtypeid`,`dateline`),
 	KEY `clientip` (`clientip`,`dateline`),
-	KEY `machineuuid` (`machineuuid`,`logid`)
+	KEY `machineuuidnew` (`machineuuid`,`logid`)
 ");
 
 // Update path
@@ -30,9 +30,32 @@ if (!tableHasColumn('clientlog', 'machineuuid')) {
 }
 
 // 2017-11-03: Create proper index for query in statistics module
-if ($tc !== UPDATE_DONE) {
-	Database::exec("ALTER TABLE `openslx`.`clientlog` DROP INDEX `machineuuid` ,
-			ADD INDEX `machineuuid` ( `machineuuid` , `logid` )");
+if (tableHasIndex('clientlog', ['machineuuid'])) {
+	$r = Database::exec("ALTER TABLE `openslx`.`clientlog` DROP INDEX `machineuuid`");
+	$res[] = $r === false ? UPDATE_FAILED : UPDATE_DONE;
+}
+if (!tableHasIndex('clientlog', ['machineuuid', 'logid'])) {
+	$r = Database::exec("ALTER TABLE `openslx`.`clientlog`
+		ADD INDEX `machineuuid` ( `machineuuid` , `logid` )");
+	$res[] = $r === false ? UPDATE_FAILED : UPDATE_DONE;
+}
+
+// 2019-02-20: Add constraint for machineuuid
+if (tableExists('machine')) {
+	$rr = tableAddConstraint('clientlog', 'machineuuid', 'machine', 'machineuuid',
+		'ON DELETE SET NULL ON UPDATE CASCADE', true);
+	if ($rr === UPDATE_FAILED) {
+		// The table might still be populated with orphaned rows
+		$dups = Database::queryColumnArray("SELECT DISTINCT l.machineuuid FROM clientlog l LEFT JOIN machine m USING (machineuuid) WHERE m.machineuuid IS NULL");
+		if (!empty($dups)) {
+			Database::exec("UPDATE clientlog SET machineuuid = NULL WHERE machineuuid IN (:dups)", ['dups' => $dups]);
+			$rr = tableAddConstraint('clientlog', 'machineuuid', 'machine', 'machineuuid',
+				'ON DELETE SET NULL ON UPDATE CASCADE');
+		}
+	}
+	$res[] = $rr;
+} elseif (Module::get('statistics') !== false) {
+	$res[] = UPDATE_RETRY;
 }
 
 // Create response for browser
