@@ -31,14 +31,13 @@ class SubPage
 					'maxTransfers' => array('min' => 1, 'max' => 10),
 				],
 				'bool' => [
-					'allowLoginByDefault' => array('default' => true)
+					'allowLoginByDefault' => array('default' => false)
 				],
 			];
 			foreach ($params as $type => $list) {
 				foreach ($list as $field => $limits) {
 					$default = isset($limits['default']) ? $limits['default'] : false;
-					$value = Request::post($field, $default);
-					settype($value, $type);
+					$value = Request::post($field, $default, $type);
 					if (isset($limits['min']) && $value < $limits['min']) {
 						$value = $limits['min'];
 					}
@@ -47,6 +46,11 @@ class SubPage
 					}
 					$data[$field] = $value;
 				}
+			}
+			// ServerSide Copy
+			$data['serverSideCopy'] = Request::post('serverSideCopy', 'OFF', 'string');
+			if (!in_array($data['serverSideCopy'], ['OFF', 'ON', 'AUTO', 'USER'])) {
+				$data['serverSideCopy'] = 'OFF';
 			}
 
 			/* ensure types */
@@ -98,6 +102,9 @@ class SubPage
 
 			if ($runtimeConf['allowLoginByDefault']) {
 				$runtimeConf['allowLoginByDefault'] = 'checked';
+			}
+			if (isset($runtimeConf['serverSideCopy'])) {
+				$runtimeConf[$runtimeConf['serverSideCopy'] . '_selected'] = 'selected';
 			}
 		}
 		$runtimeConf['allowedSave'] = User::hasPermission("runtimeconfig.save");

@@ -5,14 +5,13 @@
 		{{lang_runtimeConfig}}
 	</div>
 	<div class="panel-body">
-		<legend>{{lang_defaultPermissions}}</legend>
-		<p><i>{{lang_descriptionPermissionConfig}}</i></p>
 		<form action="?do=DozMod" method="post" id="runtimeconf" role="form">
 			<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="position:absolute;top:-2000px" tabindex="-1">
 			<input type="password" name="password_fake" id="password_fake" value="" style="position:absolute;top:-2000px" tabindex="-1">
+			<fieldset>
+				<legend>{{lang_defaultPermissions}}</legend>
+				<p><i>{{lang_descriptionPermissionConfig}}</i></p>
 
-
-			<fieldset class="form-group">
 				<h4>{{lang_defaultLecturePermissions}}</h4>
 
 				<input type="hidden" 	name="defaultLecturePermissions[edit]" value="0"/>
@@ -31,9 +30,6 @@
 					</label>
 				</div>
 
-			</fieldset>
-
-			<fieldset class="form-group">
 				<h4>{{lang_defaultImagePermissions}}</h4>
 				<input type="hidden" 	name="defaultImagePermissions[edit]" value="0"/>
 				<input type="hidden" 	name="defaultImagePermissions[admin]" value="0"/>
@@ -65,7 +61,7 @@
 					</label>
 				</div>
 			</fieldset>
-
+			<br>
 			<fieldset>
 				<legend>{{lang_runtimeConfigLimits}}</legend>
 				<p><i>{{lang_descriptionRuntimeLimits}}</i></p>
@@ -100,16 +96,28 @@
 					</tr>
 				</table>
 			</fieldset>
-			<br/>
+			<br>
 			<fieldset>
 				<legend>{{lang_miscOptions}}</legend>
 				<div class="checkbox">
-					<input type="hidden" 	name="allowLoginByDefault" value="0">
 					<input type="checkbox"  name="allowLoginByDefault" value="1" {{allowLoginByDefault}} id="allowLoginByDefault" class="form-control">
 					<label for="allowLoginByDefault">
 						{{lang_allowLoginByDefault}}
 					</label>
 					<p><i>{{lang_allowLoginDescription}}</i></p>
+				</div>
+				<br>
+				<div>
+					<label for="serverSideCopy">
+						{{lang_serverSideCopy}}
+					</label>
+					<select name="serverSideCopy" id="serverSideCopy" class="form-control">
+						<option value="OFF" {{OFF_selected}}>{{lang_sscOff}}</option>
+						<option value="ON" {{ON_selected}}>{{lang_sscOn}}</option>
+						<option value="AUTO" {{AUTO_selected}}>{{lang_sscAuto}}</option>
+						<option value="USER" {{USER_selected}}>{{lang_sscUser}}</option>
+					</select>
+					<p><i>{{lang_serverSideCopyDescription}}</i></p>
 				</div>
 			</fieldset>
 
