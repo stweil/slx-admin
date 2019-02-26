@@ -204,6 +204,12 @@
 		"permissions": "2",
 		"validator": "list:HDMI|SOUNDCARD"
 	},
+	"SLX_VM_SOUND": {
+		"catid": "sysconfig",
+		"defaultvalue": "1",
+		"permissions": "2",
+		"validator": "list:DEFAULT_MUTED|DEFAULT_ACTIVE|FORCE_MUTED|FORCE_ACTIVE"
+	},
 	"SLX_PVS_DEFAULT": {
 		"catid": "vmchooser",
 		"defaultvalue": "OFF",
