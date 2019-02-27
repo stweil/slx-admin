@@ -14,21 +14,68 @@
 				<label class="input-group-addon" for="rulename">{{lang_name}}</label>
 				<input required type="text" name="rulename" id="rulename" class="form-control" value="{{rulename}}">
 			</div>
-			<div class="input-group">
-				<label class="input-group-addon" for="host">{{lang_host}}</label>
-				<input required type="text" name="host" id="host" class="form-control" value="{{host}}">
-			</div>
-			<div class="input-group">
-				<label class="input-group-addon" for="port">{{lang_port}}</label>
-				<input required type="number" name="port" id="port" class="form-control" value="{{port}}">
-			</div>
-			<div class="input-group">
-				<label class="input-group-addon" for="direction">{{lang_direction}}</label>
-				<select class="form-control" name="direction" id="direction">
-					<option {{inSelected}} value="IN">IN</option>
-					<option {{outSelected}} value="OUT">OUT</option>
-				</select>
-			</div>
+			<br>
+			<table class="table" id="main-table">
+				<thead>
+					<tr>
+						<th>{{lang_host}}</th>
+						<th>{{lang_port}}</th>
+						<th>{{lang_direction}}</th>
+						<th class="slx-smallcol"></th>
+					</tr>
+				</thead>
+				{{#rules}}
+				<tbody>
+					<tr>
+						<td>
+							<input required type="text" name="host[{{index}}]" class="form-control" value="{{host}}">
+						</td>
+						<td>
+							<input required type="number" name="port[{{index}}]" class="form-control" value="{{port}}">
+						</td>
+						<td>
+							<select class="form-control" name="direction[{{index}}]">
+								<option {{IN_selected}} value="IN">IN</option>
+								<option {{OUT_selected}} value="OUT">OUT</option>
+							</select>
+						</td>
+						<td>
+							<button type="button" class="btn btn-sm btn-danger btn-del-row">
+								<span class="glyphicon glyphicon-remove"></span>
+							</button>
+						</td>
+					</tr>
+					{{/rules}}
+					<tr class="hidden" id="rule-template">
+						<td>
+							<input type="text" class="form-control">
+						</td>
+						<td>
+							<input type="number" class="form-control">
+						</td>
+						<td>
+							<select class="form-control">
+								<option {{IN_selected}} value="IN">IN</option>
+								<option {{OUT_selected}} value="OUT">OUT</option>
+							</select>
+						</td>
+						<td>
+							<button type="button" class="btn btn-sm btn-danger btn-del-row">
+								<span class="glyphicon glyphicon-remove"></span>
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4">
+							<div class="pull-right">
+								<button id="btn-add" class="btn btn-sm btn-success" type="button">
+									<span class="glyphicon glyphicon-plus-sign"></span>
+								</button>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 			<div class="text-right" style="margin-top: 20px">
 				<a href="?do=dozmod&amp;section=networkrules" class="btn btn-default">
 					{{lang_cancel}}
@@ -41,3 +88,22 @@
 		</form>
 	</div>
 </div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		var $template = $('#rule-template');
+		var newAddIndex = 0;
+		$('#btn-add').click(function () {
+			var $new = $template.clone(true);
+			newAddIndex++;
+			$new.find('input[type=text]').prop('name', 'host[n' + newAddIndex + ']').prop('required', true);
+			$new.find('input[type=number]').prop('name', 'port[n' + newAddIndex + ']').prop('required', true);
+			$new.find('select').prop('name', 'direction[n' + newAddIndex + ']').prop('required', true);
+			$new.insertBefore($template);
+			$new.removeClass('hidden');
+		});
+		$('.btn-del-row').click(function() {
+			$(this).closest('tr').remove();
+		});
+	});
+</script>

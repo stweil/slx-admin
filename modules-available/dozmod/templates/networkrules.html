@@ -8,9 +8,6 @@
 	<thead>
 		<tr>
 			<th>{{lang_name}}</th>
-			<th>{{lang_host}}</th>
-			<th>{{lang_port}}</th>
-			<th>{{lang_direction}}</th>
 			{{#hasEditPermissions}}
 			<th class="slx-smallcol">{{lang_edit}}</th>
 			<th class="slx-smallcol">{{lang_delete}}</th>
@@ -21,9 +18,6 @@
 	{{#networkrules}}
 		<tr>
 			<td>{{rulename}}</td>
-			<td>{{host}}</td>
-			<td>{{port}}</td>
-			<td>{{direction}}</td>
 			{{#hasEditPermissions}}
 			<td align="center">
 				<a href="?do=dozmod&amp;section=networkrules&amp;show=edit&amp;ruleid={{ruleid}}" class="btn btn-xs btn-primary">
