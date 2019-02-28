@@ -271,8 +271,8 @@ class Page_ServerSetup extends Page
 	{
 		$allowEdit = User::hasPermission('ipxe.bootentry.edit');
 
-		$res = Database::simpleQuery("SELECT be.entryid, be.hotkey, be.title, be.builtin, Count(*) AS refs FROM serversetup_bootentry be
-				INNER JOIN serversetup_menuentry sm USING (entryid)
+		$res = Database::simpleQuery("SELECT be.entryid, be.hotkey, be.title, be.builtin, Count(sm.menuid) AS refs FROM serversetup_bootentry be
+				LEFT JOIN serversetup_menuentry sm USING (entryid)
 				GROUP BY be.entryid
 				ORDER BY be.title ASC");
 		$bootentryTable = [];
@@ -438,7 +438,7 @@ class Page_ServerSetup extends Page
 			}
 			$entry->addFormFields($params);
 			$params['title'] = $row['title'];
-			$params['entryid'] = $row['entryid'];
+			$params['oldentryid'] = $params['entryid'] = $row['entryid'];
 			$params['builtin'] = $row['builtin'];
 			$params['menus'] = Database::queryAll('SELECT m.menuid, m.title FROM serversetup_menu m
 					INNER JOIN serversetup_menuentry me ON (me.menuid = m.menuid)
@@ -495,15 +495,16 @@ class Page_ServerSetup extends Page
 		return true;
 	}
 
-	private function deleteBootEntry() {
+	private function deleteBootEntry()
+	{
 		$id = Request::post('deleteid', false, 'string');
 		if ($id === false) {
 			Message::addError('main.parameter-missing', 'deleteid');
 			return;
 		}
 		Database::exec("DELETE FROM serversetup_bootentry WHERE entryid = :entryid", array("entryid" => $id));
-		// TODO: Redirect to &show=bootentry
 		Message::addSuccess('bootentry-deleted');
+		Util::redirect('?do=serversetup&show=bootentry');
 	}
 
 	private function setDefaultMenu()
