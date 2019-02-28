@@ -42,7 +42,7 @@ class IPxe
 			if (isset($menus[$key])) {
 				$menuId = $menus[$key];
 				$defId = null;
-				// Figure out the default label, get it's label name
+				// Figure out the default label, get its label name
 				foreach ($menu->sections as $section) {
 					if ($section->isDefault) {
 						$defId = $section;
@@ -270,17 +270,13 @@ class IPxe
 			VALUES (:entryid, :hotkey, :title, 1, :data)';
 		Database::exec($query,
 			[
-				'entryid' => 'bwlp-default',
-				'hotkey' => 'B',
-				'title' => 'bwLehrpool-Umgebung starten',
-				'data' => json_encode([
-					'executable' => '/boot/default/kernel',
-					'initRd' => '/boot/default/initramfs-stage31',
-					'commandLine' => 'slxbase=boot/default quiet splash loglevel=5 rd.systemd.show_status=auto intel_iommu=igfx_off ${ipappend1} ${ipappend2}',
-					'replace' => true,
-					'autoUnload' => true,
-					'resetConsole' => true,
-				]),
+				'script' => '
+imgfree ||
+set slxextra ,logo ||
+initrd /boot/default/initramfs-stage31 || goto fail
+initrd --name logo /tftp/bwlp.ppm.gz /etc/splash.ppm.gz || clear slxextra
+boot -a -r /boot/default/kernel initrd=initramfs-stage31${slxextra} slxbase=boot/default quiet splash loglevel=5 rd.systemd.show_status=auto intel_iommu=igfx_off ${ipappend1} ${ipappend2} || goto fail
+',
 			]);
 		Database::exec($query,
 			[
