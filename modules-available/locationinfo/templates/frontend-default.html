@@ -707,7 +707,6 @@ optional:
 			rawOpeningTimes: roomData.openingtime || null,
 			openingTimes: null,
 			openTimes: 24,
-			currentfreePcs: 0,
 			layout: roomData.machines || null,
 			freePcs: 0,
 			resizeRoom: true,
@@ -1152,10 +1151,15 @@ optional:
 	 */
 	function SetFreeSeats(room) {
 		// if room has no allowed value, set text in the box to -
-		room.$.seatsCounter.text(room.freePcs >= 0 ? room.freePcs : '\u2014');
-		room.$.seatsCounter.data('state', JSON.stringify(room.state));
-		if (room.freePcs > 0 && room.state && room.state.free) {
-			room.$.seatsBackground.css('background-color', '#250');
+		if (!room.numPcs) {
+			room.$.seatsCounter.text('\u00A0');
+		} else if (!room.state.free) {
+			room.$.seatsCounter.text('\u2013');
+		} else {
+			room.$.seatsCounter.text(room.freePcs);
+		}
+		if ((room.freePcs > 0 || !room.numPcs) && room.state && room.state.free) {
+			room.$.seatsBackground.css('background-color', '#260');
 		} else {
 			room.$.seatsBackground.css('background-color', 'red');
 		}
@@ -1180,8 +1184,6 @@ optional:
 			if (!same) newText = t("closed");
 		} else if (tmp.state === "CalendarEvent") {
 			if (!same) newText = tmp.title;
-			// whilst event is running set freePcs to -, hopefully not breaking anything else with this
-			room.freePcs = "-";
 		} else if (tmp.state === "Free" || tmp.state === "FreeNoEnd") {
 			if (!same) newText = t("free");
 		}
@@ -1509,7 +1511,7 @@ optional:
 
 	/**
 	 * Updates the PC's (images) in the room layout. Also Updates how many pc's are free.
-	 * @param update Update Json from query for one(!) room
+	 * @param update array of PCs for one room
 	 * @param room Room object
 	 */
 	function UpdatePc(update, room) {
@@ -1539,6 +1541,7 @@ optional:
 			$div.removeClass('BROKEN OFFLINE IDLE OCCUPIED STANDBY'.replace(update[i].pcState, '')).addClass(update[i].pcState);
 		}
 		room.freePcs = freePcs;
+		room.numPcs = update.length;
 		UpdateRoomHeader(room);
 	}
 
