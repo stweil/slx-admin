@@ -461,7 +461,7 @@ class Page_Locations extends Page
 			//$this->propagateFields($locationList, '', 'overriddenVars', 'overriddenClass');
 		}
 		// Show ipxe menu
-		if (Module::get('serversetup') !== false) {
+		if (Module::isAvailable('serversetup') && class_exists('IPxe')) {
 			$res = Database::simpleQuery("SELECT ml.locationid, m.title, ml.defaultentryid FROM serversetup_menu m
 				INNER JOIN serversetup_menu_location ml USING (menuid)
 				WHERE locationid IN (:allowedLocationIds) GROUP BY locationid", compact('allowedLocationIds'));
@@ -492,7 +492,7 @@ class Page_Locations extends Page
 			'havestatistics' => Module::get('statistics') !== false,
 			'havebaseconfig' => Module::get('baseconfig') !== false,
 			'havesysconfig' => Module::get('sysconfig') !== false,
-			'haveipxe' => Module::get('serversetup') !== false,
+			'haveipxe' => Module::isAvailable('serversetup') && class_exists('IPxe'),
 			'overlapSelf' => $overlapSelf,
 			'overlapOther' => $overlapOther,
 			'haveOverlapSelf' => !empty($overlapSelf),
