@@ -1,10 +1,10 @@
 <div class="slx-topbar">
 	<div>
 		{{#warning}}
-		<a href="?do=EventLog"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_warning}}</span></a>
+		<a href="?do=eventlog"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_warning}}</span></a>
 		{{/warning}}
 		{{#needsSetup}}
-		<a href="?do=Main"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_needsSetup}}</span></a>
+		<a href="?do=main"><span class="slx-warning-badge badge"><span class="glyphicon glyphicon-exclamation-sign"></span> {{lang_needsSetup}}</span></a>
 		{{/needsSetup}}
 	</div>
 </div>
@@ -19,7 +19,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="?do=Main">{{product_name}}</a>
+			<a class="navbar-brand" href="?do=main">{{product_name}}</a>
 			<div id="navbar-sub" class="gray small"></div>
 		</div>
 		<!-- Collect the nav links, forms, and other content for toggling -->
@@ -45,7 +45,6 @@
 						<b class="caret"></b>
 					</a>
 					<ul class="dropdown-menu">
-						<li><a href="?do=Translation">{{lang_translations}}</a></li>
 						<li class="dropdown-header">{{lang_language}}</li>
 						{{#langs}}
 						<li><a href="?lang={{cc}}&amp;url={{url}}"><img src="lang/{{cc}}/flag.png" alt="{{name}}"> {{name}}</a></li>
@@ -58,7 +57,7 @@
 				{{#user}}
 				<li><span>{{lang_loggedInPrefix}} {{user}} {{lang_loggedInSuffix}}</span></li>
 				<li>
-					<form id="logoutForm" method="post" action="?do=Session">
+					<form id="logoutForm" method="post" action="?do=session">
 						<input type="hidden" name="token" value="{{token}}">
 						<input type="hidden" name="action" value="logout">
 						<a href="?do=session" class="btn btn-default btn-xs">{{lang_changePassword}}</a>
@@ -67,7 +66,7 @@
 				</li>
 				{{/user}}
 				{{^user}}
-				<li><a href="?do=Session&amp;action=login">{{lang_login}}</a></li>
+				<li><a href="?do=session&amp;action=login">{{lang_login}}</a></li>
 				{{/user}}
 			</ul>
 
@@ -86,7 +85,7 @@
 						</ul>
 					{{/user}}
 					{{^user}}
-						<a type="button" href="?do=Session&amp;action=login" class="btn btn-default">{{lang_login}}</a>
+						<a type="button" href="?do=session&amp;action=login" class="btn btn-default">{{lang_login}}</a>
 					{{/user}}
 				</li>
 			</ul>
