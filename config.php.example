@@ -32,6 +32,9 @@ define('CONFIG_DOZMOD_EXPIRE', 60);
 
 define('CONFIG_REPORTING_URL', 'https://bwlp-masterserver.ruf.uni-freiburg.de/rpc/');
 
+define('CONFIG_PRODUCT_NAME', 'OpenSLX');
+define('CONFIG_PRODUCT_NAME_LONG', 'OpenSLX Admin');
+
 // Sort order for menu
 // Optional - if missing, will be sorted by module id (internal name)
 // Here it is also possible to assign a module to a different category,

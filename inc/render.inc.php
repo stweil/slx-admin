@@ -1,7 +1,5 @@
 <?php
 
-define('RENDER_DEFAULT_TITLE', 'OpenSLX Admin');
-
 require_once('inc/util.inc.php');
 
 require_once('Mustache/Autoloader.php');
@@ -75,7 +73,7 @@ class Render
 		'<!DOCTYPE html>
 	<html>
 		<head>
-			<title>', $title, self::$title, RENDER_DEFAULT_TITLE, '</title>
+			<title>', $title, self::$title, (defined('CONFIG_PRODUCT_NAME_LONG') ? CONFIG_PRODUCT_NAME_LONG : 'OpenSLX Admin'), '</title>
 			<meta charset="utf-8"> 
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -250,6 +248,8 @@ class Render
 		}
 		// Add desired password field type
 		$params['password_type'] = Property::getPasswordFieldType();
+		// Branding
+		$params['product_name'] = defined('CONFIG_PRODUCT_NAME') ? CONFIG_PRODUCT_NAME : 'OpenSLX';
 		// Return rendered html
 		return self::$mustache->render($html, $params);
 	}
