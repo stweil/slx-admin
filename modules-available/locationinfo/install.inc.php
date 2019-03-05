@@ -60,11 +60,11 @@ if ($t1 === UPDATE_NOOP) {
 if ($t1 === UPDATE_DONE || $t2 === UPDATE_DONE) {
 	Database::exec('UPDATE locationinfo_locationconfig SET serverid = NULL WHERE serverid = 0');
 	Database::exec('ALTER TABLE `locationinfo_locationconfig` ADD CONSTRAINT `locationinfo_locationconfig_ibfk_1` FOREIGN KEY ( `serverid` )
-			REFERENCES `openslx`.`locationinfo_coursebackend` (`serverid`) ON DELETE SET NULL ON UPDATE CASCADE');
+			REFERENCES `locationinfo_coursebackend` (`serverid`) ON DELETE SET NULL ON UPDATE CASCADE');
 }
 if ($t1 === UPDATE_DONE) {
 	if (false === Database::exec('ALTER TABLE `locationinfo_locationconfig` ADD CONSTRAINT `locationinfo_locationconfig_ibfk_2` FOREIGN KEY ( `locationid` )
-			REFERENCES `openslx`.`location` (`locationid`) ON DELETE CASCADE ON UPDATE CASCADE')) {
+			REFERENCES `location` (`locationid`) ON DELETE CASCADE ON UPDATE CASCADE')) {
 		$res[] = UPDATE_RETRY;
 	}
 }
