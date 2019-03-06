@@ -20,9 +20,6 @@ class Page_MiniLinux extends Page
 		Render::addTemplate('page-minilinux', array(
 			'listurl' => '?do=MiniLinux&async=true&action=list'
 		));
-		Render::addFooter('<script> $(window).load(function (e) {
-			loadSystemList(0);
-			}); // </script>');
 	}
 	
 	protected function doAjax()

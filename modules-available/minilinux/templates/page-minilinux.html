@@ -1,28 +1,25 @@
 <div id="systemlist">
 	<div class="panel panel-default">{{lang_listObtained}}</div>
-	<!-- OLD CODE ??
-	<script type="text/javascript">
-		var slx_check = setInterval(function() {
-			if (typeof $ === 'undefined') return;
-			clearInterval(slx_check);
-			$('#systemlist').load('{{{listurl}}}', function( response, status, xhr ) {
-				if ( status === "error" ) {
-					var msg = "{{lang_errorGetting}}";
-					$( "#systemlist" ).html( msg + xhr.status + " " + xhr.statusText );
-				}
-			})
-		}, 100);
-	</script>
-	OLD CODE ?? -->
 </div>
 
 <script type="text/javascript"><!--
-	function loadSystemList(version) {
-		$('#systemlist').load('{{{listurl}}}', { token: TOKEN, version: version }, function( response, status, xhr ) {
-			if ( status === "error" ) {
-				var msg = "{{lang_errorGetting}}";
-				$( "#systemlist" ).html( msg + xhr.status + " " + xhr.statusText );
-			}
-		});
-	}
+	document.addEventListener('DOMContentLoaded', function() {
+		var $list = $('#systemlist');
+		function loadSystemList(version) {
+			$list.addClass('disabled');
+			$list.find('select, input, button').prop('disabled', true);
+			$list.find('div, p, span').addClass('text-muted');
+			$list.load('{{{listurl}}}', { token: TOKEN, version: version }, function( response, status, xhr ) {
+				if ( status === "error" ) {
+					var msg = "{{lang_errorGetting}}";
+					$list.html( msg + xhr.status + " " + xhr.statusText );
+				}
+				$list.removeClass('disabled');
+				$('#versionbox').change(function() {
+					loadSystemList($('#versionbox').val());
+				});
+			});
+		}
+		loadSystemList(0);
+	});
 // --></script>

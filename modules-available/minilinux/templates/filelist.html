@@ -3,7 +3,7 @@
 		<div id="download-{{id}}">
 			<div class="input-group pull-right" style="max-width: 400px">
 				<span class="input-group-addon slx-ga">{{lang_desiredVersion}}</span>
-				<select id="versionbox" class="form-control" onchange="loadSystemList($('#versionbox').val())">
+				<select id="versionbox" class="form-control">
 					{{#versions}}
 					{{#selected}}
 					<option value="{{version}}" selected>{{version}}</option>
