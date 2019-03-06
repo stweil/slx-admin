@@ -235,7 +235,7 @@ if (!tableHasColumn('machine', 'live_tmpsize')) {
 }
 
 // 2019-02-20: Convert bogus UUIDs
-$res2 = Database::simpleQuery("SELECT machineuuid, macaddr FROM machine WHERE machineuuid LIKE '000000000000001-%'");
+$res2 = Database::simpleQuery("SELECT machineuuid, macaddr FROM machine WHERE machineuuid LIKE '00000000000000_-%'");
 while ($row = $res2->fetch(PDO::FETCH_ASSOC)) {
 	$new = strtoupper('baad1d00-9491-4716-b98b-' . preg_replace('/[^0-9a-f]/i', '', $row['macaddr']));
 	error_log('Replacing ' . $row['machineuuid'] . ' with ' . $new);
