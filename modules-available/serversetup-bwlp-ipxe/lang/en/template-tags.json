@@ -53,6 +53,7 @@
     "lang_newBootEntryHead": "New menu item",
     "lang_newMenu": "New menu",
     "lang_none": "(none)",
+    "lang_ok": "OK",
     "lang_override": "Override",
     "lang_recompileHint": "Recompile iPXE binaries now. Usually this happens automatically on changes, but if you suspect problems caused by outdated binaries, you can trigger recompilation here.",
     "lang_refCount": "References",
