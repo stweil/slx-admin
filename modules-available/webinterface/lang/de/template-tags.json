@@ -23,7 +23,7 @@
     "lang_showPasswords": "Passw\u00f6rter anzeigen",
     "lang_suppliedSelected": "Der Server verwendet zur Zeit ein \u00fcber die Option \"Eigenes Zertifikat\" hochgeladenes Zertifikat.",
     "lang_unknownSelected": "Unbekanntes oder ung\u00fcltiges Zertifikat vorhanden. Wahrscheinlich wurde der Server von einer alten Version aktualisiert. Um diese Meldung zu entfernen, die HTTPS-Konfiguration erneut vornehmen.",
-    "lang_useHsts": "HSTS aktivieren (dies erh\u00f6ht die Sicherheit, kann aber in bei sp\u00e4terem Deaktivieren von HTTPS zu Zugriffsproblemen f\u00fchren)",
+    "lang_useHsts": "HSTS aktivieren (dies erh\u00f6ht die Sicherheit, kann aber bei sp\u00e4terem Deaktivieren von HTTPS zu Zugriffsproblemen f\u00fchren)",
     "lang_youreNotUsingHttps": "Sie besuchen diese Seite nicht per HTTPS (oder die HTTPS-Terminierung wird von einem vorgeschalteten Proxy \u00fcbernommen).",
     "lang_youreUsingHttps": "Sie besuchen diese Seite (aus Sicht des Webservers) per HTTPS."
 }
