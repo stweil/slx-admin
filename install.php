@@ -180,6 +180,19 @@ function tableAddConstraint($table, $column, $refTable, $refColumn, $actions, $i
 		// Kill the old one
 		$ret = tableDeleteConstraint($table, $test['CONSTRAINT_NAME']);
 	}
+	if ($delete === 'CASCADE') {
+		// Deletes are cascaded, so make sure first that all rows get purged that would
+		// violate the constraint
+		Database::exec("DELETE `$table` FROM `$table`
+				LEFT JOIN `$refTable` ON (`$table`.`$column` = `$refTable`.`$refColumn`)
+				WHERE `$refTable`.`$refColumn` IS NULL");
+	} elseif ($delete === 'SET NULL') {
+		// Similar to above; SET NULL constraint, so do that for violating entries
+		Database::exec("UPDATE `$table`
+				LEFT JOIN `$refTable` ON (`$table`.`$column` = `$refTable`.`$refColumn`)
+				SET `$table`.`$column` = NULL
+				WHERE `$refTable`.`$refColumn` IS NULL");
+	}
 	// Need to create
 	$ret = Database::exec("ALTER TABLE `$table` ADD CONSTRAINT FOREIGN KEY (`$column`)
 			REFERENCES `$refTable` (`$refColumn`)
@@ -188,7 +201,7 @@ function tableAddConstraint($table, $column, $refTable, $refColumn, $actions, $i
 		if ($ignoreError) {
 			return UPDATE_FAILED;
 		} else {
-			finalResponse(UPDATE_FAILED, 'DB: Cannot add constraint: ' . Database::lastError());
+			finalResponse(UPDATE_FAILED, "Cannot add constraint $table.$column -> $refTable.$refColumn: " . Database::lastError());
 		}
 	}
 	return UPDATE_DONE;
