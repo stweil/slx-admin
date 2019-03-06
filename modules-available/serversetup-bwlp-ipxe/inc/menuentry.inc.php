@@ -64,7 +64,7 @@ class MenuEntry
 			return '';
 		$str = 'item ';
 		if ($this->gap) {
-			$str .= '--gap ';
+			$str .= '--gap -- ';
 		} else {
 			if ($this->hidden && $slxExtensions) {
 				if ($this->hotkey === false)
@@ -77,7 +77,7 @@ class MenuEntry
 			if ($this->menuentryid == $requestedDefaultId) {
 				$str .= '--default ';
 			}
-			$str .= "{$lblPrefix}_{$this->menuentryid} ";
+			$str .= "-- {$lblPrefix}_{$this->menuentryid} ";
 		}
 		if (empty($this->title)) {
 			$str .= '${}';
