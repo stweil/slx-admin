@@ -127,7 +127,7 @@
 		"permissions": "2",
 		"validator": "regex:\/^\\d*$\/"
 	},
-	"SLX_SCREEN_SAVER_GRACE_TIMEOUT": {
+	"SLX_SCREEN_SAVER_GRACE_TIME": {
 		"catid": "power",
 		"defaultvalue": "15",
 		"permissions": "2",
