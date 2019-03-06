@@ -27,9 +27,23 @@ class SubPage
 			Message::addError('main.parameter-missing', 'runscriptid');
 			return;
 		}
+		// LF vs. CRLF crap -- use LF as soon as there's one non-MS OS selected
+		$content = Request::post('content', '', 'string');
+		$oslist = Request::post('osid', false, 'array');
+		if (is_array($oslist)) {
+			$oslist = array_filter($oslist, 'is_numeric');
+			$res = Database::queryColumnArray('SELECT o.displayname FROM sat.operatingsystem o
+						WHERE o.osid IN (:osid)', ['osid' => $oslist]);
+			foreach ($res as $item) {
+				if ($item !== 'DOS' && strpos($item, 'Windows') === false) {
+					$content = str_replace("\r\n", "\n", $content);
+					break;
+				}
+			}
+		}
 		$data = [
 			'scriptname' => $scriptname,
-			'content' => Request::post('content', '', 'string'),
+			'content' => $content,
 			'visibility' => Request::post('visibility', 1, 'int'),
 			'extension' => preg_replace('/[^a-z0-9_\-~\!\$\=]/i', '', Request::post('extension', '', 'string')),
 			'passcreds' => Request::post('passcreds', 0, 'int') !== 0,
@@ -49,9 +63,7 @@ class SubPage
 					passcreds = :passcreds, isglobal = :isglobal
 					WHERE runscriptid = :id', $data);
 		}
-		$oslist = Request::post('osid', false, 'array');
 		if (is_array($oslist)) {
-			$oslist = array_filter($oslist, 'is_numeric');
 			$query = Database::prepare('INSERT INTO sat.presetrunscript_x_operatingsystem
 					(runscriptid, osid) VALUES (:id, :osid)');
 			foreach ($oslist as $osid) {
