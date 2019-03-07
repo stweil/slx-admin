@@ -19,13 +19,24 @@ class Dnbd3Rpc {
 	 * @param bool $altservers list of alt servers with status
 	 * @return int|array the queried data as an array, or false on error
 	 */
-	public static function query($server, $port, $stats, $clients, $images, $diskSpace = false, $config = false, $altservers = false)
+	public static function query($server, $stats, $clients, $images, $diskSpace = false, $config = false, $altservers = false)
 	{
 		// Special case - local server
 		if ($server === '<self>') {
-			$server = '127.0.0.1';
+			$server = '127.0.0.1:5003';
+		} elseif (($out = Dnbd3Util::matchAddress($server))) {
+			if (isset($out['v4'])) {
+				$server = $out['v4'];
+			} else {
+				$server = '[' . $out['v6'] . ']';
+			}
+			if (isset($out['port'])) {
+				$server .= $out['port'];
+			} else {
+				$server .= ':5003';
+			}
 		}
-		$url = 'http://' . $server . ':' . $port . '/query?';
+		$url = 'http://' . $server . '/query?';
 		if ($stats) {
 			$url .= 'q=stats&';
 		}

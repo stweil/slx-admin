@@ -52,12 +52,11 @@ class Dnbd3Util {
 		// Now query them all
 		$NOW = time();
 		foreach ($servers as $server) {
-			$port = 5003;
-			$data = Dnbd3Rpc::query($server['addr'], $port, true, false, false, true);
+			$data = Dnbd3Rpc::query($server['addr'], true, false, false, true);
 			if ($data === Dnbd3Rpc::QUERY_UNREACHABLE) {
-				$error = 'No (HTTP) reply on port ' . $port;
+				$error = 'No (HTTP) reply from ' . $server['addr'];
 			} elseif ($data === Dnbd3Rpc::QUERY_NOT_200) {
-				$error = 'No HTTP 200 OK on port ' . $port;
+				$error = 'No HTTP 200 OK from ' . $server['addr'];
 			} elseif ($data === Dnbd3Rpc::QUERY_NOT_JSON) {
 				$error = 'Reply to status query is not JSON';
 			} elseif (!is_array($data) || !isset($data['runId'])) {
@@ -245,6 +244,21 @@ class Dnbd3Util {
 			'bgr' => true,
 			'firewall' => false
 		);
+	}
+
+	public static function matchAddress($server)
+	{
+		if (!preg_match('/^(?:\[(?<v6a>[a-f0-9:]+)\]|(?<v6b>[a-f0-9:]+)|(?<v4>[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+))(?<port>:\d+)?$/i',
+				$server, $out)) {
+			return false;
+		}
+		foreach (['v6a', 'v6b'] as $k) {
+			if (isset($out[$k])) {
+				$out['v6'] = $out[$k];
+				unset($out[$k]);
+			}
+		}
+		return $out;
 	}
 
 }

@@ -47,22 +47,18 @@ class Page_Dnbd3 extends Page
 		if (empty($sip)) {
 			$overrideIp = null;
 		} elseif ($server['fixedip'] !== $overrideIp) {
-			$ip = ip2long(trim($sip));
-			if ($ip !== false) {
-				$ip = long2ip($ip);
-			}
-			if ($ip === false) {
-				Message::addError('invalid-ipv4', $sip);
+			if (Dnbd3Util::matchAddress($sip) === false) {
+				Message::addError('invalid-ip', $sip);
 				return;
 			}
 			$res = Database::queryFirst('SELECT serverid FROM dnbd3_server s
 					LEFT JOIN machine m USING (machineuuid)
-					WHERE s.fixedip = :ip OR m.clientip = :ip', compact('ip'));
+					WHERE s.fixedip = :ip OR m.clientip = :ip', ['ip' => $sip]);
 			if ($res !== false) {
-				Message::addError('server-already-exists', $ip);
+				Message::addError('server-already-exists', $sip);
 				return;
 			}
-			$overrideIp = $ip;
+			$overrideIp = $sip;
 		}
 		if ($overrideIp !== false) {
 			Database::exec('UPDATE dnbd3_server SET fixedip = :fixedip WHERE machineuuid = :uuid', array(
@@ -110,12 +106,8 @@ class Page_Dnbd3 extends Page
 			Message::addError('main.parameter-missing', 'ip');
 			return;
 		}
-		$ip = ip2long(trim($ip));
-		if ($ip !== false) {
-			$ip = long2ip($ip);
-		}
-		if ($ip === false) {
-			Message::addError('invalid-ipv4', $ip);
+		if (Dnbd3Util::matchAddress($ip) === false) {
+			Message::addError('invalid-ip', $ip);
 			return;
 		}
 		$res = Database::queryFirst('SELECT serverid FROM dnbd3_server s
@@ -264,7 +256,7 @@ class Page_Dnbd3 extends Page
 		User::assertPermission('view.details');
 		$server = $this->getServerById();
 		Render::addTemplate('page-proxy-header', $server);
-		$stats = Dnbd3Rpc::query($server['ip'], 5003, true, true, true, true, true, true);
+		$stats = Dnbd3Rpc::query($server['ip'], true, true, true, true, true, true);
 		if (!is_array($stats) || !isset($stats['runId'])) {
 			Message::addError('server-unreachable');
 			return;
@@ -473,14 +465,10 @@ class Page_Dnbd3 extends Page
 		User::assertPermission('configure.external');
 		Header('Content-Type: application/json; charset=utf-8');
 		$ip = Request::post('ip', false, 'string');
-		if ($ip === false)
-			die('{"error": "Missing parameter", "fatal": true}');
-		$ip = ip2long(trim($ip));
-		if ($ip !== false) {
-			$ip = long2ip($ip);
+		if (Dnbd3Util::matchAddress($ip) === false) {
+			die('{"error": "Supports IP addresses (with optional port) only, no hostnames", "fatal": true}');
 		}
-		if ($ip === false)
-			die('{"error": "Supports IPv4 only", "fatal": true}');
+
 		// Dup?
 		$res = Database::queryFirst('SELECT serverid FROM dnbd3_server s
 					LEFT JOIN machine m USING (machineuuid)
@@ -488,7 +476,7 @@ class Page_Dnbd3 extends Page
 		if ($res !== false)
 			die('{"error": "Server with this IP already exists", "fatal": true}');
 		// Query
-		$reply = Dnbd3Rpc::query($ip, 5003,true, false, false, true);
+		$reply = Dnbd3Rpc::query($ip,true, false, false, true);
 		if ($reply === Dnbd3Rpc::QUERY_UNREACHABLE)
 			die('{"error": "Could not reach server"}');
 		if ($reply === Dnbd3Rpc::QUERY_NOT_200)
