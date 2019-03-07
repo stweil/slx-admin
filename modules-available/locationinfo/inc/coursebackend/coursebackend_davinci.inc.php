@@ -83,6 +83,8 @@ class CourseBackend_Davinci extends CourseBackend
 			CURLOPT_SSL_VERIFYHOST => $this->verifyHostname ? 2 : 0,
 			CURLOPT_SSL_VERIFYPEER => $this->verifyCert ? 1 : 0,
 			CURLOPT_URL => $url,
+			CURLOPT_TIMEOUT => 15,
+			CURLOPT_CONNECTTIMEOUT => 3,
 		);
 
 		curl_setopt_array($this->curlHandle, $options);

@@ -234,6 +234,8 @@ class CourseBackend_Exchange extends CourseBackend
 		$client->setCurlOptions(array(
 			CURLOPT_SSL_VERIFYPEER => $this->verifyHostname ? 2 : 0,
 			CURLOPT_SSL_VERIFYHOST => $this->verifyCert ? 1 : 0,
+			CURLOPT_TIMEOUT => 15,
+			CURLOPT_CONNECTTIMEOUT => 3,
 		));
 
 		return $client;

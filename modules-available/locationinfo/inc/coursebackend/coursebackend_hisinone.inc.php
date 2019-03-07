@@ -174,9 +174,8 @@ class CourseBackend_HisInOne extends CourseBackend
 	private function postToServer($request, $action)
 	{
 		$header = array(
-			"Content-type: text/xml;charset=\"utf-8\"",
-			"SOAPAction: \"" . $action . "\"",
-			"Content-length: " . strlen($request),
+			'Content-type: text/xml;charset="utf-8"',
+			'SOAPAction: "' . $action . '"',
 		);
 
 		if ($this->curlHandle === false) {
@@ -191,6 +190,8 @@ class CourseBackend_HisInOne extends CourseBackend
 			CURLOPT_URL => $this->location,
 			CURLOPT_POSTFIELDS => $request,
 			CURLOPT_HTTPHEADER => $header,
+			CURLOPT_TIMEOUT => 15,
+			CURLOPT_CONNECTTIMEOUT => 3,
 		);
 
 		curl_setopt_array($this->curlHandle, $options);
