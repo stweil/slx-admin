@@ -1,5 +1,4 @@
 {
-    "auth-failed": "[{{0}}] {{1}} Error: {{2}}",
     "config-saved": "Config successfully saved.",
     "ignored-invalid-end": "Ignored entry with invalid end time",
     "ignored-invalid-range": "Ignored entry with invalid range",

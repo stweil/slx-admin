@@ -204,7 +204,7 @@ function getCalendar($idList)
 			$calendarFromBackend = array();
 		}
 
-		LocationInfo::setServerError($serverid, $serverInstance->getError());
+		LocationInfo::setServerError($serverid, $serverInstance->getErrors());
 
 		if (is_array($calendarFromBackend)) {
 			foreach ($calendarFromBackend as $key => $value) {

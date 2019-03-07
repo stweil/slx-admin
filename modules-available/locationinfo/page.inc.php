@@ -59,11 +59,16 @@ class Page_LocationInfo extends Page
 	 */
 	protected function doRender()
 	{
+		$data = array('class-' . $this->show => 'active', 'errors' => []);
 		// Do this here so we always see backend errors
 		if (User::hasPermission('backend.*')) {
 			$backends = $this->loadBackends();
+			foreach ($backends as $backend) {
+				if (!empty($backend['error'])) {
+					$data['errors'][] = $backend;
+				}
+			}
 		}
-		$data = array('class-' . $this->show => 'active');
 		Permission::addGlobalTags($data['perms'], null, ['backend.*', 'location.*', 'panel.list']);
 		Render::addTemplate('page-tabs', $data);
 		switch ($this->show) {
@@ -78,6 +83,9 @@ class Page_LocationInfo extends Page
 			break;
 		case 'panels':
 			$this->showPanelsTable();
+			break;
+		case 'backendlog':
+			$this->showBackendLog();
 			break;
 		default:
 			Util::redirect('?do=locationinfo');
@@ -471,7 +479,7 @@ class Page_LocationInfo extends Page
 			$serverInstance->checkConnection();
 		}
 
-		LocationInfo::setServerError($serverid, $serverInstance->getError());
+		LocationInfo::setServerError($serverid, $serverInstance->getErrors());
 	}
 
 	private function loadBackends()
@@ -495,14 +503,14 @@ class Page_LocationInfo extends Page
 			}
 
 			if (!empty($row['error'])) {
-				$row['autherror'] = true;
 				$error = json_decode($row['error'], true);
 				if (isset($error['timestamp'])) {
-					$time = date('Y/m/d H:i:s', $error['timestamp']);
+					$time = date('Y-m-d H:i', $error['timestamp']);
 				} else {
 					$time = '???';
 				}
-				Message::addError('auth-failed', $row['servername'], $time, $error['error']);
+				$row['error'] = $error['error'];
+				$row['errtime'] = $time;
 			}
 			$serverlist[] = $row;
 		}
@@ -521,6 +529,31 @@ class Page_LocationInfo extends Page
 		Permission::addGlobalTags($data['perms'], null, ['backend.edit', 'backend.check']);
 		// Pass the data to the html and render it.
 		Render::addTemplate('page-servers', $data);
+	}
+
+	private function showBackendLog()
+	{
+		$id = Request::get('serverid', false, 'int');
+		if ($id === false) {
+			Message::addError('main.parameter-missing', 'serverid');
+			Util::redirect('?do=locationinfo');
+		}
+		$server = Database::queryFirst('SELECT servername FROM locationinfo_coursebackend
+				WHERE serverid = :id', ['id' => $id]);
+		if ($server === false) {
+			Message::addError('invalid-server-id', $id);
+			Util::redirect('?do=locationinfo');
+		}
+		$server['list'] = [];
+		$res = Database::simpleQuery('SELECT dateline, message FROM locationinfo_backendlog
+				WHERE serverid = :id ORDER BY logid DESC LIMIT 100', ['id' => $id]);
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['dateline_s'] = Util::prettyTime($row['dateline']);
+			$row['class'] = substr($row['message'], 0, 3) === '[F]' ? 'text-danger' : 'text-warning';
+			$row['message'] = Substr($row['message'], 3);
+			$server['list'][] = $row;
+		}
+		Render::addTemplate('page-server-log', $server);
 	}
 
 	private function showLocationsTable()

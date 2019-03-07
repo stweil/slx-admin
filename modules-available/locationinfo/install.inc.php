@@ -35,6 +35,16 @@ $t3 = $res[] = tableCreate('locationinfo_panel', "
 	KEY `panelname` (`panelname`)
 ");
 
+// 2019-03-06: Add logging table
+$res[] = tableCreate('locationinfo_backendlog', "
+	`logid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`serverid` int(10) UNSIGNED NOT NULL,
+	`dateline` int(10) UNSIGNED NOT NULL,
+	`message` varchar(500) NOT NULL,
+	PRIMARY KEY (`logid`),
+	KEY (`serverid`)
+");
+
 // Update
 
 if ($t1 === UPDATE_NOOP) {
@@ -87,6 +97,13 @@ if (!tableHasColumn('locationinfo_locationconfig', 'lastuse')) {
 		finalResponse(UPDATE_FAILED, 'Could not add lastuse column');
 	}
 	$res[] = UPDATE_DONE;
+}
+
+// 2019-03-06: Add logging table constraint
+if (tableGetConstraints('locationinfo_backendlog', 'serverid',
+		'locationinfo_coursebackend', 'serverid') === false) {
+	$res[] = tableAddConstraint('locationinfo_backendlog', 'serverid',
+		'locationinfo_coursebackend', 'serverid', 'ON UPDATE CASCADE ON DELETE CASCADE');
 }
 
 // Create response for browser

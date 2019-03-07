@@ -1,5 +1,4 @@
 {
-    "auth-failed": "[{{0}}] {{1}} Error: {{2}}",
     "config-saved": "Einstellungen erfolgreich gespeichert.",
     "ignored-invalid-end": "Eintrag mit ung\u00fcltiger Endzeit ignoriert",
     "ignored-invalid-range": "Eintrag mit ung\u00fcltiger Range ignoriert",

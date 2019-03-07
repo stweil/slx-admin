@@ -9,6 +9,7 @@
 		<th>{{lang_locationName}}</th>
 		<th class="text-center slx-smallcol">{{lang_edit}}</th>
 		<th class="text-center slx-smallcol">{{lang_checkConnection}}</th>
+		<th class="text-center slx-smallcol">{{lang_showLog}}</th>
 		<th class="text-center slx-smallcol">{{lang_delete}}</th>
 	</tr>
 	</thead>
@@ -32,6 +33,11 @@
 							name="action" value="checkConnection" type="submit">
 						<span class="glyphicon glyphicon-refresh"></span>
 					</button>
+				</td>
+				<td class="text-center">
+					<a href="?do=locationinfo&amp;show=backendlog&amp;serverid={{serverid}}" class="btn btn-xs btn-default">
+						<span class="glyphicon glyphicon-list-alt"></span>
+					</a>
 				</td>
 				<td class="text-center">
 					<button type="button" class="btn btn-xs btn-danger" onclick="$('#del-serverid').val({{serverid}})"

@@ -14,7 +14,7 @@ class CourseBackend_Davinci extends CourseBackend
 	public function setCredentialsInternal($data)
 	{
 		if (empty($data['baseUrl'])) {
-			$this->error = "No url is given";
+			$this->addError("No url is given", true);
 			return false;
 		}
 		$location = preg_replace('#/+(davinciis\.dll)?\W*$#i', '', $data['baseUrl']);
@@ -27,16 +27,17 @@ class CourseBackend_Davinci extends CourseBackend
 	public function checkConnection()
 	{
 		if (empty($this->location)) {
-			$this->error = "Credentials are not set";
-		} else {
-			$startDate = new DateTime('today 0:00');
-			$endDate = new DateTime('+7 days 0:00');
-			$data = $this->fetchRoomRaw('someroomid123', $startDate, $endDate);
-			if ($data !== false && strpos($data, 'DAVINCI SERVER') === false) {
-				$this->error = "Unknown reply; this doesn't seem to be a DAVINCI server.";
-			}
+			$this->addError("Credentials are not set", true);
+			return false;
 		}
-		return $this->error === false;
+		$startDate = new DateTime('today 0:00');
+		$endDate = new DateTime('+7 days 0:00');
+		$data = $this->fetchRoomRaw('someroomid123', $startDate, $endDate);
+		if ($data !== false && strpos($data, 'DAVINCI SERVER') === false) {
+			$this->addError("Unknown reply; this doesn't seem to be a DAVINCI server.", true);
+			return false;
+		}
+		return true;
 	}
 
 	public function getCredentialDefinitions()
@@ -87,11 +88,8 @@ class CourseBackend_Davinci extends CourseBackend
 		curl_setopt_array($this->curlHandle, $options);
 		$output = curl_exec($this->curlHandle);
 		if ($output === false) {
-			$this->error = 'Curl error: ' . curl_error($this->curlHandle);
+			$this->addError('Curl error: ' . curl_error($this->curlHandle), true);
 			return false;
-		} else {
-			$this->error = false;
-			///Operation completed successfully
 		}
 		return $output;
 
@@ -109,22 +107,20 @@ class CourseBackend_Davinci extends CourseBackend
 			if ($return === false) {
 				continue;
 			}
-			$return = $this->xmlStringToArray($return);
+			$return = $this->xmlStringToArray($return, $err);
 			if ($return === false) {
-				if (CONFIG_DEBUG) {
-					error_log('Room was ' . $roomId);
-				}
+				$this->addError("Parsing room $roomId XML: $err", false);
 				continue;
 			}
 			$lessons = $this->getArrayPath($return, '/Lessons/Lesson');
 			if ($lessons === false) {
-				$this->error = "Cannot find /Lessons/Lesson in XML";
+				$this->addError("Cannot find /Lessons/Lesson in XML", false);
 				continue;
 			}
 			$timetable = [];
 			foreach ($lessons as $lesson) {
 				if (!isset($lesson['Date']) || !isset($lesson['Start']) || !isset($lesson['Finish'])) {
-					$this->error = 'Lesson is missing Date, Start or Finish';
+					$this->addError('Lesson is missing Date, Start or Finish', false);
 					continue;
 				}
 				$c = (int)$lesson['Date'];

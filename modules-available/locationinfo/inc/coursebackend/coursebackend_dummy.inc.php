@@ -21,12 +21,10 @@ class CourseBackend_Dummy extends CourseBackend
 		$this->pw = $x['password'];
 
 		if ($this->pw === "mfg") {
-			$this->error = false;
 			return true;
-		} else {
-			$this->error = "USE mfg as password!";
-			return false;
 		}
+		$this->addError("USE mfg as password!", true);
+		return false;
 	}
 
 	/**
@@ -35,12 +33,10 @@ class CourseBackend_Dummy extends CourseBackend
 	public function checkConnection()
 	{
 		if ($this->pw == "mfg") {
-			$this->error = false;
 			return true;
-		} else {
-			$this->error = "USE mfg as password!";
-			return false;
 		}
+		$this->addError("USE mfg as password!", true);
+		return false;
 	}
 
 	/**

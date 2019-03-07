@@ -1,3 +1,12 @@
+<div>
+	{{#errors}}
+		<div class="alert alert-danger">
+			[{{errtime}}] <a href="?do=locationinfo&amp;show=backendlog&amp;serverid={{serverid}}"><b>{{servername}}</b></a>:
+			{{error}}
+		</div>
+	{{/errors}}
+</div>
+
 <ul class="nav nav-tabs">
 	<li class="{{class-panels}} {{perms.panel.list.disabled}}"><a href="?do=locationinfo&show=panels">{{lang_panels}}</a></li>
 	<li class="{{class-locations}} {{perms.location.disabled}}"><a href="?do=locationinfo&amp;show=locations">{{lang_locationSettings}}</a></li>

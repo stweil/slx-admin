@@ -46,10 +46,25 @@ class LocationInfo
 	 * Set current error message of given server. Pass null or false to clear.
 	 *
 	 * @param int $serverId id of server
-	 * @param string $message error message to set, null or false clears error.
+	 * @param string|array $message error message to set, array of error message struct, null or false clears error.
 	 */
 	public static function setServerError($serverId, $message)
 	{
+		if (is_array($message)) {
+			$fatal = false;
+			foreach ($message as $m) {
+				if ($m['fatal']) {
+					$fatal = $m['message'];
+				}
+				Database::exec('INSERT INTO locationinfo_backendlog (serverid, dateline, message)
+						VALUES (:sid, :dateline, :message)', [
+					'sid' => $serverId,
+					'dateline' => $m['time'],
+					'message' => ($m['fatal'] ? '[F]' : '[W]') . $m['message'],
+				]);
+			}
+			$message = $fatal;
+		}
 		if ($message === false || $message === null) {
 			Database::exec("UPDATE `locationinfo_coursebackend` SET error = NULL
 					WHERE serverid = :id", array('id' => $serverId));

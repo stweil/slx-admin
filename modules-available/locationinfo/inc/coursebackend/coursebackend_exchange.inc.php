@@ -82,7 +82,7 @@ class CourseBackend_Exchange extends CourseBackend
 		try {
 			$response = $client->ResolveNames($request);
 		} catch (Exception $e) {
-			$this->error = $e->getMessage();
+			$this->addError($e->getMessage(), true);
 			return false;
 		}
 
@@ -92,7 +92,7 @@ class CourseBackend_Exchange extends CourseBackend
 				return !empty($mailadress);
 			}
 		} catch (Exception $e) {
-			$this->error = $e->getMessage();
+			$this->addError($e->getMessage(), true);
 		}
 		return false;
 	}
@@ -108,13 +108,13 @@ class CourseBackend_Exchange extends CourseBackend
 	{
 		foreach (['username', 'password'] as $field) {
 			if (empty($data[$field])) {
-				$this->error = 'setCredentials: Missing field ' . $field;
+				$this->addError('setCredentials: Missing field ' . $field, true);
 				return false;
 			}
 		}
 
 		if (empty($data['serverAddress'])) {
-			$this->error = "No url is given";
+			$this->addError("No url is given", true);
 			return false;
 		}
 
@@ -166,7 +166,7 @@ class CourseBackend_Exchange extends CourseBackend
 			try {
 				$items = $this->findEventsForRoom($client, $startDate, $endDate, $roomId);
 			} catch (Exception $e) {
-				$this->error .= "Failed to search for events for room $roomId: '{$e->getMessage()}'\n";
+				$this->addError("Failed to search for events for room $roomId: '{$e->getMessage()}'", true);
 				continue;
 			}
 
@@ -216,7 +216,7 @@ class CourseBackend_Exchange extends CourseBackend
 			if ($response_message->ResponseClass !== ResponseClassType::SUCCESS) {
 				$code = $response_message->ResponseCode;
 				$message = $response_message->MessageText;
-				$this->error .= "Failed to search for events for room $roomAddress: '$code: $message'\n";
+				$this->addError("Failed to search for events for room $roomAddress: '$code: $message'", true);
 				continue;
 			}
 			$items = array_merge($items, $response_message->RootFolder->Items->CalendarItem);

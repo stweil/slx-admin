@@ -15,9 +15,13 @@ abstract class CourseBackend
 	 */
 	private static $backendTypes = false;
 	/**
-	 * @var boolean|string false = no error, error message otherwise
+	 * @var boolean|string legacy, do not use
 	 */
-	protected $error;
+	protected $error = false;
+	/**
+	 * @var array list of errors that occured, fill using addError()
+	 */
+	private $errors;
 	/**
 	 * @var int as internal serverId
 	 */
@@ -32,7 +36,12 @@ abstract class CourseBackend
 	 */
 	public final function __construct()
 	{
-		$this->error = false;
+		$this->errors = [];
+	}
+
+	protected final function addError($message, $fatal)
+	{
+		$this->errors[] = ['time' => time(), 'message' => $message, 'fatal' => $fatal];
 	}
 
 	/**
@@ -156,13 +165,13 @@ abstract class CourseBackend
 	/**
 	 * Method for fetching the schedule of the given rooms on a server.
 	 *
-	 * @param array $roomId array of room ID to fetch
+	 * @param array $requestedLocationIds array of room ID to fetch
 	 * @return array|bool array containing the timetables as value and roomid as key as result, or false on error
 	 */
 	public final function fetchSchedule($requestedLocationIds)
 	{
 		if (!is_array($requestedLocationIds)) {
-			$this->error = 'No array of roomids was given to fetchSchedule';
+			$this->addError('No array of roomids was given to fetchSchedule', false);
 			return false;
 		}
 		if (empty($requestedLocationIds))
@@ -286,7 +295,16 @@ abstract class CourseBackend
 	 */
 	public final function getError()
 	{
+		trigger_error('getError() is legacy; use getErrors()');
 		return $this->error;
+	}
+
+	/**
+	 * @return array list of errors that occured during processing.
+	 */
+	public final function getErrors()
+	{
+		return $this->errors;
 	}
 
 	/**
@@ -349,13 +367,13 @@ abstract class CourseBackend
 	 * @param string $response xml document to convert
 	 * @return bool|array array representation of the xml if possible, false otherwise
 	 */
-	protected function xmlStringToArray($response)
+	protected function xmlStringToArray($response, &$error)
 	{
 		$cleanresponse = preg_replace('/(<\/?)(\w+):([^>]*>)/', '$1$2$3', $response);
 		try {
 			$xml = @new SimpleXMLElement($cleanresponse); // This spams before throwing exception
 		} catch (Exception $e) {
-			$this->error = 'Could not parse reply as XML, got ' . get_class($e) . ': ' . $e->getMessage();
+			$error = get_class($e) . ': ' . $e->getMessage();
 			if (CONFIG_DEBUG) {
 				error_log($cleanresponse);
 			}

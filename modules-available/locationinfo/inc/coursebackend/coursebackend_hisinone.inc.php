@@ -20,17 +20,16 @@ class CourseBackend_HisInOne extends CourseBackend
 			// If not using OpenCourseService, require credentials
 			foreach (['username', 'password'] as $field) {
 				if (empty($data[$field])) {
-					$this->error = 'setCredentials: Missing field ' . $field;
+					$this->addError('setCredentials: Missing field ' . $field, true);
 					return false;
 				}
 			}
 		}
 		if (empty($data['baseUrl'])) {
-			$this->error = "No url is given";
+			$this->addError("No url is given", true);
 			return false;
 		}
 
-		$this->error = false;
 		$this->username = $data['username'];
 		if (!empty($data['role'])) {
 			$this->username .= "\t" . $data['role'];
@@ -65,11 +64,10 @@ class CourseBackend_HisInOne extends CourseBackend
 	public function checkConnection()
 	{
 		if (empty($this->location)) {
-			$this->error = "Credentials are not set";
-		} else {
-			$this->findUnit(123456789, date('Y-m-d'), true);
+			$this->addError("Credentials are not set", true);
+			return false;
 		}
-		return $this->error === false;
+		return $this->findUnit(123456789, date('Y-m-d'), true) !== false;
 	}
 
 	/**
@@ -100,22 +98,21 @@ class CourseBackend_HisInOne extends CourseBackend
 
 		$soap_request = $doc->saveXML();
 		$response1 = $this->postToServer($soap_request, "findUnit");
-		if ($this->error !== false) {
+		if ($response1 === false) {
+			$this->addError('Could not fetch room ' . $roomId, true);
 			return false;
 		}
-		$response2 = $this->xmlStringToArray($response1);
+		$response2 = $this->xmlStringToArray($response1, $err);
 		if (!is_array($response2)) {
-			if ($this->error === false) {
-				$this->error = 'Cannot convert XML response to array';
-			}
+			$this->addError("Parsing room $roomId: $err", false);
 			return false;
 		}
 		if (!isset($response2['soapenvBody'])) {
-			$this->error = 'Backend reply is missing element soapenvBody';
+			$this->addError('Backend reply is missing element soapenvBody', true);
 			return false;
 		}
 		if (isset($response2['soapenvBody']['soapenvFault'])) {
-			$this->error = 'SOAP-Fault (' . $response2['soapenvBody']['soapenvFault']['faultcode'] . ") " . $response2['soapenvBody']['soapenvFault']['faultstring'];
+			$this->addError('SOAP-Fault (' . $response2['soapenvBody']['soapenvFault']['faultcode'] . ") " . $response2['soapenvBody']['soapenvFault']['faultstring'], true);
 			return false;
 		}
 		// We only need to check if the connection is working (URL ok, credentials ok, ..) so bail out early
@@ -131,7 +128,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		}
 		$idSubDoc = $this->getArrayPath($response2, $path);
 		if ($idSubDoc === false) {
-			$this->error = 'Cannot find ' . $path;
+			$this->addError('Cannot find ' . $path, false);
 			//@file_put_contents('/tmp/findUnit-1.' . $roomId . '.' . microtime(true), print_r($response2, true));
 			return false;
 		}
@@ -139,7 +136,7 @@ class CourseBackend_HisInOne extends CourseBackend
 			return $idSubDoc;
 		$idList = $this->getArrayPath($idSubDoc, $subpath);
 		if ($idList === false) {
-			$this->error = 'Cannot find ' . $subpath . ' after ' . $path;
+			$this->addError('Cannot find ' . $subpath . ' after ' . $path, false);
 			@file_put_contents('/tmp/bwlp-findUnit-2.' . $roomId . '.' . microtime(true), print_r($idSubDoc, true));
 		}
 		return $idList;
@@ -201,10 +198,7 @@ class CourseBackend_HisInOne extends CourseBackend
 		$output = curl_exec($this->curlHandle);
 
 		if ($output === false) {
-			$this->error = 'Curl error: ' . curl_error($this->curlHandle);
-		} else {
-			$this->error = false;
-			///Operation completed successfully
+			$this->addError('Curl error: ' . curl_error($this->curlHandle), false);
 		}
 		return $output;
 	}
@@ -239,14 +233,8 @@ class CourseBackend_HisInOne extends CourseBackend
 			$ok = false;
 			foreach ($currentWeek as $day) {
 				$roomEventIds = $this->findUnit($roomId, $day, false);
-				if ($roomEventIds === false) {
-					if ($this->error !== false) {
-						error_log('Cannot findUnit(' . $roomId . '): ' . $this->error);
-						$this->error = false;
-					}
-					// TODO: Error gets swallowed
+				if ($roomEventIds === false)
 					continue;
-				}
 				$ok = true;
 				$eventIds = array_merge($eventIds, $roomEventIds);
 			}
@@ -262,12 +250,8 @@ class CourseBackend_HisInOne extends CourseBackend
 		//get all information on each event
 		foreach ($eventIds as $eventId) {
 			$event = $this->readUnit(intval($eventId));
-			if ($event === false) {
-				error_log('Cannot readUnit(' . $eventId . '): ' . $this->error);
-				$this->error = false;
-				// TODO: Error gets swallowed
+			if ($event === false)
 				continue;
-			}
 			$eventDetails = array_merge($eventDetails, $event);
 		}
 		$name = false;
@@ -286,9 +270,9 @@ class CourseBackend_HisInOne extends CourseBackend
 			}
 			$planElements = $this->getArrayPath($event, '/hisplanelements/hisplanelement');
 			if ($planElements === false) {
-				$this->error = 'Cannot find ./hisplanelements/hisplanelement';
-				error_log('Cannot find ./hisplanelements/hisplanelement');
-				error_log(print_r($event, true));
+				$this->addError('Cannot find ./hisplanelements/hisplanelement', false);
+				//error_log('Cannot find ./hisplanelements/hisplanelement');
+				//error_log(print_r($event, true));
 				continue;
 			}
 			foreach ($planElements as $planElement) {
@@ -308,9 +292,9 @@ class CourseBackend_HisInOne extends CourseBackend
 				$unitPlannedDates = $this->getArrayPath($planElement,
 					'/hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
 				if ($unitPlannedDates === false) {
-					$this->error = 'Cannot find ./hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate';
-					error_log('Cannot find ./hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
-					error_log(print_r($planElement, true));
+					$this->addError('Cannot find ./hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate', false);
+					//error_log('Cannot find ./hisplannedDates/hisplannedDate/hisindividualDates/hisindividualDate');
+					//error_log(print_r($planElement, true));
 					continue;
 				}
 				$localName = $this->getArrayPath($planElement, '/hisdefaulttext');
@@ -366,15 +350,17 @@ class CourseBackend_HisInOne extends CourseBackend
 		if ($response1 === false) {
 			return false;
 		}
-		$response2 = $this->xmlStringToArray($response1);
-		if ($response2 === false)
+		$response2 = $this->xmlStringToArray($response1, $err);
+		if ($response2 === false) {
+			$this->addError("Cannot parse unit $unit as XML: $err", false);
 			return false;
+		}
 		if (!isset($response2['soapenvBody'])) {
-			$this->error = 'Backend reply is missing element soapenvBody';
+			$this->addError('Backend reply is missing element soapenvBody', true);
 			return false;
 		}
 		if (isset($response2['soapenvBody']['soapenvFault'])) {
-			$this->error = 'SOAP-Fault (' . $response2['soapenvBody']['soapenvFault']['faultcode'] . ") " . $response2['soapenvBody']['soapenvFault']['faultstring'];
+			$this->addError('SOAP-Fault (' . $response2['soapenvBody']['soapenvFault']['faultcode'] . ") " . $response2['soapenvBody']['soapenvFault']['faultstring'], true);
 			return false;
 		}
 		return $this->getArrayPath($response2, '/soapenvBody/hisreadUnitResponse/hisunit');
