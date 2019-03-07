@@ -105,8 +105,8 @@ class SubPage
 			if ($id === 0) {
 				$row = [
 					'runscriptid' => 0,
-					'visibility_1_checked' => 'checked',
-					'isglobal_1_checked' => 'checked',
+					'visibility_1_selected' => 'selected',
+					'isglobal_0_checked' => 'checked',
 				];
 			} else {
 				$row = Database::queryFirst('SELECT runscriptid, scriptname, content, extension, visibility, passcreds, isglobal
