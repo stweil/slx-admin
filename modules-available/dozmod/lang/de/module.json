@@ -5,7 +5,7 @@
     "submenu_expiredimages": "Abgelaufene VM-Versionen",
     "submenu_ldapfilters": "LDAP-Filter",
     "submenu_mailconfig": "Email-Konfiguration",
-    "submenu_networkrules": "Netzwerk-Regeln",
+    "submenu_networkrules": "Netzwerkregeln",
     "submenu_networkshares": "Netzlaufwerke",
     "submenu_runscripts": "Startskripte",
     "submenu_runtimeconfig": "Limits und Standardwerte",
