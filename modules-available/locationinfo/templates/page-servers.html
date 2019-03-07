@@ -2,19 +2,19 @@
 
 <p>{{lang_serverTableHints}}</p>
 
-<form method="post" action="?do=locationinfo">
-	<table class="table table-hover">
-		<thead>
-		<tr>
-			<th class="text-center slx-smallcol">{{lang_serverType}}</th>
-			<th>{{lang_locationName}}</th>
-			<th class="text-center slx-smallcol">{{lang_edit}}</th>
-			<th class="text-center slx-smallcol">{{lang_checkConnection}}</th>
-			<th class="text-center slx-smallcol">{{lang_delete}}</th>
-		</tr>
-		</thead>
-		<tbody>
-		{{#serverlist}}
+<table class="table table-hover">
+	<thead>
+	<tr>
+		<th class="text-center slx-smallcol">{{lang_serverType}}</th>
+		<th>{{lang_locationName}}</th>
+		<th class="text-center slx-smallcol">{{lang_edit}}</th>
+		<th class="text-center slx-smallcol">{{lang_checkConnection}}</th>
+		<th class="text-center slx-smallcol">{{lang_delete}}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{{#serverlist}}
+		<form method="post" action="?do=locationinfo">
 			<input type="hidden" name="token" value="{{token}}">
 			<input type="hidden" name="serverid" value="{{serverid}}">
 			<tr>
@@ -22,7 +22,7 @@
 				<td nowrap>{{servername}}</td>
 
 				<td class="text-center">
-					<button class="btn btn-xs {{^autherror}}btn-default{{/autherror}}{{#autherror}}btn-danger{{/autherror}}"
+					<button class="btn btn-xs {{^error}}btn-default{{/error}}{{#error}}btn-danger{{/error}}"
 							data-server-edit="{{serverid}}" {{disabled}} {{perms.backend.edit.disabled}} type="button">
 						<span class="glyphicon glyphicon-cog"></span>
 					</button>
@@ -34,15 +34,20 @@
 					</button>
 				</td>
 				<td class="text-center">
-					<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" {{perms.backend.edit.disabled}}>
+					<button type="button" class="btn btn-xs btn-danger" onclick="$('#del-serverid').val({{serverid}})"
+							  data-toggle="modal" data-target="#deleteModal" {{perms.backend.edit.disabled}}>
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
 				</td>
 			</tr>
+		</form>
 		{{/serverlist}}
-		</tbody>
-	</table>
+	</tbody>
+</table>
 
+<form method="post" action="?do=locationinfo">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="serverid" value="" id="del-serverid">
 	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
