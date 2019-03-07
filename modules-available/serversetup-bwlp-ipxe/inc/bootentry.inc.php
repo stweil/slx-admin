@@ -57,7 +57,7 @@ abstract class BootEntry
 			$list[] = StandardBootEntry::EFI;
 		}
 		foreach ($list as $mode) {
-			if (empty($initData['executable'][$mode]))
+			if (empty($ret->toArray()['executable'][$mode]))
 				return null;
 		}
 		return $ret;
@@ -107,7 +107,7 @@ class StandardBootEntry extends BootEntry
 		if ($data instanceof PxeSection) {
 			// Gets arrayfied below
 			$this->executable = $data->kernel;
-			$this->initRd = $data->initrd;
+			$this->initRd = [self::BIOS => $data->initrd];
 			$this->commandLine = ' ' . str_replace('vga=current', '', $data->append) . ' ';
 			$this->resetConsole = true;
 			$this->replace = true;
@@ -126,14 +126,28 @@ class StandardBootEntry extends BootEntry
 			}
 			$this->commandLine = trim(preg_replace('/\s+/', ' ', $this->commandLine));
 		} else {
+			if (isset($data['initRd']) && is_array($data['initRd'])) {
+				foreach ($data['initRd'] as &$initrd) {
+					if (is_string($initrd)) {
+						$initrd = preg_split('/\s*,\s*/', $initrd);
+					}
+				}
+				unset($initrd);
+			}
 			parent::__construct($data);
 		}
 		// Convert legacy DB format
 		foreach (['executable', 'initRd', 'commandLine', 'replace', 'autoUnload', 'resetConsole'] as $key) {
 			if (!is_array($this->{$key})) {
-				$this->{$key} = [ 'PCBIOS' => $this->{$key}, 'EFI' => '' ];
+				$this->{$key} = [ self::BIOS => $this->{$key}, self::EFI => '' ];
 			}
 		}
+		foreach ($this->initRd as &$initrd) {
+			if (!is_array($initrd)) {
+				$initrd = [$initrd];
+			}
+		}
+		unset($initrd);
 		if ($this->arch === null) {
 			$this->arch = self::AGNOSTIC;
 		}
@@ -168,14 +182,12 @@ class StandardBootEntry extends BootEntry
 		if ($this->resetConsole[$mode]) {
 			$script .= "console ||\n";
 		}
+		$initrds = [];
 		if (!empty($this->initRd[$mode])) {
 			$script .= "imgfree ||\n";
-			if (!is_array($this->initRd[$mode])) {
-				$script .= "initrd {$this->initRd[$mode]} || goto $failLabel\n";
-			} else {
-				foreach ($this->initRd[$mode] as $initrd) {
-					$script .= "initrd $initrd || goto $failLabel\n";
-				}
+			foreach (array_values($this->initRd[$mode]) as $i => $initrd) {
+				$script .= "initrd --name initrd$i $initrd || goto $failLabel\n";
+				$initrds[] = "initrd$i";
 			}
 		}
 		$script .= "boot ";
@@ -186,9 +198,13 @@ class StandardBootEntry extends BootEntry
 			$script .= "-r ";
 		}
 		$script .= $this->executable[$mode];
-		$rdBase = basename($this->initRd[$mode]);
+		if (empty($initrds)) {
+			$rdBase = '';
+		} else {
+			$rdBase = " initrd=" . implode(',', $initrds);
+		}
 		if (!empty($this->commandLine[$mode])) {
-			$script .= " initrd=$rdBase {$this->commandLine[$mode]}";
+			$script .= "$rdBase {$this->commandLine[$mode]}";
 		}
 		$script .= " || goto $failLabel\n";
 		if ($this->resetConsole[$mode]) {
@@ -205,7 +221,7 @@ class StandardBootEntry extends BootEntry
 				'is' . $mode => true,
 				'mode' => $mode,
 				'executable' => $this->executable[$mode],
-				'initRd' => $this->initRd[$mode],
+				'initRd' => implode(',', $this->initRd[$mode]),
 				'commandLine' => $this->commandLine[$mode],
 				'replace_checked' => $this->replace[$mode] ? 'checked' : '',
 				'autoUnload_checked' => $this->autoUnload[$mode] ? 'checked' : '',

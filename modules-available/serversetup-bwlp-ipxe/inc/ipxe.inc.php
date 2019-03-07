@@ -207,7 +207,7 @@ class IPxe
 			'isdefault' => $isDefault,
 		]);
 		$menuId = Database::lastInsertId();
-		if (!array_key_exists($defaultLabel, $menuEntries) && $timeoutMs > 0) {
+		if (($defaultLabel === false || !array_key_exists($defaultLabel, $menuEntries)) && $timeoutMs > 0) {
 			$defaultLabel = array_keys($menuEntries)[0];
 		}
 		// Link boot entries to menu
@@ -236,7 +236,10 @@ class IPxe
 			if ($entry instanceof PxeSection) {
 				$data['hidden'] = (int)$entry->isHidden;
 				// Prefer explicit data from this imported menu over the defaults
-				$data['title'] = self::sanitizeIpxeString($entry->title);
+				$title = self::sanitizeIpxeString($entry->title);
+				if (!empty($title)) {
+					$data['title'] = $title;
+				}
 				if (MenuEntry::getKeyCode($entry->hotkey) !== false) {
 					$data['hotkey'] = $entry->hotkey;
 				}
@@ -266,22 +269,28 @@ class IPxe
 
 	private static function createDefaultEntries()
 	{
-		$query = 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
-			VALUES (:entryid, :hotkey, :title, 1, :data)';
-		Database::exec($query,
+		Database::exec( 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
+			VALUES (:entryid, :hotkey, :title, 1, :data)',
 			[
-				'script' => '
+				'entryid' => 'bwlp-default',
+				'hotkey' => 'B',
+				'title' => 'bwLehrpool-Umgebung starten',
+				'data' => json_encode([
+					'script' => '
 imgfree ||
 set slxextra ,logo ||
 initrd /boot/default/initramfs-stage31 || goto fail
 initrd --name logo /tftp/bwlp.ppm.gz /etc/splash.ppm.gz || clear slxextra
 boot -a -r /boot/default/kernel initrd=initramfs-stage31${slxextra} slxbase=boot/default quiet splash loglevel=5 rd.systemd.show_status=auto intel_iommu=igfx_off ${ipappend1} ${ipappend2} || goto fail
 ',
+				]),
 			]);
+		$query = 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
+			VALUES (:entryid, :hotkey, :title, 1, :data)';
 		Database::exec($query,
 			[
 				'entryid' => 'bwlp-default-dbg',
-				'hotkey' => '',
+				'hotkey' => 'D',
 				'title' => 'bwLehrpool-Umgebung starten (nosplash, debug)',
 				'data' => json_encode([
 					'executable' => '/boot/default/kernel',
