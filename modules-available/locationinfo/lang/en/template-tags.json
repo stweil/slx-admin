@@ -1,6 +1,5 @@
 {
     "lang_addServer": "Server",
-    "lang_areYouSure": "Are you sure?",
     "lang_autoScale": "Auto Days",
     "lang_autoscaleTooltip": "Calculates the optimum amount of days to show from the display width",
     "lang_backend": "Backend",
@@ -29,9 +28,9 @@
     "lang_entryName": "Name",
     "lang_error": "Error",
     "lang_expertMode": "Expert mode",
+    "lang_for": "for",
     "lang_fourLocsHint": "You can pick up to four locations that will be shown in this panel.",
     "lang_free": "Open",
-    "lang_for": "for",
     "lang_general": "General",
     "lang_ignoreSslTooltip": "Accept invalid, expired or self-signed ssl certificates",
     "lang_insecureSsl": "Insecure SSL",
@@ -51,6 +50,7 @@
     "lang_longThu": "Thursday",
     "lang_longTue": "Tuesday",
     "lang_longWed": "Wednesday",
+    "lang_message": "Message",
     "lang_mode": "Mode",
     "lang_mode1": "Calendar & Room",
     "lang_mode2": "Calendar",
@@ -93,6 +93,7 @@
     "lang_scaleTooltip": "[10-90] Defines the calendar width (in percent)",
     "lang_sec": "sec",
     "lang_server": "Server",
+    "lang_serverLogHead": "Error log",
     "lang_serverTable": "Manage backend servers",
     "lang_serverTableHints": "List of all configured server backends. Those are required if you want to show calendar events for your locations.",
     "lang_serverTooltip": "Defines from which server the room queries the calendar data",
@@ -111,7 +112,9 @@
     "lang_shortTuesday": "Tue",
     "lang_shortWed": "Wed",
     "lang_shortWednesday": "Wed",
+    "lang_showLog": "Log",
     "lang_summaryPanel": "Summary panel",
+    "lang_summaryUpdateIntervalTooltip": "Update interval (seconds)",
     "lang_sunday": "Sunday",
     "lang_switchTime": "Switchtime",
     "lang_switchTimeTooltip": "[1-120] Sets the time between switching (in seconds)",
@@ -123,5 +126,6 @@
     "lang_urlTooltip": "URL which is shown by the panel",
     "lang_useRoomplanner": "Use roomplans",
     "lang_vertical": "Vertical mode",
-    "lang_verticalTooltip": "Defines whether the room and calendar are shown above each other"
+    "lang_verticalTooltip": "Defines whether the room and calendar are shown above each other",
+    "lang_when": "When"
 }
