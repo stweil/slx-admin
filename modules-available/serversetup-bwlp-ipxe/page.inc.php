@@ -87,6 +87,11 @@ class Page_ServerSetup extends Page
 			$this->saveLocalboot();
 		}
 
+		if ($action === 'import') {
+			User::assertPermission('ipxe.bootentry.edit');
+			$this->execImportPxeMenu();
+		}
+
 		if ($action === 'deleteMenu') {
 			// Permcheck in function
 			$this->deleteMenu();
@@ -115,6 +120,9 @@ class Page_ServerSetup extends Page
 		}
 		if (User::hasPermission('ipxe.localboot.*')) {
 			Dashboard::addSubmenu('?do=serversetup&show=localboot', Dictionary::translate('submenu_localboot', true));
+		}
+		if (User::hasPermission('ipxe.bootentry.*')) {
+			Dashboard::addSubmenu('?do=serversetup&show=import', Dictionary::translate('submenu_import', true));
 		}
 		if (Request::get('show') === false) {
 			$subs = Dashboard::getSubmenus();
@@ -173,6 +181,10 @@ class Page_ServerSetup extends Page
 		case 'localboot':
 			User::assertPermission('ipxe.localboot.*');
 			$this->showLocalbootConfig();
+			break;
+		case 'import':
+			User::assertPermission('ipxe.bootentry.edit');
+			$this->showImportMenu();
 			break;
 		default:
 			Util::redirect('?do=serversetup');
@@ -265,6 +277,11 @@ class Page_ServerSetup extends Page
 			'exceptions' => $models,
 		];
 		Render::addTemplate('localboot', $data);
+	}
+
+	private function showImportMenu()
+	{
+		Render::addTemplate('page-import');
 	}
 
 	private function showBootentryList()
@@ -375,32 +392,45 @@ class Page_ServerSetup extends Page
 		}
 		$menu['keys'] = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
 		$menu['entrylist'] = Database::queryAll("SELECT entryid, title, hotkey, data FROM serversetup_bootentry ORDER BY title ASC");
+		class_exists('BootEntry'); // Leave this here for StandardBootEntry
 		foreach ($menu['entrylist'] as &$bootentry) {
-			//$bootentry['json'] = $bootentry['data'];
 			$bootentry['data'] = json_decode($bootentry['data'], true);
+			// Transform stuff suitable for mustache
 			if (array_key_exists('arch', $bootentry['data'])) {
-				$bootentry['data']['PCBIOS'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
-																'initRd' => $bootentry['data']['initRd']['PCBIOS'],
-																'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
-				$bootentry['data']['EFI'] = array('executable' => $bootentry['data']['executable']['EFI'],
-															'initRd' => $bootentry['data']['initRd']['EFI'],
-															'commandLine' => $bootentry['data']['commandLine']['EFI']);
-
-				if ($bootentry['data']['arch'] === 'PCBIOS') {
+				// BIOS/EFI or both
+				if ($bootentry['data']['arch'] === StandardBootEntry::BIOS
+						|| $bootentry['data']['arch'] === StandardBootEntry::BOTH) {
+					$bootentry['data']['PCBIOS'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
+						'initRd' => $bootentry['data']['initRd']['PCBIOS'],
+						'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
+				}
+				if ($bootentry['data']['arch'] === StandardBootEntry::EFI
+						|| $bootentry['data']['arch'] === StandardBootEntry::BOTH) {
+					$bootentry['data']['EFI'] = array('executable' => $bootentry['data']['executable']['EFI'],
+						'initRd' => $bootentry['data']['initRd']['EFI'],
+						'commandLine' => $bootentry['data']['commandLine']['EFI']);
+				}
+				// Naming and agnostic
+				if ($bootentry['data']['arch'] === StandardBootEntry::BIOS) {
 					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_biosOnly', true);
 					unset($bootentry['data']['EFI']);
-				} else if ($bootentry['data']['arch'] === 'EFI') {
+				} elseif ($bootentry['data']['arch'] === StandardBootEntry::EFI) {
 					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_efiOnly', true);
 					unset($bootentry['data']['PCBIOS']);
+				} elseif ($bootentry['data']['arch'] === StandardBootEntry::AGNOSTIC) {
+					$bootentry['data']['archAgnostic'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
+						'initRd' => $bootentry['data']['initRd']['PCBIOS'],
+						'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
+					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archAgnostic', true);
+					unset($bootentry['data']['EFI']);
 				} else {
 					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archBoth', true);
 				}
-
-			} elseif (!array_key_exists('script', $bootentry['data'])) {
-				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archAgnostic', true);
-				$bootentry['data']['archAgnostic'] = array('executable' => $bootentry['data']['executable'],
-																		'initRd' => $bootentry['data']['initRd'],
-																		'commandLine' => $bootentry['data']['commandLine']);
+				foreach ($bootentry['data'] as &$e) {
+					if (isset($e['initRd']) && is_array($e['initRd'])) {
+						$e['initRd'] = implode(',', $e['initRd']);
+					}
+				}
 			}
 		}
 		foreach ($menu['entries'] as &$entry) {
@@ -825,6 +855,34 @@ class Page_ServerSetup extends Page
 		}
 		Message::addSuccess('localboot-saved');
 		Util::redirect('?do=serversetup&show=localboot');
+	}
+
+	private function execImportPxeMenu()
+	{
+		$content = Request::post('pxemenu', false, 'string');
+		if (empty($content)) {
+			Message::addError('main.parameter-empty', 'pxemenu');
+			Util::redirect('?do=serversetup&show=import');
+		}
+		$menu = PxeLinux::parsePxeLinux($content, false);
+		if (empty($menu->sections)) {
+			Message::addWarning('import-no-entries');
+			Util::redirect('?do=serversetup&show=import');
+		}
+		if (Request::post('entries-only', 0, 'int') !== 0) {
+			$foo = [];
+			$bar = false;
+			IPxe::importPxeMenuEntries($menu, $foo, $bar);
+			Util::redirect('?do=serversetup&show=bootentry');
+		} else {
+			$id = IPxe::insertMenu($menu, 'Imported Menu', false,  0, [], []);
+			if ($id === false) {
+				Message::addError('import-error');
+				Util::redirect('?do=serversetup&show=import');
+			} else {
+				Util::redirect('?do=serversetup&show=editmenu&id=' . $id);
+			}
+		}
 	}
 
 }

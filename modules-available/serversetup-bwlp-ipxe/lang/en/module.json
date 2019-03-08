@@ -14,6 +14,7 @@
     "submenu_address": "Server address",
     "submenu_bootentry": "Manage menu items",
     "submenu_download": "Downloads",
+    "submenu_import": "Import",
     "submenu_localboot": "HDD boot",
     "submenu_menu": "Manage menus"
 }

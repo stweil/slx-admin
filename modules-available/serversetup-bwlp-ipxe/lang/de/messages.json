@@ -4,6 +4,8 @@
     "bootentry-deleted": "Men\u00fceintrag gel\u00f6scht",
     "error-saving-entry": "Fehler beim Speichern des Eintrags {{0}}: {{1}}",
     "image-not-found": "USB-Image nicht gefunden. Generieren Sie das Bootmen\u00fc neu.",
+    "import-error": "Fehler beim Importieren",
+    "import-no-entries": "Nichts importiert: Men\u00fc scheint leer zu sein",
     "invalid-boot-entry": "Ung\u00fcltiger Men\u00fceintrag: {{0}}",
     "invalid-ip": "Kein Interface ist auf die Adresse {{0}} konfiguriert",
     "invalid-menu-id": "Ung\u00fcltige Men\u00fc-ID: {{0}}",

@@ -9,7 +9,7 @@ class IPxe
 	 * @param string $configPath The pxelinux.cfg path where to look for menu files in hexadecimal IP format.
 	 * @return Number of menus imported
 	 */
-	public static function importPxeMenus($configPath)
+	public static function importSubnetPxeMenus($configPath)
 	{
 		$importCount = 0;
 		$menus = [];
@@ -23,9 +23,11 @@ class IPxe
 			$start = hexdec(str_pad($file,8, '0'));
 			$end =  hexdec(str_pad($file,8, 'f')); // TODO ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^PREFIX
 			error_log('From ' . long2ip($start) . ' to ' . long2ip($end));
+			// Get all subnets that lie within the range defined by the pxelinux filename
 			$res = Database::simpleQuery("SELECT locationid, startaddr, endaddr FROM subnet
 				WHERE startaddr >= :start AND endaddr <= :end", compact('start', 'end'));
 			$locations = [];
+			// Iterate over result, eliminate those that are dominated by others
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				foreach ($locations as &$loc) {
 					if ($row['startaddr'] <= $loc['startaddr'] && $row['endaddr'] >= $loc['endaddr']) {
@@ -37,7 +39,7 @@ class IPxe
 				unset($loc);
 				$locations[] = $row;
 			}
-			$menu = PxeLinux::parsePxeLinux($content);
+			$menu = PxeLinux::parsePxeLinux($content, true);
 			$key = $menu->hash(true);
 			if (isset($menus[$key])) {
 				$menuId = $menus[$key];
@@ -123,19 +125,19 @@ class IPxe
 			'',
 			'poweroff' => false,
 		];
-		return self::insertMenu(PxeLinux::parsePxeLinux($pxeConfig), $menuTitle, $defaultLabel, $timeoutSecs, $prepend, $append);
+		return self::insertMenu(PxeLinux::parsePxeLinux($pxeConfig, false), $menuTitle, $defaultLabel, $timeoutSecs, $prepend, $append);
 	}
 
 	/**
 	 * @param PxeMenu $pxeMenu
 	 * @param string $menuTitle
 	 * @param string|false $defaultLabel
-	 * @param $defaultTimeoutSeconds
-	 * @param $prepend
-	 * @param $append
-	 * @return bool|int
+	 * @param int $defaultTimeoutSeconds
+	 * @param array $prepend
+	 * @param array $append
+	 * @return int|false
 	 */
-	private static function insertMenu($pxeMenu, $menuTitle, $defaultLabel, $defaultTimeoutSeconds, $prepend, $append)
+	public static function insertMenu($pxeMenu, $menuTitle, $defaultLabel, $defaultTimeoutSeconds, $prepend, $append)
 	{
 		$timeoutMs = [];
 		$menuEntries = $prepend;
@@ -150,42 +152,8 @@ class IPxe
 			}
 			$timeoutMs[] = $pxe->timeoutMs;
 			$timeoutMs[] = $pxe->totalTimeoutMs;
-			foreach ($pxe->sections as $section) {
-				if ($section->localBoot || preg_match('/chain\.c32$/i', $section->kernel)) {
-					$menuEntries['localboot'] = 'localboot';
-					continue;
-				}
-				if ($section->label === null) {
-					if (!$section->isHidden && !empty($section->title)) {
-						$menuEntries[] = $section->title;
-					}
-					continue;
-				}
-				if (empty($section->kernel)) {
-					if (!$section->isHidden && !empty($section->title)) {
-						$menuEntries[] = $section->title;
-					}
-					continue;
-				}
-				$entry = self::pxe2BootEntry($section);
-				if ($entry === null)
-					continue;
-				$label = self::cleanLabelFixLocal($section);
-				if ($defaultLabel === $section->label) {
-					$defaultLabel = $label;
-				}
-				$hotkey = MenuEntry::filterKeyName($section->hotkey);
-				// Create boot entry
-				$data = $entry->toArray();
-				Database::exec('INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
-				VALUES (:label, :hotkey, :title, 0, :data)', [
-					'label' => $label,
-					'hotkey' => $hotkey,
-					'title' => self::sanitizeIpxeString($section->title),
-					'data' => json_encode($data),
-				]);
-				$menuEntries[$label] = $section;
-			}
+			error_log(print_r($timeoutMs, true));
+			self::importPxeMenuEntries($pxe, $menuEntries, $defaultLabel);
 		}
 		if (is_array($append)) {
 			$menuEntries += $append;
@@ -193,7 +161,7 @@ class IPxe
 		if (empty($menuEntries))
 			return false;
 		// Make menu
-		$timeoutMs = array_filter($timeoutMs, 'is_int');
+		$timeoutMs = array_filter($timeoutMs, function($x) { return is_int($x) && $x > 0; });
 		if (empty($timeoutMs)) {
 			$timeoutMs = (int)($defaultTimeoutSeconds * 1000);
 		} else {
@@ -265,6 +233,59 @@ class IPxe
 		// TODO: masterpw? rather pointless....
 		//$oldMenu['masterpasswordclear'];
 		return $menuId;
+	}
+
+	/**
+	 * Import only the bootentries from the given PXELinux menu
+	 * @param PxeMenu $pxe
+	 * @param array $menuEntries Where to append the generated menu items to
+	 * @param string|false $defaultLabel IN/OUT: Wanted default entry, map to new entrid if found
+	 */
+	public static function importPxeMenuEntries($pxe, &$menuEntries, &$defaultLabel)
+	{
+		foreach ($pxe->sections as $section) {
+			if ($section->localBoot || preg_match('/chain\.c32$/i', $section->kernel)) {
+				$menuEntries['localboot'] = 'localboot';
+				continue;
+			}
+			if ($section->label === null) {
+				if (!$section->isHidden && !empty($section->title)) {
+					$menuEntries[] = $section->title;
+				}
+				continue;
+			}
+			if (empty($section->kernel)) {
+				if (!$section->isHidden && !empty($section->title)) {
+					$menuEntries[] = $section->title;
+				}
+				continue;
+			}
+			$entry = self::pxe2BootEntry($section);
+			if ($entry === null)
+				continue;
+			$label = self::cleanLabelFixLocal($section);
+			if ($defaultLabel === $section->label) {
+				$defaultLabel = $label;
+			}
+			$hotkey = MenuEntry::filterKeyName($section->hotkey);
+			// Create boot entry
+			$data = $entry->toArray();
+			$title = self::sanitizeIpxeString($section->title);
+			if (empty($title)) {
+				$title = self::sanitizeIpxeString($section->label);
+			}
+			if (empty($title)) {
+				$title = $label;
+			}
+			Database::exec('INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
+				VALUES (:label, :hotkey, :title, 0, :data)', [
+				'label' => $label,
+				'hotkey' => $hotkey,
+				'title' => $title,
+				'data' => json_encode($data),
+			]);
+			$menuEntries[$label] = $section;
+		}
 	}
 
 	private static function createDefaultEntries()

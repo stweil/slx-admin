@@ -10,16 +10,11 @@ class PxeLinux
 	 * @param string $input The pxelinux menu to parse
 	 * @return PxeMenu the parsed menu
 	 */
-	public static function parsePxeLinux($input)
+	public static function parsePxeLinux($input, $isCp437)
 	{
-		/*
-		LABEL openslx-debug
-			MENU LABEL ^bwLehrpool-Umgebung starten (nosplash, debug)
-			KERNEL http://IPADDR/boot/default/kernel
-			INITRD http://IPADDR/boot/default/initramfs-stage31
-			APPEND slxbase=boot/default
-			IPAPPEND 3
-		*/
+		if ($isCp437) {
+			$input = iconv('IBM437', 'UTF8//TRANSLIT//IGNORE', $input);
+		}
 		$menu = new PxeMenu;
 		$sectionPropMap = [
 			'menu label' => ['string', 'title'],

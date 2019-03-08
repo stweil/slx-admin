@@ -1,0 +1,32 @@
+<h2>{{lang_pxelinuxImport}}</h2>
+
+<p>
+	{{lang_pxelinuxImportIntro}}
+</p>
+
+<input type="text" name="prevent_autofill" id="prevent_autofill" value="" style="position:absolute;top:-2000px" tabindex="-1">
+<input type="password" name="password_fake" id="password_fake" value=""  style="position:absolute;top:-2000px" tabindex="-1">
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_pxelinuxImport}}
+	</div>
+	<div class="panel-body">
+		<form method="post" action="?do=serversetup">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="action" value="import">
+			<label for="pxemenu">{{lang_pxeMenuContent}}</label>
+			<textarea id="pxemenu" class="form-control" name="pxemenu" rows="25"></textarea>
+			<div class="checkbox">
+				<input type="checkbox" id="entries-only" name="entries-only" value="1">
+				<label for="entries-only">{{lang_pxelinuxEntriesOnly}}</label>
+			</div>
+			<div class="text-right">
+				<button class="btn btn-primary" type="submit">
+					<span class="glyphicon glyphicon-import"></span>
+					{{lang_import}}
+				</button>
+			</div>
+		</form>
+	</div>
+</div>

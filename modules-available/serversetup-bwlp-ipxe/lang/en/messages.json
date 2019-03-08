@@ -4,6 +4,8 @@
     "bootentry-deleted": "Deleted menu item",
     "error-saving-entry": "Error saving item {{0}}: {{1}}",
     "image-not-found": "USB image not found. Try regenerating the boot menu first.",
+    "import-error": "Error importing menu",
+    "import-no-entries": "Nothing imported: Menu seems to be empty",
     "invalid-boot-entry": "Invalid menu item: {{0}}",
     "invalid-ip": "No interface is configured with the address {{0}}",
     "invalid-menu-id": "Invalid menu id: {{0}}",
