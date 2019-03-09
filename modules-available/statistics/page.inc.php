@@ -683,7 +683,7 @@ class Page_Statistics extends Page
 					$row['moduleName'] = $data['moduleName'];
 					$row['modeName'] = $data['modeName'];
 				}
-				if (!$row['isclient']) {
+				if (!$row['isclient'] && $row['state'] === 'IDLE') {
 					$row['state'] = 'OCCUPIED';
 				}
 			}
