@@ -297,6 +297,11 @@ class Page_ServerSetup extends Page
 			$bootentryTable[] = $row;
 		}
 
+		if (empty($bootentryTable)) {
+			IPxe::importLegacyMenu(true);
+			Util::redirect('?do=serversetup&show=bootentry');
+		}
+
 		Render::addTemplate('bootentry-list', array(
 			'bootentryTable' => $bootentryTable,
 			'allowEdit' => $allowEdit,
