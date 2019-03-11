@@ -40,6 +40,9 @@
 				{{#clients}}
 					<tr>
 						<td>
+							{{#isServer}}
+								<span class="glyphicon glyphicon-hdd" title="{{lang_isProxy}}"></span>
+							{{/isServer}}
 							{{address}}
 						</td>
 						<td data-sort="int" data-sort-value="{{bytesSent}}" class="text-right">
