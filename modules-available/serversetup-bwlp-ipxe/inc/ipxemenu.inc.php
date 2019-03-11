@@ -78,7 +78,7 @@ class IPxeMenu
 	public static function forLocation($locationId)
 	{
 		$chain = null;
-		if (Module::isAvailable('location')) {
+		if (Module::isAvailable('locations')) {
 			$chain = Location::getLocationRootChain($locationId);
 		}
 		if (!empty($chain)) {
@@ -115,7 +115,7 @@ class IPxeMenu
 	public static function forClient($ip, $uuid)
 	{
 		$locationId = 0;
-		if (Module::isAvailable('location')) {
+		if (Module::isAvailable('locations')) {
 			$locationId = Location::getFromIpAndUuid($ip, $uuid);
 		}
 		return self::forLocation($locationId);
