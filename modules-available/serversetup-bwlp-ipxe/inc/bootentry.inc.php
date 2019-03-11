@@ -146,6 +146,7 @@ class StandardBootEntry extends BootEntry
 			if (!is_array($initrd)) {
 				$initrd = [$initrd];
 			}
+			$initrd = array_filter($initrd, function($x) { return strlen(trim($x)) !== 0; });
 		}
 		unset($initrd);
 		if ($this->arch === null) {
@@ -182,10 +183,13 @@ class StandardBootEntry extends BootEntry
 		if ($this->resetConsole[$mode]) {
 			$script .= "console ||\n";
 		}
+		// TODO: Checkbox
+		$script .= "imgfree ||\n";
 		$initrds = [];
 		if (!empty($this->initRd[$mode])) {
-			$script .= "imgfree ||\n";
 			foreach (array_values($this->initRd[$mode]) as $i => $initrd) {
+				if (empty($initrd))
+					continue;
 				$script .= "initrd --name initrd$i $initrd || goto $failLabel\n";
 				$initrds[] = "initrd$i";
 			}
