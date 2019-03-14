@@ -84,6 +84,30 @@
 					</div>
 				</div>
 
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="radio">
+								<input type="radio" name="iswhitelist" value="1" {{iswhitelist_1_checked}} id="iswhitelist1" class="form-control">
+								<label for="iswhitelist1">
+									{{lang_urlWhitelist}}
+								</label>
+							</div>
+							<div class="radio">
+								<input type="radio" name="iswhitelist" value="0" {{iswhitelist_0_checked}} id="iswhitelist0" class="form-control">
+								<label for="iswhitelist0">
+									{{lang_urlBlacklist}}
+								</label>
+							</div>
+						</div>
+						<div class="col-sm-7">
+							<textarea name="urllist" rows="10" class="form-control">{{urllist}}</textarea>
+							<p>{{lang_urlListHelp}}</p>
+						</div>
+						<div class="col-sm-2"></div>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>

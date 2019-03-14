@@ -19,13 +19,14 @@ class InfoPanel
 			return false;
 		}
 
+		$config = LocationInfo::defaultPanelConfig($panel['paneltype']);
+
 		if ($panel['paneltype'] === 'URL') {
 			// Shortcut for URL redirect
-			$config = json_decode($panel['panelconfig'], true);
+			$config = json_decode($panel['panelconfig'], true) + $config;
 			return $panel['paneltype'];
 		}
 
-		$config = LocationInfo::defaultPanelConfig($panel['paneltype']);
 		$locations = Location::getLocationsAssoc();
 		$overrides = false;
 
@@ -37,9 +38,6 @@ class InfoPanel
 					$overrides = $json['overrides'];
 				}
 				unset($json['overrides']);
-				if (!isset($json['roomplanner'])) {
-					$config['roomplanner'] = false;
-				}
 				$config = $json + $config;
 			}
 		}

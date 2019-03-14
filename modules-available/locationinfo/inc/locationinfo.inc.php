@@ -114,6 +114,14 @@ class LocationInfo
 				'panelupdate' => 60,
 			);
 		}
+		if ($type === 'URL') {
+			return array(
+				'iswhitelist' => 0,
+				'urllist' => '',
+				'insecure-ssl' => 0,
+				'reload-minutes' => 0,
+			);
+		}
 		return array();
 	}
 
@@ -136,29 +144,30 @@ class LocationInfo
 	 */
 	public static function configHook($machineUuid, $panelUuid)
 	{
-		$row = Database::queryFirst('SELECT paneltype, panelconfig FROM locationinfo_panel WHERE paneluuid = :uuid',
-				array('uuid' => $panelUuid));
-		if ($row === false) {
-			// TODO: Invalid panel - what should we do?
-		} elseif ($row['paneltype'] === 'URL') {
+		$type = InfoPanel::getConfig($panelUuid, $data);
+		if ($type === false)
+			return; // TODO: Invalid panel - what should we do?
+		if ($type === 'URL') {
 			// Check if we should set the insecure SSL mode (accept invalid/self signed certs etc.)
-			$data = json_decode($row['panelconfig'], true);
-			if (is_array($data)) {
-				if (isset($data['insecure-ssl']) && $data['insecure-ssl']) {
-					ConfigHolder::add('SLX_BROWSER_INSECURE', '1');
-				}
-				if (isset($data['reload-minutes']) && $data['reload-minutes']) {
-					ConfigHolder::add('SLX_BROWSER_RELOAD_SECS', $data['reload-minutes'] * 60);
-				}
+			if ($data['insecure-ssl'] !== 0) {
+				ConfigHolder::add('SLX_BROWSER_INSECURE', '1');
 			}
+			if ($data['reload-minutes'] > 0) {
+				ConfigHolder::add('SLX_BROWSER_RELOAD_SECS', $data['reload-minutes'] * 60);
+			}
+			ConfigHolder::add('SLX_BROWSER_URL', $data['url']);
+			ConfigHolder::add('SLX_BROWSER_URLLIST', $data['urllist']);
+			ConfigHolder::add('SLX_BROWSER_IS_WHITELIST', $data['iswhitelist']);
+		} else {
+			// Not URL panel
+			ConfigHolder::add('SLX_BROWSER_URL', 'http://' . $_SERVER['SERVER_ADDR'] . '/panel/' . $panelUuid);
+			ConfigHolder::add('SLX_BROWSER_INSECURE', '1'); // TODO: Sat server might redirect to HTTPS, which in turn could have a self-signed cert - push to client
 		}
-		ConfigHolder::add('SLX_BROWSER_URL', 'http://' . $_SERVER['SERVER_ADDR'] . '/panel/' . $panelUuid);
 		ConfigHolder::add('SLX_ADDONS', '', 1000);
 		ConfigHolder::add('SLX_LOGOUT_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SCREEN_STANDBY_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SYSTEM_STANDBY_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
-		ConfigHolder::add('SLX_BROWSER_INSECURE', '1'); // TODO: Sat server might redirect to HTTPS, which in turn could have a self-signed cert - push to client
 	}
 
 }
