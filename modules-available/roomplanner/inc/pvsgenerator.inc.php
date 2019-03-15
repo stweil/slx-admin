@@ -8,12 +8,6 @@ class PvsGenerator
 
 	public static function generate()
 	{
-
-		if (!Module::isAvailable('locations')) {
-			die('sorry, but the locations module is required');
-		}
-
-
 		/* get all rooms */
 		$rooms = array();
 		// Use left joins everywhere so we still have the complete list of locations below
@@ -127,38 +121,60 @@ class PvsGenerator
 	{
 		$out = "";
 
-		/* this is a virtual grid, we first need this to do some optimizations */
-		$grid = array();
-		/* add each contained client with position and ip */
-		foreach ($machines as $machine) {
-			$grid[$machine['clientip']] = [$machine['gridCol'], $machine['gridRow']];
-		}
 		/* find bounding box */
-		PvsGenerator::boundingBox($grid, $minX, $minY, $maxX, $maxY);
+		PvsGenerator::boundingBox($machines, $minX, $minY, $maxX, $maxY);
 		$clientSizeX = 4; /* TODO: optimize */
 		$clientSizeY = 4; /* TODO: optimize */
 		$sizeX = max($maxX - $minX + $clientSizeX, 1); /* never negative */
 		$sizeY = max($maxY - $minY + $clientSizeY, 1); /* and != 0 to avoid divide-by-zero in pvsmgr */
 
-		/* zoom all clients into bounding box */
-		foreach ($grid as $ip => $pos) {
-			$newX = $grid[$ip][X] - $minX;
-			$newY = $grid[$ip][Y] - $minY;
-			$grid[$ip] = [$newX, $newY];
-		}
-
+		/* output basic settings for this room */
 		$out .= "gridSize=@Size($sizeX $sizeY)\n";
 		$out .= "clientSize=@Size($clientSizeX $clientSizeY)\n";
-		$out .= "client\\size=" . count($grid) . "\n";
+		$out .= "client\\size=" . count($machines) . "\n";
 
+		/* output individual client positions, shift coordinates to origin */
 		$i = 1;
-		foreach ($grid as $ip => $pos) {
-			$out .= "client\\" . $i . "\\ip=$ip\n";
-			$out .= "client\\" . $i++ . "\\pos=@Point(" . $pos[X] . ' ' . $pos[Y] . ")\n";
+		foreach ($machines as $pos) {
+			$out .= "client\\$i\\ip={$pos['clientip']}\n";
+			$out .= "client\\$i\\pos=@Point(" . ($pos['gridCol'] - $minX) . ' ' . ($pos['gridRow'] - $minY) . ")\n";
+			$i++;
 		}
 
 		return $out;
+	}
 
+	/**
+	 * Render given location's room plan as SVG
+	 * @param int $locationId
+	 * @param string|false $highlightUuid
+	 * @return string SVG
+	 */
+	public static function generateSvg($locationId, $highlightUuid = false)
+	{
+		$machines = self::getMachines($locationId);
+		if (empty($machines))
+			return false;
+		PvsGenerator::boundingBox($machines, $minX, $minY, $maxX, $maxY);
+		$clientSizeX = 4; /* TODO: optimize */
+		$clientSizeY = 4; /* TODO: optimize */
+		$sizeX = max($maxX - $minX + $clientSizeX, 1); /* never negative */
+		$sizeY = max($maxY - $minY + $clientSizeY, 1); /* and != 0 to avoid divide-by-zero in pvsmgr */
+		if (is_string($highlightUuid)) {
+			$highlightUuid = strtolower($highlightUuid);
+		}
+		foreach ($machines as &$machine) {
+			if (strtolower($machine['machineuuid']) === $highlightUuid) {
+				$machine['class'] = 'hl';
+			}
+		}
+		return Render::parse('svg-plan', [
+			'width' => $sizeX + 2,
+			'height' => $sizeY + 2,
+			'minX' => $minX - 1,
+			'minY' => $minY - 1,
+			'machines' => $machines,
+		], 'roomplanner'); // FIXME: Needs module param if called from api.inc.php
 	}
 
 	/**
@@ -170,7 +186,7 @@ class PvsGenerator
 	private static function getMachines($roomid)
 	{
 		$ret = Database::simpleQuery(
-			'SELECT clientip, position FROM machine WHERE fixedlocationid = :locationid',
+			'SELECT machineuuid, clientip, position FROM machine WHERE fixedlocationid = :locationid',
 			['locationid' => $roomid]);
 
 		$machines = array();
@@ -181,32 +197,30 @@ class PvsGenerator
 			if ($position === false || !isset($position['gridRow']) || !isset($position['gridCol']))
 				continue; // TODO: Remove entry/set to NULL?
 
-			$machine = array();
-			$machine['clientip'] = $row['clientip'];
-			$machine['gridRow'] = $position['gridRow'];
-			$machine['gridCol'] = $position['gridCol'];
-			$machine['tutor'] = false; /* TODO: find out if machine is default tutor */
-			$machine['manager'] = false; /* TODO: find out if machine is manager */
-
-			$machines[] = $machine;
+			$machines[] = array(
+				'machineuuid' => $row['machineuuid'],
+				'clientip' => $row['clientip'],
+				'gridRow' => $position['gridRow'],
+				'gridCol' => $position['gridCol'],
+			);
 		}
 
 		return $machines;
 
 	}
 
-	private static function boundingBox($grid, &$minX, &$minY, &$maxX, &$maxY)
+	private static function boundingBox($machines, &$minX, &$minY, &$maxX, &$maxY)
 	{
 		$minX = PHP_INT_MAX; /* PHP_INT_MIN is only available since PHP 7 */
 		$maxX = ~PHP_INT_MAX;
 		$minY = PHP_INT_MAX;
 		$maxY = ~PHP_INT_MAX;
 
-		foreach ($grid as $pos) {
-			$minX = min($minX, $pos[X]);
-			$maxX = max($maxX, $pos[X]);
-			$minY = min($minY, $pos[Y]);
-			$maxY = max($maxY, $pos[Y]);
+		foreach ($machines as $pos) {
+			$minX = min($minX, $pos['gridCol']);
+			$maxX = max($maxX, $pos['gridCol']);
+			$minY = min($minY, $pos['gridRow']);
+			$maxY = max($maxY, $pos['gridRow']);
 		}
 	}
 

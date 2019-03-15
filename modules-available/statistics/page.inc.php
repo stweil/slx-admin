@@ -805,7 +805,7 @@ class Page_Statistics extends Page
 	private function showMachine($uuid)
 	{
 		$client = Database::queryFirst('SELECT machineuuid, locationid, macaddr, clientip, firstseen, lastseen, logintime, lastboot, state,
-			mbram, live_tmpsize, live_tmpfree, live_swapsize, live_swapfree, live_memsize, live_memfree,
+			mbram, live_tmpsize, live_tmpfree, live_swapsize, live_swapfree, live_memsize, live_memfree, Length(position) AS hasroomplan,
 			kvmstate, cpumodel, id44mb, data, hostname, currentuser, currentsession, notes FROM machine WHERE machineuuid = :uuid',
 			array('uuid' => $uuid));
 		if ($client === false) {
