@@ -299,10 +299,10 @@ class IPxe
 				'data' => json_encode([
 					'script' => '
 imgfree ||
-set slxextra ,logo ||
+set slxextra initrd=logo ||
 initrd /boot/default/initramfs-stage31 || goto fail
-initrd --name logo /tftp/bwlp.ppm.gz /etc/splash.ppm.gz || clear slxextra
-boot -a -r /boot/default/kernel initrd=initramfs-stage31${slxextra} slxbase=boot/default quiet splash loglevel=5 rd.systemd.show_status=auto intel_iommu=igfx_off ${ipappend1} ${ipappend2} || goto fail
+initrd --name logo /tftp/bwlp.cpio || clear slxextra
+boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boot/default quiet splash loglevel=5 rd.systemd.show_status=auto intel_iommu=igfx_off ${ipappend1} ${ipappend2} || goto fail
 ',
 				]),
 			]);
