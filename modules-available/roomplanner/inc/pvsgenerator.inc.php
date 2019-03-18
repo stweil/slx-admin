@@ -145,36 +145,94 @@ class PvsGenerator
 	}
 
 	/**
-	 * Render given location's room plan as SVG
-	 * @param int $locationId
+	 * Render given location's room plan as SVG.
+	 * If locationId is given, show roomplan for that location.
+	 * If additionally, machineUuid is given, try to highlight
+	 * the given machine in the plan. If only machineUuid is
+	 * given, determine locationId from machine.
+	 *
+	 * @param int|false $locationId
 	 * @param string|false $highlightUuid
+	 * @param int $rotate rotate plan (0-3 for N E S W up, -1 for "auto" if highlightUuid is given)
 	 * @return string SVG
 	 */
-	public static function generateSvg($locationId, $highlightUuid = false)
+	public static function generateSvg($locationId = false, $highlightUuid = false, $rotate = 0)
 	{
+		if ($locationId === false) {
+			$locationId = Database::queryFirst('SELECT locationid FROM machine WHERE machineuuid = :uuid',
+				['uuid' => $highlightUuid]);
+			if ($locationId !== false) {
+				$locationId = $locationId['locationid'];
+			}
+		}
 		$machines = self::getMachines($locationId);
 		if (empty($machines))
 			return false;
+
+		$ORIENTATION = ['north' => 2, 'east' => 3, 'south' => 0, 'west' => 1];
+		if (is_string($highlightUuid)) {
+			$highlightUuid = strtoupper($highlightUuid);
+		}
+		// Figure out autorotate
+		$auto = ($rotate < 0);
+		if ($auto && $highlightUuid !== false) {
+			foreach ($machines as &$machine) {
+				if ($machine['machineuuid'] === $highlightUuid) {
+					$rotate = $ORIENTATION[$machine['rotation']];
+					break;
+				}
+			}
+		}
+		$rotate %= 4;
+		// Highlight given machine, rotate it's "keyboard"
+		foreach ($machines as &$machine) {
+			if ($machine['machineuuid'] === $highlightUuid) {
+				$machine['class'] = 'hl';
+			}
+			$machine['rotation'] = $ORIENTATION[$machine['rotation']] * 90;
+		}
 		PvsGenerator::boundingBox($machines, $minX, $minY, $maxX, $maxY);
 		$clientSizeX = 4; /* TODO: optimize */
 		$clientSizeY = 4; /* TODO: optimize */
+		$minX--;
+		$minY--;
+		$maxX++;
+		$maxY++;
 		$sizeX = max($maxX - $minX + $clientSizeX, 1); /* never negative */
 		$sizeY = max($maxY - $minY + $clientSizeY, 1); /* and != 0 to avoid divide-by-zero in pvsmgr */
-		if (is_string($highlightUuid)) {
-			$highlightUuid = strtolower($highlightUuid);
-		}
-		foreach ($machines as &$machine) {
-			if (strtolower($machine['machineuuid']) === $highlightUuid) {
-				$machine['class'] = 'hl';
-			}
+		if ($rotate === 0) {
+			$centerY = $centerX = 0;
+		} elseif ($rotate === 1) {
+			$centerX = $minX + min($sizeX, $sizeY) / 2;
+			$centerY = $minY + min($sizeX, $sizeY) / 2;
+			self::swap($sizeX, $sizeY);
+		} elseif ($rotate === 2) {
+			$centerX = $minX + $sizeX / 2;
+			$centerY = $minY + $sizeY / 2;
+		} else {
+			$centerX = $minX + max($sizeX, $sizeY) / 2;
+			$centerY = $minY + max($sizeX, $sizeY) / 2;
+			self::swap($sizeX, $sizeY);
 		}
 		return Render::parse('svg-plan', [
-			'width' => $sizeX + 2,
-			'height' => $sizeY + 2,
-			'minX' => $minX - 1,
-			'minY' => $minY - 1,
+			'width' => $sizeX,
+			'height' => $sizeY,
+			'centerX' => $centerX,
+			'centerY' => $centerY,
+			'rotate' => $rotate * 90,
+			'shiftX' => -$minX,
+			'shiftY' => -$minY,
 			'machines' => $machines,
+			'line' => ['x1' => $minX, 'y1' => $maxY + $clientSizeY,
+				'x2' => $maxX + $clientSizeX, 'y2' => $maxY + $clientSizeY],
 		], 'roomplanner'); // FIXME: Needs module param if called from api.inc.php
+	}
+
+	private static function swap(&$a, &$b)
+	{
+		$tmp = $a;
+		$a = $b;
+		$b = $tmp;
 	}
 
 	/**
@@ -197,11 +255,16 @@ class PvsGenerator
 			if ($position === false || !isset($position['gridRow']) || !isset($position['gridCol']))
 				continue; // TODO: Remove entry/set to NULL?
 
+			$rotation = 'north';
+			if (preg_match('/(north|east|south|west)/', $position['itemlook'], $out)) {
+				$rotation = $out[1];
+			}
 			$machines[] = array(
 				'machineuuid' => $row['machineuuid'],
 				'clientip' => $row['clientip'],
 				'gridRow' => $position['gridRow'],
 				'gridCol' => $position['gridCol'],
+				'rotation' => $rotation,
 			);
 		}
 
