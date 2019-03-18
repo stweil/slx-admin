@@ -498,7 +498,7 @@ class Page_Locations extends Page
 			'haveOverlapSelf' => !empty($overlapSelf),
 			'haveOverlapOther' => !empty($overlapOther),
 			'unassignedCount' => $unassigned,
-			'unassignedLoad' => round(($unassignedLoad / $unassigned) * 100) . ' %',
+			'unassignedLoad' => ($unassigned ? (round(($unassignedLoad / $unassigned) * 100) . ' %') : ''),
 			'defaultConfig' => $defaultConfig,
 			'addAllowedList' => array_values($addAllowedList),
 		);
