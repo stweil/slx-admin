@@ -438,7 +438,7 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 					$script .= "set filename {$url['path']} || goto %fail%\n";
 				}
 				$script .= "chain -ar {$file} || goto %fail%\n";
-				return new CustomBootEntry(['script' => $script]);
+				return BootEntry::newCustomBootEntry(['script' => $script]);
 			}
 			return null;
 		}
