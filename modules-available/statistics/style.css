@@ -41,3 +41,11 @@
     z-index: 1000;
     text-shadow: #fff 1px 1px;
 }
+
+.warn {
+    background: #F0AD4E;
+    font-size: 75%;
+    border-radius: 3px;
+    color: #fff;
+    padding: 1px 3px;
+}
