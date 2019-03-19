@@ -244,8 +244,8 @@ class IPxe
 	public static function importPxeMenuEntries($pxe, &$menuEntries, &$defaultLabel)
 	{
 		foreach ($pxe->sections as $section) {
-			if ($section->localBoot || preg_match('/chain\.c32$/i', $section->kernel)) {
-				$menuEntries['localboot'] = 'localboot';
+			if ($section->localBoot !== false || preg_match('/chain\.c32$/i', $section->kernel)) {
+				$menuEntries['localboot'] = $section;
 				continue;
 			}
 			if ($section->label === null) {

@@ -255,9 +255,9 @@ class PxeSection
 	 */
 	public $isDisabled = false;
 	/**
-	 * @var int Value of the LOCALBOOT field
+	 * @var int|false Value of the LOCALBOOT field, false if not set
 	 */
-	public $localBoot;
+	public $localBoot = false;
 	/**
 	 * @var string hotkey to trigger item. Only valid after calling mangle()
 	 */
