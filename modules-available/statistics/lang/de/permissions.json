@@ -2,11 +2,9 @@
     "hardware.projectors.edit": "Beamerzuweisung bearbeiten",
     "hardware.projectors.view": "Beamerzuweisung anzeigen",
     "machine.delete": "Rechner l\u00f6schen.",
-    "machine.note": "Anmerkungen zu einem Rechner speichern.",
     "machine.note.edit": "Anmerkungen bearbeiten",
     "machine.note.view": "Anmerkungen anzeigen",
     "machine.view-details": "Clientinformationen anzeigen",
-    "view": "Statistiken anschauen.",
     "view.list": "Clientliste anzeigen",
     "view.summary": "Visualisierung anzeigen"
 }

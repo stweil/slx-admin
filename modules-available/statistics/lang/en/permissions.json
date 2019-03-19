@@ -2,11 +2,9 @@
     "hardware.projectors.edit": "Edit beamer assignment",
     "hardware.projectors.view": "Show beamer assignment",
     "machine.delete": "Delete clients.",
-    "machine.note": "Save client notes.",
     "machine.note.edit": "Edit notes",
     "machine.note.view": "Show notes",
     "machine.view-details": "Show client details",
-    "view": "View statistics.",
     "view.list": "Show client list",
     "view.summary": "Show visualization"
 }

@@ -1,0 +1,26 @@
+<div><span class="btn btn-{{class}} btn-sm" data-toggle="modal" data-target="#bios-modal">
+	{{lang_biosUpdate}} &raquo;
+</span></div>
+
+<div class="modal fade" id="bios-modal" tabindex="-1" role="dialog" aria-labelledby="bios-modal-label" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+						class="sr-only">Close</span></button>
+				<h4 class="modal-title" id="bios-modal-label">{{lang_biosFixes}}</h4>
+			</div>
+			<div class="modal-body">
+				{{#fixes}}
+					<p><b>{{date}}{{revision}}</b>: {{text}}</p>
+				{{/fixes}}
+				<p>
+					<a href="{{url}}" target="_blank">{{lang_biosUpdateLink}}</a>
+				</p>
+			</div>
+			<div class="modal-footer text-right">
+				<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_close}}</button>
+			</div>
+		</div>
+	</div>
+</div>

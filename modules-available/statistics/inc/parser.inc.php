@@ -87,6 +87,14 @@ class Parser {
 				if (preg_match('/^\s*Configured Clock Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
 					$ramClockSpeed = $out[1];
 				}
+			} elseif ($section === 'BIOS Information') {
+				if (preg_match(',^\s*Release Date:\s*(\d{2}/\d{2}/\d{4})\s*$,i', $line, $out)) {
+					$row['biosdate'] = date('d.m.Y', strtotime($out[1]));
+				} elseif (preg_match('/^\s*BIOS Revision:\s*(.*?)\s*$/i', $line, $out)) {
+					$row['biosrevision'] = $out[1];
+				} elseif (preg_match('/^\s*Version:\s*(.*?)\s*$/i', $line, $out)) {
+					$row['biosversion'] = $out[1];
+				}
 			}
 		}
 		if (empty($row['ramslotcount'])) {

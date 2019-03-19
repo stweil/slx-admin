@@ -890,6 +890,21 @@ class Page_Statistics extends Page
 			}
 		}
 		unset($client['data']);
+		// BIOS update check
+		if (!empty($client['biosrevision'])) {
+			$model = $client['manufacturer'] . '##' . $client['pcmodel'];
+			$ret = $this->checkBios($model, $client['biosdate'], $client['biosrevision']);
+			if ($ret === false) { // Not loaded, use AJAX
+				$params = [
+					'model' => $model,
+					'date' => $client['biosdate'],
+					'revision' => $client['biosrevision'],
+				];
+				$client['biosurl'] = '?do=statistics&action=bios&' . http_build_query($params);
+			} elseif (!isset($ret['status']) || $ret['status'] !== 0) {
+				$client['bioshtml'] = Render::parse('machine-bios-update', $ret);
+			}
+		}
 		// Get locations
 		if (Module::isAvailable('locations')) {
 			$locs = Location::getLocationsAssoc();
@@ -1082,6 +1097,11 @@ class Page_Statistics extends Page
 	{
 		if (!User::load())
 			return;
+		if (Request::any('action') === 'bios') {
+			$this->ajaxCheckBios();
+			return;
+		}
+
 		$param = Request::any('lookup', false, 'string');
 		if ($param === false) {
 			die('No lookup given');
@@ -1143,6 +1163,76 @@ class Page_Statistics extends Page
 				'value' => $value,
 				'timeout' => time() + mt_rand(10, 30) * 86400,
 			), true);
+	}
+
+	const BIOS_CACHE = '/tmp/bwlp-bios.json';
+
+	private function ajaxCheckBios()
+	{
+		$model = Request::any('model', false, 'string');
+		$date = Request::any('date', false, 'string');
+		$revision = Request::any('revision', false, 'string');
+		$reply = $this->checkBios($model, $date, $revision);
+		if ($reply === false) {
+			$data = Download::asString(CONFIG_BIOS_URL, 3, $err);
+			if ($err < 200 || $err >= 300) {
+				$reply = ['error' => 'HTTP: ' . $err];
+			} else {
+				file_put_contents(self::BIOS_CACHE, $data);
+				$data = json_decode($data, true);
+				$reply = $this->checkBios($model, $date, $revision, $data);
+			}
+		}
+		if ($reply === false) {
+			$reply = ['error' => 'Internal Error'];
+		}
+		if (isset($reply['status']) && $reply['status'] === 0)
+			exit; // Show nothing, 0 means OK
+		die(Render::parse('machine-bios-update', $reply));
+	}
+
+	private function checkBios($model, $date, $revision, $json = null)
+	{
+		if ($json === null) {
+			if (!file_exists(self::BIOS_CACHE) || filemtime(self::BIOS_CACHE) + 3600 < time())
+				return false;
+			$json = json_decode(file_get_contents(self::BIOS_CACHE), true);
+		}
+		if (!is_array($json) || !isset($json['system']))
+			return ['error' => 'Malformed JSON, no system key'];
+		if (!isset($json['system'][$model]) || !isset($json['system'][$model]['fixes']) || !isset($json['system'][$model]['match']))
+			return ['status' => 0];
+		$m = $json['system'][$model]['match'];
+		if ($m === 'revision') {
+			$cmp = function ($item) { $s = explode('.', $item); return $s[0] * 0x10000 + $s[1]; };
+			$reference = $cmp($revision);
+		} elseif ($m === 'date') {
+			$cmp = function ($item) { $s = explode('.', $item); return $s[2] * 10000 + $s[1] * 100 + $s[0]; };
+			$reference = $cmp($date);
+		} else {
+			return ['error' => 'Invalid comparison key: ' . $m];
+		}
+		$retval = ['fixes' => []];
+		$level = 0;
+		foreach ($json['system'][$model]['fixes'] as $fix) {
+			if ($cmp($fix[$m]) > $reference) {
+				class_exists('Dictionary'); // Trigger setup of lang stuff
+				$lang = isset($fix['text'][LANG]) ? LANG : 'en';
+				$fix['text'] = $fix['text'][$lang];
+				$retval['fixes'][] = $fix;
+				$level = max($level, $fix['level']);
+			}
+		}
+		$retval['url'] = $json['system'][$model]['url'];
+		$retval['status'] = $level;
+		if ($level > 5) {
+			$retval['class'] = 'danger';
+		} elseif ($level > 3) {
+			$retval['class'] = 'warning';
+		} else {
+			$retval['class'] = 'info';
+		}
+		return $retval;
 	}
 }
 

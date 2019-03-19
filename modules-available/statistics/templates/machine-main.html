@@ -127,6 +127,19 @@
 						<td class="text-nowrap">{{lang_model}}</td>
 						<td>{{pcmodel}} ({{manufacturer}})</td>
 					</tr>
+					{{#biosdate}}
+					<tr>
+						<td class="text-nowrap">
+							<div>{{lang_biosVersion}}</div>
+							<div>{{lang_biosDate}}</div>
+						</td>
+						<td>
+							<div id="bios-panel" class="pull-right">{{{bioshtml}}}</div>
+							<div>{{biosversion}} (<b>{{biosrevision}}</b>)</div>
+							<div>{{biosdate}}</div>
+						</td>
+					</tr>
+					{{/biosdate}}
 					<tr class="{{ramclass}}">
 						<td class="text-nowrap">{{lang_ram}}</td>
 						<td>
@@ -242,5 +255,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	$('span.do-lookup').each(function () {
 		$(this).load('?do=statistics&lookup=' + $(this).text());
 	});
+	{{#biosurl}}
+	$('#bios-panel').load('{{{biosurl}}}');
+	{{/biosurl}}
 }, false);
 // --></script>
