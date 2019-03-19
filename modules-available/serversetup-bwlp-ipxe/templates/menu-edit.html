@@ -74,7 +74,12 @@
 									{{entryid}}
 								{{/entryid}}
 								{{^entryid}}
-									{{lang_spacer}}
+									{{^refmenuid}}
+										{{lang_spacer}}
+									{{/refmenuid}}
+									{{#refmenuid}}
+										menu={{refmenuid}}
+									{{/refmenuid}}
 								{{/entryid}}
 							</button>
 						</td>
@@ -132,7 +137,7 @@
 							<select id="entry-list" class="form-control">
 								<option value="">{{lang_spacer}}</option>
 								{{#entrylist}}
-								<option value="{{entryid}}">{{entryid}}</option>
+								<option value="{{entryid}}">{{entryid}} // {{title}}</option>
 								{{/entrylist}}
 							</select>
 						</div>

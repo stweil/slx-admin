@@ -49,8 +49,10 @@ class MenuEntry
 			$this->hotkey = self::getKeyCode($row['hotkey']);
 			if (!empty($row['bootentry'])) {
 				$this->bootEntry = BootEntry::fromJson($row['bootentry']);
+			} elseif ($row['refmenuid'] !== null) {
+				$this->bootEntry = BootEntry::forMenu($row['refmenuid']);
 			}
-			$this->gap = (array_key_exists('entryid', $row) && $row['entryid'] === null);
+			$this->gap = (array_key_exists('entryid', $row) && $row['entryid'] === null && $row['refmenuid'] === null);
 		}
 		settype($this->hidden, 'bool');
 		settype($this->gap, 'bool');

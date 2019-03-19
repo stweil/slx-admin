@@ -25,7 +25,7 @@ class IPxeMenu
 		$this->timeoutMs = (int)$menu['timeoutms'];
 		$this->title = $menu['title'];
 		$this->defaultEntryId = $menu['defaultentryid'];
-		$res = Database::simpleQuery("SELECT e.menuentryid, e.entryid, e.hotkey, e.title, e.hidden, e.sortval, e.md5pass,
+		$res = Database::simpleQuery("SELECT e.menuentryid, e.entryid, e.refmenuid, e.hotkey, e.title, e.hidden, e.sortval, e.md5pass,
 			b.data AS bootentry
 			FROM serversetup_menuentry e
 			LEFT JOIN serversetup_bootentry b USING (entryid)

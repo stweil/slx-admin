@@ -68,7 +68,12 @@ $ip = $_SERVER['REMOTE_ADDR'];
 if (substr($ip, 0, 7) === '::ffff:') {
 	$ip = substr($ip, 7);
 }
-$menu = IPxeMenu::forClient($ip, $uuid);
+$menu = Request::get('menuid', false, 'int');
+if ($menu !== false) {
+	$menu = new IPxeMenu($menu);
+} else {
+	$menu = IPxeMenu::forClient($ip, $uuid);
+}
 
 
 // Get preferred localboot method, depending on system model

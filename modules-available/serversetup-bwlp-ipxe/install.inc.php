@@ -25,7 +25,8 @@ $res[] = tableCreate('serversetup_menu', "
 $res[] = tableCreate('serversetup_menuentry', "
   `menuentryid` int(11) NOT NULL AUTO_INCREMENT,
   `menuid` int(11) NOT NULL,
-  `entryid` varchar(16) CHARACTER SET ascii NULL COMMENT 'If NULL, entry is gap',
+  `entryid` varchar(16) CHARACTER SET ascii NULL COMMENT 'If NULL, entry is gap or another menu',
+  `refmenuid` int(11) DEFAULT NULL COMMENT 'If entryid is NULL this can be a ref to another menu',
   `hotkey` varchar(8) CHARACTER SET ascii NOT NULL,
   `title` varchar(100) NOT NULL COMMENT 'Sanitize this before insert',
   `hidden` tinyint(1) NOT NULL,
@@ -76,6 +77,18 @@ $res[] = tableAddConstraint('serversetup_menu_location', 'menuid', 'serversetup_
 
 $res[] = tableAddConstraint('serversetup_menu_location', 'defaultentryid', 'serversetup_menuentry', 'menuentryid',
 	'ON UPDATE CASCADE ON DELETE SET NULL');
+
+// 2019-03-19 Add refmenuid to have cascaded menus
+if (!tableHasColumn('serversetup_menuentry', 'refmenuid')) {
+  if (Database::exec("ALTER TABLE serversetup_menuentry ADD COLUMN `refmenuid` int(11) DEFAULT NULL COMMENT 'If entryid is NULL this can be a ref to another menu'") !== false) {
+    $res[] = UPDATE_DONE;
+  } else {
+    $res[] = UPDATE_FAILED;
+  }
+}
+
+$res[] = tableAddConstraint('serversetup_menuentry', 'refmenuid', 'serversetup_menu', 'menuid',
+  'ON UPDATE CASCADE ON DELETE SET NULL');
 
 if (Module::get('location') !== false) {
 	if (!tableExists('location')) {

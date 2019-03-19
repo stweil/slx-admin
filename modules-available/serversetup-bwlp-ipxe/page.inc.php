@@ -387,7 +387,7 @@ class Page_ServerSetup extends Page
 
 		$menu['timeout'] = round($menu['timeoutms'] / 1000);
 		$menu['entries'] = [];
-		$res = Database::simpleQuery("SELECT menuentryid, entryid, hotkey, title, hidden, sortval, plainpass FROM
+		$res = Database::simpleQuery("SELECT menuentryid, entryid, refmenuid, hotkey, title, hidden, sortval, plainpass FROM
 			serversetup_menuentry WHERE menuid = :id ORDER BY sortval ASC", compact('id'));
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($row['entryid'] == $highlight) {
@@ -396,45 +396,51 @@ class Page_ServerSetup extends Page
 			$menu['entries'][] = $row;
 		}
 		$menu['keys'] = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
-		$menu['entrylist'] = Database::queryAll("SELECT entryid, title, hotkey, data FROM serversetup_bootentry ORDER BY title ASC");
+		$menu['entrylist'] = array_merge(
+			Database::queryAll("SELECT entryid, title, hotkey, data FROM serversetup_bootentry ORDER BY title ASC"),
+			// Add all menus, so we can link
+			Database::queryAll("SELECT Concat('menu=', menuid) AS entryid, title FROM serversetup_menu ORDER BY title ASC")
+		);
 		class_exists('BootEntry'); // Leave this here for StandardBootEntry
 		foreach ($menu['entrylist'] as &$bootentry) {
+			if (!isset($bootentry['data']))
+				continue;
 			$bootentry['data'] = json_decode($bootentry['data'], true);
 			// Transform stuff suitable for mustache
-			if (array_key_exists('arch', $bootentry['data'])) {
-				// BIOS/EFI or both
-				if ($bootentry['data']['arch'] === StandardBootEntry::BIOS
-						|| $bootentry['data']['arch'] === StandardBootEntry::BOTH) {
-					$bootentry['data']['PCBIOS'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
-						'initRd' => $bootentry['data']['initRd']['PCBIOS'],
-						'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
-				}
-				if ($bootentry['data']['arch'] === StandardBootEntry::EFI
-						|| $bootentry['data']['arch'] === StandardBootEntry::BOTH) {
-					$bootentry['data']['EFI'] = array('executable' => $bootentry['data']['executable']['EFI'],
-						'initRd' => $bootentry['data']['initRd']['EFI'],
-						'commandLine' => $bootentry['data']['commandLine']['EFI']);
-				}
-				// Naming and agnostic
-				if ($bootentry['data']['arch'] === StandardBootEntry::BIOS) {
-					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_biosOnly', true);
-					unset($bootentry['data']['EFI']);
-				} elseif ($bootentry['data']['arch'] === StandardBootEntry::EFI) {
-					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_efiOnly', true);
-					unset($bootentry['data']['PCBIOS']);
-				} elseif ($bootentry['data']['arch'] === StandardBootEntry::AGNOSTIC) {
-					$bootentry['data']['archAgnostic'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
-						'initRd' => $bootentry['data']['initRd']['PCBIOS'],
-						'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
-					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archAgnostic', true);
-					unset($bootentry['data']['EFI']);
-				} else {
-					$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archBoth', true);
-				}
-				foreach ($bootentry['data'] as &$e) {
-					if (isset($e['initRd']) && is_array($e['initRd'])) {
-						$e['initRd'] = implode(',', $e['initRd']);
-					}
+			if (!array_key_exists('arch', $bootentry['data']))
+				continue;
+			// BIOS/EFI or both
+			if ($bootentry['data']['arch'] === StandardBootEntry::BIOS
+					|| $bootentry['data']['arch'] === StandardBootEntry::BOTH) {
+				$bootentry['data']['PCBIOS'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
+					'initRd' => $bootentry['data']['initRd']['PCBIOS'],
+					'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
+			}
+			if ($bootentry['data']['arch'] === StandardBootEntry::EFI
+					|| $bootentry['data']['arch'] === StandardBootEntry::BOTH) {
+				$bootentry['data']['EFI'] = array('executable' => $bootentry['data']['executable']['EFI'],
+					'initRd' => $bootentry['data']['initRd']['EFI'],
+					'commandLine' => $bootentry['data']['commandLine']['EFI']);
+			}
+			// Naming and agnostic
+			if ($bootentry['data']['arch'] === StandardBootEntry::BIOS) {
+				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_biosOnly', true);
+				unset($bootentry['data']['EFI']);
+			} elseif ($bootentry['data']['arch'] === StandardBootEntry::EFI) {
+				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_efiOnly', true);
+				unset($bootentry['data']['PCBIOS']);
+			} elseif ($bootentry['data']['arch'] === StandardBootEntry::AGNOSTIC) {
+				$bootentry['data']['archAgnostic'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
+					'initRd' => $bootentry['data']['initRd']['PCBIOS'],
+					'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
+				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archAgnostic', true);
+				unset($bootentry['data']['EFI']);
+			} else {
+				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archBoth', true);
+			}
+			foreach ($bootentry['data'] as &$e) {
+				if (isset($e['initRd']) && is_array($e['initRd'])) {
+					$e['initRd'] = implode(',', $e['initRd']);
 				}
 			}
 		}
@@ -613,7 +619,7 @@ class Page_ServerSetup extends Page
 		if ($entries) {
 			foreach ($entries as $key => $entry) {
 				if (!isset($entry['sortval'])) {
-					error_log(print_r($entry, true));
+					error_log("Incomplete entry $key with: " . print_r($entry, true));
 					continue;
 				}
 				// Fallback defaults
@@ -624,6 +630,8 @@ class Page_ServerSetup extends Page
 					'plainpass' => '',
 				];
 				$params = [
+					'entryid' => null,
+					'refmenuid' => null,
 					'title' => IPxe::sanitizeIpxeString($entry['title']),
 					'sortval' => (int)$entry['sortval'],
 					'menuid' => $menu['menuid'],
@@ -631,18 +639,21 @@ class Page_ServerSetup extends Page
 				if (empty($entry['entryid'])) {
 					// Spacer
 					$params += [
-						'entryid' => null,
 						'hotkey' => '',
 						'hidden' => 0, // Doesn't make any sense
 						'plainpass' => '', // Doesn't make any sense
 					];
 				} else {
 					$params += [
-						'entryid' => $entry['entryid'], // TODO validate?
 						'hotkey' => MenuEntry::filterKeyName($entry['hotkey']),
 						'hidden' => (int)$entry['hidden'], // TODO (needs hotkey to make sense)
 						'plainpass' => $entry['plainpass'],
 					];
+					if (preg_match('/^menu=(\d+)$/', $entry['entryid'], $out)) {
+						$params['refmenuid'] = $out[1];
+					} else {
+						$params['entryid'] = $entry['entryid'];
+					}
 				}
 				if (is_numeric($key)) {
 					if ((string)$key === $wantedDefaultEntryId) { // Check now that we have generated our key
@@ -652,13 +663,13 @@ class Page_ServerSetup extends Page
 					$params['menuentryid'] = $key;
 					$params['md5pass'] = IPxe::makeMd5Pass($entry['plainpass'], $key);
 					$ret = Database::exec('UPDATE serversetup_menuentry
-					SET entryid = :entryid, hotkey = :hotkey, title = :title, hidden = :hidden, sortval = :sortval,
+					SET entryid = :entryid, refmenuid = :refmenuid, hotkey = :hotkey, title = :title, hidden = :hidden, sortval = :sortval,
 						plainpass = :plainpass, md5pass = :md5pass
 					WHERE menuid = :menuid AND menuentryid = :menuentryid', $params, true);
 				} else {
 					$ret = Database::exec("INSERT INTO serversetup_menuentry
-					(menuid, entryid, hotkey, title, hidden, sortval, plainpass, md5pass)
-					VALUES (:menuid, :entryid, :hotkey, :title, :hidden, :sortval, :plainpass, '')", $params, true);
+					(menuid, entryid, refmenuid, hotkey, title, hidden, sortval, plainpass, md5pass)
+					VALUES (:menuid, :entryid, :refmenuid, :hotkey, :title, :hidden, :sortval, :plainpass, '')", $params, true);
 					if ($ret) {
 						$newKey = Database::lastInsertId();
 						if ((string)$key === $wantedDefaultEntryId) { // Check now that we have generated our key

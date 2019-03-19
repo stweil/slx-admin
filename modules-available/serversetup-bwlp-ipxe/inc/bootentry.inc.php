@@ -46,6 +46,11 @@ abstract class BootEntry
 		return null;
 	}
 
+	public static function forMenu($menuId)
+	{
+		return new MenuBootEntry($menuId);
+	}
+
 	public static function newStandardBootEntry($initData)
 	{
 		$ret = new StandardBootEntry($initData);
@@ -276,3 +281,33 @@ class CustomBootEntry extends BootEntry
 		return ['script' => $this->script];
 	}
 }
+
+class MenuBootEntry extends BootEntry
+{
+	protected $menuId;
+
+	public function __construct($menuId)
+	{
+		$this->menuId = $menuId;
+	}
+
+	public function supportsMode($mode)
+	{
+		return true;
+	}
+
+	public function toScript($failLabel, $mode)
+	{
+		return 'chain -ar ${self}&menuid=' . $this->menuId . ' || goto ' . $failLabel . "\n";
+	}
+
+	public function toArray()
+	{
+		return [];
+	}
+
+	public function addFormFields(&$array)
+	{
+	}
+}
+
