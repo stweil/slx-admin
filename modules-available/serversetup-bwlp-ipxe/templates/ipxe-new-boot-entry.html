@@ -39,19 +39,19 @@
 				</label>
 				<input id="input-title" class="form-control" name="title" value="{{title}}" maxlength="100">
 			</div>
-			<div class="form-group">
-				<label for="arch-selector">
-					{{lang_archSelector}}
-				</label>
-				<select id="arch-selector" class="form-control" name="entry[arch]">
-					<option value="agnostic" {{agnostic_selected}}>{{lang_archAgnostic}}</option>
-					<option value="PCBIOS" {{PCBIOS_selected}}>{{lang_biosOnly}}</option>
-					<option value="EFI" {{EFI_selected}}>{{lang_efiOnly}}</option>
-					<option value="PCBIOS-EFI" {{PCBIOS-EFI_selected}}>{{lang_archBoth}}</option>
-				</select>
-			</div>
 
 			<div class="type-form" id="form-exec">
+				<div class="form-group">
+					<label for="arch-selector">
+						{{lang_archSelector}}
+					</label>
+					<select id="arch-selector" class="form-control" name="entry[arch]">
+						<option value="agnostic" {{agnostic_selected}}>{{lang_archAgnostic}}</option>
+						<option value="PCBIOS" {{PCBIOS_selected}}>{{lang_biosOnly}}</option>
+						<option value="EFI" {{EFI_selected}}>{{lang_efiOnly}}</option>
+						<option value="PCBIOS-EFI" {{PCBIOS-EFI_selected}}>{{lang_archBoth}}</option>
+					</select>
+				</div>
 				<div class="row">
 					{{#entries}}
 						<div class="mode-class col-md-6" id="col-{{mode}}">

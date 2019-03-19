@@ -475,6 +475,15 @@ class Page_ServerSetup extends Page
 			$params['title'] = $row['title'];
 			$params['oldentryid'] = $params['entryid'] = $row['entryid'];
 			$params['builtin'] = $row['builtin'];
+			if (!is_array($params['entries'])) {
+				$params['entries'] = [];
+			}
+			if (!in_array(['mode' => 'PCBIOS'], $params['entries'])) {
+				$params['entries'][] = ['mode' => 'PCBIOS'];
+			}
+			if (!in_array(['mode' => 'EFI'], $params['entries'])) {
+				$params['entries'][] = ['mode' => 'EFI'];
+			}
 			$params['menus'] = Database::queryAll('SELECT m.menuid, m.title FROM serversetup_menu m
 					INNER JOIN serversetup_menuentry me ON (me.menuid = m.menuid)
 					WHERE me.entryid = :entryid', ['entryid' => $row['entryid']]);
