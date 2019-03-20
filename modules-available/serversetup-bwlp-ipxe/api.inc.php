@@ -191,6 +191,10 @@ cpair --foreground 7 --background 9 0
 
 :slx_menu
 
+iseq \${serverip} \${} || goto ip_check_ok
+goto init
+:ip_check_ok
+
 console --left 55 --top 88 --right 63 --bottom 64 $slxConsoleUpdate --keep --picture bg-menu ||
 
 HERE;
