@@ -71,8 +71,10 @@ if (substr($ip, 0, 7) === '::ffff:') {
 $menu = Request::get('menuid', false, 'int');
 if ($menu !== false) {
 	$menu = new IPxeMenu($menu);
+	$initLabel = 'slx_menu';
 } else {
 	$menu = IPxeMenu::forClient($ip, $uuid);
+	$initLabel = 'init';
 }
 
 
@@ -133,7 +135,7 @@ if ($slxExtensions) {
 $output = <<<HERE
 #!ipxe
 
-goto init || goto fail ||
+goto $initLabel || goto fail ||
 
 # functions
 

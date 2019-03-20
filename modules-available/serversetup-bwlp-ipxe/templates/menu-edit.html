@@ -69,17 +69,12 @@
 
 						<td class="text-nowrap">
 							<input class="entry-id" type="hidden" name="entry[{{menuentryid}}][entryid]" value="{{entryid}}">
-							<button type="button" class="btn btn-default" style="width: 100%; text-align: left" {{disabled}} data-toggle="modal" data-target="#entry-chooser-modal">
+							<button type="button" class="btn btn-default" style="width:100%;text-align:left" {{disabled}} data-toggle="modal" data-target="#entry-chooser-modal">
 								{{#entryid}}
 									{{entryid}}
 								{{/entryid}}
 								{{^entryid}}
-									{{^refmenuid}}
-										{{lang_spacer}}
-									{{/refmenuid}}
-									{{#refmenuid}}
-										menu={{refmenuid}}
-									{{/refmenuid}}
+									{{lang_spacer}}
 								{{/entryid}}
 							</button>
 						</td>
@@ -333,7 +328,7 @@
 		$('#entry-list').change(function(e) {
 			var modal = $('#entry-chooser-modal');
 			modal.find('.entrydata').hide();
-			modal.find('#entrydata-' + $(this).val()).show();
+			modal.find('#entrydata-' + $(this).val().replace(':', '\\:')).show();
 		});
 
 		var currentEntryButton = null;

@@ -390,6 +390,9 @@ class Page_ServerSetup extends Page
 		$res = Database::simpleQuery("SELECT menuentryid, entryid, refmenuid, hotkey, title, hidden, sortval, plainpass FROM
 			serversetup_menuentry WHERE menuid = :id ORDER BY sortval ASC", compact('id'));
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if ($row['entryid'] === null && $row['refmenuid'] !== null) {
+				$row['entryid'] = 'menu:' . $row['refmenuid'];
+			}
 			if ($row['entryid'] == $highlight) {
 				$row['highlight'] = 'active';
 			}
@@ -399,7 +402,7 @@ class Page_ServerSetup extends Page
 		$menu['entrylist'] = array_merge(
 			Database::queryAll("SELECT entryid, title, hotkey, data FROM serversetup_bootentry ORDER BY title ASC"),
 			// Add all menus, so we can link
-			Database::queryAll("SELECT Concat('menu=', menuid) AS entryid, title FROM serversetup_menu ORDER BY title ASC")
+			Database::queryAll("SELECT Concat('menu:', menuid) AS entryid, title FROM serversetup_menu ORDER BY title ASC")
 		);
 		class_exists('BootEntry'); // Leave this here for StandardBootEntry
 		foreach ($menu['entrylist'] as &$bootentry) {
@@ -649,7 +652,7 @@ class Page_ServerSetup extends Page
 						'hidden' => (int)$entry['hidden'], // TODO (needs hotkey to make sense)
 						'plainpass' => $entry['plainpass'],
 					];
-					if (preg_match('/^menu=(\d+)$/', $entry['entryid'], $out)) {
+					if (preg_match('/^menu:(\d+)$/', $entry['entryid'], $out)) {
 						$params['refmenuid'] = $out[1];
 					} else {
 						$params['entryid'] = $entry['entryid'];
