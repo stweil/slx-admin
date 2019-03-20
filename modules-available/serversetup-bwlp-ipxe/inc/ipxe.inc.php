@@ -405,13 +405,13 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 				$arg = $args[$i];
 				if ($arg === '-c') { // PXELINUX config file option
 					++$i;
-					$script .= "set 209:string {$args[$i]} || goto %fail%\n";
+					$script .= "set netX/209:string {$args[$i]} || goto %fail%\n";
 				} elseif ($arg === '-p') { // PXELINUX prefix path option
 					++$i;
-					$script .= "set 210:string {$args[$i]} || goto %fail%\n";
+					$script .= "set netX/210:string {$args[$i]} || goto %fail%\n";
 				} elseif ($arg === '-t') { // PXELINUX timeout option
 					++$i;
-					$script .= "set 211:int32 {$args[$i]} || goto %fail%\n";
+					$script .= "set netX/211:int32 {$args[$i]} || goto %fail%\n";
 				} elseif ($arg === '-o') { // Overriding various DHCP options
 					++$i;
 					if (preg_match('/^((?:0x)?[a-f0-9]{1,4})\.([bwlsh])=(.*)$/i', $args[$i], $out)) {
@@ -420,7 +420,7 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 						if ($opt > 0 && $opt < 255) {
 							static $optType = ['b' => 'uint8', 'w' => 'uint16', 'l' => 'int32', 's' => 'string', 'h' => 'hex'];
 							$type = $optType[$out[2]];
-							$script .= "set {$opt}:{$type} {$args[$i]} || goto %fail%\n";
+							$script .= "set netX/{$opt}:{$type} {$args[$i]} || goto %fail%\n";
 						}
 					}
 				} elseif ($arg{0} === '-') {
