@@ -432,10 +432,10 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 			if ($file !== false) {
 				$url = parse_url($file);
 				if (isset($url['host'])) {
-					$script .= "set next-server {$url['host']} || goto %fail%\n";
+					$script .= "set netX/next-server {$url['host']} || goto %fail%\n";
 				}
 				if (isset($url['path'])) {
-					$script .= "set filename {$url['path']} || goto %fail%\n";
+					$script .= "set netX/filename {$url['path']} || goto %fail%\n";
 				}
 				$script .= "chain -ar {$file} || goto %fail%\n";
 				return BootEntry::newCustomBootEntry(['script' => $script]);
