@@ -12,6 +12,7 @@
 		<th>{{lang_hotkey}}</th>
 		<th class="slx-smallcol">{{lang_refCount}}</th>
 		<th class="slx-smallcol">{{lang_edit}}</th>
+		{{#allowEdit}}<th class="slx-smallcol">{{lang_copy}}</th>{{/allowEdit}}
 		<th class="slx-smallcol">{{lang_delete}}</th>
 	</tr>
 	</thead>
@@ -31,17 +32,24 @@
 			{{refs}}
 		</td>
 		<td align="center">
-			{{#allowEdit}}
 			<a href="?do=serversetup&amp;show=editbootentry&amp;id={{entryid}}" class="btn btn-xs btn-default">
-				<span class="glyphicon glyphicon-edit"></span>
+				<span class="glyphicon glyphicon-{{#allowEdit}}edit{{/allowEdit}}{{^allowEdit}}eye-open{{/allowEdit}}"></span>
 			</a>
-			{{/allowEdit}}
 		</td>
+		{{#allowEdit}}
+		<td align="center">
+			<a href="?do=serversetup&amp;show=editbootentry&amp;id={{entryid}}&copy=true" class="btn btn-xs btn-default">
+				<span class="glyphicon glyphicon-duplicate"></span>
+			</a>
+		</td>
+		{{/allowEdit}}
 		<td align="center">
 			{{#allowEdit}}
-			<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteBootentry('{{entryid}}', '{{builtin}}')">
-				<span class="glyphicon glyphicon-trash"></span>
-			</button>
+				{{^builtin}}
+					<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteBootentry('{{entryid}}')">
+						<span class="glyphicon glyphicon-trash"></span>
+					</button>
+				{{/builtin}}
 			{{/allowEdit}}
 		</td>
 	</tr>

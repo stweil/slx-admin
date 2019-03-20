@@ -151,7 +151,7 @@ class Page_ServerSetup extends Page
 
 		switch (Request::get('show')) {
 		case 'editbootentry':
-			User::assertPermission('ipxe.bootentry.edit');
+			User::assertPermission('ipxe.bootentry.*');
 			$this->showEditBootEntry();
 			break;
 		case 'editmenu':
@@ -482,7 +482,9 @@ class Page_ServerSetup extends Page
 			}
 			$entry->addFormFields($params);
 			$params['title'] = $row['title'];
-			$params['oldentryid'] = $params['entryid'] = $row['entryid'];
+			if (!Request::get('copy')) {
+				$params['oldentryid'] = $params['entryid'] = $row['entryid'];
+			}
 			$params['builtin'] = $row['builtin'];
 			if (!is_array($params['entries'])) {
 				$params['entries'] = [];
@@ -498,6 +500,7 @@ class Page_ServerSetup extends Page
 					WHERE me.entryid = :entryid', ['entryid' => $row['entryid']]);
 		}
 
+		$params['disabled'] = User::hasPermission('ipxe.bootentry.edit') ? '' : 'disabled';
 		Render::addTemplate('ipxe-new-boot-entry', $params);
 	}
 
@@ -555,8 +558,11 @@ class Page_ServerSetup extends Page
 			Message::addError('main.parameter-missing', 'deleteid');
 			return;
 		}
-		Database::exec("DELETE FROM serversetup_bootentry WHERE entryid = :entryid", array("entryid" => $id));
-		Message::addSuccess('bootentry-deleted');
+		$res = Database::exec("DELETE FROM serversetup_bootentry
+			WHERE entryid = :entryid AND builtin = 0", array("entryid" => $id));
+		if ($res > 0) {
+			Message::addSuccess('bootentry-deleted');
+		}
 		Util::redirect('?do=serversetup&show=bootentry');
 	}
 
@@ -777,7 +783,7 @@ class Page_ServerSetup extends Page
 		} else {
 			// Edit existing entry
 			$params['oldid'] = $oldEntryId;
-			Database::exec('UPDATE serversetup_bootentry SET entryid = :entryid, title = :title, data = :data
+			Database::exec('UPDATE serversetup_bootentry SET entryid = If(builtin = 0, :entryid, entryid), title = :title, data = :data
 				WHERE entryid = :oldid', $params);
 			Message::addSuccess('boot-entry-updated', $newId);
 		}
