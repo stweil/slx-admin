@@ -92,7 +92,7 @@ if ($model === false) {
 	// Otherwise use what iPXE sent us
 	function modfilt($str)
 	{
-		if (empty($str) || preg_match('/product\s+name|be\s+filled|unknown|default\s+string/i', $str))
+		if (empty($str) || preg_match('/product\s+name|be\s+filled|unknown|default\s+string|system\s+model|manufacturer/i', $str))
 			return false;
 		return trim(preg_replace('/\s+/', ' ', $str));
 	}
