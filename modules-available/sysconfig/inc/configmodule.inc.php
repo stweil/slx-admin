@@ -15,6 +15,10 @@ abstract class ConfigModule
 	private $moduleArchive = false;
 	private $moduleTitle = false;
 	private $moduleStatus = false;
+	/**
+	 * @var int
+	 */
+	private $dateline = 0;
 	private $currentVersion = 0;
 	/**
 	 * @var false|array Data of module, false if not initialized
@@ -110,6 +114,7 @@ abstract class ConfigModule
 		$instance->moduleId = $dbRow['moduleid'];
 		$instance->moduleTitle = $dbRow['title'];
 		$instance->moduleStatus = $dbRow['status'];
+		$instance->dateline = $dbRow['dateline'];
 		if ($instance->moduleVersion() > $instance->currentVersion) {
 			$instance->markFailed();
 		}
@@ -140,9 +145,9 @@ abstract class ConfigModule
 	public static function getAll($moduleType = false)
 	{
 		if ($moduleType === false) {
-			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version, status FROM configtgz_module");
+			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version, status, dateline FROM configtgz_module");
 		} else {
-			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version, status FROM configtgz_module "
+			$ret = Database::simpleQuery("SELECT moduleid, title, moduletype, filepath, contents, version, status, dateline FROM configtgz_module "
 					. " WHERE moduletype = :moduletype", array('moduletype' => $moduleType));
 		}
 		if ($ret === false)
@@ -290,13 +295,14 @@ abstract class ConfigModule
 			return false;
 		$this->moduleTitle = $title;
 		// Insert
-		Database::exec("INSERT INTO configtgz_module (title, moduletype, filepath, contents, version, status) "
-			. " VALUES (:title, :type, '', :contents, :version, :status)", array(
+		Database::exec("INSERT INTO configtgz_module (title, moduletype, filepath, contents, version, status, dateline) "
+			. " VALUES (:title, :type, '', :contents, :version, :status, :now)", array(
 			'title' => $title,
 			'type' => $this->moduleType(),
 			'contents' => json_encode($this->moduleData),
 			'version' => 0,
-			'status' => 'MISSING'
+			'status' => 'MISSING',
+			'now' => time(),
 		));
 		$this->moduleId = Database::lastInsertId();
 		if (!is_numeric($this->moduleId))
@@ -324,12 +330,13 @@ abstract class ConfigModule
 		if (!$this->validateConfig())
 			return false;
 		// Update
-		Database::exec("UPDATE configtgz_module SET title = :title, contents = :contents, status = :status "
+		Database::exec("UPDATE configtgz_module SET title = :title, contents = :contents, status = :status, dateline = :now "
 			. " WHERE moduleid = :moduleid LIMIT 1", array(
 			'moduleid' => $this->moduleId,
 			'title' => $title,
 			'contents' => json_encode($this->moduleData),
-			'status' => 'OUTDATED'
+			'status' => 'OUTDATED',
+			'now' => time(),
 		));
 		return true;
 	}
@@ -461,6 +468,11 @@ abstract class ConfigModule
 				'filename' => $this->moduleArchive,
 				'status' => $status
 			)) !== false;
+	}
+
+	public function dateline_s()
+	{
+		return Util::prettyTime($this->dateline);
 	}
 
 	################# Callbacks ##############

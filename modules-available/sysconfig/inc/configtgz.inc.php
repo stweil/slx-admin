@@ -75,10 +75,11 @@ class ConfigTgz
 			$this->modules[] = $row;
 		}
 		// Update name
-		Database::exec("UPDATE configtgz SET title = :title, status = :status WHERE configid = :configid LIMIT 1", array(
+		Database::exec("UPDATE configtgz SET title = :title, status = :status, dateline = :now WHERE configid = :configid LIMIT 1", array(
 			'configid' => $this->configId,
 			'title' => $title,
-			'status' => 'OUTDATED'
+			'status' => 'OUTDATED',
+			'now' => time(),
 		));
 		return true;
 	}
@@ -277,10 +278,11 @@ class ConfigTgz
 		do {
 			$instance->file = CONFIG_TGZ_LIST_DIR . '/config-' . Util::sanitizeFilename($instance->configTitle) . '-' . mt_rand() . '-' . time() . '.tgz';
 		} while (file_exists($instance->file));
-		Database::exec("INSERT INTO configtgz (title, filepath, status) VALUES (:title, :filepath, :status)", array(
+		Database::exec("INSERT INTO configtgz (title, filepath, status, dateline) VALUES (:title, :filepath, :status, :now)", array(
 			'title' => $instance->configTitle,
 			'filepath' => $instance->file,
-			'status' => 'MISSING'
+			'status' => 'MISSING',
+			'now' => time(),
 		));
 		$instance->configId = Database::lastInsertId();
 		$instance->modules = array();

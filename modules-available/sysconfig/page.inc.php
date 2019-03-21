@@ -213,13 +213,13 @@ class Page_SysConfig extends Page
 	private function listConfigs()
 	{
 		// Configs
-		$res = Database::simpleQuery("SELECT c.configid, c.title, c.filepath, c.status,"
-			. "   GROUP_CONCAT(DISTINCT cl.locationid) AS loclist, GROUP_CONCAT(cxm.moduleid) AS modlist"
-			. " FROM configtgz c"
-			. " LEFT JOIN configtgz_x_module cxm USING (configid)"
-			. " LEFT JOIN configtgz_location cl ON (c.configid = cl.configid)"
-			. " GROUP BY configid"
-			. " ORDER BY title ASC");
+		$res = Database::simpleQuery("SELECT c.configid, c.title, c.filepath, c.status, c.dateline,
+				GROUP_CONCAT(DISTINCT cl.locationid) AS loclist, GROUP_CONCAT(cxm.moduleid) AS modlist
+			FROM configtgz c
+			LEFT JOIN configtgz_x_module cxm USING (configid)
+			LEFT JOIN configtgz_location cl ON (c.configid = cl.configid)
+			GROUP BY configid
+			ORDER BY title ASC");
 		$configs = array();
 		if ($this->currentLoc !== 0) {
 			$locationName = $this->locations[$this->currentLoc]['locationname'];
@@ -254,7 +254,8 @@ class Page_SysConfig extends Page
 				'loclist' => $row['loclist'],
 				'readableLocList' => $this->getLocationNames($this->locations, $locList),
 				'locationCount' => $locCount,
-				'needrebuild' => ($row['status'] !== 'OK')
+				'needrebuild' => ($row['status'] !== 'OK'),
+				'dateline_s' => Util::prettyTime($row['dateline']),
 			);
 		}
 		$data = array(

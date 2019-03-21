@@ -12,7 +12,9 @@
 					{{#modules}}
 					<tr>
 						<td class="badge text-nowrap">{{moduleType}}</td>
-						<td data-id="{{id}}" class="modrow slx-pointer" width="100%"><table class="slx-ellipsis"><tr><td>{{title}}</td></tr></table></td>
+						<td data-id="{{id}}" class="modrow slx-pointer" width="100%" title="{{dateline_s}}">
+							<table class="slx-ellipsis"><tr><td>{{title}}</td></tr></table>
+						</td>
 						<td class="text-nowrap">
 							{{#allowDownload}}
 							<button class="btn btn-default btn-xs" name="list" value="{{id}}" title="{{lang_show}}"><span class="glyphicon glyphicon-eye-open"></span></button>
