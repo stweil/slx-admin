@@ -905,8 +905,7 @@ class Page_ServerSetup extends Page
 		}
 		if (Request::post('entries-only', 0, 'int') !== 0) {
 			$foo = [];
-			$bar = false;
-			IPxe::importPxeMenuEntries($menu, $foo, $bar);
+			IPxe::importPxeMenuEntries($menu, $foo);
 			Util::redirect('?do=serversetup&show=bootentry');
 		} else {
 			$id = IPxe::insertMenu($menu, 'Imported Menu', false,  0, [], []);

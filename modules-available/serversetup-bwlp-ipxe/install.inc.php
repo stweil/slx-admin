@@ -34,7 +34,7 @@ $res[] = tableCreate('serversetup_menuentry', "
   `plainpass` varchar(80) NOT NULL,
   `md5pass` char(32) CHARACTER SET ascii NOT NULL,
   PRIMARY KEY (`menuentryid`),
-  KEY `menuid` (`menuid`,`entryid`),
+  KEY `menuid` (`menuid`,`sortval`),
   KEY `entryid` (`entryid`)
 ");
 

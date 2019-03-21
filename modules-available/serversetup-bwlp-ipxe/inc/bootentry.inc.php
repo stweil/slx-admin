@@ -90,6 +90,25 @@ abstract class BootEntry
 		return self::fromJson($row['data']);
 	}
 
+	/**
+	 * Get all existing BootEntries from database, skipping those of
+	 * unknown type. Returned array is assoc, key is entryid
+	 *
+	 * @return BootEntry[] all existing BootEntries
+	 */
+	public static function getAll()
+	{
+		$res = Database::simpleQuery("SELECT entryid, data FROM serversetup_bootentry");
+		$ret = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$tmp = self::fromJson($row['data']);
+			if ($tmp === null)
+				continue;
+			$ret[$row['entryid']] = $tmp;
+		}
+		return $ret;
+	}
+
 }
 
 class StandardBootEntry extends BootEntry
@@ -288,6 +307,7 @@ class MenuBootEntry extends BootEntry
 
 	public function __construct($menuId)
 	{
+		parent::__construct(false);
 		$this->menuId = $menuId;
 	}
 

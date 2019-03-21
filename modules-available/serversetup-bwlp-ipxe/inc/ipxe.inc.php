@@ -4,6 +4,11 @@ class IPxe
 {
 
 	/**
+	 * @var BootEntry[]|false Contains all known boot entries (for dup checking)
+	 */
+	private static $allEntries = false;
+
+	/**
 	 * Import all IP-Range based pxe menus from the given directory.
 	 *
 	 * @param string $configPath The pxelinux.cfg path where to look for menu files in hexadecimal IP format.
@@ -11,8 +16,15 @@ class IPxe
 	 */
 	public static function importSubnetPxeMenus($configPath)
 	{
-		$importCount = 0;
+		$res = Database::simpleQuery('SELECT menuid, entryid FROM serversetup_menuentry ORDER BY sortval ASC');
 		$menus = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (!isset($menus[$row['menuid']])) {
+				$menus[(int)$row['menuid']] = [];
+			}
+			$menus[(int)$row['menuid']][] = $row['entryid'];
+		}
+		$importCount = 0;
 		foreach (glob($configPath . '/*', GLOB_NOSORT) as $file) {
 			if (!is_file($file) || !preg_match('~/[A-F0-9]{1,8}$~', $file))
 				continue;
@@ -40,10 +52,14 @@ class IPxe
 				$locations[] = $row;
 			}
 			$menu = PxeLinux::parsePxeLinux($content, true);
-			$key = $menu->hash(true);
-			if (isset($menus[$key])) {
-				$menuId = $menus[$key];
-				$defId = null;
+			// Insert all entries first, so we can get the list of entry IDs
+			$entries = [];
+			self::importPxeMenuEntries($menu, $entries);
+			$entries = array_keys($entries);
+			$defId = null;
+			// Look up entry IDs, if match, ref for this location
+			if (($menuId = array_search($entries, $menus)) !== false) {
+				error_log('Imported menu ' . $menu->title . ' exists, using for ' . count($locations) . ' locations.');
 				// Figure out the default label, get its label name
 				foreach ($menu->sections as $section) {
 					if ($section->isDefault) {
@@ -52,14 +68,13 @@ class IPxe
 						$defId = $section;
 					}
 				}
-				if ($defId !== null) {
-					$defId = self::cleanLabelFixLocal($defId);
+				if ($defId !== null && ($defIdEntry = array_search($defId, self::$allEntries)) !== false) {
 					// Confirm it actually exists (it should since the menu seems identical) and get menuEntryId
 					$me = Database::queryFirst('SELECT m.defaultentryid, me.menuentryid FROM serversetup_bootentry be
 							INNER JOIN serversetup_menuentry me ON (be.entryid = me.entryid)
 							INNER JOIN serversetup_menu m ON (m.menuid = me.menuid)
 							WHERE be.entryid = :id AND me.menuid = :menuid',
-						['id' => $defId, 'menuid' => $menuId]);
+						['id' => $defIdEntry, 'menuid' => $menuId]);
 					if ($me === false || $me['defaultentryid'] == $me['menuentryid']) {
 						$defId = null; // Not found, or is already default - don't override if it's the same
 					} else {
@@ -67,13 +82,14 @@ class IPxe
 					}
 				}
 			} else {
-				$menuId = self::insertMenu($menu, 'Imported', false, 0, [], []);
-				$menus[$key] = $menuId;
-				$defId = null;
+				error_log('Imported menu ' . $menu->title . ' is NEW, using for ' . count($locations) . ' locations.');
+				// Insert new menu
+				$menuId = self::insertMenu($menu, 'Auto Imported', false, 0, [], []);
+				if ($menuId === false)
+					continue;
+				$menus[(int)$menuId] = $entries;
 				$importCount++;
 			}
-			if ($menuId === false)
-				continue;
 			foreach ($locations as $loc) {
 				if ($loc === false)
 					continue;
@@ -131,8 +147,8 @@ class IPxe
 	/**
 	 * @param PxeMenu $pxeMenu
 	 * @param string $menuTitle
-	 * @param string|false $defaultLabel
-	 * @param int $defaultTimeoutSeconds
+	 * @param string|false $defaultLabel Fallback for the default label, if PxeMenu doesn't set one
+	 * @param int $defaultTimeoutSeconds Default timeout, if PxeMenu doesn't set one
 	 * @param array $prepend
 	 * @param array $append
 	 * @return int|false
@@ -152,8 +168,7 @@ class IPxe
 			}
 			$timeoutMs[] = $pxe->timeoutMs;
 			$timeoutMs[] = $pxe->totalTimeoutMs;
-			error_log(print_r($timeoutMs, true));
-			self::importPxeMenuEntries($pxe, $menuEntries, $defaultLabel);
+			self::importPxeMenuEntries($pxe, $menuEntries);
 		}
 		if (is_array($append)) {
 			$menuEntries += $append;
@@ -175,13 +190,27 @@ class IPxe
 			'isdefault' => $isDefault,
 		]);
 		$menuId = Database::lastInsertId();
-		if (($defaultLabel === false || !array_key_exists($defaultLabel, $menuEntries)) && $timeoutMs > 0) {
-			$defaultLabel = array_keys($menuEntries)[0];
+		// Figure out entryid for default label
+		// Fiddly diddly way of getting the mangled entryid for the wanted pxe menu label
+		$defaultEntryId = false;
+		foreach ($menuEntries as $entryId => $section) {
+			if ($section instanceof PxeSection) {
+				if ($section->isDefault) {
+					$defaultEntryId = $entryId;
+					break;
+				}
+				if ($section->label === $defaultLabel) {
+					$defaultEntryId = $entryId;
+				}
+			}
+		}
+		if ($defaultEntryId === false) {
+			$defaultEntryId = array_keys($menuEntries)[0];
 		}
 		// Link boot entries to menu
-		$defaultEntryId = null;
+		$defaultMenuEntryId = null;
 		$order = 1000;
-		foreach ($menuEntries as $label => $entry) {
+		foreach ($menuEntries as $entryId => $entry) {
 			if (is_string($entry)) {
 				// Gap entry
 				Database::exec("INSERT INTO serversetup_menuentry
@@ -196,7 +225,7 @@ class IPxe
 				]);
 				continue;
 			}
-			$data = Database::queryFirst("SELECT entryid, hotkey, title FROM serversetup_bootentry WHERE entryid = :entryid", ['entryid' => $label]);
+			$data = Database::queryFirst("SELECT entryid, hotkey, title FROM serversetup_bootentry WHERE entryid = :entryid", ['entryid' => $entryId]);
 			if ($data === false)
 				continue;
 			$data['pass'] = '';
@@ -221,14 +250,14 @@ class IPxe
 			$res = Database::exec("INSERT INTO serversetup_menuentry
 				(menuid, entryid, hotkey, title, hidden, sortval, plainpass, md5pass)
 				VALUES (:menuid, :entryid, :hotkey, :title, :hidden, :sortval, :pass, :pass)", $data);
-			if ($res !== false && $label === $defaultLabel) {
-				$defaultEntryId = Database::lastInsertId();
+			if ($res !== false && $entryId === $defaultEntryId) {
+				$defaultMenuEntryId = Database::lastInsertId();
 			}
 		}
 		// Now we can set default entry
-		if (!empty($defaultEntryId)) {
-			Database::exec("UPDATE serversetup_menu SET defaultentryid = :entryid WHERE menuid = :menuid",
-				['menuid' => $menuId, 'entryid' => $defaultEntryId]);
+		if (!empty($defaultMenuEntryId)) {
+			Database::exec("UPDATE serversetup_menu SET defaultentryid = :menuentryid WHERE menuid = :menuid",
+				['menuid' => $menuId, 'menuentryid' => $defaultMenuEntryId]);
 		}
 		// TODO: masterpw? rather pointless....
 		//$oldMenu['masterpasswordclear'];
@@ -239,10 +268,12 @@ class IPxe
 	 * Import only the bootentries from the given PXELinux menu
 	 * @param PxeMenu $pxe
 	 * @param array $menuEntries Where to append the generated menu items to
-	 * @param string|false $defaultLabel IN/OUT: Wanted default entry, map to new entrid if found
 	 */
-	public static function importPxeMenuEntries($pxe, &$menuEntries, &$defaultLabel)
+	public static function importPxeMenuEntries($pxe, &$menuEntries)
 	{
+		if (self::$allEntries === false) {
+			self::$allEntries = BootEntry::getAll();
+		}
 		foreach ($pxe->sections as $section) {
 			if ($section->localBoot !== false || preg_match('/chain\.c32$/i', $section->kernel)) {
 				$menuEntries['localboot'] = $section;
@@ -260,30 +291,39 @@ class IPxe
 				}
 				continue;
 			}
+			$label = self::cleanLabelFixLocal($section);
 			$entry = self::pxe2BootEntry($section);
 			if ($entry === null)
-				continue;
-			$label = self::cleanLabelFixLocal($section);
-			if ($defaultLabel === $section->label) {
-				$defaultLabel = $label;
+				continue; // Error? Ignore
+			if ($label !== false || ($label = array_search($entry, self::$allEntries))) {
+				// Exact Duplicate, Do Nothing
+				error_log('Ignoring duplicate boot entry ' . $section->label . ' (' . $section->kernel . ')');
+			} else {
+				// Seems new one; make sure label doesn't collide
+				error_log('Adding new boot entry ' . $section->label . ' (' . $section->kernel . ')');
+				$label = substr(preg_replace('/[^a-z0-9_\-]/', '', $section->label), 0, 16);
+				while (empty($label) || array_key_exists($label, self::$allEntries)) {
+					$label = 'i-' . substr(md5(microtime(true) . $section->kernel . mt_rand()), 0, 14);
+				}
+				self::$allEntries[$label] = $entry;
+				$hotkey = MenuEntry::filterKeyName($section->hotkey);
+				// Create boot entry
+				$data = $entry->toArray();
+				$title = self::sanitizeIpxeString($section->title);
+				if (empty($title)) {
+					$title = self::sanitizeIpxeString($section->label);
+				}
+				if (empty($title)) {
+					$title = $label;
+				}
+				Database::exec('INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
+					VALUES (:label, :hotkey, :title, 0, :data)', [
+					'label' => $label,
+					'hotkey' => $hotkey,
+					'title' => $title,
+					'data' => json_encode($data),
+				]);
 			}
-			$hotkey = MenuEntry::filterKeyName($section->hotkey);
-			// Create boot entry
-			$data = $entry->toArray();
-			$title = self::sanitizeIpxeString($section->title);
-			if (empty($title)) {
-				$title = self::sanitizeIpxeString($section->label);
-			}
-			if (empty($title)) {
-				$title = $label;
-			}
-			Database::exec('INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
-				VALUES (:label, :hotkey, :title, 0, :data)', [
-				'label' => $label,
-				'hotkey' => $hotkey,
-				'title' => $title,
-				'data' => json_encode($data),
-			]);
 			$menuEntries[$label] = $section;
 		}
 	}
@@ -353,14 +393,13 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 	}
 
 	/**
-	 * Create unique label for a boot entry. It will try to figure out whether
-	 * this is one of our default entries and if not, create a unique label
-	 * representing the menu entry contents.
+	 * Try to figure out whether this is one of our default entries and returns
+	 * that according label.
 	 * Also it patches the entry if it's referencing the local bwlp install
-	 * because side effects.
+	 * but with different options.
 	 *
 	 * @param PxeSection $section
-	 * @return string
+	 * @return string|false existing label if match, false otherwise
 	 */
 	private static function cleanLabelFixLocal($section)
 	{
@@ -376,18 +415,12 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 				// Debug output
 				return 'bwlp-default-dbg';
 			} else {
-				// Transform to relative URL, leave KCL, fall through to generic label gen
+				// Transform to relative URL, leave KCL
 				$section->kernel = '/boot/default/kernel';
 				$section->initrd = ['/boot/default/initramfs-stage31'];
 			}
 		}
-		// Generic -- "smart" hash of kernel, initrd and command line
-		$str = $section->kernel . ' ' . implode(',', $section->initrd);
-		$array = preg_split('/\s+/', $section->append, -1, PREG_SPLIT_NO_EMPTY);
-		sort($array);
-		$str .= ' ' . implode(' ', $array);
-
-		return 'i-' . substr(md5($str), 0, 12);
+		return false;
 	}
 
 	/**
