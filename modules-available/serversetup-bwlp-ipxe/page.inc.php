@@ -489,10 +489,16 @@ class Page_ServerSetup extends Page
 			if (!is_array($params['entries'])) {
 				$params['entries'] = [];
 			}
-			if (!in_array(['mode' => 'PCBIOS'], $params['entries'])) {
+			$f = [];
+			foreach ($params['entries'] as $e) {
+				if (isset($e['mode'])) {
+					$f[] = $e['mode'];
+				}
+			}
+			if (!in_array('PCBIOS', $f)) {
 				$params['entries'][] = ['mode' => 'PCBIOS'];
 			}
-			if (!in_array(['mode' => 'EFI'], $params['entries'])) {
+			if (!in_array('EFI', $f)) {
 				$params['entries'][] = ['mode' => 'EFI'];
 			}
 			$params['menus'] = Database::queryAll('SELECT m.menuid, m.title FROM serversetup_menu m

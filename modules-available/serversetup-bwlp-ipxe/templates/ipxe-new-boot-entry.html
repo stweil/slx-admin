@@ -65,22 +65,22 @@
 								<div class="panel-body">
 									<h4 class="arch-heading">{{mode}}</h4>
 									<div class="form-group">
-										<label for="input-ex">
+										<label for="input-ex-{{mode}}">
 											{{lang_imageToLoad}}
 										</label>
-										<input id="input-ex" class="form-control" name="entry[executable][{{mode}}]" value="{{executable}}" {{disabled}}>
+										<input id="input-ex-{{mode}}" class="form-control" name="entry[executable][{{mode}}]" value="{{executable}}" {{disabled}}>
 									</div>
 									<div class="form-group">
-										<label for="input-rd">
+										<label for="input-rd-{{mode}}">
 											{{lang_initRd}}
 										</label>
-										<input id="input-rd" class="form-control" name="entry[initRd][{{mode}}]" value="{{initRd}}" {{disabled}}>
+										<input id="input-rd-{{mode}}" class="form-control" name="entry[initRd][{{mode}}]" value="{{initRd}}" {{disabled}}>
 									</div>
 									<div class="form-group">
-										<label for="input-cmd">
+										<label for="input-cmd-{{mode}}">
 											{{lang_commandLine}}
 										</label>
-										<input id="input-cmd" class="form-control" name="entry[commandLine][{{mode}}]"
+										<input id="input-cmd-{{mode}}" class="form-control" name="entry[commandLine][{{mode}}]"
 												 value="{{commandLine}}" {{disabled}}>
 									</div>
 									<div class="form-group">

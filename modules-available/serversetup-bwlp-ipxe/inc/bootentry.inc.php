@@ -62,8 +62,10 @@ abstract class BootEntry
 			$list[] = StandardBootEntry::EFI;
 		}
 		foreach ($list as $mode) {
-			if (empty($ret->toArray()['executable'][$mode]))
+			if (empty($ret->toArray()['executable'][$mode])) {
+				error_log('Incomplete stdbot: ' . print_r($initData, true));
 				return null;
+			}
 		}
 		return $ret;
 	}
