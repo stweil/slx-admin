@@ -56,7 +56,7 @@
 		<tr>
 			<td data-sort-value="{{hostname}}" class="text-nowrap">
 			<div class="checkbox checkbox-inline">
-				<input type="checkbox" name="uuid[]" value="{{machineuuid}}" class="deleteCheckboxes" {{delete_disabled}}>
+				<input type="checkbox" name="uuid[]" value="{{machineuuid}}" class="machine-checkbox">
 				<label></label>
 			</div>
 			{{#hasnotes}}
@@ -113,10 +113,26 @@
 			<span class="glyphicon glyphicon-refresh"></span>
 			{{lang_reset}}
 		</button>
-		<button id="deleteButton" type="button" class="btn btn-danger" onclick="$('#del-confirm').modal()">
+		{{#rebootcontrol}}
+		{{#canShutdown}}
+			<button type="button" class="btn btn-danger btn-machine-action" data-toggle="modal" data-target="#shutdown-confirm">
+				<span class="glyphicon glyphicon-off"></span>
+				{{lang_shutdown}}
+			</button>
+		{{/canShutdown}}
+		{{#canReboot}}
+			<button type="button" class="btn btn-warning btn-machine-action" data-toggle="modal" data-target="#reboot-confirm">
+				<span class="glyphicon glyphicon-repeat"></span>
+				{{lang_reboot}}
+			</button>
+		{{/canReboot}}
+		{{/rebootcontrol}}
+		{{#canDelete}}
+		<button type="button" class="btn btn-danger btn-machine-action" data-toggle="modal" data-target="#del-confirm">
 			<span class="glyphicon glyphicon-trash"></span>
 			{{lang_delete}}
 		</button>
+		{{/canDelete}}
 	</div>
 	<div class="modal fade" id="del-confirm" tabindex="-1" role="dialog">
 		<div class="modal-dialog" role="document">
@@ -138,70 +154,77 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="reboot-confirm" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<b>{{lang_reboot}}</b>
+				</div>
+				<div class="modal-body">
+					<p>{{lang_rebootConfirm}}</p>
+					<div class="checkbox">
+						<input type="checkbox" name="kexec" value="1" id="kexec-input">
+						<label for="kexec-input">{{lang_rebootKexecCheck}}</label>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" class="btn btn-danger"  name="action" value="rebootmachines">
+						<span class="glyphicon glyphicon-repeat"></span>
+						{{lang_reboot}}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="shutdown-confirm" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<b>{{lang_shutdown}}</b>
+				</div>
+				<div class="modal-body">
+					{{lang_shutdownConfirm}}
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
+					<button type="submit" class="btn btn-danger"  name="action" value="shutdownmachines">
+						<span class="glyphicon glyphicon-off"></span>
+						{{lang_shutdown}}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </form>
 
 <script type="application/javascript"><!--
 
-selectedMachineCounter = 0;
+var selectedMachineCounter = 0;
 
 document.addEventListener("DOMContentLoaded", function () {
-	['gbram', 'hddgb', 'realcores', 'kvmstate', 'lastseen', 'clientip'].forEach(function (v) {
-		var $sortBtn = $('#sortButton-' + v);
-		var order = 'up'; /* default */
-		if ($('#sortColumn').val() == v) {
-			$sortBtn.addClass('btn-success');
-			order = $('#sortDirection').val() == 'ASC' ? 'up' : 'down';
-		}
-		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
-		$sortBtn.attr('onclick', 'toggleButton(\'' + v + '\');');
-	});
-
-	$('[data-toggle="tooltip"]').tooltip({
-		container: 'body',
-		trigger : 'hover'
-	});
-
-	$("#deleteButton").prop("disabled", true);
-	$(".deleteCheckboxes").change(function() {
+	var $buttons = $('.btn-machine-action');
+	$buttons.prop("disabled", true);
+	$(".machine-checkbox").change(function() {
 		if ($(this).is(':checked')) {
 			selectedMachineCounter++;
 			if (selectedMachineCounter === 1) {
-				$("#deleteButton").prop("disabled", false);
+				$buttons.prop("disabled", false);
 			}
 		} else {
 			selectedMachineCounter--;
 			if (selectedMachineCounter === 0) {
-				$("#deleteButton").prop("disabled", true);
+				$buttons.prop("disabled", true);
 			}
 		}
 	});
 
 	$("button[type=reset]").click(function() {
 		selectedMachineCounter = 0;
-		$("#deleteButton").prop("disabled", true);
+		$buttons.prop("disabled", true);
 	});
-
 });
-
-function toggleButton(v) {
-	var $sortBtn = $('#sortButton-' + v);
-	var $col = $('#sortColumn');
-	var $dir = $('#sortDirection');
-	if ($col.val() == v) {
-		/* toggle direction */
-		var newDir = $dir.val() == 'ASC' ? 'DESC' : 'ASC';
-		$dir.val(newDir);
-		/* update button */
-		var order =  newDir == 'ASC' ? 'up' : 'down';
-		$sortBtn.html('<span class="glyphicon glyphicon-arrow-' + order + '"></span>');
-	} else {
-		/* remove "btn-success" from current sorting */
-		$('#sortButton-'+v).removeClass('btn-success');
-		$sortBtn.addClass('btn-success');
-		$col.val(v);
-		$dir = 'ASC';
-	}
-	$queryForm.submit();
-}
 
 //--></script>

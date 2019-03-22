@@ -200,6 +200,10 @@ class Page_Statistics extends Page
 			} elseif ($action === 'delmachines') {
 				$this->deleteMachines();
 				Util::redirect('?do=statistics', true);
+			} elseif ($action === 'rebootmachines') {
+				$this->rebootControl(true);
+			} elseif ($action === 'shutdownmachines') {
+				$this->rebootControl(false);
 			}
 
 		}
@@ -208,6 +212,61 @@ class Page_Statistics extends Page
 			// Make sure we don't render any content for POST requests - should be handled above and then
 			// redirected properly
 			Util::redirect('?do=statistics');
+		}
+	}
+
+	/**
+	 * @param bool $reboot true = reboot, false = shutdown
+	 */
+	private function rebootControl($reboot)
+	{
+		if (!Module::isAvailable('rebootcontrol'))
+			return;
+		$ids = Request::post('uuid', [], 'array');
+		$ids = array_values($ids);
+		if (empty($ids)) {
+			Message::addError('main.parameter-empty', 'uuid');
+			return;
+		}
+		$allowedLocations = User::getAllowedLocations(".rebootcontrol.action." . ($reboot ? 'reboot' : 'shutdown'));
+		if (empty($allowedLocations)) {
+			Message::addError('main.no-permission');
+			Util::redirect('?do=statistics');
+		}
+		$res = Database::simpleQuery('SELECT machineuuid, clientip, locationid FROM machine WHERE machineuuid IN (:ids)', compact('ids'));
+		$ids = array_flip($ids);
+		$allowedMachines = [];
+		$seenLocations = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			unset($ids[$row['machineuuid']]);
+			settype($row['locationid'], 'int');
+			if (in_array($row['locationid'], $allowedLocations)) {
+				$allowedMachines[] = $row;
+			} elseif (!isset($seenLocations[$row['locationid']])) {
+				Message::addError('locations.no-permission-location', $row['locationid']);
+			}
+			$seenLocations[$row['locationid']] = true;
+		}
+		if (!empty($ids)) {
+			Message::addWarning('unknown-machine', implode(', ', array_keys($ids)));
+		}
+		if (!empty($allowedMachines)) {
+			if (count($seenLocations) === 1) {
+				$locactionId = (int)array_keys($seenLocations)[0];
+			} else {
+				$locactionId = 0;
+			}
+			if ($reboot && Request::post('kexec', false)) {
+				$action = RebootControl::KEXEC_REBOOT;
+			} elseif ($reboot) {
+				$action = RebootControl::REBOOT;
+			} else {
+				$action = RebootControl::SHUTDOWN;
+			}
+			$task = RebootControl::execute($allowedMachines, $action, 0, $locactionId);
+			if (Taskmanager::isTask($task)) {
+				Util::redirect("?do=rebootcontrol&taskid=" . $task["id"]);
+			}
 		}
 	}
 
@@ -643,7 +702,14 @@ class Page_Statistics extends Page
 			. " $join WHERE $where $sort", $args);
 		$rows = array();
 		$singleMachine = 'none';
+		// TODO: Cannot disable checkbox for those where user has no permission, since we got multiple actions now
+		// We should pass these lists to the output and add some JS magic
+		// Either disable the delete/reboot/... buttons as soon as at least one "forbidden" client is selected (potentially annoying)
+		// or add a notice to the confirmation dialog of the according action (nicer but a little more work)
 		$deleteAllowedLocations = User::getAllowedLocations("machine.delete");
+		$rebootAllowedLocations = User::getAllowedLocations('.rebootcontrol.action.reboot');
+		$shutdownAllowedLocations = User::getAllowedLocations('.rebootcontrol.action.reboot');
+		// Only make client clickable if user is allowed to view details page
 		$detailsAllowedLocations = User::getAllowedLocations("machine.view-details");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			if ($singleMachine === 'none') {
@@ -651,8 +717,6 @@ class Page_Statistics extends Page
 			} else {
 				$singleMachine = false;
 			}
-			// TODO: This only makes sense as long as there is only one action to perform on selected clients; reboot/shutdown is planned
-			$row['delete_disabled'] = in_array($row['locationid'], $deleteAllowedLocations) ? '' : 'disabled';
 			$row['link_details'] = in_array($row['locationid'], $detailsAllowedLocations);
 			//$row['firstseen'] = Util::prettyTime($row['firstseen']);
 			$row['lastseen_int'] = $row['lastseen'];
@@ -704,7 +768,11 @@ class Page_Statistics extends Page
 			'columns' => json_encode(Page_Statistics::$columns),
 			'showList' => 1,
 			'show' => 'list',
-			'redirect' => $_SERVER['QUERY_STRING']
+			'redirect' => $_SERVER['QUERY_STRING'],
+			'rebootcontrol' => (Module::get('rebootcontrol') !== false),
+			'canReboot' => !empty($rebootAllowedLocations),
+			'canShutdown' => !empty($shutdownAllowedLocations),
+			'canDelete' => !empty($deleteAllowedLocations),
 		);
 		Render::addTemplate('clientlist', $data);
 	}
@@ -824,6 +892,16 @@ class Page_Statistics extends Page
 			if ($data !== false) {
 				$client += $data;
 			}
+		}
+		// Rebootcontrol
+		if (Module::get('rebootcontrol') !== false) {
+			if (User::hasPermission('.rebootcontrol.action.reboot', (int)$client['locationid'])) {
+				$client['canReboot'] = true;
+			}
+			if (User::hasPermission('.rebootcontrol.action.shutdown', (int)$client['locationid'])) {
+				$client['canShutdown'] = true;
+			}
+			$client['rebootcontrol'] = $client['canReboot'] || $client['canShutdown'];
 		}
 		if (!isset($client['isclient'])) {
 			$client['isclient'] = true;

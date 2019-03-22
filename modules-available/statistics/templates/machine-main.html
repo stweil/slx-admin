@@ -101,6 +101,81 @@
 							</td>
 						</tr>
 					{{/hasroomplan}}
+					{{#rebootcontrol}}
+						<tr>
+							<td class="text-nowrap">
+								{{lang_reboot}}/{{lang_shutdown}}
+							</td>
+							<td>
+								<form method="post" action="?do=statistics">
+									<input type="hidden" name="token" value="{{token}}">
+									<input type="hidden" name="uuid" value="{{machineuuid}}">
+									{{#canShutdown}}
+										<button type="button" class="btn btn-sm btn-danger btn-machine-action" data-toggle="modal"
+												  data-target="#shutdown-confirm">
+											<span class="glyphicon glyphicon-off"></span>
+											{{lang_shutdown}}
+										</button>
+									{{/canShutdown}}
+									{{#canReboot}}
+										<button type="button" class="btn btn-sm btn-warning btn-machine-action" data-toggle="modal"
+												  data-target="#reboot-confirm">
+											<span class="glyphicon glyphicon-repeat"></span>
+											{{lang_reboot}}
+										</button>
+									{{/canReboot}}
+									<div class="modal fade" id="reboot-confirm" tabindex="-1" role="dialog">
+										<div class="modal-dialog" role="document">
+											<div class="modal-content">
+												<div class="modal-header">
+													<button type="button" class="close" data-dismiss="modal">&times;</button>
+													<b>{{lang_reboot}}</b>
+												</div>
+												<div class="modal-body">
+													<p>{{lang_rebootConfirm}}</p>
+													<div class="checkbox">
+														<input type="checkbox" name="kexec" value="1" id="kexec-input">
+														<label for="kexec-input">{{lang_rebootKexecCheck}}</label>
+													</div>
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-default"
+															  data-dismiss="modal">{{lang_cancel}}</button>
+													<button type="submit" class="btn btn-danger" name="action"
+															  value="rebootmachines">
+														<span class="glyphicon glyphicon-repeat"></span>
+														{{lang_reboot}}
+													</button>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="modal fade" id="shutdown-confirm" tabindex="-1" role="dialog">
+										<div class="modal-dialog" role="document">
+											<div class="modal-content">
+												<div class="modal-header">
+													<button type="button" class="close" data-dismiss="modal">&times;</button>
+													<b>{{lang_shutdown}}</b>
+												</div>
+												<div class="modal-body">
+													{{lang_shutdownConfirm}}
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-default"
+															  data-dismiss="modal">{{lang_cancel}}</button>
+													<button type="submit" class="btn btn-danger" name="action"
+															  value="shutdownmachines">
+														<span class="glyphicon glyphicon-off"></span>
+														{{lang_shutdown}}
+													</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</form>
+							</td>
+						</tr>
+					{{/rebootcontrol}}
 				</table>
 			</div>
 		</div>
