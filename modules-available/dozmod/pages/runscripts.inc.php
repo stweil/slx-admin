@@ -11,6 +11,9 @@ class SubPage
 		if ($action === 'save') {
 			User::assertPermission("runscripts.save");
 			self::saveScript();
+		} elseif ($action === 'delete') {
+			User::assertPermission("runscripts.save");
+			self::deleteScript();
 		}
 
 		if (Request::isPost()) {
@@ -74,6 +77,17 @@ class SubPage
 					WHERE runscriptid = :id AND osid NOT IN (:oslist)', ['id' => $id, 'oslist' => $oslist]);
 		}
 		Message::addSuccess('runscript-saved');
+	}
+
+	private static function deleteScript()
+	{
+		$id = Request::post('runscriptid', false, 'int');
+		if ($id === false) {
+			Message::addError('main.parameter-missing', 'runscriptid');
+			return;
+		}
+		Database::exec('DELETE FROM sat.presetrunscript WHERE runscriptid = :id', compact('id'));
+		Message::addSuccess('runscript-deleted');
 	}
 
 	public static function doRender()
