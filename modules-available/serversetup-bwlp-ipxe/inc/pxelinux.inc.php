@@ -38,6 +38,7 @@ class PxeLinux
 			'menu clear' => ['true', 'menuClear'],
 			'menu immediate' => ['true', 'immediateHotkeys'],
 			'ontimeout' => ['string', 'timeoutLabel'],
+			'default' => ['string', 'default'],
 		];
 		$lines = preg_split('/[\r\n]+/', $input);
 		$section = null;
@@ -159,6 +160,11 @@ class PxeMenu
 	 * @var PxeSection[] list of sections the menu contains
 	 */
 	public $sections = [];
+	/**
+	 * @var string The DEFAULT entry of the menu. Usually refers either to a
+	 * 			LABEL, or a loadable module (like vesamenu.c32)
+	 */
+	public $default;
 
 	public function hash($fuzzy)
 	{
@@ -191,6 +197,18 @@ class PxeMenu
 			}
 		}
 		return hash_final($ctx, false);
+	}
+
+	/**
+	 * Check if any of the sections has the given label.
+	 */
+	public function hasLabel($label)
+	{
+		foreach ($this->sections as $section) {
+			if ($section->label === $label)
+				return true;
+		}
+		return false;
 	}
 
 }

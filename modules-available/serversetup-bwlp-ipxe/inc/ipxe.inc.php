@@ -162,8 +162,10 @@ class IPxe
 			if (!empty($pxe->title)) {
 				$menuTitle = $pxe->title;
 			}
-			if ($pxe->timeoutLabel !== null) {
+			if ($pxe->timeoutLabel !== null && $pxe->hasLabel($pxe->timeoutLabel)) {
 				$defaultLabel = $pxe->timeoutLabel;
+			} elseif ($pxe->hasLabel($pxe->default)) {
+				$defaultLabel = $pxe->default;
 			}
 			$timeoutMs[] = $pxe->timeoutMs;
 			$timeoutMs[] = $pxe->totalTimeoutMs;
