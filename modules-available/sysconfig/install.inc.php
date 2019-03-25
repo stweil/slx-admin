@@ -81,7 +81,7 @@ if (!tableHasColumn('configtgz', 'status')) {
 	}
 	$update[] = UPDATE_DONE;
 }
-if (!tableHasColumn('dateline', 'configtgz_module')) {
+if (!tableHasColumn('configtgz_module', 'dateline')) {
 	if (Database::exec("ALTER TABLE `configtgz_module` ADD `dateline` int(10) unsigned NOT NULL DEFAULT '0'") === false) {
 		finalResponse(UPDATE_FAILED, 'Could not add dateline to configtgz_module: ' . Database::lastError());
 	}
@@ -93,7 +93,7 @@ if (!tableHasColumn('dateline', 'configtgz_module')) {
 			['moduleid' => $row['moduleid'], 'mtime' => filemtime($row['filepath'])]);
 	}
 }
-if (!tableHasColumn('dateline', 'configtgz')) {
+if (!tableHasColumn('configtgz', 'dateline')) {
 	if (Database::exec("ALTER TABLE `configtgz` ADD `dateline` int(10) unsigned NOT NULL DEFAULT '0'") === false) {
 		finalResponse(UPDATE_FAILED, 'Could not add dateline to configtgz: ' . Database::lastError());
 	}
