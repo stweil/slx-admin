@@ -24,6 +24,9 @@ class Event
 		Property::clearList('cron.key.status');
 		Property::clearList('cron.key.blocked');
 
+		// Do this before any hooks, might be used by some
+		$autoIp = Trigger::autoUpdateServerIp();
+
 		// Hooks
 		foreach (Hook::load('bootup') as $hook) {
 			// Isolate for local vars
@@ -37,7 +40,6 @@ class Event
 
 		// Tasks: fire away
 		$mountStatus = false;
-		$autoIp = Trigger::autoUpdateServerIp();
 		$mountId = Trigger::mount();
 		$ldadpId = Trigger::ldadp();
 		$ipxeId = Trigger::ipxe();
@@ -108,7 +110,6 @@ class Event
 	 */
 	public static function serverIpChanged()
 	{
-		error_log('Server ip changed');
 		Trigger::ipxe();
 		if (Module::isAvailable('sysconfig')) { // TODO: Modularize events
 			ConfigModule::serverIpChanged();
