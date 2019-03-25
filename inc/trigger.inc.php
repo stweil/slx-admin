@@ -50,7 +50,12 @@ class Trigger
 	 */
 	public static function autoUpdateServerIp()
 	{
-		$task = Taskmanager::submit('LocalAddressesList');
+		for ($i = 0; $i < 5; ++$i) {
+			$task = Taskmanager::submit('LocalAddressesList');
+			if ($task !== false)
+				break;
+			sleep(1);
+		}
 		if ($task === false)
 			return false;
 		$task = Taskmanager::waitComplete($task, 10000);

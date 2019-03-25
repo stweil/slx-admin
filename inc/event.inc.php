@@ -37,8 +37,8 @@ class Event
 
 		// Tasks: fire away
 		$mountStatus = false;
-		$mountId = Trigger::mount();
 		$autoIp = Trigger::autoUpdateServerIp();
+		$mountId = Trigger::mount();
 		$ldadpId = Trigger::ldadp();
 		$ipxeId = Trigger::ipxe();
 
