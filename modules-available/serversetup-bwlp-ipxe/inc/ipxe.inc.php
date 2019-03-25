@@ -61,23 +61,22 @@ class IPxe
 			if (($menuId = array_search($entries, $menus)) !== false) {
 				error_log('Imported menu ' . $menu->title . ' exists, using for ' . count($locations) . ' locations.');
 				// Figure out the default label, get its label name
+				$defSection = null;
 				foreach ($menu->sections as $section) {
 					if ($section->isDefault) {
-						$defId = $section;
-					} elseif ($defId === null && $section->label === $menu->timeoutLabel) {
-						$defId = $section;
+						$defSection = $section;
+					} elseif ($defSection === null && $section->label === $menu->timeoutLabel) {
+						$defSection = $section;
 					}
 				}
-				if ($defId !== null && ($defIdEntry = array_search($defId, self::$allEntries)) !== false) {
+				if ($defSection !== null && ($defIdEntry = array_search(self::pxe2BootEntry($defSection), self::$allEntries)) !== false) {
 					// Confirm it actually exists (it should since the menu seems identical) and get menuEntryId
 					$me = Database::queryFirst('SELECT m.defaultentryid, me.menuentryid FROM serversetup_bootentry be
 							INNER JOIN serversetup_menuentry me ON (be.entryid = me.entryid)
 							INNER JOIN serversetup_menu m ON (m.menuid = me.menuid)
 							WHERE be.entryid = :id AND me.menuid = :menuid',
 						['id' => $defIdEntry, 'menuid' => $menuId]);
-					if ($me === false || $me['defaultentryid'] == $me['menuentryid']) {
-						$defId = null; // Not found, or is already default - don't override if it's the same
-					} else {
+					if ($me !== false && $me['defaultentryid'] != $me['menuentryid']) {
 						$defId = $me['menuentryid'];
 					}
 				}
