@@ -108,12 +108,14 @@ class Page_ServerSetup extends Page
 
 		User::assertPermission('access-page');
 
+		$addr = false;
 		if (User::hasPermission('ipxe.*')) {
 			Dashboard::addSubmenu('?do=serversetup&show=menu', Dictionary::translate('submenu_menu', true));
 			Dashboard::addSubmenu('?do=serversetup&show=bootentry', Dictionary::translate('submenu_bootentry', true));
 		}
 		if (User::hasPermission('edit.address')) {
 			Dashboard::addSubmenu('?do=serversetup&show=address', Dictionary::translate('submenu_address', true));
+			$addr = true;
 		}
 		if (User::hasPermission('download')) {
 			Dashboard::addSubmenu('?do=serversetup&show=download', Dictionary::translate('submenu_download', true));
@@ -128,6 +130,8 @@ class Page_ServerSetup extends Page
 			$subs = Dashboard::getSubmenus();
 			if (empty($subs)) {
 				User::assertPermission('download');
+			} elseif (Property::getServerIp() === 'invalid' && $addr) {
+				Util::redirect('?do=serversetup&show=address');
 			} else {
 				Util::redirect($subs[0]['url']);
 			}
