@@ -301,7 +301,7 @@ class IPxe
 			} else {
 				// Seems new one; make sure label doesn't collide
 				error_log('Adding new boot entry ' . $section->label . ' (' . $section->kernel . ')');
-				$label = substr(preg_replace('/[^a-z0-9_\-]/', '', $section->label), 0, 16);
+				$label = substr(preg_replace('/[^a-z0-9_\-]/', '', strtolower($section->label)), 0, 16);
 				while (empty($label) || array_key_exists($label, self::$allEntries)) {
 					$label = 'i-' . substr(md5(microtime(true) . $section->kernel . mt_rand()), 0, 14);
 				}
