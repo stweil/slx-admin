@@ -71,6 +71,29 @@ class IPxeMenu
 		return $str;
 	}
 
+	public function timeoutMs()
+	{
+		return $this->timeoutMs;
+	}
+
+	/**
+	 * @return int Number of items in this menu
+	 */
+	public function itemCount()
+	{
+		return count($this->items);
+	}
+
+	/**
+	 * @return string|false Return script label of default entry, false if not set
+	 */
+	public function getDefaultScriptLabel()
+	{
+		if ($this->defaultEntryId !== null)
+			return "m_{$this->menuid}_{$this->defaultEntryId}";
+		return false;
+	}
+
 	/*
 	 *
 	 */

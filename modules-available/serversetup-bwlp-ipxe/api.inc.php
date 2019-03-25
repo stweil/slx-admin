@@ -76,7 +76,12 @@ if ($menu !== false) {
 	$menu = IPxeMenu::forClient($ip, $uuid);
 	$initLabel = 'init';
 }
-
+// If this is a menu with a single item, treat a timeout of 0 as "boot immediately" instead of "infinite"
+if ($menu->itemCount() === 1 && $menu->timeoutMs() === 0 && ($tmp = $menu->getDefaultScriptLabel()) !== false) {
+	$directBoot = "goto $tmp ||";
+} else {
+	$directBoot = '';
+}
 
 // Get preferred localboot method, depending on system model
 $localboot = false;
@@ -176,6 +181,8 @@ set serverip $serverIp ||
 
 # Clean up in case we've been chained to
 imgfree ||
+
+$directBoot
 
 imgfetch --name bg-menu /tftp/pxe-menu.png ||
 
