@@ -41,7 +41,13 @@
 			</td>
 		</tr>
 		<tr>
-			<th data-sort="string">{{lang_machine}}</th>
+			<th data-sort="string">
+				<div class="checkbox checkbox-inline">
+					<input type="checkbox" id="toggle-all">
+					<label></label>
+				</div>
+				{{lang_machine}}
+			</th>
 			<th data-sort="ipv4">{{lang_address}}</th>
 			<th data-sort="int" class="text-right">{{lang_lastSeen}}</th>
 			<th data-sort="string">{{lang_kvmSupport}}</th>
@@ -159,12 +165,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	if (window && window.opera && window.opera.version && Number(window.opera.version()) < 13) {
 		$(document).ready(function () {
 			setTimeout(function () {
-				$('div.checkbox > input').click().click();
+				$('div.checkbox > input.machine-checkbox').click().click();
 			}, 1);
 		});
 	} else {
 		$fn();
 	}
+	$('#toggle-all').click(function(e) {
+		e.stopPropagation();
+		$boxes.prop('checked', $(this).is(':checked'));
+		$fn();
+	});
 });
 
 //--></script>
