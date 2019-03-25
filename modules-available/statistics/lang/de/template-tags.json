@@ -94,7 +94,7 @@
     "lang_sockets": "Sockel",
     "lang_subnet": "Subnetz",
     "lang_sureDeletePermanent": "M\u00f6chten Sie diese(n) Rechner wirklich unwiderruflich aus der Datenbank entfernen?\r\n\r\nWichtig: L\u00f6schen verhindert nicht, dass ein Rechner nach erneutem Starten von bwLehrpool wieder in die Datenbank aufgenommen wird.",
-    "lang_sureReplaceNoUndo": "Wollen Sie die Daten ausgew\u00e4hlten Rechner \u00fcbertragen? Diese Aktion kann nicht r\u00fcckg\u00e4ngig gemacht werden.",
+    "lang_sureReplaceNoUndo": "Wollen Sie die Daten der ausgew\u00e4hlten Rechner \u00fcbertragen? Diese Aktion kann nicht r\u00fcckg\u00e4ngig gemacht werden.",
     "lang_swapFree": "swap frei (MB)",
     "lang_tempPart": "Temp. Partition",
     "lang_tempPartStats": "Tempor\u00e4re Partition",

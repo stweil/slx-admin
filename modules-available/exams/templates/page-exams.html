@@ -5,6 +5,8 @@
 	</div>
 	<div class="panel-body">
 		<div class="slx-space">
+		<form method="POST" action="?do=exams&amp;action=delete">
+			<input type="hidden" name="token" value="{{token}}">
 			<table class="table stupidtable">
 				<thead>
 					<tr>
@@ -39,20 +41,24 @@
 						<td class="text-nowrap" data-sort-value={{starttime}}>{{starttime_s}}</td>
 						<td class="text-nowrap" data-sort-value={{endtime}}>{{endtime_s}}</td>
 						<td class="text-nowrap text-right">
-							<form method="POST" action="?do=exams&action=delete" {{^liesInPast}}onsubmit="return confirm('{{lang_deleteConfirmation}}');"{{/liesInPast}} >
-								{{^liesInPast}}
-								<a onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></a>
-								{{/liesInPast}}
-								<a href="?do=exams&action=edit&examid={{examid}}" class="btn btn-default btn-sm {{edit.disabled}}"><span class="glyphicon glyphicon-edit"></span></a>								<input type="hidden" name="token" value="{{token}}">
-								<input type="hidden" name="examid" value="{{examid}}">
-								<button {{edit.disabled}} class="btn {{btnClass}} btn-sm"><span class="glyphicon glyphicon-trash"></span></button>
-							</form>
+							{{^liesInPast}}
+							<a onclick="slxShow({{starttime}}, {{endtime}})" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></a>
+							{{/liesInPast}}
+							<a href="?do=exams&amp;action=edit&amp;examid={{examid}}" class="btn btn-default btn-sm {{edit.disabled}}">
+								<span class="glyphicon glyphicon-edit"></span>
+							</a>
+							<button type="submit" {{edit.disabled}} class="btn {{btnClass}} btn-sm" name="examid" value="{{examid}}"
+									{{^liesInPast}}data-confirm="#confirm-delete" data-title="{{description}}"{{/liesInPast}}>
+								<span class="glyphicon glyphicon-trash"></span>
+							</button>
 						</td>
 					</tr>
 					{{/exams}}
 				</tbody>
 			</table>
+		</form>
 		</div>
+		<div class="hidden" id="confirm-delete">{{lang_deleteConfirmation}}</div>
 		<div class="text-right">
 			<div class="btn-group" role="group">
 				<a href="?do=exams&action=add" class="btn btn-success {{perms.exams.edit.disabled}}"><span class="glyphicon glyphicon-plus-sign"></span> {{lang_addExam}}</a>

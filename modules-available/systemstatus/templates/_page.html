@@ -95,27 +95,10 @@
 						<form action="?do=SystemStatus" method="post">
 							<input type="hidden" name="token" value="{{token}}">
 							<input type="hidden" name="action" value="reboot">
-							<button {{perms.serverreboot.disabled}} class="btn btn-warning" type="button" data-toggle="modal" data-target="#rebootServerModal"><span class="glyphicon glyphicon-repeat"></span> {{lang_serverReboot}}</button>
-
-
-							<div class ="modal fade" id="rebootServerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-								<div class="modal-dialog" style="width: 400px" role="document">
-									<div class="modal-content">
-										<div class="modal-header">
-											<button type="button" class="close" data-dismiss="modal">&times;</button>
-											<b>{{lang_serverReboot}}</b>
-										</div>
-										<div class="modal-body">
-											{{lang_areYouSureReboot}}
-										</div>
-										<div class="modal-footer">
-											<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-											<button type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-repeat"></span> {{lang_serverReboot}}</button>
-										</div>
-									</div>
-								</div>
-							</div>
-
+							<button type="submit" {{perms.serverreboot.disabled}} class="btn btn-warning" data-confirm="#confirm-reboot">
+								<span class="glyphicon glyphicon-repeat"></span> {{lang_serverReboot}}
+							</button>
+							<div class="hidden" id="confirm-reboot">{{lang_areYouSureReboot}}</div>
 						</form>
 						<div id="dmsd-users"></div>
 					</div>

@@ -2,9 +2,9 @@
 
 {{{pagenav}}}
 
-<form method="get">
-	<input type="hidden" name="do" value="adduser">
-	<input type="hidden" name="show" value="edituser">
+<form method="post">
+	<input type="hidden" name="action" value="deleteuser">
+	<input type="hidden" name="token" value="{{token}}">
 	<table class="table stupidtable">
 		<thead>
 		<tr>
@@ -25,12 +25,12 @@
 				<td>{{phone}}</td>
 				<td>{{email}}</td>
 				<td class="text-nowrap">
-					<button class="btn btn-primary btn-xs" {{perms.user.edit.disabled}} type="submit" name="userid" value="{{userid}}">
+					<a class="btn btn-primary btn-xs" {{perms.user.edit.disabled}} href="?do=adduser&amp;show=edituser&amp;userid={{userid}}">
 						<span class="glyphicon glyphicon-edit"></span>
-					</button>
+					</a>
 					{{^hide_delete}}
-					<button type="button" {{perms.user.remove.disabled}} class="btn btn-danger btn-xs del-user-btn"
-							  data-target="#delete-modal" data-toggle="modal" data-user="{{userid}}">
+					<button type="submit" {{perms.user.remove.disabled}} name="userid" value="{{userid}}" class="btn btn-danger btn-xs"
+							data-confirm="#confirm-delete" data-title="{{fullname}} ({{login}})">
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
 					{{/hide_delete}}
@@ -46,42 +46,4 @@
 		</a>
 	</div>
 </form>
-<script>
-	document.addEventListener('DOMContentLoaded', function() {
-		$('.del-user-btn').click(function (e) {
-			var uid = $(this).data('user');
-			if (!uid) {
-				alert('ERROR');
-				return false;
-			}
-			$('#delete-userid').val(uid);
-			$('#delete-user-field').text($('#user-' + uid).text());
-		});
-	});
-</script>
-
-<!-- Modals -->
-<div class ="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<form method="post">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">{{lang_confirmDelete}}: <span id="delete-user-field"></span></h4>
-				</div>
-				<div class="modal-body">
-					<p>{{lang_userDeleteConfirm}}</p>
-				</div>
-				<div class="modal-footer">
-					<input type="hidden" name="action" value="deleteuser">
-					<input type="hidden" name="token" value="{{token}}">
-					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" id="delete-userid" name="userid" value="" class="btn btn-danger">
-						<span class="glyphicon glyphicon-trash"></span>
-						{{lang_delete}}
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
+<div class="hidden" id="confirm-delete">{{lang_userDeleteConfirm}}</div>

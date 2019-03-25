@@ -17,7 +17,6 @@
 	{{#serverlist}}
 		<form method="post" action="?do=locationinfo">
 			<input type="hidden" name="token" value="{{token}}">
-			<input type="hidden" name="serverid" value="{{serverid}}">
 			<tr>
 				<td nowrap>{{typename}}</td>
 				<td nowrap>{{servername}}</td>
@@ -29,8 +28,8 @@
 					</button>
 				</td>
 				<td class="text-center">
-					<button class="btn btn-xs btn-primary server-check" {{disabled}} {{perms.backend.check.disabled}}
-							name="action" value="checkConnection" type="submit">
+					<button type="submit" class="btn btn-xs btn-primary server-check" {{disabled}} {{perms.backend.check.disabled}}
+							name="chk-serverid" value="{{serverid}}">
 						<span class="glyphicon glyphicon-refresh"></span>
 					</button>
 				</td>
@@ -40,8 +39,8 @@
 					</a>
 				</td>
 				<td class="text-center">
-					<button type="button" class="btn btn-xs btn-danger" onclick="$('#del-serverid').val({{serverid}})"
-							  data-toggle="modal" data-target="#deleteModal" {{perms.backend.edit.disabled}}>
+					<button type="submit" class="btn btn-xs btn-danger" name="del-serverid" value="{{serverid}}"
+							  data-confirm="#confirm-delete" data-title="{{servername}}" {{perms.backend.edit.disabled}}>
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
 				</td>
@@ -50,31 +49,15 @@
 		{{/serverlist}}
 	</tbody>
 </table>
+<div class="hidden" id="confirm-delete">{{lang_deleteConfirmation}}</div>
 
 <form method="post" action="?do=locationinfo">
 	<input type="hidden" name="token" value="{{token}}">
-	<input type="hidden" name="serverid" value="" id="del-serverid">
-	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">{{lang_delete}}</h4>
-				</div>
-				<div class="modal-body">
-					<p>{{lang_deleteConfirmation}}</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" name="action" value="deleteServer" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
-				</div>
-			</div>
-		</div>
-	</div>
+	<input type="hidden" name="action" value="deleteServer" class="btn btn-danger">
 </form>
 
 <div class="text-right">
-	<button class="btn btn-sm btn-success" id="addServerButton" onclick="addServer()">
+	<button class="btn btn-success" id="addServerButton" onclick="addServer()">
 		<span class="glyphicon glyphicon-plus"></span>
 		{{lang_addServer}}
 	</button>
@@ -97,19 +80,13 @@
 
 	document.addEventListener("DOMContentLoaded", function () {
 
-		/**
-		 * Confirm deleting a server.
-		 */
-		$('.server-delete').click(function(ev) {
-			var del = confirm("{{lang_deleteConfirmation}}");
-			if (!del) ev.preventDefault();
-		});
-
-		/**
+		/*
 		 * Animate refresh icon while page is loading
 		 */
-		$('.server-check').click(function() {
+		var $checkBtn = $('.server-check');
+		$checkBtn.click(function() {
 			$(this).find('.glyphicon').addClass('slx-rotation');
+			setTimeout(function(){$checkBtn.prop('disabled', true);},1); // Delay to not ignore form value
 		});
 
 		$('button[data-server-edit]').click(function() {

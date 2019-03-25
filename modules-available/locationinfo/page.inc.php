@@ -22,21 +22,26 @@ class Page_LocationInfo extends Page
 		$action = Request::post('action');
 		if ($action === 'writePanelConfig') {
 			$this->writePanelConfig();
+			$show = 'panels';
 		} elseif ($action === 'writeLocationConfig') {
 			$this->writeLocationConfig();
 			$show = 'locations';
-		} elseif ($action === 'deleteServer') {
-			$this->deleteServer();
 		} elseif ($action === 'deletePanel') {
 			$this->deletePanel();
-		} elseif ($action === 'checkConnection') {
-			$this->checkConnection(Request::post('serverid', 0, 'int'));
-			$show = 'backends';
+			$show = 'panels';
 		} elseif ($action === 'updateServerSettings') {
 			$this->updateServerSettings();
 			$show = 'backends';
-		} elseif (Request::isPost()) {
-			Message::addWarning('main.invalid-action', $action);
+		} else {
+			if (($id = Request::post('del-serverid', false, 'int')) !== false) {
+				$this->deleteServer($id);
+				$show = 'backends';
+			} elseif (($id = Request::post('chk-serverid', false, 'int')) !== false) {
+				$this->checkConnection($id);
+				$show = 'backends';
+			} elseif (Request::isPost()) {
+				Message::addWarning('main.invalid-action', $action);
+			}
 		}
 		if (Request::isPost() || $this->show === false) {
 			if (!empty($show)) {
@@ -95,11 +100,10 @@ class Page_LocationInfo extends Page
 	/**
 	 * Deletes the server from the db.
 	 */
-	private function deleteServer()
+	private function deleteServer($id)
 	{
 		User::assertPermission('backend.edit');
-		$id = Request::post('serverid', false, 'int');
-		if ($id === false) {
+		if ($id === 0) {
 			Message::addError('server-id-missing');
 			return;
 		}

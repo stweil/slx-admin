@@ -223,10 +223,6 @@ function removeNewSubnetRow(r) {
 	$("#row"+r).remove();
 }
 
-function slxConfirm() {
-	return confirm('{{lang_areYouSureNoUndo}}');
-}
-
 function deleteSubnetWarning(locid) {
 	var form = $("#locationForm"+locid);
 	if (form.find("input[type=checkbox]:checked").length > 0) {

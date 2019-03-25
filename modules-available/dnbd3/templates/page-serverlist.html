@@ -151,8 +151,8 @@
 							</button>
 						{{/machineuuid}}
 						{{^self}}
-							<button class="btn btn-danger btn-xs" name="server" value="{{serverid}}" {{edit_disabled}}
-									  onclick="return confirm('{{lang_wantToDelete}}')" title="{{lang_delete}}">
+							<button type="submit" class="btn btn-danger btn-xs" name="server" value="{{serverid}}" {{edit_disabled}}
+									  data-confirm="#confirm-delete" data-title="{{fixedip}} {{clientip}}" title="{{lang_delete}}">
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>
 						{{/self}}
@@ -162,6 +162,7 @@
 		</tbody>
 	</table>
 </form>
+<div class="hidden" id="confirm-delete">{{lang_wantToDelete}}</div>
 
 <div class="btn-toolbar pull-right">
 	<div class="btn-group">

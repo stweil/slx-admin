@@ -4,36 +4,44 @@
 	{{lang_networkrulesIntro}}
 </p>
 
-<table class="table">
-	<thead>
-		<tr>
-			<th>{{lang_name}}</th>
-			{{#hasEditPermissions}}
-			<th class="slx-smallcol">{{lang_edit}}</th>
-			<th class="slx-smallcol">{{lang_delete}}</th>
-			{{/hasEditPermissions}}
-		</tr>
-	</thead>
-	<tbody>
-	{{#networkrules}}
-		<tr>
-			<td>{{rulename}}</td>
-			{{#hasEditPermissions}}
-			<td align="center">
-				<a href="?do=dozmod&amp;section=networkrules&amp;show=edit&amp;ruleid={{ruleid}}" class="btn btn-xs btn-primary">
-					<span class="glyphicon glyphicon-edit"></span>
-				</a>
-			</td>
-			<td align="center">
-				<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteRule('{{ruleid}}')">
-					<span class="glyphicon glyphicon-trash"></span>
-				</button>
-			</td>
-			{{/hasEditPermissions}}
-		</tr>
-	{{/networkrules}}
-	</tbody>
-</table>
+<form method="post" action="?do=dozmod">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="section" value="networkrules">
+	<input type="hidden" name="action" value="delete">
+	<table class="table">
+		<thead>
+			<tr>
+				<th>{{lang_name}}</th>
+				{{#hasEditPermissions}}
+				<th class="slx-smallcol">{{lang_edit}}</th>
+				<th class="slx-smallcol">{{lang_delete}}</th>
+				{{/hasEditPermissions}}
+			</tr>
+		</thead>
+		<tbody>
+		{{#networkrules}}
+			<tr>
+				<td>{{rulename}}</td>
+				{{#hasEditPermissions}}
+				<td align="center">
+					<a href="?do=dozmod&amp;section=networkrules&amp;show=edit&amp;ruleid={{ruleid}}" class="btn btn-xs btn-primary">
+						<span class="glyphicon glyphicon-edit"></span>
+					</a>
+				</td>
+				<td align="center">
+					<button type="submit" name="ruleid" value="{{ruleid}}" class="btn btn-xs btn-danger"
+							  data-confirm="#confirm-delete" data-title="{{rulename}}">
+						<span class="glyphicon glyphicon-trash"></span>
+					</button>
+				</td>
+				{{/hasEditPermissions}}
+			</tr>
+		{{/networkrules}}
+		</tbody>
+	</table>
+</form>
+<div class="hidden" id="confirm-delete">{{lang_ruleDeleteConfirm}}</div>
+
 {{#hasEditPermissions}}
 <div class="text-right">
 	<a href="?do=dozmod&amp;section=networkrules&amp;show=edit" class="btn btn-success">
@@ -42,35 +50,3 @@
 	</a>
 </div>
 {{/hasEditPermissions}}
-
-<!-- Modals -->
-<form method="post" action="?do=dozmod">
-	<input type="hidden" name="token" value="{{token}}">
-	<input type="hidden" name="section" value="networkrules">
-	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">{{lang_delete}}</h4>
-				</div>
-				<div class="modal-body">
-					<p>{{lang_ruleDeleteConfirm}}</p>
-				</div>
-				<div class="modal-footer">
-					<input type="hidden" id="delete-rule-id" name="ruleid" value="">
-					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" name="action" value="delete" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
-				</div>
-			</div>
-		</div>
-	</div>
-</form>
-
-<script type="text/javascript">
-
-	function deleteRule(ruleid) {
-		$("#delete-rule-id").val(ruleid);
-	}
-
-</script>

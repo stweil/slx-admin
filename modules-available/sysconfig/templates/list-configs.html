@@ -66,8 +66,9 @@
 										href="?do=SysConfig&amp;action=addconfig&amp;edit={{configid}}" title="{{lang_edit}}">
 								<span class="glyphicon glyphicon-edit"></span>
 							</a>
-							<button class="btn btn-danger btn-xs confirm-delete" name="del" value="{{configid}}"
-										title="{{lang_delete}}" {{perms.config.edit.disabled}}>
+							<button type="submit" class="btn btn-danger btn-xs" name="del" value="{{configid}}"
+										title="{{lang_delete}}" {{perms.config.edit.disabled}} data-confirm="#confirm-delete"
+										data-title="{{config}}">
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>
 							{{/locationid}}

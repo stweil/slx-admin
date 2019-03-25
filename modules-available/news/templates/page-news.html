@@ -57,7 +57,10 @@
 									</td>
 									<td class="text-center">
 										<input type="hidden" name="news-type" value="news">
-										<button {{perms.news.delete.disabled}} class="btn btn-danger btn-xs btn-delete" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
+										<button {{perms.news.delete.disabled}} class="btn btn-danger btn-xs btn-delete" type="submit"
+												name="newsid" value="{{newsid}}" data-confirm="#confirm-delete" data-title="{{title}}">
+											<span class="glyphicon glyphicon-trash"></span>
+										</button>
 									</td>
 								</tr>
 								{{/list}}
@@ -121,6 +124,7 @@
 		</div>
 	</div>
 </div>
+<div class="hidden" id="confirm-delete">{{lang_confirmDelete}}</div>
 <script type="application/javascript"><!--
 document.addEventListener("DOMContentLoaded", function () {
 	$('.sn-btn').click(function (event) {
@@ -130,10 +134,5 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 	$('.summernote[readonly]').each(function() { $(this).summernote('disable'); });
-	$('.btn-delete').click(function (event) {
-		if (confirm('{{lang_confirmDelete}}'))
-			return;
-		event.preventDefault();
-	});
 }, false);
 // --></script>

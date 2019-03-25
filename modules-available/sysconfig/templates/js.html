@@ -1,11 +1,7 @@
+<div class="hidden" id="confirm-delete">{{lang_confirmDeleteQuestion}}</div>
 <script type="application/javascript"><!--
 document.addEventListener("DOMContentLoaded", function () {
 	checkBuildStatus();
 	$('[data-toggle="tooltip"]').tooltip();
-	$('.confirm-delete').click(function (event) {
-		if (!confirm('{{lang_confirmDeleteQuestion}}')) {
-			event.preventDefault();
-		}
-	});
 }, false);
 // --></script>

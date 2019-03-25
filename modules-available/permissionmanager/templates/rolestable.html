@@ -1,5 +1,6 @@
 <form method="post" action="?do=permissionmanager">
 	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="deleteRole">
 
 	<div>
 		<input type="text" class="form-control" id="roleNameSearchField" onkeyup="searchFieldFunction()" placeholder="{{lang_searchPlaceholder}}">
@@ -33,9 +34,14 @@
 							<a class="btn btn-xs btn-primary" href="?do=permissionmanager&amp;show=roleEditor&amp;roleid={{roleid}}"><span class="glyphicon glyphicon-edit"></span></a>
 						</td>
 						<td class="text-center">
-							<button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="deleteRole('{{roleid}}', '{{users}}')" {{perms.roles.edit.disabled}}>
+							<button type="submit" name="deleteId" value="{{roleid}}" class="btn btn-xs btn-danger" {{perms.roles.edit.disabled}}
+									data-confirm="#confirm-role-{{roleid}}" data-title="{{rolename}}">
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>
+							<div class="hidden" id="confirm-role-{{roleid}}">
+								<p>{{lang_roleDeleteConfirm}}</p>
+								{{lang_numAssignedUsers}}: {{users}}
+							</div>
 						</td>
 					</tr>
 				{{/roles}}
@@ -43,28 +49,6 @@
 			</table>
 		</div>
 	</div>
-
-	<!-- Modals -->
-	<div class ="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">{{lang_delete}}</h4>
-				</div>
-				<div class="modal-body">
-					<p>{{lang_roleDeleteConfirm}}</p>
-					{{lang_numAssignedUsers}}: <span id="delete-role-users"></span>
-				</div>
-				<div class="modal-footer">
-					<input type="hidden" id="delete-role-id" name="deleteId" value="">
-					<button type="button" class="btn btn-default" data-dismiss="modal">{{lang_cancel}}</button>
-					<button type="submit" name="action" value="deleteRole" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> {{lang_delete}}</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
 </form>
 
 <div class="text-right">
@@ -72,11 +56,6 @@
 </div>
 
 <script>
-	function deleteRole(roleid, users) {
-		$("#delete-role-id").val(roleid);
-		$("#delete-role-users").text(users);
-	}
-
 	function searchFieldFunction() {
 		var filter = $("#roleNameSearchField").val().toLowerCase();
 		$(".rolename").each(function() {

@@ -51,3 +51,39 @@ $('a.disabled').each(function() {
 	$this.after($hax);
 	$hax.append($this);
 });
+
+// Modern confirmation dialogs using bootstrap modal
+$(document).ready(function() {
+	var $title, $body, $button, $function, $modal = null, $cache = {};
+	$function = function (e) {
+		e.preventDefault();
+		var $this = $(this);
+		if ($modal === null) {
+			$modal = $('<div class="modal fade" id="modal-autogen" tabindex="-1" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button>'
+				+ '<b id="modal-autogen-title"></b></div><div id="modal-autogen-body" class="modal-body"></div>'
+				+ '<div class="modal-footer"><button type="submit" id="modal-autogen-button" data-dismiss="modal"></button></div></div></div></div>');
+			$('#mainpage').append($modal);
+			$title = $('#modal-autogen-title');
+			$body = $('#modal-autogen-body');
+			$button = $('#modal-autogen-button');
+		}
+		$title.text($this.data('title') || $this.text());
+		$button.html($this.html()).attr('class', $this.attr('class')).removeClass('btn-xs btn-sm btn-lg').off('click').click(function() {
+			// Click and reconnect click handler so pressing "back" on the next page works
+			$this.off('click').click().click($function);
+		});
+		var $wat, str = $this.data('confirm');
+		if (str.substr(0, 9) === '#confirm-') {
+			if ($cache[str]) {
+				$wat = $cache[str];
+			} else {
+				$cache[str] = $wat = $(str).detach(); // .detach as $wat might contain elements with id attribute
+			}
+			$body.empty().append($wat.clone(true).removeClass('hidden collapse invisible'));
+		} else {
+			$body.text(str);
+		}
+		$modal.modal();
+	};
+	$('button[data-confirm]').click($function);
+});
