@@ -129,7 +129,7 @@ abstract class ConfigModule
 	 */
 	public static function get($moduleId)
 	{
-		$ret = Database::queryFirst("SELECT moduleid, title, moduletype, filepath, contents, version, status FROM configtgz_module "
+		$ret = Database::queryFirst("SELECT moduleid, title, moduletype, filepath, contents, version, status, dateline FROM configtgz_module "
 				. " WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleId));
 		if ($ret === false)
 			return false;
