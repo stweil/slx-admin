@@ -21,7 +21,7 @@ class Trigger
 	public static function ipxe()
 	{
 		$hooks = Hook::load('ipxe-update');
-		$taskId = false;
+		static $taskId = false;
 		foreach ($hooks as $hook) {
 			$ret = function($taskId) use ($hook) {
 				$ret = include_once($hook->file);
