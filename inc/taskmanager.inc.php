@@ -247,6 +247,7 @@ class Taskmanager
 			if (++$tries > 10)
 				return false;
 		}
+		error_log('Reading taskmanager reply failed, socket error ' . socket_last_error());
 		return false;
 	}
 

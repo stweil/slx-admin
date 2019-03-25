@@ -57,14 +57,23 @@ if (Module::isAvailable($module)) {
 if (!file_exists($module)) {
 	Util::traceError('Invalid module, or module without API: ' . $module);
 }
-Header('Expires: Wed, 29 Mar 2007 09:56:28 GMT');
-Header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-Header("Cache-Control: post-check=0, pre-check=0", false);
-Header("Pragma: no-cache");
-
-Header('Content-Type: text/plain; charset=utf-8');
-
-ob_start('ob_gzhandler');
+if (php_sapi_name() === 'cli') {
+	register_shutdown_function(function() {
+		if (class_exists('Message', false)) {
+			$text = Message::asString();
+			if (!empty($text)) {
+				error_log("The following error messages were generated:\n" . $text);
+			}
+		}
+	});
+} else {
+	Header('Expires: Wed, 29 Mar 2007 09:56:28 GMT');
+	Header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+	Header("Cache-Control: post-check=0, pre-check=0", false);
+	Header("Pragma: no-cache");
+	Header('Content-Type: text/plain; charset=utf-8');
+	ob_start('ob_gzhandler');
+}
 // Load module - it will execute pre-processing, or act upon request parameters
 require_once($module);
 
