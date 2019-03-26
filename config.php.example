@@ -43,18 +43,18 @@ define('CONFIG_PRODUCT_NAME_LONG', 'OpenSLX Admin');
 // overriding the config.json entry
 $MENU_CAT_OVERRIDE = array(
 	'main.content' => array(
-		'news', 'locations', 'exams', 'dozmod', 'translation'
+		'news', 'locations', 'exams', 'dozmod', 'adduser', 'permissionmanager', 'locationinfo'
 	),
 	'main.settings-client' => array(
 		'sysconfig', 'baseconfig', 'minilinux'
 	),
 	'main.settings-server' => array(
-		'serversetup', 'vmstore', 'webinterface', 'backup'
+		'serversetup', 'vmstore', 'webinterface', 'backup', 'dnbd3'
 	),
 	'main.status' => array(
 		'systemstatus', 'eventlog', 'syslog', 'statistics', 'statistics_reporting'
 	),
-	'main.beta' => array(
-		'locationinfo', 'rebootcontrol'
+	'main.etc' => array(
+		'rebootcontrol', 'runmode', 'translation'
 	)
 );

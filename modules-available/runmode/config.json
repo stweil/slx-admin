@@ -1,4 +1,6 @@
 {
+	"category": "main.etc",
+	"collapse": true,
 	"dependencies": [
 	    "statistics",
 	    "js_selectize"

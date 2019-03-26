@@ -41,13 +41,13 @@
 						<span class="badge">{{assignedMachineCount}}</span>
 					</td>
 				{{/hasRunmode}}
-				<td class="text-center" style="vertical-align: middle">
+				<td class="text-center">
 					<a class="btn btn-default btn-xs {{edit_disabled}}"
 						href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
 						<span class="glyphicon glyphicon-edit"></span>
 					</a>
 				</td>
-				<td class="text-center" style="vertical-align: middle">
+				<td class="text-center">
 					<button type="submit" name="uuid" value="{{paneluuid}}" class="btn btn-xs btn-danger"
 							  data-confirm="#confirm-delete" data-title="{{panelname}}" {{edit_disabled}}>
 						<span class="glyphicon glyphicon-trash"></span>

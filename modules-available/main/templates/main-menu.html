@@ -27,8 +27,8 @@
 			<ul class="nav navbar-nav">
 				{{#categories}}
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle slx-nopointer" data-toggle="dropdown"><span class="sidebar-visible-inline {{icon}}"></span> {{displayName}}<b class="caret sidebar-hide"></b></a>
-					<ul class="dropdown-menu sidebar-visible-block" role="menu">
+					<a href="#" class="dropdown-toggle {{^collapse}}slx-nopointer{{/collapse}}" data-toggle="dropdown"><span class="sidebar-visible-inline {{icon}}"></span> {{displayName}}<b class="caret {{^collapse}}sidebar-hide{{/collapse}}"></b></a>
+					<ul class="dropdown-menu {{^collapse}}sidebar-visible-block{{/collapse}}" role="menu">
 						{{#modules}}
 						<li class="{{className}}"><a href="?do={{identifier}}">{{displayName}}</a></li>
 						{{#subMenu}}
@@ -44,7 +44,7 @@
 						<span class="sidebar-visible-inline">{{lang_language}}</span>
 						<b class="caret"></b>
 					</a>
-					<ul class="dropdown-menu">
+					<ul class="dropdown-menu" role="menu">
 						<li class="dropdown-header">{{lang_language}}</li>
 						{{#langs}}
 						<li><a href="?lang={{cc}}&amp;url={{url}}"><img src="lang/{{cc}}/flag.png" alt="{{name}}"> {{name}}</a></li>
