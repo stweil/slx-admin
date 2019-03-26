@@ -9,13 +9,24 @@
 
 	<br>
 	<div class="form-group">
-		<label for="default-selector">
+		<p>
 			{{lang_localBootDefault}}
+		<p>
+		<label for="default-pcbios">
+			PCBIOS
 		</label>
-		<select id="default-selector" class="form-control" name="default">
-			{{#options}}
+		<select id="default-pcbios" class="form-control" name="default-pcbios">
+			{{#options.PCBIOS}}
 			<option {{selected}}>{{key}}</option>
-			{{/options}}
+			{{/options.PCBIOS}}
+		</select>
+		<label for="default-efi">
+			EFI
+		</label>
+		<select id="default-efi" class="form-control" name="default-efi">
+			{{#options.EFI}}
+			<option {{selected}}>{{key}}</option>
+			{{/options.EFI}}
 		</select>
 	</div>
 
@@ -27,18 +38,27 @@
 		<tr>
 			<th>{{lang_systemmodel}}</th>
 			<th class="slx-smallcol">{{lang_count}}</th>
-			<th class="slx-smallcol">{{lang_override}}</th>
+			<th style="width:150px">PCBIOS</th>
+			<th style="width:150px">EFI</th>
 		</tr>
 		{{#exceptions}}
 			<tr>
 				<td><a href="?do=statistics&show=list&filters=systemmodel+%3D+{{systemmodel}}">{{systemmodel}}</a></td>
 				<td class="text-right">{{cnt}}</td>
 				<td>
-					<select class="form-control" name="override[{{systemmodel}}]">
+					<select class="form-control" name="override[{{systemmodel}}][PCBIOS]">
 						<option value="" {{^bootmethod}}selected{{/bootmethod}}>{{lang_none}}</option>
-						{{#options}}
+						{{#options.PCBIOS}}
 						<option {{selected}}>{{key}}</option>
-						{{/options}}
+						{{/options.PCBIOS}}
+					</select>
+				</td>
+				<td>
+					<select class="form-control" name="override[{{systemmodel}}][EFI]">
+						<option value="" {{^bootmethod}}selected{{/bootmethod}}>{{lang_none}}</option>
+						{{#options.EFI}}
+						<option {{selected}}>{{key}}</option>
+						{{/options.EFI}}
 					</select>
 				</td>
 			</tr>

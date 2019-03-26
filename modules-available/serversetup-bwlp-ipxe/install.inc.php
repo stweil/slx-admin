@@ -49,7 +49,8 @@ $res[] = tableCreate('serversetup_menu_location', '
 
 $res[] = tableCreate('serversetup_localboot', "
   `systemmodel` varchar(120) NOT NULL,
-  `bootmethod` enum('EXIT','COMBOOT','SANBOOT') CHARACTER SET ascii NOT NULL,
+  `pcbios` varchar(16) CHARACTER SET ascii DEFAULT NULL,
+  `efi` varchar(16) CHARACTER SET ascii DEFAULT NULL,
   PRIMARY KEY (`systemmodel`)
 ");
 
@@ -81,6 +82,16 @@ $res[] = tableAddConstraint('serversetup_menu_location', 'defaultentryid', 'serv
 // 2019-03-19 Add refmenuid to have cascaded menus
 if (!tableHasColumn('serversetup_menuentry', 'refmenuid')) {
   if (Database::exec("ALTER TABLE serversetup_menuentry ADD COLUMN `refmenuid` int(11) DEFAULT NULL COMMENT 'If entryid is NULL this can be a ref to another menu'") !== false) {
+    $res[] = UPDATE_DONE;
+  } else {
+    $res[] = UPDATE_FAILED;
+  }
+}
+
+// 2019-03-26 Make localboot config distinct for efi and bios
+if (!tableHasColumn('serversetup_localboot', 'pcbios')) {
+  if (Database::exec("ALTER TABLE serversetup_localboot DROP COLUMN `bootmethod`,
+      ADD COLUMN `pcbios` varchar(16) CHARACTER SET ascii DEFAULT NULL, ADD COLUMN `efi` varchar(16) CHARACTER SET ascii DEFAULT NULL") !== false) {
     $res[] = UPDATE_DONE;
   } else {
     $res[] = UPDATE_FAILED;

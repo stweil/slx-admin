@@ -61,8 +61,11 @@ HERE;
 }
 // ipxe has it lowercase, but we use uppercase
 $platform = strtoupper($platform);
+if ($platform !== 'PCBIOS' && $platform !== 'EFI') {
+	$platform = 'PCBIOS'; // Just hope for the best?
+}
 
-$BOOT_METHODS = Localboot::BOOT_METHODS;
+$BOOT_METHODS = Localboot::BOOT_METHODS[$platform];
 
 $ip = $_SERVER['REMOTE_ADDR'];
 if (substr($ip, 0, 7) === '::ffff:') {
@@ -113,23 +116,24 @@ if ($model === false) {
 }
 // Query
 if ($model !== false) {
-	$row = Database::queryFirst("SELECT bootmethod FROM serversetup_localboot WHERE systemmodel = :model LIMIT 1",
+	$e = strtolower($platform); // We made sure $platform is either PCBIOS or EFI, so no injection possible
+	$row = Database::queryFirst("SELECT $e AS bootmethod FROM serversetup_localboot WHERE systemmodel = :model LIMIT 1",
 		['model' => $model]);
 	if ($row !== false) {
 		$localboot = $row['bootmethod'];
 	}
 }
 if ($localboot === false || !isset($BOOT_METHODS[$localboot])) {
-	$localboot = Property::get(Localboot::PROPERTY_KEY, 'AUTO');
+	$localboot = Localboot::getDefault()[$platform];
 	if (!isset($BOOT_METHODS[$localboot])) {
-		$localboot = 'AUTO';
+		$localboot = array_keys($BOOT_METHODS)[0];
 	}
 }
+// Convert to actual ipxe code
 if (isset($BOOT_METHODS[$localboot])) {
-	// Move preferred method first
-	$BOOT_METHODS[] = $BOOT_METHODS[$localboot];
-	unset($BOOT_METHODS[$localboot]);
-	$BOOT_METHODS = array_reverse($BOOT_METHODS);
+	$localboot = $BOOT_METHODS[$localboot];
+} else {
+	$localboot = 'prompt Localboot not possible';
 }
 
 if ($slxExtensions) {
@@ -160,18 +164,9 @@ iseq \${slxtmp_pw} \${slx_hash} || goto \${slx_pw_fail} ||
 iseq \${slxtmp_pw} \${slx_hash} && goto \${slx_pw_ok} ||
 goto fail
 
-# local boot with either exit 1 or sanboot
 :slx_localboot
 console ||
-
-HERE;
-
-foreach ($BOOT_METHODS as $line) {
-	$output .= "$line || goto fail\n";
-}
-
-$output .= <<<HERE
-goto fail
+$localboot || goto fail
 
 # start
 :init

@@ -244,14 +244,16 @@ class Page_ServerSetup extends Page
 		Render::addTemplate('download', ['files' => $files]);
 	}
 
-	private function makeSelectArray($list, $default)
+	private function makeSelectArray($list, $defaults)
 	{
-		$ret = [];
-		foreach (array_keys($list) as $k) {
-			$ret[] = [
-				'key' => $k,
-				'selected' => ($k === $default ? 'selected' : ''),
-			];
+		$ret = ['EFI' => [], 'PCBIOS' => []];
+		foreach (['PCBIOS', 'EFI'] as $m) {
+			foreach (array_keys($list[$m]) as $k) {
+				$ret[$m][] = [
+					'key' => $k,
+					'selected' => ($k === $defaults[$m] ? 'selected' : ''),
+				];
+			}
 		}
 		return $ret;
 	}
@@ -259,15 +261,12 @@ class Page_ServerSetup extends Page
 	private function showLocalbootConfig()
 	{
 		// Default setting
-		$default = Property::get(Localboot::PROPERTY_KEY, 'AUTO');
-		if (!array_key_exists($default, Localboot::BOOT_METHODS)) {
-			$default = 'AUTO';
-		}
+		$default = Localboot::getDefault();
 		$optionList = $this->makeSelectArray(Localboot::BOOT_METHODS, $default);
 		// Exceptions
 		$cutoff = strtotime('-90 days');
 		$models = [];
-		$res = Database::simpleQuery('SELECT m.systemmodel, cnt, sl.bootmethod FROM (
+		$res = Database::simpleQuery('SELECT m.systemmodel, cnt, sl.pcbios AS PCBIOS, sl.efi AS EFI FROM (
 				SELECT m2.systemmodel, Count(*) AS cnt FROM machine m2
 				WHERE m2.lastseen > :cutoff
 				GROUP BY systemmodel
@@ -275,7 +274,7 @@ class Page_ServerSetup extends Page
 			LEFT JOIN serversetup_localboot sl USING (systemmodel)
 			ORDER BY systemmodel', ['cutoff' => $cutoff]);
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['options'] = $this->makeSelectArray(Localboot::BOOT_METHODS, $row['bootmethod']);
+			$row['options'] = $this->makeSelectArray(Localboot::BOOT_METHODS, $row);
 			$models[] = $row;
 		}
 		// Output
@@ -893,23 +892,36 @@ class Page_ServerSetup extends Page
 
 	private function saveLocalboot()
 	{
-		$default = Request::post('default', 'AUTO', 'string');
-		if (!array_key_exists($default, Localboot::BOOT_METHODS)) {
-			Message::addError('localboot-invalid-method', $default);
+		$pcbios = Request::post('default-pcbios', 'SANBOOT', 'string');
+		$efi = Request::post('default-efi', 'EXIT', 'string');
+		if (!array_key_exists($pcbios, Localboot::BOOT_METHODS['PCBIOS'])) {
+			Message::addError('localboot-invalid-method', $pcbios);
 			return;
 		}
-		Property::set(Localboot::PROPERTY_KEY, $default);
+		if (!array_key_exists($efi, Localboot::BOOT_METHODS['EFI'])) {
+			Message::addError('localboot-invalid-method', $efi);
+			return;
+		}
+		Localboot::setDefault($pcbios, $efi);
 		$overrides = Request::post('override', [], 'array');
 		Database::exec('TRUNCATE TABLE serversetup_localboot');
-		foreach ($overrides as $model => $mode) {
-			if (empty($mode)) // No override
+		foreach ($overrides as $model => $modes) {
+			if (empty($modes)) // No override
 				continue;
-			if (!array_key_exists($mode, Localboot::BOOT_METHODS)) {
-				Message::addWarning('localboot-invalid-method', $mode);
-				continue;
+			$params = ['model' => $model, 'EFI' => null, 'PCBIOS' => null];
+			foreach (['EFI', 'PCBIOS'] as $m) {
+				if (empty($modes[$m]))
+					continue;
+				if (!array_key_exists($modes[$m], Localboot::BOOT_METHODS[$m])) {
+					Message::addWarning('localboot-invalid-method', $modes[$m]);
+					continue;
+				}
+				$params[$m] = $modes[$m];
 			}
-			Database::exec('INSERT INTO serversetup_localboot (systemmodel, bootmethod)
-					VALUES (:model, :mode)', compact('model', 'mode'));
+			if ($params['EFI'] === null && $params['PCBIOS'] === null)
+				continue;
+			Database::exec('INSERT INTO serversetup_localboot (systemmodel, pcbios, efi)
+					VALUES (:model, :PCBIOS, :EFI)', $params);
 		}
 		Message::addSuccess('localboot-saved');
 		Util::redirect('?do=serversetup&show=localboot');
