@@ -142,18 +142,22 @@ class Page_ServerSetup extends Page
 	{
 		Render::addTemplate("heading");
 
-		$task = $this->getCompileTask();
-		if ($task !== false) {
-			$files = [];
-			if ($task['data'] && $task['data']['files']) {
-				foreach ($task['data']['files'] as $k => $v) {
-					$files[] = ['name' => $k, 'namehyphen' => str_replace(['/', '.'], '-', $k)];
+		$show = Request::get('show');
+
+		if (in_array($show, ['menu', 'address', 'download'])) {
+			$task = $this->getCompileTask();
+			if ($task !== false) {
+				$files = [];
+				if ($task['data'] && $task['data']['files']) {
+					foreach ($task['data']['files'] as $k => $v) {
+						$files[] = ['name' => $k, 'namehyphen' => str_replace(['/', '.'], '-', $k)];
+					}
 				}
+				Render::addTemplate('ipxe_update', array('taskid' => $task['id'], 'files' => $files));
 			}
-			Render::addTemplate('ipxe_update', array('taskid' => $task['id'], 'files' => $files));
 		}
 
-		switch (Request::get('show')) {
+		switch ($show) {
 		case 'editbootentry':
 			User::assertPermission('ipxe.bootentry.*');
 			$this->showEditBootEntry();
