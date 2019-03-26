@@ -386,6 +386,25 @@ class Page_LocationInfo extends Page
 		if ($conf['calupdate'] < 30) {
 			$conf['calupdate'] = 30;
 		}
+
+		$overrides = array();
+		for ($i = 0; $i < sizeof($locationids); $i++) {
+			$overrideLoc = Request::post('override'.$locationids[$i], false, 'bool');
+			if ($overrideLoc) {
+				$overrideArray = array(
+					'mode' => Request::post('override'.$locationids[$i].'mode', 1, 'int'),
+					'roomplanner' => Request::post('override'.$locationids[$i].'roomplanner', false, 'bool'),
+					'vertical' => Request::post('override'.$locationids[$i].'vertical', false, 'bool'),
+					'scaledaysauto' => Request::post('override'.$locationids[$i].'scaledaysauto', false, 'bool'),
+					'daystoshow' => Request::post('override'.$locationids[$i].'daystoshow', 7, 'int'),
+					'rotation' => Request::post('override'.$locationids[$i].'rotation', 0, 'int'),
+					'scale' => Request::post('override'.$locationids[$i].'scale', 50, 'int')
+				);
+				$overrides[$locationids[$i]] = $overrideArray;
+			}
+		}
+		$conf['overrides'] = $overrides;
+
 		return array('config' => $conf, 'locationids' => $locationids);
 	}
 
@@ -975,7 +994,7 @@ class Page_LocationInfo extends Page
 				'vertical_checked' => $config['vertical'] ? 'checked' : '',
 				'eco_checked' => $config['eco'] ? 'checked' : '',
 				'prettytime_checked' => $config['prettytime'] ? 'checked' : '',
-				'roomplanner_checked' => $config['roomplanner'] ? 'checked' : '',
+				'roomplanner' => $config['roomplanner'],
 				'scaledaysauto_checked' => $config['scaledaysauto'] ? 'checked' : '',
 				'daystoshow' => $config['daystoshow'],
 				'rotation' => $config['rotation'],
@@ -985,6 +1004,7 @@ class Page_LocationInfo extends Page
 				'roomupdate' => $config['roomupdate'],
 				'locations' => Location::getLocations(),
 				'locationids' => $panel['locationids'],
+				'overrides' => json_encode($config['overrides']),
 			));
 		} elseif ($panel['paneltype'] === 'URL') {
 			Render::addTemplate('page-config-panel-url', array(
@@ -1004,7 +1024,7 @@ class Page_LocationInfo extends Page
 				'panelname' => $panel['panelname'],
 				'languages' => $langs,
 				'panelupdate' => $config['panelupdate'],
-				'roomplanner_checked' => $config['roomplanner'] ? 'checked' : '',
+				'roomplanner' => $config['roomplanner'],
 				'locations' => Location::getLocations(),
 				'locationids' => $panel['locationids'],
 				'eco_checked' => $config['eco'] ? 'checked' : '',

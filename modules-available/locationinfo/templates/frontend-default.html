@@ -592,7 +592,6 @@ optional:
 			room.$.header = $header;
 			$loc.append($header);
 			$header.append('<div class="clearfix">');
-
 			if (room.name !== null) {
 				room.$.locationName.text(room.name);
 			}
@@ -605,6 +604,15 @@ optional:
 			}
 			if (room.config.mode === 4) {
 				hasMode4 = true;
+			}
+			// Manually initialize mode 2, as initRoomLayout isn't called for this mode
+			if (room.config.mode === 2) {
+				var date = MyDate();
+				var now = date.getTime();
+				queryCalendars();
+				queryRooms();
+				lastCalendarUpdate = now;
+				lastRoomUpdate = now;
 			}
 			SetOpeningTimes(room);
 			UpdateRoomHeader(room);
@@ -620,15 +628,6 @@ optional:
 			generateProgressBar();
 		}
 
-		// Manually initialize mode 2, as initRoomLayout isn't called for this mode
-		if (room.config.mode === 2) {
-			var date = MyDate();
-			var now = date.getTime();
-			queryCalendars();
-			queryRooms();
-			lastCalendarUpdate = now;
-			lastRoomUpdate = now;
-		}
 		mainUpdateLoop();
 		setInterval(mainUpdateLoop, 10000);
 		setInterval(updateHeaders, globalConfig.eco ? 10000 : 1000);
@@ -1150,10 +1149,11 @@ optional:
 	 * @param room Room
 	 */
 	function SetFreeSeats(room) {
-		// if room has no allowed value, set text in the box to -
 		if (!room.numPcs) {
+			// If room has no PCs, empty the counter-box
 			room.$.seatsCounter.text('\u00A0');
 		} else if (!room.state.free) {
+			// If room has ongoing event, box text is "-"
 			room.$.seatsCounter.text('\u2013');
 		} else {
 			room.$.seatsCounter.text(room.freePcs);
@@ -1525,14 +1525,19 @@ optional:
 			return;
 		}
 		var freePcs = 0;
+		var numPcs = 0;
 		for (var i = 0; i < update.length; i++) {
 			var $div = $("#pc_" + room.id + "_" + update[i].id);
 			// Pc free
 			if (room.config.roomplanner === true) {
-				if ((update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY") && !isNaN(update[i].x) && !isNaN(update[i].y)) {
-					freePcs++;
+				if (!isNaN(update[i].x) && !isNaN(update[i].y)) {
+					numPcs++;
+					if ((update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY")) {
+						freePcs++;
+					}
 				}
 			} else {
+				numPcs++;
 				if ((update[i].pcState === "IDLE" || update[i].pcState === "OFFLINE" || update[i].pcState === "STANDBY")) {
 					freePcs++;
 				}
@@ -1541,7 +1546,7 @@ optional:
 			$div.removeClass('BROKEN OFFLINE IDLE OCCUPIED STANDBY'.replace(update[i].pcState, '')).addClass(update[i].pcState);
 		}
 		room.freePcs = freePcs;
-		room.numPcs = update.length;
+		room.numPcs = numPcs;
 		UpdateRoomHeader(room);
 	}
 

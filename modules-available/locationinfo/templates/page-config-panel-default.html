@@ -91,7 +91,7 @@
 								</div>
 							</div>
 						</div>
-						
+
 						<div class="list-group-item">
 							<div class="row">
 								<div class="col-sm-3">
@@ -114,7 +114,10 @@
 									<label for="input-roomplanner">{{lang_useRoomplanner}}</label>
 								</div>
 								<div class="col-sm-7">
-									<input id="input-roomplanner" type="checkbox" name="roomplanner" {{roomplanner_checked}}>
+									<select class="form-control" name="roomplanner" id="input-roomplanner">
+										<option value="0" id="roomplanner0">{{lang_countIp}}</option>
+										<option value="1" id="roomplanner1">{{lang_countRoomplan}}</option>
+									</select>
 								</div>
 								<div class="col-sm-2">
 									<p class="btn btn-static helptext" title="{{lang_roomplannerTooltip}}">
@@ -322,12 +325,22 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div class="row" id="overrideRoomConfigs">
 
 		</div>
+
 	</div>
+
+
+
 	<div class="text-right">
 		<a href="?do=locationinfo&amp;show=panels" class="btn btn-default">{{lang_cancel}}</a>
-		<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+		<button type="submit" class="btn btn-primary">
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+			{{lang_save}}
+		</button>
 	</div>
 </form>
 
@@ -355,11 +368,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	var $locList = $('#location-list');
 	var $locInput = $('#locationids');
 	var $addLocDbBtn = $('#addLocDdBtn');
+	var $owPanels = $('#overrideRoomConfigs');
+	var overrides = {{{overrides}}}
 
 	// Initialize fancy tooltips
 	$('p.helptext').tooltip();
 	// Add listener to range sliders so their label can be updated
-	$('input[type="range"]').change(function () {
+	var $range = $('input[type="range"]');
+	$range.change(function () {
 		$(this).siblings().find('.range-display').text($(this).val());
 	});
 	// Set state of input controls that aren't statically initialized server side
@@ -370,6 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					$('#daystoshow').prop('disabled', this.checked);
 				}
 			});
+
 
 	var lids = $locInput.val().split(',');
 	$selLocs.empty();
@@ -382,10 +399,11 @@ document.addEventListener("DOMContentLoaded", function () {
 	$('#daystoshow option[value="{{daystoshow}}"]').attr("selected", "selected");
 	$('#rotation option[value="{{rotation}}"]').attr("selected", "selected");
 	$('#mode option[value="{{mode}}"]').attr("selected", "selected");
+	$('#input-roomplanner option[value="{{roomplanner}}"]').attr("selected", "selected");
 
 	$('#daystoshow').prop('disabled', document.getElementById('scaledaysauto').checked);
 
-	$('input[type="range"]').change();
+	$range.change();
 	modeChange();
 
 	// Adding/removing locations
@@ -400,8 +418,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	$('#config-form').submit(function(ev) {
-		if ($locInput.val().length > 0)
+		if ($locInput.val().length > 0) {
 			return;
+		}
 		ev.preventDefault();
 		$('#no-locations-message').modal('show');
 	});
@@ -418,9 +437,124 @@ document.addEventListener("DOMContentLoaded", function () {
 				$addLocBtnParent.removeClass('open');
 			}
 		}
+
+		// Add Panel for overwriting room specific config
+		$owPanels.find('#overrideRoom' + id).remove();
+		$owPanels.append('<div class="col-md-6" id="overrideRoom' + id + '">' +
+			'<div class="panel panel-default">' +
+			'<div class="panel-heading clearfix">' +
+			name + ' {{lang_configOverride}}' +
+			'<div class="checkbox-inline pull-right">' +
+			'<input type="checkbox" id="override' + id + '" name="override' + id + '"/>' +
+			'</div></div><div class="panel-body"></div></div></div>');
+
+
+		// Load content into panel
+		var overrideSelect = $('#override' + id);
+		overrideSelect
+			.bootstrapSwitch({size: 'small'})
+			.on('switchChange.bootstrapSwitch', function () {
+				if (this.checked) {
+					loadOverrideContent(id);
+				} else {
+					unloadOverrideContent(id);
+				}
+			});
+
+		if (overrides !== null && overrides[id] !== undefined) {
+			overrideSelect.bootstrapSwitch('state', true);
+		}
+	}
+
+	function loadOverrideContent(id) {
+		// 1. Build Content
+		// $content.append($('<div class="list-group-item"><div class="row"><div class="col-sm-3"></div><div class="col-sm-7"></div><div class="col-sm-2"></div></div></div>'));
+		var $content = $('<div class="list-group"></div>');
+		$content.append($('<div class="list-group-item"><div class="row">' +
+			'<div class="col-sm-3"><label for="override' + id + 'mode">{{lang_mode}}</label></div>' +
+			'<div class="col-sm-7"><select class="form-control" id="override' + id + 'mode" name="override' + id + 'mode" onchange="modeChangeOverride(id)"><option value="1" id="override' + id + 'mode1">{{lang_mode1}}</option><option value="2" id="override' + id + 'mode2">{{lang_mode2}}</option><option value="3" id="override' + id + 'mode3">{{lang_mode3}}</option><option value="4" id="override' + id + 'mode4">{{lang_mode4}}</option></select></div>' +
+			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_modeTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
+			'</div></div>'));
+		$content.append($('<div class="list-group-item"><div class="row">' +
+			'<div class="col-sm-3"><label for="override' + id + 'roomplanner">{{lang_useRoomplanner}}</label></div>' +
+			'<div class="col-sm-7"><select class="form-control" name ="override' + id + 'roomplanner" id="override' + id + 'roomplanner"><option value="0" id="override' + id + 'roomplanner0">{{lang_countIp}}</option><option value="1" id="override' + id + 'roomplanner1">{{lang_countRoomplan}}</option></select></div>' +
+			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_roomplannerTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
+			'</div></div>'));
+		$content.append($('<div class="list-group-item om1-s om2-h om3-h om4-h"><div class="row">' +
+			'<div class="col-sm-3"><label for="override' + id + 'vertical">{{lang_vertical}}</label></div>' +
+			'<div class="col-sm-7"><input id="override' + id + 'vertical" name="override' + id + 'vertical" type="checkbox"></div>' +
+			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_verticalTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
+			'</div></div>'));
+		$content.append($('<div class="list-group-item om1-s om2-s om3-h om4-s"><div class="row">' +
+			'<div class="col-sm-3"><label for="override' + id + 'scaledaysauto">{{lang_autoScale}}</label></div>' +
+			'<div class="col-sm-7"><input id="override' + id + 'scaledaysauto" name="override' + id + 'scaledaysauto" type="checkbox"></div>' +
+			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_autoscaleTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
+			'</div></div>'));
+		$content.append($('<div class="list-group-item om1-s om2-s om3-h om4-s"><div class="row">' +
+			'<div class="col-sm-3"><label for="override' + id + 'daystoshow">{{lang_daysToShow}}</label></div>' +
+			'<div class="col-sm-7"><select class="form-control" id="override' + id + 'daystoshow" name="override' + id + 'daystoshow"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select></div>' +
+			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_daysToShowTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
+			'</div></div>'));
+		$content.append($('<div class="list-group-item om1-s om2-h om3-s om4-s"><div class="row">' +
+			'<div class="col-sm-3"><label for="override' + id + 'rotation">{{lang_rotation}}</label></div>' +
+			'<div class="col-sm-7"><select class="form-control" id="override' + id + 'rotation" name="override' + id + 'rotation"><option value="0">{{lang_rotation0}}</option><option value="1">{{lang_rotation1}}</option><option value="2">{{lang_rotation2}}</option><option value="3">{{lang_rotation3}}</option></select></div>' +
+			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_rotationTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
+			'</div></div>'));
+		$content.append($('<div class="list-group-item om1-s om2-h om3-h om4-h"><div class="row">' +
+			'<div class="col-sm-3"><label for="override' + id + 'scale">{{lang_scale}}</label></div>' +
+			'<div class="col-sm-7"><span><span class="range-display"></span> %</span><input id="override' + id + 'scale" name="override' + id + 'scale" type="range" step="1" min="10" max="90"></div>' +
+			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_scaleTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
+			'</div></div>'));
+
+		// 2. Load Content into Panel
+		var $panelBody = $('#overrideRoom' + id).find('div.panel-body');
+		$panelBody.append($content);
+
+		$('.modify-inputs #overrideRoom' + id + ' input[type="checkbox"]')
+			.bootstrapSwitch({size: 'small'})
+			.on('switchChange.bootstrapSwitch', function () {
+				if (this.id === 'override' + id + 'scaledaysauto') {
+					$('#override' + id + 'daystoshow').prop('disabled', this.checked);
+				}
+			});
+
+		// 3. Init parameters: Given parameters or global parameters if none given
+		var scale = $('#override' + id + 'scale');
+		if (overrides !== null && overrides[id] !== undefined) {
+			$('#override' + id + 'mode').val(overrides[id].mode);
+			$('#override' + id + 'roomplanner').val(overrides[id].roomplanner);
+			if (overrides[id].vertical) $('#override' + id + 'vertical').bootstrapSwitch('state', true);
+			if (overrides[id].scaledaysauto) $('#override' + id + 'scaledaysauto').bootstrapSwitch('state', true);
+			$('#override' + id + 'daystoshow').val(overrides[id].daystoshow);
+			$('#override' + id + 'rotation').val(overrides[id].rotation);
+			scale.val(overrides[id].scale);
+		} else {
+			$('#override' + id + 'mode').val($('#mode').val());
+			$('#override' + id + 'roomplanner').val($('#input-roomplanner').val());
+			if ($('#input-vertical').bootstrapSwitch('state')) $('#override' + id + 'vertical').bootstrapSwitch('state', true);
+			if ($('#scaledaysauto').bootstrapSwitch('state')) $('#override' + id + 'scaledaysauto').bootstrapSwitch('state', true);
+			$('#override' + id + 'daystoshow').val($('#daystoshow').val());
+			$('#override' + id + 'rotation').val($('#rotation').val());
+			scale.val($('#input-scale').val());
+		}
+
+		scale.change(function () {
+			$(this).siblings().find('.range-display').text($(this).val());
+		});
+
+		scale.change();
+		modeChangeOverride('override' + id + 'mode');
+	}
+
+	function unloadOverrideContent(id) {
+		var $panelBody = $('#overrideRoom' + id).find('div.panel-body');
+		$panelBody.find('div.list-group').remove();
+		delete overrides[id]
 	}
 
 	function delParent() {
+		var $id = $(this).parent().attr("data-lid");;
+		$('#overrideRoom' + $id).remove();
 		$(this).parent().remove();
 		serializeLocs();
 		if ($selLocs.find('li').length < 4) {
@@ -434,7 +568,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		}).get().join(',');
 		$locInput.val(res);
 	}
-
 });
 
 /**
@@ -444,6 +577,14 @@ function modeChange() {
 	var value = $('#mode').val();
 	$('.m' + value + '-h').hide();
 	$('.m' + value + '-s').show();
+}
+
+function modeChangeOverride(id) {
+	id = id.replace('override', '');
+	id = id.replace('mode', '');
+	var value = $('#override' + id + 'mode').val();
+	$('#overrideRoom' + id + ' .om' + value + '-h').hide();
+	$('#overrideRoom' + id + ' .om' + value + '-s').show();
 }
 
 //--></script>
