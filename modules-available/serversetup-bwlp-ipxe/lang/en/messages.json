@@ -18,5 +18,6 @@
     "menu-set-default": "Default menu has been set",
     "missing-bootentry-data": "Missing data for menu item",
     "no-ip-addr-set": "Please set the server's primary IP address",
+    "no-ip-set": "Cannot import old configuration. Please set the primary IP address first.",
     "unknown-bootentry-type": "Unknown item type: {{0}}"
 }

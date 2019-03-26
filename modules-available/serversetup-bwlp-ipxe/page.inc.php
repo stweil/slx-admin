@@ -306,6 +306,10 @@ class Page_ServerSetup extends Page
 		}
 
 		if (empty($bootentryTable)) {
+			if (Property::getServerIp() === false || Property::getServerIp() === 'invalid') {
+				Message::addError('no-ip-set');
+				Util::redirect('?do=serversetup&show=address');
+			}
 			IPxe::importLegacyMenu(true);
 			$num = IPxe::importSubnetPxeMenus('/srv/openslx/tftp/pxelinux.cfg');
 			if ($num > 0) {

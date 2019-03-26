@@ -18,5 +18,6 @@
     "menu-set-default": "Standardmen\u00fc wurde gesetzt",
     "missing-bootentry-data": "Fehlende Daten f\u00fcr den Men\u00fceintrag",
     "no-ip-addr-set": "Bitte w\u00e4hlen Sie die prim\u00e4re IP-Adresse des Servers",
+    "no-ip-set": "Kann Import alter Konfiguration nicht ausf\u00fchren. Bitte zuerst die prim\u00e4re IP-Adresse des Servers festlegen.",
     "unknown-bootentry-type": "Unbekannter Eintrags-Typ: {{0}}"
 }
