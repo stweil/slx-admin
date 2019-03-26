@@ -33,18 +33,18 @@
 					{{#locationurl}}</a>{{/locationurl}}
 				</td>
 				{{#hasRunmode}}
-					<td class="text-center" style="vertical-align: middle">
+					<td>
 						<a class="btn btn-default btn-xs {{runmode_disabled}}"
 							href="?do=runmode&amp;module=locationinfo&amp;modeid={{paneluuid}}&amp;redirect=?do=locationinfo">
-							<span class="glyphicon glyphicon-edit"></span>
+							<span class="glyphicon glyphicon-tasks"></span>
 						</a>
-						{{assignedMachineCount}}
+						<span class="badge">{{assignedMachineCount}}</span>
 					</td>
 				{{/hasRunmode}}
 				<td class="text-center" style="vertical-align: middle">
 					<a class="btn btn-default btn-xs {{edit_disabled}}"
 						href="?do=locationinfo&amp;show=edit-panel&amp;uuid={{paneluuid}}">
-						<span class="glyphicon glyphicon-cog"></span>
+						<span class="glyphicon glyphicon-edit"></span>
 					</a>
 				</td>
 				<td class="text-center" style="vertical-align: middle">
