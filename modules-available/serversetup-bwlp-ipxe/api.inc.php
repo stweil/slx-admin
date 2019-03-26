@@ -79,6 +79,7 @@ if ($menu !== false) {
 // If this is a menu with a single item, treat a timeout of 0 as "boot immediately" instead of "infinite"
 if ($menu->itemCount() === 1 && $menu->timeoutMs() === 0 && ($tmp = $menu->getDefaultScriptLabel()) !== false) {
 	$directBoot = "goto $tmp ||";
+	$initLabel = 'init';
 } else {
 	$directBoot = '';
 }
