@@ -295,8 +295,8 @@
 		});
 
 		$('.key-list').each(function() {
-			$select = $(this);
-			$source  = $('#key-list-template').find('option');
+			var $select = $(this);
+			var $source  = $('#key-list-template').find('option');
 			var def = $select.data('default');
 			$select.append($source.clone(true));
 			$select.find('option[value="' + def + '"]').attr('selected', true);
@@ -361,7 +361,7 @@
 				$title.data('old', '#stop#');
 				return;
 			}
-			var text = $('#' + entryId + '-name').text();
+			var text = $('#' + entryId.replace(':', '\\:') + '-name').text();
 			$title.val(text).data('old', text);
 		});
 	});
