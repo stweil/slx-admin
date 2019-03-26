@@ -1,6 +1,0 @@
-{
-	"category": "main.settings-client",
-	"dependencies": [
-	    "baseconfig"
-	]
-}

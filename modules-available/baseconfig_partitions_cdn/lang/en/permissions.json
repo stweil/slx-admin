@@ -1,7 +1,0 @@
-{
-	"show": "Show Partitions. Not needed if User has any of the other permissions.",
-	"partitions.add": "Add a new partition.",
-	"partitions.delete": "Delete a partition.",
-	"partitions.edit": "Save changes of partitions.",
-	"partitions.reset": "Reset partitions to default."
-}
