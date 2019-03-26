@@ -1,6 +1,7 @@
 {
     "beta": "Beta",
     "content": "Content",
+    "etc": "More",
     "settings-client": "Settings (Client)",
     "settings-server": "Settings (Server)",
     "status": "Status"

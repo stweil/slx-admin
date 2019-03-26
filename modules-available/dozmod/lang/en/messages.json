@@ -25,6 +25,7 @@
     "networkshare-saved": "Network share saved",
     "no-expired-images": "No expired VMs",
     "nothing-submitted": "There was nothing submitted",
+    "runscript-deleted": "Script deleted",
     "runscript-invalid-id": "Invalid script id: {{0}}",
     "runscript-saved": "Script has been saved",
     "runtimelimits-config-saved": "Configuration saved successfully",

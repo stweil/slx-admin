@@ -4,7 +4,6 @@
     "lang_changeLoginHint": "You can change the login identifier used for logging in. This is only enabled for local acounts that are not linked to LDAP\/AD servers.",
     "lang_changeOwnPasswordHint": "You can change your own password by clicking the \"change password\" button in the menu.",
     "lang_changePassword": "Change password",
-    "lang_confirmDelete": "Confirm delete",
     "lang_confirmation": "Confirm Password",
     "lang_createUser": "Create User",
     "lang_editUser": "Edit user",
