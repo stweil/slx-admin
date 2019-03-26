@@ -146,6 +146,7 @@ class Module
 	private $directActivation = false;
 	private $dependencies = array();
 	private $name;
+	private $collapse;
 	/**
 	 * @var array assoc list of 'filename.css' => true|false (true = always load, false = only if module is main module)
 	 */
@@ -167,6 +168,7 @@ class Module
 		if (isset($json['category']) && is_string($json['category'])) {
 			$this->category = $json['category'];
 		}
+		$this->collapse = isset($json['collapse']) && (bool)$json['collapse'];
 		if (isset($json['client-plugin'])) {
 			$this->clientPlugin = (bool)$json['client-plugin'];
 		}
@@ -273,6 +275,11 @@ class Module
 	public function getCategoryName()
 	{
 		return Dictionary::getCategoryName($this->category);
+	}
+
+	public function doCollapse()
+	{
+		return $this->collapse;
 	}
 
 	public function getDir()

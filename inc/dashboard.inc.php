@@ -42,6 +42,7 @@ class Dashboard
 		$currentPage = Page::getModule()->getIdentifier();
 		$categories = array();
 		foreach ($modByCategory as $catId => $modList) {
+			$collapse = true;
 			/* @var Module[] $modList */
 			$modules = array();
 			foreach ($modList as $modId => $module) {
@@ -54,13 +55,18 @@ class Dashboard
 				if ($module->getIdentifier() === $currentPage) {
 					$newEntry['className'] = 'active';
 					$newEntry['subMenu'] = self::$subMenu;
+					$collapse = false; // Don't collapse category if it contains the active module
+				}
+				if (!$module->doCollapse()) {
+					$collapse = false;
 				}
 				$modules[] = $newEntry;
 			}
 			$categories[] = array(
 				'icon' => self::getCategoryIcon($catId),
 				'displayName' => Dictionary::getCategoryName($catId),
-				'modules' => $modules
+				'modules' => $modules,
+				'collapse' => $collapse,
 			);
 		}
 		Render::setDashboard(array(
