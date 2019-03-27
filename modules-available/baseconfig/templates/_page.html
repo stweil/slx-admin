@@ -29,11 +29,13 @@
 								{{#defaultvalue}}{{lang_defaultValue}}:{{/defaultvalue}}
 								{{defaultvalue}}
 							</div>
-							<input class="bs-switch" name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}} {{edit_disabled}}>
-							<label for="CB_{{setting}}">
-								{{#override}}{{lang_enableOverride}}{{/override}}
-								{{^override}}{{lang_settingActive}}{{/override}}
-							</label>
+							<div class="checkbox">
+								<input name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}} {{edit_disabled}}>
+								<label for="CB_{{setting}}">
+									{{#override}}{{lang_enableOverride}}{{/override}}
+									{{^override}}{{lang_settingActive}}{{/override}}
+								</label>
+							</div>
 						</div>
 						<div class="col-md-5">
 							{{{item}}}

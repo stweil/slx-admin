@@ -227,7 +227,6 @@ class Page_BaseConfig extends Page
 			'target_module' => $this->targetModule,
 			'edit_disabled' => $editForbidden ? 'disabled' : '',
 		) + $this->qry_extra);
-		Module::isAvailable('bootstrap_switch');
 	}
 
 	private function fillSettings($vars, &$settings, &$missing, $table, $fields, $where, $params, $sourceName)
