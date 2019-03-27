@@ -46,7 +46,7 @@
 				<td><a href="?do=statistics&show=list&filters=systemmodel+%3D+{{systemmodel}}">{{systemmodel}}</a></td>
 				<td class="text-right">{{cnt}}</td>
 				<td>
-					<select class="form-control" name="override[{{systemmodel}}][PCBIOS]">
+					<select class="form-control" name="override[{{modelesc}}][PCBIOS]">
 						<option value="" {{^bootmethod}}selected{{/bootmethod}}>{{lang_none}}</option>
 						{{#options.PCBIOS}}
 						<option {{selected}}>{{key}}</option>
@@ -54,7 +54,7 @@
 					</select>
 				</td>
 				<td>
-					<select class="form-control" name="override[{{systemmodel}}][EFI]">
+					<select class="form-control" name="override[{{modelesc}}][EFI]">
 						<option value="" {{^bootmethod}}selected{{/bootmethod}}>{{lang_none}}</option>
 						{{#options.EFI}}
 						<option {{selected}}>{{key}}</option>

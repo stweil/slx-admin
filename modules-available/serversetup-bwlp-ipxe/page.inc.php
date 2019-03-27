@@ -274,6 +274,7 @@ class Page_ServerSetup extends Page
 			LEFT JOIN serversetup_localboot sl USING (systemmodel)
 			ORDER BY systemmodel', ['cutoff' => $cutoff]);
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['modelesc'] = urlencode($row['systemmodel']);
 			$row['options'] = $this->makeSelectArray(Localboot::BOOT_METHODS, $row);
 			$models[] = $row;
 		}
@@ -908,7 +909,7 @@ class Page_ServerSetup extends Page
 		foreach ($overrides as $model => $modes) {
 			if (empty($modes)) // No override
 				continue;
-			$params = ['model' => $model, 'EFI' => null, 'PCBIOS' => null];
+			$params = ['model' => urldecode($model), 'EFI' => null, 'PCBIOS' => null];
 			foreach (['EFI', 'PCBIOS'] as $m) {
 				if (empty($modes[$m]))
 					continue;
