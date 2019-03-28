@@ -502,8 +502,8 @@ class Page_ServerSetup extends Page
 			$params['title'] = $row['title'];
 			if (!Request::get('copy')) {
 				$params['oldentryid'] = $params['entryid'] = $row['entryid'];
+				$params['builtin'] = $row['builtin'];
 			}
-			$params['builtin'] = $row['builtin'];
 			if (!is_array($params['entries'])) {
 				$params['entries'] = [];
 			}
