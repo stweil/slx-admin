@@ -13,179 +13,167 @@
 
 	<div class="row">
 
-		<div class="col-md-6">
-			<div class="modify-inputs panel panel-default">
-				<div class="panel-heading">{{lang_display}}</div>
-				<div class="panel-body">
-					<div class="list-group">
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label for="panel-title">{{lang_displayName}}</label>
-								</div>
-								<div class="col-sm-7">
-									<input class="form-control" name="name" id="panel-title" type="text" value="{{panelname}}">
-								</div>
-								<div class="col-sm-2">
-									<p class="btn btn-static helptext" title="{{lang_displayNameTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label for="language">{{lang_language}}</label>
-								</div>
-								<div class="col-sm-7">
-									<select class="form-control" name="language" id="language">
-										{{#languages}}
-											<option value="{{cc}}" id="lang-{{cc}}" {{selected}}>{{name}}</option>
-										{{/languages}}
-									</select>
-								</div>
-								<div class="col-sm-2">
-									<p class="btn btn-static helptext" title="{{lang_languageTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label for="mode">{{lang_mode}}</label>
-								</div>
-								<div class="col-sm-7">
-									<select class="form-control" name="mode" id="mode" onchange="modeChange()">
-										<option value="1" id="mode1">{{lang_mode1}}</option>
-										<option value="2" id="mode2">{{lang_mode2}}</option>
-										<option value="3" id="mode3">{{lang_mode3}}</option>
-										<option value="4" id="mode4">{{lang_mode4}}</option>
-									</select>
-								</div>
-								<div class="col-sm-2">
-									<p class="btn btn-static helptext" title="{{lang_modeTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label for="input-eco">{{lang_ecoMode}}</label>
-								</div>
-								<div class="col-sm-7">
-									<input id="input-eco" type="checkbox" name="eco" {{eco_checked}}>
-								</div>
-								<div class="col-sm-2">
-									<p class="btn btn-static helptext" title="{{lang_ecoTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label for="input-prettytime">{{lang_prettytime}}</label>
-								</div>
-								<div class="col-sm-7">
-									<input id="input-prettytime" type="checkbox" name="prettytime" {{prettytime_checked}}>
-								</div>
-								<div class="col-sm-2">
-									<p class="btn btn-static helptext" title="{{lang_prettytimeTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label for="input-roomplanner">{{lang_useRoomplanner}}</label>
-								</div>
-								<div class="col-sm-7">
-									<select class="form-control" name="roomplanner" id="input-roomplanner">
-										<option value="0" id="roomplanner0">{{lang_countIp}}</option>
-										<option value="1" id="roomplanner1">{{lang_countRoomplan}}</option>
-									</select>
-								</div>
-								<div class="col-sm-2">
-									<p class="btn btn-static helptext" title="{{lang_roomplannerTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">{{lang_updateRates}}</div>
-				<div class="panel-body">
-					<div class="list-group">
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label for="input-calupdate">{{lang_calendar}}</label>
-								</div>
-								<div class="col-sm-7">
-									<input class="form-control" name="calupdate" type="number" min="30" id="input-calupdate"
-											 max="1440" value="{{calupdate}}" required>
-								</div>
-								<div class="col-sm-2">
-									<p class="btn btn-static helptext" title="{{lang_calupdateTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="list-group-item">
-							<div class="row">
-								<div class="col-sm-3">
-									<label for="form-roomupdate">{{lang_room}}</label>
-								</div>
-								<div class="col-sm-7">
-									<input class="form-control" name="roomupdate" type="number" min="15" id="form-roomupdate"
-											 max="86400" value="{{roomupdate}}" required>
-								</div>
-								<div class="col-sm-2">
-									<p class="btn btn-static helptext" title="{{lang_roomupdateTooltip}}">
-										<span class="glyphicon glyphicon-question-sign"></span>
-									</p>
-								</div>
-							</div>
-						</div>
-
-					</div>
-				</div>
-			</div>
-		</div>
-
 	</div>
 
 	<div class="modify-inputs">
 		<div class="row">
 			<div class="col-md-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">{{lang_generalSettings}}</div>
+					<div class="panel-body">
+						<div class="list-group">
 
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="panel-title">{{lang_displayName}}</label>
+									</div>
+									<div class="col-sm-7">
+										<input class="form-control" name="name" id="panel-title" type="text" value="{{panelname}}">
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_displayNameTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="language">{{lang_language}}</label>
+									</div>
+									<div class="col-sm-7">
+										<select class="form-control" name="language" id="language">
+											{{#languages}}
+											<option value="{{cc}}" id="lang-{{cc}}" {{selected}}>{{name}}</option>
+											{{/languages}}
+										</select>
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_languageTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="input-eco">{{lang_ecoMode}}</label>
+									</div>
+									<div class="col-sm-7">
+										<input id="input-eco" type="checkbox" name="eco" {{eco_checked}}>
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_ecoTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="input-prettytime">{{lang_prettytime}}</label>
+									</div>
+									<div class="col-sm-7">
+										<input id="input-prettytime" type="checkbox" name="prettytime" {{prettytime_checked}}>
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_prettytimeTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="input-calupdate">{{lang_calendarUpdate}}</label>
+									</div>
+									<div class="col-sm-7">
+										<input class="form-control" name="calupdate" type="number" min="30" id="input-calupdate"
+												 max="1440" value="{{calupdate}}" required>
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_calupdateTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="form-roomupdate">{{lang_roomUpdate}}</label>
+									</div>
+									<div class="col-sm-7">
+										<input class="form-control" name="roomupdate" type="number" min="15" id="form-roomupdate"
+												 max="86400" value="{{roomupdate}}" required>
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_roomupdateTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
 				<div class="panel panel-default" id="extra-div">
 					<div class="panel-heading">{{lang_mode}}</div>
 					<div class="panel-body">
 						<div class="list-group">
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="mode">{{lang_mode}}</label>
+									</div>
+									<div class="col-sm-7">
+										<select class="form-control" name="mode" id="mode" onchange="modeChange()">
+											<option value="1" id="mode1">{{lang_mode1}}</option>
+											<option value="2" id="mode2">{{lang_mode2}}</option>
+											<option value="3" id="mode3">{{lang_mode3}}</option>
+											<option value="4" id="mode4">{{lang_mode4}}</option>
+										</select>
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_modeTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="row">
+									<div class="col-sm-3">
+										<label for="input-roomplanner">{{lang_useRoomplanner}}</label>
+									</div>
+									<div class="col-sm-7">
+										<select class="form-control" name="roomplanner" id="input-roomplanner">
+											<option value="0" id="roomplanner0">{{lang_countIp}}</option>
+											<option value="1" id="roomplanner1">{{lang_countRoomplan}}</option>
+										</select>
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_roomplannerTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
 
 							<div class="list-group-item m1-s m2-h m3-h m4-h">
 								<div class="row">
@@ -301,7 +289,8 @@
 					</div>
 				</div>
 			</div>
-
+		</div>
+		<div class="row">
 			<div class="col-md-6">
 				<div class="panel panel-default">
 					<div class="panel-heading">{{lang_locations}}</div>
