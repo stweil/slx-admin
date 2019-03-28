@@ -29,10 +29,10 @@ chain -ar /tftp/sl-efi64/syslinux.efi',
 		} elseif (count($ret) < 2) {
 			$ret[] = 'EXIT';
 		}
-		if (!isset(self::BOOT_METHODS['PCBIOS'][$ret[0]])) {
+		if (null === self::BOOT_METHODS['PCBIOS'][$ret[0]]) {
 			$ret[0] = 'SANBOOT';
 		}
-		if (!isset(self::BOOT_METHODS['EFI'][$ret[1]])) {
+		if (null === self::BOOT_METHODS['EFI'][$ret[1]]) {
 			$ret[1] = 'EXIT';
 		}
 		return ['PCBIOS' => $ret[0], 'EFI' => $ret[1]];
