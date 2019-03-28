@@ -549,7 +549,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	function unloadOverrideContent(id) {
 		var $panelBody = $('#overrideRoom' + id).find('div.panel-body');
 		$panelBody.find('div.list-group').remove();
-		delete overrides[id]
+		if (overrides !== null && overrides[id] !== undefined) delete overrides[id]
 	}
 
 	function delParent() {

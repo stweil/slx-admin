@@ -104,6 +104,7 @@ class LocationInfo
 				'calupdate' => 30,
 				'roomupdate' => 15,
 				'configupdate' => 180,
+				'overrides' => [],
 			);
 		}
 		if ($type === 'SUMMARY') {
