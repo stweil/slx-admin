@@ -87,3 +87,20 @@ $(document).ready(function() {
 	};
 	$('button[data-confirm]').click($function);
 });
+
+// Taskmanager callbacks for running tasks
+$(document).ready(function() {
+	var slxCbCooldown = 0;
+	function slxCheckCallbacks() {
+		$.post('api.php?do=cb', { token: TOKEN }, function(data) {
+			if ( data.indexOf('True') >= 0 ) {
+				slxCbCooldown += 1;
+			} else {
+				slxCbCooldown += 10;
+			}
+			if (slxCbCooldown < 30)
+				setTimeout(slxCheckCallbacks, slxCbCooldown * 1000);
+		}, 'text');
+	}
+	slxCheckCallbacks();
+});

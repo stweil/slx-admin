@@ -232,7 +232,5 @@ if (CONFIG_DEBUG) {
 			. round(Database::getQueryTime(), 3) . 's query time total'), 'main');
 }
 
-Render::addTemplate('tm-callback-trigger', array(), 'main');
-
 // Send page to client.
 Render::output();
