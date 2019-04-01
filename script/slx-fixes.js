@@ -1,13 +1,13 @@
 // Give file select dialogs a modern style and feel
-$(document).on('change', '.btn-file :file', function() {
-	var input = $(this);
-	if (input.parents('.disabled').length !== 0)
-		return;
-	var numFiles = input.get(0).files ? input.get(0).files.length : 1;
-	var label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-	input.trigger('fileselect', [numFiles, label]);
-});
 $(document).ready(function() {
+	$(document).on('change', '.btn-file :file', function() {
+		var input = $(this);
+		if (input.parents('.disabled').length !== 0)
+			return;
+		var numFiles = input.get(0).files ? input.get(0).files.length : 1;
+		var label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+		input.trigger('fileselect', [numFiles, label]);
+	});
 	$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 		var input = $(this).parents('.upload-ex').find(':text');
 		var log = numFiles > 1 ? numFiles + ' files selected' : label;
@@ -15,12 +15,12 @@ $(document).ready(function() {
 			input.val(log);
 		}
 	});
-});
-$('.upload-ex :text').click(function () {
-	var $this = $(this);
-	if ($this.parents('.disabled').length !== 0)
-		return;
-	$this.parents('.upload-ex').find(':file').click();
+	$('.upload-ex :text').click(function () {
+		var $this = $(this);
+		if ($this.parents('.disabled').length !== 0)
+			return;
+		$this.parents('.upload-ex').find(':file').click();
+	});
 });
 
 // Replace message query params in URL, so you won't see them again if you bookmark or share the link
@@ -39,8 +39,10 @@ if (history && history.replaceState && window && window.location && window.locat
 }
 
 // Simple decollapse functionality for tables
-$('.slx-decollapse').click(function () {
-	$(this).siblings('.collapse').removeClass('collapse');
+$(document).ready(function() {
+	$('.slx-decollapse').click(function () {
+		$(this).siblings('.collapse').removeClass('collapse');
+	});
 });
 
 // Show not-allowed cursor for disabled links (not in btn-group as it messes up the style)
