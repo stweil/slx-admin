@@ -165,6 +165,7 @@ iseq \${slxtmp_pw} \${slx_hash} && goto \${slx_pw_ok} ||
 goto fail
 
 :slx_localboot
+imgfree ||
 console ||
 $localboot || goto fail
 
