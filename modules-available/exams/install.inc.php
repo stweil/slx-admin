@@ -9,7 +9,8 @@ $res[] = tableCreate('exams', '
 	 `endtime` int(11) NOT NULL,
 	 `autologin` char(36) NULL,
 	 `description` varchar(500) DEFAULT NULL,
-	 PRIMARY KEY (`examid`)
+	 PRIMARY KEY (`examid`),
+	 KEY `idx_daterange` ( `starttime` , `endtime` )
  ');
 
 $res[] = tableCreate('exams_x_location', '
@@ -17,14 +18,6 @@ $res[] = tableCreate('exams_x_location', '
 	 `locationid` int(11) NOT NULL,
 	 PRIMARY KEY (`examid`, `locationid`)
 ');
-
-if (Database::exec("ALTER TABLE exams ADD INDEX `idx_daterange` ( `starttime` , `endtime` )") === false) {
-	if (!preg_match('/\b1061\b/', Database::lastError())) {
-		finalResponse(UPDATE_FAILED, 'Could not add startdate/enddate index: ' . Database::lastError());
-	}
-} else {
-	$res[] = UPDATE_DONE;
-}
 
 if (!tableHasColumn('exams', 'lectureid')) {
 	$ret = Database::exec("ALTER TABLE `exams` ADD `lectureid` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL DEFAULT NULL AFTER `examid`");
@@ -42,6 +35,11 @@ if (!tableHasColumn('exams', 'autologin')) {
 }
 
 Database::exec("ALTER TABLE `exams` CHANGE `description` `description` varchar(500) DEFAULT NULL");
+
+$res[] = tableAddConstraint('exams_x_location', 'examid', 'exams', 'examid',
+		'ON DELETE CASCADE ON UPDATE CASCADE');
+$res[] = tableAddConstraint('exams_x_location', 'locationid', 'location', 'locationid',
+		'ON DELETE CASCADE ON UPDATE CASCADE');
 
 if (in_array(UPDATE_DONE, $res)) {
     finalResponse(UPDATE_DONE, 'Tables created successfully');
