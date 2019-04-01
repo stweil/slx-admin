@@ -105,6 +105,8 @@ class Page_Exams extends Page
 	// returns true if user is allowed to edit the exam
 	protected function userCanEditExam($examid = NULL)
 	{
+		if (in_array(0, $this->userEditLocations)) // Trivial case -- don't query if global perms
+			return true;
 		if ($examid === null)
 			return User::hasPermission('exams.edit');
 		// Check locations of existing exam
