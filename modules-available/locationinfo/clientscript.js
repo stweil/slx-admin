@@ -32,6 +32,8 @@ const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturd
  * Opening times related...
  */
 
+var slxIdCounter = 0;
+
 /**
  * Adds a new opening time to the table in expert mode.
  */
@@ -39,9 +41,16 @@ function newOpeningTime(vals) {
 	var $row = $('#expert-template').find('div.row').clone();
 	if (vals['days'] && Array.isArray(vals['days'])) {
 		for (var i = 0; i < allDays.length; ++i) {
-			$row.find('.i-' + allDays[i]).attr('checked', vals['days'].indexOf(allDays[i]) !== -1);
+			$row.find('.i-' + allDays[i]).prop('checked', vals['days'].indexOf(allDays[i]) !== -1);
 		}
 	}
+	$row.find('input').each(function() {
+		var $inp = $(this);
+		if ($inp.length === 0) return;
+		slxIdCounter++;
+		$inp.prop('id', 'id-inp-' + slxIdCounter);
+		$inp.siblings('label').prop('for', 'id-inp-' + slxIdCounter);
+	});
 	$row.find('.i-openingtime').val(vals['openingtime']);
 	$row.find('.i-closingtime').val(vals['closingtime']);
 	$('#expert-table').append($row);

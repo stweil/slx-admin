@@ -54,7 +54,10 @@
 				<div class="modal-body"></div>
 				<div class="modal-footer">
 					<a class="btn btn-default" data-dismiss="modal">{{lang_close}}</a>
-					<button type="submit" class="btn btn-primary">{{lang_save}}</button>
+					<button type="submit" class="btn btn-primary">
+						<span class="glyphicon glyphicon-floppy-disk"></span>
+						{{lang_save}}
+					</button>
 				</div>
 			</form>
 		</div>
@@ -64,17 +67,15 @@
 
 <div class="hidden" id="expert-template">
 	<div class="row expert-row" style="margin-top:1em;border-top:1px solid #ddd">
-		<div class="col-xs-9 days-box">
-			<label><input type="checkbox" class="i-Monday">{{lang_shortMonday}}</label> |
-			<label><input type="checkbox" class="i-Tuesday">{{lang_shortTuesday}}</label> |
-			<label><input type="checkbox" class="i-Wednesday">{{lang_shortWednesday}}</label> |
-			<label><input type="checkbox" class="i-Thursday">{{lang_shortThursday}}</label> |
-			<label><input type="checkbox" class="i-Friday">{{lang_shortFriday}}</label> |
-			<label><input type="checkbox" class="i-Saturday">{{lang_shortSaturday}}</label> |
-			<label><input type="checkbox" class="i-Sunday">{{lang_shortSunday}}</label>
-		</div>
-		<div class="col-xs-3 text-right">
-			<label><input type="checkbox" class="i-delete"><span class="glyphicon glyphicon-trash"></span></label>
+		<div class="col-xs-12 days-box">
+			<div class="pull-right checkbox checkbox-inline"><input type="checkbox" class="i-delete"><label><span class="glyphicon glyphicon-trash"></span></label></div>
+			<div class="checkbox checkbox-inline"><input type="checkbox" class="i-Monday"><label>{{lang_shortMonday}}</label></div>
+			<div class="checkbox checkbox-inline"><input type="checkbox" class="i-Tuesday"><label>{{lang_shortTuesday}}</label></div>
+			<div class="checkbox checkbox-inline"><input type="checkbox" class="i-Wednesday"><label>{{lang_shortWednesday}}</label></div>
+			<div class="checkbox checkbox-inline"><input type="checkbox" class="i-Thursday"><label>{{lang_shortThursday}}</label></div>
+			<div class="checkbox checkbox-inline"><input type="checkbox" class="i-Friday"><label>{{lang_shortFriday}}</label></div>
+			<div class="checkbox checkbox-inline"><input type="checkbox" class="i-Saturday"><label>{{lang_shortSaturday}}</label></div>
+			<div class="checkbox checkbox-inline"><input type="checkbox" class="i-Sunday"><label>{{lang_shortSunday}}</label></div>
 		</div>
 		<div class="col-sm-6">
 			<div class="input-group bootstrap-timepicker">
