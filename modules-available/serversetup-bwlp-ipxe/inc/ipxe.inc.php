@@ -329,10 +329,10 @@ class IPxe
 		}
 	}
 
-	private static function createDefaultEntries()
+	public static function createDefaultEntries()
 	{
 		Database::exec( 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
-			VALUES (:entryid, :hotkey, :title, 1, :data)',
+			VALUES (:entryid, :hotkey, :title, 1, :data) ON DUPLICATE KEY UPDATE data = VALUES(data)',
 			[
 				'entryid' => 'bwlp-default',
 				'hotkey' => 'B',
@@ -348,7 +348,7 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 				]),
 			]);
 		$query = 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
-			VALUES (:entryid, :hotkey, :title, 1, :data)';
+			VALUES (:entryid, :hotkey, :title, 1, :data) ON DUPLICATE KEY UPDATE data = VALUES(data)';
 		Database::exec($query,
 			[
 				'entryid' => 'bwlp-default-dbg',
