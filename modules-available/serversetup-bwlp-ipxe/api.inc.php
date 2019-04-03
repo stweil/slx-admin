@@ -138,8 +138,10 @@ if (isset($BOOT_METHODS[$localboot])) {
 
 if ($slxExtensions) {
 	$slxConsoleUpdate = '--update';
+	$slxPasswordOnly = '--nouser';
 } else {
 	$slxConsoleUpdate = '';
+	$slxPasswordOnly = '';
 }
 
 $output = <<<HERE
@@ -155,7 +157,7 @@ goto $initLabel || goto fail ||
 #     slx_pw_ok to the label to jump on success
 #     slx_pw_fail to label for wrong pw
 :slx_pass_check
-login ||
+login $slxPasswordOnly ||
 set slxtmp_pw \${password:md5}-\${slx_salt} || goto fail
 set slxtmp_pw \${slxtmp_pw:md5} || goto fail
 clear password ||
