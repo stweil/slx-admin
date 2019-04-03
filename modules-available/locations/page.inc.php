@@ -144,22 +144,20 @@ class Page_Locations extends Page
 	private function deleteLocation($location)
 	{
 		$locationId = (int)$location['locationid'];
-		$ids = $locationId;
 		if (Request::post('recursive', false) === 'on') {
 			$rows = Location::queryLocations();
 			$rows = Location::buildTree($rows, $locationId);
-			$rows = Location::extractIds($rows);
-			if (!empty($rows)) {
-				$ids .= ',' . implode(',', $rows);
-			}
+			$ids = Location::extractIds($rows);
+		} else {
+			$ids = [$locationId];
 		}
-		$subs = Database::exec("DELETE FROM subnet WHERE locationid IN ($ids)");
-		$locs = Database::exec("DELETE FROM location WHERE locationid IN ($ids)");
+		$locs = Database::exec("DELETE FROM location WHERE locationid IN (:ids)", ['ids' => $ids]);
 		Database::exec('UPDATE location SET parentlocationid = :newparent WHERE parentlocationid = :oldparent', array(
 			'newparent' => $location['parentlocationid'],
 			'oldparent' => $location['locationid']
 		));
-		Message::addSuccess('location-deleted', $locs, $subs);
+		AutoLocation::rebuildAll($ids);
+		Message::addSuccess('location-deleted', $locs, implode(', ', $ids));
 		Util::redirect('?do=Locations');
 	}
 

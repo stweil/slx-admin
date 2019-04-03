@@ -30,10 +30,10 @@ $res[] = tableCreate('subnet', '
 	KEY `locationid` (`locationid`)
 ');
 
+$res[] = tableAddConstraint('subnet', 'locationid', 'location', 'locationid',
+	'ON UPDATE CASCADE ON DELETE CASCADE');
+$res[] = tableAddConstraint('setting_location', 'locationid', 'location', 'locationid',
+	'ON UPDATE CASCADE ON DELETE CASCADE');
+
 // Create response for browser
-
-if (in_array(UPDATE_DONE, $res)) {
-	finalResponse(UPDATE_DONE, 'Tables created successfully');
-}
-
-finalResponse(UPDATE_NOOP, 'Everything already up to date');
+responseFromArray($res);

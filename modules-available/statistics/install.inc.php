@@ -196,6 +196,8 @@ if ($addTrigger) {
 	if (Module::isAvailable('locations')) {
 		if (tableExists('subnet')) {
 			AutoLocation::rebuildAll();
+		} else {
+			$res[] = UPDATE_RETRY;
 		}
 	}
 	$res[] = UPDATE_DONE;
@@ -205,6 +207,15 @@ $res[] = tableAddConstraint('machine_x_hw', 'hwid', 'statistic_hw', 'hwid', 'ON 
 $res[] = tableAddConstraint('machine_x_hw', 'machineuuid', 'machine', 'machineuuid', 'ON DELETE CASCADE ON UPDATE CASCADE');
 $res[] = tableAddConstraint('machine_x_hw_prop', 'machinehwid', 'machine_x_hw', 'machinehwid', 'ON DELETE CASCADE');
 $res[] = tableAddConstraint('statistic_hw_prop', 'hwid', 'statistic_hw', 'hwid', 'ON DELETE CASCADE');
+if (Module::isAvailable('locations')) {
+	if (tableExists('location')) {
+		$res[] = tableAddConstraint('machine', 'fixedlocationid', 'location', 'locationid',
+			'ON UPDATE CASCADE ON DELETE SET NULL');
+		// No constraint for subnetlocationid -- needs recalc anyways (AutoLocation::rebuildAll())
+	} else {
+		$res[] = UPDATE_RETRY;
+	}
+}
 
 // 2017-11-27: Add state column
 if (!tableHasColumn('machine', 'state')) {
