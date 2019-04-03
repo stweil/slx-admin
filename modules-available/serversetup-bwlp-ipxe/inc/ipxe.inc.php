@@ -105,7 +105,8 @@ class IPxe
 
 	public static function importLegacyMenu($force = false)
 	{
-		if (!$force && false !== Database::queryFirst("SELECT entryid FROM serversetup_bootentry WHERE entryid = 'bwlp-default'"))
+		// See if anything is there
+		if (!$force && false !== Database::queryFirst("SELECT menuentryid FROM serversetup_menuentry LIMIT 1"))
 			return false; // Already exists
 		// Now create the default entry
 		self::createDefaultEntries();

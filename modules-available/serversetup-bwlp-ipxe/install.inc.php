@@ -110,6 +110,8 @@ if (Module::get('location') !== false) {
 	}
 }
 
-IPxe::createDefaultEntries();
+if (Module::isAvailable('serversetup')) {
+	IPxe::createDefaultEntries();
+}
 
 responseFromArray($res);
