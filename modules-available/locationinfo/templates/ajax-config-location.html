@@ -99,10 +99,10 @@
 <h3>{{lang_remoteSchedule}}</h3>
 <div class="row">
 	<div class="col-sm-3">
-		{{lang_server}}
+		<label for="backend-select">{{lang_backend}}</label>
 	</div>
 	<div class="col-sm-7">
-		<select class="form-control" name="serverid">
+		<select id="backend-select" class="form-control" name="serverid">
 			<option value="0">{{lang_noServer}}</option>
 			{{#serverlist}}
 				<option value="{{serverid}}" {{selected}}>{{servername}}</option>
@@ -131,10 +131,10 @@
 </div>
 <div class="row">
 	<div class="col-sm-3">
-		{{lang_roomId}}
+		<label for="roomid-input">{{lang_roomId}}</label>
 	</div>
 	<div class="col-sm-7">
-		<input class="form-control" name="serverlocationid" id="serverlocationid" value="{{serverlocationid}}">
+		<input id="roomid-input" class="form-control" name="serverlocationid" id="serverlocationid" value="{{serverlocationid}}">
 	</div>
 	<div class="col-sm-2">
 		<p class="btn btn-static helptext" title="{{lang_roomIdTooltip}}">

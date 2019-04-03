@@ -98,7 +98,6 @@
     "lang_scale": "Calendar width",
     "lang_scaleTooltip": "[10-90] Defines the calendar width (in percent)",
     "lang_sec": "sec",
-    "lang_server": "Server",
     "lang_serverLogHead": "Error log",
     "lang_serverTable": "Manage backend servers",
     "lang_serverTableHints": "List of all configured server backends. Those are required if you want to show calendar events for your locations.",

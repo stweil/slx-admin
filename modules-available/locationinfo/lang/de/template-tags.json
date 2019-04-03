@@ -98,7 +98,6 @@
     "lang_scale": "Kalenderbreite",
     "lang_scaleTooltip": "[10-90] Legt die Kalenderbreite fest (in Prozent)",
     "lang_sec": "sek",
-    "lang_server": "Server",
     "lang_serverLogHead": "Fehlerprotokoll",
     "lang_serverTable": "Backend-Server verwalten",
     "lang_serverTableHints": "Liste aller definierten Backend-Server. Diese werden ben\u00f6tigt, um Belegungspl\u00e4ne f\u00fcr R\u00e4ume abzurufen.",
