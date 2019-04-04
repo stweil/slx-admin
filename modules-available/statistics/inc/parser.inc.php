@@ -307,7 +307,7 @@ class Parser {
 			}
 			if (preg_match('/^([A-Z][^:]+):\s*(.*)$/', $line, $out)) {
 				$dev['s_' . preg_replace('/\s|-|_/', '', $out[1])] = $out[2];
-			} elseif (preg_match('/^\s*\d+\s+(\S+)\s+\S+\s+\d+\s+\d+\s+\d+\s+\S+\s+(\d+)(\s|$)/', $line, $out)) {
+			} elseif (preg_match('/^\s*\d+\s+(\S+)\s+\S+\s+\d+\s+\d+\s+\S+\s+\S+\s+(\d+)(\s|$)/', $line, $out)) {
 				$dev['s_' . preg_replace('/\s|-|_/', '', $out[1])] = $out[2];
 			}
 		}
