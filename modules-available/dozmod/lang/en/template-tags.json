@@ -79,6 +79,7 @@
     "lang_organizationListHeader": "Set access permissions for organizations",
     "lang_os": "Operating System",
     "lang_owner": "Owner",
+    "lang_passwordCleartextHint": "Please not that explicitly provided credentials will be passed in clear text. You should only use dedicated accounts that don't give access to anything else than the desired network share(s).",
     "lang_passwordplaceholder": "SMTP Password",
     "lang_path": "Path",
     "lang_placeholders": "Placeholders",

@@ -48,6 +48,9 @@
 				<label class="input-group-addon" for="password">{{lang_password}}</label>
 				<input required type="{{password_type}}" name="password" id="password" class="form-control" value="{{password}}" {{#loggedInUser_selected}}disabled{{/loggedInUser_selected}}>
 			</div>
+			<div>
+				{{lang_passwordCleartextHint}}
+			</div>
 			<div class="text-right" style="margin-top: 20px">
 				<a href="?do=dozmod&amp;section=networkshares" class="btn btn-default">
 					{{lang_cancel}}

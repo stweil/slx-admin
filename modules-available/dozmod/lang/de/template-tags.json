@@ -79,6 +79,7 @@
     "lang_organizationListHeader": "Nutzungsrechte f\u00fcr den Satelliten festlegen",
     "lang_os": "Betriebssystem",
     "lang_owner": "Besitzer",
+    "lang_passwordCleartextHint": "Bitte beachten Sie, dass ein hier explizit angegebenes Passwort im Klartext an das Poolsystem \u00fcbergeben wird. Sie sollten also nur dedizierte Funktionsaccounts nutzen, die keinen Zugriff auf weitere Systeme erm\u00f6glichen.",
     "lang_passwordplaceholder": "SMTP-Passwort",
     "lang_path": "Pfad",
     "lang_placeholders": "Platzhalter",
