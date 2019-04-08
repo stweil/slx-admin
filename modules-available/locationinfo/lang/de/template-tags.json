@@ -27,7 +27,7 @@
     "lang_ecoTooltip": "Anstelle der Farb-basierten PC-Status Bilder, werden Symbol-basierte PC Bilder verwendet",
     "lang_editDefaultPanelHints": "Hier k\u00f6nnen Sie ein Panel (z.B. digitales T\u00fcrschild) in Aussehen und Funktionsweise definieren. Um im Kalender \u00d6ffnungszeiten anzeigen zu k\u00f6nnen, m\u00fcssen Sie im Tab \"Raum-\/Ortsbezogene Einstellungen\" f\u00fcr den ausgew\u00e4hlten Raum entsprechend \u00d6ffnungszeiten eintragen. Damit im Kalender Veranstaltungen und andere Termine angezeigt werden k\u00f6nnen, muss ein funktionierendes Backend konfiguriert und den ausgew\u00e4hlten R\u00e4umen zugewiesen worden sein.",
     "lang_editPanel": "Panel bearbeiten",
-    "lang_editSummaryPanelHints": "Hier k\u00f6nnen Sie ein Summary-Panel definieren. Das Panel zeigt eine \u00dcbersicht der in den R\u00e4umen enthalten PCs.",
+    "lang_editSummaryPanelHints": "Hier k\u00f6nnen Sie ein \u00dcbersichts-Panel definieren. Das Panel zeigt eine \u00dcbersicht der in den R\u00e4umen enthalten PCs.",
     "lang_editUrlPanelHints": "Hier k\u00f6nnen Sie konfigurieren, welche URL das Panel aufrufen soll. Dies erm\u00f6glicht Ihnen z.B. in Eingangsbereichen aktuelle Meldungen der Hochschule oder sonstige Webseiten anzuzeigen.",
     "lang_entryName": "Name",
     "lang_error": "Fehler",
