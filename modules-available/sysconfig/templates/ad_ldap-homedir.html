@@ -76,6 +76,17 @@
 			<p><i>{{lang_mountOptionsNote}}</i></p>
 		</div>
 	</div>
+	<div class="form-group row">
+		<label for="inputnohomewarn" class="control-label col-xs-4">{{lang_noHomeWarn}}</label>
+		<div class="col-xs-8">
+			<select class="form-control" id="inputnohomewarn" name="nohomewarn">
+				<option value="0" {{nohomewarn_0}}>{{lang_homeWarnAlways}}</option>
+				<option value="1" {{nohomewarn_1}}>{{lang_homeWarnNever}}</option>
+				<!-- Doesn't make any sense... option value="2" {{nohomewarn_2}}>{{lang_homeWarnNotDemo}}</option -->
+			</select>
+			<p><i>{{lang_noHomeWarnNote}}</i></p>
+		</div>
+	</div>
 
 	<hr>
 	<div class="slx-bold">{{lang_folderRedirection}}</div>

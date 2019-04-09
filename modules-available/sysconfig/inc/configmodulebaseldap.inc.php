@@ -9,7 +9,7 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 	private static $OPTIONAL_FIELDS = array('binddn', 'bindpw', 'home', 'ssl', 'fixnumeric', 'fingerprint', 'certificate', 'homeattr',
 		'shareRemapMode', 'shareRemapCreate', 'shareDocuments', 'shareDownloads', 'shareDesktop', 'shareMedia',
 		'shareOther', 'shareHomeDrive', 'shareDomain', 'credentialPassthrough', 'mapping', 'genuid',
-		'ldapAttrMountOpts', 'shareHomeMountOpts');
+		'ldapAttrMountOpts', 'shareHomeMountOpts', 'nohomewarn');
 
 	public static function getMapping($config = false, &$empty = true)
 	{
@@ -68,6 +68,7 @@ abstract class ConfigModuleBaseLdap extends ConfigModule
 			$config['fixnumeric'] = 's';
 		}
 		$config['genuid'] = isset($config['genuid']) && !empty($config['genuid']);
+		$config['nohomewarn'] = isset($config['nohomewarn']) ? (int)$config['nohomewarn'] : 0;
 		$this->preTaskmanagerHook($config);
 		$task = Taskmanager::submit('CreateLdapConfig', $config);
 		if (is_array($task) && isset($task['id'])) {

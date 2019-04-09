@@ -13,7 +13,7 @@ class AdAuth_Start extends AddModule_Base
 
 	protected function renderInternal()
 	{
-		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'genuid', 'certificate', 'mapping');
+		$ADAUTH_COMMON_FIELDS = array('title', 'server', 'searchbase', 'binddn', 'bindpw', 'home', 'homeattr', 'ssl', 'fixnumeric', 'genuid', 'certificate', 'mapping', 'nohomewarn');
 		$data = array();
 		if ($this->edit !== false) {
 			moduleToArray($this->edit, $data, $ADAUTH_COMMON_FIELDS);
@@ -444,6 +444,7 @@ class AdAuth_HomeDir extends AddModule_Base
 			foreach (['shareDomain', 'shareHomeMountOpts', 'ldapAttrMountOpts'] as $key) {
 				$data[$key] = $this->edit->getData($key);
 			}
+			$data['nohomewarn_' . (int)$this->edit->getData('nohomewarn')] = 'selected';
 		} else {
 			$data['shareDownloads_c'] = $data['shareMedia_c'] = $data['shareDocuments_c'] = $data['shareRemapCreate_c'] = 'checked="checked"';
 			$data['shareRemapMode_1'] = 'selected="selected"';
@@ -482,7 +483,7 @@ class AdAuth_Finish extends AddModule_Base
 		else
 			$module = $this->edit;
 		$ssl = Request::post('ssl', 'off') === 'on';
-		foreach (['searchbase', 'binddn', 'server', 'bindpw', 'home', 'homeattr', 'certificate', 'fixnumeric', 'genuid',
+		foreach (['searchbase', 'binddn', 'server', 'bindpw', 'home', 'nohomewarn', 'homeattr', 'certificate', 'fixnumeric', 'genuid',
 					'ldapAttrMountOpts', 'shareHomeMountOpts'] as $key) {
 			$module->setData($key, Request::post($key, '', 'string'));
 		}
