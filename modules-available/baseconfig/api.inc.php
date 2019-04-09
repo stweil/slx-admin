@@ -157,16 +157,11 @@ $defaults = BaseConfigUtil::getVariables();
 
 // Dump global config from DB
 ConfigHolder::setContext('<global>');
-$res = Database::simpleQuery('SELECT setting, value, enabled FROM setting_global');
+$res = Database::simpleQuery('SELECT setting, value FROM setting_global');
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 	if (!isset($defaults[$row['setting']]))
 		continue; // Setting is not defined in any <module>/baseconfig/settings.json
-	if ($row['enabled'] != 1) {
-		// Setting is disabled
-		ConfigHolder::add($row['setting'], false, -1);
-	} else {
-		ConfigHolder::add($row['setting'], $row['value'], -1);
-	}
+	ConfigHolder::add($row['setting'], $row['value'], -1);
 }
 
 // Fallback to default values from json files

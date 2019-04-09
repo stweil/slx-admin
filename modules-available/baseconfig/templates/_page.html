@@ -29,13 +29,14 @@
 								{{#defaultvalue}}{{lang_defaultValue}}:{{/defaultvalue}}
 								{{defaultvalue}}
 							</div>
+							{{#override}}
 							<div class="checkbox">
-								<input name="override[{{setting}}]" id="CB_{{setting}}" type="checkbox" {{checked}} {{edit_disabled}}>
+								<input name="override[{{setting}}]" class="override-cb" id="CB_{{setting}}" type="checkbox" {{checked}} {{edit_disabled}}>
 								<label for="CB_{{setting}}">
-									{{#override}}{{lang_enableOverride}}{{/override}}
-									{{^override}}{{lang_settingActive}}{{/override}}
+									{{lang_enableOverride}}
 								</label>
 							</div>
+							{{/override}}
 						</div>
 						<div class="col-md-5 config-container">
 							{{{item}}}
@@ -67,8 +68,6 @@
 	</div>
 	{{/categories}}
 	<div class="text-right">
-		<button class="btn btn-warning" type="button" onclick="window.location.hash = '#bottom'; window.location.reload(true);"><span class="glyphicon glyphicon-refresh"></span> {{lang_discardChanges}}</button>
-		<a name="bottom"></a>
 		{{^override}}
 		<a class="btn btn-default" href="api.php?do=baseconfig&amp;user={{userid}}"><span class="glyphicon glyphicon-download-alt"></span> Download</a>
 		{{/override}}
@@ -102,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		buttonWidth: '100%',
 		buttonClass: 'form-control'
 	});
-	$('select.multiselect').filter(':disabled').multiselect('disable');
+	$multilists.filter(':disabled').multiselect('disable');
 
 	/* data-shadowing bindings */
 	var updateShadows = function() {
@@ -118,15 +117,14 @@ document.addEventListener("DOMContentLoaded", function () {
 				var target = targets[i];
 				var inp = $('#' + target);
 				var selitem = inp.data('selitem');
-
 				if (currentValue === triggerVal) {
 					inp.prop('disabled', true);
 					if (selitem) selitem.disable();
-					inp.filter('.multiselect').multiselect('disable');
+					inp.filter('.multilist').multiselect('disable');
 				} else {
 					inp.prop('disabled', false);
 					if (selitem) selitem.enable();
-					inp.filter('.multiselect').multiselect('enable');
+					inp.filter('.multilist').multiselect('enable');
 				}
 			}
 		}
@@ -142,5 +140,20 @@ document.addEventListener("DOMContentLoaded", function () {
 	var $cont = $('.config-container');
 	$cont.find('select, input').on('change', updateCheckbox);
 	$cont.find('input').on('input', updateCheckbox);
+	$('.override-cb').on('change', function() {
+		if (this.checked) return;
+		var input = document.getElementById(this.id.substr(3));
+		if (!input) return;
+		if (input.tagName.toUpperCase() === 'SELECT') {
+			$(input).find('option').each(function() {
+				$(this).prop('selected', this.defaultSelected);
+			});
+			$(input).filter('.multilist').multiselect('refresh');
+		} else if (input.type && input.type.toUpperCase() === 'CHECKBOX') {
+			$(input).prop('checked', input.defaultChecked);
+		} else if (input.defaultValue !== undefined) {
+			$(input).val(input.defaultValue);
+		}
+	});
 });
 </script>

@@ -29,16 +29,8 @@ class Page_BaseConfig extends Page
 				User::assertPermission('edit', 0);
 			}
 			// Build variables for specific sub-settings
-			if ($this->targetModule === false) {
-				// We're editing global settings
-				// use the 'enabled' field
-				$qry_insert = ', enabled';
-				$qry_values = ', :enabled';
-				$qry_update = ', enabled = :enabled';
-				$params = array();
-				$delExtra = '';
-			} elseif (empty($this->qry_extra['field'])) {
-				// Module specific, but module doesn't have an extra field
+			if ($this->targetModule === false || empty($this->qry_extra['field'])) {
+				// Global, or Module specific, but module doesn't have an extra field
 				$qry_insert = '';
 				$qry_values = '';
 				$qry_update = '';
@@ -58,7 +50,7 @@ class Page_BaseConfig extends Page
 					Util::redirect('?do=BaseConfig');
 				}
 			}
-			// Honor override/enabled checkbox
+			// Honor override checkbox
 			$override = Request::post('override', array());
 			// Load all existing config options to validate input
 			$vars = BaseConfigUtil::getVariables();
@@ -68,10 +60,7 @@ class Page_BaseConfig extends Page
 			foreach ($vars as $key => $var) {
 				if (isset($var['shadowed']))
 					continue;
-				if ($this->targetModule === false) {
-					// Global mode
-					$params['enabled'] = (is_array($override) && isset($override[$key]) && $override[$key] === 'on') ? 1 : 0;
-				} else {
+				if ($this->targetModule !== false) {
 					// Module mode
 					if (is_array($override) && (!isset($override[$key]) || $override[$key] !== 'on')) {
 						// override not set - delete
@@ -137,11 +126,7 @@ class Page_BaseConfig extends Page
 			$editForbidden = !User::hasPermission('edit', 0);
 		}
 		// Get stuff that's set in DB already
-		if ($this->targetModule === false) {
-			$fields = ', enabled';
-			$where = '';
-			$params = array();
-		} elseif (isset($this->qry_extra['field'])) {
+		if ($this->targetModule !== false && isset($this->qry_extra['field'])) {
 			$fields = '';
 			$where = " WHERE {$this->qry_extra['field']} = :field_value";
 			$params = array('field_value' => $this->qry_extra['field_value']);
@@ -175,12 +160,7 @@ class Page_BaseConfig extends Page
 		}
 		// Add entries that weren't in the db (global), setup override checkbox (module specific)
 		foreach ($vars as $key => $var) {
-			if ($this->targetModule === false) {
-				// Global settings - honor enabled field in db
-				if (!isset($settings[$var['catid']]['settings'][$key]['enabled']) || $settings[$var['catid']]['settings'][$key]['enabled'] == 1) {
-					$settings[$var['catid']]['settings'][$key]['checked'] = 'checked';
-				}
-			} elseif (!isset($settings[$var['catid']]['settings'][$key])) {
+			if ($this->targetModule !== false && !isset($settings[$var['catid']]['settings'][$key])) {
 				// Module specific - value is not set in DB
 				$settings[$var['catid']]['settings'][$key] = $var + array(
 					'setting' => $key
