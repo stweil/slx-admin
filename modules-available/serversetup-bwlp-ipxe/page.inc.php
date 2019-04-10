@@ -109,8 +109,10 @@ class Page_ServerSetup extends Page
 		User::assertPermission('access-page');
 
 		$addr = false;
-		if (User::hasPermission('ipxe.*')) {
+		if (User::hasPermission('ipxe.menu.view')) {
 			Dashboard::addSubmenu('?do=serversetup&show=menu', Dictionary::translate('submenu_menu', true));
+		}
+		if (User::hasPermission('ipxe.bootentry.view')) {
 			Dashboard::addSubmenu('?do=serversetup&show=bootentry', Dictionary::translate('submenu_bootentry', true));
 		}
 		if (User::hasPermission('edit.address')) {
@@ -123,7 +125,7 @@ class Page_ServerSetup extends Page
 		if (User::hasPermission('ipxe.localboot.*')) {
 			Dashboard::addSubmenu('?do=serversetup&show=localboot', Dictionary::translate('submenu_localboot', true));
 		}
-		if (User::hasPermission('ipxe.bootentry.*')) {
+		if (User::hasPermission('ipxe.bootentry.edit')) {
 			Dashboard::addSubmenu('?do=serversetup&show=import', Dictionary::translate('submenu_import', true));
 		}
 		if (Request::get('show') === false) {
