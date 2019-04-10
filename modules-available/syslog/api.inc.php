@@ -48,7 +48,9 @@ if (substr($ip, 0, 7) === '::ffff:') $ip = substr($ip, 7);
 // TODO: Handle UUID in appropriate modules (optional)
 $uuid = Request::post('uuid', '', 'string');
 if (strlen($uuid) !== 36) {
-	// Probably invalid UUID. What to do? Set empty or ignore?
+	// Probably invalid UUID. What to do? Set NULL for now so the insert will succeed
+	$uuid = null;
+	error_log("Client log event $type without UUID");
 }
 
 /*
@@ -70,13 +72,17 @@ if ($type{0} !== '.' && $type{0} !== '~') {
 		exit(0);
 	}
 
-	Database::exec('INSERT INTO clientlog (dateline, logtypeid, clientip, machineuuid, description, extra) VALUES (UNIX_TIMESTAMP(), :type, :client, :uuid, :description, :longdesc)', array(
+	$ret = Database::exec('INSERT INTO clientlog (dateline, logtypeid, clientip, machineuuid, description, extra) VALUES (UNIX_TIMESTAMP(), :type, :client, :uuid, :description, :longdesc)', array(
 		'type'        => $type,
 		'client'      => $ip,
 		'description' => $description,
 		'longdesc'    => $longdesc,
 		'uuid'        => $uuid,
-	));
+	), true);
+	if ($ret === false) {
+		error_log("Constraint failed for client log from $uuid for $type : $description");
+		die("NOPE.\n");
+	}
 
 }
 
