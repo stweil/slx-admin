@@ -62,6 +62,7 @@
     "lang_homeWarnNotDemo": "Bei allen Nutzern au\u00dfer \"demo\" warnen",
     "lang_homedirHandling": "(Home-)Verzeichnis Einbindung",
     "lang_inheritFromParentLoc": "Von \u00fcbergeordnetem Ort erben",
+    "lang_lastEdited": "Zuletzt bearbeitet:",
     "lang_ldapAttrMountOpts": "LDAP-Attribut f\u00fcr Mount-Optionen",
     "lang_ldapStarted": "Der LDAP-Proxy wurde gestartet",
     "lang_ldapText1": "Mit diesem Wizard k\u00f6nnen Sie Authentifizierung gegen einen LDAP-Server einrichten.",

@@ -62,6 +62,7 @@
     "lang_homeWarnNotDemo": "For everyone but \"demo\"",
     "lang_homedirHandling": "(Home) directory handling",
     "lang_inheritFromParentLoc": "Inherit from parent location",
+    "lang_lastEdited": "Last modified:",
     "lang_ldapAttrMountOpts": "LDAP attribute containing mount options",
     "lang_ldapStarted": "The LDAP proxy has been launched",
     "lang_ldapText1": "Here you can create a configuration module to authenticate agains an LDAP server",
