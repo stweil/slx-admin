@@ -354,11 +354,26 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 			[
 				'entryid' => 'bwlp-default-dbg',
 				'hotkey' => 'D',
-				'title' => 'bwLehrpool-Umgebung starten (nosplash, debug)',
+				'title' => 'bwLehrpool-Umgebung starten (nosplash, debug output)',
 				'data' => json_encode([
 					'executable' => ['PCBIOS' => '/boot/default/kernel'],
 					'initRd' => ['PCBIOS' => ['/boot/default/initramfs-stage31']],
 					'commandLine' => ['PCBIOS' => 'slxbase=boot/default loglevel=7 intel_iommu=igfx_off ${ipappend1} ${ipappend2}'],
+					'replace' => true,
+					'autoUnload' => true,
+					'resetConsole' => true,
+					'arch' => 'agnostic',
+				]),
+			]);
+		Database::exec($query,
+			[
+				'entryid' => 'bwlp-default-sh',
+				'hotkey' => 'D',
+				'title' => 'bwLehrpool-Umgebung starten (nosplash, !!! debug shell !!!)',
+				'data' => json_encode([
+					'executable' => ['PCBIOS' => '/boot/default/kernel'],
+					'initRd' => ['PCBIOS' => ['/boot/default/initramfs-stage31']],
+					'commandLine' => ['PCBIOS' => 'slxbase=boot/default loglevel=7 debug=1 intel_iommu=igfx_off ${ipappend1} ${ipappend2}'],
 					'replace' => true,
 					'autoUnload' => true,
 					'resetConsole' => true,
