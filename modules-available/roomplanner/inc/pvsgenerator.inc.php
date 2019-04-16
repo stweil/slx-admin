@@ -159,11 +159,13 @@ class PvsGenerator
 	public static function generateSvg($locationId = false, $highlightUuid = false, $rotate = 0)
 	{
 		if ($locationId === false) {
-			$locationId = Database::queryFirst('SELECT locationid FROM machine WHERE machineuuid = :uuid',
+			$locationId = Database::queryFirst('SELECT fixedlocationid FROM machine
+					WHERE machineuuid = :uuid AND Length(position) > 5',
 				['uuid' => $highlightUuid]);
-			if ($locationId !== false) {
-				$locationId = $locationId['locationid'];
-			}
+			// Not found or not placed in room plan -- bail out
+			if ($locationId === false || $locationId['fixedlocationid'] === null)
+				return false;
+			$locationId = $locationId['fixedlocationid'];
 		}
 		$machines = self::getMachines($locationId);
 		if (empty($machines))
