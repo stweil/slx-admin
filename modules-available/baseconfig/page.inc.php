@@ -169,6 +169,9 @@ class Page_BaseConfig extends Page
 			if (!isset($settings[$var['catid']]['settings'][$key]['displayvalue'])) {
 				$settings[$var['catid']]['settings'][$key]['displayvalue'] = $var['defaultvalue'];
 			}
+			if (!isset($settings[$var['catid']]['settings'][$key]['defaultvalue'])) {
+				$settings[$var['catid']]['settings'][$key]['defaultvalue'] = $var['defaultvalue'];
+			}
 			if (!isset($settings[$var['catid']]['settings'][$key]['shadows'])) {
 				$settings[$var['catid']]['settings'][$key]['shadows'] = isset($var['shadows']) ? $var['shadows'] : null;
 			}
