@@ -34,11 +34,10 @@
 
 	function startRebootPoll()
 	{
-		$('#waiting').show();
-		$('#waiting').prepend('<span class="glyphicon glyphicon-refresh slx-rotation"></span>');
+		$('#waiting').show().prepend('<span class="glyphicon glyphicon-refresh slx-rotation"></span>');
 		$('#dots').text('{{lang_waitReboot}}');
 		slxDotInterval = setInterval(function() { $('#dots').text($('#dots').text() + '..'); }, 3000);
-		setTimeout('rebootPoll()', 10000);
+		setTimeout(rebootPoll, 10000);
 	}
 	
 	function rebootPoll()
@@ -48,7 +47,7 @@
 			slxDotInterval = false;
 		}
 		$('#dots').text($('#dots').text() + '..');
-		slxTimeoutId = setTimeout('rebootPoll()', 3500);
+		slxTimeoutId = setTimeout(rebootPoll, 3500);
 		$.ajax({url: "index.php?do=Main", timeout: 3000}).success(function(data, textStatus, jqXHR) {
 			if (textStatus !== "success" && textStatus !== "notmodified")
 				return;
@@ -56,7 +55,7 @@
 				return;
 			clearTimeout(slxTimeoutId);
 			setTimeout(function() {
-				window.location.replace("index.php?do=Main&message[]=success%7Crestore-done");
+				window.location.replace("index.php?do=Main&message[]=success%7Cbackup.restore-done");
 			}, 3500);
 		});
 	}
