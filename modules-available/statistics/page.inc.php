@@ -970,11 +970,13 @@ class Page_Statistics extends Page
 		unset($client['data']);
 		// BIOS update check
 		if (!empty($client['biosrevision'])) {
-			$model = $client['manufacturer'] . '##' . $client['pcmodel'];
-			$ret = $this->checkBios($model, $client['biosdate'], $client['biosrevision']);
+			$mainboard = $client['mobomanufacturer'] . '##' . $client['mobomodel'];
+			$system = $client['pcmanufacturer'] . '##' . $client['pcmodel'];
+			$ret = $this->checkBios($mainboard, $system, $client['biosdate'], $client['biosrevision']);
 			if ($ret === false) { // Not loaded, use AJAX
 				$params = [
-					'model' => $model,
+					'mainboard' => $mainboard,
+					'system' => $system,
 					'date' => $client['biosdate'],
 					'revision' => $client['biosrevision'],
 				];
@@ -1247,10 +1249,11 @@ class Page_Statistics extends Page
 
 	private function ajaxCheckBios()
 	{
-		$model = Request::any('model', false, 'string');
+		$mainboard = Request::any('mainboard', false, 'string');
+		$system = Request::any('system', false, 'string');
 		$date = Request::any('date', false, 'string');
 		$revision = Request::any('revision', false, 'string');
-		$reply = $this->checkBios($model, $date, $revision);
+		$reply = $this->checkBios($mainboard, $system, $date, $revision);
 		if ($reply === false) {
 			$data = Download::asString(CONFIG_BIOS_URL, 3, $err);
 			if ($err < 200 || $err >= 300) {
@@ -1258,7 +1261,7 @@ class Page_Statistics extends Page
 			} else {
 				file_put_contents(self::BIOS_CACHE, $data);
 				$data = json_decode($data, true);
-				$reply = $this->checkBios($model, $date, $revision, $data);
+				$reply = $this->checkBios($mainboard, $system, $date, $revision, $data);
 			}
 		}
 		if ($reply === false) {
@@ -1269,7 +1272,7 @@ class Page_Statistics extends Page
 		die(Render::parse('machine-bios-update', $reply));
 	}
 
-	private function checkBios($model, $date, $revision, $json = null)
+	private function checkBios($mainboard, $system, $date, $revision, $json = null)
 	{
 		if ($json === null) {
 			if (!file_exists(self::BIOS_CACHE) || filemtime(self::BIOS_CACHE) + 3600 < time())
@@ -1278,22 +1281,27 @@ class Page_Statistics extends Page
 		}
 		if (!is_array($json) || !isset($json['system']))
 			return ['error' => 'Malformed JSON, no system key'];
-		if (!isset($json['system'][$model]) || !isset($json['system'][$model]['fixes']) || !isset($json['system'][$model]['match']))
+		if (isset($json['system'][$system]) && isset($json['system'][$system]['fixes']) && isset($json['system'][$system]['match'])) {
+			$match =& $json['system'][$system];
+		} elseif (isset($json['mainboard'][$mainboard]) && isset($json['mainboard'][$mainboard]['fixes']) && isset($json['mainboard'][$mainboard]['match'])) {
+			$match =& $json['mainboard'][$mainboard];
+		} else {
 			return ['status' => 0];
-		$m = $json['system'][$model]['match'];
-		if ($m === 'revision') {
+		}
+		$key = $match['match'];
+		if ($key === 'revision') {
 			$cmp = function ($item) { $s = explode('.', $item); return $s[0] * 0x10000 + $s[1]; };
 			$reference = $cmp($revision);
-		} elseif ($m === 'date') {
+		} elseif ($key === 'date') {
 			$cmp = function ($item) { $s = explode('.', $item); return $s[2] * 10000 + $s[1] * 100 + $s[0]; };
 			$reference = $cmp($date);
 		} else {
-			return ['error' => 'Invalid comparison key: ' . $m];
+			return ['error' => 'Invalid comparison key: ' . $key];
 		}
 		$retval = ['fixes' => []];
 		$level = 0;
-		foreach ($json['system'][$model]['fixes'] as $fix) {
-			if ($cmp($fix[$m]) > $reference) {
+		foreach ($match['fixes'] as $fix) {
+			if ($cmp($fix[$key]) > $reference) {
 				class_exists('Dictionary'); // Trigger setup of lang stuff
 				$lang = isset($fix['text'][LANG]) ? LANG : 'en';
 				$fix['text'] = $fix['text'][$lang];
@@ -1301,7 +1309,7 @@ class Page_Statistics extends Page
 				$level = max($level, $fix['level']);
 			}
 		}
-		$retval['url'] = $json['system'][$model]['url'];
+		$retval['url'] = $match['url'];
 		$retval['status'] = $level;
 		if ($level > 5) {
 			$retval['class'] = 'danger';

@@ -40,12 +40,19 @@ class Parser {
 				}
 				continue;
 			}
-			if ($section === 'System Information' || $section === 'Base Board Information') {
-				if (empty($row['pcmodel']) && preg_match('/^\s*Product Name: +(\S.+?) *$/i', $line, $out)) {
+			if ($section === 'Base Board Information') {
+				if (preg_match('/^\s*Product Name: +(\S.+?) *$/i', $line, $out)) {
+					$row['mobomodel'] = $out[1];
+				}
+				if (preg_match('/^\s*Manufacturer: +(\S.+?) *$/i', $line, $out)) {
+					$row['mobomanufacturer'] = $out[1];
+				}
+			} elseif ($section === 'System Information') {
+				if (preg_match('/^\s*Product Name: +(\S.+?) *$/i', $line, $out)) {
 					$row['pcmodel'] = $out[1];
 				}
-				if (empty($row['manufacturer']) && preg_match('/^\s*Manufacturer: +(\S.+?) *$/i', $line, $out)) {
-					$row['manufacturer'] = $out[1];
+				if (preg_match('/^\s*Manufacturer: +(\S.+?) *$/i', $line, $out)) {
+					$row['pcmanufacturer'] = $out[1];
 				}
 			} elseif ($section === 'Physical Memory Array') {
 				if (!$ramOk && preg_match('/Use: System Memory/i', $line)) {
