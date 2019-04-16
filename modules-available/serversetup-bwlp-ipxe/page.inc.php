@@ -348,7 +348,7 @@ class Page_ServerSetup extends Page
 				$row['allowEdit'] = in_array(0, $allowedEdit);
 			} else {
 				$locations = explode(',', $row['locations']);
-				$row['allowEdit'] = empty(array_diff($locations, $allowedEdit));
+				$row['allowEdit'] = in_array(0, $allowedEdit) || empty(array_diff($locations, $allowedEdit));
 			}
 			$row['locationCount'] = empty($locations) ? '' : count($locations);
 			$menuTable[] = $row;
