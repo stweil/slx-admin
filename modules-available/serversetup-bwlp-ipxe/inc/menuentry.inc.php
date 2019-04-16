@@ -105,6 +105,11 @@ class MenuEntry
 		return $str . $this->bootEntry->toScript($failLabel, $mode);
 	}
 
+	public function menuEntryId()
+	{
+		return $this->menuentryid;
+	}
+
 	/*
 	 *
 	 */

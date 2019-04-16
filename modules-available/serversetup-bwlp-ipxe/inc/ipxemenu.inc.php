@@ -34,6 +34,10 @@ class IPxeMenu
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->items[] = new MenuEntry($row);
 		}
+		// Make sure we have a default entry if the menu isn't empty
+		if ($this->defaultEntryId === null && !empty($this->items)) {
+			$this->defaultEntryId = $this->items[0]->menuEntryId();
+		}
 	}
 
 	public function getMenuDefinition($targetVar, $mode, $slxExtensions)

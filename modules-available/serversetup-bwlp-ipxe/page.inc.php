@@ -671,7 +671,8 @@ class Page_ServerSetup extends Page
 					'sortval' => (int)$entry['sortval'],
 					'menuid' => $menu['menuid'],
 				];
-				if (empty($entry['entryid'])) {
+				$spacer = empty($entry['entryid']);
+				if ($spacer) {
 					// Spacer
 					$params += [
 						'hotkey' => '',
@@ -691,7 +692,9 @@ class Page_ServerSetup extends Page
 					}
 				}
 				if (is_numeric($key)) {
-					if ((string)$key === $wantedDefaultEntryId) { // Check now that we have generated our key
+					// Update, use known key
+					if (!$spacer && ((string)$key === $wantedDefaultEntryId
+							|| $defaultEntryId === null)) { // if still null, use whatever as fallback, in case user didn't select any
 						$defaultEntryId = $key;
 					}
 					$keepIds[] = $key;
@@ -707,7 +710,9 @@ class Page_ServerSetup extends Page
 					VALUES (:menuid, :entryid, :refmenuid, :hotkey, :title, :hidden, :sortval, :plainpass, '')", $params, true);
 					if ($ret) {
 						$newKey = Database::lastInsertId();
-						if ((string)$key === $wantedDefaultEntryId) { // Check now that we have generated our key
+						// Check now that we have generated our key
+						if (!$spacer && ((string)$key === $wantedDefaultEntryId
+								|| $defaultEntryId === null)) { // if still null, use whatever as fallback, in case user didn't select any
 							$defaultEntryId = $newKey;
 						}
 						$keepIds[] = (int)$newKey;
