@@ -833,6 +833,8 @@ class Page_ServerSetup extends Page
 			'locationid' => $locationId,
 			'locationName' => $loc['locationname'],
 		];
+		$menu = IPxeMenu::forLocation($loc['parentlocationid']);
+		$data['defaultMenu'] = $menu->title();
 		$res = Database::simpleQuery('SELECT m.menuid, m.title, ml.locationid, ml.defaultentryid, GROUP_CONCAT(me.menuentryid) AS entries FROM serversetup_menu m
 				LEFT JOIN serversetup_menu_location ml ON (m.menuid = ml.menuid AND ml.locationid = :locationid)
 				INNER JOIN serversetup_menuentry me ON (m.menuid = me.menuid AND me.entryid IS NOT NULL)

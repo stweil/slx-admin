@@ -71,6 +71,11 @@ class IPxeMenu
 		return $str;
 	}
 
+	public function title()
+	{
+		return $this->title;
+	}
+
 	public function timeoutMs()
 	{
 		return $this->timeoutMs;
