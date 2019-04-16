@@ -191,8 +191,10 @@ console --left 55 --top 88 --right 63 --bottom 64 --keep --picture bg-menu ||
 
 colour --rgb 0xffffff 7
 colour --rgb 0xcccccc 5
+colour --rgb 0x000000 0
+colour --rgb 0xdddddd 6
 cpair --foreground 0 --background 4 1
-cpair --foreground 7 --background 5 2
+cpair --foreground 0 --background 5 2
 cpair --foreground 7 --background 9 0
 
 :slx_menu
