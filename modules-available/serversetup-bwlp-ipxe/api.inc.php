@@ -259,6 +259,7 @@ prompt Boot failed. Press any key to start.
 goto init
 HERE;
 
+setlocale(LC_ALL, 'de_DE.UTF-8', 'de_DE.utf-8', 'de_DE.utf8', 'de_DE', 'de', 'German', 'ge', 'en_US.UTF-8', 'en_US.utf-8');
 if ($platform === 'EFI') {
 	$cs = 'ASCII';
 } else {
