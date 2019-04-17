@@ -28,7 +28,7 @@
     "lang_confirmDeleteQuestion": "Wollen Sie dieses Element wirklich l\u00f6schen?",
     "lang_connectionWait": "\u00dcberpr\u00fcfe Verbindung, bitte warten",
     "lang_continueAnyway": "Trotzdem weiter",
-    "lang_credPassingNotes": "Wenn Sie diese Option aktivieren, werden Nutzername und Passwort des angemeldeten Benutzers an das Startskript der gew\u00e4hlten Veranstaltung \u00fcbergeben. Somit kann der Ersteller der Veranstaltung mit seinem Script beim Start der VM automatisiert weitere Dienste ansteuern, die eine Authentifizierung erfordern. Sie sollten diese Funktion nur aktivieren, wenn Sie der Personengruppe, die Veranstaltungen bearbeiten kann, entsprechend vertrauen.",
+    "lang_credPassingNotes": "Wenn Sie diese Option aktivieren, werden Nutzername und Passwort des angemeldeten Benutzers an das Startskript der gew\u00e4hlten Veranstaltung \u00fcbergeben. Somit kann der Ersteller der Veranstaltung mit seinem Skript beim Start der VM automatisiert weitere Dienste ansteuern, die eine Authentifizierung erfordern. Sie sollten diese Funktion nur aktivieren, wenn Sie der Personengruppe, die Veranstaltungen bearbeiten kann, entsprechend vertrauen.",
     "lang_credentialPassing": "Zugangsdaten des Nutzers an das Startscript der Veranstaltung \u00fcbergeben.",
     "lang_customCertificate": "Zur Validierung zus\u00e4tzlich erforderliche (Intermediate-)Zertifikate",
     "lang_customModuleInfo1": "\u00dcber ein benutzerdefiniertes Modul ist es m\u00f6glich, beliebige Dateien zum Linux-Grundsystem, das auf den Clients gebootet wird, hinzuzuf\u00fcgen. Dazu kann ein Archiv mit einer Dateisystemstruktur hochgeladen werden, die in dieser Form 1:1 in das gebootete Linux extrahiert wird.",
