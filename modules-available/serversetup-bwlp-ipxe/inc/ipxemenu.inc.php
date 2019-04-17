@@ -103,6 +103,18 @@ class IPxeMenu
 		return false;
 	}
 
+	/**
+	 * @return MenuEntry|null Return preselected menu entry
+	 */
+	public function defaultEntry()
+	{
+		foreach ($this->items as $item) {
+			if ($item->menuEntryId() == $this->defaultEntryId)
+				return $item;
+		}
+		return null;
+	}
+
 	/*
 	 *
 	 */

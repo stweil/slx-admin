@@ -110,6 +110,11 @@ class MenuEntry
 		return $this->menuentryid;
 	}
 
+	public function title()
+	{
+		return $this->title;
+	}
+
 	/*
 	 *
 	 */

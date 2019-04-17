@@ -25,7 +25,10 @@
 			<td>
 				<i>{{lang_useDefaultMenu}}</i>
 			</td>
-			<td>{{defaultMenu}}</td>
+			<td>
+				{{defaultMenu.title}}
+				<div class="small text-muted">{{defaultMenu.defaultEntry.title}}</div>
+			</td>
 		</tr>
 		{{#list}}
 			<tr>
