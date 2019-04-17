@@ -206,7 +206,7 @@
 	},
 	"SLX_VM_SOUND": {
 		"catid": "sysconfig",
-		"defaultvalue": "1",
+		"defaultvalue": "DEFAULT_MUTED",
 		"permissions": "2",
 		"validator": "list:DEFAULT_MUTED|DEFAULT_ACTIVE|FORCE_MUTED|FORCE_ACTIVE"
 	},
