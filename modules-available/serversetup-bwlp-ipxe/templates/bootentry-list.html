@@ -32,7 +32,9 @@
 				{{hotkey}}
 			</td>
 			<td align="right">
-				{{refs}}
+				{{#refs}}
+				<span class="badge">{{refs}}</span>
+				{{/refs}}
 			</td>
 			<td align="center">
 				<a href="?do=serversetup&amp;show=editbootentry&amp;id={{entryid}}" class="btn btn-xs btn-default">
