@@ -17,11 +17,16 @@ class Parser {
 		$section = false;
 		$ramOk = false;
 		$ramForm = $ramType = $ramSpeed = $ramClockSpeed = false;
+		$ramslot = [];
 		foreach ($lines as $line) {
 			if (empty($line)) {
 				continue;
 			}
 			if ($line{0} !== "\t" && $line{0} !== ' ') {
+				if (isset($ramslot['size'])) {
+					$row['ramslot'][] = $ramslot;
+					$ramslot = [];
+				}
 				$section = $line;
 				$ramOk = false;
 				if (($ramForm || $ramType) && ($ramSpeed || $ramClockSpeed)) {
@@ -77,10 +82,13 @@ class Parser {
 							$out[2] = 'G';
 							$out[1] = floor(($out[1] + 100) / 1024);
 						}
-						$row['ramslot'][]['size'] = $out[1] . ' ' . strtoupper($out[2]) . 'iB';
+						$ramslot['size'] = $out[1] . ' ' . strtoupper($out[2]) . 'iB';
 					} elseif (!isset($row['ramslot']) || (count($row['ramslot']) < 8 && (!isset($row['ramslotcount']) || $row['ramslotcount'] <= 8))) {
-						$row['ramslot'][]['size'] = '_____';
+						$ramslot['size'] = '_____';
 					}
+				}
+				if (preg_match('/^\s*Manufacturer:\s*(.*?)\s*$/i', $line, $out) && $out[1] !== 'Unknown') {
+					$ramslot['manuf'] = self::decodeJedec($out[1]);
 				}
 				if (preg_match('/^\s*Form Factor:\s*(.*?)\s*$/i', $line, $out) && $out[1] !== 'Unknown') {
 					$ramForm = $out[1];
@@ -91,7 +99,7 @@ class Parser {
 				if (preg_match('/^\s*Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
 					$ramSpeed = $out[1];
 				}
-				if (preg_match('/^\s*Configured Clock Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
+				if (preg_match('/^\s*Configured (Clock|Memory) Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
 					$ramClockSpeed = $out[1];
 				}
 			} elseif ($section === 'BIOS Information') {
@@ -338,6 +346,28 @@ class Parser {
 				$hdd['PowerOnTime'] .= $val . 'h';
 			}
 		}
+	}
+
+	public static function decodeJedec($string)
+	{
+		// JEDEC ID:7F 7F 9E 00 00 00 00 00
+		if (preg_match('/JEDEC(?:\s*ID)?\s*:\s*([0-9a-f\s]+)/i', $string, $out)) {
+			preg_match_all('/[0-9a-f]{2}/i', $out[1], $out);
+			$bank = 0;
+			foreach ($out[0] as $id) {
+				$bank++;
+				$id = hexdec($id) & 0x7f; // Let's just ignore the parity bit, and any potential error
+				if ($id !== 0x7f)
+					break;
+			}
+			if ($id !== 0) {
+				static $data = false;
+				if ($data === false) $data = json_decode(file_get_contents(dirname(__FILE__) . '/jedec.json'), true);
+				if (array_key_exists('bank' . $bank, $data) && array_key_exists('id' . $id, $data['bank' . $bank]))
+					return $data['bank' . $bank]['id' . $id];
+			}
+		}
+		return $string;
 	}
 
 }

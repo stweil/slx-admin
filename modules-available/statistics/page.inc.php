@@ -722,7 +722,7 @@ class Page_Statistics extends Page
 			$row['lastseen_int'] = $row['lastseen'];
 			$row['lastseen'] = Util::prettyTime($row['lastseen']);
 			//$row['lastboot'] = Util::prettyTime($row['lastboot']);
-			$row['gbram'] = round(round($row['mbram'] / 500) / 2, 1); // Trial and error until we got "expected" rounding..
+			$row['gbram'] = round(ceil($row['mbram'] / 512) / 2, 1); // Trial and error until we got "expected" rounding..
 			$row['gbtmp'] = round($row['id44mb'] / 1024);
 			$octets = explode('.', $row['clientip']);
 			if (count($octets) === 4) {
