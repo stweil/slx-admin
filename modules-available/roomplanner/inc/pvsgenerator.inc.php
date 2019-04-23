@@ -180,7 +180,7 @@ class PvsGenerator
 		if ($auto && $highlightUuid !== false) {
 			foreach ($machines as &$machine) {
 				if ($machine['machineuuid'] === $highlightUuid) {
-					$rotate = $ORIENTATION[$machine['rotation']];
+					$rotate = 4 - $ORIENTATION[$machine['rotation']]; // Reverse rotation
 					break;
 				}
 			}
@@ -194,8 +194,8 @@ class PvsGenerator
 			$machine['rotation'] = $ORIENTATION[$machine['rotation']] * 90;
 		}
 		PvsGenerator::boundingBox($machines, $minX, $minY, $maxX, $maxY);
-		$clientSizeX = 4; /* TODO: optimize */
-		$clientSizeY = 4; /* TODO: optimize */
+		$clientSizeX = 4; /* this is optimal */
+		$clientSizeY = 4;
 		$minX--;
 		$minY--;
 		$maxX++;
@@ -205,15 +205,13 @@ class PvsGenerator
 		if ($rotate === 0) {
 			$centerY = $centerX = 0;
 		} elseif ($rotate === 1) {
-			$centerX = $minX + min($sizeX, $sizeY) / 2;
-			$centerY = $minY + min($sizeX, $sizeY) / 2;
+			$centerY = $centerX = $sizeY / 2;
 			self::swap($sizeX, $sizeY);
 		} elseif ($rotate === 2) {
-			$centerX = $minX + $sizeX / 2;
-			$centerY = $minY + $sizeY / 2;
+			$centerX = $sizeX / 2;
+			$centerY = $sizeY / 2;
 		} else {
-			$centerX = $minX + max($sizeX, $sizeY) / 2;
-			$centerY = $minY + max($sizeX, $sizeY) / 2;
+			$centerY = $centerX = $sizeX / 2;
 			self::swap($sizeX, $sizeY);
 		}
 		return Render::parse('svg-plan', [
