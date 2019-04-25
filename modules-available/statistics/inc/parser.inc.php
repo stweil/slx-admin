@@ -18,6 +18,7 @@ class Parser {
 		$ramOk = false;
 		$ramForm = $ramType = $ramSpeed = $ramClockSpeed = false;
 		$ramslot = [];
+		$row['ramslotcount'] = $row['maxram'] = 0;
 		foreach ($lines as $line) {
 			if (empty($line)) {
 				continue;
@@ -63,26 +64,17 @@ class Parser {
 				if (!$ramOk && preg_match('/Use: System Memory/i', $line)) {
 					$ramOk = true;
 				}
-				if ($ramOk && preg_match('/^\s*Number Of Devices: +(\S.+?) *$/i', $line, $out)) {
-					$row['ramslotcount'] = $out[1];
+				if ($ramOk && preg_match('/^\s*Number Of Devices:\s+(\d+)\s*$/i', $line, $out)) {
+					$row['ramslotcount'] += $out[1];
 				}
-				if ($ramOk && preg_match('/^\s*Maximum Capacity: +(\S.+?)\s*$/i', $line, $out)) {
-					$row['maxram'] = preg_replace('/([MGT])B/', '$1iB', $out[1]);
+				if ($ramOk && preg_match('/^\s*Maximum Capacity:\s+(\d.+)/i', $line, $out)) {
+					$row['maxram'] += self::convertSize($out[1], 'G', false);
 				}
 			} elseif ($section === 'Memory Device') {
 				if (preg_match('/^\s*Size:\s*(.*?)\s*$/i', $line, $out)) {
 					$row['extram'] = true;
-					if (preg_match('/(\d+)\s*(\w)i?B/i', $out[1], $out)) {
-						$out[2] = strtoupper($out[2]);
-						if ($out[2] === 'K' || ($out[2] === 'M' && $out[1] < 500)) {
-							$ramForm = $ramType = $ramSpeed = $ramClockSpeed = false;
-							continue;
-						}
-						if ($out[2] === 'M' && $out[1] >= 1024) {
-							$out[2] = 'G';
-							$out[1] = floor(($out[1] + 100) / 1024);
-						}
-						$ramslot['size'] = $out[1] . ' ' . strtoupper($out[2]) . 'iB';
+					if (preg_match('/(\d+)\s*(\w)i?B/i', $out[1])) {
+						$ramslot['size'] = self::convertSize($out[1], 'G');
 					} elseif (!isset($row['ramslot']) || (count($row['ramslot']) < 8 && (!isset($row['ramslotcount']) || $row['ramslotcount'] <= 8))) {
 						$ramslot['size'] = '_____';
 					}
@@ -99,7 +91,7 @@ class Parser {
 				if (preg_match('/^\s*Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
 					$ramSpeed = $out[1];
 				}
-				if (preg_match('/^\s*Configured (Clock|Memory) Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
+				if (preg_match('/^\s*Configured (?:Clock|Memory) Speed:\s*(\d.*?)\s*$/i', $line, $out)) {
 					$ramClockSpeed = $out[1];
 				}
 			} elseif ($section === 'BIOS Information') {
@@ -112,9 +104,42 @@ class Parser {
 				}
 			}
 		}
-		if (empty($row['ramslotcount'])) {
+		if (empty($row['ramslotcount']) || (isset($row['ramslot']) && $row['ramslotcount'] < count($row['ramslot']))) {
 			$row['ramslotcount'] = isset($row['ramslot']) ? count($row['ramslot']) : 0;
 		}
+		if ($row['maxram'] > 0) {
+			$row['maxram'] .= ' GiB';
+		}
+	}
+
+	const LOOKUP = ['T' => 1099511627776, 'G' => 1073741824, 'M' => 1048576, 'K' => 1024, '' => 1];
+
+	/**
+	 * Convert/format size unit. Input string can be a size like
+	 * 8 GB or 1024 MB and will be converted according to passed parameters.
+	 * @param string $string Input string
+	 * @param string $scale 'a' for auto, T/G/M/K for according units
+	 * @param bool $appendUnit append unit string, e.g. 'GiB'
+	 * @return string|int Formatted result
+	 */
+	private static function convertSize($string, $scale = 'a', $appendUnit = true)
+	{
+		if (!preg_match('/(\d+)\s*([TGMK]?)/i', $string, $out))
+			return false;
+		$val = (int)$out[1] * self::LOOKUP[$out[2]];
+		if (!array_key_exists($scale, self::LOOKUP)) {
+			foreach (self::LOOKUP as $k => $v) {
+				if ($k === '' || $val / 8 >= $v || abs($val - $v) < 50) {
+					$scale = $k;
+					break;
+				}
+			}
+		}
+		$val = round($val / self::LOOKUP[$scale]);
+		if ($appendUnit) {
+			$val .= ' ' . ($scale === '' ? 'Byte' : $scale . 'iB'); // NBSP!!
+		}
+		return $val;
 	}
 
 	public static function parseHdd(&$row, $data)
