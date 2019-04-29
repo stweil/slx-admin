@@ -34,12 +34,19 @@
 
 .meter .text {
     position: absolute;
-    right: 5px;
     overflow: visible;
     font-size: 8pt;
     white-space: nowrap;
     z-index: 1000;
     text-shadow: #fff 1px 1px;
+}
+
+.meter .left {
+    left: 5px;
+}
+
+.meter .right {
+    right: 5px;
 }
 
 .warn {

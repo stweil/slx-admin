@@ -229,13 +229,15 @@
 							</div>
 							{{#live_memsize}}
 							<div class="meter">
-								<div class="text">{{live_memfree_s}} {{lang_free}}</div>
+								<div class="text left">{{lang_ram}}</div>
+								<div class="text right">{{live_memfree_s}} {{lang_free}}</div>
 								<div class="bar" style="width:{{live_mempercent}}%"></div>
 							</div>
 							{{/live_memsize}}
 							{{#live_swapsize}}
 							<div class="meter">
-								<div class="text">{{live_swapfree_s}} {{lang_free}}</div>
+								<div class="text left">{{lang_swap}}</div>
+								<div class="text right">{{live_swapfree_s}} {{lang_free}}</div>
 								<div class="bar" style="width:{{live_swappercent}}%"></div>
 							</div>
 							{{/live_swapsize}}
@@ -260,7 +262,7 @@
 							</div>
 							{{#live_tmpsize}}
 								<div class="meter">
-									<div class="text">{{live_tmpfree_s}} {{lang_free}}</div>
+									<div class="text right">{{live_tmpfree_s}} {{lang_free}}</div>
 									<div class="bar" style="width:{{live_tmppercent}}%"></div>
 								</div>
 							{{/live_tmpsize}}
