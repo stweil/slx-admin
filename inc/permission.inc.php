@@ -40,7 +40,10 @@ class Permission
 			$temp = ['disabled' => 'disabled', 'readonly' => 'readonly'];
 		}
 		if (!$one && !is_null($noneAvailDisabled)) {
-			$array[$noneAvailDisabled]['disabled'] = true;
+			$array[$noneAvailDisabled] = [
+				'disabled' => 'disabled',
+				'readonly' => 'readonly',
+			];
 		}
 	}
 
