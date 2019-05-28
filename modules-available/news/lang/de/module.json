@@ -1,3 +1,7 @@
 {
-    "module_name": "vmChooser News"
+    "module_name": "News-\/Hilfetexte",
+    "page_title": "Neuigkeiten und Hilfetexte",
+    "type_help": "vmChooser Hilfe",
+    "type_login-news": "Loginmaske",
+    "type_news": "vmChooser News"
 }

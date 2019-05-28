@@ -1,7 +1,8 @@
 {
-    "help-save-success": "Hilfe erfolgreich aktualisiert",
     "invalid-action": "Ung\u00fcltige Aktion: {{0}}",
+    "invalid-type": "Ung\u00fcltiger Text-Typ: {{0}}",
     "news-del-success": "News gel\u00f6scht",
     "news-empty": "Es wurde keine News in der Datenbank gefunden",
-    "news-save-success": "News erfolgreich aktualisiert"
+    "news-save-success": "News erfolgreich aktualisiert",
+    "save-error": "Fehler beim Speichern"
 }

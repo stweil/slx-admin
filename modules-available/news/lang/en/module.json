@@ -1,3 +1,7 @@
 {
-    "module_name": "vmChooser News"
+    "module_name": "vmChooser News",
+    "page_title": "News and help texts",
+    "type_help": "vmChooser help",
+    "type_login-news": "Login screen",
+    "type_news": "vmChooser news"
 }

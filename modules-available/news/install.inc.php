@@ -23,14 +23,26 @@ if (tableExists('news')) {
 $res[] = tableCreate('vmchooser_pages', "
 	`newsid` int(10) unsigned NOT NULL AUTO_INCREMENT,
 	`dateline` int(10) unsigned NOT NULL,
+	`expires` int(10) unsigned NOT NULL,
 	`title` varchar(200) DEFAULT NULL,
 	`content` text,
 	`type` varchar(10),
 	PRIMARY KEY (`newsid`),
-	KEY `type` (`type`, `dateline`)
+	KEY `type` (`type`, `dateline`),
+	KEY `all3` (`type`, `expires`, `dateline`)
 ");
 
-Database::exec('ALTER TABLE vmchooser_pages DROP KEY `dateline`, ADD KEY `type` (`type`, `dateline`)');
+if (tableHasIndex('vmchooser_pages', ['dateline'])) {
+	Database::exec('ALTER TABLE vmchooser_pages DROP KEY `dateline`');
+	Database::exec('ALTER TABLE vmchooser_pages ADD KEY `type` (`type`, `dateline`)');
+}
+if (!tableHasIndex('vmchooser_pages', ['type', 'expires', 'dateline'])) {
+	Database::exec('ALTER TABLE vmchooser_pages ADD KEY `all3` (`type`, `expires`, `dateline`)');
+}
+if (!tableHasColumn('vmchooser_pages', 'expires')) {
+	Database::exec('ALTER TABLE vmchooser_pages ADD COLUMN `expires` int(10) unsigned NOT NULL AFTER `dateline`');
+	Database::exec('UPDATE vmchooser_pages SET expires = dateline + 86400 * 3650 WHERE expires = 0'); // ~10 Years
+}
 
 // Create response for browser
 

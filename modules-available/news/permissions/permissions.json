@@ -13,5 +13,11 @@
     },
     "news.save": {
         "location-aware": false
+    },
+    "login-news.delete": {
+        "location-aware": false
+    },
+    "login-news.save": {
+        "location-aware": false
     }
 }

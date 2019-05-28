@@ -1,7 +1,9 @@
 {
     "access-page": "View page.",
-    "help.delete": "Delete old help texts.",
-    "help.save": "Save new help texts.",
-    "news.delete": "Delete old news.",
-    "news.save": "Save new news."
+    "help.delete": "Delete vmChooser help texts.",
+    "help.save": "Save new vmChooser help texts.",
+    "login-news.delete": "Delete login screen help texts.",
+    "login-news.save": "Save new login screen help texts.",
+    "news.delete": "Delete vmChooser news.",
+    "news.save": "Save new vmChooser news."
 }

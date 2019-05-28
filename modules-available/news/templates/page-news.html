@@ -1,129 +1,89 @@
-<h1>{{lang_vmChooser_title}}</h1>
+<h1>{{lang_mainHeading}}</h1>
 
-<ul class="nav nav-tabs" role="tablist">
-	<li role="presentation" class="{{^editHelp}}active{{/editHelp}}"><a href="#news" role="tab" data-toggle="tab">{{lang_editNews}}</a></li>
-	<li role="presentation" class="{{#editHelp}}active{{/editHelp}}"	  ><a href="#help" role="tab" data-toggle="tab">{{lang_editHelp}}</a></li>
-</ul>
+<p>{{lang_introText}}</p>
 
-<div class="tab-content">
-	<div role="tabpanel" class="tab-pane {{^editHelp}}active{{/editHelp}}" id="news" style="padding:5px">
-		<form action="?do=News&amp;action=save" method="post">
-			<p>{{lang_newsIntro}}</p>
-			<div class="form-group">
-				<label for="news-title-id">{{lang_title}}</label>
-				<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="{{welcome}}" value="{{latestTitle}}" {{perms.news.save.readonly}}>
-			</div>
-			<div class="form-group">
-				<label for="news-content-id">{{lang_content}}</label>
-				<textarea name="news-content" id ="news-content-id" class="form-control summernote" rows="5" cols="30" {{perms.news.save.readonly}}>{{latestContent}}</textarea>
-			</div>
-			<div class="row">
-				<div class="text-left col-md-6">
-					<p>{{lang_latestUpdate}}: {{latestDate}}</p>
-				</div>
-				<div class="text-right col-md-6">
-					<button {{perms.news.save.disabled}} class="btn btn-primary sn-btn" name="news-type" value="news" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
-					<input type="hidden" name="token" value="{{token}}">
-				</div>
-			</div>
+<h2>{{newsTypeName}}</h2>
 
-		</form>
-		<br/>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_newsOld}}
-			</div>
-			<div class="panel-body">
-				<div class="table-responsive">
-					<form method="post" action="?do=News&amp;action=delete">
-						<table class="table table-stripped table-condensed stupidtable">
-							<thead>
-								<tr>
-									<th data-sort="int">{{lang_date}}</th>
-									<th data-sort="string">{{lang_title}}</th>
-									<th data-sort="string">{{lang_content}}</th>
-									<th class="text-center">{{lang_show}}</th>
-									<th class="text-center">{{lang_delete}}</th>
-								</tr>
-							</thead>
-							<tbody>
-								{{#list}}
-								<tr {{#active}}class="active"{{/active}}>
-									<td class="text-left text-nowrap" data-sort-value={{dateline}}>{{date}}</td>
-									<td><table class="slx-ellipsis"><tr><td>{{title}}</td></tr></table></td>
-									<td><table class="slx-ellipsis"><tr><td>{{content}}</td></tr></table></td>
-									<td class="text-center">
-										<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show"><span class="glyphicon glyphicon-share-alt"></span></a>
-									</td>
-									<td class="text-center">
-										<input type="hidden" name="news-type" value="news">
-										<button {{perms.news.delete.disabled}} class="btn btn-danger btn-xs btn-delete" type="submit"
-												name="newsid" value="{{newsid}}" data-confirm="#confirm-delete" data-title="{{title}}">
-											<span class="glyphicon glyphicon-trash"></span>
-										</button>
-									</td>
-								</tr>
-								{{/list}}
-							</tbody>
-						</table>
-						<input type="hidden" name="token" value="{{token}}">
-					</form>
-				</div>
-			</div>
-		</div>
+<form action="?do=news" method="post">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="type" value="{{type}}">
+	<input type="hidden" name="action" value="save">
+	{{#withTitle}}
+	<div class="form-group">
+		<label for="news-title-id">{{lang_title}}</label>
+		<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="{{lang_titlePh}}" value="{{currentTitle}}" {{save.readonly}}>
 	</div>
-	<div role="tabpanel" class="tab-pane {{#editHelp}}active{{/editHelp}}" id="help">
-		<form action="?do=News&amp;action=save" method="post">
-			<div class="form-group">
-				<br/>
-				<label for="news-content-id">{{lang_content}}</label>
-				<textarea name="help-content" id="help-content-id" class="form-control summernote" style="min-height:400px"  {{perms.help.save.readonly}}>{{latestHelp}}</textarea>
-			</div>
-			<div class="text-right">
-				<button {{perms.help.save.disabled}} class="btn btn-primary sn-btn" name="news-type" value="help" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
+	{{/withTitle}}
+	<div class="form-group">
+		<label for="validity">{{lang_validityHours}}</label> ({{lang_leaveEmptyInfinite}})
+		<input id="validity" type="text" name="validity" value="{{validity}}" class="form-control">
+	</div>
+	<div class="form-group">
+		<label for="news-content-id">{{lang_content}}</label>
+		<textarea required name="news-content" id ="news-content-id" class="form-control summernote" rows="5" cols="30" {{save.readonly}}>{{currentContent}}</textarea>
+	</div>
+	<div>
+		{{lang_lastUpdate}}: {{dateline_s}}
+		<br>
+		{{lang_expires}}: {{expires_s}}
+	</div>
+	<div class="text-right">
+		<button {{save.disabled}} class="btn btn-primary sn-btn" type="submit">
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+			{{lang_save}}
+		</button>
+	</div>
+
+</form>
+<br><br>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_previousEntries}}
+	</div>
+	<div class="panel-body">
+		<div class="table-responsive">
+			<form method="post" action="?do=news">
 				<input type="hidden" name="token" value="{{token}}">
-			</div>
-		</form>
-		<br/>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				{{lang_oldHelp}}
-			</div>
-			<div class="panel-body">
-				<div class="table-responsive">
-					<form method="post" action="?do=News&amp;action=delete&editHelp=true">
-						<table class="table table-stripped table-condensed stupidtable">
-							<thead>
-								<tr>
-									<th data-sort="int">{{lang_date}}</th>
-									<th data-sort="string">{{lang_content}}</th>
-									<th class="text-center">{{lang_show}}</th>
-									<th class="text-center">{{lang_delete}}</th>
-								</tr>
-							</thead>
-							<tbody>
-								{{#listHelp}}
-								<tr {{#active}}class="active"{{/active}}>
-									<td class="text-left text-nowrap" data-sort-value={{dateline}}>{{date}}</td>
-									<td><table class="slx-ellipsis"><tr><td>{{content}}</td></tr></table></td>
-									<td class="text-center">
-										<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show"><span class="glyphicon glyphicon-share-alt"></span></a>
-									</td>
-									<td class="text-center">
-										<input type="hidden" name="news-type" value="help">
-										<button {{perms.help.delete.disabled}} class="btn btn-danger btn-xs btn-delete" type="submit" name="newsid" value="{{newsid}}"><span class="glyphicon glyphicon-trash"></span></button>
-									</td>
-								</tr>
-								{{/listHelp}}
-							</tbody>
-						</table>
-						<input type="hidden" name="token" value="{{token}}">
-					</form>
-				</div>
-			</div>
+				<input type="hidden" name="type" value="{{type}}">
+				<input type="hidden" name="action" value="delete">
+				<table class="table table-condensed stupidtable">
+					<thead>
+						<tr>
+							<th class="text-nowrap slx-smallcol" data-sort="int">{{lang_created}}</th>
+							<th class="text-nowrap slx-smallcol" data-sort="int">{{lang_expires}}</th>
+							<th class="text-nowrap" data-sort="string">{{lang_title}}</th>
+							<th class="text-nowrap" data-sort="string" width="30%">{{lang_content}}</th>
+							<th class="text-nowrap slx-smallcol">{{lang_show}}</th>
+							<th class="text-nowrap slx-smallcol">{{lang_delete}}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{{#list}}
+						<tr class="{{active}} {{muted}}">
+							<td class="text-left text-nowrap" data-sort-value={{dateline}}>{{dateline_s}}</td>
+							<td class="text-left text-nowrap" data-sort-value={{expires}}>{{expires_s}}</td>
+							<td><table class="slx-ellipsis"><tr><td>{{title}}</td></tr></table></td>
+							<td><table class="slx-ellipsis"><tr><td class="small">{{content}}</td></tr></table></td>
+							<td class="text-center">
+								<a class="btn btn-primary btn-xs" href="?do=news&amp;newsid={{newsid}}&amp;action=show">
+									<span class="glyphicon glyphicon-share-alt"></span>
+								</a>
+							</td>
+							<td class="text-center">
+								<button {{delete.disabled}} class="btn btn-danger btn-xs btn-delete" type="submit"
+										name="newsid" value="{{newsid}}" data-confirm="#confirm-delete" data-title="{{title}}">
+									<span class="glyphicon glyphicon-trash"></span>
+								</button>
+							</td>
+						</tr>
+						{{/list}}
+					</tbody>
+				</table>
+			</form>
 		</div>
 	</div>
 </div>
+
 <div class="hidden" id="confirm-delete">{{lang_confirmDelete}}</div>
 <script type="application/javascript"><!--
 document.addEventListener("DOMContentLoaded", function () {
@@ -133,6 +93,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			$button.click();
 		}
 	});
+	{{#hasSummernote}}
 	$('.summernote[readonly]').each(function() { $(this).summernote('disable'); });
+	{{/hasSummernote}}
 }, false);
 // --></script>

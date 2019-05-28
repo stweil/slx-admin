@@ -1,14 +1,15 @@
 {
     "lang_confirmDelete": "Eintrag l\u00f6schen?",
     "lang_content": "Inhalt",
-    "lang_date": "Datum",
-    "lang_editHelp": "Hilfe bearbeiten",
-    "lang_editNews": "News bearbeiten",
-    "lang_latestUpdate": "Letzte Aktualisierung",
-    "lang_newsIntro": "Hier haben Sie die M\u00f6glichkeit, die von bwLehrpool-Clients angezeigten News zu editieren.",
-    "lang_newsOld": "Alte News",
-    "lang_oldHelp": "Alte Hilfetexte",
+    "lang_created": "Erstellt",
+    "lang_expires": "Ablauf",
+    "lang_introText": "Hier k\u00f6nnen Sie f\u00fcr verschiedene Bereiche des MiniLinux-Systems Neuigkeiten, Hilfetexte etc. definieren.",
+    "lang_lastUpdate": "Letzte Aktualisierung",
+    "lang_leaveEmptyInfinite": "0 oder leer bedeutet unendlich",
+    "lang_mainHeading": "Neuigkeiten und Hilfetexte",
+    "lang_previousEntries": "Vorherige Eintr\u00e4ge",
     "lang_show": "Ansehen",
     "lang_title": "Titel",
-    "lang_vmChooser_title": "vmChooser-Einstellungen"
+    "lang_titlePh": "\u00dcberschrift",
+    "lang_validityHours": "G\u00fcltigkeitsdauer in Stunden"
 }

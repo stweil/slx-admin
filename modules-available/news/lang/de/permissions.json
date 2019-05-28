@@ -1,7 +1,9 @@
 {
     "access-page": "Seite sehen.",
-    "help.delete": "Alte Hilfe Texte l\u00f6schen.",
-    "help.save": "\u00c4nderungen am Hilfe Text speichern.",
-    "news.delete": "Alte News Texte l\u00f6schen.",
-    "news.save": "\u00c4nderungen am News Text speichern."
+    "help.delete": "vmChooser Hilfetexte l\u00f6schen.",
+    "help.save": "Neue vmChooser Hilfetexte speichern.",
+    "login-news.delete": "News-Texte f\u00fcr den Loginbildschirm l\u00f6schen.",
+    "login-news.save": "News-Texte f\u00fcr den Loginbildschirm speichern.",
+    "news.delete": "vmChooser News-Texte l\u00f6schen.",
+    "news.save": "Neue vmChooser News-Texte speichern."
 }
