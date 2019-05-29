@@ -5,11 +5,7 @@ return a.each(f,function(a,b){p.appendChildNodes(e,b.childNodes),p.remove(b)}),d
 
 
 /* load the specific locale */
-var filename = "modules/summernote/lang/summernote-" + LANG + ".js";
-
-$.getScript(filename, function () {
-	console.log('loaded language ' + LANG + ', now enable the editor');
-	console.log($('.summernote'));
+$.cachedScript("modules/summernote/lang/summernote-" + LANG + ".js").always(function () {
 	$('.summernote').summernote( {
 		toolbar: [
 			// [groupName, [list of button]]
