@@ -158,31 +158,22 @@ function checkGlobalExam() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-	var filename = "modules/bootstrap_datepicker/lang/bootstrap-datepicker." + LANG + ".js";
+
 	moment.locale(LANG);
 	var slxMoment = moment;
 
-	$.getScript(filename)
-		.always(function () {
-			/* TODO: generalize this (set locale in the clientscript.js of bootstrap_datepicker) */
-		var dateSettings = {
-				format: 'yyyy-mm-dd',
-				weekStart: 1,
-				todayHighlight: true,
-				language: LANG
-			};
-		var timeSettings = {
-				showSeconds: false,
-				showMeridian: false,
-				minuteStep: 5,
-				appendWidgetTo: 'body'
-
-			};
-		$('.datepicker').datepicker(dateSettings);
-		$('.timepicker2').timepicker(timeSettings);
-
-		startEndChanged();
-	});
+	var dateSettings = {
+		format: 'yyyy-mm-dd',
+		todayHighlight: true,
+	};
+	var timeSettings = {
+		showSeconds: false,
+		showMeridian: false,
+		minuteStep: 5,
+		appendWidgetTo: 'body',
+	};
+	$('.datepicker').datepicker(dateSettings);
+	$('.timepicker2').timepicker(timeSettings);
 
 	$('#locations').multiselect({numberDisplayed: 1});
 
@@ -252,6 +243,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	$("#cancelButton").click(function () {
 		window.location.replace("?do=exams");
 	});
+
+	startEndChanged();
 
 }, false);
 // --></script>

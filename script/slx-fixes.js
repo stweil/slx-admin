@@ -106,3 +106,13 @@ $(document).ready(function() {
 	}
 	slxCheckCallbacks();
 });
+
+// Caching script fetcher (https://api.jquery.com/jQuery.getScript/); use exactly like $.getScript
+jQuery.cachedScript = function(url, options) {
+	options = $.extend( options || {}, {
+		dataType: "script",
+		cache: true,
+		url: url
+	});
+	return jQuery.ajax( options );
+};
