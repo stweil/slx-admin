@@ -3,13 +3,13 @@
     "lang_content": "Inhalt",
     "lang_created": "Erstellt",
     "lang_expires": "Ablauf",
+    "lang_expiryDate": "Ablaufdatum",
+    "lang_infiniteDuration": "L\u00e4uft nicht ab",
     "lang_introText": "Hier k\u00f6nnen Sie f\u00fcr verschiedene Bereiche des MiniLinux-Systems Neuigkeiten, Hilfetexte etc. definieren.",
     "lang_lastUpdate": "Letzte Aktualisierung",
-    "lang_leaveEmptyInfinite": "0 oder leer bedeutet unendlich",
     "lang_mainHeading": "Neuigkeiten und Hilfetexte",
     "lang_previousEntries": "Vorherige Eintr\u00e4ge",
     "lang_show": "Ansehen",
     "lang_title": "Titel",
-    "lang_titlePh": "\u00dcberschrift",
-    "lang_validityHours": "G\u00fcltigkeitsdauer in Stunden"
+    "lang_titlePh": "\u00dcberschrift"
 }
