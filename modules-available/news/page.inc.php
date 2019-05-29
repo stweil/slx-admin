@@ -121,24 +121,24 @@ class Page_News extends Page
 		$lines = array();
 		$res = Database::simpleQuery("SELECT newsid, dateline, expires, title, content FROM vmchooser_pages
 				WHERE type = :type ORDER BY dateline DESC LIMIT 20", ['type' => $this->pageType]);
+		$foundActive = false;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$row['dateline_s'] = Util::prettyTime($row['dateline']);
 			$row['expires_s'] = $this->formatExpires($row['expires']);
+			if ($row['newsid'] == $this->newsId) {
+				$row['active'] = true;
+			}
 			if ($row['expires'] < $NOW) {
 				$row['muted'] = 'text-muted';
+			} elseif (!$foundActive) {
+				$row['live'] = 'active';
+				$foundActive = true;
 			}
 
-			if ($row['newsid'] == $this->newsId) {
-				$row['active'] = 'active';
-			}
 			$row['content'] = substr(strip_tags(str_replace('>', '> ', $row['content'])), 0, 160);
 			$lines[] = $row;
 		}
 
-		$validity = ceil(($this->newsExpires - $NOW) / 3600);
-		if ($this->newsExpires === false || $validity > 24 * 365 * 5) {
-			$validity = '';
-		}
 		$data = array(
 			'withTitle' => self::TYPES[$this->pageType]['headline'],
 			'newsTypeName' => Dictionary::translate('type_' . $this->pageType, true),
@@ -147,10 +147,16 @@ class Page_News extends Page
 			'currentContent' => $this->newsContent,
 			'currentTitle' => $this->newsTitle,
 			'type' => $this->pageType,
-			'validity' => $validity,
 			'list' => $lines,
 			'hasSummernote' => $this->hasSummernote,
 		);
+		$validity = ceil(($this->newsExpires - $NOW) / 3600);
+		if ($this->newsExpires === false || $validity > 24 * 365 * 5) {
+			$data['infinite_checked'] = 'checked';
+			$this->newsExpires = strtotime('+7 days 00:00:00');
+		}
+		$data['enddate'] = date('Y-m-d', $this->newsExpires);
+		$data['endtime'] = date('H:i', $this->newsExpires);
 		if (!User::hasPermission($this->pageType . '.save')) {
 			$data['save'] = [
 				'readonly' => 'readonly',
@@ -221,11 +227,12 @@ class Page_News extends Page
 		// check if news content were set by the user
 		$newsTitle = Request::post('news-title', '', 'string');
 		$newsContent = Request::post('news-content', false, 'string');
-		$validity = Request::post('validity', false, 'string');
-		if ($validity === false || $validity === '') {
-			$validity = 86400 * 3650; // 10 Years
+		$infinite = (Request::post('infinite', '', 'string') !== '');
+		if ($infinite) {
+			$expires = strtotime('+10 years 0:00');
 		} else {
-			$validity *= 3600; // Hours to seconds
+			$expires = strtotime(Request::post('enddate', 'today', 'string') . ' '
+					. Request::post('endtime', '23:59', 'string'));
 		}
 		if (!empty($newsContent)) {
 			// we got title and content, save it to DB
@@ -240,7 +247,7 @@ class Page_News extends Page
 						WHERE newsid = :newsid LIMIT 1', [
 					'newsid' => $row['newsid'],
 					'dateline' => time(),
-					'expires' => time() + $validity,
+					'expires' => $expires,
 					'title' => $newsTitle,
 				]);
 				return true;
@@ -249,7 +256,7 @@ class Page_News extends Page
 			Database::exec("INSERT INTO vmchooser_pages (dateline, expires, title, content, type)
 					VALUES (:dateline, :expires, :title, :content, :type)", array(
 				'dateline' => time(),
-				'expires' => time() + $validity,
+				'expires' => $expires,
 				'title' => $newsTitle,
 				'content' => $newsContent,
 				'type' => $pageType,

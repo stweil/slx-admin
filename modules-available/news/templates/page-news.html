@@ -14,9 +14,30 @@
 		<input type="text" name="news-title" id ="news-title-id" class="form-control" placeholder="{{lang_titlePh}}" value="{{currentTitle}}" {{save.readonly}}>
 	</div>
 	{{/withTitle}}
-	<div class="form-group">
-		<label for="validity">{{lang_validityHours}}</label> ({{lang_leaveEmptyInfinite}})
-		<input id="validity" type="text" name="validity" value="{{validity}}" class="form-control">
+	<div class="form-group row">
+		<div class="col-md-12">
+			<label for="enddate">{{lang_expiryDate}}</label>
+			<div class="checkbox">
+				<input id="infinite-checkbox" type="checkbox" name="infinite" {{infinite_checked}}>
+				<label for="infinite-checkbox">{{lang_infiniteDuration}}</label>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-6">
+			<div class="input-group">
+				<span class="input-group-addon">
+					<span class="glyphicon glyphicon-calendar"></span>
+				</span>
+				<input id="enddate" type="text" name="enddate" value="{{enddate}}" class="form-control datepicker" {{save.readonly}}>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-6">
+			<div class="input-group bootstrap-timepicker timepicker">
+				<span class="input-group-addon">
+					<span class="glyphicon glyphicon-time"></span>
+				</span>
+				<input id="endtime" type="time" name="endtime" value="{{endtime}}" class="form-control timepicker2" {{save.readonly}} pattern="[0-9]{1,2}:[0-9]{2}">
+			</div>
+		</div>
 	</div>
 	<div class="form-group">
 		<label for="news-content-id">{{lang_content}}</label>
@@ -49,6 +70,7 @@
 				<table class="table table-condensed stupidtable">
 					<thead>
 						<tr>
+							<th></th>
 							<th class="text-nowrap slx-smallcol" data-sort="int">{{lang_created}}</th>
 							<th class="text-nowrap slx-smallcol" data-sort="int">{{lang_expires}}</th>
 							<th class="text-nowrap" data-sort="string">{{lang_title}}</th>
@@ -59,7 +81,8 @@
 					</thead>
 					<tbody>
 						{{#list}}
-						<tr class="{{active}} {{muted}}">
+						<tr class="{{live}} {{muted}}">
+							<td>{{#active}}<span class="glyphicon glyphicon-eye-open"></span>{{/active}}</td>
 							<td class="text-left text-nowrap" data-sort-value={{dateline}}>{{dateline_s}}</td>
 							<td class="text-left text-nowrap" data-sort-value={{expires}}>{{expires_s}}</td>
 							<td><table class="slx-ellipsis"><tr><td>{{title}}</td></tr></table></td>
@@ -96,5 +119,15 @@ document.addEventListener("DOMContentLoaded", function () {
 	{{#hasSummernote}}
 	$('.summernote[readonly]').each(function() { $(this).summernote('disable'); });
 	{{/hasSummernote}}
+	var dateSettings = {
+		format: 'yyyy-mm-dd',
+		todayHighlight: true,
+	};
+	$('.datepicker').datepicker(dateSettings);
+	var chf = function() {
+		$('#enddate, #endtime').prop('disabled', $('#infinite-checkbox').is(':checked'));
+	};
+	$('#infinite-checkbox').change(chf);
+	chf();
 }, false);
 // --></script>
