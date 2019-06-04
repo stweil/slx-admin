@@ -1190,8 +1190,8 @@ optional:
 		if (newText !== false) {
 			room.$.currentEvent.text(newText);
 		}
-		if (newTime !== false) {
-			room.$.currentRemain.text(t("for") + " " +newTime);
+		if (newTime !== false && newTime !== '') {
+			room.$.currentRemain.text(t("for") + " " + newTime);
 		}
 		if (room.lastFreeSeats !== seats || !same) {
 			SetFreeSeats(room);
