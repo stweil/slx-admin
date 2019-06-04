@@ -511,7 +511,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		var scale = $('#override' + id + 'scale');
 		if (overrides !== null && overrides[id] !== undefined) {
 			$('#override' + id + 'mode').val(overrides[id].mode);
-			$('#override' + id + 'roomplanner').val(overrides[id].roomplanner);
+			$('#override' + id + 'roomplanner').val(overrides[id].roomplanner ? 1 : 0);
 			if (overrides[id].vertical) $('#override' + id + 'vertical').bootstrapSwitch('state', true);
 			if (overrides[id].scaledaysauto) $('#override' + id + 'scaledaysauto').bootstrapSwitch('state', true);
 			$('#override' + id + 'daystoshow').val(overrides[id].daystoshow);
