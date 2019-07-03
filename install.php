@@ -154,7 +154,7 @@ function tableGetConstraints($table, $column, $refTable, $refColumn)
  * @param string $actions "ON xxx ON yyy" string
  * @return string UPDATE_* result code
  */
-function tableAddConstraint($table, $column, $refTable, $refColumn, $actions, $ignoreError = false)
+function tableAddConstraint($table, $column, $refTable, $refColumn, $actions, $ignoreError = false, $name = '')
 {
 	$test = tableExists($refTable) && tableHasColumn($refTable, $refColumn);
 	if ($test === false) {
@@ -194,7 +194,10 @@ function tableAddConstraint($table, $column, $refTable, $refColumn, $actions, $i
 				WHERE `$refTable`.`$refColumn` IS NULL");
 	}
 	// Need to create
-	$ret = Database::exec("ALTER TABLE `$table` ADD CONSTRAINT FOREIGN KEY (`$column`)
+	if (!empty($name)) {
+		$name = "`$name`";
+	}
+	$ret = Database::exec("ALTER TABLE `$table` ADD CONSTRAINT $name FOREIGN KEY (`$column`)
 			REFERENCES `$refTable` (`$refColumn`)
 			ON DELETE $delete ON UPDATE $update");
 	if ($ret === false) {

@@ -287,7 +287,7 @@ class Page_Exams extends Page
 		/* process form-data */
 		$locationids = Request::post('locations', [], "ARRAY");
 
-		/* global room has id 0 */
+		/* global room is 0/NULL */
 		if (empty($locationids)) {
 			$locationids[] = 0;
 		}
@@ -295,6 +295,9 @@ class Page_Exams extends Page
 		if (!$this->userCanEditLocation($locationids)) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=exams');
+		}
+		if ($locationids[0] === 0) {
+			$locationids[0] = null;
 		}
 
 		$examid = Request::post('examid', 0, 'int');
