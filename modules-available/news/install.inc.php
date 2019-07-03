@@ -32,11 +32,11 @@ $res[] = tableCreate('vmchooser_pages', "
 	KEY `all3` (`type`, `expires`, `dateline`)
 ");
 
-if (tableHasIndex('vmchooser_pages', ['dateline'])) {
+if (tableGetIndex('vmchooser_pages', ['dateline']) !== false) {
 	Database::exec('ALTER TABLE vmchooser_pages DROP KEY `dateline`');
 	Database::exec('ALTER TABLE vmchooser_pages ADD KEY `type` (`type`, `dateline`)');
 }
-if (!tableHasIndex('vmchooser_pages', ['type', 'expires', 'dateline'])) {
+if (tableGetIndex('vmchooser_pages', ['type', 'expires', 'dateline']) === false) {
 	Database::exec('ALTER TABLE vmchooser_pages ADD KEY `all3` (`type`, `expires`, `dateline`)');
 }
 if (!tableHasColumn('vmchooser_pages', 'expires')) {

@@ -60,7 +60,7 @@ function tableHasColumn($table, $column)
 	return false;
 }
 
-function tableHasIndex($table, $index)
+function tableGetIndex($table, $index)
 {
 	$table = preg_replace('/\W/', '', $table);
 	if (!is_array($index)) {
@@ -79,9 +79,9 @@ function tableHasIndex($table, $index)
 			}
 		}
 	}
-	foreach ($matches as $m) {
+	foreach ($matches as $key => $m) {
 		if ($m === count($index))
-			return true;
+			return $key;
 	}
 	return false;
 }

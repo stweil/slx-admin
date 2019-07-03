@@ -30,11 +30,11 @@ if (!tableHasColumn('clientlog', 'machineuuid')) {
 }
 
 // 2017-11-03: Create proper index for query in statistics module
-if (tableHasIndex('clientlog', ['machineuuid'])) {
+if (tableGetIndex('clientlog', ['machineuuid']) !== false) {
 	$r = Database::exec("ALTER TABLE `clientlog` DROP INDEX `machineuuid`");
 	$res[] = $r === false ? UPDATE_FAILED : UPDATE_DONE;
 }
-if (!tableHasIndex('clientlog', ['machineuuid', 'logid'])) {
+if (tableGetIndex('clientlog', ['machineuuid', 'logid']) === false) {
 	$r = Database::exec("ALTER TABLE `clientlog`
 		ADD INDEX `machineuuid` ( `machineuuid` , `logid` )");
 	$res[] = $r === false ? UPDATE_FAILED : UPDATE_DONE;
