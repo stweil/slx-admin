@@ -1,0 +1,12 @@
+{
+	"SLX_DNBD3_MIN_GB": {
+		"catid": "other",
+		"defaultvalue": "0",
+		"validator": "regex:\/^\\d*$\/"
+	},
+	"SLX_DNBD3_MIN_GB_HASH": {
+		"catid": "other",
+		"defaultvalue": "0",
+		"validator": "regex:\/^\\d*$\/"
+	}
+}
