@@ -1,5 +1,5 @@
 {
-    "SLX_ADDONS": "Addons to load. Currently, only *vmware* is available.",
+    "SLX_ADDONS": "Addons to load. Currently, *vmware* or *virtualbox* is available.\r\n\r\n*Hint*: With *vmware12* or *vmware15* you can enforce the usage of VMware Player 12.5.9 or 15.x; otherwise, the decision is made based on the CPU gen.",
     "SLX_AUTOLOGIN": "Skip login screen and directly show vmChooser (or start the lecture specified in SLX_AUTOSTART_UUID).",
     "SLX_AUTOSTART_UUID": "ID of a lecture which is automatically started. The lecture-ID is found in the detail window of a lecture in the bwLehrpool-Suite. \r\n\r\n*This solution is only temporary. In later versions this feature will probably be moved to another section*",
     "SLX_BIOS_CLOCK": "Specifies whether and how the internal clock of the computer should be set in relation to the system time of the \/MiniLinux\/.\r\n*off* = The internal clock of the computer is not changed.\r\n*local* = The internal clock is set to local time. Preferably if, for example, there is still a native Windows installation available on the PC.\r\n*utc* = The internal clock is set to the \/Coordinated Universal Time\/. This is the most common setup in a pure Linux environment.",
