@@ -12,10 +12,14 @@ class Exams
 		if (!is_array($locationIds)) {
 			$locationIds = array($locationIds);
 		}
-		$l = str_repeat(',?', count($locationIds));
+		if (empty($locationIds)) {
+			$locationIds[] = 0;
+		}
 		$res = Database::queryFirst("SELECT lectureid, autologin FROM exams"
 			. " INNER JOIN exams_x_location USING (examid)"
-			. " WHERE UNIX_TIMESTAMP() BETWEEN starttime AND endtime AND locationid IN (0$l) LIMIT 1", $locationIds);
+			. " WHERE UNIX_TIMESTAMP() BETWEEN starttime AND endtime AND (locationid IN (:lids) OR locationid IS NULL) LIMIT 1", [
+				'lids' => array_values($locationIds),
+		]);
 		if ($res !== false) {
 			$lectureId = $res['lectureid'];
 			$autoLogin = $res['autologin'];
