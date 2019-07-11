@@ -71,7 +71,7 @@ class Render
 		ob_start('ob_gzhandler');
 		echo
 		'<!DOCTYPE html>
-	<html>
+	<html lang="' . LANG . '">
 		<head>
 			<title>', $title, self::$title, (defined('CONFIG_PRODUCT_NAME_LONG') ? CONFIG_PRODUCT_NAME_LONG : 'OpenSLX Admin'), '</title>
 			<meta charset="utf-8"> 
