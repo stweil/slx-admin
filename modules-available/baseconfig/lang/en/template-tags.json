@@ -2,9 +2,7 @@
     "lang_basicConfiguration": "Basic Configuration",
     "lang_clientRelatedConfig": "The options on this page are related to the bwLehrpool client machines.",
     "lang_defaultValue": "Default",
-    "lang_discardChanges": "Discard Changes",
     "lang_editOverrideNotice": "You're editing the settings of a sub-section",
     "lang_enableOverride": "Override",
-    "lang_inheritSource": "Inherited from",
-    "lang_settingActive": "Enable setting"
+    "lang_inheritSource": "Inherited from"
 }
