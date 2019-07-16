@@ -499,7 +499,8 @@ optional:
 		if (!scaleFactor) {
 			scaleFactor = 1;
 		}
-		if (!v || !isFinite(v) || isNaN(v) || v < min * scaleFactor || v > max * scaleFactor) {
+		if (v === null || !isFinite(v) || isNaN(v) || v < min * scaleFactor || v > max * scaleFactor) {
+			console.log(property)
 			config[property] = defaultval * scaleFactor;
 		}
 	}
@@ -522,6 +523,7 @@ optional:
 
 		setRoomConfigFromUrl(config, 'calupdate', PARAM_INT, 60 * 1000);
 		setRoomConfigFromUrl(config, 'roomupdate', PARAM_INT, 1000);
+		setRoomConfigFromUrl(config, 'startday', PARAM_INT);
 		setRoomConfigFromUrl(config, 'daystoshow', PARAM_INT);
 		setRoomConfigFromUrl(config, 'scaledaysauto', PARAM_BOOL);
 		setRoomConfigFromUrl(config, 'vertical', PARAM_BOOL);
@@ -535,6 +537,7 @@ optional:
 		// parameter validation
 		putInRange(config, 'switchtime', 5, 120, 6, 1000);
 		putInRange(config, 'scale', 10, 90, 50);
+		putInRange(config, 'startday', 0, 7, 0);
 		putInRange(config, 'daystoshow', 1, 7, 7);
 		putInRange(config, 'roomupdate', 15, 5 * 60, 60, 1000);
 		putInRange(config, 'calupdate', 1, 60, 30, 60 * 1000);
@@ -738,6 +741,9 @@ optional:
 	 */
 	function setUpCalendar(room) {
 		var daysToShow = room.config.daystoshow;
+		var startDay = room.config.startday;
+		var startDayDate = new Date();
+		if (startDay > 0) startDayDate.setDate((startDayDate.getDate() - (startDayDate.getDay() + 6) % 7) + (startDay - 1));
 		generateCalendarDiv(room);
 		room.$.calendar.weekCalendar({
 			timeslotsPerHour: 1,
@@ -765,7 +771,7 @@ optional:
 					$event.find(".time").css({"backgroundColor": "#25B002", "border": "1px solid #888"});
 				}
 			},
-			date: MyDate(),
+			date: startDayDate,
 			dateFormat: "j.n",
 			timeFormat: "G:i",
 			scrollToHourMillis: 500,

@@ -373,9 +373,10 @@ class CourseBackend_HisInOne extends CourseBackend
 	private function getCurrentWeekDates()
 	{
 		$returnValue = array();
-		$startDate = time();
-		for ($i = 0; $i < 7; $i++) {
-			$returnValue[] = date('Y-m-d', strtotime("+{$i} day 12:00", $startDate));
+		$date = date('Y-m-d', strtotime('last Monday'));
+		for ($i = 0; $i < 14; $i++) {
+			$returnValue[] = $date;
+			$date = date('Y-m-d', strtotime($date.' +1 day'));
 		}
 		return $returnValue;
 	}

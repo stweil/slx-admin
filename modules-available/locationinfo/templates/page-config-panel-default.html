@@ -194,6 +194,31 @@
 							<div class="list-group-item m1-s m2-s m3-h m4-s">
 								<div class="row">
 									<div class="col-sm-3">
+										<label for="startday">{{lang_startDay}}</label>
+									</div>
+									<div class="col-sm-7">
+										<select class="form-control" id="startday" name="startday">
+											<option value="0">{{lang_currentDay}}</option>
+											<option value="1">{{lang_monday}}</option>
+											<option value="2">{{lang_thuesday}}</option>
+											<option value="3">{{lang_wednesday}}</option>
+											<option value="4">{{lang_thursday}}</option>
+											<option value="5">{{lang_friday}}</option>
+											<option value="6">{{lang_saturday}}</option>
+											<option value="7">{{lang_sunday}}</option>
+										</select>
+									</div>
+									<div class="col-sm-2">
+										<p class="btn btn-static helptext" title="{{lang_startDayTooltip}}">
+											<span class="glyphicon glyphicon-question-sign"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<div class="list-group-item m1-s m2-s m3-h m4-s">
+								<div class="row">
+									<div class="col-sm-3">
 										<label for="scaledaysauto">{{lang_autoScale}}</label>
 									</div>
 									<div class="col-sm-7">
@@ -385,6 +410,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		addLocation(lids[i], $name.text());
 	}
 
+	$('#startday option[value="{{startday}}"]').attr("selected", "selected");
 	$('#daystoshow option[value="{{daystoshow}}"]').attr("selected", "selected");
 	$('#rotation option[value="{{rotation}}"]').attr("selected", "selected");
 	$('#mode option[value="{{mode}}"]').attr("selected", "selected");
@@ -475,6 +501,11 @@ document.addEventListener("DOMContentLoaded", function () {
 			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_verticalTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
 			'</div></div>'));
 		$content.append($('<div class="list-group-item om1-s om2-s om3-h om4-s"><div class="row">' +
+			'<div class="col-sm-3"><label for="override' + id + 'startday">{{lang_startDay}}</label></div>' +
+			'<div class="col-sm-7"><select class="form-control" id="override' + id + 'startday" name="override' + id + 'startday"><option value="0">{{lang_currentDay}}</option><option value="1">{{lang_monday}}</option><option value="2">{{lang_thuesday}}</option><option value="3">{{lang_wednesday}}</option><option value="4">{{lang_thursday}}</option><option value="5">{{lang_friday}}</option><option value="6">{{lang_saturday}}</option><option value="7">{{lang_sunday}}</option></select></div>' +
+			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_startDayTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
+			'</div></div>'));
+		$content.append($('<div class="list-group-item om1-s om2-s om3-h om4-s"><div class="row">' +
 			'<div class="col-sm-3"><label for="override' + id + 'scaledaysauto">{{lang_autoScale}}</label></div>' +
 			'<div class="col-sm-7"><input id="override' + id + 'scaledaysauto" name="override' + id + 'scaledaysauto" type="checkbox"></div>' +
 			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_autoscaleTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
@@ -514,6 +545,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			$('#override' + id + 'roomplanner').val(overrides[id].roomplanner ? 1 : 0);
 			if (overrides[id].vertical) $('#override' + id + 'vertical').bootstrapSwitch('state', true);
 			if (overrides[id].scaledaysauto) $('#override' + id + 'scaledaysauto').bootstrapSwitch('state', true);
+			$('#override' + id + 'startday').val(overrides[id].startday);
 			$('#override' + id + 'daystoshow').val(overrides[id].daystoshow);
 			$('#override' + id + 'rotation').val(overrides[id].rotation);
 			scale.val(overrides[id].scale);
@@ -522,6 +554,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			$('#override' + id + 'roomplanner').val($('#input-roomplanner').val());
 			if ($('#input-vertical').bootstrapSwitch('state')) $('#override' + id + 'vertical').bootstrapSwitch('state', true);
 			if ($('#scaledaysauto').bootstrapSwitch('state')) $('#override' + id + 'scaledaysauto').bootstrapSwitch('state', true);
+			console.log($('#startday').val())
+			$('#override' + id + 'startday').val($('#startday').val());
 			$('#override' + id + 'daystoshow').val($('#daystoshow').val());
 			$('#override' + id + 'rotation').val($('#rotation').val());
 			scale.val($('#input-scale').val());
