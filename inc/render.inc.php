@@ -152,26 +152,6 @@ class Render
 	}
 
 	/**
-	 * Add given js script file from the script directory to the header
-	 *
-	 * @param string $file file name of script
-	 */
-	public static function addScriptTop($file)
-	{
-		trigger_error('Ignoring addScriptTop for ' . $file . ': Deprecated, use module-specific clientscript.js', E_USER_WARNING);
-	}
-
-	/**
-	 * Add given js script file from the script directory to the bottom
-	 *
-	 * @param string $file file name of script
-	 */
-	public static function addScriptBottom($file)
-	{
-		trigger_error('Ignoring addScriptBottom for ' . $file . ': Deprecated, use module-specific clientscript.js', E_USER_WARNING);
-	}
-
-	/**
 	 * Add the given template to the output, using the given params for placeholders in the template
 	 */
 	public static function addTemplate($template, $params = false, $module = false)
