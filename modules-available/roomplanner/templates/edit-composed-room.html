@@ -1,0 +1,150 @@
+<h1>{{lang_editComposedRoom}}</h1>
+<h2>{{location.locationname}}</h2>
+
+<form id="main-form" method="post" action="?do=roomplanner&amp;locationid={{location.locationid}}">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="isleaf" value="0">
+	<input type="hidden" name="action" value="save">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<div class="checkbox">
+				<input id="check-enable" type="checkbox" name="enabled" value="1" {{enabled_checked}}>
+				<label for="check-enable">{{lang_exposeAsComposedRoom}}</label>
+			</div>
+		</div>
+		<div class="panel-body">
+			<div id="main-controls">
+				<h4>{{lang_composedLayout}}</h4>
+				<div class="radio radio-inline">
+					<input id="type-horz" type="radio" name="orientation" value="horizontal" {{horizontal_checked}}>
+					<label for="type-horz">{{lang_horizontal}}</label>
+				</div>
+				<div class="radio radio-inline">
+					<input id="type-vert" type="radio" name="orientation" value="vertical" {{vertical_checked}}>
+					<label for="type-vert">{{lang_vertical}}</label>
+				</div>
+				<br><br>
+				<div id="roomsort">
+					{{#locations}}
+						<div class="box1">
+							<div class="box2">
+								<div class="name text-nowrap small">{{locationname}}</div>
+								<div class="img">
+									<input type="hidden" class="sort-val" name="sort[{{locationid}}]">
+									<img src="api.php?do=roomplanner&amp;show=svg&amp;locationid={{locationid}}&amp;scale=2.2">
+								</div>
+								<div class="clearfix"></div>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					{{/locations}}
+				</div>
+				<div class="clearfix"></div>
+				<br>
+				<h4>{{lang_controllingRoom}}</h4>
+				<p>{{lang_controlRoomDesc}}</p>
+				{{#locations}}
+					<div>
+						<div class="radio">
+							<input id="control-{{locationid}}" type="radio" name="controlroom"
+									 value="{{locationid}}" {{checked}}>
+							<label for="control-{{locationid}}">{{locationname}}</label>
+						</div>
+					</div>
+				{{/locations}}
+			</div>
+			<div class="buttonbar pull-right">
+				<button type="button" class="btn btn-default" id="btn-cancel">
+					{{lang_cancel}}
+				</button>
+				<button id="btn-save" type="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
+			</div>
+			<div class="clearfix"></div>
+			<div class="alert alert-danger" style="display:none" id="error-msg"></div>
+			<div class="alert alert-success" style="display:none" id="success-msg">{{lang_planSuccessfullySaved}}</div>
+			<div class="alert alert-info" style="display:none" id="saving-msg">{{lang_planBeingSaved}}</div>
+		</div>
+	</div>
+</form>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+
+		var reassignSortValues = function () {
+			var startValue = 1;
+			$('.sort-val').each(function (index, element) {
+				element.value = startValue * 10;
+				startValue++;
+			});
+		};
+
+		var $rs = $('#roomsort');
+		var $mc = $('#main-controls');
+
+		$rs.disableSelection().sortable({
+			opacity: 0.8,
+			start: function (evt, ui) {
+				ui.placeholder.css("visibility", "visible");
+				ui.placeholder.css("opacity", "0.352");
+				ui.placeholder.css("background-color", "#ddd");
+			},
+			stop: reassignSortValues
+		});
+
+		var setLayout = function () {
+			$rs.removeClass('horizontal vertical').addClass($('input[name=orientation]:checked').val());
+		};
+		$('input[name=orientation]').change(setLayout);
+
+		$('#btn-cancel').click(function () {
+			window.close();
+		});
+
+		var $ce = $('#check-enable');
+
+		var checkEnable = function () {
+			if ($ce.is(':checked')) {
+				$mc.show();
+			} else {
+				$mc.hide();
+			}
+		};
+
+		$ce.change(checkEnable);
+
+		var $mf = $('#main-form');
+		var $sb = $('#btn-save');
+		var success = false;
+		$sb.click(function(e) {
+			$sb.prop('disabled', true);
+			$('#error-msg').hide();
+			$('#success-msg').hide();
+			$('#saving-msg').show();
+			var str = $mf.serialize();
+			$.post($mf.attr('action'), str).done(function (data) {
+				if (data.indexOf('SUCCESS') !== -1) {
+					window.close();
+					// If window.close() failed, we give some feedback and remember the state as saved
+					$('#success-msg').show();
+					success = true;
+					return;
+				}
+				$('#error-msg').text('Error: ' + data).show();
+			}).fail(function (jq, textStatus, errorThrown) {
+				$('#error-msg').text('AJAX save call failed: ' + textStatus + ' (' + errorThrown + ')').show();
+			}).always(function() {
+				$sb.prop('disabled', success);
+				$('#saving-msg').hide();
+			});
+			e.preventDefault();
+		});
+
+		setLayout();
+		reassignSortValues();
+		checkEnable();
+
+	});
+</script>

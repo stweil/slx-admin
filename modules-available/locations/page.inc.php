@@ -545,7 +545,7 @@ class Page_Locations extends Page
 			'locationid' => $loc['locationid'],
 			'locationname' => $loc['locationname'],
 			'list' => $rows,
-			'roomplanner' => Module::get('roomplanner') !== false && Location::isLeaf($locationId),
+			'roomplanner' => Module::get('roomplanner') !== false,
 			'parents' => Location::getLocations($loc['parentlocationid'], $locationId, true)
 		);
 

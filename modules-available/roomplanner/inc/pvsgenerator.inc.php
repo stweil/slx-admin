@@ -156,7 +156,7 @@ class PvsGenerator
 	 * @param int $rotate rotate plan (0-3 for N E S W up, -1 for "auto" if highlightUuid is given)
 	 * @return string SVG
 	 */
-	public static function generateSvg($locationId = false, $highlightUuid = false, $rotate = 0)
+	public static function generateSvg($locationId = false, $highlightUuid = false, $rotate = 0, $scale = 1)
 	{
 		if ($locationId === false) {
 			$locationId = Database::queryFirst('SELECT fixedlocationid FROM machine
@@ -215,8 +215,9 @@ class PvsGenerator
 			self::swap($sizeX, $sizeY);
 		}
 		return Render::parse('svg-plan', [
-			'width' => $sizeX,
-			'height' => $sizeY,
+			'scale' => $scale,
+			'width' => $sizeX * $scale,
+			'height' => $sizeY * $scale,
 			'centerX' => $centerX,
 			'centerY' => $centerY,
 			'rotate' => $rotate * 90,

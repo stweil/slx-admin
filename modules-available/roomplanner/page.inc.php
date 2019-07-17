@@ -18,11 +18,20 @@ class Page_Roomplanner extends Page
 	 */
 	private $action = false;
 
+	/**
+	 * @var bool is this a leaf node, with a real room plan, or something in between with a composed plan
+	 */
+	private $isLeaf;
+
 	private function loadRequestedLocation()
 	{
 		$this->locationid = Request::get('locationid', false, 'integer');
 		if ($this->locationid !== false) {
-			$this->location = Location::get($this->locationid);
+			$locs = Location::getLocationsAssoc();
+			if (isset($locs[$this->locationid])) {
+				$this->location = $locs[$this->locationid];
+				$this->isLeaf = empty($this->location['children']);
+			}
 		}
 	}
 
@@ -58,48 +67,93 @@ class Page_Roomplanner extends Page
 		if ($this->action === 'show') {
 			/* do nothing */
 			Dashboard::disable();
-			$config = Database::queryFirst('SELECT roomplan, managerip, tutoruuid FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
-			$runmode = RunMode::getForMode(Page::getModule(), $this->locationid, true);
-			if (empty($runmode)) {
-				$config['dedicatedmgr'] = false;
+			if ($this->isLeaf) {
+				$this->showLeafEditor();
 			} else {
-				$runmode = array_pop($runmode);
-				$config['managerip'] = $runmode['clientip'];
-				$config['manageruuid'] = $runmode['machineuuid'];
-				$data = json_decode($runmode['modedata'], true);
-				$config['dedicatedmgr'] = (isset($data['dedicatedmgr']) && $data['dedicatedmgr']);
+				$this->showComposedEditor();
 			}
-			if ($config !== false) {
-				$managerIp = $config['managerip'];
-				$dediMgr = $config['dedicatedmgr'] ? 'checked' : '';
-			} else {
-				$dediMgr = $managerIp = '';
-			}
-			$furniture = $this->getFurniture($config);
-			$subnetMachines = $this->getPotentialMachines();
-			$machinesOnPlan = $this->getMachinesOnPlan($config['tutoruuid']);
-			$roomConfig = array_merge($furniture, $machinesOnPlan);
-			$canEdit = User::hasPermission('edit', $this->locationid);
-			$params = [
-				'location' => $this->location,
-				'managerip' => $managerIp,
-				'dediMgrChecked' => $dediMgr,
-				'subnetMachines' => json_encode($subnetMachines),
-				'locationid' => $this->locationid,
-				'roomConfiguration' => json_encode($roomConfig),
-				'edit_disabled' => $canEdit ? '' : 'disabled',
-				'statistics_disabled' => Module::get('statistics') !== false && User::hasPermission('.statistics.machine.view-details') ? '' : 'disabled',
-			];
-			Render::addTemplate('header', $params);
-			if ($canEdit) {
-				Render::addTemplate('item-selector', $params);
-			}
-			Render::addTemplate('main-roomplan', $params);
-			Render::addTemplate('footer', $params);
 		} else {
 			Message::addError('main.invalid-action', $this->action);
 		}
+	}
 
+	private function showLeafEditor()
+	{
+		$config = Database::queryFirst('SELECT roomplan, managerip, tutoruuid FROM location_roomplan WHERE locationid = :locationid', ['locationid' => $this->locationid]);
+		$runmode = RunMode::getForMode(Page::getModule(), $this->locationid, true);
+		if (empty($runmode)) {
+			$config['dedicatedmgr'] = false;
+		} else {
+			$runmode = array_pop($runmode);
+			$config['managerip'] = $runmode['clientip'];
+			$config['manageruuid'] = $runmode['machineuuid'];
+			$data = json_decode($runmode['modedata'], true);
+			$config['dedicatedmgr'] = (isset($data['dedicatedmgr']) && $data['dedicatedmgr']);
+		}
+		if ($config !== false) {
+			$managerIp = $config['managerip'];
+			$dediMgr = $config['dedicatedmgr'] ? 'checked' : '';
+		} else {
+			$dediMgr = $managerIp = '';
+		}
+		$furniture = $this->getFurniture($config);
+		$subnetMachines = $this->getPotentialMachines();
+		$machinesOnPlan = $this->getMachinesOnPlan($config['tutoruuid']);
+		$roomConfig = array_merge($furniture, $machinesOnPlan);
+		$canEdit = User::hasPermission('edit', $this->locationid);
+		$params = [
+			'location' => $this->location,
+			'managerip' => $managerIp,
+			'dediMgrChecked' => $dediMgr,
+			'subnetMachines' => json_encode($subnetMachines),
+			'locationid' => $this->locationid,
+			'roomConfiguration' => json_encode($roomConfig),
+			'edit_disabled' => $canEdit ? '' : 'disabled',
+			'statistics_disabled' => Module::get('statistics') !== false && User::hasPermission('.statistics.machine.view-details') ? '' : 'disabled',
+		];
+		Render::addTemplate('header', $params);
+		if ($canEdit) {
+			Render::addTemplate('item-selector', $params);
+		}
+		Render::addTemplate('main-roomplan', $params);
+		Render::addTemplate('footer', $params);
+	}
+
+	private function showComposedEditor()
+	{
+		// Load settings
+		$row = Database::queryFirst("SELECT roomplan FROM location_roomplan WHERE locationid = :lid", [
+			'lid' => $this->locationid,
+		]);
+		$room = new ComposedRoom($row);
+		$params = [
+			'location' => $this->location,
+			'locations' => [],
+			$room->orientation . '_checked' => 'checked',
+		];
+		if ($room->enabled) {
+			$params['enabled_checked'] = 'checked';
+		}
+		$inverseList = array_flip($room->list);
+		$sortList = [];
+		// Load locations
+		$locs = Location::getLocationsAssoc();
+		foreach ($this->location['children'] as $loc) {
+			if (isset($locs[$loc])) {
+				$data = $locs[$loc];
+				if (isset($inverseList[$loc])) {
+					$sortList[] = $inverseList[$loc];
+				} else {
+					$sortList[] = 1000 + $loc;
+				}
+				if ($loc === $room->controlRoom) {
+					$data['checked'] = 'checked';
+				}
+				$params['locations'][] = $data;
+			}
+		}
+		array_multisort($sortList, SORT_ASC | SORT_NUMERIC, $params['locations']);
+		Render::addTemplate('edit-composed-room', $params);
 	}
 
 	protected function doAjax()
@@ -160,6 +214,25 @@ class Page_Roomplanner extends Page
 	private function handleSaveRequest($isAjax)
 	{
 		User::assertPermission('edit', $this->locationid);
+		$leaf = (bool)Request::post('isleaf', 1, 'int');
+		if ($leaf !== $this->isLeaf) {
+			if ($isAjax) {
+				die('Leaf mode mismatch. Did you restructure locations while editing this room?');
+			} else {
+				Message::addError('leaf-mode-mismatch');
+				Util::redirect("?do=roomplanner&locationid={$this->locationid}&action=show");
+			}
+			return;
+		}
+		if ($this->isLeaf) {
+			$this->saveLeafRoom($isAjax);
+		} else {
+			$this->saveComposedRoom($isAjax);
+		}
+	}
+
+	private function saveLeafRoom($isAjax)
+	{
 		$machinesOnPlan = $this->getMachinesOnPlan('invalid');
 		$config = Request::post('serializedRoom', null, 'string');
 		$config = json_decode($config, true);
@@ -187,6 +260,28 @@ class Page_Roomplanner extends Page
 		}
 		$this->saveRoomConfig($config['furniture'], $tutorUuid);
 		$this->saveComputerConfig($config['computers'], $machinesOnPlan);
+	}
+
+	private function saveComposedRoom($isAjax)
+	{
+		$room = new ComposedRoom(null);
+		$room->orientation = Request::post('orientation', 'horizontal', 'string');
+		$room->enabled = (bool)Request::post('enabled', 0, 'int');
+		$room->controlRoom = Request::post('controlroom', 0, 'int');
+		$vals = Request::post('sort', [], 'array');
+		asort($vals, SORT_ASC | SORT_NUMERIC);
+		$room->list = array_keys($vals);
+		$res = Database::exec('INSERT INTO location_roomplan (locationid, roomplan)
+				VALUES (:lid, :plan) ON DUPLICATE KEY UPDATE roomplan = VALUES(roomplan)',
+			['lid' => $this->locationid, 'plan' => $room->serialize()]);
+		if (!$res) {
+			if ($isAjax) {
+				die('Error writing config to DB');
+			} else {
+				Message::addError('db-error');
+				Util::redirect("?do=roomplanner&locationid={$this->locationid}&action=show");
+			}
+		}
 	}
 
 	private function sanitizeNumber(&$number, $lower, $upper)

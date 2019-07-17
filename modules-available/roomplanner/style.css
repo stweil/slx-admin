@@ -23,6 +23,41 @@ body {
 
 /* end full screen changes */
 
+/* sort mode for composed rooms */
+
+#roomsort div.img {
+	border: none;
+}
+
+div.box1 {
+	padding: 2px;
+}
+
+div.horizontal div.box1 {
+	float: left;
+	display: inline-table;
+}
+
+div.horizontal div.name {
+	width: 5px;
+	overflow: visible;
+	height: 1em;
+}
+
+div.vertical div.box2 {
+	float: left;
+}
+
+div.vertical div.name {
+	float: right;
+}
+
+div.vertical div.img {
+	float: left;
+}
+
+/* end sort mode for composed rooms */
+
 #drawpanel {
 	position:relative;}
 
