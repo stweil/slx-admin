@@ -104,8 +104,8 @@ class CourseBackend_Dummy extends CourseBackend
 			}
 			// Normal
 			$x = array();
-			$time = strtotime('today');
-			$end = strtotime('+7 days', $time);
+			$time = strtotime('last Monday');
+			$end = strtotime('+14 days', $time);
 			srand(crc32($id) ^ $time);
 			$last = $time;
 			do {

@@ -99,8 +99,8 @@ class CourseBackend_Davinci extends CourseBackend
 
 	public function fetchSchedulesInternal($requestedRoomIds)
 	{
-		$startDate = new DateTime('today 0:00');
-		$endDate = new DateTime('+7 days 0:00');
+		$startDate = new DateTime('last Monday 0:00');
+		$endDate = new DateTime('+14 days 0:00');
 		$lower = (int)$startDate->format('Ymd');
 		$upper = (int)$endDate->format('Ymd');
 		$schedules = [];

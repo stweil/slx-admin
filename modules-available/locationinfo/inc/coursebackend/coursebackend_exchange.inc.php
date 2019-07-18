@@ -157,8 +157,8 @@ class CourseBackend_Exchange extends CourseBackend
 	 */
 	protected function fetchSchedulesInternal($requestedRoomIds)
 	{
-		$startDate = new DateTime('today 0:00');
-		$endDate = new DateTime('+7 days 0:00');
+		$startDate = new DateTime('last Monday 0:00');
+		$endDate = new DateTime('+14 days 0:00');
 		$client = $this->getClient();
 
 		$schedules = [];
