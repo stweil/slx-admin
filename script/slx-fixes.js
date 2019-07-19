@@ -108,11 +108,17 @@ $(document).ready(function() {
 });
 
 // Caching script fetcher (https://api.jquery.com/jQuery.getScript/); use exactly like $.getScript
-jQuery.cachedScript = function(url, options) {
+jQuery.cachedScript = function(url, callback, options) {
+	if (!$.isFunction(callback)) {
+		options = callback;
+		callback = undefined;
+	}
 	options = $.extend( options || {}, {
+		type: "get",
 		dataType: "script",
 		cache: true,
-		url: url
+		url: url,
+		success: callback
 	});
 	return jQuery.ajax( options );
 };
