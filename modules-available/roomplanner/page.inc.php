@@ -268,7 +268,7 @@ class Page_Roomplanner extends Page
 		$res = Database::exec('INSERT INTO location_roomplan (locationid, roomplan)
 				VALUES (:lid, :plan) ON DUPLICATE KEY UPDATE roomplan = VALUES(roomplan)',
 			['lid' => $this->locationid, 'plan' => $room->serialize()]);
-		if (!$res) {
+		if ($res === false) {
 			if ($isAjax) {
 				die('Error writing config to DB');
 			} else {
