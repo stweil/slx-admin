@@ -122,23 +122,23 @@ class Page_Roomplanner extends Page
 	private function showComposedEditor()
 	{
 		// Load settings
-		$row = Database::queryFirst("SELECT roomplan FROM location_roomplan WHERE locationid = :lid", [
+		$row = Database::queryFirst("SELECT locationid, roomplan FROM location_roomplan WHERE locationid = :lid", [
 			'lid' => $this->locationid,
 		]);
 		$room = new ComposedRoom($row);
 		$params = [
 			'location' => $this->location,
 			'locations' => [],
-			$room->orientation . '_checked' => 'checked',
+			$room->orientation() . '_checked' => 'checked',
 		];
-		if ($room->enabled) {
+		if (!$room->shouldSkip()) {
 			$params['enabled_checked'] = 'checked';
 		}
-		$inverseList = array_flip($room->list);
+		$inverseList = array_flip($room->subLocationIds());
 		$sortList = [];
 		// Load locations
 		$locs = Location::getLocationsAssoc();
-		foreach ($this->location['children'] as $loc) {
+		foreach ($this->location['directchildren'] as $loc) {
 			if (isset($locs[$loc])) {
 				$data = $locs[$loc];
 				if (isset($inverseList[$loc])) {
@@ -146,7 +146,7 @@ class Page_Roomplanner extends Page
 				} else {
 					$sortList[] = 1000 + $loc;
 				}
-				if ($loc === $room->controlRoom) {
+				if ($loc === $room->controlRoom()) {
 					$data['checked'] = 'checked';
 				}
 				$params['locations'][] = $data;
@@ -264,13 +264,7 @@ class Page_Roomplanner extends Page
 
 	private function saveComposedRoom($isAjax)
 	{
-		$room = new ComposedRoom(null);
-		$room->orientation = Request::post('orientation', 'horizontal', 'string');
-		$room->enabled = (bool)Request::post('enabled', 0, 'int');
-		$room->controlRoom = Request::post('controlroom', 0, 'int');
-		$vals = Request::post('sort', [], 'array');
-		asort($vals, SORT_ASC | SORT_NUMERIC);
-		$room->list = array_keys($vals);
+		$room = new ComposedRoom(true);
 		$res = Database::exec('INSERT INTO location_roomplan (locationid, roomplan)
 				VALUES (:lid, :plan) ON DUPLICATE KEY UPDATE roomplan = VALUES(roomplan)',
 			['lid' => $this->locationid, 'plan' => $room->serialize()]);

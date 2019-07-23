@@ -87,11 +87,13 @@ class Location
 		}
 		$output = array();
 		foreach ($tree as $node) {
+			$cc = empty($node['children']) ? array() : array_map(function ($item) { return (int)$item['locationid']; }, $node['children']);
 			$output[(int)$node['locationid']] = array(
 				'locationid' => (int)$node['locationid'],
 				'parentlocationid' => (int)$node['parentlocationid'],
 				'parents' => $parents,
-				'children' => empty($node['children']) ? array() : array_map(function ($item) { return (int)$item['locationid']; }, $node['children']),
+				'children' => $cc,
+				'directchildren' => $cc,
 				'locationname' => $node['locationname'],
 				'depth' => $depth,
 				'isleaf' => true,

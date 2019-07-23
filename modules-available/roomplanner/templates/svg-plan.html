@@ -33,9 +33,9 @@
 			<stop offset="100%" stop-color="#074" />
 		</radialGradient>
 	</defs>
-	<g transform="scale({{scale}}) rotate({{rotate}} {{centerX}} {{centerY}}) translate({{shiftX}} {{shiftY}})">
-		<line x1="{{line.x1}}" y1="{{line.y1}}"
-				x2="{{line.x2}}" y2="{{line.y2}}"
+	<g transform="scale({{scale}}) rotate({{rotate}} {{centerX}} {{centerY}})">
+		<line x1="0" y1="{{line.y}}"
+				x2="{{line.x}}" y2="{{line.y}}"
 				style="stroke:#555;stroke-width:.2;opacity:.5" />
 		{{#machines}}
 			<g transform="translate({{gridCol}} {{gridRow}})">
