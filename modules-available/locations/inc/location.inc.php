@@ -44,8 +44,10 @@ class Location
 	 */
 	public static function getName($locationId)
 	{
-		self::getLocationsAssoc();
 		$locationId = (int)$locationId;
+		if (self::$assocLocationCache === false) {
+			self::getLocationsAssoc();
+		}
 		if (!isset(self::$assocLocationCache[$locationId]))
 			return false;
 		return self::$assocLocationCache[$locationId]['locationname'];
@@ -59,8 +61,10 @@ class Location
 	 */
 	public static function getNameChain($locationId)
 	{
-		self::getLocationsAssoc();
-		settype($locationId, 'int');
+		if (self::$assocLocationCache === false) {
+			self::getLocationsAssoc();
+		}
+		$locationId = (int)$locationId;
 		if (!isset(self::$assocLocationCache[$locationId]))
 			return false;
 		$ret = array();
@@ -117,9 +121,7 @@ class Location
 
 	public static function getLocations($selected = 0, $excludeId = 0, $addNoParent = false, $keepArrayKeys = false)
 	{
-		if (is_string($selected)) {
-			settype($selected, 'int');
-		}
+		$selected = (int)$selected;
 		if (self::$flatLocationCache === false) {
 			$rows = self::getTree();
 			$rows = self::flattenTree($rows);
@@ -245,7 +247,7 @@ class Location
 			. 'FROM location '
 			. 'WHERE parentlocationid = :locationid', ['locationid' => $locationid]);
 		$result = $result['isleaf'];
-		settype($result, 'bool');
+		$result = (bool)$result;
 		return $result;
 	}
 
@@ -355,31 +357,34 @@ class Location
 	 */
 	public static function getLocationRootChain($locationId)
 	{
-		settype($locationId, 'integer');
-		$locations = Location::getLocationsAssoc();
-		$find = $locationId;
-		$matchingLocations = array();
-		while (isset($locations[$find]) && !in_array($find, $matchingLocations)) {
-			$matchingLocations[] = $find;
-			$find = (int)$locations[$find]['parentlocationid'];
+		$locationId = (int)$locationId;
+		if (self::$assocLocationCache === false) {
+			self::getLocationsAssoc();
 		}
-		return $matchingLocations;
+		if (!isset(self::$assocLocationCache[$locationId]))
+			return [];
+		$chain = self::$assocLocationCache[$locationId]['parents'];
+		$chain[] = $locationId;
+		return array_reverse($chain);
 	}
 
 	/**
+	 * Used for baseconfig hook
 	 * @param $locationId
 	 * @return bool|array ('value' => x, 'display' => y), false if no parent or unknown id
 	 */
 	public static function getBaseconfigParent($locationId)
 	{
-		settype($locationId, 'integer');
-		$locations = Location::getLocationsAssoc();
-		if (!isset($locations[$locationId]))
+		$locationId = (int)$locationId;
+		if (self::$assocLocationCache === false) {
+			self::getLocationsAssoc();
+		}
+		if (!isset(self::$assocLocationCache[$locationId]))
 			return false;
-		$locationId = (int)$locations[$locationId]['parentlocationid'];
-		if (!isset($locations[$locationId]))
+		$locationId = (int)self::$assocLocationCache[$locationId]['parentlocationid'];
+		if (!isset(self::$assocLocationCache[$locationId]))
 			return false;
-		return array('value' => $locationId, 'display' => $locations[$locationId]['locationname']);
+		return array('value' => $locationId, 'display' => self::$assocLocationCache[$locationId]['locationname']);
 	}
 
 	/**
