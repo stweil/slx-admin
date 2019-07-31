@@ -43,6 +43,9 @@ class AutoLocation
 			Database::exec("UPDATE machine SET subnetlocationid = :lid WHERE machineuuid IN (:machines)",
 				['lid' => $lid, 'machines' => $machines]);
 		}
+		// While we're at it, try to fix invalid entries, having a fixedlocationid but no actual position information
+		Database::exec('UPDATE machine SET fixedlocationid = NULL
+				WHERE fixedlocationid IS NOT NULL AND Length(position) = 0');
 	}
 
 }

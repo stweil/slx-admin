@@ -1,10 +1,10 @@
 <div>
 	<div class="btn-group pull-right">
-		<a href="?do=Locations&amp;action=showlocations" class="btn btn-default active">
+		<a href="?do=Locations&amp;page=locations" class="btn btn-default active">
 			<span class="glyphicon glyphicon-home"></span>
 			{{lang_thisListByLocation}}
 		</a>
-		<a href="?do=Locations&amp;action=showsubnets" class="btn btn-default {{perms.subnets.edit.disabled}}">
+		<a href="?do=Locations&amp;page=subnets" class="btn btn-default {{perms.subnets.edit.disabled}}">
 			<span class="glyphicon glyphicon-list-alt"></span>
 			{{lang_thisListBySubnet}}
 		</a>
@@ -21,6 +21,12 @@
 			{{lang_locationOtherOverlap}}: <b>{{name1}}</b> – <b>{{name2}}</b>
 		</div>
 	{{/overlapOther}}
+	{{#mismatchMachines}}
+		<div class="alert alert-danger">
+			<div class="pull-right"><a href="?do=locations&amp;page=cleanup&amp;locationid={{locationid}}">{{lang_fixMachineAssign}} &raquo;</a></div>
+			{{lang_locationMismatch}}: <b>{{locationname}}</b> ({{lang_machineCount}}: <b>{{count}}</b>)
+		</div>
+	{{/mismatchMachines}}
 
 	<table class="table table-condensed locations" style="margin-bottom:0">
 		<tr>
@@ -121,6 +127,7 @@
 	</table>
 	<form method="post" action="?do=Locations">
 		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="page" value="locations">
 		<input type="hidden" name="action" value="addlocations">
 		<table class="table table-condensed">
 			<tr id="lasttr">
@@ -187,7 +194,7 @@ function slxOpenLocation(e, lid) {
 	var tr = $('<tr>').attr('id', 'location-details-' + lid);
 	tr.append(td);
 	$(e).closest('tr').addClass('active slx-bold').after(tr);
-	td.load('?do=Locations&action=showlocation&locationid=' + lid, function() {
+	td.load('?do=Locations&page=details&action=showlocation&locationid=' + lid, function() {
 		slxAttachCidr();
 		scollIntoView(tr);
 	});

@@ -329,24 +329,28 @@ class Location
 			if ($uuid !== false) {
 				// Machine ip maps to a location, and we have a client supplied uuid (which might not be known if the client boots for the first time)
 				$uuidLoc = self::getFromMachineUuid($uuid);
-				if ($uuidLoc === $ipLoc) {
+				if (self::isUuidLocationValid($uuidLoc, $ipLoc)) {
 					$locationId = $uuidLoc;
-				} else if ($uuidLoc !== false) {
-					// Validate that the location the IP maps to is in the chain we get using the
-					// location determined by the uuid
-					$uuidLocations = self::getLocationRootChain($uuidLoc);
-					$ipLocations = self::getLocationRootChain($ipLoc);
-					if (in_array($uuidLoc, $ipLocations) // UUID loc is further up, OK
-						|| (in_array($ipLoc, $uuidLocations) && count($ipLocations) + 1 >= count($uuidLocations)) // UUID is max one level deeper than IP loc, accept as well
-					) {
-						// Close enough, allow
-						$locationId = $uuidLoc;
-					}
-					// UUID and IP disagree too much, play safe and ignore the UUID
 				}
 			}
 		}
 		return $locationId;
+	}
+
+	public static function isUuidLocationValid($uuidLoc, $ipLoc)
+	{
+		if ($ipLoc !== false && $uuidLoc !== false && $uuidLoc !== $ipLoc) {
+			// Validate that the location the IP maps to is in the chain we get using the
+			// location determined by the uuid
+			$uuidLocations = self::getLocationRootChain($uuidLoc);
+			$ipLocations = self::getLocationRootChain($ipLoc);
+			if (count($ipLocations) + 2 >= count($uuidLocations) && in_array($ipLoc, $uuidLocations)) {
+				// UUID is max one level deeper than IP loc, accept
+				return true;
+			}
+			// UUID and IP disagree too much, play safe and ignore the UUID
+		}
+		return false;
 	}
 
 	/**
@@ -399,62 +403,6 @@ class Location
 			$subnets[] = $row;
 		}
 		return $subnets;
-	}
-
-	public static function getOverlappingSubnets(&$overlapSelf = false, &$overlapOther = false)
-	{
-		if ($overlapSelf === false && $overlapOther === false) {
-			return;
-		}
-		$locs = self::getLocationsAssoc();
-		$subnets = self::getSubnets();
-		if ($overlapSelf) {
-			$self = array();
-		}
-		if ($overlapOther) {
-			$other = array();
-		}
-		$cnt = count($subnets);
-		for ($i = 0; $i < $cnt; ++$i) {
-			for ($j = $i + 1; $j < $cnt; ++$j) {
-				if ($overlapSelf && $subnets[$i]['locationid'] === $subnets[$j]['locationid']
-					&& self::overlap($subnets[$i], $subnets[$j])
-				) {
-					$self[$subnets[$i]['locationid']] = $subnets[$i]['locationid'];
-				}
-				if ($overlapOther && $subnets[$i]['locationid'] !== $subnets[$j]['locationid']
-					&& self::overlap($subnets[$i], $subnets[$j])
-				) {
-					$a = min($subnets[$i]['locationid'], $subnets[$j]['locationid']);
-					$b = max($subnets[$i]['locationid'], $subnets[$j]['locationid']);
-					$other["$a|$b"] = array('lid1' => $subnets[$i]['locationid'], 'lid2' => $subnets[$j]['locationid']);
-				}
-			}
-		}
-		if ($overlapSelf) {
-			$overlapSelf = array();
-			foreach ($self as $entry) {
-				if (!isset($locs[$entry]))
-					continue;
-				$overlapSelf[]['locationname'] = $locs[$entry]['locationname'];
-			}
-		}
-		if ($overlapOther) {
-			$overlapOther = array();
-			foreach ($other as $entry) {
-				if (!isset($locs[$entry['lid1']]) || !isset($locs[$entry['lid2']]))
-					continue;
-				if (in_array($entry['lid1'], $locs[$entry['lid2']]['parents']) || in_array($entry['lid2'], $locs[$entry['lid1']]['parents']))
-					continue;
-				if (isset($locs[$entry['lid1']])) {
-					$entry['name1'] = $locs[$entry['lid1']]['locationname'];
-				}
-				if (isset($locs[$entry['lid2']])) {
-					$entry['name2'] = $locs[$entry['lid2']]['locationname'];
-				}
-				$overlapOther[] = $entry;
-			}
-		}
 	}
 
 	/**
@@ -533,11 +481,6 @@ class Location
 		} else {
 			Database::exec("UPDATE machine SET subnetlocationid = :loc WHERE machineuuid = :uuid", compact('loc', 'uuid'));
 		}
-	}
-
-	private static function overlap($net1, $net2)
-	{
-		return ($net1['startaddr'] <= $net2['endaddr'] && $net1['endaddr'] >= $net2['startaddr']);
 	}
 
 }

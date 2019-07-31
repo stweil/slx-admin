@@ -2,6 +2,7 @@
 	<div class="slx-bold">{{lang_locationSettings}}</div>
 	<form id="locationForm{{locationid}}" method="post" action="?do=Locations">
 		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="page" value="details">
 		<input type="hidden" name="action" value="updatelocation">
 		<input type="hidden" name="locationid" value="{{locationid}}">
 		<div style="display:none">

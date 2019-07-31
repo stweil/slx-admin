@@ -1,11 +1,18 @@
 <div>
 	<div class="btn-group pull-right">
-		<a href="?do=Locations&amp;action=showlocations" class="btn btn-default"><span class="glyphicon glyphicon-home"></span> {{lang_thisListByLocation}}</a>
-		<a href="?do=Locations&amp;action=showsubnets" class="btn btn-default active"><span class="glyphicon glyphicon-list-alt"></span> {{lang_thisListBySubnet}}</a>
+		<a href="?do=Locations&amp;page=locations" class="btn btn-default {{perms.location.view.disabled}}">
+			<span class="glyphicon glyphicon-home"></span>
+			{{lang_thisListByLocation}}
+		</a>
+		<a href="?do=Locations&amp;page=subnets" class="btn btn-default active">
+			<span class="glyphicon glyphicon-list-alt"></span>
+			{{lang_thisListBySubnet}}
+		</a>
 	</div>
 	<h1>{{lang_listOfSubnets}}</h1>
 	<form method="post" action="?do=Locations">
 		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="page" value="subnets">
 		<input type="hidden" name="action" value="updatesubnets">
 		<table class="table table-condensed table-striped">
 			<tr>

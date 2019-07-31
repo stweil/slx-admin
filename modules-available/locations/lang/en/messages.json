@@ -3,8 +3,12 @@
     "invalid-location-id": "Invalid location id: {{0}}",
     "location-deleted": "Location has been deleted (locations: {{0}}, subnets: {{1}})",
     "location-updated": "Location {{0}} has been updated",
+    "moved-n-machines": "Moved {{0}} machines",
+    "no-mismatch-location": "No mismatches for this location",
     "no-permission-location": "No permissions for location {{0}}",
+    "no-valid-machines-selected": "No valid machines selected",
     "parameter-missing": "Missing parameter: {{0}}",
+    "reset-n-machines": "Removed {{0}} machines from room plan",
     "subnets-created": "{{0}} subnet(s) created",
     "subnets-deleted": "{{0}} subnet(s) deleted",
     "subnets-updated": "{{0}} subnet(s) updated"

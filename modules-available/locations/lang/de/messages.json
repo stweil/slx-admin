@@ -3,8 +3,12 @@
     "invalid-location-id": "Ung\u00fcltige Orts-id: {{0}}",
     "location-deleted": "Location wurde gel\u00f6scht (Locations: {{0}}, Subnets: {{1}})",
     "location-updated": "Location {{0}} wurde aktualisiert",
+    "moved-n-machines": "{{0}} Rechner verschoben",
+    "no-mismatch-location": "Keine widerspr\u00fcchlichen Zuweisungen f\u00fcr diesen Ort",
     "no-permission-location": "Keine Rechte f\u00fcr Ort {{0}}",
+    "no-valid-machines-selected": "Keine g\u00fcltigen Rechner ausgew\u00e4hlt",
     "parameter-missing": "Fehlender Parameter: {{0}}",
+    "reset-n-machines": "{{0}} Rechner aus Raumplan entfernt",
     "subnets-created": "Subnetze angelegt: {{0}}",
     "subnets-deleted": "Subnetze gel\u00f6scht: {{0}}",
     "subnets-updated": "Subnetze aktualisiert: {{0}}"

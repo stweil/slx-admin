@@ -1,0 +1,69 @@
+
+<div class="btn-group pull-right">
+	<a href="?do=Locations&amp;page=locations" class="btn btn-default {{perms.location.view.disabled}}">
+		<span class="glyphicon glyphicon-home"></span>
+		{{lang_thisListByLocation}}
+	</a>
+	<a href="?do=Locations&amp;page=subnets" class="btn btn-default {{perms.subnets.edit.disabled}}">
+		<span class="glyphicon glyphicon-list-alt"></span>
+		{{lang_thisListBySubnet}}
+	</a>
+</div>
+<h1>{{lang_mismatchHeading}}</h1>
+<h2>{{locationname}}</h2>
+
+<p>{{lang_mismatchIntroText}}</p>
+
+<form method="post" action="?do=locations">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="page" value="cleanup">
+	<input type="hidden" name="locationid" value="{{locationid}}">
+	<table class="table">
+		<thead>
+		<tr>
+			<th>{{lang_machine}}</th>
+			<th>{{lang_ip}}</th>
+			<th class="slx-smallcol">{{lang_moveable}}</th>
+			<th>{{lang_locationBySubnet}}</th>
+		</tr>
+		</thead>
+		<tbody>
+		{{#clients}}
+		<tr>
+			<td>
+				<div class="checkbox checkbox-inline">
+					<input id="machine-{{machineuuid}}" type="checkbox" name="machines[]" value="{{machineuuid}}" {{disabled}}>
+					<label for="machine-{{machineuuid}}">{{hostname}}{{^hostname}}{{clientip}}{{/hostname}}</label>
+				</div>
+			</td>
+			<td>
+				{{clientip}}
+			</td>
+			<td>
+				{{#canmove}}
+					<span class="glyphicon glyphicon-ok"></span>
+				{{/canmove}}
+				{{^canmove}}
+					<span class="glyphicon glyphicon-remove text-danger"></span>
+				{{/canmove}}
+			</td>
+			<td>
+				{{iplocationname}}
+			</td>
+		</tr>
+		{{/clients}}
+		</tbody>
+	</table>
+
+	<div class="buttonbar pull-right">
+		<button type="submit" class="btn btn-primary" name="action" value="resetmachines">
+			<span class="glyphicon glyphicon-repeat"></span>
+			{{lang_resetMachines}}
+		</button>
+		<button type="submit" class="btn btn-success" name="action" value="movemachines">
+			<span class="glyphicon glyphicon-arrow-right"></span>
+			{{lang_moveMachines}}
+		</button>
+	</div>
+</form>
+<div class="clearfix"></div>
