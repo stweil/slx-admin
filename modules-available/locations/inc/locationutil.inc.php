@@ -125,9 +125,7 @@ class LocationUtil
 		$return = [];
 		$locs = false;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if ($row['subnetlocationid'] === $row['fixedlocationid'])
-				continue;
-			if (Location::isUuidLocationValid((int)$row['fixedlocationid'], (int)$row['subnetlocationid']))
+			if (Location::isFixedLocationValid($row['fixedlocationid'], $row['subnetlocationid']))
 				continue;
 			$lid = (int)$row['fixedlocationid'];
 			if (!isset($return[$lid])) {
@@ -145,14 +143,21 @@ class LocationUtil
 				$return[$lid]['count']++;
 			} else {
 				$slid = (int)$row['subnetlocationid'];
-				$return[$lid]['clients'][] = [
+				$data = [
 					'machineuuid' => $row['machineuuid'],
 					'hostname' => $row['hostname'],
 					'clientip' => $row['clientip'],
-					'iplocationid' => $slid,
-					'iplocationname' => $locs[$slid]['locationname'],
-					'canmove' => !$checkPerms || $ipLocs === true || in_array($slid, $ipLocs), // Can machine be moved to subnet's locationid?
 				];
+				if ($slid !== 0) {
+					$data += [
+						'iplocationid' => $slid,
+						'iplocationname' => $locs[$slid]['locationname'],
+						'ipisleaf' => empty($locs[$slid]['children']),
+						'canmove' => empty($locs[$slid]['children'])
+							&& (!$checkPerms || $ipLocs === true || in_array($slid, $ipLocs)), // Can machine be moved to subnet's locationid?
+					];
+				}
+				$return[$lid]['clients'][] = $data;
 			}
 		}
 		if (empty($return))

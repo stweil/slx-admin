@@ -329,7 +329,7 @@ class Location
 			if ($uuid !== false) {
 				// Machine ip maps to a location, and we have a client supplied uuid (which might not be known if the client boots for the first time)
 				$uuidLoc = self::getFromMachineUuid($uuid);
-				if (self::isUuidLocationValid($uuidLoc, $ipLoc)) {
+				if (self::isFixedLocationValid($uuidLoc, $ipLoc)) {
 					$locationId = $uuidLoc;
 				}
 			}
@@ -337,20 +337,22 @@ class Location
 		return $locationId;
 	}
 
-	public static function isUuidLocationValid($uuidLoc, $ipLoc)
+	public static function isFixedLocationValid($uuidLoc, $ipLoc)
 	{
-		if ($ipLoc !== false && $uuidLoc !== false && $uuidLoc !== $ipLoc) {
-			// Validate that the location the IP maps to is in the chain we get using the
-			// location determined by the uuid
-			$uuidLocations = self::getLocationRootChain($uuidLoc);
-			$ipLocations = self::getLocationRootChain($ipLoc);
-			if (count($ipLocations) + 2 >= count($uuidLocations) && in_array($ipLoc, $uuidLocations)) {
-				// UUID is max one level deeper than IP loc, accept
-				return true;
-			}
-			// UUID and IP disagree too much, play safe and ignore the UUID
-		}
-		return false;
+		$uuidLoc = (int)$uuidLoc;
+		$ipLoc = (int)$ipLoc;
+		if ($uuidLoc === $ipLoc || $uuidLoc === 0)
+			return true;
+		if ($ipLoc === 0)
+			return false; // roomplanner assignment, but no subnet - deny
+		// Validate that the location the IP maps to is in the chain we get using the
+		// location determined by roomplanner
+		$uuidLocations = self::getLocationRootChain($uuidLoc);
+		if (!empty(self::$assocLocationCache[$uuidLoc]['children']))
+			return false; // roomplanner location isn't actually leaf node, this is not valid
+		$idx = array_search($ipLoc, $uuidLocations);
+		// If roomplanner loc is max two levels deeper than IP loc, accept
+		return $idx !== false && $idx <= 2;
 	}
 
 	/**
