@@ -11,7 +11,7 @@ var selectMachinInitialized = false;
 
 var placedMachines = [];
 
-var $modal, $selectizeSearch;
+var $modal, $selectizeSearch, $selectizeSubnet;
 var currentCallback = false;
 
 function makeCombinedFieldSingle(item)
@@ -118,6 +118,18 @@ function initSelectize() {
         /* init modal */
         $modal = $('#selectMachineModal');
 
+        // Firefox workaround - don't close the modal when selecting an item from the dropdown
+        // A proper fix for the underlying cause would be much appreciated
+        var selectTime = 0;
+        var ch = function() {
+            selectTime = Date.now();
+        };
+        $modal.on('hide.bs.modal', function(e) {
+            if (Date.now() - selectTime < 400) {
+                e.preventDefault();
+            }
+        });
+
         /* for the search */
         $selectizeSearch = $('#machineSearchBox').selectize({
             plugins : ["remove_button"],
@@ -130,6 +142,7 @@ function initSelectize() {
             maxItems: 1,
             sortField: 'sortField',
             sortDirection: 'asc',
+            onDropdownClose: ch,
             onChange: clearSubnetBox
         });
 
@@ -146,6 +159,7 @@ function initSelectize() {
             maxItems: 1,
             sortField: 'sortField',
             sortDirection: 'asc',
+            onDropdownClose: ch,
             onChange: clearSearchBox
         });
 
@@ -154,6 +168,7 @@ function initSelectize() {
         selectMachinInitialized = true;
     }
 }
+
 function onBtnSelect() {
         /* check which one has a value */
         console.assert($selectizeSubnet.length === 1);
