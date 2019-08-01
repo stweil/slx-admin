@@ -92,39 +92,21 @@ class SubPage
 		$unassigned = false;
 		$unassignedLoad = 0;
 
-		// Filter view: Remove locations we can't reach at all, but show parents to locations
-		// we have permission to, so the tree doesn't look all weird
-		$visibleLocationIds = $allowedLocationIds = User::getAllowedLocations("location.view");
-		foreach ($allowedLocationIds as $lid) {
-			if (!isset($locationList[$lid]))
-				continue;
-			$visibleLocationIds = array_merge($visibleLocationIds, $locationList[$lid]['parents']);
-		}
-		$visibleLocationIds = array_unique($visibleLocationIds);
+		$allowedLocationIds = User::getAllowedLocations("location.view");
 		foreach (array_keys($locationList) as $lid) {
-			if (User::hasPermission('.baseconfig.view', $lid)) {
-				$visibleLocationIds[] = $lid;
-			} else {
+			if (!User::hasPermission('.baseconfig.view', $lid)) {
 				$locationList[$lid]['havebaseconfig'] = false;
 			}
-			if (User::hasPermission('.sysconfig.config.view-list', $lid)) {
-				$visibleLocationIds[] = $lid;
-			} else {
+			if (!User::hasPermission('.sysconfig.config.view-list', $lid)) {
 				$locationList[$lid]['havesysconfig'] = false;
 			}
-			if (User::hasPermission('.statistics.view.list', $lid)) {
-				$visibleLocationIds[] = $lid;
-			} else {
+			if (!User::hasPermission('.statistics.view.list', $lid)) {
 				$locationList[$lid]['havestatistics'] = false;
 			}
-			if (User::hasPermission('.serversetup.ipxe.menu.assign', $lid)) {
-				$visibleLocationIds[] = $lid;
-			} else {
+			if (!User::hasPermission('.serversetup.ipxe.menu.assign', $lid)) {
 				$locationList[$lid]['haveipxe'] = false;
 			}
-			if (!in_array($lid, $visibleLocationIds)) {
-				unset($locationList[$lid]);
-			} elseif (!in_array($lid, $allowedLocationIds)) {
+			if (!in_array($lid, $allowedLocationIds)) {
 				$locationList[$lid]['show-only'] = true;
 			}
 		}
