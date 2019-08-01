@@ -168,6 +168,7 @@ class Page_Roomplanner extends Page
 				die('{"machines":[]}');
 			}
 
+			$roomLocationId = Request::any('locationid', 0, 'int');
 			$query = Request::get('query', false, 'string');
 			$aquery = preg_replace('/[^\x01-\x7f]+/', '%', $query);
 			if (strlen(str_replace('%', '', $aquery)) < 2) {
@@ -179,21 +180,26 @@ class Page_Roomplanner extends Page
 				$condition .= ' OR locationid IS NULL';
 			}
 
-			$result = Database::simpleQuery("SELECT machineuuid, macaddr, clientip, hostname, fixedlocationid
+			$result = Database::simpleQuery("SELECT machineuuid, macaddr, clientip, hostname, fixedlocationid, subnetlocationid
 				FROM machine
 				WHERE ($condition) AND machineuuid LIKE :aquery
 				 OR macaddr  	 LIKE :aquery
 				 OR clientip    LIKE :aquery
 				 OR hostname	 LIKE :query
-				 LIMIT 100", ['query' => "%$query%", 'aquery' => "%$aquery%", 'locations' => $locations]);
+				 LIMIT 500", ['query' => "%$query%", 'aquery' => "%$aquery%", 'locations' => $locations]);
 
 			$returnObject = ['machines' => []];
 
 			while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+				error_log("$roomLocationId, {$row['subnetlocationid']}");
+				if (!Location::isFixedLocationValid($roomLocationId, $row['subnetlocationid']))
+					continue;
 				if (empty($row['hostname'])) {
 					$row['hostname'] = $row['clientip'];
 				}
 				$returnObject['machines'][] = $row;
+				if (count($returnObject['machines']) > 100)
+					break;
 			}
 			echo json_encode($returnObject);
 		} elseif ($this->action === 'save') {

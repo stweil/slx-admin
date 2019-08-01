@@ -83,7 +83,7 @@ function loadMachines(query, callback) {
         }
     }
     $.ajax({
-        url: '?do=roomplanner&action=getmachines&query=' + encodeURIComponent(query),
+        url: '?do=roomplanner&action=getmachines&query=' + encodeURIComponent(query) + '&locationid=' + locationId,
         type: 'GET',
         dataType: 'json',
         error: function() {
