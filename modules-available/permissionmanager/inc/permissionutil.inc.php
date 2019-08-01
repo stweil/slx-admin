@@ -40,6 +40,9 @@ class PermissionUtil
 		}
 	}
 
+	private static $permissionCacheLoc = [];
+	private static $permissionCacheAny = [];
+
 	/**
 	 * Check if the user has the given permission (for the given location).
 	 *
@@ -58,12 +61,24 @@ class PermissionUtil
 			return true;
 		// Limit query to first part of permissionid, which is always the module id
 		$prefix = $parts[0] . '.%';
-		if (is_null($locationid)) {
+		$key = $userid . '_' . $permissionid;
+		$cacheAll = false;
+		if ($locationid === null) {
+			// Check if permission exists for any location (i.e. permission not location dependent)
+			$cache =& self::$permissionCacheAny;
+			if (array_key_exists($key, $cache))
+				return $cache[$key];
 			$res = Database::simpleQuery("SELECT permissionid FROM role_x_permission
 					INNER JOIN role_x_user USING (roleid)
 					WHERE role_x_user.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')",
 				compact('userid', 'prefix'));
+			// Quick bailout - no results
+			if ($res->rowCount() === 0) {
+				$cache[$key] = false;
+				return false;
+			}
 		} else {
+			// Check if permission exists for specific location
 			if ($locationid === 0) {
 				$locations = [0];
 			} else {
@@ -72,26 +87,78 @@ class PermissionUtil
 					$locations = [0];
 				}
 			}
-			$res = Database::simpleQuery("SELECT permissionid FROM role_x_permission
+			$cache =& self::$permissionCacheLoc;
+			if (array_key_exists($key, $cache)) {
+				if (array_key_exists($locationid, $cache[$key]))
+					return $cache[$key][$locationid]; // Exact match - return immedtiately
+				foreach ($locations as $lid) {
+					if (array_key_exists($lid, $cache[$key]) && $cache[$key][$lid]) {
+						$cache[$key][$locationid] = true;
+						return true; // We have a parent location that allows access - take it
+					}
+				}
+				$cacheAll = true;
+			}
+			$params = compact('userid', 'prefix');
+			if ($cacheAll) {
+				$extra = '';
+			} else {
+				$extra = 'AND (locationid IN (:locations) OR locationid IS NULL)';
+				$params['locations'] = $locations;
+			}
+			$res = Database::simpleQuery("SELECT permissionid, locationid FROM role_x_permission
 					INNER JOIN role_x_user USING (roleid)
 					INNER JOIN role_x_location USING (roleid)
 					WHERE role_x_user.userid = :userid AND (permissionid LIKE :prefix OR permissionid LIKE '*')
-						AND (locationid IN (:locations) OR locationid IS NULL)",
-				compact('userid', 'prefix', 'locations'));
+						$extra", $params);
+			// Quick bailout - no results
+			if ($res->rowCount() === 0 && !$cacheAll) {
+				foreach ($locations as $lid) {
+					$cache[$key][$lid] = false;
+				}
+				return false;
+			}
 		}
-		// Quick bailout - no results
-		if ($res->rowCount() === 0)
-			return false;
 
 		// Compare to database result
-		self::makeComparisonVariants($parts, $compare, $wildcard, $wclen);
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			if (in_array($row['permissionid'], $compare, true))
-				return true;
-			if ($wildcard !== false && strncmp($row['permissionid'], $wildcard, $wclen) === 0)
-				return true;
+		if ($cacheAll) {
+			$allLocs = Location::getLocationsAssoc();
 		}
-		return false;
+		self::makeComparisonVariants($parts, $compare, $wildcard, $wclen);
+		$retval = false;
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (in_array($row['permissionid'], $compare, true)
+					|| ($wildcard !== false && strncmp($row['permissionid'], $wildcard, $wclen) === 0)) {
+				if (!$cacheAll || ($row['locationid'] == $locationid) || $row['locationid'] === null) {
+					$retval = true;
+					if (!$cacheAll)
+						break;
+				}
+				if ($cacheAll) {
+					$cache[$key][(int)$row['locationid']] = true;
+					$list = ($row['locationid'] === null) ? array_keys($allLocs) : $allLocs[(int)$row['locationid']]['children'];
+					foreach ($list as $lid) {
+						$cache[$key][$lid] = true;
+					}
+					if ($row['locationid'] === null)
+						break;
+				}
+			}
+		}
+		if ($locationid === null) {
+			$cache[$key] = $retval;
+		} else {
+			$cache[$key][$locationid] = $retval;
+			if ($cacheAll) {
+				$locations = array_keys($allLocs);
+			}
+			foreach ($locations as $lid) {
+				if (!array_key_exists($lid, $cache[$key])) {
+					$cache[$key][$lid] = false;
+				}
+			}
+		}
+		return $retval;
 	}
 
 	/**
