@@ -51,7 +51,9 @@ class SubPage
 	{
 		if ($getAction === false) {
 			User::assertPermission('subnets.edit', NULL, '?do=locations');
-			$res = Database::simpleQuery("SELECT subnetid, startaddr, endaddr, locationid FROM subnet");
+			$res = Database::simpleQuery("SELECT subnetid, startaddr, endaddr, locationid
+					FROM subnet
+					ORDER BY startaddr ASC, endaddr DESC");
 			$rows = array();
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				$row['startaddr'] = long2ip($row['startaddr']);
