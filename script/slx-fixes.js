@@ -122,3 +122,17 @@ jQuery.cachedScript = function(url, callback, options) {
 	});
 	return jQuery.ajax( options );
 };
+
+// Restore tab state on refresh and add it to URL so copying URLs works
+$(document).ready(function() {
+	if ($('a[data-toggle="tab"]').click(function (e) {
+		history.pushState(null, null, this.getAttribute('href'));
+	}).length === 0) return;
+	var initTab = $('li.active > a[data-toggle="tab"]').attr('href');
+	var bla = function() {
+		var h = location.hash || initTab;
+		$('a[data-toggle="tab"][href="' + h + '"]').tab('show');
+	};
+	bla();
+	$(window).on('popstate', bla);
+});
