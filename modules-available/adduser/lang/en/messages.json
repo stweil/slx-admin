@@ -5,6 +5,7 @@
     "password-changed": "Password changed",
     "password-mismatch": "Password and password confirmation do not match",
     "roles-updated": "Roles have been updated",
+    "user-already-exists": "Login {{0}} already exists",
     "user-deleted": "Deleted user {{0}} (ID={{1}})",
     "user-edited": "User data has been updated",
     "user-not-found": "User with ID {{0}} not found"

@@ -47,7 +47,12 @@ class Page_AddUser extends Page
 				'phone' => $phone,
 				'email' => $email,
 			);
-			Database::exec('INSERT INTO user SET login = :login, passwd = :pass, fullname = :fullname, phone = :phone, email = :email', $data);
+			$ret = Database::exec('INSERT INTO user
+				SET login = :login, passwd = :pass, fullname = :fullname, phone = :phone, email = :email', $data, true);
+			if ($ret === false) {
+				Message::addError('user-already-exists', $login);
+				return;
+			}
 			$id = Database::lastInsertId();
 			// Make it superadmin if first user. This method sucks as it's a race condition but hey...
 			$ret = Database::queryFirst('SELECT Count(*) AS num FROM user');

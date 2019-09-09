@@ -5,6 +5,7 @@
     "password-changed": "Passwort ge\u00e4ndert",
     "password-mismatch": "Passwort und Passwortbest\u00e4tigung stimmen nicht \u00fcberein",
     "roles-updated": "Rollen aktualisiert",
+    "user-already-exists": "Login {{0}} existiert bereits",
     "user-deleted": "Benutzer {{0}} (ID={{1}}) gel\u00f6scht",
     "user-edited": "Benutzerdaten wurden ge\u00e4ndert",
     "user-not-found": "Benutzer mit ID {{0}} nicht gefunden"
