@@ -1,11 +1,15 @@
 <div class="panel panel-default">
 	<div class="panel-body">
+		<div class="pull-right">
+			{{lang_uptime}}: <b>{{uptime_s}}</b>
+		</div>
 		<div>
 			{{lang_sessionTx}}: <b>{{bytesSent_s}}</b>
-			––
+			–
 			{{lang_sessionRx}}: <b>{{bytesReceived_s}}</b>
-			––
-			{{lang_uptime}}: <b>{{uptime_s}}</b>
+			{{#ratio}}
+			&ensp; ({{lang_ratio}}: {{ratio}})
+			{{/ratio}}
 		</div>
 		<div>
 			{{lang_storageSize}}: <b>{{spaceTotal_s}}</b>

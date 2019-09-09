@@ -6,20 +6,7 @@ class Dnbd3Rpc {
 	const QUERY_NOT_200 = 2;
 	const QUERY_NOT_JSON = 3;
 
-	/**
-	 * Query given DNBD3 server for status information.
-	 *
-	 * @param string $server server address
-	 * @param int $port server port
-	 * @param bool $stats include general stats
-	 * @param bool $clients include client list
-	 * @param bool $images include image list
-	 * @param bool $diskSpace include disk space stats
-	 * @param bool $config get config
-	 * @param bool $altservers list of alt servers with status
-	 * @return int|array the queried data as an array, or false on error
-	 */
-	public static function query($server, $stats, $clients, $images, $diskSpace = false, $config = false, $altservers = false)
+	private static function translateServer($server)
 	{
 		// Special case - local server
 		if ($server === '<self>') {
@@ -36,6 +23,24 @@ class Dnbd3Rpc {
 				$server .= ':5003';
 			}
 		}
+		return $server;
+	}
+
+	/**
+	 * Query given DNBD3 server for status information.
+	 *
+	 * @param string $server server address
+	 * @param bool $stats include general stats
+	 * @param bool $clients include client list
+	 * @param bool $images include image list
+	 * @param bool $diskSpace include disk space stats
+	 * @param bool $config get config
+	 * @param bool $altservers list of alt servers with status
+	 * @return int|array the queried data as an array, or false on error
+	 */
+	public static function query($server, $stats, $clients, $images, $diskSpace = false, $config = false, $altservers = false)
+	{
+		$server = self::translateServer($server);
 		$url = 'http://' . $server . '/query?';
 		if ($stats) {
 			$url .= 'q=stats&';
@@ -64,6 +69,17 @@ class Dnbd3Rpc {
 		if (!is_array($ret))
 			return self::QUERY_NOT_JSON;
 		return $ret;
+	}
+
+	public static function getCacheMap($server, $imgId)
+	{
+		$server = self::translateServer($server);
+		$str = Download::asString('http://' . $server . '/cachemap?id=' . $imgId, 3, $code);
+		if ($str === false)
+			return self::QUERY_UNREACHABLE;
+		if ($code !== 200)
+			return self::QUERY_NOT_200;
+		return $str;
 	}
 
 }

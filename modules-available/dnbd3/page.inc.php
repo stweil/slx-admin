@@ -264,6 +264,9 @@ class Page_Dnbd3 extends Page
 		foreach (['bytesSent', 'bytesReceived', 'spaceTotal', 'spaceFree'] as $key) {
 			$stats[$key . '_s'] = Util::readableFileSize($stats[$key]);
 		}
+		if ($stats['bytesReceived'] > 0) {
+			$stats['ratio'] = round($stats['bytesSent'] / $stats['bytesReceived'], 2);
+		}
 		if ($stats['spaceTotal'] > 0) {
 			$stats['percentFree'] = ($stats['spaceFree'] / $stats['spaceTotal']) * 100;
 			$stats['percentFree'] = round($stats['percentFree'], $stats['percentFree'] < 10 ? 1 : 0);
@@ -294,7 +297,20 @@ class Page_Dnbd3 extends Page
 				} else {
 					$extra = '';
 					$class2 = 'slx-bold';
-					if (in_array($line['key'], ['serverPenalty', 'clientPenalty'])) {
+					if ($line['key'] === 'autoFreeDiskSpaceDelay') {
+						$v = (int)$line['val'];
+						if ($v >= 3600 * 24) {
+							$extra = floor($v / (3600 * 24)) . 'd ';
+							$v %= 3600 * 24;
+						}
+						if ($v >= 3600) {
+							$extra .= floor($v / 3600) . 'h ';
+							$v %= 3600;
+						}
+						if ($v >= 60) {
+							$extra .= floor($v / 60) . 'm ';
+						}
+					} elseif (in_array($line['key'], ['serverPenalty', 'clientPenalty'])) {
 						$extra = round($line['val'] / 1000, 1) . 'ms';
 					} elseif (in_array($line['key'], ['uplinkTimeout', 'clientTimeout'])) {
 						$extra = round($line['val'] / 1000, 1) . 's';
@@ -367,6 +383,15 @@ class Page_Dnbd3 extends Page
 			$sort2[] = $image['name'];
 		}
 		array_multisort($sort1, SORT_NUMERIC | SORT_DESC, $sort2, SORT_ASC, $stats['images']);
+		$stats['serverId'] = $server['serverId'];
+		// Colors for bars
+		$stats['colors'] = [];
+		for ($i = 0; $i < 16; ++$i) {
+			$dark = dechex(max(0, $i - 3));
+			$normal = dechex($i);
+			$extra = dechex(max(0, $i - 12));
+			$stats['colors'][] = ['i' => $i, 'dark' => "#0{$dark}0", 'bright' => "#$extra$normal$extra"];
+		}
 		Render::addTemplate('page-proxy-images', $stats);
 		Render::closeTag('div');
 	}
@@ -416,7 +441,7 @@ class Page_Dnbd3 extends Page
 			WHERE s.serverid = :serverId', compact('serverId'));
 		if ($server === false) {
 			if (AJAX)
-				die('Invalid server id');
+				die('Invalid server id: ' . $serverId);
 			Message::addError('server-non-existent', $serverId);
 			Util::redirect('?do=dnbd3');
 		}
@@ -427,6 +452,7 @@ class Page_Dnbd3 extends Page
 		} else {
 			$server['ip'] = '127.0.0.1';
 		}
+		$server['serverId'] = $serverId;
 		return $server;
 	}
 
@@ -455,6 +481,8 @@ class Page_Dnbd3 extends Page
 			$this->ajaxEditServer();
 		} elseif ($action === 'reboot') {
 			$this->ajaxReboot();
+		} elseif ($action === 'cachemap') {
+			$this->ajaxCacheMap();
 		} else {
 			die($action . '???');
 		}
@@ -543,6 +571,53 @@ class Page_Dnbd3 extends Page
 		}
 		Header('Content-Type: application/json; charset=utf-8');
 		die(json_encode($status));
+	}
+
+	private function ajaxCacheMap()
+	{
+		$server = $this->getServerById();
+		$imgId = Request::any('id', 0, 'int');
+		if ($imgId <= 0) {
+			Header('HTTP/1.1 400 Bad Request');
+			die('Invalid/no image id');
+		}
+		$data = Dnbd3Rpc::getCacheMap($server['ip'], $imgId);
+		if ($data === Dnbd3Rpc::QUERY_UNREACHABLE) {
+			Header('HTTP/1.1 504 Gateway Timeout');
+			die('Proxy not reachable');
+		}
+		if ($data === Dnbd3Rpc::QUERY_NOT_200) {
+			Header('HTTP/1.1 503 Service Unavailable');
+			die("Proxy didn't reply with 200 OK");
+		}
+		Header('Content-Type: application/octet-stream');
+		die($data);
+	}
+
+	private function genChunk($acc)
+	{
+		static $last = -1;
+		static $count = 0;
+		if ($acc !== false) {
+			if ($acc > 15) {
+				$acc = 15;
+			}
+			$acc = round($acc);
+			if ($last === $acc) {
+				$count++;
+				return '';
+			}
+		}
+		if ($last !== -1) {
+			if ($count === 1)
+				return '<b style="background:#0' . dechex($acc) . '0"></b>';
+			$line = '<b style="background:#0' . dechex($last) . '0;flex-grow:' . $count . '"></b>';
+		} else {
+			$line = '';
+		}
+		$last = $acc;
+		$count = 1;
+		return $line;
 	}
 
 }
