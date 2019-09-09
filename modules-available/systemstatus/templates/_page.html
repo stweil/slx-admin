@@ -125,8 +125,7 @@
 		$('#services').load('?do=SystemStatus&action=Services');
 		$('#dmsd-users').load('?do=SystemStatus&action=DmsdUsers');
 		var slxDone = {};
-		$('.ajax-tab').click(function (e) {
-			e.preventDefault();
+		$('.ajax-tab').on('shown.bs.tab', function (e) {
 			var $this = $(this);
 			var w = $this.attr('id');
 			if (!slxDone[w]) {
