@@ -135,19 +135,15 @@ class SubPage
 
 		// Deletion first
 		$dels = Request::post('deletesubnet', false);
+		$deleteCount = 0;
 		if (is_array($dels)) {
-			$count = 0;
 			$stmt = Database::prepare('DELETE FROM subnet WHERE subnetid = :id');
-			foreach ($dels as $key => $value) {
-				if (!is_numeric($key) || $value !== 'on')
+			foreach ($dels as $subnetid => $value) {
+				if (!is_numeric($subnetid) || $value !== 'on')
 					continue;
-				if ($stmt->execute(array('id' => $key))) {
-					$count += $stmt->rowCount();
+				if ($stmt->execute(array('id' => $subnetid))) {
+					$deleteCount += $stmt->rowCount();
 				}
-			}
-			if ($count > 0) {
-				Message::addInfo('subnets-deleted', $count);
-				$change = true;
 			}
 		}
 
@@ -157,23 +153,33 @@ class SubPage
 		if (!is_array($starts) || !is_array($ends)) {
 			return $change;
 		}
-		$count = 0;
+		$editCount = 0;
 		$stmt = Database::prepare('UPDATE subnet SET startaddr = :start, endaddr = :end'
 			. ' WHERE subnetid = :id');
-		foreach ($starts as $key => $start) {
-			if (!isset($ends[$key]) || !is_numeric($key))
+		foreach ($starts as $subnetid => $start) {
+			if (!isset($ends[$subnetid]) || !is_numeric($subnetid))
 				continue;
-			$end = $ends[$key];
+			$start = trim($start);
+			$end = trim($ends[$subnetid]);
+			if (empty($start) && empty($end)) {
+				$ret = Database::exec('DELETE FROM subnet WHERE subnetid = :id', ['id' => $subnetid]);
+				$deleteCount += $ret;
+				continue;
+			}
 			$range = LocationUtil::rangeToLongVerbose($start, $end);
 			if ($range === false)
 				continue;
 			list($startLong, $endLong) = $range;
-			if ($stmt->execute(array('id' => $key, 'start' => $startLong, 'end' => $endLong))) {
-				$count += $stmt->rowCount();
+			if ($stmt->execute(array('id' => $subnetid, 'start' => $startLong, 'end' => $endLong))) {
+				$editCount += $stmt->rowCount();
 			}
 		}
-		if ($count > 0) {
-			Message::addInfo('subnets-updated', $count);
+		if ($editCount > 0) {
+			Message::addSuccess('subnets-updated', $editCount);
+			$change = true;
+		}
+		if ($deleteCount > 0) {
+			Message::addSuccess('subnets-deleted', $deleteCount);
 			$change = true;
 		}
 		return $change;

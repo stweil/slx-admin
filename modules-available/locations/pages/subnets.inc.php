@@ -15,7 +15,8 @@ class SubPage
 	private static function updateSubnets()
 	{
 		User::assertPermission('subnets.edit', NULL, '?do=locations');
-		$count = 0;
+		$editCount = 0;
+		$deleteCount = 0;
 		$starts = Request::post('startaddr', false);
 		$ends = Request::post('endaddr', false);
 		$locs = Request::post('location', false);
@@ -29,7 +30,13 @@ class SubPage
 			if (!isset($ends[$subnetid]) || !isset($locs[$subnetid]))
 				continue;
 			$loc = (int)$locs[$subnetid];
-			$end = $ends[$subnetid];
+			$start = trim($start);
+			$end = trim($ends[$subnetid]);
+			if (empty($start) && empty($end)) {
+				$ret = Database::exec('DELETE FROM subnet WHERE subnetid = :subnetid', compact('subnetid'));
+				$deleteCount += $ret;
+				continue;
+			}
 			if (!isset($existingLocs[$loc])) {
 				Message::addError('main.value-invalid', 'locationid', $loc);
 				continue;
@@ -39,11 +46,16 @@ class SubPage
 				continue;
 			list($startLong, $endLong) = $range;
 			if ($stmt->execute(compact('startLong', 'endLong', 'loc', 'subnetid'))) {
-				$count += $stmt->rowCount();
+				$editCount += $stmt->rowCount();
 			}
 		}
 		AutoLocation::rebuildAll();
-		Message::addSuccess('subnets-updated', $count);
+		if ($editCount > 0) {
+			Message::addSuccess('subnets-updated', $editCount);
+		}
+		if ($deleteCount > 0) {
+			Message::addSuccess('subnets-deleted', $deleteCount);
+		}
 		Util::redirect('?do=Locations');
 	}
 
