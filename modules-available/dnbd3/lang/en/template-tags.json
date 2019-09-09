@@ -50,6 +50,7 @@
     "lang_proxyConfig": "Configuration",
     "lang_proxyLocationText": "Here you can restrict the usage of this proxy to certain locations. This can be useful if the usage is only reasonable from some locations. That may be because of the network infrastructure.",
     "lang_proxyServerTHead": "Server\/Proxy",
+    "lang_ratio": "Ratio",
     "lang_reboot": "Reboot",
     "lang_rebootProxyHeading": "Reboot proxy",
     "lang_rebootProxyText": "If the configuration has changed, the server needs a reboot to adapt to it.",

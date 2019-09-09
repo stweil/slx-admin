@@ -50,6 +50,7 @@
     "lang_proxyConfig": "Konfiguration",
     "lang_proxyLocationText": "Hier k\u00f6nnen Sie festlegen, dass nur Clients aus bestimmten R\u00e4umen\/Orten diesen Proxy verwenden. Damit vermeiden Sie die Metrikmessung zwischen Client und Proxy, wenn aufgrund der Infrastruktur bereits bekannt ist, dass dieser Proxy nur f\u00fcr bestimmte R\u00e4ume sinnvoll ist. ",
     "lang_proxyServerTHead": "Server\/Proxy",
+    "lang_ratio": "Ratio",
     "lang_reboot": "Reboot",
     "lang_rebootProxyHeading": "Proxy neustarten",
     "lang_rebootProxyText": "Bei \u00c4nderungen an der Konfiguration muss der Server neugestartet werden, damit die \u00c4nderungen wirksam werden.",
