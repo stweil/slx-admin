@@ -7,9 +7,10 @@
 	<input type="hidden" name="action" value="config">
 	<input type="hidden" name="activate" value="{{configid}}">
 	<div class="text-right">
-		<div class="btn-group">
-			<a href="?do=SysConfig" class="btn btn-default">{{lang_backToSysconfig}}</a>
-			<button type="submit" class="btn btn-primary">{{lang_activateGlobally}}</button>
-		</div>
+		<a href="?do=SysConfig" class="btn btn-default">&laquo; {{lang_backToSysconfig}}</a>
+		<button type="submit" class="btn btn-default">
+			<span class="glyphicon glyphicon-globe"></span>
+			{{lang_activateGlobally}}
+		</button>
 	</div>
 </form>
