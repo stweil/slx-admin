@@ -117,6 +117,7 @@
     "lang_show": "Ansehen",
     "lang_showLong": "Inhalt des Moduls anzeigen.",
     "lang_skip": "Weiter",
+    "lang_sshMultipleHeadsup": "Wenn Sie mehrere Pubkeys angeben wollen, k\u00f6nnen Sie entsprechend mehrere Module vom Typ SSH zu einer Systemkonfiguration hinzuf\u00fcgen. In diesem Fall sollten Sie jedoch darauf achten, dass alle Konfigurationen die gleichen Einstellungen f\u00fcr Port und Passwortlogin haben, da ansonsten undefiniert ist, welche der Einstellungen greifen wird.",
     "lang_ssl": "SSL",
     "lang_sslDescription": "Die Verbindung zum AD-Server mit SSL sichern. (Die Verbindung zwischen Client und Proxy wird in jedem Fall mit SSL abgewickelt.)",
     "lang_supportedFiles": "Unterst\u00fctzte Archivformate",

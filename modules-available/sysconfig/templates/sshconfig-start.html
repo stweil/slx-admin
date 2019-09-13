@@ -24,12 +24,14 @@
 		<input class="form-control" type="text" name="listenPort" value="{{listenPort}}" id="port" pattern="\d+" placeholder="22">
 		<i>{{lang_listenPortInfo}}</i>
 	</div>
-	<hr/>
-	<div class="btn-group">
-		<a class="btn btn-default" href="?do=SysConfig&action=addmodule">{{lang_back}}</a>
-	</div>
+	<p>
+		<i>
+			{{lang_sshMultipleHeadsup}}
+		</i>
+	</p>
 	<div class="btn-group pull-right">
 		<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> {{lang_save}}</button>
 	</div>
+	<div class="clearfix"></div>
 </form>
 

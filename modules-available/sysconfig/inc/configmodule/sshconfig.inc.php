@@ -5,7 +5,7 @@ ConfigModule::registerModule(
 	Dictionary::translateFileModule('sysconfig', 'config-module', 'sshconfig_title'), // Title
 	Dictionary::translateFileModule('sysconfig', 'config-module', 'sshconfig_description'), // Description
 	Dictionary::translateFileModule('sysconfig', 'config-module', 'group_sshconfig'), // Group
-	true // Only one per config?
+	false // Only one per config?
 );
 
 class ConfigModule_SshConfig extends ConfigModule

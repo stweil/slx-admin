@@ -117,6 +117,7 @@
     "lang_show": "Show",
     "lang_showLong": "Show content of module.",
     "lang_skip": "Next",
+    "lang_sshMultipleHeadsup": "If you want to add multiple SSH keys to the system, you can simply create multiple modules of type SSH and add them all to your system config. Note that you should have matching port and password settings for those configs, as it is currently undefined which of the settings will apply to the final configuration.",
     "lang_ssl": "SSL",
     "lang_sslDescription": "Use SSL encryption to talk to AD server.",
     "lang_supportedFiles": "Supported File Formats",
