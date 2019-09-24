@@ -150,10 +150,12 @@
 									</div>
 								{{/script}}
 								{{^script}}
+									{{#arch}}
 									<div class="form-group">
 										<label for="{{entryid}}-script">{{lang_archSelector}}</label>
-										<pre id="{{entryid}}-arch">{{arch}}</pre>
+										<pre id="{{entryid}}-arch">{{.}}</pre>
 									</div>
+									{{/arch}}
 									{{#archAgnostic}}
 										<div class="form-group">
 											<label for="{{entryid}}-executable">{{lang_imageToLoad}}</label>

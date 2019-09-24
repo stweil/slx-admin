@@ -7,6 +7,7 @@
     "import-error": "Fehler beim Importieren",
     "import-no-entries": "Nichts importiert: Men\u00fc scheint leer zu sein",
     "invalid-boot-entry": "Ung\u00fcltiger Men\u00fceintrag: {{0}}",
+    "invalid-custom-entry-id": "Ung\u00fcltige Eintrags-ID {{1}} f\u00fcr Modul {{0}}",
     "invalid-ip": "Kein Interface ist auf die Adresse {{0}} konfiguriert",
     "invalid-menu-id": "Ung\u00fcltige Men\u00fc-ID: {{0}}",
     "localboot-invalid-method": "Ung\u00fcltige localboot-Methode: {{0}}",
@@ -19,5 +20,6 @@
     "missing-bootentry-data": "Fehlende Daten f\u00fcr den Men\u00fceintrag",
     "no-ip-addr-set": "Bitte w\u00e4hlen Sie die prim\u00e4re IP-Adresse des Servers",
     "no-ip-set": "Kann Import alter Konfiguration nicht ausf\u00fchren. Bitte zuerst die prim\u00e4re IP-Adresse des Servers festlegen.",
-    "unknown-bootentry-type": "Unbekannter Eintrags-Typ: {{0}}"
+    "unknown-bootentry-type": "Unbekannter Eintrags-Typ: {{0}}",
+    "unknown-hook-module": "Unbekanntes Modul: {{0}}"
 }

@@ -23,13 +23,19 @@
 
 			<div class="form-group">
 				<div class="radio">
-					<input class="type-radio" type="radio" name="type" value="exec" id="type-exec" {{exec_checked}} {{disabled}}>
+					<input class="type-radio" type="radio" name="type" value=".exec" id="type-exec" {{exec_checked}} {{disabled}}>
 					<label for="type-exec">{{lang_typeExecEntry}}</label>
 				</div>
 				<div class="radio">
-					<input class="type-radio" type="radio" name="type" value="script" id="type-script" {{script_checked}} {{disabled}}>
+					<input class="type-radio" type="radio" name="type" value=".script" id="type-script" {{script_checked}} {{disabled}}>
 					<label for="type-script">{{lang_typeScriptEntry}}</label>
 				</div>
+				{{#hooks}}
+				<div class="radio">
+					<input class="type-radio" type="radio" name="type" value="{{moduleId}}" id="type-{{moduleId}}" {{checked}} {{disabled}}>
+					<label for="type-{{moduleId}}">{{name}}</label>
+				</div>
+				{{/hooks}}
 			</div>
 
 			<div class="form-group">
@@ -68,42 +74,77 @@
 										<label for="input-ex-{{mode}}">
 											{{lang_imageToLoad}}
 										</label>
-										<input id="input-ex-{{mode}}" class="form-control" name="entry[executable][{{mode}}]" value="{{executable}}" {{disabled}}>
+										<input id="input-ex-{{mode}}" class="form-control" name="entry[{{mode}}][executable]" value="{{executable}}" {{disabled}}>
 									</div>
 									<div class="form-group">
 										<label for="input-rd-{{mode}}">
 											{{lang_initRd}}
 										</label>
-										<input id="input-rd-{{mode}}" class="form-control" name="entry[initRd][{{mode}}]" value="{{initRd}}" {{disabled}}>
+										<input id="input-rd-{{mode}}" class="form-control" name="entry[{{mode}}][initRd]" value="{{initRd}}" {{disabled}}>
 									</div>
 									<div class="form-group">
 										<label for="input-cmd-{{mode}}">
 											{{lang_commandLine}}
 										</label>
-										<input id="input-cmd-{{mode}}" class="form-control" name="entry[commandLine][{{mode}}]"
+										<input id="input-cmd-{{mode}}" class="form-control" name="entry[{{mode}}][commandLine]"
 												 value="{{commandLine}}" {{disabled}}>
+									</div>
+									<h4>{{lang_ipxeSettings}}</h4>
+									<div class="form-group">
+										<div class="checkbox checkbox-inline">
+											<input id="exec-imgfree-{{mode}}" class="form-control" type="checkbox"
+													 name="entry[{{mode}}][imgfree]" {{imageFree_checked}} {{disabled}}>
+											<label for="exec-imgfree-{{mode}}">{{lang_execImageFree}}</label>
+										</div>
 									</div>
 									<div class="form-group">
 										<div class="checkbox checkbox-inline">
 											<input id="exec-replace-{{mode}}" class="form-control" type="checkbox"
-													 name="entry[replace][{{mode}}]" {{replace_checked}} {{disabled}}>
+													 name="entry[{{mode}}][replace]" {{replace_checked}} {{disabled}}>
 											<label for="exec-replace-{{mode}}">{{lang_execReplace}}</label>
 										</div>
 									</div>
 									<div class="form-group">
 										<div class="checkbox checkbox-inline">
 											<input id="exec-au-{{mode}}" class="form-control" type="checkbox"
-													 name="entry[autoUnload][{{mode}}]" {{autoUnload_checked}} {{disabled}}>
+													 name="entry[{{mode}}][autoUnload]" {{autoUnload_checked}} {{disabled}}>
 											<label for="exec-au-{{mode}}">{{lang_execAutoUnload}}</label>
 										</div>
 									</div>
 									<div class="form-group">
 										<div class="checkbox checkbox-inline">
 											<input id="exec-reset-{{mode}}" class="form-control" type="checkbox"
-													 name="entry[resetConsole][{{mode}}]" {{resetConsole_checked}} {{disabled}}>
+													 name="entry[{{mode}}][resetConsole]" {{resetConsole_checked}} {{disabled}}>
 											<label for="exec-reset-{{mode}}">{{lang_execResetConsole}}</label>
 										</div>
 									</div>
+									<h4>{{lang_dhcpOverrides}}</h4>
+									{{#opts}}
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-8">
+												<div class="checkbox">
+													<input type="checkbox" id="opt-{{mode}}-{{opt}}"
+															 name="entry[{{mode}}][dhcpOptions][{{opt}}][override]" {{override_checked}} {{disabled}}>
+													<label for="opt-{{mode}}-{{opt}}">
+														{{name}} ({{opt}})
+													</label>
+												</div>
+											</div>
+											<div class="col-sm-4 text-right">
+												<div class="checkbox checkbox-inline">
+													<input class="hex-box" type="checkbox" id="opt-{{mode}}-{{opt}}-hex"
+															 name="entry[{{mode}}][dhcpOptions][{{opt}}][hex]" {{hex_checked}} {{disabled}}>
+													<label for="opt-{{mode}}-{{opt}}-hex">
+														{{lang_hex}}
+													</label>
+												</div>
+											</div>
+										</div>
+										<input type="text" id="opt-{{mode}}-{{opt}}-value" class="form-control hex-value"
+												 name="entry[{{mode}}][dhcpOptions][{{opt}}][value]" value="{{value}}" {{disabled}}>
+									</div>
+									{{/opts}}
 								</div>
 							</div>
 						</div>
@@ -120,6 +161,23 @@
 								 name="entry[script]" {{disabled}}>{{entry.script}}</textarea>
 				</div>
 			</div>
+
+			{{#hooks}}
+			<div class="type-form" id="form-{{moduleId}}">
+				<label for="select-{{moduleId}}">{{name}}</label>
+				<div class="form-group">
+					<select id="select-{{moduleId}}" class="form-control" name="selection-{{moduleId}}">
+						{{#groups}}
+						<optgroup label="{{groupName}}">
+							{{#entries}}
+							<option value="{{id}}" {{selected}}>{{name}}</option>
+							{{/entries}}
+						</optgroup>
+						{{/groups}}
+					</select>
+				</div>
+			</div>
+			{{/hooks}}
 
 			{{#builtin}}
 				<div class="alert alert-warning">
@@ -148,7 +206,8 @@
 document.addEventListener('DOMContentLoaded', function () {
 	$('.type-radio').click(function () {
 		$('.type-form').hide();
-		$('#form-' + $(this).val()).show();
+		var name = $(this).val().replace('.', '');
+		$('#form-' + name).show();
 	});
 	$('.type-radio[checked]').click();
 	var $as = $('#arch-selector');
@@ -167,5 +226,17 @@ document.addEventListener('DOMContentLoaded', function () {
 			$('#col-' + vs[i]).attr('class', 'mode-class col-md-' + cols).show();
 		}
 	}).change();
+	var colorize = function() {
+		var $t = $(this);
+		$t.css('color', ($t.data('hex') && !$t.val().match(/^[a-f0-9]*$/i)) ? 'red' : '');
+	};
+	var setHex = function() {
+		var n = '#' + this.id.replace(/-hex$/, '-value');
+		var $obj = $(n);
+		$obj.data('hex', this.checked);
+		colorize.call($obj[0]);
+	};
+	$('.hex-box').change(setHex).each(setHex);
+	$('.hex-value').change(colorize).keyup(colorize).each(colorize);
 });
 // --></script>

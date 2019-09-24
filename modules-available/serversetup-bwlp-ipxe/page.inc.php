@@ -228,7 +228,7 @@ class Page_ServerSetup extends Page
 			if (is_file($file)) {
 				$base = basename($file);
 				$features = [];
-				foreach (preg_split('/[\-\.\/]+/', $base, -1, PREG_SPLIT_NO_EMPTY) as $p) {
+				foreach (preg_split('/[\-.\/]+/', $base, -1, PREG_SPLIT_NO_EMPTY) as $p) {
 					if (array_key_exists($p, $strings)) {
 						$features += $strings[$p];
 					}
@@ -298,14 +298,11 @@ class Page_ServerSetup extends Page
 	{
 		$allowEdit = User::hasPermission('ipxe.bootentry.edit');
 
-		$res = Database::simpleQuery("SELECT be.entryid, be.hotkey, be.title, be.builtin, Count(sm.menuid) AS refs FROM serversetup_bootentry be
+		$bootentryTable = Database::queryAll("SELECT be.entryid, be.hotkey, be.title, be.builtin, be.module, Count(sm.menuid) AS refs
+				FROM serversetup_bootentry be
 				LEFT JOIN serversetup_menuentry sm USING (entryid)
-				GROUP BY be.entryid
+				GROUP BY be.entryid, be.title
 				ORDER BY be.title ASC");
-		$bootentryTable = [];
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$bootentryTable[] = $row;
-		}
 
 		if (empty($bootentryTable)) {
 			if (Property::getServerIp() === false || Property::getServerIp() === 'invalid') {
@@ -339,7 +336,7 @@ class Page_ServerSetup extends Page
 				FROM serversetup_menu m
 				LEFT JOIN serversetup_menu_location l USING (menuid)
 				LEFT JOIN location ll USING (locationid)
-				GROUP BY menuid
+				GROUP BY menuid, title
 				ORDER BY title");
 		$menuTable = [];
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -420,31 +417,22 @@ class Page_ServerSetup extends Page
 		}
 		$menu['keys'] = array_map(function ($item) { return ['key' => $item]; }, MenuEntry::getKeyList());
 		$menu['entrylist'] = array_merge(
-			Database::queryAll("SELECT entryid, title, hotkey, data FROM serversetup_bootentry ORDER BY title ASC"),
+			Database::queryAll("SELECT entryid, title, hotkey, module, data FROM serversetup_bootentry ORDER BY title ASC"),
 			// Add all menus, so we can link
 			Database::queryAll("SELECT Concat('menu:', menuid) AS entryid, title FROM serversetup_menu ORDER BY title ASC")
 		);
-		class_exists('BootEntry'); // Leave this here for StandardBootEntry
 		foreach ($menu['entrylist'] as &$bootentry) {
-			if (!isset($bootentry['data']))
+			if (!isset($bootentry['data']) || !isset($bootentry['module']) || $bootentry['module']{0} !== '.')
 				continue;
-			$bootentry['data'] = json_decode($bootentry['data'], true);
+			$entry = BootEntry::fromJson($bootentry['module'], $bootentry['data']);
+			if ($entry === null) {
+				error_log('WARNING: Ignoring NULL menu entry: ' . $bootentry['data']);
+				continue;
+			}
+			$bootentry['data'] = $entry->toArray();
 			// Transform stuff suitable for mustache
 			if (!array_key_exists('arch', $bootentry['data']))
 				continue;
-			// BIOS/EFI or both
-			if ($bootentry['data']['arch'] === StandardBootEntry::BIOS
-					|| $bootentry['data']['arch'] === StandardBootEntry::BOTH) {
-				$bootentry['data']['PCBIOS'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
-					'initRd' => $bootentry['data']['initRd']['PCBIOS'],
-					'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
-			}
-			if ($bootentry['data']['arch'] === StandardBootEntry::EFI
-					|| $bootentry['data']['arch'] === StandardBootEntry::BOTH) {
-				$bootentry['data']['EFI'] = array('executable' => $bootentry['data']['executable']['EFI'],
-					'initRd' => $bootentry['data']['initRd']['EFI'],
-					'commandLine' => $bootentry['data']['commandLine']['EFI']);
-			}
 			// Naming and agnostic
 			if ($bootentry['data']['arch'] === StandardBootEntry::BIOS) {
 				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_biosOnly', true);
@@ -453,16 +441,13 @@ class Page_ServerSetup extends Page
 				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_efiOnly', true);
 				unset($bootentry['data']['PCBIOS']);
 			} elseif ($bootentry['data']['arch'] === StandardBootEntry::AGNOSTIC) {
-				$bootentry['data']['archAgnostic'] = array('executable' => $bootentry['data']['executable']['PCBIOS'],
-					'initRd' => $bootentry['data']['initRd']['PCBIOS'],
-					'commandLine' => $bootentry['data']['commandLine']['PCBIOS']);
 				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archAgnostic', true);
 				unset($bootentry['data']['EFI']);
 			} else {
 				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archBoth', true);
 			}
 			foreach ($bootentry['data'] as &$e) {
-				if (isset($e['initRd']) && is_array($e['initRd'])) {
+				if (isset($e['initRd'])) {
 					$e['initRd'] = implode(',', $e['initRd']);
 				}
 			}
@@ -478,29 +463,57 @@ class Page_ServerSetup extends Page
 
 	private function showEditBootEntry()
 	{
-		$params = [];
+		$params = ['hooks' => []];
+		foreach (Hook::load('ipxe-bootentry') as $hook) {
+			$var = $hook->run();
+			if ($var instanceof BootEntryHook) {
+				$var->moduleId = $hook->moduleId;
+				$params['hooks'][] = $var;
+			}
+		}
 		$id = Request::get('id', false, 'string');
 		if ($id === false) {
 			$params['exec_checked'] = 'checked';
 			$params['entryid'] = 'u-' . dechex(mt_rand(0x1000, 0xffff)) . '-' . dechex(time());
-			$params['entries'] = [
-				['mode' => 'PCBIOS'],
-				['mode' => 'EFI'],
-			];
 		} else {
 			// Query existing entry
-			$row = Database::queryFirst('SELECT entryid, title, builtin, data FROM serversetup_bootentry
+			$row = Database::queryFirst('SELECT entryid, title, builtin, module, data FROM serversetup_bootentry
 				WHERE entryid = :id LIMIT 1', ['id' => $id]);
 			if ($row === false) {
 				Message::addError('invalid-boot-entry', $id);
 				Util::redirect('?do=serversetup');
 			}
-			$entry = BootEntry::fromJson($row['data']);
-			if ($entry === null) {
-				Message::addError('unknown-bootentry-type', $id);
-				Util::redirect('?do=serversetup');
+			if ($row['module']{0} === '.') {
+				// either script or exec entry
+				$json = json_decode($row['data'], true);
+				if (!is_array($json)) {
+					Message::addError('unknown-bootentry-type', $id);
+					Util::redirect('?do=serversetup&show=bootentry');
+				}
+				$entry = BootEntry::fromJson($row['module'], $json);
+				if ($entry === null) {
+					Message::addError('unknown-bootentry-type', $id);
+					Util::redirect('?do=serversetup&show=bootentry');
+				}
+				$entry->addFormFields($params);
+			} else {
+				// Hook from another module
+				if (Module::get($row['module']) === false) {
+					Message::addError('unknown-hook-module', $row['module']);
+				} else {
+					foreach ($params['hooks'] as $he) {
+						/** @var BootEntryHook $he */
+						if ($he->moduleId === $row['module']) {
+							$he->setSelected($row['data']);
+							$he->checked = 'checked';
+							if ($he->getBootEntry($row['data']) === null) {
+								Message::addError('invalid-custom-entry-id', $row['module'], $row['data']);
+							}
+							break;
+						}
+					}
+				}
 			}
-			$entry->addFormFields($params);
 			$params['title'] = $row['title'];
 			if (!Request::get('copy')) {
 				$params['oldentryid'] = $params['entryid'] = $row['entryid'];
@@ -787,34 +800,53 @@ class Page_ServerSetup extends Page
 			Message::addError('missing-bootentry-data');
 			return;
 		}
+		$module = false;
 		$type = Request::post('type', false, 'string');
-		if ($type === 'exec') {
-			$entry = BootEntry::newStandardBootEntry($data);
-		} elseif ($type === 'script') {
-			$entry = BootEntry::newCustomBootEntry($data);
+		if ($type{0} === '.') {
+			// Exec or script
+			if ($type === '.exec') {
+				$entry = BootEntry::newStandardBootEntry($data);
+			} elseif ($type === '.script') {
+				$entry = BootEntry::newCustomBootEntry($data);
+			}
+			if ($entry === null) {
+				Message::addError('main.empty-field');
+				Util::redirect('?do=serversetup&show=bootentry');
+			}
+			$entryData = json_encode($entry->toArray());
 		} else {
-			Message::addError('unknown-bootentry-type', $type);
-			return;
-		}
-		if ($entry === null) {
-			Message::addError('main.empty-field');
-			Util::redirect('?do=serversetup&show=bootentry');
+			// Module hook
+			$hook = Hook::loadSingle($type, 'ipxe-bootentry');
+			if ($hook === false) {
+				Message::addError('unknown-bootentry-type', $type);
+				return;
+			}
+			/** @var BootEntryHook $module */
+			$module = $hook->run();
+			$entryData = Request::post('selection-' . $type, false, 'string');
+			$entry = $module->getBootEntry($entryData);
+			if ($entry === null) {
+				Message::addError('invalid-custom-entry-id', $type, $entryData);
+				return;
+			}
 		}
 		$params = [
 			'entryid' => $newId,
 			'title' => Request::post('title', '', 'string'),
-			'data' => json_encode($entry->toArray()),
+			'module' => $type,
+			'data' => $entryData,
 		];
 		// New or update?
 		if (empty($oldEntryId)) {
 			// New entry
-			Database::exec('INSERT INTO serversetup_bootentry (entryid, title, builtin, data)
-				VALUES (:entryid, :title, 0, :data)', $params);
+			Database::exec('INSERT INTO serversetup_bootentry (entryid, title, builtin, module, data)
+				VALUES (:entryid, :title, 0, :module, :data)', $params);
 			Message::addSuccess('boot-entry-created', $newId);
 		} else {
 			// Edit existing entry
 			$params['oldid'] = $oldEntryId;
-			Database::exec('UPDATE serversetup_bootentry SET entryid = If(builtin = 0, :entryid, entryid), title = :title, data = :data
+			Database::exec('UPDATE serversetup_bootentry SET
+				entryid = If(builtin = 0, :entryid, entryid), title = :title, module = :module, data = :data
 				WHERE entryid = :oldid', $params);
 			Message::addSuccess('boot-entry-updated', $newId);
 		}

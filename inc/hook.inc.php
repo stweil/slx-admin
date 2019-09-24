@@ -27,6 +27,26 @@ class Hook
 		return $retval;
 	}
 
+	/**
+	 * Load given hook for a specific module only.
+	 *
+	 * @param string $moduleName Module
+	 * @param string $hookName Hook
+	 * @param bool $filterBroken return false if the module has missing deps
+	 * @return Hook|false hook instance, false on error or if module doesn't have given hook
+	 */
+	public static function loadSingle($moduleName, $hookName, $filterBroken = true)
+	{
+		if (Module::get($moduleName) === false) // No such module
+			return false;
+		if ($filterBroken && !Module::isAvailable($moduleName)) // Broken
+			return false;
+		$file = 'modules/' . $moduleName . '/hooks/' . $hookName . '.inc.php';
+		if (!file_exists($file)) // No hook
+			return false;
+		return new Hook($moduleName, $file);
+	}
+
 	/*
 	 *
 	 */
@@ -38,6 +58,23 @@ class Hook
 	{
 		$this->moduleId = $module;
 		$this->file = $hookFile;
+	}
+
+	/**
+	 * Run the hook's code. The include is expected to return a
+	 * value, which will in turn be the return value of this
+	 * method.
+	 *
+	 * @return mixed The return value of the include file, or false on error
+	 */
+	public function run()
+	{
+		try {
+			return (include $this->file);
+		} catch (Exception $e) {
+			error_log($e);
+			return false;
+		}
 	}
 
 }

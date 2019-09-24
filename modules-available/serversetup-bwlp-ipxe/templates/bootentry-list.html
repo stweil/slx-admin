@@ -11,19 +11,23 @@
 		<thead>
 		<tr>
 			<th>{{lang_entryId}}</th>
+			<th>{{lang_bootentryType}}</th>
 			<th>{{lang_bootentryTitle}}</th>
-			<th>{{lang_hotkey}}</th>
-			<th class="slx-smallcol">{{lang_refCount}}</th>
-			<th class="slx-smallcol">{{lang_edit}}</th>
-			{{#allowEdit}}<th class="slx-smallcol">{{lang_copy}}</th>{{/allowEdit}}
-			<th class="slx-smallcol">{{lang_delete}}</th>
+			<th class="small">{{lang_hotkey}}</th>
+			<th class="small slx-smallcol">{{lang_refCount}}</th>
+			<th class="small slx-smallcol">{{lang_edit}}</th>
+			{{#allowEdit}}<th class="small slx-smallcol">{{lang_copy}}</th>{{/allowEdit}}
+			<th class="small slx-smallcol">{{lang_delete}}</th>
 		</tr>
 		</thead>
 		<tbody>
 		{{#bootentryTable}}
 		<tr>
-			<td>
+			<td class="small">
 				{{entryid}}
+			</td>
+			<td class="small">
+				{{module}}
 			</td>
 			<td>
 				{{title}}

@@ -7,6 +7,7 @@
     "import-error": "Error importing menu",
     "import-no-entries": "Nothing imported: Menu seems to be empty",
     "invalid-boot-entry": "Invalid menu item: {{0}}",
+    "invalid-custom-entry-id": "Invalid entry id {{1}} for module {{0}}",
     "invalid-ip": "No interface is configured with the address {{0}}",
     "invalid-menu-id": "Invalid menu id: {{0}}",
     "localboot-invalid-method": "Invalid localboot method: {{0}}",
@@ -19,5 +20,6 @@
     "missing-bootentry-data": "Missing data for menu item",
     "no-ip-addr-set": "Please set the server's primary IP address",
     "no-ip-set": "Cannot import old configuration. Please set the primary IP address first.",
-    "unknown-bootentry-type": "Unknown item type: {{0}}"
+    "unknown-bootentry-type": "Unknown item type: {{0}}",
+    "unknown-hook-module": "Unknown module: {{0}}"
 }

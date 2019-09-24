@@ -26,7 +26,7 @@ class IPxeMenu
 		$this->title = $menu['title'];
 		$this->defaultEntryId = $menu['defaultentryid'];
 		$res = Database::simpleQuery("SELECT e.menuentryid, e.entryid, e.refmenuid, e.hotkey, e.title, e.hidden, e.sortval, e.md5pass,
-			b.data AS bootentry
+			b.module, b.data AS bootentry
 			FROM serversetup_menuentry e
 			LEFT JOIN serversetup_bootentry b USING (entryid)
 			WHERE e.menuid = :menuid
