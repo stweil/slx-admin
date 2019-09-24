@@ -177,6 +177,7 @@ $localboot || goto fail
 set ipappend1 ip=\${ip}:{$serverIp}:\${gateway}:\${netmask}
 set ipappend2 BOOTIF=01-\${mac:hexhyp}
 set serverip $serverIp ||
+iseq \${idx} \${} && set idx:string X ||
 
 # Clean up in case we've been chained to
 imgfree ||
