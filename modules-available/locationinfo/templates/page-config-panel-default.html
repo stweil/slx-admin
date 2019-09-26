@@ -133,8 +133,7 @@
 				<div class="panel panel-default" id="extra-div">
 					<div class="panel-heading">{{lang_mode}}</div>
 					<div class="panel-body">
-						<div class="list-group">
-
+						<div class="list-group" id="overridableConfigs">
 							<div class="list-group-item">
 								<div class="row">
 									<div class="col-sm-3">
@@ -181,7 +180,7 @@
 										<label for="input-vertical">{{lang_vertical}}</label>
 									</div>
 									<div class="col-sm-7">
-										<input id="input-vertical" type="checkbox" name="vertical" {{vertical_checked}}>
+										<input id="input-vertical" class="btstrpCheckbox" type="checkbox" name="vertical" {{vertical_checked}}>
 									</div>
 									<div class="col-sm-2">
 										<p class="btn btn-static helptext" title="{{lang_verticalTooltip}}">
@@ -222,7 +221,7 @@
 										<label for="scaledaysauto">{{lang_autoScale}}</label>
 									</div>
 									<div class="col-sm-7">
-										<input id="scaledaysauto" type="checkbox" name="scaledaysauto" {{scaledaysauto_checked}}>
+										<input id="scaledaysauto" class="btstrpCheckbox" type="checkbox" name="scaledaysauto" {{scaledaysauto_checked}}>
 									</div>
 									<div class="col-sm-2">
 										<p class="btn btn-static helptext" title="{{lang_autoscaleTooltip}}">
@@ -387,6 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// Initialize fancy tooltips
 	$('p.helptext').tooltip();
+
 	// Add listener to range sliders so their label can be updated
 	var $range = $('input[type="range"]');
 	$range.change(function () {
@@ -394,13 +394,12 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 	// Set state of input controls that aren't statically initialized server side
 	$('.modify-inputs input[type="checkbox"]')
-			.bootstrapSwitch({size: 'small'})
-			.on('switchChange.bootstrapSwitch', function () {
-				if (this.name === 'scaledaysauto') {
-					$('#daystoshow').prop('disabled', this.checked);
-				}
-			});
-
+		.bootstrapSwitch({size: 'small'})
+		.on('switchChange.bootstrapSwitch', function () {
+			if (this.name === 'scaledaysauto') {
+				$('#daystoshow').prop('disabled', this.checked);
+			}
+		});
 
 	var lids = $locInput.val().split(',');
 	$selLocs.empty();
@@ -481,92 +480,106 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	}
 
-	function loadOverrideContent(id) {
-		// 1. Build Content
-		// $content.append($('<div class="list-group-item"><div class="row"><div class="col-sm-3"></div><div class="col-sm-7"></div><div class="col-sm-2"></div></div></div>'));
-		var $content = $('<div class="list-group"></div>');
-		$content.append($('<div class="list-group-item"><div class="row">' +
-			'<div class="col-sm-3"><label for="override' + id + 'mode">{{lang_mode}}</label></div>' +
-			'<div class="col-sm-7"><select class="form-control" id="override' + id + 'mode" name="override' + id + 'mode" onchange="modeChangeOverride(id)"><option value="1" id="override' + id + 'mode1">{{lang_mode1}}</option><option value="2" id="override' + id + 'mode2">{{lang_mode2}}</option><option value="3" id="override' + id + 'mode3">{{lang_mode3}}</option><option value="4" id="override' + id + 'mode4">{{lang_mode4}}</option></select></div>' +
-			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_modeTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
-			'</div></div>'));
-		$content.append($('<div class="list-group-item"><div class="row">' +
-			'<div class="col-sm-3"><label for="override' + id + 'roomplanner">{{lang_useRoomplanner}}</label></div>' +
-			'<div class="col-sm-7"><select class="form-control" name ="override' + id + 'roomplanner" id="override' + id + 'roomplanner"><option value="0" id="override' + id + 'roomplanner0">{{lang_countIp}}</option><option value="1" id="override' + id + 'roomplanner1">{{lang_countRoomplan}}</option></select></div>' +
-			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_roomplannerTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
-			'</div></div>'));
-		$content.append($('<div class="list-group-item om1-s om2-h om3-h om4-h"><div class="row">' +
-			'<div class="col-sm-3"><label for="override' + id + 'vertical">{{lang_vertical}}</label></div>' +
-			'<div class="col-sm-7"><input id="override' + id + 'vertical" name="override' + id + 'vertical" type="checkbox"></div>' +
-			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_verticalTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
-			'</div></div>'));
-		$content.append($('<div class="list-group-item om1-s om2-s om3-h om4-s"><div class="row">' +
-			'<div class="col-sm-3"><label for="override' + id + 'startday">{{lang_startDay}}</label></div>' +
-			'<div class="col-sm-7"><select class="form-control" id="override' + id + 'startday" name="override' + id + 'startday"><option value="0">{{lang_currentDay}}</option><option value="1">{{lang_monday}}</option><option value="2">{{lang_thuesday}}</option><option value="3">{{lang_wednesday}}</option><option value="4">{{lang_thursday}}</option><option value="5">{{lang_friday}}</option><option value="6">{{lang_saturday}}</option><option value="7">{{lang_sunday}}</option></select></div>' +
-			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_startDayTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
-			'</div></div>'));
-		$content.append($('<div class="list-group-item om1-s om2-s om3-h om4-s"><div class="row">' +
-			'<div class="col-sm-3"><label for="override' + id + 'scaledaysauto">{{lang_autoScale}}</label></div>' +
-			'<div class="col-sm-7"><input id="override' + id + 'scaledaysauto" name="override' + id + 'scaledaysauto" type="checkbox"></div>' +
-			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_autoscaleTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
-			'</div></div>'));
-		$content.append($('<div class="list-group-item om1-s om2-s om3-h om4-s"><div class="row">' +
-			'<div class="col-sm-3"><label for="override' + id + 'daystoshow">{{lang_daysToShow}}</label></div>' +
-			'<div class="col-sm-7"><select class="form-control" id="override' + id + 'daystoshow" name="override' + id + 'daystoshow"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select></div>' +
-			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_daysToShowTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
-			'</div></div>'));
-		$content.append($('<div class="list-group-item om1-s om2-h om3-s om4-s"><div class="row">' +
-			'<div class="col-sm-3"><label for="override' + id + 'rotation">{{lang_rotation}}</label></div>' +
-			'<div class="col-sm-7"><select class="form-control" id="override' + id + 'rotation" name="override' + id + 'rotation"><option value="0">{{lang_rotation0}}</option><option value="1">{{lang_rotation1}}</option><option value="2">{{lang_rotation2}}</option><option value="3">{{lang_rotation3}}</option></select></div>' +
-			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_rotationTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
-			'</div></div>'));
-		$content.append($('<div class="list-group-item om1-s om2-h om3-h om4-h"><div class="row">' +
-			'<div class="col-sm-3"><label for="override' + id + 'scale">{{lang_scale}}</label></div>' +
-			'<div class="col-sm-7"><span><span class="range-display"></span> %</span><input id="override' + id + 'scale" name="override' + id + 'scale" type="range" step="1" min="10" max="90"></div>' +
-			'<div class="col-sm-2"><p class="btn btn-static helptext" title="{{lang_scaleTooltip}}"><span class="glyphicon glyphicon-question-sign"></span></p></div>' +
-			'</div></div>'));
+	function loadOverrideContent(locId) {
+		// Do we have override values (edit menu)?
+		var overVal = false;
+		if (overrides !== null && overrides[locId] !== undefined) overVal = true;
 
-		// 2. Load Content into Panel
-		var $panelBody = $('#overrideRoom' + id).find('div.panel-body');
-		$panelBody.append($content);
+		// Make Bootstrap switches to normal checkboxes to be able to clone them correctly
+		var btstrpCheckboxes = $('.modify-inputs input[class="btstrpCheckbox"]');
+		btstrpCheckboxes.bootstrapSwitch('destroy');
 
-		$('.modify-inputs #overrideRoom' + id + ' input[type="checkbox"]')
+		// Clone needed content
+		var $contentCopy = $('#overridableConfigs').clone(true);
+		$contentCopy.closest('#overridableConfigs').prop('id', '');
+
+		// Change mode show/hide classes
+		$contentCopy.find('.m1-s, .m1-h, .m2-s, .m2-h, .m3-s, .m3-h, .m4-s, .m4-h').each(function() {
+			if ($( this ).hasClass('m1-s')) $( this ).removeClass('m1-s').addClass('om1-s');
+			else if ($( this ).hasClass('m1-h')) $( this ).removeClass('m1-h').addClass('om1-h');
+			if ($( this ).hasClass('m2-s')) $( this ).removeClass('m2-s').addClass('om2-s');
+			else if ($( this ).hasClass('m2-h')) $( this ).removeClass('m2-h').addClass('om2-h');
+			if ($( this ).hasClass('m3-s')) $( this ).removeClass('m3-s').addClass('om3-s');
+			else if ($( this ).hasClass('m3-h')) $( this ).removeClass('m3-h').addClass('om3-h');
+			if ($( this ).hasClass('m4-s')) $( this ).removeClass('m4-s').addClass('om4-s');
+			else if ($( this ).hasClass('m4-h')) $( this ).removeClass('m4-h').addClass('om4-h');
+		});
+
+		// Change labels
+		$contentCopy.find('label').each(function() {
+			var oldFor = $( this ).attr('for');
+			$( this ).attr('for', 'override' + locId + oldFor);
+		});
+
+		// Change selects
+		$contentCopy.find('select').each(function() {
+			var oldId = $( this ).attr('id');
+			var oldName = $( this ).attr('name');
+			if (oldId === 'mode') $( this ).attr('onchange', 'modeChangeOverride(id)');
+			$( this ).attr('id', 'override' + locId + oldId);
+			$( this ).attr('name', 'override' + locId + oldName);
+			$( this ).val(overVal ? overrides[locId][oldName] : $('#' + oldId).val());
+			// TODO: Save 'roomplanner' mode (0, 1, ...) instead of true/false to get rid of special case
+			if (oldId === 'input-roomplanner' && overVal) $( this ).val(overrides[locId].roomplanner ? 1 : 0);
+		});
+
+		// Change options of selects
+		$contentCopy.find('option').each(function() {
+			var oldId = $( this ).attr('id');
+			$( this ).attr('id', 'override' + locId + oldId);
+		});
+
+		// Change inputs
+		$contentCopy.find('input').each(function() {
+			var oldId = $( this ).attr('id');
+			var oldName = $( this ).attr('name');
+			$( this ).attr('id', 'override' + locId + oldId);
+			$( this ).attr('name', 'override' + locId + oldName);
+			$( this ).removeClass('btstrpCheckbox');
+			if ($( this ).attr('type') === 'range') $( this ).val(overVal ? overrides[locId][oldName] : $('#' + oldId).val());
+			else if ($( this ).attr('type') === 'checkbox')  {
+				$( this )
+					.bootstrapSwitch({size: 'small'})
+					.on('switchChange.bootstrapSwitch', function () {
+						var regex = RegExp('[a-b0-9]*scaledaysauto');
+						var substr = this.name.substring(0, this.name.length - 13);
+						if (regex.test(this.name)) {
+							$('#' + substr + 'daystoshow').prop('disabled', this.checked);
+						}
+					});
+				$( this ).bootstrapSwitch('state', overVal ? overrides[locId][oldName] : $('#' + oldId).val());
+			}
+		});
+
+		// Append copied content to location specific <div>
+		var $panelBody = $('#overrideRoom' + locId).find('div.panel-body');
+		$panelBody.append($contentCopy);
+
+		// Specific extra stuff needed
+
+		// De-/activate daystoshow based on scaledaysauto on/off
+		$('#override' + locId + 'daystoshow').prop('disabled', document.getElementById('override' + locId + 'scaledaysauto').checked);
+
+		// Call modeChange once to correctly show/hide fields
+		modeChangeOverride('override'+ locId + 'mode');
+
+		// Recreate Bootstrap switches from checkboxes
+		btstrpCheckboxes
 			.bootstrapSwitch({size: 'small'})
 			.on('switchChange.bootstrapSwitch', function () {
-				if (this.id === 'override' + id + 'scaledaysauto') {
-					$('#override' + id + 'daystoshow').prop('disabled', this.checked);
+				var regex = RegExp('[a-b0-9]*scaledaysauto');
+				var substr = this.name.substring(0, this.name.length - 13);
+				if (regex.test(this.name)) {
+					$('#' + substr + 'daystoshow').prop('disabled', this.checked);
 				}
 			});
 
-		// 3. Init parameters: Given parameters or global parameters if none given
-		var scale = $('#override' + id + 'scale');
-		if (overrides !== null && overrides[id] !== undefined) {
-			$('#override' + id + 'mode').val(overrides[id].mode);
-			$('#override' + id + 'roomplanner').val(overrides[id].roomplanner ? 1 : 0);
-			if (overrides[id].vertical) $('#override' + id + 'vertical').bootstrapSwitch('state', true);
-			if (overrides[id].scaledaysauto) $('#override' + id + 'scaledaysauto').bootstrapSwitch('state', true);
-			$('#override' + id + 'startday').val(overrides[id].startday);
-			$('#override' + id + 'daystoshow').val(overrides[id].daystoshow);
-			$('#override' + id + 'rotation').val(overrides[id].rotation);
-			scale.val(overrides[id].scale);
-		} else {
-			$('#override' + id + 'mode').val($('#mode').val());
-			$('#override' + id + 'roomplanner').val($('#input-roomplanner').val());
-			if ($('#input-vertical').bootstrapSwitch('state')) $('#override' + id + 'vertical').bootstrapSwitch('state', true);
-			if ($('#scaledaysauto').bootstrapSwitch('state')) $('#override' + id + 'scaledaysauto').bootstrapSwitch('state', true);
-			console.log($('#startday').val())
-			$('#override' + id + 'startday').val($('#startday').val());
-			$('#override' + id + 'daystoshow').val($('#daystoshow').val());
-			$('#override' + id + 'rotation').val($('#rotation').val());
-			scale.val($('#input-scale').val());
-		}
-
-		scale.change(function () {
+		// Add listener to range inputs for updating value text
+		var range = $('input[type="range"]');
+		range.change(function () {
 			$(this).siblings().find('.range-display').text($(this).val());
 		});
-
-		scale.change();
-		modeChangeOverride('override' + id + 'mode');
+		range.change();
 	}
 
 	function unloadOverrideContent(id) {
