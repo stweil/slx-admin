@@ -7,10 +7,18 @@ class Dnbd3Util {
 		$dynClients = RunMode::getForMode('dnbd3', 'proxy', false, true);
 		$satServerIp = Property::getServerIp();
 		$servers = array();
+		$allUuids = [];
+		$hasSelf = false;
 		$res = Database::simpleQuery('SELECT s.serverid, s.machineuuid, s.fixedip, s.lastup, s.lastdown, m.clientip
 			FROM dnbd3_server s
 			LEFT JOIN machine m USING (machineuuid)');
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			if (!empty($row['machineuuid'])) {
+				$allUuids[$row['machineuuid']] = true;
+			}
+			if ($row['fixedip'] === '<self>') {
+				$hasSelf = true;
+			}
 			if (!is_null($row['fixedip'])) {
 				$ip = $row['fixedip'];
 			} elseif (!is_null($row['clientip'])) {
@@ -37,6 +45,8 @@ class Dnbd3Util {
 		}
 		// See if any clients are in dnbd3 proxy mode but don't have a matching row in the dnbd3_server table
 		foreach ($dynClients as $client) {
+			if (isset($allUuids[$client['machineuuid']]))
+				continue;
 			Database::exec('INSERT IGNORE INTO dnbd3_server (machineuuid) VALUES (:machineuuid)',
 				array('machineuuid' => $client['machineuuid']));
 			// Missing from $servers now but we'll handle them in the next run, so don't bother
@@ -44,7 +54,9 @@ class Dnbd3Util {
 		// Same for this server - we use the special fixedip '<self>' for it and need to make surecx we don't have the
 		// IP address of the server itself in the list.
 		Database::exec('DELETE FROM dnbd3_server WHERE fixedip = :serverip', array('serverip' => $satServerIp));
-		Database::exec("INSERT IGNORE INTO dnbd3_server (fixedip) VALUES ('<self>')");
+		if (!$hasSelf) {
+			Database::exec("INSERT IGNORE INTO dnbd3_server (fixedip) VALUES ('<self>')");
+		}
 		// Delete orphaned entires with machineuuid from dnbd3_server where we don't have a runmode entry
 		Database::exec('DELETE s FROM dnbd3_server s
 				LEFT JOIN runmode r USING (machineuuid)
