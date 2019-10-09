@@ -54,10 +54,12 @@ $('a.disabled').each(function() {
 	$hax.append($this);
 });
 
+var slxModalConfirmHandler;
+
 // Modern confirmation dialogs using bootstrap modal
 $(document).ready(function() {
-	var $title, $body, $button, $function, $modal = null, $cache = {};
-	$function = function (e) {
+	var $title, $body, $button, $modal = null, $cache = {};
+	slxModalConfirmHandler = function (e) {
 		e.preventDefault();
 		var $this = $(this);
 		if ($modal === null) {
@@ -70,9 +72,9 @@ $(document).ready(function() {
 			$button = $('#modal-autogen-button');
 		}
 		$title.text($this.data('title') || $this.text());
-		$button.html($this.html()).attr('class', $this.attr('class')).removeClass('btn-xs btn-sm btn-lg').off('click').click(function() {
+		$button.html($this.data('close') || $this.html()).attr('class', $this.attr('class')).removeClass('btn-xs btn-sm btn-lg').off('click').click(function() {
 			// Click and reconnect click handler so pressing "back" on the next page works
-			$this.off('click').click().click($function);
+			$this.off('click').click().click(slxModalConfirmHandler);
 		});
 		var $wat, str = $this.data('confirm');
 		if (str.substr(0, 9) === '#confirm-') {
@@ -87,7 +89,7 @@ $(document).ready(function() {
 		}
 		$modal.modal();
 	};
-	$('button[data-confirm]').click($function);
+	$('button[data-confirm]').click(slxModalConfirmHandler);
 });
 
 // Taskmanager callbacks for running tasks
