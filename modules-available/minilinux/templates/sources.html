@@ -1,0 +1,42 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{lang_sources}}
+	</div>
+	<table class="table table-condensed">
+		<thead>
+		<tr>
+			<th>{{lang_id}}</th>
+			<th>{{lang_title}}</th>
+			<th>{{lang_url}}</th>
+			<th>{{lang_lastUpdate}}</th>
+			<th>{{lang_key}}</th>
+		</tr>
+		</thead>
+		<tbody>
+		{{#list}}
+		<tr>
+			<td class="small">{{sourceid}}</td>
+			<td>{{title}}</td>
+			<td class="small">{{url}}</td>
+			<td class="{{update_class}}">{{lastupdate_s}}</td>
+			<td class="text-center">
+				<button type="button" class="btn btn-default btn-xs" data-confirm="#confirm-{{source}}" data-close="{{lang_close}}">
+					<span class="glyphicon glyphicon-eye-open"></span>
+				</button>
+				<pre id="confirm-{{source}}" class="hidden">{{pubkey}}</pre>
+			</td>
+		</tr>
+		{{/list}}
+		</tbody>
+	</table>
+	<div class="panel-body text-right">
+		<form method="post" action="?do=minilinux">
+			<input type="hidden" name="token" value="{{token}}">
+			<button type="submit" name="show" value="updatesources" class="btn btn-default"
+					  onclick="$(this).find('.glyphicon').addClass('slx-rotation')" {{^show_refresh}}disabled{{/show_refresh}}>
+				<span class="glyphicon glyphicon-refresh"></span>
+				{{lang_updateSourcesButton}}
+			</button>
+		</form>
+	</div>
+</div>

@@ -145,43 +145,6 @@ class Property
 		self::set('ipxe-menu', json_encode($value));
 	}
 
-	public static function getVersionCheckTaskId()
-	{
-		return self::get('versioncheck-task');
-	}
-
-	public static function setVersionCheckTaskId($value)
-	{
-		self::set('versioncheck-task', $value);
-	}
-
-	public static function getVersionCheckInformation()
-	{
-		$data = json_decode(self::get('versioncheck-data', '[]'), true);
-		if (isset($data['time']) && $data['time'] + 60 > time())
-			return $data;
-		$task = Taskmanager::submit('DownloadText', array(
-				'url' => CONFIG_REMOTE_ML . '/list.php'
-		));
-		if (!isset($task['id']))
-			return 'Could not start list download (' . Message::asString() . ')';
-		if (!Taskmanager::isFinished($task)) {
-			$task = Taskmanager::waitComplete($task['id'], 5000);
-		}
-		if ($task['statusCode'] !== Taskmanager::TASK_FINISHED || !isset($task['data']['content'])) {
-			return isset($task['data']['error']) ? $task['data']['error'] : 'Timeout';
-		}
-		$data = json_decode($task['data']['content'], true);
-		$data['time'] = time();
-		self::setVersionCheckInformation($data);
-		return $data;
-	}
-
-	public static function setVersionCheckInformation($value)
-	{
-		self::set('versioncheck-data', json_encode($value), 1);
-	}
-
 	public static function getVmStoreConfig()
 	{
 		return json_decode(self::get('vmstore-config'), true);
@@ -249,11 +212,6 @@ class Property
 	public static function getPasswordFieldType()
 	{
 		return self::get('password-type', 'password');
-	}
-
-	public static function getIpxeDefault()
-	{
-		return self::get('default-ipxe');
 	}
 
 }

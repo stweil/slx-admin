@@ -1,3 +1,8 @@
 {
-    "module_name": "Minilinux"
+    "file-checksum-bad": "Bad checksum",
+    "file-missing": "File missing",
+    "file-ok": "OK",
+    "file-size-mismatch": "File size mismatch",
+    "module_name": "Minilinux",
+    "page_title": "Manage Netboot Linux flavors"
 }

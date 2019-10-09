@@ -1,3 +1,6 @@
 {
-    "please-download-minilinux": "Wichtige Dateien der MiniLinux-Installation fehlen."
+    "delete-error": "Fehler beim L\u00f6schen der Version {{0}}: {{1}}",
+    "no-such-version": "Ung\u00fcltige\/Unbekannte Version: {{0}}",
+    "please-download-minilinux": "Wichtige Dateien der MiniLinux-Installation fehlen",
+    "version-deleted": "Version {{0}} wurde gel\u00f6scht"
 }

@@ -1,3 +1,6 @@
 {
-    "please-download-minilinux": "Important files from the mini Linux installation are missing."
+    "delete-error": "Error deleting version {{0}}: {{1}}",
+    "no-such-version": "No such version: {{0}}",
+    "please-download-minilinux": "Important files from the mini Linux installation are missing.",
+    "version-deleted": "Deleted version {{0}}"
 }

@@ -4,5 +4,8 @@
     },
     "update": {
         "location-aware": false
+    },
+    "delete": {
+        "location-aware": false
     }
 }

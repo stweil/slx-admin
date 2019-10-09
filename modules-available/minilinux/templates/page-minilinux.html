@@ -1,25 +1,3 @@
-<div id="systemlist">
-	<div class="panel panel-default">{{lang_listObtained}}</div>
-</div>
+<h1>{{lang_minilinuxHeading}}</h1>
 
-<script type="text/javascript"><!--
-	document.addEventListener('DOMContentLoaded', function() {
-		var $list = $('#systemlist');
-		function loadSystemList(version) {
-			$list.addClass('disabled');
-			$list.find('select, input, button').prop('disabled', true);
-			$list.find('div, p, span').addClass('text-muted');
-			$list.load('{{{listurl}}}', { token: TOKEN, version: version }, function( response, status, xhr ) {
-				if ( status === "error" ) {
-					var msg = "{{lang_errorGetting}}";
-					$list.html( msg + xhr.status + " " + xhr.statusText );
-				}
-				$list.removeClass('disabled');
-				$('#versionbox').change(function() {
-					loadSystemList($('#versionbox').val());
-				});
-			});
-		}
-		loadSystemList(0);
-	});
-// --></script>
+<p>{{lang_introText}}</p>

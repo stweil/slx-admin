@@ -1,0 +1,39 @@
+<table class="table table-striped">
+<tr>
+	<th>{{lang_version}}</th>
+	<th>{{lang_releaseDate}}</th>
+	<th>{{lang_title}}</th>
+	<th class="slx-smallcol"></th>
+	<th class="slx-smallcol"></th>
+</tr>
+{{#versions}}
+<tr>
+	<td>
+		<a href="#" class="version-link" data-version="{{versionid}}" {{#downloading}}data-autoclick="true"{{/downloading}}>
+			{{versionid}}
+			<b class="caret"></b>
+		</a>
+	</td>
+	<td>{{dateline_s}}</td>
+	<td>{{title}}</td>
+	<td>
+		{{^installed}}
+		{{^downloading}}
+		<button type="button" class="btn btn-xs btn-success btn-download" data-version="{{versionid}}">
+			<span class="glyphicon glyphicon-download"></span>
+			{{lang_download}}
+		</button>
+		{{/downloading}}
+		{{/installed}}
+	</td>
+	<td>
+		{{#orphan}}
+		{{lang_orphanedVersion}}
+		{{/orphan}}
+	</td>
+</tr>
+<tr>
+	<td colspan="5" class="version-container collapse" data-version="{{versionid}}"></td>
+</tr>
+{{/versions}}
+</table>

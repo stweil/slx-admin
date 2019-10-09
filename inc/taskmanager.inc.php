@@ -175,6 +175,22 @@ class Taskmanager
 		return false;
 	}
 
+	/**
+	 * Check whether the given task is running, that is either waiting for execution
+	 * or currently executing.
+	 *
+	 * @param array $task struct representing task, obtained by ::status
+	 * @return boolean true if task is waiting or executing, false if waiting for execution or currently executing, no valid task, etc.
+	 */
+	public static function isRunning($task)
+	{
+		if (!is_array($task) || !isset($task['statusCode']) || !isset($task['id']))
+			return false;
+		if ($task['statusCode'] === Taskmanager::TASK_WAITING || $task['statusCode'] === Taskmanager::TASK_PROCESSING)
+			return true;
+		return false;
+	}
+
 	public static function addErrorMessage($task)
 	{
 		static $failure = false;

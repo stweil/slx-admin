@@ -1,74 +1,53 @@
-	{{#systems}}
-	<h1>{{title}}</h1>
-		<div id="download-{{id}}">
-			<div class="input-group pull-right" style="max-width: 400px">
-				<span class="input-group-addon slx-ga">{{lang_desiredVersion}}</span>
-				<select id="versionbox" class="form-control">
-					{{#versions}}
-					{{#selected}}
-					<option value="{{version}}" selected>{{version}}</option>
-					{{/selected}}
-					{{^selected}}
-					<option value="{{version}}">{{version}}</option>
-					{{/selected}}
-					{{/versions}}
-				</select>
+<div class="text-right">
+	<form method="post" action="?do=minilinux">
+		<input type="hidden" name="token" value="{{token}}">
+		<input type="hidden" name="version" value="{{versionid}}">
+		{{#verify_button}}
+		<button type="button" class="btn btn-default btn-xs btn-verify" data-version="{{versionid}}" title="{{lang_verifyToolTip}}">
+			<span class="glyphicon glyphicon-search"></span>
+			{{lang_verify}}
+		</button>
+		{{/verify_button}}
+		{{#download_button}}
+		<button type="button" class="btn btn-xs btn-success btn-download" data-version="{{versionid}}">
+			<span class="glyphicon glyphicon-download"></span>
+			{{lang_download}}
+		</button>
+		{{/download_button}}
+		{{#delete_button}}
+		<button type="submit" name="show" value="delete" class="btn btn-xs btn-danger"
+				  data-confirm="{{lang_confirmDeleteVersion}}">
+			<span class="glyphicon glyphicon-trash"></span>
+			{{lang_delete}}
+		</button>
+		{{/delete_button}}
+	</form>
+</div>
+<div class="clearfix slx-smallspace"></div>
+<table class="slx-table" style="width:100%">
+{{#files}}
+	<tr>
+		<td class="text-nowrap">&nbsp;</td>
+		<td class="text-nowrap">{{name}}</td>
+		<td class="text-nowrap text-right">{{size_s}}</td>
+		<td class="text-nowrap text-right">{{mtime_s}}</td>
+		<td style="width:100%">
+			{{^dltask}}
+			{{state}}
+			{{/dltask}}
+			{{#dltask}}
+			<div id="{{fileid}}">
+				<div class="progress" style="margin-bottom:0">
+					<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+						  style="width:0"></div>
+				</div>
 			</div>
-			{{#systemChanged}}
-			<p>
-				{{lang_canUpdate1}} <b>{{title}}</b> {{lang_canUpdate2}}
-			</p>
-			<button {{perms.update.disabled}} class="btn btn-primary" onclick="slxUpdateAll(this, 'download-{{id}}')"><span class="glyphicon glyphicon-refresh"></span> {{lang_updateAll}}<span></span></button>
-			{{/systemChanged}}
-			{{^systemChanged}}
-			<p>{{lang_systemUpdated}}</p>
-			{{/systemChanged}}
-			<hr>
-			<p><b>{{lang_filesInVersion}} {{version}}</b></p>
-			<ul class="list-group">
-				{{#files}}
-				<li class="list-group-item" id="{{uid}}">
-					<div class="row">
-						<div class="col-sm-2">{{name}}</div>
-						<div class="col-xs-2">
-							{{^fileChanged}}<span class="glyphicon glyphicon-ok"></span> <b>{{lang_uptodate}}</b>{{/fileChanged}}
-							{{#fileChanged}}<span class="glyphicon glyphicon-exclamation-sign"></span> <b>{{lang_outdated}}</b>{{/fileChanged}}
-						</div>
-						<div class="col-xs-2">
-							{{#fileChanged}}<button {{perms.update.disabled}} class="btn btn-primary btn-xs update-button" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')"><span class="glyphicon glyphicon-refresh"></span> {{lang_update}}</button> {{/fileChanged}}
-							{{^fileChanged}}<button {{perms.update.disabled}} class="btn btn-default btn-xs" onclick="slxUpdate('{{uid}}', '{{id}}', '{{name}}')"><span class="glyphicon glyphicon-download-alt"></span> {{lang_redownload}}</button> {{/fileChanged}}
-						</div>
-					</div>
-					{{{download}}}
-				</li>
-				{{/files}}
-			</ul>
-		</div>
-	</div>
-	{{/systems}}
-	{{^systems}}
-	<div class="row well well-sm">{{lang_configurationPackageNotFound}}</div>
-	{{/systems}}
-
-<script type="text/javascript">
-function slxUpdate(uid, id, name)
-{
-	$('#' + uid).html('');
-	$('#' + uid).load('?do=MiniLinux',
-		{ action : "download", token : TOKEN, id : id, name : name, version : $('#versionbox').val() },
-		function(response, status, xhr) {
-			if (status === "error") {
-				var msg = "Fehler beim Abruf: ";
-				$('#' + uid).html(msg + xhr.status + " " + xhr.statusText);
-			} else {
-				setTimeout(tmInit, 100);
-			}
-		});
-}
-function slxUpdateAll(t, uid)
-{
-	$(t).hide(0);
-	$('#' + uid).find('.update-button').click();
-}
-tmInit();
-</script>
+			{{/dltask}}
+		</td>
+	</tr>
+{{/files}}
+</table>
+{{#dltask}}
+<div class="hidden" data-tm-id="{{dltask}}" data-tm-callback="dlTmCb"></div>
+{{/dltask}}
+<div class="slx-space"></div>

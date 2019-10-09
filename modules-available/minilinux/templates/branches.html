@@ -1,0 +1,73 @@
+{{#branches}}
+<div id="ibm-mainframe" class="panel panel-default">
+	<div class="panel-heading">
+		<div class="pull-right">
+			{{sourceid}} {{branchid}}
+		</div>
+		{{title}}
+	</div>
+	<div class="panel-body">
+
+	</div>
+	{{{versionlist}}}
+</div>
+{{/branches}}
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		var addHandlers = function(parent) {
+			parent.find('.btn-verify').click(function() {
+				loadDetails($(this).data('version'), { show: "version", verify: 1 });
+			});
+			parent.find('.btn-download').click(function() {
+				loadDetails($(this).data('version'), { show: "download" });
+				$(this).remove();
+			});
+		};
+		var loadDetails = function(version, params) {
+			var c = $('.version-container[data-version="' + version + '"]');
+			c.show();
+			if (c.is(':empty')) {
+				c.html('<span class="glyphicon glyphicon-refresh slx-rotation"></span>');
+			} else {
+				c.addClass('slx-fade');
+				c.find('button, a').addClass('disabled').prop('disabled', true);
+			}
+			var data = { version: version, token: TOKEN };
+			$.extend(data, params);
+			c.load('?do=minilinux', data,
+				function () {
+					c.removeClass('slx-fade');
+					addHandlers(c);
+					c.find('button[data-confirm]').click(slxModalConfirmHandler);
+					tmInit();
+				});
+		};
+		$('.version-link').click(function(e) {
+			e.preventDefault();
+			$(this).removeClass('version-link').off().removeAttr('href');
+			loadDetails($(this).data('version'), { show: "version" });
+		});
+		addHandlers($('#ibm-mainframe'));
+		$('[data-autoclick="true"]').click();
+	});
+	var taskDone = {};
+	function dlTmCb(task) {
+		if (!task.data || !task.data.files)
+			return;
+		for (var i = 0; i < task.data.files.length; ++i) {
+			var f = task.data.files[i];
+			var id = task.id + f.id;
+			if (taskDone[id] === true)
+				continue;
+			var $div = $('#' + f.id);
+			if (f.error) {
+				$div.text(f.error).addClass('text-danger');
+				taskDone[id] = true;
+			} else {
+				var wasDone = (taskDone[id] === 100);
+				tmSetProgress($div, f.progress, wasDone ? 'TASK_FINISHED' : task.statusCode);
+				taskDone[id] = wasDone ? true : f.progress;
+			}
+		}
+	}
+</script>

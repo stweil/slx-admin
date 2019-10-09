@@ -184,6 +184,15 @@ class TaskmanagerCallback
 		}
 	}
 
+	public static function mlDownload($task, $args)
+	{
+		$mod = Module::get('minilinux');
+		if ($mod === false)
+			return;
+		$mod->activate(1, false);
+		MiniLinux::listDownloadCallback($task, $args);
+	}
+
 	public static function uploadimg($task)
 	{
 		//$string=var_export($task, true);

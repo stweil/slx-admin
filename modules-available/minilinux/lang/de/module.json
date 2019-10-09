@@ -1,4 +1,8 @@
 {
+    "file-checksum-bad": "Pr\u00fcfsummenfehler",
+    "file-missing": "Datei fehlt",
+    "file-ok": "OK",
+    "file-size-mismatch": "Dateigr\u00f6\u00dfe stimmt nicht",
     "module_name": "bwLehrpool MiniLinux",
-    "page_title": "MiniLinux verwalten und aktualisieren"
+    "page_title": "Linuxvarianten f\u00fcr Netboot verwalten"
 }
