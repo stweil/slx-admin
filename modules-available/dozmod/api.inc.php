@@ -225,6 +225,12 @@ function outputResource($lecture_uuid, $resource)
 	}
 	$key = $resource . '_' . $lecture_uuid;
 	if (cache_has($key)) {
+		if ($resource === 'metadata' || $resource === 'vmx') {
+			// HACK HACK HACK: Update launch counter as it was cached,
+			// otherwise dmsd would take care of increasing it...
+			Database::exec("UPDATE sat.lecture SET usecount = usecount + 1 WHERE lectureid = :lectureid",
+				['lectureid' => $lecture_uuid], true);
+		}
 		cache_get_passthru($key);
 	} else {
 		$value = _getVmData($lecture_uuid, $resource);
