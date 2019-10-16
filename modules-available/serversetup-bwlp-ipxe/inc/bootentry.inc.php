@@ -260,6 +260,7 @@ class StandardBootEntry extends BootEntry
 		} else {
 			$entry = $this->efi;
 		}
+		$entry->sanitize();
 
 		$script = '';
 		if ($entry->resetConsole) {

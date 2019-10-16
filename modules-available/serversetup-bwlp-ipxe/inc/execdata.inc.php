@@ -73,7 +73,7 @@ class ExecData
 		],
 	];
 
-	private function sanitize()
+	public function sanitize()
 	{
 		settype($this->executable, 'string');
 		settype($this->initRd, 'array');

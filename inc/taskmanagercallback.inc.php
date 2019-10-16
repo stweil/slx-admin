@@ -184,13 +184,22 @@ class TaskmanagerCallback
 		}
 	}
 
-	public static function mlDownload($task, $args)
+	public static function mlGotList($task, $args)
 	{
 		$mod = Module::get('minilinux');
 		if ($mod === false)
 			return;
 		$mod->activate(1, false);
 		MiniLinux::listDownloadCallback($task, $args);
+	}
+
+	public static function mlGotLinux($task, $args)
+	{
+		$mod = Module::get('minilinux');
+		if ($mod === false)
+			return;
+		$mod->activate(1, false);
+		MiniLinux::linuxDownloadCallback($task, $args);
 	}
 
 	public static function uploadimg($task)

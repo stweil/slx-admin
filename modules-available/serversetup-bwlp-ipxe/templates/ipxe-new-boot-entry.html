@@ -52,6 +52,8 @@
 				<input id="input-title" class="form-control" name="title" value="{{title}}" maxlength="100" {{disabled}}>
 			</div>
 
+			<h4>{{lang_bootEntryDetailsHeading}}</h4>
+
 			<div class="type-form" id="form-exec">
 				<div class="form-group">
 					<label for="arch-selector">
@@ -170,11 +172,19 @@
 						{{#groups}}
 						<optgroup label="{{groupName}}">
 							{{#entries}}
-							<option value="{{id}}" {{selected}}>{{name}}</option>
+							<option value="{{id}}" {{selected}} {{disabled}}>{{name}}</option>
 							{{/entries}}
 						</optgroup>
 						{{/groups}}
 					</select>
+				</div>
+				<div class="form-group">
+					{{#renderExtraFields.0}}
+					<h4>{{lang_hookExtraOptionHeading}}</h4>
+					{{/renderExtraFields.0}}
+					{{#renderExtraFields}}
+					{{{html}}}
+					{{/renderExtraFields}}
 				</div>
 			</div>
 			{{/hooks}}
@@ -184,6 +194,8 @@
 					{{lang_editBuiltinWarn}}
 				</div>
 			{{/builtin}}
+
+			<hr>
 
 			<p class="slx-bold">{{lang_referencingMenus}}:</p>
 			<ul>

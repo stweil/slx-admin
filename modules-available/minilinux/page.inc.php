@@ -18,6 +18,8 @@ class Page_MiniLinux extends Page
 				$this->deleteVersion();
 			} elseif ($show === 'updatesources') {
 				$this->updateSources();
+			} elseif ($show === 'setdefault') {
+				$this->setDefault();
 			}
 			Util::redirect('?do=minilinux');
 		}
@@ -27,15 +29,21 @@ class Page_MiniLinux extends Page
 
 	protected function doRender()
 	{
-		Render::addTemplate('page-minilinux');
+		Render::addTemplate('page-minilinux', ['default' => Property::get(MiniLinux::PROPERTY_DEFAULT_BOOT)]);
+		// Warning
+		if (!MiniLinux::updateCurrentBootSetting()) {
+			Message::addError('default-not-installed', Property::get(MiniLinux::PROPERTY_DEFAULT_BOOT));
+		}
 		// List branches and versions
 		$branches = Database::queryAll('SELECT sourceid, branchid, title FROM minilinux_branch ORDER BY title ASC');
-		$versions = $this->queryAllVersionsByBranch();
+		$versions = MiniLinux::queryAllVersionsByBranch();
+		// Group by branch for detailed listing
 		foreach ($branches as &$branch) {
 			if (isset($versions[$branch['branchid']])) {
 				$branch['versionlist'] = $this->renderVersionList($versions[$branch['branchid']]);
 			}
 		}
+		unset($branch);
 		Render::addTemplate('branches', ['branches' => $branches]);
 		// List sources
 		$res = Database::simpleQuery('SELECT sourceid, title, url, lastupdate, pubkey FROM minilinux_source ORDER BY title, sourceid');
@@ -60,35 +68,34 @@ class Page_MiniLinux extends Page
 		User::load();
 		$show = Request::post('show', false, 'string');
 		if ($show === 'version') {
-			$this->ajaxVersion();
+			$this->ajaxVersionDetails();
 		} elseif ($show === 'download') {
 			$this->ajaxDownload();
 		}
 	}
 
-	private function queryAllVersionsByBranch()
-	{
-		$list = [];
-		$res = Database::simpleQuery('SELECT branchid, versionid, title, dateline, orphan, taskid
-			FROM minilinux_version ORDER BY branchid, dateline, versionid');
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$list[$row['branchid']][] = $row;
-		}
-		return $list;
-	}
-
 	private function renderVersionList($versions)
 	{
+		$def = Property::get(MiniLinux::PROPERTY_DEFAULT_BOOT);
+		$eff = Property::get(MiniLinux::PROPERTY_DEFAULT_BOOT_EFFECTIVE);
 		foreach ($versions as &$version) {
 			$version['dateline_s'] = Util::prettyTime($version['dateline']);
 			$version['orphan'] = ($version['orphan'] > 5);
-			$version['installed'] = is_dir(CONFIG_HTTP_DIR . '/' . $version['versionid']);
 			$version['downloading'] = $version['taskid'] && Taskmanager::isRunning(Taskmanager::status($version['taskid']));
+			if ($version['installed'] && $version['versionid'] !== $def) {
+				$version['showsetdefault'] = true;
+			}
+			if ($version['versionid'] === $def) {
+				$version['isdefault'] = true;
+				if (!$version['installed']) {
+					$version['default_class'] = 'bg-danger';
+				}
+			}
 		}
-		return Render::parse('versionlist', ['versions' => $versions]);
+		return Render::parse('versionlist', ['versions' => array_values($versions)]);
 	}
 
-	private function ajaxVersion()
+	private function ajaxVersionDetails()
 	{
 		User::assertPermission('view');
 		$verify = Request::post('verify', false, 'bool');
@@ -96,7 +103,7 @@ class Page_MiniLinux extends Page
 		if ($versionid === false) {
 			die('What!');
 		}
-		$ver = Database::queryFirst('SELECT versionid, taskid, data FROM minilinux_version WHERE versionid = :versionid',
+		$ver = Database::queryFirst('SELECT versionid, taskid, data, installed FROM minilinux_version WHERE versionid = :versionid',
 			['versionid' => $versionid]);
 		if ($ver === false) {
 			die('No such version');
@@ -110,6 +117,7 @@ class Page_MiniLinux extends Page
 		$data['dltask'] = MiniLinux::validateDownloadTask($versionid, $ver['taskid']);
 		$data['verify_button'] = !$verify && $data['dltask'] === false;
 		if (is_array($data['files'])) {
+			$valid = true;
 			$sort = [];
 			foreach ($data['files'] as &$file) {
 				if (empty($file['name'])) {
@@ -119,8 +127,7 @@ class Page_MiniLinux extends Page
 				$sort[] = $file['name'];
 				$s = $this->getFileState($versionid, $file, $verify);
 				if ($s !== self::FILE_OK) {
-					$data['verify_button'] = false;
-					$data['download_button'] = !$data['dltask'];
+					$valid = false;
 				}
 				if ($s !== self::FILE_MISSING) {
 					$data['delete_button'] = true;
@@ -138,6 +145,15 @@ class Page_MiniLinux extends Page
 			}
 			unset($file);
 			array_multisort($sort, SORT_ASC, $data['files']);
+			if (!$valid) {
+				$data['verify_button'] = false;
+				$data['download_button'] = !$data['dltask'];
+				if ($ver['installed']) {
+					MiniLinux::setInstalledState($versionid, false);
+				}
+			} elseif (!$ver['installed'] && $verify) {
+				MiniLinux::setInstalledState($versionid, true);
+			}
 		}
 		echo Render::parse('filelist', $data);
 	}
@@ -146,6 +162,7 @@ class Page_MiniLinux extends Page
 	const FILE_MISSING = 1;
 	const FILE_SIZE_MISMATCH = 2;
 	const FILE_CHECKSUM_BAD = 3;
+	const FILE_NOT_READABLE = 4;
 
 	private function getFileState($versionid, $file, $verify)
 	{
@@ -154,11 +171,17 @@ class Page_MiniLinux extends Page
 			return self::FILE_MISSING;
 		if (isset($file['size']) && filesize($path) != $file['size'])
 			return self::FILE_SIZE_MISMATCH;
+		if (!is_readable($path))
+			return self::FILE_NOT_READABLE;
 		if ($verify) {
-			// TODO: Others
-			if (isset($file['md5'])) {
-				if (md5_file($path) !== $file['md5'])
-					return self::FILE_CHECKSUM_BAD;
+			foreach (['sha512', 'sha384', 'sha256', 'sha224', 'sha1', 'md5'] as $algo) {
+				if (isset($file[$algo])) {
+					$calced = hash_file($algo, $path);
+					if ($calced === false)
+						continue; // Algo not supported?
+					if ($calced !== $file['md5'])
+						return self::FILE_CHECKSUM_BAD;
+				}
 			}
 		}
 		return self::FILE_OK;
@@ -173,6 +196,8 @@ class Page_MiniLinux extends Page
 			return Dictionary::translate('file-size-mismatch', true);
 		case self::FILE_MISSING:
 			return Dictionary::translate('file-missing', true);
+		case self::FILE_NOT_READABLE:
+			return Dictionary::translate('file-not-readable', true);
 		case self::FILE_OK:
 			return Dictionary::translate('file-ok', true);
 		}
@@ -191,7 +216,7 @@ class Page_MiniLinux extends Page
 			Message::addError('no-such-version', $version);
 			Message::renderList();
 		} else {
-			$this->ajaxVersion();
+			$this->ajaxVersionDetails();
 		}
 	}
 
@@ -209,6 +234,7 @@ class Page_MiniLinux extends Page
 			Message::addError('no-such-version');
 			return;
 		}
+		MiniLinux::setInstalledState($version['versionid'], false);
 		$path = CONFIG_HTTP_DIR . '/' . $version['versionid'];
 		$task = Taskmanager::submit('DeleteDirectory', [
 			'path' => $path,
@@ -231,6 +257,22 @@ class Page_MiniLinux extends Page
 			sleep(2);
 			Trigger::checkCallbacks();
 		}
+	}
+
+	private function setDefault()
+	{
+		$versionid = Request::post('version', false, 'string');
+		if ($versionid === false) {
+			Message::addError('main.parameter-missing', 'versionid');
+			return;
+		}
+		$version = Database::queryFirst('SELECT versionid FROM minilinux_version WHERE versionid = :versionid',
+			['versionid' => $versionid]);
+		if ($version === false) {
+			Message::addError('no-such-version');
+			return;
+		}
+		Property::set(MiniLinux::PROPERTY_DEFAULT_BOOT, $version['versionid']);
 	}
 
 }

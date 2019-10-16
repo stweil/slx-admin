@@ -26,9 +26,11 @@ $result[] = tableCreate('minilinux_version', "
   `data` blob NOT NULL,
   `orphan` tinyint(3) UNSIGNED NOT NULL,
   `taskid` char(36) CHARACTER SET ascii DEFAULT NULL,
+  `installed` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`versionid`),
   KEY (`title`),
-  KEY (`branchid`, `dateline`, `versionid`)
+  KEY (`branchid`, `dateline`, `versionid`),
+  KEY (`branchid`, `installed`, `dateline`)
 ");
 
 $result[] = tableAddConstraint('minilinux_version', 'branchid', 'minilinux_branch', 'branchid',

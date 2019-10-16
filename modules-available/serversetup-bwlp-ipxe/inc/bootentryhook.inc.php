@@ -14,18 +14,24 @@ abstract class BootEntryHook
 
 	private $selectedId;
 
+	private $data = [];
+
+	/**
+	 * @return string
+	 */
 	public abstract function name();
+
+	/**
+	 * @return HookExtraField[]
+	 */
+	public abstract function extraFields();
+
+	public abstract function isValidId($id);
 
 	/**
 	 * @return HookEntryGroup[]
 	 */
 	protected abstract function groupsInternal();
-
-	/**
-	 * @param $id
-	 * @return BootEntry|null the actual boot entry instance for given entry, null if invalid id
-	 */
-	public abstract function getBootEntry($id);
 
 	/**
 	 * @return HookEntryGroup[]
@@ -43,9 +49,38 @@ abstract class BootEntryHook
 		return $groups;
 	}
 
+	/**
+	 * @param $id
+	 * @return BootEntry|null the actual boot entry instance for given entry, null if invalid id
+	 */
+	public abstract function getBootEntryInternal($data);
+
+	public final function getBootEntry($data)
+	{
+		if (!is_array($data)) {
+			$data = json_decode($data, true);
+		}
+		return $this->getBootEntryInternal($data);
+	}
+
 	public function setSelected($id)
 	{
+		$json = @json_decode($id, true);
+		if (is_array($json)) {
+			$id = $json['id'];
+			$this->data = $json;
+		}
 		$this->selectedId = $id;
+	}
+
+	public function renderExtraFields()
+	{
+		$list = $this->extraFields();
+		foreach ($list as &$entry) {
+			$entry->currentValue = isset($this->data[$entry->name]) ? $this->data[$entry->name] : $entry->default;
+			$entry->hook = $this;
+		}
+		return $list;
 	}
 
 }
@@ -79,13 +114,100 @@ class HookEntry
 	 */
 	public $name;
 	/**
+	 * @var bool
+	 */
+	public $valid;
+	/**
+	 * @var string if !valid, this will be the string 'disabled', empty otherwise
+	 */
+	public $disabled;
+	/**
 	 * @var string internal - to be set by ipxe module
 	 */
 	public $selected;
 
-	public function __construct($id, $name)
+	/**
+	 * HookEntry constructor.
+	 *
+	 * @param string $id
+	 * @param string $name
+	 * @param bool $valid
+	 */
+	public function __construct($id, $name, $valid)
 	{
 		$this->id = $id;
 		$this->name = $name;
+		$this->valid = $valid;
+		$this->disabled = $valid ? '' : 'disabled';
 	}
+}
+
+class HookExtraField
+{
+	/**
+	 * @var string ID of extra field, [a-z0-9\-] please. Must not be 'id'
+	 */
+	public $name;
+	/**
+	 * @var string type of field, use string, bool, or an array of predefined options
+	 */
+	public $type;
+	/**
+	 * @var mixed default value
+	 */
+	public $default;
+
+	public $currentValue;
+
+	/**
+	 * @var BootEntryHook
+	 */
+	public $hook;
+
+	public function __construct($name, $type, $default)
+	{
+		$this->name = $name;
+		$this->type = $type;
+		$this->default = $default;
+	}
+
+	public function fromPost($typePrefix)
+	{
+		if (is_array($this->type)) {
+			$val = Request::post('extra-' . $typePrefix . '-' . $this->name, '', 'array');
+			if (!in_array($val, $this->type)) {
+				$val = $this->default;
+			}
+		} else {
+			$val = Request::post('extra-' . $typePrefix . '-' . $this->name, '', $this->type);
+			settype($val, $this->type);
+		}
+		return $val;
+	}
+
+	public function html()
+	{
+		$fieldId = 'extra-' . $this->hook->moduleId . '-' . $this->name;
+		$fieldText = htmlspecialchars(Dictionary::translateFileModule($this->hook->moduleId, 'module', 'ipxe-' . $this->name, true));
+		if (is_array($this->type)) {
+			$out = '<label for="' . $fieldId . '">' . $fieldText . '</label><select class="form-control" name="' . $fieldId . '" id="' . $fieldId . '">';
+			foreach ($this->type as $entry) {
+				$selected = ($entry === $this->currentValue) ? 'selected' : '';
+				$out .= '<option ' . $selected . '>' . htmlspecialchars($entry) . '</option>';
+			}
+			$out .= '</select>';
+			return $out;
+		}
+		if ($this->type === 'bool') {
+			$checked = $this->currentValue ? 'checked' : '';
+			return '<div class="checkbox"><input type="checkbox" id="' . $fieldId
+				. '" name="' . $fieldId . '" ' . $checked . '><label for="' . $fieldId . '">'
+				. $fieldText . '</label></div>';
+		}
+		// Default
+		return '<label for="' . $fieldId . '">' . $fieldText . '</label>'
+			. '<input class="form-control" type="text" id="' . $fieldId
+			. '" name="' . $fieldId . '" value="' . htmlspecialchars($this->currentValue) . '">';
+	}
+
 }

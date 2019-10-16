@@ -519,24 +519,24 @@ class Page_ServerSetup extends Page
 				$params['oldentryid'] = $params['entryid'] = $row['entryid'];
 				$params['builtin'] = $row['builtin'];
 			}
-			if (!is_array($params['entries'])) {
-				$params['entries'] = [];
-			}
-			$f = [];
-			foreach ($params['entries'] as $e) {
-				if (isset($e['mode'])) {
-					$f[] = $e['mode'];
-				}
-			}
-			if (!in_array('PCBIOS', $f)) {
-				$params['entries'][] = ['mode' => 'PCBIOS'];
-			}
-			if (!in_array('EFI', $f)) {
-				$params['entries'][] = ['mode' => 'EFI'];
-			}
 			$params['menus'] = Database::queryAll('SELECT m.menuid, m.title FROM serversetup_menu m
 					INNER JOIN serversetup_menuentry me ON (me.menuid = m.menuid)
 					WHERE me.entryid = :entryid', ['entryid' => $row['entryid']]);
+		}
+		if (!isset($params['entries']) || !is_array($params['entries'])) {
+			$params['entries'] = [];
+		}
+		$f = [];
+		foreach ($params['entries'] as $e) {
+			if (isset($e['mode'])) {
+				$f[] = $e['mode'];
+			}
+		}
+		if (!in_array('PCBIOS', $f)) {
+			$params['entries'][] = ['mode' => 'PCBIOS'];
+		}
+		if (!in_array('EFI', $f)) {
+			$params['entries'][] = ['mode' => 'EFI'];
 		}
 
 		$params['disabled'] = User::hasPermission('ipxe.bootentry.edit') ? '' : 'disabled';
@@ -823,12 +823,19 @@ class Page_ServerSetup extends Page
 			}
 			/** @var BootEntryHook $module */
 			$module = $hook->run();
-			$entryData = Request::post('selection-' . $type, false, 'string');
-			$entry = $module->getBootEntry($entryData);
+			$id = Request::post('selection-' . $type, false, 'string');
+			$entry = $module->isValidId($id);
 			if ($entry === null) {
-				Message::addError('invalid-custom-entry-id', $type, $entryData);
+				Message::addError('invalid-custom-entry-id', $type, $id);
 				return;
 			}
+			$entryData = ['id' => $id];
+			foreach ($module->extraFields() as $field) {
+				if ($field->name === 'id')
+					continue;
+				$entryData[$field->name] = $field->fromPost($type);
+			}
+			$entryData = json_encode($entryData);
 		}
 		$params = [
 			'entryid' => $newId,

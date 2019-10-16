@@ -1,22 +1,45 @@
 <table class="table table-striped">
 <tr>
-	<th>{{lang_version}}</th>
-	<th>{{lang_releaseDate}}</th>
+	<th class="slx-smallcol">{{lang_version}}</th>
+	<th class="slx-smallcol">{{lang_releaseDate}}</th>
 	<th>{{lang_title}}</th>
+	<th class="slx-smallcol"></th>
 	<th class="slx-smallcol"></th>
 	<th class="slx-smallcol"></th>
 </tr>
 {{#versions}}
 <tr>
-	<td>
+	<td class="text-nowrap">
 		<a href="#" class="version-link" data-version="{{versionid}}" {{#downloading}}data-autoclick="true"{{/downloading}}>
 			{{versionid}}
 			<b class="caret"></b>
 		</a>
 	</td>
-	<td>{{dateline_s}}</td>
+	<td class="text-nowrap">{{dateline_s}}</td>
 	<td>{{title}}</td>
-	<td>
+	<td class="text-nowrap">
+		{{#orphan}}
+		{{lang_orphanedVersion}}
+		{{/orphan}}
+	</td>
+	<td class="text-nowrap text-center {{default_class}}">
+		{{#showsetdefault}}
+		<form method="post" action="?do=minilinux" style="margin:0;padding:0;display:inline">
+			<input type="hidden" name="token" value="{{token}}">
+			<input type="hidden" name="version" value="{{versionid}}">
+			<button type="submit" name="show" value="setdefault" class="btn btn-xs btn-info">
+				<span class="glyphicon glyphicon-flag"></span>
+			</button>
+		</form>
+		{{/showsetdefault}}
+		{{#isdefault}}
+		<span class="glyphicon glyphicon-ok"></span>
+		{{/isdefault}}
+	</td>
+	<td class="text-nowrap text-center">
+		{{#installed}}
+		<span class="btn btn-default btn-xs disabled">{{lang_installed}}</span>
+		{{/installed}}
 		{{^installed}}
 		{{^downloading}}
 		<button type="button" class="btn btn-xs btn-success btn-download" data-version="{{versionid}}">
@@ -26,14 +49,9 @@
 		{{/downloading}}
 		{{/installed}}
 	</td>
-	<td>
-		{{#orphan}}
-		{{lang_orphanedVersion}}
-		{{/orphan}}
-	</td>
 </tr>
 <tr>
-	<td colspan="5" class="version-container collapse" data-version="{{versionid}}"></td>
+	<td colspan="6" class="version-container collapse" data-version="{{versionid}}"></td>
 </tr>
 {{/versions}}
 </table>

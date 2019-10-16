@@ -1,6 +1,7 @@
 {
     "file-checksum-bad": "Bad checksum",
     "file-missing": "File missing",
+    "file-not-readable": "File not readable",
     "file-ok": "OK",
     "file-size-mismatch": "File size mismatch",
     "module_name": "Minilinux",

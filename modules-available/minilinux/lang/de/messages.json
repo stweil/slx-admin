@@ -1,5 +1,9 @@
 {
+    "default-is-invalid": "Gew\u00e4hltes Linux-Standardsystem ist ung\u00fcltig",
+    "default-not-installed": "Gew\u00e4hltes Linux-Standardsystem {{0}} ist nicht (mehr) installiert",
+    "default-update-available": "F\u00fcr das Gew\u00e4hlte Linux-Standardsystem {{0}} ist die Aktualisierung {{1}} verf\u00fcgbar",
     "delete-error": "Fehler beim L\u00f6schen der Version {{0}}: {{1}}",
+    "no-default-set": "Kein Linux-Standardsystem festgelegt",
     "no-such-version": "Ung\u00fcltige\/Unbekannte Version: {{0}}",
     "please-download-minilinux": "Wichtige Dateien der MiniLinux-Installation fehlen",
     "version-deleted": "Version {{0}} wurde gel\u00f6scht"

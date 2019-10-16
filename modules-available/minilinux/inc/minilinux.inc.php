@@ -5,6 +5,20 @@ class MiniLinux
 
 	const PROPERTY_KEY_FETCHTIME = 'ml-list-fetch';
 
+	const PROPERTY_DEFAULT_BOOT = 'ml-default';
+
+	const PROPERTY_DEFAULT_BOOT_EFFECTIVE = 'ml-default-eff';
+
+	const INVALID = 'invalid';
+
+	/*
+	 * Update of available versions by querying sources
+	 */
+
+	/**
+	 * Query all known sources for meta data
+	 * @return int number of sources query was just initialized for
+	 */
 	public static function updateList()
 	{
 		$stamp = time();
@@ -27,19 +41,25 @@ class MiniLinux
 				'id' => $source['taskid'],
 				'url' => $source['url'],
 			), true);
-			TaskmanagerCallback::addCallback($source['taskid'], 'mlDownload', $source['sourceid']);
+			TaskmanagerCallback::addCallback($source['taskid'], 'mlGotList', $source['sourceid']);
 		}
 		Database::exec('UNLOCK TABLES');
 		return count($list);
 	}
 
+	/**
+	 * Called when downloading metadata from a specific update source is finished
+	 * @param mixed $task task structure
+	 * @param string $sourceid see minilinux_source table
+	 */
 	public static function listDownloadCallback($task, $sourceid)
 	{
+		if ($task['statusCode'] !== 'TASK_FINISHED')
+			return;
 		$taskId = $task['id'];
 		$data = json_decode($task['data']['content'], true);
 		if (!is_array($data)) {
 			EventLog::warning('Cannot download Linux version meta data for ' . $sourceid);
-			error_log(print_r($task, true));
 			$lastupdate = 'lastupdate';
 		} else {
 			if (isset($data['systems']) && is_array($data['systems'])) {
@@ -141,6 +161,10 @@ class MiniLinux
 		return preg_match('/^[a-z0-9_\-]+$/', $str) > 0;
 	}
 
+	/*
+	 * Download of specific version
+	 */
+
 	public static function validateDownloadTask($versionid, $taskid)
 	{
 		if ($taskid === null)
@@ -193,7 +217,6 @@ class MiniLinux
 				'gpg' => $file['gpg'],
 			];
 		}
-		error_log(print_r($list, true));
 		$uuid = Util::randomUuid();
 		Database::exec('LOCK TABLES minilinux_version WRITE');
 		$aff = Database::exec('UPDATE minilinux_version SET taskid = :taskid WHERE versionid = :versionid AND taskid IS NULL',
@@ -206,7 +229,6 @@ class MiniLinux
 				'files' => $list,
 			]);
 			if (Taskmanager::isFailed($task)) {
-				error_log(print_r($task, true));
 				$task = false;
 			} else {
 				$task = $task['id'];
@@ -215,6 +237,10 @@ class MiniLinux
 			$task = false;
 		}
 		Database::exec('UNLOCK TABLES');
+		if ($task !== false) {
+			// Callback for db column
+			TaskmanagerCallback::addCallback($task, 'mlGotLinux', $versionid);
+		}
 		if ($aff === 0)
 			return self::downloadVersion($versionid);
 		return $task;
@@ -223,6 +249,110 @@ class MiniLinux
 	public static function fileToId($versionid, $fileName)
 	{
 		return 'x' . substr(md5($fileName . $versionid), 0, 8);
+	}
+
+	/*
+	 * Check status, availability of updates
+	 */
+
+	/**
+	 * Geenrate messages regarding setup und update availability.
+	 * @return bool true if severe problems were found, false otherwise
+	 */
+	public static function generateUpdateNotice()
+	{
+		// Messages in here are with module name, as required by the
+		// main-warning hook.
+		$default = Property::get(self::PROPERTY_DEFAULT_BOOT);
+		if ($default === false) {
+			Message::addError('minilinux.no-default-set', true);
+			return true;
+		}
+		$installed = self::updateCurrentBootSetting();
+		$effective = Property::get(self::PROPERTY_DEFAULT_BOOT_EFFECTIVE);
+		$slashes = substr_count($default, '/');
+		if ($slashes === 1) {
+			// Brônche, always latest version
+			$latest = Database::queryFirst('SELECT versionid FROM minilinux_version
+				WHERE branchid = :branchid ORDER BY dateline DESC', ['branchid' => $default]);
+			if ($latest === false) {
+				Message::addError('minilinux.default-is-invalid', true);
+				return true;
+			} elseif ($latest['versionid'] !== $effective) {
+				Message::addInfo('minilinux.default-update-available', true, $default, $latest['versionid']);
+			}
+		} elseif ($slashes === 2) {
+			// Specific version selected
+			if ($effective === self::INVALID) {
+				Message::addError('minilinux.default-is-invalid', true);
+				return true;
+			}
+		}
+		if (!$installed) {
+			Message::addError('minilinux.default-not-installed', true, $default);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Update the effective current default version to boot.
+	 * If the version does not exist, it is set to INVALID.
+	 * Function returns whether the currently selected version is
+	 * actually installed locally.
+	 * @return bool true if installed locally, false otherwise
+	 */
+	public static function updateCurrentBootSetting()
+	{
+		$default = Property::get(self::PROPERTY_DEFAULT_BOOT);
+		if ($default === false)
+			return false;
+		$slashes = substr_count($default, '/');
+		if ($slashes === 2) {
+			// Specific version
+			$ver = Database::queryFirst('SELECT versionid, installed FROM minilinux_version
+				WHERE versionid = :versionid', ['versionid' => $default]);
+		} elseif ($slashes === 1) {
+			// Latest from branch
+			$ver = Database::queryFirst('SELECT versionid, installed FROM minilinux_version
+				WHERE branchid = :branchid AND installed = 1 ORDER BY dateline DESC', ['branchid' => $default]);
+		} else {
+			// Unknown
+			return false;
+		}
+		// Determine state
+		if ($ver === false) { // Doesn't exist
+			Property::set(self::PROPERTY_DEFAULT_BOOT_EFFECTIVE, self::INVALID);
+			return false;
+		}
+		Property::set(self::PROPERTY_DEFAULT_BOOT_EFFECTIVE, $ver['versionid']);
+		return $ver['installed'] != 0;
+	}
+
+	public static function linuxDownloadCallback($task, $versionid)
+	{
+		self::setInstalledState($versionid, $task['statusCode'] === 'TASK_FINISHED');
+	}
+
+	public static function setInstalledState($versionid, $installed)
+	{
+		settype($installed, 'int');
+		error_log("Setting $versionid to $installed");
+		Database::exec('UPDATE minilinux_version SET installed = :installed WHERE versionid = :versionid', [
+			'versionid' => $versionid,
+			'installed' => $installed,
+		]);
+	}
+
+	public static function queryAllVersionsByBranch()
+	{
+		$list = [];
+		$res = Database::simpleQuery('SELECT branchid, versionid, title, dateline, orphan, taskid, installed
+			FROM minilinux_version ORDER BY branchid, dateline, versionid');
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$list[$row['branchid']][$row['versionid']] = $row;
+		}
+		return $list;
 	}
 
 }

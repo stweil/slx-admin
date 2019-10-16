@@ -1,17 +1,19 @@
+<h3>{{lang_branchesHeading}}</h3>
 {{#branches}}
 <div id="ibm-mainframe" class="panel panel-default">
 	<div class="panel-heading">
 		<div class="pull-right">
 			{{sourceid}} {{branchid}}
 		</div>
-		{{title}}
+		<b>{{title}}</b>
 	</div>
 	<div class="panel-body">
-
+		{{description}}
 	</div>
 	{{{versionlist}}}
 </div>
 {{/branches}}
+
 <script>
 	document.addEventListener('DOMContentLoaded', function () {
 		var addHandlers = function(parent) {
@@ -44,13 +46,21 @@
 		};
 		$('.version-link').click(function(e) {
 			e.preventDefault();
-			$(this).removeClass('version-link').off().removeAttr('href');
-			loadDetails($(this).data('version'), { show: "version" });
+			var ver = $(this).data('version');
+			var c = $('.version-container[data-version="' + ver + '"]');
+			if (c.is(':visible')) {
+				c.hide();
+			} else if (c.is(':empty')) {
+				loadDetails(ver, {show: "version"});
+			} else {
+				c.show();
+			}
 		});
 		addHandlers($('#ibm-mainframe'));
 		$('[data-autoclick="true"]').click();
 	});
 	var taskDone = {};
+	var wasUnfinished = false;
 	function dlTmCb(task) {
 		if (!task.data || !task.data.files)
 			return;
@@ -69,5 +79,7 @@
 				taskDone[id] = wasDone ? true : f.progress;
 			}
 		}
+		if (wasUnfinished && task.statusCode === 'TASK_FINISHED') location.reload(true);
+		if (task.statusCode !== 'TASK_FINISHED') wasUnfinished = true;
 	}
 </script>
