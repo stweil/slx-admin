@@ -53,7 +53,7 @@ abstract class BootEntryHook
 	 * @param $id
 	 * @return BootEntry|null the actual boot entry instance for given entry, null if invalid id
 	 */
-	public abstract function getBootEntryInternal($data);
+	public abstract function getBootEntryInternal($localData);
 
 	public final function getBootEntry($data)
 	{

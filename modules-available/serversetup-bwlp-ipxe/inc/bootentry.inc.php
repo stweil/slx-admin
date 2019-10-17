@@ -3,6 +3,15 @@
 abstract class BootEntry
 {
 
+	/** Supports both via same entry (stored in PCBIOS entry) */
+	const AGNOSTIC = 'agnostic';
+	/** Only valid for legacy BIOS boot */
+	const BIOS = 'PCBIOS';
+	/** Only valid for EFI boot */
+	const EFI = 'EFI';
+	/** Supports both via distinct entry */
+	const BOTH = 'PCBIOS-EFI';
+
 	public abstract function supportsMode($mode);
 
 	public abstract function toScript($failLabel, $mode);
@@ -57,11 +66,11 @@ abstract class BootEntry
 	{
 		$ret = new StandardBootEntry($initData, $efi, $arch);
 		$list = [];
-		if ($ret->arch() !== StandardBootEntry::EFI) {
-			$list[] = StandardBootEntry::BIOS;
+		if ($ret->arch() !== self::EFI) {
+			$list[] = self::BIOS;
 		}
-		if ($ret->arch() === StandardBootEntry::EFI || $ret->arch() === StandardBootEntry::BOTH) {
-			$list[] = StandardBootEntry::EFI;
+		if ($ret->arch() === self::EFI || $ret->arch() === self::BOTH) {
+			$list[] = self::EFI;
 		}
 		$data = $ret->toArray();
 		foreach ($list as $mode) {
@@ -129,11 +138,6 @@ class StandardBootEntry extends BootEntry
 
 	protected $arch; // Constants below
 
-	const BIOS = 'PCBIOS'; // Only valid for legacy BIOS boot
-	const EFI = 'EFI'; // Only valid for EFI boot
-	const BOTH = 'PCBIOS-EFI'; // Supports both via distinct entry
-	const AGNOSTIC = 'agnostic'; // Supports both via same entry (PCBIOS entry)
-
 	const KEYS = ['executable', 'initRd', 'commandLine', 'replace', 'imageFree', 'autoUnload', 'resetConsole', 'dhcpOptions'];
 
 	public function __construct($data, $efi = false, $arch = false)
@@ -157,18 +161,21 @@ class StandardBootEntry extends BootEntry
 			} else {
 				$this->arch = $data['arch'];
 			}
-			if (isset($data[self::BIOS]) || isset($data[self::EFI])) {
+			if (isset($data[BootEntry::BIOS]) || isset($data[BootEntry::EFI])) {
 				// Current format
 				$this->fromCurrentFormat($data);
 			} else {
 				// Convert legacy DB format
 				$this->fromLegacyFormat($data);
 			}
+		} elseif ($arch == BootEntry::EFI && $efi instanceof ExecData) {
+			$this->efi = $efi;
+			$this->arch = $arch;
 		} else {
 			error_log('Invalid StandardBootEntry constructor call');
 		}
-		if (!in_array($this->arch, [self::BIOS, self::EFI, self::BOTH, self::AGNOSTIC])) {
-			$this->arch = self::AGNOSTIC;
+		if (!in_array($this->arch, [BootEntry::BIOS, BootEntry::EFI, BootEntry::BOTH, BootEntry::AGNOSTIC])) {
+			$this->arch = BootEntry::AGNOSTIC;
 		}
 	}
 
@@ -176,12 +183,12 @@ class StandardBootEntry extends BootEntry
 	{
 		$ok = false;
 		foreach (self::KEYS as $key) {
-			if (isset($data[$key][self::BIOS])) {
-				$this->pcbios->{$key} = $data[$key][self::BIOS];
+			if (isset($data[$key][BootEntry::BIOS])) {
+				$this->pcbios->{$key} = $data[$key][BootEntry::BIOS];
 				$ok = true;
 			}
-			if (isset($data[$key][self::EFI])) {
-				$this->efi->{$key} = $data[$key][self::EFI];
+			if (isset($data[$key][BootEntry::EFI])) {
+				$this->efi->{$key} = $data[$key][BootEntry::EFI];
 				$ok = true;
 			}
 		}
@@ -198,11 +205,11 @@ class StandardBootEntry extends BootEntry
 	private function fromCurrentFormat($data)
 	{
 		foreach (self::KEYS as $key) {
-			if (isset($data[self::BIOS][$key])) {
-				$this->pcbios->{$key} = $data[self::BIOS][$key];
+			if (isset($data[BootEntry::BIOS][$key])) {
+				$this->pcbios->{$key} = $data[BootEntry::BIOS][$key];
 			}
-			if (isset($data[self::EFI][$key])) {
-				$this->efi->{$key} = $data[self::EFI][$key];
+			if (isset($data[BootEntry::EFI][$key])) {
+				$this->efi->{$key} = $data[BootEntry::EFI][$key];
 			}
 		}
 	}
@@ -241,10 +248,10 @@ class StandardBootEntry extends BootEntry
 
 	public function supportsMode($mode)
 	{
-		if ($mode === $this->arch || $this->arch === self::AGNOSTIC)
+		if ($mode === $this->arch || $this->arch === BootEntry::AGNOSTIC)
 			return true;
-		if ($mode === self::BIOS || $mode === self::EFI) {
-			return $this->arch === self::BOTH;
+		if ($mode === BootEntry::BIOS || $mode === BootEntry::EFI) {
+			return $this->arch === BootEntry::BOTH;
 		}
 		error_log('Unknown iPXE platform: ' . $mode);
 		return false;
@@ -255,7 +262,7 @@ class StandardBootEntry extends BootEntry
 		if (!$this->supportsMode($mode)) {
 			return "prompt Entry doesn't have an executable for mode $mode\n";
 		}
-		if ($this->arch === self::AGNOSTIC || $mode == self::BIOS) {
+		if ($this->arch === BootEntry::AGNOSTIC || $mode == BootEntry::BIOS) {
 			$entry = $this->pcbios;
 		} else {
 			$entry = $this->efi;
@@ -319,16 +326,16 @@ class StandardBootEntry extends BootEntry
 	public function addFormFields(&$array)
 	{
 		$array[$this->arch . '_selected'] = 'selected';
-		$array['entries'][] = $this->pcbios->toFormFields(self::BIOS);
-		$array['entries'][] = $this->efi->toFormFields(self::EFI);
+		$array['entries'][] = $this->pcbios->toFormFields(BootEntry::BIOS);
+		$array['entries'][] = $this->efi->toFormFields(BootEntry::EFI);
 		$array['exec_checked'] = 'checked';
 	}
 
 	public function toArray()
 	{
 		return [
-			self::BIOS => $this->pcbios->toArray(),
-			self::EFI => $this->efi->toArray(),
+			BootEntry::BIOS => $this->pcbios->toArray(),
+			BootEntry::EFI => $this->efi->toArray(),
 			'arch' => $this->arch,
 		];
 	}

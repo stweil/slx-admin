@@ -80,7 +80,7 @@ class Page_MiniLinux extends Page
 		$eff = Property::get(MiniLinux::PROPERTY_DEFAULT_BOOT_EFFECTIVE);
 		foreach ($versions as &$version) {
 			$version['dateline_s'] = Util::prettyTime($version['dateline']);
-			$version['orphan'] = ($version['orphan'] > 5);
+			$version['orphan'] = ($version['orphan'] > 2);
 			$version['downloading'] = $version['taskid'] && Taskmanager::isRunning(Taskmanager::status($version['taskid']));
 			if ($version['installed'] && $version['versionid'] !== $def) {
 				$version['showsetdefault'] = true;

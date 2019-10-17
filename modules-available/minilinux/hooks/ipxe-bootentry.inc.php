@@ -59,9 +59,9 @@ class LinuxBootEntryHook extends BootEntryHook
 	 * @param $id
 	 * @return BootEntry the actual boot entry instance for given entry, false if invalid id
 	 */
-	public function getBootEntryInternal($data)
+	public function getBootEntryInternal($localData)
 	{
-		$id = $data['id'];
+		$id = $localData['id'];
 		if ($id === 'default') { // Special case
 			$effectiveId = Property::get(MiniLinux::PROPERTY_DEFAULT_BOOT_EFFECTIVE);
 		} else {
@@ -72,51 +72,67 @@ class LinuxBootEntryHook extends BootEntryHook
 			return BootEntry::newCustomBootEntry(['script' => 'prompt Invalid minilinux boot entry id: ' . $id]);
 		}
 		if ($res['installed'] == 0) {
-			return BootEntry::newCustomBootEntry(['script' => 'prompt Selected version not currently installed on server: ' . $id]);
+			return BootEntry::newCustomBootEntry(['script' => 'prompt Selected version not currently installed on server: ' . $effectiveId]);
 		}
+		$remoteData = json_decode($res['data'], true);
+		$bios = $efi = false;
+		if (!@is_array($remoteData['agnostic']) && !@is_array($remoteData['efi']) && !@is_array($remoteData['bios'])) {
+			$remoteData['agnostic'] = []; // We got nothing at all so fake this entry, resulting in a generic default entry
+		}
+		if (@is_array($remoteData['agnostic'])) {
+			$bios = $this->generateExecData($effectiveId, $remoteData['agnostic'], $localData);
+			$arch = BootEntry::AGNOSTIC;
+		} else {
+			if (@is_array($remoteData['efi'])) {
+				$efi = $this->generateExecData($effectiveId, $remoteData['efi'], $localData);
+			}
+			if (@is_array($remoteData['bios'])) {
+				$bios = $this->generateExecData($effectiveId, $remoteData['bios'], $localData);
+			}
+			if ($bios && $efi) {
+				$arch = BootEntry::BOTH;
+			} elseif ($bios) {
+				$arch = BootEntry::BIOS;
+			} else {
+				$arch = BootEntry::EFI;
+			}
+		}
+		return BootEntry::newStandardBootEntry($bios, $efi, $arch);
+	}
+
+	private function generateExecData($effectiveId, $remoteData, $localData)
+	{
 		$exec = new ExecData();
 		// Defaults
-		$root = '/boot/' . $id . '/';
+		$root = '/boot/' . $effectiveId . '/';
 		$exec->executable = 'kernel';
 		$exec->initRd = ['initramfs-stage31'];
 		$exec->imageFree = true;
 		$exec->commandLine = 'slxbase=boot/%ID% slxsrv=${serverip} quiet splash ${ipappend1} ${ipappend2}';
 		// Overrides
-		$remoteData = json_decode($res['data'], true);
-		// TODO: agnostic hard coded, support EFI and PCBIOS
-		if (isset($remoteData['agnostic']) && is_array($remoteData['agnostic'])) {
-			foreach (['executable', 'commandLine', 'initRd', 'imageFree'] as $key) {
-				if (isset($remoteData['agnostic'][$key])) {
-					$exec->{$key} = $remoteData['agnostic'][$key];
-				}
+		foreach (['executable', 'commandLine', 'initRd', 'imageFree'] as $key) {
+			if (isset($remoteData[$key])) {
+				$exec->{$key} = $remoteData[$key];
 			}
 		}
-		unset($rd);
 		// KCL hacks
-		if (isset($data['debug']) && $data['debug']) {
-			if (!isset($data['kcl-extra'])) {
-				$data['kcl-extra'] = '';
-			}
-			$data['kcl-extra'] = '-quiet -splash -loglevel loglevel=7 ' . $data['kcl-extra'];
+		if (isset($localData['debug']) && $localData['debug']) {
+			$exec->commandLine = IPxe::modifyCommandLine($exec->commandLine,
+				isset($remoteData['debugCommandLineModifier'])
+				? $remoteData['debugCommandLineModifier']
+				: '-vga -quiet -splash -loglevel loglevel=7'
+			);
 		}
-		if (isset($data['kcl-extra'])) {
-			$items = preg_split('/\s+/', $data['kcl-extra'], -1, PREG_SPLIT_NO_EMPTY);
-			// TODO: Make this a function, somewhere in serversetup-ipxe, this could be useful for other stuff
-			foreach ($items as $item) {
-				if ($item{0} === '-') {
-					$item = preg_quote(substr($item, 1), '/');
-					$exec->commandLine = preg_replace('/(^|\s)' . $item . '(=\S*)?($|\s)/', ' ', $exec->commandLine);
-				} else {
-					$exec->commandLine .= ' ' . $item;
-				}
-			}
+		if (isset($localData['kcl-extra'])) {
+			$exec->commandLine = IPxe::modifyCommandLine($exec->commandLine, $localData['kcl-extra']);
 		}
-		$exec->commandLine = str_replace('%ID%', $id, $exec->commandLine);
+		$exec->commandLine = str_replace('%ID%', $effectiveId, $exec->commandLine);
 		$exec->executable = $root . $exec->executable;
 		foreach ($exec->initRd as &$rd) {
 			$rd = $root . $rd;
 		}
-		return BootEntry::newStandardBootEntry($exec, false, 'agnostic');
+		unset($rd);
+		return $exec;
 	}
 
 	public function isValidId($id)

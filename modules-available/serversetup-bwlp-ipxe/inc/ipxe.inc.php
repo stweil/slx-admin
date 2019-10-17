@@ -527,4 +527,30 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 		return md5(md5($plainpass) . '-' . $salt);
 	}
 
+	/**
+	 * Modify a kernel command line. Add or remove items to a given command line. The $modifier
+	 * string is a list of space separated arguments. If the argument starts with a '-', all
+	 * according occurrences of the given option will be removed from the command line. It is assumed
+	 * that options are either of format "option" or "option=value", so a modifier of "-option" will
+	 * remove any occurrence of either "option" or "option=something". If the argument starts with a
+	 * '+', it will be added to the command line after removing the '+'. If the argument starts with any
+	 * other character, it will also be added to the command line.
+	 * @param string $cmdLine command line to modify
+	 * @param  string $modifier modification string of space separated arguments
+	 * @return string the modified command line
+	 */
+	public static function modifyCommandLine($cmdLine, $modifier)
+	{
+		$items = preg_split('/\s+/', $modifier, -1, PREG_SPLIT_NO_EMPTY);
+		foreach ($items as $item) {
+			if ($item{0} === '-') {
+				$item = preg_quote(substr($item, 1), '/');
+				$cmdLine = preg_replace('/(^|\s)' . $item . '(=\S*)?($|\s)/', ' ', $cmdLine);
+			} else {
+				$cmdLine .= ' ' . $item;
+			}
+		}
+		return $cmdLine;
+	}
+
 }

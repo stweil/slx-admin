@@ -34,7 +34,7 @@ $result[] = tableCreate('minilinux_version', "
 ");
 
 $result[] = tableAddConstraint('minilinux_version', 'branchid', 'minilinux_branch', 'branchid',
-	'ON UPDATE CASCADE ON DELETE CASCADE');
+	'ON UPDATE CASCADE ON DELETE RESTRICT');
 
 $result[] = tableAddConstraint('minilinux_branch', 'sourceid', 'minilinux_source', 'sourceid',
 	'ON UPDATE CASCADE ON DELETE SET NULL');

@@ -434,13 +434,13 @@ class Page_ServerSetup extends Page
 			if (!array_key_exists('arch', $bootentry['data']))
 				continue;
 			// Naming and agnostic
-			if ($bootentry['data']['arch'] === StandardBootEntry::BIOS) {
+			if ($bootentry['data']['arch'] === BootEntry::BIOS) {
 				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_biosOnly', true);
 				unset($bootentry['data']['EFI']);
-			} elseif ($bootentry['data']['arch'] === StandardBootEntry::EFI) {
+			} elseif ($bootentry['data']['arch'] === BootEntry::EFI) {
 				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_efiOnly', true);
 				unset($bootentry['data']['PCBIOS']);
-			} elseif ($bootentry['data']['arch'] === StandardBootEntry::AGNOSTIC) {
+			} elseif ($bootentry['data']['arch'] === BootEntry::AGNOSTIC) {
 				$bootentry['data']['arch'] = Dictionary::translateFile('template-tags','lang_archAgnostic', true);
 				unset($bootentry['data']['EFI']);
 			} else {

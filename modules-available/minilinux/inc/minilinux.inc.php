@@ -62,7 +62,7 @@ class MiniLinux
 			EventLog::warning('Cannot download Linux version meta data for ' . $sourceid);
 			$lastupdate = 'lastupdate';
 		} else {
-			if (isset($data['systems']) && is_array($data['systems'])) {
+			if (@is_array($data['systems'])) {
 				self::addBranches($sourceid, $data['systems']);
 			}
 			$lastupdate = 'UNIX_TIMESTAMP()';
@@ -70,6 +70,12 @@ class MiniLinux
 		Database::exec("UPDATE minilinux_source SET lastupdate = $lastupdate, taskid = NULL
 			WHERE sourceid = :sourceid AND taskid = :taskid",
 			['sourceid' => $sourceid, 'taskid' => $taskId]);
+		// Clean up -- delete orphaned versions that are not installed
+		$orphaned = Database::queryColumnArray('SELECT versionid FROM minilinux_version WHERE orphan > 4 AND installed = 0');
+		if (!empty($orphaned)) {
+			Database::exec('DELETE FROM minilinux_version WHERE versionid IN (:list)', ['list' => $orphaned]);
+		}
+		Database::exec('DELETE FROM minilinux_branch', [], true);
 	}
 
 	private static function addBranches($sourceid, $systems)
@@ -88,7 +94,7 @@ class MiniLinux
 				'title' => $title,
 				'description' => $description,
 			]);
-			if (isset($system['versions']) && is_array($system['versions'])) {
+			if (@is_array($system['versions'])) {
 				self::addVersions($branchid, $system['versions']);
 			}
 		}

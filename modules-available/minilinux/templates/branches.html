@@ -1,18 +1,20 @@
 <h3>{{lang_branchesHeading}}</h3>
-{{#branches}}
-<div id="ibm-mainframe" class="panel panel-default">
-	<div class="panel-heading">
-		<div class="pull-right">
-			{{sourceid}} {{branchid}}
+<div id="ibm-mainframe">
+	{{#branches}}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<div class="pull-right">
+				{{sourceid}} {{branchid}}
+			</div>
+			<b>{{title}}</b>
 		</div>
-		<b>{{title}}</b>
+		<div class="panel-body">
+			{{description}}
+		</div>
+		{{{versionlist}}}
 	</div>
-	<div class="panel-body">
-		{{description}}
-	</div>
-	{{{versionlist}}}
+	{{/branches}}
 </div>
-{{/branches}}
 
 <script>
 	document.addEventListener('DOMContentLoaded', function () {
