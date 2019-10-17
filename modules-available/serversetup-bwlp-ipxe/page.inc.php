@@ -422,8 +422,29 @@ class Page_ServerSetup extends Page
 			Database::queryAll("SELECT Concat('menu:', menuid) AS entryid, title FROM serversetup_menu ORDER BY title ASC")
 		);
 		foreach ($menu['entrylist'] as &$bootentry) {
-			if (!isset($bootentry['data']) || !isset($bootentry['module']) || $bootentry['module']{0} !== '.')
+			if (!isset($bootentry['data']) || !isset($bootentry['module']))
 				continue;
+			if ($bootentry['module']{0} !== '.') {
+				// Hook from other module
+				$bootentry['moduleName'] = Dictionary::translateFileModule($bootentry['module'], 'module', 'module_name');
+				if (!$bootentry['moduleName']) {
+					$bootentry['moduleName'] = $bootentry['module'];
+				}
+				$bootentry['ishook'] = true;
+				$data = json_decode($bootentry['data'], true);
+				unset($bootentry['data']);
+				$bootentry['id'] = $data['id'];
+				$bootentry['otherFields'] = [];
+				foreach ($data as $k => $v) {
+					if ($k === 'id')
+						continue;
+					$bootentry['otherFields'][] = [
+						'key' => Dictionary::translateFileModule($bootentry['module'], 'module', 'ipxe-' . $k, true),
+						'value' => is_bool($v) ? Util::boolToString($v) : $v,
+					];
+				}
+				continue;
+			}
 			$entry = BootEntry::fromJson($bootentry['module'], $bootentry['data']);
 			if ($entry === null) {
 				error_log('WARNING: Ignoring NULL menu entry: ' . $bootentry['data']);
@@ -753,6 +774,9 @@ class Page_ServerSetup extends Page
 		}
 
 		Message::addSuccess('menu-saved');
+		if (Request::post('next') === 'reload') {
+			Util::redirect('?do=serversetup&show=editmenu&id=' . $menu['menuid']);
+		}
 	}
 
 	private function updateLocalAddress()
@@ -856,6 +880,9 @@ class Page_ServerSetup extends Page
 				entryid = If(builtin = 0, :entryid, entryid), title = :title, module = :module, data = :data
 				WHERE entryid = :oldid', $params);
 			Message::addSuccess('boot-entry-updated', $newId);
+		}
+		if (Request::post('next') === 'reload') {
+			Util::redirect('?do=serversetup&show=editbootentry&id=' . $newId);
 		}
 		Util::redirect('?do=serversetup&show=bootentry');
 	}

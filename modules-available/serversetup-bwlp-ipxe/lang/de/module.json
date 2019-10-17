@@ -11,7 +11,7 @@
     "dl-x86_64": "64\u2009Bit",
     "module_name": "iPXE \/ Boot Menu",
     "page_title": "PXE- und Boot-Einstellungen",
-    "submenu_address": "Server-Adresse",
+    "submenu_address": "Server-Adresse festlegen",
     "submenu_bootentry": "Men\u00fceintr\u00e4ge verwalten",
     "submenu_download": "Downloads",
     "submenu_import": "Importieren",

@@ -70,6 +70,10 @@ body {
 	color: gray;
 }
 
+.monospace {
+	font-family: monospace, monospace;
+}
+
 .slx-label {
 	font-weight: bold;
 	margin: auto;

@@ -29,10 +29,12 @@
 				</tr>
 				{{/ips}}
 			</table>
-			<p>
-				{{lang_recompileHint}}
-			</p>
 		</form>
+	</div>
+	<div class="panel-body">
+		<p>
+			{{lang_recompileHint}}
+		</p>
 		<form method="post" action="?do=ServerSetup">
 			<input type="hidden" name="token" value="{{token}}">
 			<button class="btn btn-default" name="action" value="compile" {{disabled}}>

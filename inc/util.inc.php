@@ -513,6 +513,18 @@ SADFACE;
 	}
 
 	/**
+	 * Return localized strings for yes or no depending on $bool
+	 * @param bool $bool Input to evaluate
+	 * @return string Yes or No, in user's selected language
+	 */
+	public static function boolToString($bool)
+	{
+		if ($bool)
+			return Dictionary::translate('lang_yes', true);
+		return Dictionary::translate('lang_no', true);
+	}
+
+	/**
 	 * Format a duration, in seconds, into a readable string.
 	 * @param int $seconds The number to format
 	 * @param int $showSecs whether to show seconds, or rather cut after minutes
