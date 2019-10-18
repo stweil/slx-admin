@@ -381,19 +381,8 @@ SADFACE;
 		}
 		Header('Content-Type: application/octet-stream', true);
 		Header('Content-Disposition: attachment; filename=' . str_replace(array(' ', '=', ',', '/', '\\', ':', '?'), '_', iconv('UTF-8', 'ASCII//TRANSLIT', $name)));
-		Header('Content-Length: ' . @filesize($file));
-		while (!feof($fh)) {
-			$data = fread($fh, 16000);
-			if ($data === false) {
-				echo "\r\n\nDOWNLOAD INTERRUPTED!\n";
-				if ($delete)
-					@unlink($file);
-				return true;
-			}
-			echo $data;
-			@ob_flush();
-			@flush();
-		}
+		Header('Content-Length: ' . filesize($file));
+		fpassthru($fh);
 		fclose($fh);
 		if ($delete) {
 			unlink($file);
