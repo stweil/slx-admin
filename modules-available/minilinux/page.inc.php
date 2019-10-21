@@ -252,6 +252,7 @@ class Page_MiniLinux extends Page
 
 	private function updateSources()
 	{
+		User::assertPermission('view'); // As it doesn't really change anything, accept view permission
 		$ret = MiniLinux::updateList();
 		if ($ret > 0) {
 			sleep(2);
@@ -261,6 +262,7 @@ class Page_MiniLinux extends Page
 
 	private function setDefault()
 	{
+		User::assertPermission('update');
 		$versionid = Request::post('version', false, 'string');
 		if ($versionid === false) {
 			Message::addError('main.parameter-missing', 'versionid');
