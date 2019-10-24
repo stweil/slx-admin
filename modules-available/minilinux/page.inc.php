@@ -275,6 +275,14 @@ class Page_MiniLinux extends Page
 			return;
 		}
 		Property::set(MiniLinux::PROPERTY_DEFAULT_BOOT, $version['versionid']);
+		// Legacy PXELINUX boot menu (TODO: Remove this when we get rid of PXELINUX support)
+		$task = Taskmanager::submit('Symlink', [
+			'target' => $version['versionid'],
+			'linkname' => CONFIG_HTTP_DIR . '/default',
+		]);
+		if ($task !== false) {
+			Taskmanager::release($task);
+		}
 	}
 
 }
