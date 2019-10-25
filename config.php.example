@@ -22,9 +22,7 @@ define('CONFIG_IPXE_DIR', '/opt/openslx/ipxe');
 
 define('CONFIG_VMSTORE_DIR', '/srv/openslx/nfs');
 
-define('CONFIG_PROXY_CONF', '/opt/openslx/proxy/config');
-
-/* for the dozmod API proxy cache */ 
+/* for the dozmod API proxy cache */
 define('CONFIG_DOZMOD_URL', 'http://127.0.0.1:9080');
 define('CONFIG_DOZMOD_EXPIRE', 60);
 
