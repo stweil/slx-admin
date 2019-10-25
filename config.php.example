@@ -15,8 +15,6 @@ define('CONFIG_SQL_FORCE_UTF8', true);
 
 define('CONFIG_TGZ_LIST_DIR', '/opt/openslx/configs');
 
-define('CONFIG_REMOTE_ML',  'https://bwlp-masterserver.ruf.uni-freiburg.de/minilinux/sat_03');
-
 define('CONFIG_TFTP_DIR', '/srv/openslx/tftp');
 define('CONFIG_HTTP_DIR', '/srv/openslx/www/boot');
 
