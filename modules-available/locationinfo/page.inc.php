@@ -400,7 +400,8 @@ class Page_LocationInfo extends Page
 					'scaledaysauto' => Request::post('override'.$locationids[$i].'scaledaysauto', false, 'bool'),
 					'daystoshow' => Request::post('override'.$locationids[$i].'daystoshow', 7, 'int'),
 					'rotation' => Request::post('override'.$locationids[$i].'rotation', 0, 'int'),
-					'scale' => Request::post('override'.$locationids[$i].'scale', 50, 'int')
+					'scale' => Request::post('override'.$locationids[$i].'scale', 50, 'int'),
+					'switchtime' => Request::post('override'.$locationids[$i].'switchtime', 60, 'int')
 				);
 				$overrides[$locationids[$i]] = $overrideArray;
 			}

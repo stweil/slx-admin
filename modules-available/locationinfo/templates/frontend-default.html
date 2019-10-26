@@ -500,7 +500,6 @@ optional:
 			scaleFactor = 1;
 		}
 		if (v === null || !isFinite(v) || isNaN(v) || v < min * scaleFactor || v > max * scaleFactor) {
-			console.log(property)
 			config[property] = defaultval * scaleFactor;
 		}
 	}
@@ -577,7 +576,7 @@ optional:
 				left = ((t % 2) * 50) + '%';
 			}
 
-			var $loc = $("<div>").addClass('location-container');
+			var $loc = $("<div>").addClass('location-container').attr('id', rid);
 			$loc.css({top: top, left: left, width: width, height: height});
 			$("body").append($loc);
 
@@ -628,7 +627,7 @@ optional:
 		}
 
 		if (hasMode4) {
-			generateProgressBar();
+			generateRoomSwitchIntervals();
 		}
 
 		mainUpdateLoop();
@@ -1614,7 +1613,6 @@ optional:
 				scaleCalendar(rooms[property]);
 				scaleRoom(rooms[property]);
 			}
-			SetProgressBarSpeed();
 		}, 200);
 	});
 
@@ -1663,56 +1661,59 @@ optional:
 		}
 	}
 
-
 	/**
 	 * Used in Mode 4, switches given room from Timetable to room layout and vice versa
 	 */
-	function switchLayouts() {
-		for (var roomKey in rooms) {
-			var room = rooms[roomKey];
-			if (room.config.mode !== 4) continue;
-			if (room.$.layout.is(':visible')) {
-				room.$.layout.hide();
-				room.$.calendar.show();
-			} else {
-				room.$.layout.show();
-				room.$.calendar.hide();
-			}
-			resizeIfRequired(room);
+	roomSwitchIntervals = [];
+	progressBarUpdateIntervals = [];
+	lastSwitchTimes = [];
+
+	function switchRoomLayout(room) {
+		if (room.config.mode !== 4) return;
+		if (room.$.layout.is(':visible')) {
+			room.$.layout.hide();
+			room.$.calendar.show();
+		} else {
+			room.$.layout.show();
+			room.$.calendar.hide();
 		}
-		lastSwitchTime = MyDate().getTime();
+		lastSwitchTimes[room.id] = MyDate().getTime();
+		resizeIfRequired(room);
+
 	}
 
-	var $pbar = false;
-	var pbarTimer = false;
-	const PX_PER_SEC_TARGET = 10;
-
-	/**
-	 * adds a progressbar (id) used in mode 4
-	 */
-	function generateProgressBar() {
-		if ($pbar) return;
-		$pbar = $('<div class="progressbar">');
-		$('body').append($pbar);
-		SetProgressBarSpeed();
+	function generateRoomSwitchIntervals() {
+		for (var roomKey in rooms) {
+			const room = rooms[roomKey];
+			if (room.config.mode !== 4) continue;
+			if (roomSwitchIntervals[room.id]) clearInterval(roomSwitchIntervals[room.id]);
+			lastSwitchTimes[room.id] = MyDate().getTime();
+			generateProgressBar(room);
+			var interval = room.config.switchtime;
+			roomSwitchIntervals[room.id] = setInterval(function () {
+				switchRoomLayout(room);
+			}, interval);
+		}
 	}
 
-	function SetProgressBarSpeed() {
-		if (!$pbar || !globalConfig.switchtime) return;
-		if (pbarTimer) clearInterval(pbarTimer);
+	function generateProgressBar(room) {
+		if ($('#progressbar_' + room.id).length > 0 ) return;
+		var $progressBar = $('<div class="progressbar">').attr('id', 'progressbar_' + room.id);
+		$('#' + room.id).append($progressBar);
+
+		if (progressBarUpdateIntervals[room.id]) clearInterval(progressBarUpdateIntervals[room.id]);
+
 		var interval = 1000;
 		if (!globalConfig.eco) {
-			var pxPerMSec = $('body').width() / globalConfig.switchtime;
-			interval = Math.max(1 / (pxPerMSec / PX_PER_SEC_TARGET), 100);
+			var pxPerMSec = $('body').width() / room.config.switchtime;
+			interval = Math.max(1 / (pxPerMSec / 100), 100);
 		}
-		pbarTimer = setInterval(function () {
-			var width = ((MyDate().getTime() - lastSwitchTime) / globalConfig.switchtime) * 100;
+
+		progressBarUpdateIntervals[room.id] = setInterval(function() {
+			var width = ((MyDate().getTime() - lastSwitchTimes[room.id]) / room.config.switchtime) * 100;
 			if (width < 0) width = 0;
-			if (width >= 100) {
-				width = 100;
-				switchLayouts();
-			}
-			$pbar.width(width + '%');
+			if (width >= 100) width = 100;
+			$('#progressbar_' + room.id).width(width + '%');
 		}, interval);
 	}
 
