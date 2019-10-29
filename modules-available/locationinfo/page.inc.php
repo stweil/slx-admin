@@ -371,7 +371,7 @@ class Page_LocationInfo extends Page
 			'vertical' => Request::post('vertical', false, 'bool'),
 			'eco' => Request::post('eco', false, 'bool'),
 			'prettytime' => Request::post('prettytime', false, 'bool'),
-			'roomplanner' => Request::post('roomplanner', false, 'bool'),
+			'roomplanner' => Request::post('roomplanner', true, 'bool'),
 			'startday' => Request::post('startday', 0, 'int'),
 			'scaledaysauto' => Request::post('scaledaysauto', false, 'bool'),
 			'daystoshow' => Request::post('daystoshow', 7, 'int'),
@@ -964,7 +964,7 @@ class Page_LocationInfo extends Page
 
 			$config = json_decode($panel['panelconfig'], true);
 			if (!isset($config['roomplanner'])) {
-				$config['roomplanner'] = false;
+				$config['roomplanner'] = true;
 			}
 		}
 
