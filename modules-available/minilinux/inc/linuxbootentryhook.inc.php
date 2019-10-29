@@ -136,7 +136,9 @@ class LinuxBootEntryHook extends BootEntryHook
 		$exec->commandLine = str_replace('%ID%', $effectiveId, $exec->commandLine);
 		$exec->executable = $root . $exec->executable;
 		foreach ($exec->initRd as &$rd) {
-			$rd = $root . $rd;
+			if ($rd{0} !== '/') {
+				$rd = $root . $rd;
+			}
 		}
 		unset($rd);
 		return $exec;
