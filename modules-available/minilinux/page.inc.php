@@ -35,7 +35,7 @@ class Page_MiniLinux extends Page
 			Message::addError('default-not-installed', Property::get(MiniLinux::PROPERTY_DEFAULT_BOOT));
 		}
 		// List branches and versions
-		$branches = Database::queryAll('SELECT sourceid, branchid, title FROM minilinux_branch ORDER BY title ASC');
+		$branches = Database::queryAll('SELECT sourceid, branchid, title, description FROM minilinux_branch ORDER BY title ASC');
 		$versions = MiniLinux::queryAllVersionsByBranch();
 		// Group by branch for detailed listing
 		foreach ($branches as &$branch) {
