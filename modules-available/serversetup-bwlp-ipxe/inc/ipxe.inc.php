@@ -332,8 +332,8 @@ class IPxe
 
 	public static function createDefaultEntries()
 	{
-		$query = 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
-			VALUES (:entryid, :hotkey, :title, 1, :data) ON DUPLICATE KEY UPDATE data = VALUES(data)';
+		$query = 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, module, data)
+			VALUES (:entryid, :hotkey, :title, 1, :module, :data) ON DUPLICATE KEY UPDATE data = VALUES(data)';
 		Database::exec($query,
 			[
 				'entryid' => 'bwlp-default',
