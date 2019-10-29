@@ -140,7 +140,7 @@
 										<label for="mode">{{lang_mode}}</label>
 									</div>
 									<div class="col-sm-7">
-										<select class="form-control" name="mode" id="mode" onchange="modeChange()">
+										<select class="form-control" name="mode" id="mode" onchange="modeChange(id)">
 											<option value="1" id="mode1">{{lang_mode1}}</option>
 											<option value="2" id="mode2">{{lang_mode2}}</option>
 											<option value="3" id="mode3">{{lang_mode3}}</option>
@@ -418,7 +418,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	$('#daystoshow').prop('disabled', document.getElementById('scaledaysauto').checked);
 
 	$range.change();
-	modeChange();
+	modeChange('mode');
 
 	// Adding/removing locations
 	$locList.find('a').click(function(ev) {
@@ -493,18 +493,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		var $contentCopy = $('#overridableConfigs').clone(true);
 		$contentCopy.closest('#overridableConfigs').prop('id', '');
 
-		// Change mode show/hide classes
-		$contentCopy.find('.m1-s, .m1-h, .m2-s, .m2-h, .m3-s, .m3-h, .m4-s, .m4-h').each(function() {
-			if ($( this ).hasClass('m1-s')) $( this ).removeClass('m1-s').addClass('om1-s');
-			else if ($( this ).hasClass('m1-h')) $( this ).removeClass('m1-h').addClass('om1-h');
-			if ($( this ).hasClass('m2-s')) $( this ).removeClass('m2-s').addClass('om2-s');
-			else if ($( this ).hasClass('m2-h')) $( this ).removeClass('m2-h').addClass('om2-h');
-			if ($( this ).hasClass('m3-s')) $( this ).removeClass('m3-s').addClass('om3-s');
-			else if ($( this ).hasClass('m3-h')) $( this ).removeClass('m3-h').addClass('om3-h');
-			if ($( this ).hasClass('m4-s')) $( this ).removeClass('m4-s').addClass('om4-s');
-			else if ($( this ).hasClass('m4-h')) $( this ).removeClass('m4-h').addClass('om4-h');
-		});
-
 		// Change labels
 		$contentCopy.find('label').each(function() {
 			var oldFor = $( this ).attr('for');
@@ -515,7 +503,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		$contentCopy.find('select').each(function() {
 			var oldId = $( this ).attr('id');
 			var oldName = $( this ).attr('name');
-			if (oldId === 'mode') $( this ).attr('onchange', 'modeChangeOverride(id)');
 			$( this ).attr('id', 'override' + locId + oldId);
 			$( this ).attr('name', 'override' + locId + oldName);
 			$( this ).val(overVal ? overrides[locId][oldName] : $('#' + oldId).val());
@@ -561,7 +548,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		$('#override' + locId + 'daystoshow').prop('disabled', document.getElementById('override' + locId + 'scaledaysauto').checked);
 
 		// Call modeChange once to correctly show/hide fields
-		modeChangeOverride('override'+ locId + 'mode');
+		modeChange('override'+ locId + 'mode');
 
 		// Recreate Bootstrap switches from checkboxes
 		btstrpCheckboxes
@@ -609,18 +596,13 @@ document.addEventListener("DOMContentLoaded", function () {
 /**
  * If the mode was changed the mode settings have to be adjusted.
  */
-function modeChange() {
-	var value = $('#mode').val();
-	$('.m' + value + '-h').hide();
-	$('.m' + value + '-s').show();
-}
 
-function modeChangeOverride(id) {
-	id = id.replace('override', '');
-	id = id.replace('mode', '');
-	var value = $('#override' + id + 'mode').val();
-	$('#overrideRoom' + id + ' .om' + value + '-h').hide();
-	$('#overrideRoom' + id + ' .om' + value + '-s').show();
+function modeChange(id) {
+	var isOverride = (id !== 'mode');
+	if (isOverride) id = id.replace('override', '').replace('mode', '');
+	var value = $('#' + (isOverride ? 'override' + id : '') + 'mode').val();
+	$('#' + (isOverride ? 'overrideRoom' + id : 'extra-div') + ' .m' + value + '-h').hide();
+	$('#' + (isOverride ? 'overrideRoom' + id : 'extra-div') + ' .m' + value + '-s').show();
 }
 
 //--></script>
