@@ -332,52 +332,42 @@ class IPxe
 
 	public static function createDefaultEntries()
 	{
-		Database::exec( 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
-			VALUES (:entryid, :hotkey, :title, 1, :data) ON DUPLICATE KEY UPDATE data = VALUES(data)',
+		$query = 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
+			VALUES (:entryid, :hotkey, :title, 1, :data) ON DUPLICATE KEY UPDATE data = VALUES(data)';
+		Database::exec($query,
 			[
 				'entryid' => 'bwlp-default',
 				'hotkey' => 'B',
 				'title' => 'bwLehrpool-Umgebung starten',
+				'module' => 'minilinux',
 				'data' => json_encode([
-					'script' => '
-imgfree ||
-set slxextra initrd=logo ||
-initrd /boot/default/initramfs-stage31 || goto fail
-initrd --name logo /tftp/bwlp.cpio || clear slxextra
-boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boot/default quiet splash loglevel=5 rd.systemd.show_status=auto intel_iommu=igfx_off ${ipappend1} ${ipappend2} || goto fail
-',
+					'id' => 'default',
+					'kcl-extra' => '',
+					'debug' => false,
 				]),
 			]);
-		$query = 'INSERT IGNORE INTO serversetup_bootentry (entryid, hotkey, title, builtin, data)
-			VALUES (:entryid, :hotkey, :title, 1, :data) ON DUPLICATE KEY UPDATE data = VALUES(data)';
 		Database::exec($query,
 			[
 				'entryid' => 'bwlp-default-dbg',
 				'hotkey' => 'D',
 				'title' => 'bwLehrpool-Umgebung starten (nosplash, debug output)',
+				'module' => 'minilinux',
 				'data' => json_encode([
-					'executable' => ['PCBIOS' => '/boot/default/kernel'],
-					'initRd' => ['PCBIOS' => ['/boot/default/initramfs-stage31']],
-					'commandLine' => ['PCBIOS' => 'slxbase=boot/default loglevel=7 intel_iommu=igfx_off ${ipappend1} ${ipappend2}'],
-					'replace' => true,
-					'autoUnload' => true,
-					'resetConsole' => true,
-					'arch' => 'agnostic',
+					'id' => 'default',
+					'kcl-extra' => '',
+					'debug' => true,
 				]),
 			]);
 		Database::exec($query,
 			[
 				'entryid' => 'bwlp-default-sh',
-				'hotkey' => 'D',
+				'hotkey' => 'S',
 				'title' => 'bwLehrpool-Umgebung starten (nosplash, !!! debug shell !!!)',
+				'module' => 'minilinux',
 				'data' => json_encode([
-					'executable' => ['PCBIOS' => '/boot/default/kernel'],
-					'initRd' => ['PCBIOS' => ['/boot/default/initramfs-stage31']],
-					'commandLine' => ['PCBIOS' => 'slxbase=boot/default loglevel=7 debug=1 intel_iommu=igfx_off ${ipappend1} ${ipappend2}'],
-					'replace' => true,
-					'autoUnload' => true,
-					'resetConsole' => true,
-					'arch' => 'agnostic',
+					'id' => 'default',
+					'kcl-extra' => 'debug=1',
+					'debug' => true,
 				]),
 			]);
 		Database::exec($query,
@@ -385,6 +375,7 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 				'entryid' => 'localboot',
 				'hotkey' => 'L',
 				'title' => 'Lokales System starten',
+				'module' => '.script',
 				'data' => json_encode([
 					'script' => 'goto slx_localboot || goto %fail% ||',
 				]),
@@ -394,6 +385,7 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 				'entryid' => 'poweroff',
 				'hotkey' => 'P',
 				'title' => 'Power off',
+				'module' => '.script',
 				'data' => json_encode([
 					'script' => 'poweroff || goto %fail% ||',
 				]),
@@ -403,6 +395,7 @@ boot -a -r /boot/default/kernel initrd=initramfs-stage31 ${slxextra} slxbase=boo
 				'entryid' => 'reboot',
 				'hotkey' => 'R',
 				'title' => 'Reboot',
+				'module' => '.script',
 				'data' => json_encode([
 					'script' => 'reboot || goto %fail% ||',
 				]),
