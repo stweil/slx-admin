@@ -63,9 +63,16 @@
 	});
 	var taskDone = {};
 	var wasUnfinished = false;
+	var errors = {};
 	function dlTmCb(task) {
 		if (!task.data || !task.data.files)
 			return;
+		if (task.data.error) {
+			if (errors[task.id] !== task.data.error) {
+				errors[task.id] = task.data.error;
+				$('#error-' + task.id).text(errors[task.id]).show();
+			}
+		}
 		for (var i = 0; i < task.data.files.length; ++i) {
 			var f = task.data.files[i];
 			var id = task.id + f.id;
