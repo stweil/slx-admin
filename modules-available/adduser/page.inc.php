@@ -48,7 +48,7 @@ class Page_AddUser extends Page
 				'email' => $email,
 			);
 			$ret = Database::exec('INSERT INTO user
-				SET login = :login, passwd = :pass, fullname = :fullname, phone = :phone, email = :email', $data, true);
+				SET login = :login, passwd = :pass, fullname = :fullname, phone = :phone, email = :email, permissions = 1', $data, true);
 			if ($ret === false) {
 				Message::addError('user-already-exists', $login);
 				return;

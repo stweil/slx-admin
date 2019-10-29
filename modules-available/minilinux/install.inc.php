@@ -4,7 +4,7 @@ $result[] = tableCreate('minilinux_source', "
   `sourceid` varchar(8) CHARACTER SET ascii NOT NULL,
   `title` varchar(100) NOT NULL,
   `url` varchar(200) NOT NULL,
-  `lastupdate` int(10) UNSIGNED NOT NULL,
+  `lastupdate` int(10) UNSIGNED NOT NULL DEFAULT '0',
   `taskid` char(36) CHARACTER SET ascii DEFAULT NULL,
   `pubkey` blob NOT NULL,
   PRIMARY KEY (`sourceid`),
