@@ -255,8 +255,11 @@ class Page_MiniLinux extends Page
 		User::assertPermission('view'); // As it doesn't really change anything, accept view permission
 		$ret = MiniLinux::updateList();
 		if ($ret > 0) {
-			sleep(2);
-			Trigger::checkCallbacks();
+			for ($i = 0; $i < 6; ++$i) {
+				sleep(1);
+				if (!Trigger::checkCallbacks())
+					break;
+			}
 		}
 	}
 
