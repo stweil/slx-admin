@@ -19,7 +19,7 @@
 	<td>{{title}}</td>
 	<td class="text-nowrap">
 		{{#orphan}}
-		{{lang_orphanedVersion}}
+		<span title="{{lang_orphanedVersionToolTip}}">{{lang_orphanedVersion}}</span>
 		{{/orphan}}
 	</td>
 	<td class="text-nowrap text-center {{default_class}}">
@@ -27,13 +27,13 @@
 		<form method="post" action="?do=minilinux" style="margin:0;padding:0;display:inline">
 			<input type="hidden" name="token" value="{{token}}">
 			<input type="hidden" name="version" value="{{versionid}}">
-			<button type="submit" name="show" value="setdefault" class="btn btn-xs btn-info">
+			<button type="submit" name="show" value="setdefault" class="btn btn-xs btn-info" title="{{lang_setGlobalDefault}}">
 				<span class="glyphicon glyphicon-flag"></span>
 			</button>
 		</form>
 		{{/showsetdefault}}
 		{{#isdefault}}
-		<span class="glyphicon glyphicon-ok"></span>
+		<span class="glyphicon glyphicon-ok" title="{{lang_isGlobalDefault}}"></span>
 		{{/isdefault}}
 	</td>
 	<td class="text-nowrap text-center">
