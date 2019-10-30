@@ -79,6 +79,7 @@ if ($runmode !== false && $runmode->noSysconfig && file_exists(SysConfig::GLOBAL
 	}
 }
 
+@ob_end_clean(); // Disable gzip output handler since this is already a compressed file
 Header('Content-Type: application/gzip');
 Header('Content-Disposition: attachment; filename=' . Util::sanitizeFilename($row['title']) . '.tgz');
 $ret = readfile($row['filepath']);
