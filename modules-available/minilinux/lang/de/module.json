@@ -7,6 +7,8 @@
     "file-size-mismatch": "Dateigr\u00f6\u00dfe stimmt nicht",
     "ipxe-debug": "Debug-Ausgaben statt Bootlogo",
     "ipxe-kcl-extra": "Modifikation der Kernel-Command-Line",
+    "menu-sources": "Update-Quellen",
+    "menu-versions": "Verf\u00fcgbare Versionen",
     "module_name": "Netboot Grundsystem",
     "not_installed_hint": "(nicht installiert)",
     "page_title": "Linuxvarianten f\u00fcr Netboot verwalten"

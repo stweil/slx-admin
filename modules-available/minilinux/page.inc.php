@@ -25,6 +25,8 @@ class Page_MiniLinux extends Page
 		}
 
 		User::assertPermission('view');
+		Dashboard::addSubmenu('?do=minilinux', Dictionary::translate('menu-versions', true));
+		Dashboard::addSubmenu('?do=minilinux&show=sources', Dictionary::translate('menu-sources', true));
 	}
 
 	protected function doRender()
@@ -34,33 +36,39 @@ class Page_MiniLinux extends Page
 		if (!MiniLinux::updateCurrentBootSetting()) {
 			Message::addError('default-not-installed', Property::get(MiniLinux::PROPERTY_DEFAULT_BOOT));
 		}
-		// List branches and versions
-		$branches = Database::queryAll('SELECT sourceid, branchid, title, description FROM minilinux_branch ORDER BY title ASC');
-		$versions = MiniLinux::queryAllVersionsByBranch();
-		// Group by branch for detailed listing
-		foreach ($branches as &$branch) {
-			if (isset($versions[$branch['branchid']])) {
-				$branch['versionlist'] = $this->renderVersionList($versions[$branch['branchid']]);
+		$show = Request::get('show', 'list', 'string');
+		if ($show === 'list') {
+			// List branches and versions
+			$branches = Database::queryAll('SELECT sourceid, branchid, title, description FROM minilinux_branch ORDER BY title ASC');
+			$versions = MiniLinux::queryAllVersionsByBranch();
+			// Group by branch for detailed listing
+			foreach ($branches as &$branch) {
+				if (isset($versions[$branch['branchid']])) {
+					$branch['versionlist'] = $this->renderVersionList($versions[$branch['branchid']]);
+				}
 			}
+			unset($branch);
+			Render::addTemplate('branches', ['branches' => $branches]);
+		} elseif ($show === 'sources') {
+			// List sources
+			$res = Database::simpleQuery('SELECT sourceid, title, url, lastupdate, pubkey FROM minilinux_source ORDER BY title, sourceid');
+			$data = ['list' => [], 'show_refresh' => true];
+			$tooOld = strtotime('-7 days');
+			$showRefresh = strtotime('-10 minutes');
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$row['lastupdate_s'] = Util::prettyTime($row['lastupdate']);
+				if ($row['lastupdate'] != 0 && $row['lastupdate'] < $tooOld) {
+					$row['update_class'] = 'text-danger';
+				}
+				if ($row['lastupdate'] > $showRefresh) {
+					$data['show_refresh'] = false;
+				}
+				$data['list'][] = $row;
+			}
+			Render::addTemplate('sources', $data);
+		} else {
+			Message::addError('main.invalid-action', $show);
 		}
-		unset($branch);
-		Render::addTemplate('branches', ['branches' => $branches]);
-		// List sources
-		$res = Database::simpleQuery('SELECT sourceid, title, url, lastupdate, pubkey FROM minilinux_source ORDER BY title, sourceid');
-		$data = ['list' => [], 'show_refresh' => true];
-		$tooOld = strtotime('-7 days');
-		$showRefresh = strtotime('-10 minutes');
-		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-			$row['lastupdate_s'] = Util::prettyTime($row['lastupdate']);
-			if ($row['lastupdate'] != 0 && $row['lastupdate'] < $tooOld) {
-				$row['update_class'] = 'text-danger';
-			}
-			if ($row['lastupdate'] > $showRefresh) {
-				$data['show_refresh'] = false;
-			}
-			$data['list'][] = $row;
-		}
-		Render::addTemplate('sources', $data);
 	}
 	
 	protected function doAjax()
