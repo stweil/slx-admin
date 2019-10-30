@@ -175,33 +175,8 @@ foreach ($defaults as $setting => $value) {
 }
 
 // All done, now output
-
-if (Request::any('save') === 'true') {
-	// output AND save to disk: Generate contents
-	$lines = '';
-	foreach (ConfigHolder::getConfig() as $setting => $value) {
-		$lines .= $setting . "='" . escape($value) . "'\n";
-	}
-	// Save to all the locations
-	$data = Property::getVersionCheckInformation();
-	if (is_array($data) && isset($data['systems'])) {
-		foreach ($data['systems'] as $system) {
-			$path = CONFIG_HTTP_DIR . '/' . $system['id'] . '/config';
-			if (file_put_contents($path, $lines) > 0) {
-				echo "# Saved config to $path\n";
-			} else {
-				echo "# Error saving config to $path\n";
-			}
-			echo "SLX_NOW='", time(), "'\n";
-		}
-	}
-	// Output to browser
-	echo $lines;
-} else {
-	// Only output to client
-	ConfigHolder::add('SLX_NOW', time(), PHP_INT_MAX);
-	ConfigHolder::outputConfig();
-}
+ConfigHolder::add('SLX_NOW', time(), PHP_INT_MAX);
+ConfigHolder::outputConfig();
 
 // For quick testing or custom extensions: Include external file that should do nothing
 // more than outputting more key-value-pairs. It's expected in the webroot of slxadmin
