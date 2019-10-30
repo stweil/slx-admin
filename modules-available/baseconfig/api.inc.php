@@ -89,18 +89,19 @@ class ConfigHolder
 	{
 		self::applyPostHooks();
 		foreach (self::$config as $key => $list) {
-			echo '##', $key, "\n";
+			echo str_pad('# ' . $key . ' ', 35, '#', STR_PAD_BOTH), "\n";
 			foreach ($list as $pos => $item) {
-				echo '# (', $item['context'], ':', $item['prio'], ')';
 				if ($pos != 0 || $item['value'] === false) {
+					echo '# (', $item['context'], ':', $item['prio'], ')';
 					if ($pos == 0) {
-						echo " <disabled>\n";
+						echo " <disabled this setting>\n";
 					} else {
 						echo " <overridden>\n";
 					}
-					continue;
+				} else {
+					echo $key, "='", escape($item['value']), "'\n";
+					echo '# (', $item['context'], ':', $item['prio'], ") <active>\n";
 				}
-				echo "⤵\n", $key, "='", escape($item['value']), "'\n";
 			}
 		}
 	}
