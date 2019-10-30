@@ -126,30 +126,34 @@ function escape($string)
  * global setting.
  */
 
-function handleModule($file, $ip, $uuid) // Pass ip and uuid instead of global to make them read only
+function handleModule($name, $ip, $uuid) // Pass ip and uuid instead of global to make them read only
 {
-	$configVars = [];
-	include_once $file;
-	ConfigHolder::addArray($configVars, 0);
+	// Module has getconfig hook
+	$file = 'modules/' . $name . '/baseconfig/getconfig.inc.php';
+	if (!is_file($file))
+		return;
+	// Properly registered and can be activated
+	$mod = Module::get($name);
+	if ($mod === false)
+		return;
+	if (!$mod->activate(1, false))
+		return;
+	// Process dependencies first
+	foreach ($mod->getDependencies() as $dep) {
+		handleModule($dep, $ip, $uuid);
+	}
+	ConfigHolder::setContext($name);
+	(function($file, $ip, $uuid) {
+		include_once($file);
+	})($file, $ip, $uuid);
 }
 
 // Handle any hooks by other modules first
 // other modules should generally only populate $configVars
 foreach (glob('modules/*/baseconfig/getconfig.inc.php') as $file) {
 	preg_match('#^modules/([^/]+)/#', $file, $out);
-	$mod = Module::get($out[1]);
-	if ($mod === false)
-		continue;
-	$mod->activate(1, false);
-	foreach ($mod->getDependencies() as $dep) {
-		$depFile = 'modules/' . $dep . '/baseconfig/getconfig.inc.php';
-		if (file_exists($depFile) && Module::isAvailable($dep)) {
-			ConfigHolder::setContext($dep);
-			handleModule($depFile, $ip, $uuid);
-		}
-	}
 	ConfigHolder::setContext($out[1]);
-	handleModule($file, $ip, $uuid);
+	handleModule($out[1], $ip, $uuid);
 }
 
 // Rest is handled by module
