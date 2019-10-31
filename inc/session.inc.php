@@ -81,7 +81,7 @@ class Session
 
 	public static function deleteCookie()
 	{
-		setcookie('sid', '', time() - 8640000, null, null, !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off', true);
+		Util::clearCookie('sid');
 	}
 	
 	private static function getSessionFile()
@@ -109,6 +109,7 @@ class Session
 		$sessionfile = self::getSessionFile();
 		$ret = @file_put_contents($sessionfile, @serialize(self::$data));
 		if (!$ret) Util::traceError('Storing session data  in ' . $sessionfile . ' failed.');
+		Util::clearCookie('sid');
 		$ret = setcookie('sid', self::$sid, time() + CONFIG_SESSION_TIMEOUT, null, null, !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off', true);
 		if (!$ret) Util::traceError('Error: Could not set Cookie for Client (headers already sent)');
 	}

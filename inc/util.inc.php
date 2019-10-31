@@ -534,4 +534,24 @@ SADFACE;
 		return implode(' ', $parts) . ' ' . gmdate($showSecs ? 'H:i:s' : 'H:i', $seconds);
 	}
 
+	/**
+	 * Properly clear a cookie from the user's browser.
+	 * This recursively wipes it from the current script's path. There
+	 * was a weird problem where firefox would keep sending a cookie with
+	 * path /slx-admin/ but trying to delete it from /slx-admin, which php's
+	 * setcookie automatically sends by default, did not clear it.
+	 * @param string $name cookie name
+	 */
+	public static function clearCookie($name)
+	{
+		$parts = explode('/', $_SERVER['SCRIPT_NAME']);
+		$path = '';
+		foreach ($parts as $part) {
+			$path .= $part;
+			setcookie($name, '', 0, $path);
+			$path .= '/';
+			setcookie($name, '', 0, $path);
+		}
+	}
+
 }

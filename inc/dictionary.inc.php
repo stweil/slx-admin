@@ -28,7 +28,8 @@ class Dictionary
 		//Changes the language in case there is a request to
 		$lang = Request::get('lang');
 		if ($lang !== false && in_array($lang, self::$languages)) {
-			setcookie('lang', $lang, time() + 60 * 60 * 24 * 30 * 12);
+			Util::clearCookie('lang');
+			setcookie('lang', $lang, time() + 86400 * 30 * 12);
 			$url = Request::get('url');
 			if ($url === false && isset($_SERVER['HTTP_REFERER'])) {
 				$url = $_SERVER['HTTP_REFERER'];
