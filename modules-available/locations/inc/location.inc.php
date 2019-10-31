@@ -375,25 +375,6 @@ class Location
 	}
 
 	/**
-	 * Used for baseconfig hook
-	 * @param $locationId
-	 * @return bool|array ('value' => x, 'display' => y), false if no parent or unknown id
-	 */
-	public static function getBaseconfigParent($locationId)
-	{
-		$locationId = (int)$locationId;
-		if (self::$assocLocationCache === false) {
-			self::getLocationsAssoc();
-		}
-		if (!isset(self::$assocLocationCache[$locationId]))
-			return false;
-		$locationId = (int)self::$assocLocationCache[$locationId]['parentlocationid'];
-		if (!isset(self::$assocLocationCache[$locationId]))
-			return false;
-		return array('value' => $locationId, 'display' => self::$assocLocationCache[$locationId]['locationname']);
-	}
-
-	/**
 	 * @return array list of subnets as numeric array
 	 */
 	public static function getSubnets()

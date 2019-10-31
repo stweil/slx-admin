@@ -1,0 +1,7 @@
+{
+	"table": "setting_machine",
+	"field": "machineuuid",
+	"locationResolver": "StatisticsHooks::baseconfigLocationResolver",
+	"tostring": "StatisticsHooks::getBaseconfigName",
+	"getfallback": "StatisticsHooks::getBaseconfigParent"
+}

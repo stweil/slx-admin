@@ -906,6 +906,13 @@ class Page_Statistics extends Page
 			}
 			$client['rebootcontrol'] = $client['canReboot'] || $client['canShutdown'];
 		}
+		// Baseconfig
+		if (Module::get('baseconfig') !== false
+				&& User::hasPermission('.baseconfig.view', (int)$client['locationid'])) {
+			$cvs = Database::queryFirst('SELECT Count(*) AS cnt FROM setting_machine WHERE machineuuid = :uuid', ['uuid' => $uuid]);
+			$client['overriddenVars'] = is_array($cvs) ? $cvs['cnt'] : 0;
+			$client['hasBaseconfig'] = true;
+		}
 		if (!isset($client['isclient'])) {
 			$client['isclient'] = true;
 		}

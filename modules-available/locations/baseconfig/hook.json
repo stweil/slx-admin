@@ -1,6 +1,7 @@
 {
 	"table": "setting_location",
 	"field": "locationid",
+	"locationResolver": "LocationHooks::baseconfigLocationResolver",
 	"tostring": "Location::getName",
-	"getfallback": "Location::getBaseconfigParent"
+	"getfallback": "LocationHooks::getBaseconfigParent"
 }

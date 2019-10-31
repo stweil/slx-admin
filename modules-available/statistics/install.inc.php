@@ -107,6 +107,16 @@ $res[] = tableCreate('pciid', "
 	PRIMARY KEY (`category`,`id`)
 ");
 
+// baseconfig override per machine
+$res[] = tableCreate('setting_machine', '
+	`machineuuid` char(36) CHARACTER SET ascii NOT NULL,
+	`setting` VARCHAR(28) NOT NULL,
+	`value` TEXT NOT NULL,
+	`displayvalue` TEXT NOT NULL,
+	PRIMARY KEY (`machineuuid`,`setting`),
+	KEY `setting` (`setting`)
+');
+
 // need trigger?
 if ($machineCreate === UPDATE_DONE) {
 	$addTrigger = true;
@@ -258,6 +268,10 @@ while ($row = $res2->fetch(PDO::FETCH_ASSOC)) {
 		}
 	}
 }
+
+// 2019-10-31: New table for per-machine config override
+$res[] = tableAddConstraint('setting_machine', 'machineuuid', 'machine', 'machineuuid',
+	'ON UPDATE CASCADE ON DELETE CASCADE');
 
 // Create response
 responseFromArray($res);

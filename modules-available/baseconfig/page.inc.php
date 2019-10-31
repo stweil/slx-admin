@@ -23,11 +23,7 @@ class Page_BaseConfig extends Page
 
 		$newValues = Request::post('setting');
 		if (is_array($newValues)) {
-			if ($this->targetModule === 'locations') {
-				User::assertPermission('edit', $this->qry_extra['field_value']);
-			} else {
-				User::assertPermission('edit', 0);
-			}
+			User::assertPermission('edit', $this->getPermissionLocationId());
 			// Build variables for specific sub-settings
 			if ($this->targetModule === false || empty($this->qry_extra['field'])) {
 				// Global, or Module specific, but module doesn't have an extra field
@@ -118,13 +114,9 @@ class Page_BaseConfig extends Page
 				Util::redirect('?do=BaseConfig');
 			}
 		}
-		if ($this->targetModule === 'locations') {
-			User::assertPermission('view', $this->qry_extra['field_value']);
-			$editForbidden = !User::hasPermission('edit', $this->qry_extra['field_value']);
-		} else {
-			User::assertPermission('view', 0);
-			$editForbidden = !User::hasPermission('edit', 0);
-		}
+		$lid = $this->getPermissionLocationId();
+		User::assertPermission('view', $lid);
+		$editForbidden = !User::hasPermission('edit', $lid);
 		// Get stuff that's set in DB already
 		if ($this->targetModule !== false && isset($this->qry_extra['field'])) {
 			$fields = '';
@@ -279,6 +271,14 @@ class Page_BaseConfig extends Page
 		}
 		$this->targetModule = $module;
 		$this->qry_extra = $hook;
+	}
+
+	private function getPermissionLocationId()
+	{
+		if (!isset($this->qry_extra['locationResolver']) || !isset($this->qry_extra['field_value']))
+			return 0;
+		$func = explode('::', $this->qry_extra['locationResolver']);
+		return (int)call_user_func($func, $this->qry_extra['field_value']);
 	}
 	
 	/**

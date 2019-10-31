@@ -47,7 +47,7 @@ class Validator
 	 * Otherwise it it assumed that the value is a plain text
 	 * password that is supposed to be hashed.
 	 */
-	private static function linuxPassword(&$displayValue)
+	private static function linuxPassword($displayValue)
 	{
 		if (empty($displayValue))
 			return '';

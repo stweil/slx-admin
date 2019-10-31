@@ -176,6 +176,19 @@
 							</td>
 						</tr>
 					{{/rebootcontrol}}
+					{{#hasBaseconfig}}
+						<tr>
+							<td class="text-nowrap">
+								{{lang_configVars}}
+							</td>
+							<td>
+								<a class="btn btn-sm btn-default" href="?do=baseconfig&amp;module=statistics&amp;machineuuid={{machineuuid}}">
+									<span class="glyphicon glyphicon-edit"></span>
+									{{lang_edit}} ({{overriddenVars}})
+								</a>
+							</td>
+						</tr>
+					{{/hasBaseconfig}}
 				</table>
 			</div>
 		</div>
