@@ -1,7 +1,7 @@
 {
     "added-x-entries": "Entries added: {{0}}",
     "invalid-location-id": "Invalid location id: {{0}}",
-    "location-deleted": "Location has been deleted (locations: {{0}}, subnets: {{1}})",
+    "location-deleted": "Location has been deleted (locations: {{0}}, IDs: {{1}})",
     "location-updated": "Location {{0}} has been updated",
     "moved-n-machines": "Moved {{0}} machines",
     "no-mismatch-location": "No mismatches for this location",

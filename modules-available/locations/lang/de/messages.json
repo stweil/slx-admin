@@ -1,7 +1,7 @@
 {
     "added-x-entries": "Eintr\u00e4ge hinzugef\u00fcgt: {{0}}",
     "invalid-location-id": "Ung\u00fcltige Orts-id: {{0}}",
-    "location-deleted": "Location wurde gel\u00f6scht (Locations: {{0}}, Subnets: {{1}})",
+    "location-deleted": "Location wurde gel\u00f6scht (Locations: {{0}}, IDs: {{1}})",
     "location-updated": "Location {{0}} wurde aktualisiert",
     "moved-n-machines": "{{0}} Rechner verschoben",
     "no-mismatch-location": "Keine widerspr\u00fcchlichen Zuweisungen f\u00fcr diesen Ort",
