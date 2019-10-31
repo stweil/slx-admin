@@ -898,12 +898,8 @@ class Page_Statistics extends Page
 		}
 		// Rebootcontrol
 		if (Module::get('rebootcontrol') !== false) {
-			if (User::hasPermission('.rebootcontrol.action.reboot', (int)$client['locationid'])) {
-				$client['canReboot'] = true;
-			}
-			if (User::hasPermission('.rebootcontrol.action.shutdown', (int)$client['locationid'])) {
-				$client['canShutdown'] = true;
-			}
+			$client['canReboot'] = (User::hasPermission('.rebootcontrol.action.reboot', (int)$client['locationid']));
+			$client['canShutdown'] = (User::hasPermission('.rebootcontrol.action.shutdown', (int)$client['locationid']));
 			$client['rebootcontrol'] = $client['canReboot'] || $client['canShutdown'];
 		}
 		// Baseconfig
