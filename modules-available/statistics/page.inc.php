@@ -880,6 +880,9 @@ class Page_Statistics extends Page
 			Message::addError('unknown-machine', $uuid);
 			return;
 		}
+		if (Module::isAvailable('locations') && !Location::isLeaf($client['locationid'])) {
+			$client['hasroomplan'] = false;
+		}
 		User::assertPermission('machine.view-details', (int)$client['locationid']);
 		// Hack: Get raw collected data
 		if (Request::get('raw', false)) {
