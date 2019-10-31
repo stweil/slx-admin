@@ -137,7 +137,10 @@ function tableGetConstraints($table, $column, $refTable, $refColumn)
 	}
 	return Database::queryFirst('SELECT b.CONSTRAINT_NAME, b.UPDATE_RULE, b.DELETE_RULE
 			FROM information_schema.KEY_COLUMN_USAGE a
-			INNER JOIN information_schema.REFERENTIAL_CONSTRAINTS b USING (CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME)
+			INNER JOIN information_schema.REFERENTIAL_CONSTRAINTS b ON (
+			    a.CONSTRAINT_CATALOG = b.CONSTRAINT_CATALOG
+			        AND a.CONSTRAINT_SCHEMA = b.CONSTRAINT_SCHEMA
+			        AND a.CONSTRAINT_NAME = b.CONSTRAINT_NAME)
 			WHERE a.TABLE_SCHEMA = :db AND a.TABLE_NAME = :table AND a.COLUMN_NAME = :column
 			AND a.REFERENCED_TABLE_NAME = :refTable AND a.REFERENCED_COLUMN_NAME = :refColumn',
 		compact('db', 'table', 'column', 'refTable', 'refColumn'));
