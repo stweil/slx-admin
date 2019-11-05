@@ -83,14 +83,12 @@ class PermissionUtil
 				$locations = [0];
 			} else {
 				$locations = Location::getLocationRootChain($locationid);
-				if (empty($locations)) { // Non-existent location, still continue as user might have global perms
-					$locations = [0];
-				}
+				$locations[] = 0;
 			}
 			$cache =& self::$permissionCacheLoc;
 			if (array_key_exists($key, $cache)) {
 				if (array_key_exists($locationid, $cache[$key]))
-					return $cache[$key][$locationid]; // Exact match - return immedtiately
+					return $cache[$key][$locationid]; // Exact match - return immediately
 				foreach ($locations as $lid) {
 					if (array_key_exists($lid, $cache[$key]) && $cache[$key][$lid]) {
 						$cache[$key][$locationid] = true;
@@ -149,14 +147,6 @@ class PermissionUtil
 			$cache[$key] = $retval;
 		} else {
 			$cache[$key][$locationid] = $retval;
-			if ($cacheAll) {
-				$locations = array_keys($allLocs);
-			}
-			foreach ($locations as $lid) {
-				if (!array_key_exists($lid, $cache[$key])) {
-					$cache[$key][$lid] = false;
-				}
-			}
 		}
 		return $retval;
 	}
