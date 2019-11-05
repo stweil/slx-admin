@@ -1,3 +1,5 @@
 {
-    "module_name": "Config Variables"
+    "module_name": "Config Variables",
+    "source-default": "Factory default",
+    "source-global": "Global"
 }

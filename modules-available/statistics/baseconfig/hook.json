@@ -3,5 +3,5 @@
 	"field": "machineuuid",
 	"locationResolver": "StatisticsHooks::baseconfigLocationResolver",
 	"tostring": "StatisticsHooks::getBaseconfigName",
-	"getfallback": "StatisticsHooks::getBaseconfigParent"
+	"getInheritance": "StatisticsHooks::baseconfigInheritance"
 }

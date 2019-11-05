@@ -4,28 +4,26 @@ class LocationHooks
 {
 
 	/**
-	 * Used for baseconfig hook
-	 * @param $locationId
-	 * @return bool|array ('value' => x, 'display' => y), false if no parent or unknown id
-	 */
-	public static function getBaseconfigParent($locationId)
-	{
-		$locationId = (int)$locationId;
-		$assoc = Location::getLocationsAssoc();
-		if (!isset($assoc[$locationId]))
-			return false;
-		$locationId = (int)$assoc[$locationId]['parentlocationid'];
-		if (!isset($assoc[$locationId]))
-			return false;
-		return array('value' => $locationId, 'display' => $assoc[$locationId]['locationname']);
-	}
-
-	/**
 	 * Resolve baseconfig id to locationid -- noop in this case
 	 */
 	public static function baseconfigLocationResolver($id)
 	{
 		return $id;
+	}
+
+	/**
+	 * Hook to get inheritance tree for all config vars
+	 * @param int $id Locationid currently being edited
+	 */
+	public static function baseconfigInheritance($id)
+	{
+		$locs = Location::getLocationsAssoc();
+		if ($locs === false || !isset($locs[$id]))
+			return [];
+		BaseConfig::prepareWithOverrides([
+			'locationid' => $locs[$id]['parentlocationid']
+		]);
+		return ConfigHolder::getRecursiveConfig(true);
 	}
 
 }

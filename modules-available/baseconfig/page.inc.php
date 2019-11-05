@@ -127,59 +127,47 @@ class Page_BaseConfig extends Page
 			$where = '';
 			$params = array();
 		}
+		$parents = $this->getInheritanceData();
 		// List config options
 		$settings = array();
-		$vars = BaseConfigUtil::getVariables();
+		$varsFromJson = BaseConfigUtil::getVariables();
 		// Remember missing variables
-		$missing = $vars;
+		$missing = $varsFromJson;
 		// Populate structure with existing config from db
-		$this->fillSettings($vars, $settings, $missing, $this->qry_extra['table'], $fields, $where, $params, false);
-		if (isset($this->qry_extra['getfallback']) && !empty($missing)) {
-			$method = explode('::', $this->qry_extra['getfallback']);
-			$fieldValue = $this->qry_extra['field_value'];
-			$tries = 0;
-			while (++$tries < 100 && !empty($missing)) {
-				$ret = call_user_func($method, $fieldValue);
-				if ($ret === false)
-					break;
-				$fieldValue = $ret['value'];
-				$params = array('field_value' => $fieldValue);
-				$this->fillSettings($vars, $settings, $missing, $this->qry_extra['table'], $fields, $where, $params, $ret['display']);
-			}
-		}
-		if ($this->targetModule !== false && !empty($missing)) {
-			$this->fillSettings($vars, $settings, $missing, 'setting_global', '', '', array(), 'Global');
-		}
+		$this->fillSettings($varsFromJson, $settings, $missing, $this->qry_extra['table'], $fields, $where, $params, false);
 		// Add entries that weren't in the db (global), setup override checkbox (module specific)
-		foreach ($vars as $key => $var) {
+		foreach ($varsFromJson as $key => $var) {
 			if ($this->targetModule !== false && !isset($settings[$var['catid']]['settings'][$key])) {
 				// Module specific - value is not set in DB
-				$settings[$var['catid']]['settings'][$key] = $var + array(
+				$settings[$var['catid']]['settings'][$key] = array(
 					'setting' => $key
 				);
 			}
-			if (!isset($settings[$var['catid']]['settings'][$key]['displayvalue'])) {
-				$settings[$var['catid']]['settings'][$key]['displayvalue'] = $var['defaultvalue'];
+			$entry =& $settings[$var['catid']]['settings'][$key];
+			if (!isset($entry['displayvalue'])) {
+				if (isset($parents[$key][0]['value'])) {
+					$entry['displayvalue'] = $parents[$key][0]['value'];
+				} else {
+					$entry['displayvalue'] = $var['defaultvalue'];
+				}
 			}
-			if (!isset($settings[$var['catid']]['settings'][$key]['defaultvalue'])) {
-				$settings[$var['catid']]['settings'][$key]['defaultvalue'] = $var['defaultvalue'];
+			if (!isset($entry['shadows'])) {
+				$entry['shadows'] = isset($var['shadows']) ? $var['shadows'] : null;
 			}
-			if (!isset($settings[$var['catid']]['settings'][$key]['shadows'])) {
-				$settings[$var['catid']]['settings'][$key]['shadows'] = isset($var['shadows']) ? $var['shadows'] : null;
-			}
-			$settings[$var['catid']]['settings'][$key] += array(
+			$entry += array(
 				'item' => $this->makeInput(
 					$var['validator'],
 					$key,
-					$settings[$var['catid']]['settings'][$key]['displayvalue'],
-					$settings[$var['catid']]['settings'][$key]['shadows'],
+					$entry['displayvalue'],
+					$entry['shadows'],
 					$editForbidden
 				),
 				'description' => Util::markup(Dictionary::translateFileModule($var['module'], 'config-variables', $key)),
 				'setting' => $key,
+				'tree' => isset($parents[$key]) ? $parents[$key] : false,
 			);
 		}
-		//die();
+		unset($entry);
 
 
 		// Sort categories
@@ -216,10 +204,7 @@ class Page_BaseConfig extends Page
 				continue;
 			}
 			unset($missing[$row['setting']]);
-			if ($sourceName !== false) {
-				$row['defaultvalue'] = '';
-				$row['defaultsource'] = $sourceName;
-			} elseif ($this->targetModule !== false) {
+			if ($this->targetModule !== false) {
 				$row['checked'] = 'checked';
 			}
 			$row += $vars[$row['setting']];
@@ -279,6 +264,16 @@ class Page_BaseConfig extends Page
 			return 0;
 		$func = explode('::', $this->qry_extra['locationResolver']);
 		return (int)call_user_func($func, $this->qry_extra['field_value']);
+	}
+
+	private function getInheritanceData()
+	{
+		if (!isset($this->qry_extra['getInheritance']) || !isset($this->qry_extra['field_value'])) {
+			BaseConfig::prepareDefaults();
+			return ConfigHolder::getRecursiveConfig(true);
+		}
+		$func = explode('::', $this->qry_extra['getInheritance']);
+		return call_user_func($func, $this->qry_extra['field_value']);
 	}
 	
 	/**

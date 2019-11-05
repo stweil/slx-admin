@@ -1,3 +1,5 @@
 {
-    "module_name": "Konfigurationsvariablen"
+    "module_name": "Konfigurationsvariablen",
+    "source-default": "Auslieferungszustand",
+    "source-global": "Global"
 }

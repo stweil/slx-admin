@@ -18,52 +18,53 @@
 			<a name="category_{{category_id}}"></a>
 			{{category_name}}
 		</div>
-		<div class="panel-body">
-			<div class="list-group">
-				{{#settings}}
-				<div class="list-group-item">
-					<div class="row">
-						<div class="col-md-5 slx-cfg-toggle">
-							<div>{{setting}}</div>
-							<div class="slx-default">
-								{{#defaultvalue}}{{lang_defaultValue}}:{{/defaultvalue}}
-								{{defaultvalue}}
-							</div>
-							{{#override}}
-							<div class="checkbox">
-								<input name="override[{{setting}}]" class="override-cb" id="CB_{{setting}}" type="checkbox" {{checked}} {{edit_disabled}}>
-								<label for="CB_{{setting}}">
-									{{lang_enableOverride}}
-								</label>
-							</div>
-							{{/override}}
+		<div class="list-group">
+			{{#settings}}
+			<div class="list-group-item">
+				<div class="row">
+					<div class="col-md-5 slx-cfg-toggle">
+						<div>{{setting}}</div>
+						{{#override}}
+						<div class="checkbox">
+							<input name="override[{{setting}}]" class="override-cb" id="CB_{{setting}}" type="checkbox" {{checked}} {{edit_disabled}}>
+							<label for="CB_{{setting}}">
+								{{lang_enableOverride}}
+							</label>
 						</div>
-						<div class="col-md-5 config-container">
-							{{{item}}}
-							<div class="slx-default">
-								{{#defaultsource}}{{lang_inheritSource}}:{{/defaultsource}}
-								{{defaultsource}}
-							</div>
+						{{/override}}
+					</div>
+					<div class="col-md-5 config-container">
+						{{{item}}}
+						<div class="slx-default">
+							{{#tree.0}}
+							<a href="#tree-{{setting}}" data-toggle="collapse">{{lang_showParents}}</a>
+							<div class="hidden" id="default-{{setting}}">{{value}}</div>
+							{{/tree.0}}
 						</div>
-						<div class="col-md-2">
-							<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}"><span class="glyphicon glyphicon-question-sign"></span></a>
+						<div class="slx-default collapse text-nowrap" id="tree-{{setting}}">
+							{{#tree}}
+							<div class="slx-strike"><b>{{name}}</b>: {{value}}</div>
+							{{/tree}}
 						</div>
 					</div>
-				</div>
-				<div class="modal fade" id="help-{{setting}}" tabindex="-1" role="dialog">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal">&times;</button>
-								<h4 class="modal-title"><b>{{setting}}</b></h4>
-
-							</div>
-							<div class="modal-body">{{{description}}}</div>
-						</div>
+					<div class="col-md-2">
+						<a class="btn btn-default" data-toggle="modal" data-target="#help-{{setting}}"><span class="glyphicon glyphicon-question-sign"></span></a>
 					</div>
 				</div>
-				{{/settings}}
 			</div>
+			<div class="modal fade" id="help-{{setting}}" tabindex="-1" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title"><b>{{setting}}</b></h4>
+
+						</div>
+						<div class="modal-body">{{{description}}}</div>
+					</div>
+				</div>
+			</div>
+			{{/settings}}
 		</div>
 	</div>
 	{{/categories}}
@@ -135,25 +136,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	var updateCheckbox = function() {
 		var id = '#CB_' + $(this).attr('id');
-		$(id).prop('checked', true);
+		var $cb = $(id).prop('checked', true);
+		if ($cb.length > 0) {
+			syncCheckbox.call($cb[0]);
+		}
+	};
+	var syncCheckbox = function() {
+		var setting = this.id.substr(3);
+		var $itm = $('#tree-' + setting + ' > div:first-child');
+		if (this.checked) {
+			$itm.addClass('slx-strike');
+		} else {
+			$itm.removeClass('slx-strike');
+		}
 	};
 	var $cont = $('.config-container');
 	$cont.find('select, input').on('change', updateCheckbox);
 	$cont.find('input').on('input', updateCheckbox);
 	$('.override-cb').on('change', function() {
-		if (this.checked) return;
-		var input = document.getElementById(this.id.substr(3));
+		var setting = this.id.substr(3);
+		syncCheckbox.call(this);
+		var input = document.getElementById(setting);
 		if (!input) return;
+		var defaults = this.checked ? false : ('' + $('#default-' + setting).text());
 		if (input.tagName.toUpperCase() === 'SELECT') {
+			var items = defaults === false ? false : defaults.split(/\s+/);
 			$(input).find('option').each(function() {
-				$(this).prop('selected', this.defaultSelected);
+				$(this).prop('selected', items === false ? this.defaultSelected : (items.indexOf(this.value) !== -1));
 			});
 			$(input).filter('.multilist').multiselect('refresh');
 		} else if (input.type && input.type.toUpperCase() === 'CHECKBOX') {
-			$(input).prop('checked', input.defaultChecked);
-		} else if (input.defaultValue !== undefined) {
-			$(input).val(input.defaultValue);
-		}
+			$(input).prop('checked', defaults === false ? input.defaultChecked : !!defaults);
+		} else {
+			$(input).val(defaults === false ? input.defaultValue : defaults);
+		} // TODO: Make this work for multiinput/selectize (or get rid of them)
+		$allShadowingFields.each(updateShadows);
+	}).each(syncCheckbox);
+	window.addEventListener('unload', function() {
+		$('.multilist').multiselect('refresh');
 	});
 });
 </script>

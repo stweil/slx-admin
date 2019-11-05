@@ -21,17 +21,27 @@ class StatisticsHooks
 		return self::$row['hostname'] ? self::$row['hostname'] : self::$row['clientip'];
 	}
 
-	public static function getBaseconfigParent($machineuuid)
-	{
-		return false; // TODO
-	}
-
 	public static function baseconfigLocationResolver($machineuuid)
 	{
 		self::getRow($machineuuid);
 		if (self::$row === false)
 			return 0;
 		return (int)self::$row['locationid'];
+	}
+
+	/**
+	 * Hook to get inheritance tree for all config vars
+	 * @param int $machineuuid MachineUUID currently being edited
+	 */
+	public static function baseconfigInheritance($machineuuid)
+	{
+		self::getRow($machineuuid);
+		if (self::$row === false)
+			return [];
+		BaseConfig::prepareWithOverrides([
+			'locationid' => self::$row['locationid']
+		]);
+		return ConfigHolder::getRecursiveConfig(true);
 	}
 
 }

@@ -3,5 +3,5 @@
 	"field": "locationid",
 	"locationResolver": "LocationHooks::baseconfigLocationResolver",
 	"tostring": "Location::getName",
-	"getfallback": "LocationHooks::getBaseconfigParent"
+	"getInheritance": "LocationHooks::baseconfigInheritance"
 }
