@@ -91,6 +91,7 @@ class SubPage
 		// Statistics: Count machines for each subnet
 		$unassigned = false;
 		$unassignedLoad = 0;
+		$unassignedOverrides = 0;
 
 		$allowedLocationIds = User::getAllowedLocations("location.view");
 		foreach (array_keys($locationList) as $lid) {
@@ -118,8 +119,8 @@ class SubPage
 			if (in_array(0, $allowedLocationIds)) {
 				$extra = ' OR locationid IS NULL';
 			}
-			$res = Database::simpleQuery("SELECT locationid, Count(*) AS cnt, Sum(If(state = 'OCCUPIED', 1, 0)) AS used
- 				 FROM machine WHERE (locationid IN (:allowedLocationIds) $extra) GROUP BY locationid", compact('allowedLocationIds'));
+			$res = Database::simpleQuery("SELECT m.locationid, Count(*) AS cnt, Sum(If(m.state = 'OCCUPIED', 1, 0)) AS used
+ 				 FROM machine m WHERE (locationid IN (:allowedLocationIds) $extra) GROUP BY locationid", compact('allowedLocationIds'));
 			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 				$locId = (int)$row['locationid'];
 				if (isset($locationList[$locId])) {
@@ -128,6 +129,16 @@ class SubPage
 				} else {
 					$unassigned += $row['cnt'];
 					$unassignedLoad += $row['used'];
+				}
+			}
+			$res = Database::simpleQuery("SELECT m.locationid, Count(DISTINCT sm.machineuuid) AS cnt FROM setting_machine sm
+				INNER JOIN machine m USING (machineuuid) GROUP BY m.locationid");
+			while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+				$locId = (int)$row['locationid'];
+				if (isset($locationList[$locId])) {
+					$locationList[$locId]['machineVarsOverrideCount'] = $row['cnt'];
+				} else {
+					$unassignedOverrides += $row['cnt'];
 				}
 			}
 			unset($loc);
@@ -150,6 +161,7 @@ class SubPage
 				}
 			}
 			unset($loc);
+
 		}
 		// Show currently active sysconfig for each location
 		$defaultConfig = false;
@@ -222,6 +234,7 @@ class SubPage
 			'mismatchMachines' => $mismatchMachines,
 			'unassignedCount' => $unassigned,
 			'unassignedLoad' => ($unassigned ? (round(($unassignedLoad / $unassigned) * 100) . ' %') : ''),
+			'unassignedOverrides' => $unassignedOverrides,
 			'defaultConfig' => $defaultConfig,
 			'addAllowedList' => array_values($addAllowedList),
 		);

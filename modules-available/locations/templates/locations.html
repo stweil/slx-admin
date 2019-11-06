@@ -82,8 +82,16 @@
 						<a class="btn btn-default btn-xs" href="?do=baseconfig&amp;module=locations&amp;locationid={{locationid}}"><span class="glyphicon glyphicon-edit"></span></a>
 					</div>
 					{{#overriddenVars}}
-					{{lang_overrideCount}}: {{overriddenVars}}&emsp;&emsp;
+					<span class="badge" title="{{lang_overridenVarsForLocation}}">
+						<span class="glyphicon glyphicon-home"></span> {{.}}
+					</span>
 					{{/overriddenVars}}
+					{{#machineVarsOverrideCount}}
+					<span class="badge" title="{{lang_numMachinesWithOverrides}}">
+						<span class="glyphicon glyphicon-tasks"></span> {{.}}
+					</span>
+					{{/machineVarsOverrideCount}}
+					&emsp;&emsp;
 					{{/havebaseconfig}}
 				</td>
 				<td class="text-nowrap">
@@ -120,7 +128,13 @@
 			<td class="text-nowrap" align="right">
 				{{unassignedLoad}}
 			</td>
-			<td></td>
+			<td>
+				{{#unassignedOverrides}}
+				<span class="badge" title="{{lang_numMachinesWithOverrides}}">
+					<span class="glyphicon glyphicon-tasks"></span> {{.}}
+				</span>
+				{{/unassignedOverrides}}
+			</td>
 			<td>{{defaultConfig}}</td>
 		</tr>
 		{{/unassignedCount}}
