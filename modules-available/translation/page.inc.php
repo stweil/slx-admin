@@ -1031,10 +1031,8 @@ class Page_Translation extends Page
 				unlink($file);
 			}
 		} else {
-			// JSON_PRETTY_PRINT is only available starting with php 5.4.0.... Use upgradephp's json_encode
-			require_once('inc/up_json_encode.php');
 			ksort($data); // Sort by key, so the diff on the output is cleaner
-			$json = up_json_encode($data, JSON_PRETTY_PRINT); // Also for better diffability of the json files, we pretty print
+			$json = json_encode($data, JSON_PRETTY_PRINT); // Also for better diffability of the json files, we pretty print
 			//exits the function in case the action was unsuccessful
 			if (file_put_contents($file, $json) === false) {
 				Message::addError('main.error-write', $file);
