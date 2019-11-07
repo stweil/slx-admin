@@ -74,6 +74,8 @@ class Parser {
 				if (preg_match('/^\s*Size:\s*(.*?)\s*$/i', $line, $out)) {
 					$row['extram'] = true;
 					if (preg_match('/(\d+)\s*(\w)i?B/i', $out[1])) {
+						if (self::convertSize($out[1], 'M', false) < 35)
+							continue; // TODO: Parsing this line by line is painful. Check for other indicators, like Locator
 						$ramslot['size'] = self::convertSize($out[1], 'G');
 					} elseif (!isset($row['ramslot']) || (count($row['ramslot']) < 8 && (!isset($row['ramslotcount']) || $row['ramslotcount'] <= 8))) {
 						$ramslot['size'] = '_____';
@@ -126,7 +128,7 @@ class Parser {
 	{
 		if (!preg_match('/(\d+)\s*([TGMK]?)/i', $string, $out))
 			return false;
-		$val = (int)$out[1] * self::LOOKUP[$out[2]];
+		$val = (int)$out[1] * self::LOOKUP[strtoupper($out[2])];
 		if (!array_key_exists($scale, self::LOOKUP)) {
 			foreach (self::LOOKUP as $k => $v) {
 				if ($k === '' || $val / 8 >= $v || abs($val - $v) < 50) {

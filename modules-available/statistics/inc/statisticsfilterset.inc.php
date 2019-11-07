@@ -1,9 +1,9 @@
 <?php
 
-class FilterSet
+class StatisticsFilterSet
 {
 	/**
-	 * @var \Filter[]
+	 * @var \StatisticsFilter[]
 	 */
 	private $filters;
 	private $sortDirection;
@@ -20,7 +20,7 @@ class FilterSet
 	{
 		$direction = ($direction === 'DESC' ? 'DESC' : 'ASC');
 
-		if (!is_string($col) || !array_key_exists($col, Page_Statistics::$columns)) {
+		if (!is_string($col) || !array_key_exists($col, StatisticsFilter::$columns)) {
 			/* default sorting column is clientip */
 			$col = 'clientip';
 		}
@@ -56,8 +56,8 @@ class FilterSet
 		$join = implode(' ', array_unique($joins));
 
 		$col = $this->sortColumn;
-		$isMapped = array_key_exists('map_sort', Page_Statistics::$columns[$col]);
-		$concreteCol = ($isMapped ? Page_Statistics::$columns[$col]['map_sort'] : $col) ;
+		$isMapped = array_key_exists('map_sort', StatisticsFilter::$columns[$col]);
+		$concreteCol = ($isMapped ? StatisticsFilter::$columns[$col]['map_sort'] : $col) ;
 
 		if ($concreteCol === 'clientip') {
 			$concreteCol = "INET_ATON(clientip)";
@@ -90,12 +90,12 @@ class FilterSet
 			return;
 		$this->cache = false;
 		// Runmode module exists, add filter
-		$this->filters[] = new IsClientFilter(true);
+		$this->filters[] = new IsClientStatisticsFilter(true);
 	}
 
 	/**
 	 * @param string $type filter type (class name)
-	 * @return false|Filter The filter, false if not found
+	 * @return false|StatisticsFilter The filter, false if not found
 	 */
 	public function hasFilter($type)
 	{
@@ -124,7 +124,7 @@ class FilterSet
 				return true;
 			unset($this->filters['permissions']);
 		} else {
-			$this->filters['permissions'] = new LocationFilter('=', $locs);
+			$this->filters['permissions'] = new LocationStatisticsFilter('=', $locs);
 		}
 		$this->cache = false;
 		return true;

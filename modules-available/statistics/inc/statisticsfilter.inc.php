@@ -3,18 +3,42 @@
 /* base class with rudimentary SQL generation abilities.
  * WARNING: argument is escaped, but $column and $operator are passed unfiltered into SQL */
 
-class Filter
+class StatisticsFilter
 {
 	/**
 	 * Delimiter for js_selectize filters
 	 */
 	const DELIMITER = '~,~';
 
+	const SIZE_ID44 = array(0, 8, 16, 24, 30, 40, 50, 60, 80, 100, 120, 150, 180, 250, 300, 400, 500, 1000, 2000, 4000);
+	const SIZE_RAM = array(1, 2, 3, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 320, 480, 512, 768, 1024);
+
 	public $column;
 	public $operator;
 	public $argument;
 
 	private static $keyCounter = 0;
+
+	public static function findBestValue($array, $value, $up)
+	{
+		$best = 0;
+		for ($i = 0; $i < count($array); ++$i) {
+			if (abs($array[$i] - $value) < abs($array[$best] - $value)) {
+				$best = $i;
+			}
+		}
+		if (!$up && $best === 0) {
+			return $array[0];
+		}
+		if ($up && $best + 1 === count($array)) {
+			return $array[$best];
+		}
+		if ($up) {
+			return ($array[$best] + $array[$best + 1]) / 2;
+		}
+
+		return ($array[$best] + $array[$best - 1]) / 2;
+	}
 
 	public static function getNewKey($colname)
 	{
@@ -31,11 +55,11 @@ class Filter
 	/* returns a where clause and adds needed operators to the passed array */
 	public function whereClause(&$args, &$joins)
 	{
-		$key = Filter::getNewKey($this->column);
+		$key = StatisticsFilter::getNewKey($this->column);
 		$addendum = '';
 
 		/* check if we have to do some parsing*/
-		if (Page_Statistics::$columns[$this->column]['type'] === 'date') {
+		if (self::$columns[$this->column]['type'] === 'date') {
 			$args[$key] = strtotime($this->argument);
 		} else {
 			$args[$key] = $this->argument;
@@ -68,12 +92,12 @@ class Filter
 				continue;
 			// Special case: User pasted UUID, turn into filter
 			if (preg_match('/^\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$/', $q)) {
-				$filters[] = new Filter('machineuuid', '=', $q);
+				$filters[] = new StatisticsFilter('machineuuid', '=', $q);
 				continue;
 			}
 			// Special case: User pasted IP, turn into filter
 			if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $q)) {
-				$filters[] = new Filter('clientip', '=', $q);
+				$filters[] = new StatisticsFilter('clientip', '=', $q);
 				continue;
 			}
 			/* find position of first operator */
@@ -95,20 +119,20 @@ class Filter
 			$rhs = trim(substr($q, $pos + strlen($operator)));
 
 			if ($lhs === 'gbram') {
-				$filters[] = new RamGbFilter($operator, $rhs);
+				$filters[] = new RamGbStatisticsFilter($operator, $rhs);
 			} elseif ($lhs === 'runtime') {
-				$filters[] = new RuntimeFilter($operator, $rhs);
+				$filters[] = new RuntimeStatisticsFilter($operator, $rhs);
 			} elseif ($lhs === 'state') {
-				$filters[] = new StateFilter($operator, $rhs);
+				$filters[] = new StateStatisticsFilter($operator, $rhs);
 			} elseif ($lhs === 'hddgb') {
-				$filters[] = new Id44Filter($operator, $rhs);
+				$filters[] = new Id44StatisticsFilter($operator, $rhs);
 			} elseif ($lhs === 'location') {
-				$filters[] = new LocationFilter($operator, $rhs);
+				$filters[] = new LocationStatisticsFilter($operator, $rhs);
 			} elseif ($lhs === 'subnet') {
-				$filters[] = new SubnetFilter($operator, $rhs);
+				$filters[] = new SubnetStatisticsFilter($operator, $rhs);
 			} else {
-				if (array_key_exists($lhs, Page_Statistics::$columns) && Page_Statistics::$columns[$lhs]['column']) {
-					$filters[] = new Filter($lhs, $operator, $rhs);
+				if (array_key_exists($lhs, self::$columns) && self::$columns[$lhs]['column']) {
+					$filters[] = new StatisticsFilter($lhs, $operator, $rhs);
 				} else {
 					Message::addError('invalid-filter-key', $lhs);
 				}
@@ -117,9 +141,194 @@ class Filter
 
 		return $filters;
 	}
+
+	/**
+	 * @param \StatisticsFilterSet $filterSet
+	 */
+	public static function renderFilterBox($show, $filterSet, $query)
+	{
+		$data = array(
+			'show' => $show,
+			'query' => $query,
+			'delimiter' => StatisticsFilter::DELIMITER,
+			'sortDirection' => $filterSet->getSortDirection(),
+			'sortColumn' => $filterSet->getSortColumn(),
+			'columns' => json_encode(StatisticsFilter::$columns),
+		);
+
+		if ($show === 'list') {
+			$data['listButtonClass'] = 'active';
+			$data['statButtonClass'] = '';
+		} else {
+			$data['listButtonClass'] = '';
+			$data['statButtonClass'] = 'active';
+		}
+
+
+		$locsFlat = array();
+		if (Module::isAvailable('locations')) {
+			$allowed = $filterSet->getAllowedLocations();
+			foreach (Location::getLocations() as $loc) {
+				$locsFlat['L' . $loc['locationid']] = array(
+					'pad' => $loc['locationpad'],
+					'name' => $loc['locationname'],
+					'disabled' => $allowed !== false && !in_array($loc['locationid'], $allowed),
+				);
+			}
+		}
+
+		Permission::addGlobalTags($data['perms'], null, ['view.summary', 'view.list']);
+		$data['locations'] = json_encode($locsFlat);
+		Render::addTemplate('filterbox', $data);
+	}
+
+	private static $query = false;
+
+	public static function getQuery()
+	{
+		if (self::$query === false) {
+			self::$query = Request::any('filters', false, 'string');
+			if (self::$query === false) {
+				self::$query = 'lastseen > ' . gmdate('Y-m-d', strtotime('-30 day'));
+			}
+		}
+		return self::$query;
+	}
+
+	/*
+	 * Simple filters that map directly to DB columns
+	 */
+
+	const OP_ORDINAL = ['!=', '<=', '>=', '=', '<', '>'];
+	const OP_STRCMP = ['!~', '~', '=', '!='];
+	const OP_NOMINAL = ['!=', '='];
+	public static $columns;
+
+	/**
+	 * Do this here instead of const since we need to check for available modules while building array.
+	 */
+	public static function initConstants()
+	{
+
+		self::$columns = [
+			'machineuuid' => [
+				'op' => self::OP_NOMINAL,
+				'type' => 'string',
+				'column' => true,
+			],
+			'macaddr' => [
+				'op' => self::OP_NOMINAL,
+				'type' => 'string',
+				'column' => true,
+			],
+			'firstseen' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'date',
+				'column' => true,
+			],
+			'lastseen' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'date',
+				'column' => true,
+			],
+			'logintime' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'date',
+				'column' => true,
+			],
+			'realcores' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true,
+			],
+			'systemmodel' => [
+				'op' => self::OP_STRCMP,
+				'type' => 'string',
+				'column' => true,
+			],
+			'cpumodel' => [
+				'op' => self::OP_STRCMP,
+				'type' => 'string',
+				'column' => true,
+			],
+			'hddgb' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'int',
+				'column' => false,
+				'map_sort' => 'id44mb'
+			],
+			'gbram' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'int',
+				'map_sort' => 'mbram',
+				'column' => false,
+			],
+			'kvmstate' => [
+				'op' => self::OP_NOMINAL,
+				'type' => 'enum',
+				'column' => true,
+				'values' => ['ENABLED', 'DISABLED', 'UNSUPPORTED']
+			],
+			'badsectors' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true
+			],
+			'clientip' => [
+				'op' => self::OP_NOMINAL,
+				'type' => 'string',
+				'column' => true
+			],
+			'hostname' => [
+				'op' => self::OP_STRCMP,
+				'type' => 'string',
+				'column' => true
+			],
+			'subnet' => [
+				'op' => self::OP_NOMINAL,
+				'type' => 'string',
+				'column' => false
+			],
+			'currentuser' => [
+				'op' => self::OP_NOMINAL,
+				'type' => 'string',
+				'column' => true
+			],
+			'state' => [
+				'op' => self::OP_NOMINAL,
+				'type' => 'enum',
+				'column' => true,
+				'values' => ['occupied', 'on', 'off', 'idle', 'standby']
+			],
+			'live_swapfree' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true
+			],
+			'live_memfree' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true
+			],
+			'live_tmpfree' => [
+				'op' => self::OP_ORDINAL,
+				'type' => 'int',
+				'column' => true
+			],
+		];
+		if (Module::isAvailable('locations')) {
+			self::$columns['location'] = [
+				'op' => self::OP_STRCMP,
+				'type' => 'enum',
+				'column' => false,
+				'values' => array_keys(Location::getLocationsAssoc()),
+			];
+		}
+	}
+
 }
 
-class RamGbFilter extends Filter
+class RamGbStatisticsFilter extends StatisticsFilter
 {
 	public function __construct($operator, $argument)
 	{
@@ -128,9 +337,8 @@ class RamGbFilter extends Filter
 
 	public function whereClause(&$args, &$joins)
 	{
-		global $SIZE_RAM;
-		$lower = floor(Page_Statistics::findBestValue($SIZE_RAM, (int)$this->argument, false) * 1024 - 100);
-		$upper = ceil(Page_Statistics::findBestValue($SIZE_RAM, (int)$this->argument, true) * 1024 + 100);
+		$lower = floor(StatisticsFilter::findBestValue(StatisticsFilter::SIZE_RAM, (int)$this->argument, false) * 1024 - 100);
+		$upper = ceil(StatisticsFilter::findBestValue(StatisticsFilter::SIZE_RAM, (int)$this->argument, true) * 1024 + 100);
 		if ($this->operator == '=') {
 			return " mbram BETWEEN $lower AND $upper";
 		} elseif ($this->operator == '<') {
@@ -151,7 +359,7 @@ class RamGbFilter extends Filter
 	}
 }
 
-class RuntimeFilter extends Filter
+class RuntimeStatisticsFilter extends StatisticsFilter
 {
 	public function __construct($operator, $argument)
 	{
@@ -160,7 +368,6 @@ class RuntimeFilter extends Filter
 
 	public function whereClause(&$args, &$joins)
 	{
-		global $SIZE_RAM;
 		$upper = time() - (int)$this->argument * 3600;
 		$lower = $upper - 3600;
 		$common = "state IN ('OCCUPIED', 'IDLE', 'STANDBY') AND";
@@ -183,7 +390,7 @@ class RuntimeFilter extends Filter
 	}
 }
 
-class Id44Filter extends Filter
+class Id44StatisticsFilter extends StatisticsFilter
 {
 	public function __construct($operator, $argument)
 	{
@@ -192,10 +399,9 @@ class Id44Filter extends Filter
 
 	public function whereClause(&$args, &$joins)
 	{
-		global $SIZE_ID44;
 		if ($this->operator === '=' || $this->operator === '!=') {
-			$lower = floor(Page_Statistics::findBestValue($SIZE_ID44, $this->argument, false) * 1024 - 100);
-			$upper = ceil(Page_Statistics::findBestValue($SIZE_ID44, $this->argument, true) * 1024 + 100);
+			$lower = floor(StatisticsFilter::findBestValue(StatisticsFilter::SIZE_ID44, $this->argument, false) * 1024 - 100);
+			$upper = ceil(StatisticsFilter::findBestValue(StatisticsFilter::SIZE_ID44, $this->argument, true) * 1024 + 100);
 		} else {
 			$lower = $upper = round($this->argument * 1024);
 		}
@@ -220,7 +426,7 @@ class Id44Filter extends Filter
 	}
 }
 
-class StateFilter extends Filter
+class StateStatisticsFilter extends StatisticsFilter
 {
 	public function __construct($operator, $argument)
 	{
@@ -232,7 +438,7 @@ class StateFilter extends Filter
 		$map = [ 'on' => ['IDLE', 'OCCUPIED'], 'off' => ['OFFLINE'], 'idle' => ['IDLE'], 'occupied' => ['OCCUPIED'], 'standby' => ['STANDBY'] ];
 		$neg = $this->operator == '!=' ? 'NOT ' : '';
 		if (array_key_exists($this->argument, $map)) {
-			$key = Filter::getNewKey($this->column);
+			$key = StatisticsFilter::getNewKey($this->column);
 			$args[$key] = $map[$this->argument];
 			return " machine.state $neg IN ( :$key ) ";
 		} else {
@@ -242,7 +448,7 @@ class StateFilter extends Filter
 	}
 }
 
-class LocationFilter extends Filter
+class LocationStatisticsFilter extends StatisticsFilter
 {
 	public function __construct($operator, $argument)
 	{
@@ -264,7 +470,7 @@ class LocationFilter extends Filter
 		if ($this->argument === 0) {
 			return "machine.locationid IS $neg NULL";
 		} else {
-			$key = Filter::getNewKey($this->column);
+			$key = StatisticsFilter::getNewKey($this->column);
 			if ($recursive) {
 				$args[$key] = array_keys(Location::getRecursiveFlat($this->argument));
 			} else {
@@ -275,7 +481,7 @@ class LocationFilter extends Filter
 	}
 }
 
-class SubnetFilter extends Filter
+class SubnetStatisticsFilter extends StatisticsFilter
 {
 	public function __construct($operator, $argument)
 	{
@@ -289,7 +495,7 @@ class SubnetFilter extends Filter
 	}
 }
 
-class IsClientFilter extends Filter
+class IsClientStatisticsFilter extends StatisticsFilter
 {
 	public function __construct($argument)
 	{
@@ -305,4 +511,7 @@ class IsClientFilter extends Filter
 		$joins[] = ' INNER JOIN runmode USING (machineuuid)';
 		return "runmode.isclient = 0";
 	}
+
 }
+
+StatisticsFilter::initConstants();
