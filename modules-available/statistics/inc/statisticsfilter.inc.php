@@ -76,7 +76,7 @@ class StatisticsFilter
 			$op = 'NOT LIKE';
 		}
 
-		return $this->column . ' ' . $op . ' :' . $key . $addendum;
+		return 'm.' . $this->column . ' ' . $op . ' :' . $key . $addendum;
 	}
 
 	/* parse a query into an array of filters */
@@ -440,7 +440,7 @@ class StateStatisticsFilter extends StatisticsFilter
 		if (array_key_exists($this->argument, $map)) {
 			$key = StatisticsFilter::getNewKey($this->column);
 			$args[$key] = $map[$this->argument];
-			return " machine.state $neg IN ( :$key ) ";
+			return " m.state $neg IN ( :$key ) ";
 		} else {
 			Message::addError('invalid-filter-argument', 'state', $this->argument);
 			return ' 1';
@@ -468,7 +468,7 @@ class LocationStatisticsFilter extends StatisticsFilter
 		}
 		$neg = $this->operator === '=' ? '' : 'NOT';
 		if ($this->argument === 0) {
-			return "machine.locationid IS $neg NULL";
+			return "m.locationid IS $neg NULL";
 		} else {
 			$key = StatisticsFilter::getNewKey($this->column);
 			if ($recursive) {
@@ -476,7 +476,7 @@ class LocationStatisticsFilter extends StatisticsFilter
 			} else {
 				$args[$key] = $this->argument;
 			}
-			return "machine.locationid $neg IN (:$key)";
+			return "m.locationid $neg IN (:$key)";
 		}
 	}
 }
