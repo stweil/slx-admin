@@ -48,10 +48,10 @@ class SubPage
 	private static function showSummary($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
-		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE $where", $args);
-		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE state IN ('IDLE', 'OCCUPIED') AND ($where)", $args);
-		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE state = 'OCCUPIED' AND ($where)", $args);
-		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine $join WHERE badsectors >= 10 AND ($where)", $args);
+		$known = Database::queryFirst("SELECT Count(*) AS val FROM machine m $join WHERE $where", $args);
+		$on = Database::queryFirst("SELECT Count(*) AS val FROM machine m $join WHERE state IN ('IDLE', 'OCCUPIED') AND ($where)", $args);
+		$used = Database::queryFirst("SELECT Count(*) AS val FROM machine m $join WHERE state = 'OCCUPIED' AND ($where)", $args);
+		$hdd = Database::queryFirst("SELECT Count(*) AS val FROM machine m $join WHERE badsectors >= 10 AND ($where)", $args);
 		if ($on['val'] != 0) {
 			$usedpercent = round($used['val'] / $on['val'] * 100);
 		} else {
@@ -102,7 +102,7 @@ class SubPage
 	private static function showSystemModels($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
-		$res = Database::simpleQuery('SELECT systemmodel, Round(AVG(realcores)) AS cores, Count(*) AS `count` FROM machine'
+		$res = Database::simpleQuery('SELECT systemmodel, Round(AVG(realcores)) AS cores, Count(*) AS `count` FROM machine m'
 			. " $join WHERE $where GROUP BY systemmodel ORDER BY `count` DESC, systemmodel ASC", $args);
 		$lines = array();
 		$json = array();
@@ -132,7 +132,7 @@ class SubPage
 	private static function showMemory($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
-		$res = Database::simpleQuery("SELECT mbram, Count(*) AS `count` FROM machine $join WHERE $where  GROUP BY mbram", $args);
+		$res = Database::simpleQuery("SELECT mbram, Count(*) AS `count` FROM machine m $join WHERE $where  GROUP BY mbram", $args);
 		$lines = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$gb = (int)ceil($row['mbram'] / 1024);
@@ -178,7 +178,7 @@ class SubPage
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
 		$colors = array('UNKNOWN' => '#666', 'UNSUPPORTED' => '#ea5', 'DISABLED' => '#e55', 'ENABLED' => '#6d6');
-		$res = Database::simpleQuery("SELECT kvmstate, Count(*) AS `count` FROM machine $join WHERE $where GROUP BY kvmstate ORDER BY `count` DESC", $args);
+		$res = Database::simpleQuery("SELECT kvmstate, Count(*) AS `count` FROM machine m $join WHERE $where GROUP BY kvmstate ORDER BY `count` DESC", $args);
 		$lines = array();
 		$json = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -198,7 +198,7 @@ class SubPage
 	private static function showId44($filterSet)
 	{
 		$filterSet->makeFragments($where, $join, $sort, $args);
-		$res = Database::simpleQuery("SELECT id44mb, Count(*) AS `count` FROM machine $join WHERE $where GROUP BY id44mb", $args);
+		$res = Database::simpleQuery("SELECT id44mb, Count(*) AS `count` FROM machine m $join WHERE $where GROUP BY id44mb", $args);
 		$lines = array();
 		$total = 0;
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -251,7 +251,7 @@ class SubPage
 		$filterSet->makeFragments($where, $join, $sort, $args);
 		$args['cutoff'] = ceil(time() / 3600) * 3600 - 86400 * 10;
 
-		$res = Database::simpleQuery("SELECT machineuuid, clientip, hostname, firstseen, mbram, kvmstate, id44mb FROM machine $join"
+		$res = Database::simpleQuery("SELECT machineuuid, clientip, hostname, firstseen, mbram, kvmstate, id44mb FROM machine m $join"
 			. " WHERE firstseen > :cutoff AND $where ORDER BY firstseen DESC LIMIT 32", $args);
 		$rows = array();
 		$count = 0;
