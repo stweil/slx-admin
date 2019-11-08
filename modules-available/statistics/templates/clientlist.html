@@ -65,9 +65,18 @@
 				<input type="checkbox" name="uuid[]" value="{{machineuuid}}" class="machine-checkbox">
 				<label></label>
 			</div>
+			<span class="pull-right">
 			{{#hasnotes}}
-				<span class="glyphicon glyphicon-exclamation-sign pull-right"></span>
+				<a href="?do=Statistics&amp;uuid={{machineuuid}}#usernotes" class="badge" title="{{lang_hasNotes}}">
+					<span class="glyphicon glyphicon-tags"></span>
+				</a>
 			{{/hasnotes}}
+			{{#confvars}}
+				<a href="?do=baseconfig&amp;module=statistics&amp;machineuuid={{machineuuid}}" class="badge" title="{{lang_numConfigVars}}">
+					<span class="glyphicon glyphicon-pencil"></span>{{confvars}}
+				</a>
+			{{/confvars}}
+			</span>
 			{{#state_OFFLINE}}
 				<span class="glyphicon glyphicon-off" title="{{lang_machineOff}}"></span>
 			{{/state_OFFLINE}}

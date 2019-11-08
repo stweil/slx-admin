@@ -45,10 +45,11 @@ class SubPage
 				$join .= ' LEFT JOIN runmode USING (machineuuid) ';
 			}
 		}
-		$res = Database::simpleQuery('SELECT machineuuid, locationid, macaddr, clientip, lastseen,'
-			. ' logintime, state, realcores, mbram, kvmstate, cpumodel, id44mb, hostname, notes IS NOT NULL AS hasnotes,'
-			. ' badsectors ' . $xtra . ' FROM machine'
-			. " $join WHERE $where $sort", $args);
+		$res = Database::simpleQuery("SELECT m.machineuuid, m.locationid, m.macaddr, m.clientip, m.lastseen,
+			m.logintime, m.state, m.realcores, m.mbram, m.kvmstate, m.cpumodel, m.id44mb, m.hostname, m.notes IS NOT NULL AS hasnotes,
+			m.badsectors, Count(s.machineuuid) AS confvars $xtra FROM machine m
+			LEFT JOIN setting_machine s USING (machineuuid)
+			$join WHERE $where GROUP BY m.machineuuid $sort", $args);
 		$rows = array();
 		$singleMachine = 'none';
 		// TODO: Cannot disable checkbox for those where user has no permission, since we got multiple actions now
