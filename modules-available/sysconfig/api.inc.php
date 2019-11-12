@@ -24,59 +24,48 @@ function deliverEmpty($message)
 	die('Config file could not be found or read!');
 }
 
-$runmode = false;
-if (Module::isAvailable('runmode')) {
-	$runmode = RunMode::getRunMode($uuid);
-	if ($runmode !== false) {
-		$runmode = RunMode::getModuleConfig($runmode['module']);
+$locationId = false;
+if (Module::isAvailable('locations')) {
+	$locationId = Location::getFromIpAndUuid($ip, $uuid);
+	if ($locationId !== false) {
+		$locationChain = Location::getLocationRootChain($locationId);
+		$locationChain[] = 0;
 	}
 }
-if ($runmode !== false && $runmode->noSysconfig && file_exists(SysConfig::GLOBAL_MINIMAL_CONFIG)) {
-	$row = array('filepath' => SysConfig::GLOBAL_MINIMAL_CONFIG, 'title' => 'config');
-} else {
-	$locationId = false;
-	if (Module::isAvailable('locations')) {
-		$locationId = Location::getFromIpAndUuid($ip, $uuid);
-		if ($locationId !== false) {
-			$locationChain = Location::getLocationRootChain($locationId);
-			$locationChain[] = 0;
+if ($locationId === false) {
+	$locationId = 0;
+	$locationChain = array(0);
+}
+
+// Get config module path
+
+// We get all the configs for the whole location chain up to root
+$res = Database::simpleQuery("SELECT c.title, c.filepath, c.status, cl.locationid FROM configtgz c"
+	. " INNER JOIN configtgz_location cl USING (configid)"
+	. " WHERE cl.locationid IN (" . implode(',', $locationChain) . ")");
+
+$best = 1000;
+$row = false;
+while ($r = $res->fetch(PDO::FETCH_ASSOC)) {
+	settype($r['locationid'], 'int');
+	$index = array_search($r['locationid'], $locationChain);
+	if ($index === false || $index > $best)
+		continue;
+	if (!file_exists($r['filepath'])) {
+		if ($r['locationid'] === 0) {
+			EventLog::failure("The global config.tgz '{$r['title']}' was not found at '{$r['filepath']}'. Please regenerate the system configuration");
+		} else {
+			EventLog::warning("config.tgz '{$r['title']}' for location $locationId not found at '{$r['filepath']}', trying fallback....");
 		}
+		continue;
 	}
-	if ($locationId === false) {
-		$locationId = 0;
-		$locationChain = array(0);
-	}
+	$best = $index;
+	$row = $r;
+}
 
-	// Get config module path
-
-	// We get all the configs for the whole location chain up to root
-	$res = Database::simpleQuery("SELECT c.title, c.filepath, c.status, cl.locationid FROM configtgz c"
-		. " INNER JOIN configtgz_location cl USING (configid)"
-		. " WHERE cl.locationid IN (" . implode(',', $locationChain) . ")");
-
-	$best = 1000;
-	$row = false;
-	while ($r = $res->fetch(PDO::FETCH_ASSOC)) {
-		settype($r['locationid'], 'int');
-		$index = array_search($r['locationid'], $locationChain);
-		if ($index === false || $index > $best)
-			continue;
-		if (!file_exists($r['filepath'])) {
-			if ($r['locationid'] === 0) {
-				EventLog::failure("The global config.tgz '{$r['title']}' was not found at '{$r['filepath']}'. Please regenerate the system configuration");
-			} else {
-				EventLog::warning("config.tgz '{$r['title']}' for location $locationId not found at '{$r['filepath']}', trying fallback....");
-			}
-			continue;
-		}
-		$best = $index;
-		$row = $r;
-	}
-
-	if ($row === false) {
-		// TODO Not found in DB
-		deliverEmpty("No config.tgz for location $locationId found (src $ip)");
-	}
+if ($row === false) {
+	// TODO Not found in DB
+	deliverEmpty("No config.tgz for location $locationId found (src $ip)");
 }
 
 @ob_end_clean(); // Disable gzip output handler since this is already a compressed file

@@ -272,10 +272,6 @@ class RunModeModuleConfig
 	 */
 	public $isClient = false;
 	/**
-	 * @var bool If true, config.tgz should not be downloaded by the client
-	 */
-	public $noSysconfig = false;
-	/**
 	 * @var bool Allow adding and removing machines to this mode via the generic form
 	 */
 	public $allowGenericEditor = true;
@@ -300,7 +296,6 @@ class RunModeModuleConfig
 		$this->loadType($data, 'getModeName', 'string');
 		$this->loadType($data, 'configHook', 'string');
 		$this->loadType($data, 'isClient', 'boolean');
-		$this->loadType($data, 'noSysconfig', 'boolean');
 		$this->loadType($data, 'allowGenericEditor', 'boolean');
 		$this->loadType($data, 'deleteUrlSnippet', 'string');
 		$this->loadType($data, 'permission', 'string');

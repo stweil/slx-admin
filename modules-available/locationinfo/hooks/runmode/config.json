@@ -1,8 +1,7 @@
 {
-	"getModeName": "LocationInfo::getPanelName",
+	"getModeName": "LocationInfoHooks::getPanelName",
 	"isClient": false,
-	"configHook": "LocationInfo::configHook",
-	"noSysconfig": true,
+	"configHook": "LocationInfoHooks::configHook",
 	"systemdDefaultTarget": "kiosk-mode",
 	"permission": ".locationinfo.panel.assign-client"
 }

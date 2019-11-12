@@ -3,8 +3,6 @@
 class SysConfig
 {
 
-	const GLOBAL_MINIMAL_CONFIG = '/opt/openslx/configs/config-global.tgz';
-
 	public static function getAll()
 	{
 		$res = Database::simpleQuery("SELECT c.configid, c.title, c.filepath, c.status, Group_Concat(cl.locationid) AS locs FROM configtgz c"
