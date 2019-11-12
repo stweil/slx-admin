@@ -131,7 +131,7 @@ class ConfigHolder
 	 */
 	private static function escape($string)
 	{
-		return str_replace("'", "'\"'\"'", $string);
+		return str_replace(["'", "\n", "\r"], ["'\"'\"'", ' ', ' '], $string);
 	}
 
 }
