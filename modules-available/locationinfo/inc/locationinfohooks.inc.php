@@ -38,16 +38,37 @@ class LocationInfoHooks
 			ConfigHolder::add('SLX_BROWSER_URL', $data['url']);
 			ConfigHolder::add('SLX_BROWSER_URLLIST', $data['urllist']);
 			ConfigHolder::add('SLX_BROWSER_IS_WHITELIST', $data['iswhitelist']);
+			// Additionally, update runmode "isclient" flag depending on whether split-login is allowed or not
+			if (isset($data['split-login']) && $data['split-login']) {
+				RunMode::updateClientFlag($machineUuid, 'locationinfo', true);
+			} else { // Automatic login
+				RunMode::updateClientFlag($machineUuid, 'locationinfo', false);
+				ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
+			}
+			if (isset($data['interactive']) && $data['interactive']) {
+				ConfigHolder::add('SLX_BROWSER_INTERACTIVE', '1', 1000);
+			}
+			if (!empty($data['browser'])) {
+				if ($data['browser'] === 'chromium') {
+					$browser = 'chromium chrome';
+				} else {
+					$browser = 'slxbrowser slx-browser';
+				}
+				ConfigHolder::add('SLX_BROWSER', $browser, 1000);
+			}
+			if (!empty($data['bookmarks'])) {
+				ConfigHolder::add('SLX_BROWSER_BOOKMARKS', $data['bookmarks'], 1000);
+			}
 		} else {
 			// Not URL panel
 			ConfigHolder::add('SLX_BROWSER_URL', 'http://' . $_SERVER['SERVER_ADDR'] . '/panel/' . $panelUuid);
 			ConfigHolder::add('SLX_BROWSER_INSECURE', '1'); // TODO: Sat server might redirect to HTTPS, which in turn could have a self-signed cert - push to client
+			ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
 		}
 		ConfigHolder::add('SLX_ADDONS', '', 1000);
 		ConfigHolder::add('SLX_LOGOUT_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SCREEN_STANDBY_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SYSTEM_STANDBY_TIMEOUT', '', 1000);
-		ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
 	}
 
 }

@@ -69,6 +69,18 @@ class RunMode
 	}
 
 	/**
+	 * Change the isClient flag for existing client.
+	 * @param string $machineUuid existing machine with some runmode
+	 * @param string $moduleId module that assigned the current runmode of that client
+	 * @param bool $isClient
+	 */
+	public static function updateClientFlag($machineUuid, $moduleId, $isClient)
+	{
+		Database::exec('UPDATE runmode SET isclient = :isclient WHERE machineuuid = :uuid AND module = :module',
+			['uuid' => $machineUuid, 'module' => $moduleId, 'isclient' => ($isClient ? 1 : 0)]);
+	}
+
+	/**
 	 * @param string $machineuuid
 	 * @param int $returnData bitfield of data to return
 	 * @return false|array {'machineuuid', 'isclient', 'module', 'modeid', 'modedata',
