@@ -74,6 +74,7 @@
     "lang_mapModeNativeFallback": "Nativ in der VM einbinden; Fallback auf VMware Shared Folders",
     "lang_mapModeNone": "Verzeichnisse nicht durchreichen",
     "lang_mapModeVmware": "VMware Shared Folders [VMwareTools]",
+    "lang_modStillUsedBy": "Modul noch in Verwendung durch:",
     "lang_moduleChoose": "Bitte w\u00e4hlen Sie aus, welche Art Konfigurationsmodul Sie erstellen m\u00f6chten.",
     "lang_moduleConfiguration": "Konfigurationsmodule",
     "lang_moduleName": "Modulname",

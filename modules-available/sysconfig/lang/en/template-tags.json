@@ -74,6 +74,7 @@
     "lang_mapModeNativeFallback": "Natively map inside VM; fallback to VMware Shared Folders",
     "lang_mapModeNone": "Don't map shares at all",
     "lang_mapModeVmware": "VMware Shared Folders [VMwareTools]",
+    "lang_modStillUsedBy": "Module still in use by:",
     "lang_moduleChoose": "Please select which type of configuration module you want to create.",
     "lang_moduleConfiguration": "Module Configuration",
     "lang_moduleName": "Module Name",

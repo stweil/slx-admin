@@ -214,7 +214,7 @@ class Page_SysConfig extends Page
 	{
 		// Configs
 		$res = Database::simpleQuery("SELECT c.configid, c.title, c.filepath, c.status, c.dateline,
-				GROUP_CONCAT(DISTINCT cl.locationid) AS loclist, GROUP_CONCAT(cxm.moduleid) AS modlist
+				GROUP_CONCAT(DISTINCT cl.locationid) AS loclist, GROUP_CONCAT(DISTINCT cxm.moduleid) AS modlist
 			FROM configtgz c
 			LEFT JOIN configtgz_x_module cxm USING (configid)
 			LEFT JOIN configtgz_location cl ON (c.configid = cl.configid)
@@ -411,20 +411,18 @@ class Page_SysConfig extends Page
 	private function delModule()
 	{
 		$moduleid = Request::post('del', 'MISSING');
-		$row = Database::queryFirst("SELECT title, filepath FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
-		if ($row === false) {
+		$module = Database::queryFirst("SELECT title, filepath FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
+		if ($module === false) {
 			Message::addError('config-invalid', $moduleid);
 			Util::redirect('?do=sysconfig');
 		}
-		$existing = Database::queryFirst("SELECT title FROM configtgz_x_module"
-			. " INNER JOIN configtgz USING (configid)"
-			. " WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
-		if ($existing !== false) {
-			Message::addError('module-in-use', $row['title'], $existing['title']);
-			Util::redirect('?do=sysconfig');
-		}
+		// Get config.tgz using this module *before* deleting it
+		$existing = Database::simpleQuery("SELECT configid FROM configtgz_x_module
+			WHERE moduleid = :moduleid", array('moduleid' => $moduleid));
+		// Delete DB entries and file
+		Database::exec("DELETE FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
 		$task = Taskmanager::submit('DeleteFile', array(
-			'file' => $row['filepath']
+			'file' => $module['filepath']
 		));
 		if (isset($task['statusCode']) && $task['statusCode'] === Taskmanager::TASK_WAITING) {
 			$task = Taskmanager::waitComplete($task['id']);
@@ -432,9 +430,15 @@ class Page_SysConfig extends Page
 		if (!isset($task['statusCode']) || $task['statusCode'] === Taskmanager::TASK_ERROR) {
 			Message::addWarning('main.task-error', $task['data']['error']);
 		} elseif ($task['statusCode'] === Taskmanager::TASK_FINISHED) {
-			Message::addSuccess('module-deleted', $row['title']);
+			Message::addSuccess('module-deleted', $module['title']);
 		}
-		Database::exec("DELETE FROM configtgz_module WHERE moduleid = :moduleid LIMIT 1", array('moduleid' => $moduleid));
+		// Rebuild depending config.tgz
+		while ($crow = $existing->fetch(PDO::FETCH_ASSOC)) {
+			$config = ConfigTgz::get($crow['configid']);
+			if ($config !== false) {
+				$config->generate();
+			}
+		}
 		Util::redirect('?do=sysconfig');
 	}
 

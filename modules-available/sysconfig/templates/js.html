@@ -1,4 +1,11 @@
-<div class="hidden" id="confirm-delete">{{lang_confirmDeleteQuestion}}</div>
+<div class="hidden" id="confirm-delete">
+	{{lang_confirmDeleteQuestion}}
+	<div id="delete-item-list" class="hidden">
+		<div class="slx-space"></div>
+		<div class="slx-bold">{{lang_modStillUsedBy}}</div>
+		<ul></ul>
+	</div>
+</div>
 <script type="application/javascript"><!--
 document.addEventListener("DOMContentLoaded", function () {
 	checkBuildStatus();

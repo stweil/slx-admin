@@ -40,15 +40,13 @@ $update[] = tableCreate('configtgz_location', "
 ");
 
 // Constraints
-if (in_array(UPDATE_DONE, $update)) {
-	// To self
-	$update[] = tableAddConstraint('configtgz_x_module', 'configid', 'configtgz', 'configid',
-			'');
-	$update[] = tableAddConstraint('configtgz_x_module', 'moduleid', 'configtgz_module', 'moduleid',
-			'');
-	$update[] = tableAddConstraint('configtgz_location', 'configid', 'configtgz', 'configid',
-		'ON DELETE CASCADE ON UPDATE CASCADE');
-}
+$update[] = tableAddConstraint('configtgz_x_module', 'configid', 'configtgz', 'configid',
+	'ON DELETE CASCADE ON UPDATE CASCADE');
+$update[] = tableAddConstraint('configtgz_x_module', 'moduleid', 'configtgz_module', 'moduleid',
+	'ON DELETE CASCADE ON UPDATE CASCADE');
+$update[] = tableAddConstraint('configtgz_location', 'configid', 'configtgz', 'configid',
+	'ON DELETE CASCADE ON UPDATE CASCADE');
+// No constraint to location table since we use locationid 0 for global (NULL would require special handling for UPDATE)
 
 // Update path
 
