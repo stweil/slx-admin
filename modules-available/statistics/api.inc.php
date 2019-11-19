@@ -166,8 +166,7 @@ if ($type{0} === '~') {
 		$strUpdateBoottime = '';
 		if ($old === false) die("Unknown machine.\n");
 		if ($old['clientip'] !== $ip) {
-			EventLog::warning("[runstate] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
-			die("Address changed.\n");
+			updateIp('runstate', $uuid, $old, $ip);
 		}
 		$used = Request::post('used', 0, 'integer');
 		$params = array(
@@ -236,8 +235,7 @@ if ($type{0} === '~') {
 	} elseif ($type === '~poweroff') {
 		if ($old === false) die("Unknown machine.\n");
 		if ($old['clientip'] !== $ip) {
-			EventLog::warning("[poweroff] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
-			die("Address changed.\n");
+			updateIp('poweroff', $uuid, $old, $ip);
 		}
 		if ($mode === false && $old['state'] === 'OCCUPIED' && $old['logintime'] !== 0) {
 			$sessionLength = $old['lastseen'] - $old['logintime'];
@@ -330,8 +328,7 @@ if ($type{0} === '~') {
 		// Client entering suspend
 		if ($old === false) die("Unknown machine.\n");
 		if ($old['clientip'] !== $ip) {
-			EventLog::warning("[suspend] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip)");
-			die("Address changed.\n");
+			updateIp('suspend', $uuid, $old, $ip);
 		}
 		if ($NOW - $old['lastseen'] < 610 && $old['state'] !== 'OFFLINE') {
 			Database::exec("UPDATE machine SET lastseen = UNIX_TIMESTAMP(), state = 'STANDBY'
@@ -344,7 +341,7 @@ if ($type{0} === '~') {
 		// Waking up from suspend
 		if ($old === false) die("Unknown machine.\n");
 		if ($old['clientip'] !== $ip) {
-			EventLog::info("[resume] IP address of client $uuid seems to have changed ({$old['clientip']} -> $ip), allowed on resume.");
+			updateIp('resume', $uuid, $old, $ip);
 		}
 		if ($old['state'] === 'STANDBY') {
 			$res = Database::exec("UPDATE machine SET state = 'IDLE', clientip = :ip, lastseen = UNIX_TIMESTAMP()
@@ -445,6 +442,14 @@ function checkHardwareChange($old, $new)
 			EventLog::warning('[poweron] Client ' . $new['uuid'] . ' (' . $new['clientip'] . "): CPU changed from '{$old['cpumodel']}' to '{$new['cpumodel']}'");
 		}
 	}
+}
+
+function updateIp($type, $uuid, $old, $newIp)
+{
+	EventLog::warning("[$type] IP address of client $uuid seems to have changed ({$old['clientip']} -> $newIp)");
+	Database::exec("UPDATE machine SET clientip = :ip
+			WHERE machineuuid = :uuid AND state = :oldstate AND lastseen = :oldlastseen",
+		['uuid' => $uuid, 'oldlastseen' => $old['lastseen'], 'oldstate' => $old['state'], 'ip' => $newIp]);
 }
 
 echo "OK.\n";
