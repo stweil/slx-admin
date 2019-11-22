@@ -1,11 +1,9 @@
-<div>
-	<form class="form-inline">
-			<b>{{lang_location}}: {{locationName}}</b>
-			<input type="hidden" name="do" value="rebootcontrol">
-			<input type="hidden" name="location" value="{{locationId}}">
-			<button type="submit" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-arrow-left"></span> {{lang_back}}</button>
-	</form>
-</div>
+<h3>{{lang_location}}: {{locationName}}</h3>
+
+<a href="?do=rebootcontrol" class="btn btn-primary pull-right">
+	<span class="glyphicon glyphicon-arrow-left"></span>
+	{{lang_back}}
+</a>
 
 <div>
 	<table class="table table-hover stupidtable" id="dataTable">

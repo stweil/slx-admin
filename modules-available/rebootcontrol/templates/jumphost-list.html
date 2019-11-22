@@ -1,0 +1,64 @@
+<h2>{{lang_settings}}</h2>
+
+<h3>{{lang_wolReachability}}</h3>
+
+<h4>{{lang_jumpHosts}}</h4>
+
+<form method="post" action="?do=rebootcontrol">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="jumphost">
+	<table class="table">
+		<thead>
+		<tr>
+			<th>{{lang_host}}</th>
+			<th class="slx-smallcol">{{lang_assignedSubnets}}</th>
+			<th class="slx-smallcol">{{lang_reachable}}</th>
+			<th class="slx-smallcol"></th>
+		</tr>
+		</thead>
+		<tbody>
+		{{#jumpHosts}}
+		<tr>
+			<td>{{host}}:{{port}}</td>
+			<td class="text-nowrap text-right">
+				{{subnetCount}}
+				<a class="btn btn-xs btn-default {{perms.jumphost.assign-subnet.disabled}}"
+					href="?do=rebootcontrol&amp;show=jumphost-assign&amp;id={{hostid}}">
+					<span class="glyphicon glyphicon-edit"></span>
+				</a>
+			</td>
+			<td class="text-nowrap text-center">
+				{{#reachable}}
+				<span class="glyphicon glyphicon-ok text-success"></span>
+				{{/reachable}}
+				{{^reachable}}
+				<span class="glyphicon glyphicon-remove text-danger"></span>
+				{{/reachable}}
+				<button class="btn btn-xs btn-default btn-check-jumphost" type="submit" name="checkid" value="{{hostid}}"
+						  {{perms.jumphost.edit.disabled}}>
+					{{lang_check}}
+				</button>
+			</td>
+			<td class="text-nowrap text-center">
+				<a class="btn btn-xs btn-default {{perms.jumphost.edit.disabled}}"
+					href="?do=rebootcontrol&amp;show=jumphost&amp;id={{hostid}}">
+					<span class="glyphicon glyphicon-edit"></span>
+				</a>
+				<button type="submit" name="deleteid" value="{{hostid}}" class="btn btn-xs btn-danger"
+						  data-confirm="#confirm-delete-host" data-title="{{host}}" {{perms.jumphost.edit.disabled}}>
+					<span class="glyphicon glyphicon-trash"></span>
+				</button>
+			</td>
+		</tr>
+		{{/jumpHosts}}
+		</tbody>
+	</table>
+</form>
+<div class="buttonbar text-right">
+	<a class="btn btn-success" href="?do=rebootcontrol&amp;show=jumphost&amp;id=new">
+		<span class="glyphicon glyphicon-plus"></span>
+		{{lang_new}}
+	</a>
+</div>
+
+<div class="hidden" id="confirm-delete-host">{{lang_hostDeleteConfirm}}</div>

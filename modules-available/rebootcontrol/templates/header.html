@@ -1,34 +1,9 @@
 <div class="page-header">
-	<button type="button" id="settingsButton" class="btn btn-default pull-right" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span> {{lang_settings}}</button>
-	<h1>{{lang_rebootControl}}</h1>
-</div>
-
-<div>
-	<label>{{lang_location}}:
-		<select id="locationDropdown" class="form-control" onchange="selectLocation()">
-			{{#locations}}
-				<option value="{{locationid}}" {{disabled}} {{#selected}}selected{{/selected}}>{{locationpad}} {{locationname}}</option>
-			{{/locations}}
-		</select>
-	</label>
-	<div class="pull-right">
-		<button type="button" id="shutdownButton" class="btn btn-danger action-button" data-toggle="modal" data-target="#shutdownModal" disabled>
-			<span class="glyphicon glyphicon-off"></span>
-			{{lang_shutdownButton}}
-		</button>
-		<button type="button" id="rebootButton" class="btn btn-warning action-button" data-toggle="modal" data-target="#rebootModal" disabled>
-			<span class="glyphicon glyphicon-repeat"></span>
-			{{lang_rebootButton}}
-		</button>
-		<button type="button" id="selectAllButton" class="btn btn-primary select-button" disabled>
-			<span class="glyphicon glyphicon-check"></span>
-			{{lang_selectall}}
-		</button>
-		<button type="button" id="unselectAllButton" class="btn btn-default select-button collapse" disabled>
-			<span class="glyphicon glyphicon-unchecked"></span>
-			{{lang_unselectall}}
-		</button>
-	</div>
+	<button type="button" id="settingsButton" class="btn btn-default pull-right" data-toggle="modal" data-target="#settingsModal">
+		<span class="glyphicon glyphicon-cog"></span>
+		{{lang_settings}}
+	</button>
+	<h1>{{lang_moduleHeading}}</h1>
 </div>
 
 <div id="settingsModal" class="modal fade" role="dialog">
@@ -41,11 +16,16 @@
 			</div>
 			<div class="modal-body">
 				<p>{{lang_pubKey}}</p>
-				<pre id="pubkey">{{pubKey}}</pre>
+				<pre id="pubkey">{{pubkey}}</pre>
 				<p>{{lang_newKeypairExplanation}}</p>
+				<div class="checkbox">
+					<input {{perms.newkeypair.disabled}} type="checkbox" id="keypair-confirm">
+					<label for="keypair-confirm">{{lang_keypairConfirmCheck}}</label>
+				</div>
 			</div>
 			<div class="modal-footer">
-				<button {{perms.newkeypair.disabled}} class="btn btn-danger pull-right" onclick="generateNewKeypair()" type="button">
+				<button {{perms.newkeypair.disabled}} class="btn btn-danger pull-right" id="keypair-button"
+						  onclick="generateNewKeypair()" type="button">
 					<span class="glyphicon glyphicon-refresh"></span>
 					{{lang_genNew}}
 				</button>
@@ -55,25 +35,33 @@
 </div>
 
 <script type="application/javascript">
-
-	// Change Location when selected in Dropdown Menu
-	function selectLocation() {
-		var dropdown = $("#locationDropdown");
-		var location = dropdown.val();
-		window.location.replace("?do=rebootcontrol&location="+location);
-	}
-
-	function generateNewKeypair() {
-		if (!confirm('{{lang_confirmNewKeypair}}'))
+document.addEventListener('DOMContentLoaded', function() {
+	var $btn = $('#keypair-button');
+	var $chk = $('#keypair-confirm');
+	$chk.prop('checked', false); // Firefox helpfully keeping state on F5
+	$btn.click(function() {
+		if (!$chk.is(':checked')) {
+			var $p = $chk.parent();
+			$p.fadeOut(100, function () {
+				$p.fadeIn(75);
+			});
 			return;
+		}
+		$btn.prop('disabled', true);
 		$.ajax({
 			url: '?do=rebootcontrol',
 			type: 'POST',
 			data: { action: "generateNewKeypair", token: TOKEN },
 			success: function(value) {
 				$('#pubkey').text(value);
+			},
+			fail: function() {
+				$('#pubkey').text('Error');
+				$btn.prop('disabled', false);
 			}
 		});
-	}
+	});
+});
+
 
 </script>

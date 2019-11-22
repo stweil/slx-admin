@@ -2,10 +2,31 @@
     "newkeypair": {
         "location-aware": false
     },
+    "subnet.view": {
+        "location-aware": false
+    },
+    "subnet.edit": {
+        "location-aware": false
+    },
+    "subnet.flag": {
+        "location-aware": false
+    },
+    "jumphost.view": {
+        "location-aware": false
+    },
+    "jumphost.edit": {
+        "location-aware": false
+    },
+    "jumphost.assign-subnet": {
+        "location-aware": false
+    },
     "action.reboot": {
         "location-aware": true
     },
     "action.shutdown": {
+        "location-aware": true
+    },
+    "action.wol": {
         "location-aware": true
     }
 }

@@ -1,0 +1,51 @@
+<h3>{{lang_checkingJumpHost}}: {{host}}</h3>
+
+<a href="?do=rebootcontrol" class="btn btn-primary pull-right">
+	<span class="glyphicon glyphicon-arrow-left"></span>
+	{{lang_back}}
+</a>
+<div class="clearfix"></div>
+<div class="collapse alert alert-success" id="result-ok">
+	<span class="glyphicon glyphicon-check"></span>
+	{{lang_hostReachable}}
+</div>
+<div class="collapse alert alert-warning" id="result-error">
+	<span class="glyphicon glyphicon-remove"></span>
+	{{lang_hostNonZeroExit}}
+</div>
+<div class="collapse alert alert-danger" id="result-unreach">
+	<span class="glyphicon glyphicon-remove"></span>
+	{{lang_hostNotReachable}}
+</div>
+
+<div class="collapse" id="log-wrapper">
+	<label for="log-output">{{lang_checkOutputLabel}}</label>
+	<pre id="log-output"></pre>
+</div>
+
+<div data-tm-id="{{taskId}}" data-tm-log="error" data-tm-callback="updateStatus">{{lang_checkingJumpHost}}</div>
+<script type="application/javascript">
+	function updateStatus(task) {
+		if (!task || !task.data || !task.data.result || !task.data.result['{{host}}'])
+			return;
+		var status = task.data.result['{{host}}'];
+		var log = '';
+		if (status.stderr) log += status.stderr + "\n";
+		if (status.stdout) log += status.stdout + "\n";
+		showErrorLog(log);
+		if (task.statusCode === 'TASK_FINISHED' || task.statusCode === 'TASK_ERROR') {
+			if (status.exitCode === 0) {
+				$('#result-ok').show();
+			} else if (status.exitCode > 0) {
+				$('#result-error').show();
+			} else {
+				$('#result-unreach').show();
+			}
+		}
+	}
+	function showErrorLog(log) {
+		if (!log) return;
+		$('#log-output').text(log);
+		$('#log-wrapper').show();
+	}
+</script>

@@ -1,0 +1,42 @@
+<h2>{{lang_editJumpHost}}</h2>
+
+<form method="post" action="?do=rebootcontrol">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="action" value="savejumphost">
+	<input type="hidden" name="hostid" value="{{hostid}}">
+	<div class="list-group">
+		<div class="list-group-item">
+			<div class="row">
+				<div class="col-md-9 col-sm-7">
+					<label for="host">{{lang_host}}</label>
+					<input required id="host" class="form-control" type="text" name="host" value="{{host}}">
+				</div>
+				<div class="col-md-3 col-sm-5">
+					<label for="port">{{lang_port}}</label>
+					<input required id="port" class="form-control" type="number" name="port" value="{{port}}" min="1" max="65535">
+				</div>
+			</div>
+		</div>
+		<div class="list-group-item">
+			<label for="username">{{lang_username}}</label>
+			<input required id="username" class="form-control" type="text" name="username" value="{{username}}">
+		</div>
+		<div class="list-group-item">
+			<label for="sshkey">{{lang_privkey}}</label>
+			<textarea required id="sshkey" class="form-control" name="sshkey" rows="8">{{sshkey}}</textarea>
+		</div>
+		<div class="list-group-item">
+			<label for="script">{{lang_wakeupScript}}</label>
+			<textarea required id="script" class="form-control" name="script" rows="8">{{script}}</textarea>
+			<div class="slx-smallspace"></div>
+			<p>{{lang_wakeScriptHelp}}</p>
+		</div>
+	</div>
+	<div class="buttonbar text-right">
+		<button type="reset" class="btn btn-default">{{lang_reset}}</button>
+		<button type="submit" class="btn btn-primary">
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+			{{lang_save}}
+		</button>
+	</div>
+</form>

@@ -201,5 +201,14 @@ class TaskmanagerCallback
 		$mod->activate(1, false);
 		MiniLinux::linuxDownloadCallback($task, $args);
 	}
-	
+
+	public static function rbcConnCheck($task, $args)
+	{
+		$mod = Module::get('rebootcontrol');
+		if ($mod === false)
+			return;
+		$mod->activate(1, false);
+		RebootControl::connectionCheckCallback($task, $args);
+	}
+
 }
