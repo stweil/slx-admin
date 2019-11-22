@@ -6,6 +6,8 @@
 class Request
 {
 
+	const REQUIRED = "\0\1\2REQ\0\1\2";
+
 	/**
 	 *
 	 * @param string $key Key of field to get from $_GET
@@ -15,9 +17,7 @@ class Request
 	 */
 	public static function get($key, $default = false, $type = false)
 	{
-		if (!isset($_GET[$key])) return $default;
-		if ($type !== false) settype($_GET[$key], $type);
-		return $_GET[$key];
+		return self::handle($_GET, $key, $default, $type);
 	}
 	
 	/**
@@ -28,9 +28,7 @@ class Request
 	 */
 	public static function post($key, $default = false, $type = false)
 	{
-		if (!isset($_POST[$key])) return $default;
-		if ($type !== false) settype($_POST[$key], $type);
-		return $_POST[$key];
+		return self::handle($_POST, $key, $default, $type);
 	}
 	
 	/**
@@ -41,9 +39,7 @@ class Request
 	 */
 	public static function any($key, $default = false, $type = false)
 	{
-		if (!isset($_REQUEST[$key])) return $default;
-		if ($type !== false) settype($_REQUEST[$key], $type);
-		return $_REQUEST[$key];
+		return self::handle($_REQUEST, $key, $default, $type);
 	}
 
 	/**
@@ -60,6 +56,23 @@ class Request
 	public static function isGet()
 	{
 		return $_SERVER['REQUEST_METHOD'] === 'GET';
+	}
+
+	private static function handle(&$array, $key, $default, $type)
+	{
+		if (!isset($array[$key])) {
+			if ($default === self::REQUIRED) {
+				Message::addError('main.parameter-missing', $key);
+				Util::redirect('?do=' . $_REQUEST['do']);
+			}
+			return $default;
+		}
+		if ($default === self::REQUIRED && empty($array[$key])) {
+			Message::addError('main.parameter-empty', $key);
+			Util::redirect('?do=' . $_REQUEST['do']);
+		}
+		if ($type !== false) settype($array[$key], $type);
+		return $array[$key];
 	}
 
 }
