@@ -1,3 +1,5 @@
+'use strict';
+
 function ip2long(IP) {
 	var i = 0;
 	IP = IP.match(/^([1-9]\d*|0[0-7]*|0x[\da-f]+)(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?$/i);
@@ -23,8 +25,10 @@ function long2ip(a) {
 }
 
 function cidrToRange(cidr) {
-	var range = [2];
+	var range = [];
 	cidr = cidr.split('/');
+	if (cidr.length !== 2)
+		return false;
 	var cidr_1 = parseInt(cidr[1]);
 	if (cidr_1 <= 0 || cidr_1 > 32)
 		return false;
@@ -50,14 +54,11 @@ function slxAttachCidr() {
 			return;
 		t.removeClass('cidrmagic');
 		s.focusout(function () {
-			var val = s.val();
-			if (val.match(/^[0-9]+\.[0-9]+(\.[0-9]+(\.[0-9]+)?)?\/[0-9]{2}$/)) {
-				var res = cidrToRange(val);
-				if (res === false)
-					return;
-				s.val(res[0]);
-				e.val(res[1]);
-			}
+			var res = cidrToRange(s.val());
+			if (res === false)
+				return;
+			s.val(res[0]);
+			e.val(res[1]);
 		});
 	});
 }

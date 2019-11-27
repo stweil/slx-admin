@@ -242,6 +242,7 @@ class SubPage
 		// depends on permissions in the according modules, not this one
 		Permission::addGlobalTags($data['perms'], NULL, ['subnets.edit', 'location.add']);
 		Render::addTemplate('locations', $data);
+		Module::isAvailable('js_ip'); // For CIDR magic
 	}
 
 	private static function propagateFields(&$locationList, $defaultValue, $name, $class)

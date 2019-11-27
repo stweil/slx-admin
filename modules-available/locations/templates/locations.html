@@ -209,7 +209,7 @@ function slxOpenLocation(e, lid) {
 	tr.append(td);
 	$(e).closest('tr').addClass('active slx-bold').after(tr);
 	td.load('?do=Locations&page=details&action=showlocation&locationid=' + lid, function() {
-		slxAttachCidr();
+		if (slxAttachCidr) slxAttachCidr();
 		scollIntoView(tr);
 	});
 	slxLastLocation = tr;
@@ -230,18 +230,14 @@ function scollIntoView(el) {
 
 function slxAddSubnetRow(e, lid) {
 	var tr = $('#loc-sub-' + lid);
-	tr.before('<tr id="row' + slxAddCounter + '" class="cidrmagic">\
+	tr.before('<tr class="cidrmagic">\
 		<td>#</td>\
 		<td><input class="form-control cidrstart" type="text" name="newstartaddr[' + slxAddCounter + ']" pattern="\\d{1,3}\.\\d{1,3}\.\\d{1,3}\.\\d{1,3}"></td>\
 		<td><input class="form-control cidrend" type="text" name="newendaddr[' + slxAddCounter + ']" pattern="\\d{1,3}\.\\d{1,3}\.\\d{1,3}\.\\d{1,3}"></td>\
-		<td class="text-center"><button class="btn btn-default btn-sm" type="button" onclick="removeNewSubnetRow(' + slxAddCounter + ')"><span class="glyphicon glyphicon-remove"></span></button></td>\
+		<td class="text-center"><button class="btn btn-default btn-sm" type="button" onclick="$(this).closest(\'tr\').remove()"><span class="glyphicon glyphicon-remove"></span></button></td>\
 	</tr>');
 	slxAddCounter++;
-	slxAttachCidr();
-}
-
-function removeNewSubnetRow(r) {
-	$("#row"+r).remove();
+	if (slxAttachCidr) slxAttachCidr();
 }
 
 function deleteSubnetWarning(locid) {

@@ -1,0 +1,7 @@
+{
+	"dependencies": [],
+	"scripts": [
+	    "clientscript.js"
+	],
+	"client-plugin": true
+}
