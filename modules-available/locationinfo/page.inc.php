@@ -413,12 +413,27 @@ class Page_LocationInfo extends Page
 
 	private function preparePanelConfigUrl()
 	{
+		$bookmarkNames = Request::post('bookmarkNames', [], 'array');
+		$bookmarkUrls = Request::post('bookmarkUrls', [], 'array');
+		$bookmarkString = '';
+		for ($i = 0; $i < count($bookmarkNames); $i++) {
+			$bookmarkString .= rawurlencode($bookmarkNames[$i]);
+			$bookmarkString .= ",";
+			$bookmarkString .= rawurlencode($bookmarkUrls[$i]);
+			$bookmarkString .= " ";
+		}
+		$bookmarkString = substr($bookmarkString, 0, -1);
+
 		$conf = array(
 			'url' => Request::post('url', 'https://www.bwlehrpool.de/', 'string'),
 			'insecure-ssl' => Request::post('insecure-ssl', 0, 'int'),
 			'reload-minutes' => max(0, Request::post('reloadminutes', 0, 'int')),
 			'iswhitelist' => Request::post('iswhitelist', 0, 'int'),
 			'urllist' => preg_replace("/[\r\n\\s]+/ms", ' ', Request::post('urllist', '', 'string')),
+			'split-login' => Request::post('split-login', 0, 'bool'),
+			'browser' => Request::post('browser', 'slx-browser', 'string'),
+			'interactive' => Request::post('interactive', '0', 'bool'),
+			'bookmarks' => $bookmarkString,
 		);
 		return array('config' => $conf, 'locationids' => []);
 	}
@@ -1020,6 +1035,10 @@ class Page_LocationInfo extends Page
 				'reloadminutes' => (int)$config['reload-minutes'],
 				'iswhitelist_' . $config['iswhitelist'] . '_checked' => 'checked',
 				'urllist' => str_replace(' ', "\r\n", $config['urllist']),
+				'split-login_checked' => $config['split-login'] ? 'checked' : '',
+				'browser' => $config['browser'],
+				'interactive_checked' => $config['interactive'] ? 'checked' : '',
+				'bookmarks' => $config['bookmarks'],
 			));
 		} else {
 			Render::addTemplate('page-config-panel-summary', array(

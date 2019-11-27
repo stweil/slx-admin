@@ -121,6 +121,10 @@ class LocationInfo
 				'urllist' => '',
 				'insecure-ssl' => 0,
 				'reload-minutes' => 0,
+				'split-login' => 0,
+				'browser' => 'slx-browser',
+				'interactive' => 0,
+				'bookmarks' => '',
 			);
 		}
 		return array();

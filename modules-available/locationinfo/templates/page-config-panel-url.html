@@ -108,6 +108,89 @@
 					</div>
 				</div>
 
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-sm-3">
+							<label for="split-login">{{lang_splitlogin}}</label>
+						</div>
+						<div class="col-sm-7">
+							<div class="checkbox">
+								<input id="split-login" type="checkbox" name="split-login" {{split-login_checked}} value="1">
+								<label></label>
+							</div>
+						</div>
+						<div class="col-sm-2">
+							<p class="btn btn-static helptext" title="{{lang_splitloginTooltip}}">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="list-group-item">
+					<div class="row">
+						<div class="col-sm-3">
+							<label for="browser">{{lang_browser}}</label>
+						</div>
+						<div class="col-sm-7">
+							<select class="form-control" name="browser" id="browser" onchange="browserChange()">
+								<option value="slx-browser" id="slx">{{lang_slxbrowser}}</option>
+								<option value="chromium" id="chrome">{{lang_chromium}}</option>
+							</select>
+						</div>
+						<div class="col-sm-2">
+							<p class="btn btn-static helptext" title="{{lang_browserTooltip}}">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="list-group-item b0-h">
+					<div class="row">
+						<div class="col-sm-3">
+							<label for="interactive">{{lang_interactive}}</label>
+						</div>
+						<div class="col-sm-7">
+							<div class="checkbox">
+								<input id="interactive" type="checkbox" name="interactive" {{interactive_checked}} value="1">
+								<label></label>
+							</div>
+						</div>
+						<div class="col-sm-2">
+							<p class="btn btn-static helptext" title="{{lang_interactiveTooltip}}">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="list-group-item" id="bookmarks">
+					<div class="row" id="bookmark0">
+						<div class="col-sm-3">
+							<label for="bookmarks">{{lang_bookmarks}}</label>
+						</div>
+						<div class="col-sm-3">
+							<input class="form-control" name="bookmarkNames[]" type="text" value=""
+									 placeholder="bwLehrpool" required>
+						</div>
+						<div class="col-sm-3">
+							<input class="form-control" name="bookmarkUrls[]" type="text" value=""
+									 placeholder="http://www.bwlehrpool.de/" pattern=".*://.*" required>
+						</div>
+						<div class="col-sm-1">
+							<button type="button" class="btn btn-success" onclick="addBookmark()">
+								<span class="glyphicon glyphicon-plus"></span>
+							</button>
+						</div>
+						<div class="col-sm-2">
+							<p class="btn btn-static helptext" title="{{lang_bookmarksTooltip}}">
+								<span class="glyphicon glyphicon-question-sign"></span>
+							</p>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>
@@ -122,10 +205,66 @@
 
 <script type="text/javascript"><!--
 
+var bookmarkCount = 0;
+
 document.addEventListener("DOMContentLoaded", function () {
 	// Initialize fancy tooltips
-        $('p.helptext').tooltip();
-
+	$('p.helptext').tooltip();
+	// load value to dropdown menus
+	$('#browser option[value="{{browser}}"]').attr("selected", "selected");
+	browserChange();
+	// load bookmark fields
+	getBookmarks();
 });
+
+// Hide interactive-input if slx-browser is selected
+function browserChange() {
+	var value = $('#browser').val();
+	if (value !== 'slx-browser') {
+		$('.b0-h').show();
+	} else {
+		$('.b0-h').hide();
+		$('#interactive').prop('checked', false);
+	}
+}
+
+// Add another bookmark input field to the form
+function addBookmark() {
+	bookmarkCount += 1;
+	$('#bookmarks').append('<div style="margin-top: 1em;" class="row" id="bookmark' + bookmarkCount + '">' +
+		'<div class="col-sm-3 col-sm-offset-3">' +
+		'<input class="form-control" name="bookmarkNames[]" type="text" value="" placeholder="bwLehrpool" required>' +
+		'</div>' +
+		'<div class="col-sm-3">' +
+		'<input class="form-control" name="bookmarkUrls[]" type="text" value="" placeholder="http://www.bwlehrpool.de/" pattern=".*://.*" required>' +
+		'</div>' +
+		'<div class="col-sm-1">' +
+		'<button type="button" class="btn btn-danger" onclick="deleteBookmark(' + bookmarkCount + ')">' +
+		'<span class="glyphicon glyphicon-minus"></span>' +
+		'</button>' +
+		'</div>' +
+		'</div>');
+}
+
+// Remove the corresponding bookmark
+function deleteBookmark(num) {
+	$('#bookmark' + num).remove();
+	bookmarkCount -= 1;
+}
+
+// Load bookmarks from database and add to form
+function getBookmarks() {
+	var bookmarks = "{{bookmarks}}".split(" ");
+	if (bookmarks[0] === "") return;
+	for (var i = 0; i < bookmarks.length; i++) {
+		var bookmark = bookmarks[i].split(',');
+		var name = decodeURIComponent(bookmark[0]);
+		var url = decodeURIComponent(bookmark[1]);
+		if (i !== 0) addBookmark();
+		var bookmarkJquery = $('#bookmark' + bookmarkCount);
+		bookmarkJquery.find("input[name='bookmarkNames[]']").val(name);
+		bookmarkJquery.find("input[name='bookmarkUrls[]']").val(url);
+	}
+}
 
 //--></script>
