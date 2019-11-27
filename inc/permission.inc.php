@@ -37,7 +37,7 @@ class Permission
 					continue;
 				$temp =& $temp[$sub];
 			}
-			$temp = ['disabled' => 'disabled', 'readonly' => 'readonly'];
+			$temp = ['disabled' => 'disabled', 'readonly' => 'readonly', 'hidden' => 'hidden'];
 		}
 		if (!$one && !is_null($noneAvailDisabled)) {
 			$array[$noneAvailDisabled] = [

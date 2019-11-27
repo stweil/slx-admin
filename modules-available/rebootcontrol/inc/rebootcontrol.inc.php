@@ -123,13 +123,17 @@ class RebootControl
 		if ($privkey === false) {
 			$privkey = SSHKey::getPrivateKey();
 		}
-		return Taskmanager::submit('RemoteExec', [
+		$task = Taskmanager::submit('RemoteExec', [
 			'clients' => $valid,
 			'command' => $command,
 			'timeoutSeconds' => $timeout,
 			'sshkey' => $privkey,
 			'port' => 9922, // Fallback if no port given in client struct
 		]);
+		if (!Taskmanager::isFailed($task)) {
+			Property::addToList(RebootControl::KEY_TASKLIST, '0/' . $task["id"], 60 * 24);
+		}
+		return $task;
 	}
 
 	public static function connectionCheckCallback($task, $hostId)

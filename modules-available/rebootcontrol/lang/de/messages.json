@@ -1,4 +1,10 @@
 {
+    "invalid-port": "Ung\u00fcltiger Port: {{0}}",
+    "jumphost-saved": "Sprung-Host {{0}} gespeichert",
     "no-clients-selected": "Keine Clients ausgew\u00e4hlt",
-    "some-machine-not-found": "Einige Clients aus dem POST request wurden nicht gefunden"
+    "no-current-tasks": "Keine aktuellen oder k\u00fcrzlich abgeschlossenen Aufgaben",
+    "no-such-jumphost": "Sprung-Host {{0}} existiert nicht",
+    "no-such-task": "Task {{0}} existiert nicht",
+    "some-machine-not-found": "Einige Clients aus dem POST request wurden nicht gefunden",
+    "unknown-task-type": "Unbekannter Task-Typ"
 }

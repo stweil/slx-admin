@@ -1,0 +1,64 @@
+<!-- subnetid, start, end, fixed, isdirect, lastdirectcheck, lastseen, seencount -->
+
+<form method="post" action="?do=rebootcontrol">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="show" value="subnet">
+	<input type="hidden" name="id" value="{{subnetid}}">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{lang_editSubnet}}: <b>{{start_s}} - {{end_s}}</b>
+		</div>
+		<div class="list-group">
+			<div class="list-group-item">
+				<div class="checkbox">
+					<input id="fixed_cb" type="checkbox" name="fixed" {{#fixed}}checked{{/fixed}} {{perms.subnet.flag.disabled}}>
+					<label for="fixed_cb">{{lang_fixSubnetSettings}}</label>
+				</div>
+				<div class="slx-space"></div>
+				<p>{{lang_fixSubnetDesc}}</p>
+			</div>
+			<div class="list-group-item {{^fixed}}collapse{{/fixed}} subnet-option">
+				<div class="checkbox">
+					<input id="direct_cb" type="checkbox" name="isdirect" {{#isdirect}}checked{{/isdirect}} {{perms.subnet.flag.disabled}}>
+					<label for="direct_cb">{{lang_reachableFromServer}}</label>
+				</div>
+				<div class="slx-space"></div>
+				<p>{{lang_reachableFromServerDesc}}</p>
+			</div>
+			<div class="list-group-item {{perms.jumphost.view.hidden}}">
+				<label>{{lang_assignedJumpHosts}}</label>
+				{{#jumpHosts}}
+				<div class="row">
+					<div class="col-md-12">
+						<div class="checkbox">
+							<input id="jhb{{hostid}}" type="checkbox" name="jumphost[{{hostid}}]" {{checked}}
+									 {{perms.jumphost.assign-subnet.disabled}}>
+							<label for="jhb{{hostid}}">{{host}}:{{port}}</label>
+						</div>
+					</div>
+				</div>
+				{{/jumpHosts}}
+			</div>
+		</div>
+		<div class="panel-footer text-right">
+			<button type="submit" class="btn btn-primary" name="action" value="edit" {{perms.subnet.flag.disabled}}>
+				<span class="glyphicon glyphicon-floppy-disk"></span>
+				{{lang_save}}
+			</button>
+		</div>
+	</div>
+</form>
+<script><!--
+document.addEventListener('DOMContentLoaded', function() {
+	var $overrides = $('.subnet-option');
+	var $cb = $('#fixed_cb');
+	$cb.change(function() {
+		if ($cb.is(':checked')) {
+			$overrides.show();
+		} else {
+			$overrides.hide();
+		}
+	}).change();
+
+});
+//--></script>

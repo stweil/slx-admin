@@ -1,0 +1,58 @@
+<!-- subnetid, start, end, fixed, isdirect, lastdirectcheck, lastseen, seencount -->
+
+<h2>{{lang_subnets}}</h2>
+
+<p>{{lang_subnetsDescription}}</p>
+
+<table class="table">
+	<thead>
+	<tr>
+		<th>{{lang_start}}</th>
+		<th>{{lang_end}}</th>
+		<th class="slx-smallcol">{{lang_isFixed}}</th>
+		<th class="slx-smallcol">{{lang_isDirect}}</th>
+		<th class="slx-smallcol">{{lang_jumphostCount}}</th>
+		<th>{{lang_lastseen}}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{{#subnets}}
+	<tr>
+		<td>
+			<a href="?do=rebootcontrol&show=subnet&what=subnet&id={{subnetid}}">{{start_s}}</a>
+		</td>
+		<td>
+			<a href="?do=rebootcontrol&show=subnet&what=subnet&id={{subnetid}}">{{end_s}}</a>
+		</td>
+		<td>{{#fixed}}<span class="glyphicon glyphicon-lock"></span>{{/fixed}}</td>
+		<td>{{#isdirect}}<span class="glyphicon glyphicon-ok"></span>{{/isdirect}}</td>
+		<td>{{jumphostcount}}</td>
+		<td class="{{lastseen_class}}">{{lastseen_s}}</td>
+	</tr>
+	{{/subnets}}
+	</tbody>
+</table>
+
+<form method="post" action="?do=rebootcontrol">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="show" value="subnet">
+	<div class="list-group">
+		<div class="list-group-item cidrmagic">
+			<label>{{lang_addNewSubnet}}</label>
+			<div class="row">
+				<div class="col-md-4">
+					<input class="form-control cidrstart" type="text" name="start" placeholder="1.2.3.4/24">
+				</div>
+				<div class="col-md-4">
+					<input class="form-control cidrend" type="text" name="end">
+				</div>
+				<div class="col-md-4 text-right">
+					<button class="btn btn-primary" name="action" value="add">
+						<span class="glyphicon glyphicon-floppy-disk"></span>
+						{{lang_create}}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

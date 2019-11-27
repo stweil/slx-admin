@@ -12,7 +12,7 @@ $output[] = tableCreate('reboot_subnet', "
 	`lastseen` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`seencount` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (`subnetid`),
- 	KEY `range` (`start`, `end`)");
+ 	UNIQUE KEY `range` (`start`, `end`)");
 
 $output[] = tableCreate('reboot_jumphost', "
 	`hostid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,

@@ -129,7 +129,7 @@ class Page_Statistics extends Page
 			}
 			$task = RebootControl::execute($allowedMachines, $action, 0, $locactionId);
 			if (Taskmanager::isTask($task)) {
-				Util::redirect("?do=rebootcontrol&taskid=" . $task["id"]);
+				Util::redirect("?do=rebootcontrol&what=task&taskid=" . $task["id"]);
 			}
 		}
 	}

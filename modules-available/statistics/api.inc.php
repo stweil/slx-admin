@@ -158,6 +158,30 @@ if ($type{0} === '~') {
 			}
 		}
 
+		// Inform WOL (rebootcontrol) module about subnet size
+		if (Module::get('rebootcontrol') !== false) {
+			$subnet = Request::post('subnet', false, 'string');
+			if ($subnet !== false && ($subnet = explode('/', $subnet)) !== false && count($subnet) === 2
+					&& $subnet[0] === $ip && $subnet[1] >= 8 && $subnet[1] < 32) {
+				$start = ip2long($ip);
+				if ($start !== false) {
+					$maskHost = (int)(pow(2, 32 - $subnet[1]) - 1);
+					$maskNet = ~$maskHost & 0xffffffff;
+					$end = $start | $maskHost;
+					$start &= $maskNet;
+					$netparams = ['start' => sprintf('%u', $start), 'end' => sprintf('%u', $end), 'now' => $NOW];
+					$affected = Database::exec('UPDATE reboot_subnet
+							SET lastseen = :now, seencount = seencount + 1
+							WHERE start = :start AND end = :end', $netparams);
+					if ($affected === 0) {
+						// New entry
+						Database::exec('INSERT INTO reboot_subnet (start, end, fixed, isdirect, lastseen, seencount)
+								VALUES (:start, :end, 0, 0, :now, 1)', $netparams);
+					}
+				}
+			}
+		}
+
 		// Write statistics data
 
 	} else if ($type === '~runstate') {

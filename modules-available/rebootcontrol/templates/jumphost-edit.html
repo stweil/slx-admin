@@ -2,7 +2,7 @@
 
 <form method="post" action="?do=rebootcontrol">
 	<input type="hidden" name="token" value="{{token}}">
-	<input type="hidden" name="action" value="savejumphost">
+	<input type="hidden" name="show" value="jumphost">
 	<input type="hidden" name="hostid" value="{{hostid}}">
 	<div class="list-group">
 		<div class="list-group-item">
@@ -34,7 +34,7 @@
 	</div>
 	<div class="buttonbar text-right">
 		<button type="reset" class="btn btn-default">{{lang_reset}}</button>
-		<button type="submit" class="btn btn-primary">
+		<button type="submit" class="btn btn-primary" name="action" value="save">
 			<span class="glyphicon glyphicon-floppy-disk"></span>
 			{{lang_save}}
 		</button>
