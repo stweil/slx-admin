@@ -166,19 +166,11 @@
 				</div>
 
 				<div class="list-group-item" id="bookmarks">
-					<div class="row" id="bookmark0">
+					<div class="row">
 						<div class="col-sm-3">
 							<label for="bookmarks">{{lang_bookmarks}}</label>
 						</div>
-						<div class="col-sm-3">
-							<input class="form-control" name="bookmarkNames[]" type="text" value=""
-									 placeholder="bwLehrpool" required>
-						</div>
-						<div class="col-sm-3">
-							<input class="form-control" name="bookmarkUrls[]" type="text" value=""
-									 placeholder="http://www.bwlehrpool.de/" pattern=".*://.*" required>
-						</div>
-						<div class="col-sm-1">
+						<div class="col-sm-7">
 							<button type="button" class="btn btn-success" onclick="addBookmark()">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>
@@ -189,6 +181,39 @@
 							</p>
 						</div>
 					</div>
+					<div class="row" style="margin-top: 1em;" id="bookmarkRow" hidden>
+						<div class="col-sm-3 col-sm-offset-3">
+							<input class="form-control" name="bookmarkNames[]" type="text" value=""
+									 placeholder="bwLehrpool">
+						</div>
+						<div class="col-sm-3">
+							<input class="form-control" name="bookmarkUrls[]" type="text" value=""
+									 placeholder="http://www.bwlehrpool.de/" pattern=".*://.*">
+						</div>
+						<div class="col-sm-1">
+							<button type="button" class="btn btn-danger" onclick="this.closest('.row').remove()">
+								<span class="glyphicon glyphicon-minus"></span>
+							</button>
+						</div>
+					</div>
+
+					{{#bookmarks}}
+					<div class="row" style="margin-top: 1em;">
+						<div class="col-sm-3 col-sm-offset-3">
+							<input class="form-control" name="bookmarkNames[]" type="text" value="{{name}}"
+									 placeholder="bwLehrpool" required>
+						</div>
+						<div class="col-sm-3">
+							<input class="form-control" name="bookmarkUrls[]" type="text" value="{{url}}"
+									 placeholder="http://www.bwlehrpool.de/" pattern=".*://.*" required>
+						</div>
+						<div class="col-sm-1">
+							<button type="button" class="btn btn-danger" onclick="this.closest('.row').remove()">
+								<span class="glyphicon glyphicon-minus"></span>
+							</button>
+						</div>
+					</div>
+					{{/bookmarks}}
 				</div>
 
 			</div>
@@ -205,16 +230,12 @@
 
 <script type="text/javascript"><!--
 
-var bookmarkCount = 0;
-
 document.addEventListener("DOMContentLoaded", function () {
 	// Initialize fancy tooltips
 	$('p.helptext').tooltip();
 	// load value to dropdown menus
 	$('#browser option[value="{{browser}}"]').attr("selected", "selected");
 	browserChange();
-	// load bookmark fields
-	getBookmarks();
 });
 
 // Hide interactive-input if slx-browser is selected
@@ -230,41 +251,14 @@ function browserChange() {
 
 // Add another bookmark input field to the form
 function addBookmark() {
-	bookmarkCount += 1;
-	$('#bookmarks').append('<div style="margin-top: 1em;" class="row" id="bookmark' + bookmarkCount + '">' +
-		'<div class="col-sm-3 col-sm-offset-3">' +
-		'<input class="form-control" name="bookmarkNames[]" type="text" value="" placeholder="bwLehrpool" required>' +
-		'</div>' +
-		'<div class="col-sm-3">' +
-		'<input class="form-control" name="bookmarkUrls[]" type="text" value="" placeholder="http://www.bwlehrpool.de/" pattern=".*://.*" required>' +
-		'</div>' +
-		'<div class="col-sm-1">' +
-		'<button type="button" class="btn btn-danger" onclick="deleteBookmark(' + bookmarkCount + ')">' +
-		'<span class="glyphicon glyphicon-minus"></span>' +
-		'</button>' +
-		'</div>' +
-		'</div>');
-}
-
-// Remove the corresponding bookmark
-function deleteBookmark(num) {
-	$('#bookmark' + num).remove();
-	bookmarkCount -= 1;
-}
-
-// Load bookmarks from database and add to form
-function getBookmarks() {
-	var bookmarks = "{{bookmarks}}".split(" ");
-	if (bookmarks[0] === "") return;
-	for (var i = 0; i < bookmarks.length; i++) {
-		var bookmark = bookmarks[i].split(',');
-		var name = decodeURIComponent(bookmark[0]);
-		var url = decodeURIComponent(bookmark[1]);
-		if (i !== 0) addBookmark();
-		var bookmarkJquery = $('#bookmark' + bookmarkCount);
-		bookmarkJquery.find("input[name='bookmarkNames[]']").val(name);
-		bookmarkJquery.find("input[name='bookmarkUrls[]']").val(url);
-	}
+	var rowCopy = $('#bookmarkRow').clone();
+	rowCopy.attr('id', '');
+	rowCopy.show();
+	rowCopy.find('input').each(function() {
+		$( this ).val('');
+		$( this ).prop('required', true);
+	});
+	$('#bookmarks').append(rowCopy);
 }
 
 //--></script>
