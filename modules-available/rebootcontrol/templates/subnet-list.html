@@ -7,26 +7,22 @@
 <table class="table">
 	<thead>
 	<tr>
-		<th>{{lang_start}}</th>
-		<th>{{lang_end}}</th>
+		<th>{{lang_subnet}}</th>
 		<th class="slx-smallcol">{{lang_isFixed}}</th>
 		<th class="slx-smallcol">{{lang_isDirect}}</th>
-		<th class="slx-smallcol">{{lang_jumphostCount}}</th>
-		<th>{{lang_lastseen}}</th>
+		<th class="slx-smallcol">{{lang_wolReachability}}</th>
+		<th class="slx-smallcol">{{lang_lastseen}}</th>
 	</tr>
 	</thead>
 	<tbody>
 	{{#subnets}}
 	<tr>
 		<td>
-			<a href="?do=rebootcontrol&show=subnet&what=subnet&id={{subnetid}}">{{start_s}}</a>
+			<a href="?do=rebootcontrol&show=subnet&what=subnet&id={{subnetid}}">{{cidr}}</a>
 		</td>
-		<td>
-			<a href="?do=rebootcontrol&show=subnet&what=subnet&id={{subnetid}}">{{end_s}}</a>
-		</td>
-		<td>{{#fixed}}<span class="glyphicon glyphicon-lock"></span>{{/fixed}}</td>
-		<td>{{#isdirect}}<span class="glyphicon glyphicon-ok"></span>{{/isdirect}}</td>
-		<td>{{jumphostcount}}</td>
+		<td class="text-center">{{#fixed}}<span class="glyphicon glyphicon-lock"></span>{{/fixed}}</td>
+		<td class="text-center">{{#isdirect}}<span class="glyphicon glyphicon-ok"></span>{{/isdirect}}</td>
+		<td class="text-right">{{jumphostcount}} / {{sourcecount}}</td>
 		<td class="{{lastseen_class}}">{{lastseen_s}}</td>
 	</tr>
 	{{/subnets}}
@@ -37,19 +33,16 @@
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="show" value="subnet">
 	<div class="list-group">
-		<div class="list-group-item cidrmagic">
+		<div class="list-group-item">
 			<label>{{lang_addNewSubnet}}</label>
 			<div class="row">
-				<div class="col-md-4">
-					<input class="form-control cidrstart" type="text" name="start" placeholder="1.2.3.4/24">
+				<div class="col-md-4 col-sm-6">
+					<input class="form-control" type="text" name="cidr" placeholder="1.2.3.0/24">
 				</div>
-				<div class="col-md-4">
-					<input class="form-control cidrend" type="text" name="end">
-				</div>
-				<div class="col-md-4 text-right">
+				<div class="col-md-4 col-sm-6">
 					<button class="btn btn-primary" name="action" value="add">
 						<span class="glyphicon glyphicon-floppy-disk"></span>
-						{{lang_create}}
+						{{lang_add}}
 					</button>
 				</div>
 			</div>

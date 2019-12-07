@@ -2,9 +2,8 @@
 <table class="table">
 	<thead>
 		<tr>
-			<th>{{lang_mode}}</th>
+			<th>{{lang_task}}</th>
 			<th>{{lang_location}}</th>
-			<th>{{lang_time}}</th>
 			<th>{{lang_clientCount}}</th>
 			<th>{{lang_status}}</th>
 		</tr>
@@ -12,19 +11,20 @@
 	<tbody>
 	{{#list}}
 		<tr>
-			<td>
-				<a href="?do=rebootcontrol&amp;show=task&amp;what=task&amp;taskid={{taskId}}">{{mode}}</a>
+			<td class="text-nowrap">
+				<a href="?do=rebootcontrol&amp;show=task&amp;what=task&amp;taskid={{id}}">{{type}}</a>
+				<div class="small">{{action}}</div>
 			</td>
 			<td>
-				{{locationName}}
+				{{#locations}}
+				<div class="loc">{{name}}</div>
+				{{/locations}}
+				<div class="clearfix"></div>
 			</td>
-			<td>
-				{{time}}
+			<td class="text-nowrap">
+				{{clients}}
 			</td>
-			<td>
-				{{clientCount}}
-			</td>
-			<td>
+			<td class="text-nowrap">
 				{{status}}
 			</td>
 		</tr>

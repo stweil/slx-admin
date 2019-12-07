@@ -172,6 +172,12 @@
 				{{lang_reboot}}
 			</button>
 		{{/canReboot}}
+		{{#canWol}}
+		<button type="submit" name="action" value="wol" class="btn btn-primary btn-machine-action">
+			<span class="glyphicon glyphicon-bell"></span>
+			{{lang_wakeOnLan}}
+		</button>
+		{{/canWol}}
 		{{/rebootcontrol}}
 		{{#canDelete}}
 			<button type="submit" name="action" value="delmachines" class="btn btn-danger btn-machine-action"

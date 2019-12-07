@@ -8,7 +8,7 @@ $output[] = tableCreate('reboot_subnet', "
 	`end` INT(10) UNSIGNED NOT NULL,
 	`fixed` BOOL NOT NULL,
 	`isdirect` BOOL NOT NULL,
-	`lastdirectcheck` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`nextdirectcheck` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`lastseen` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`seencount` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (`subnetid`),
@@ -33,9 +33,9 @@ $output[] = tableCreate('reboot_subnet_x_subnet', "
 	`srcid` INT(10) UNSIGNED NOT NULL,
 	`dstid` INT(10) UNSIGNED NOT NULL,
 	`reachable` BOOL NOT NULL,
-	`lastcheck` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`nextcheck` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (`srcid`, `dstid`),
-	KEY `lastcheck` (`lastcheck`)");
+	KEY `nextcheck` (`nextcheck`)");
 
 $output[] = tableAddConstraint('reboot_jumphost_x_subnet', 'hostid', 'reboot_jumphost', 'hostid',
 	'ON UPDATE CASCADE ON DELETE CASCADE');

@@ -8,5 +8,6 @@
     "newkeypair": "Neues Schl\u00fcsselpaar generieren.",
     "subnet.edit": "Subnets hinzuf\u00fcgen\/entfernen.",
     "subnet.flag": "Eigenschaften eines Subnets bearbeiten.",
-    "subnet.view": "Liste der Subnets sehen."
+    "subnet.view": "Liste der Subnets sehen.",
+    "woldiscover": "Automatische Ermittlung von subnet\u00fcbergreifender WOL-F\u00e4higkeit."
 }

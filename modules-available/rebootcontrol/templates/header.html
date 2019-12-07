@@ -15,20 +15,40 @@
 				<h4 class="modal-title"><b>{{lang_settings}}</b></h4>
 			</div>
 			<div class="modal-body">
-				<p>{{lang_pubKey}}</p>
+				<label for="pubkey">{{lang_pubKey}}</label>
 				<pre id="pubkey">{{pubkey}}</pre>
 				<p>{{lang_newKeypairExplanation}}</p>
 				<div class="checkbox">
 					<input {{perms.newkeypair.disabled}} type="checkbox" id="keypair-confirm">
 					<label for="keypair-confirm">{{lang_keypairConfirmCheck}}</label>
 				</div>
-			</div>
-			<div class="modal-footer">
 				<button {{perms.newkeypair.disabled}} class="btn btn-danger pull-right" id="keypair-button"
 						  onclick="generateNewKeypair()" type="button">
 					<span class="glyphicon glyphicon-refresh"></span>
 					{{lang_genNew}}
 				</button>
+				<div class="clearfix"></div>
+			</div>
+			<div class="modal-body">
+				<label>{{lang_wolDiscoverHeading}}</label>
+				<form method="post" action="?do=rebootcontrol">
+					<input type="hidden" name="token" value="{{token}}">
+					<input type="hidden" name="action" value="toggle-wol">
+					<div class="checkbox">
+						<input {{perms.woldiscover.disabled}} id="wol-auto-discover" type="checkbox" name="enabled" {{wol_auto_checked}}>
+						<label for="wol-auto-discover">{{lang_wolAutoDiscoverCheck}}</label>
+					</div>
+					<div class="slx-space"></div>
+					<p>{{lang_wolDiscoverDescription}}</p>
+					<button {{perms.woldiscover.disabled}} class="btn btn-primary pull-right"
+							  onclick="generateNewKeypair()" type="submit">
+						<span class="glyphicon glyphicon-floppy-disk"></span>
+						{{lang_saveWolAutoDiscover}}
+					</button>
+					<div class="clearfix"></div>
+				</form>
+			</div>
+			<div class="modal-body">
 			</div>
 		</div>
 	</div>

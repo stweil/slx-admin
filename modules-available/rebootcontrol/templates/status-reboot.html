@@ -1,30 +1,35 @@
-<h3>{{lang_location}}: {{locationName}}</h3>
+<h3>{{action}}</h3>
+{{#locations}}
+<div class="loc">{{name}}</div>
+{{/locations}}
+<div class="clearfix slx-space"></div>
 
-<div>
-	<table class="table table-hover stupidtable" id="dataTable">
-		<thead>
-			<tr>
-				<th data-sort="string">{{lang_client}}</th>
-				<th data-sort="ipv4">{{lang_ip}}</th>
-				<th data-sort="string">
-					{{lang_status}}
-				</th>
-			</tr>
-		</thead>
+<table class="table table-hover stupidtable" id="dataTable">
+	<thead>
+		<tr>
+			<th data-sort="string">{{lang_client}}</th>
+			<th data-sort="ipv4">{{lang_ip}}</th>
+			<th data-sort="string">
+				{{lang_status}}
+			</th>
+		</tr>
+	</thead>
 
-		<tbody>
-		{{#clients}}
-			<tr>
-				<td>{{hostname}}{{^hostname}}{{machineuuid}}{{/hostname}}</td>
-				<td>{{clientip}}</td>
-				<td id="status-{{machineuuid}}"></td>
-			</tr>
-		{{/clients}}
-		</tbody>
-	</table>
-</div>
+	<tbody>
+	{{#clients}}
+		<tr>
+			<td>{{hostname}}{{^hostname}}{{machineuuid}}{{/hostname}}</td>
+			<td>{{clientip}}</td>
+			<td>
+				<span id="status-{{machineuuid}}" class="machineuuid" data-uuid="{{machineuuid}}"></span>
+				<span id="text-{{machineuuid}}"></span>
+			</td>
+		</tr>
+	{{/clients}}
+	</tbody>
+</table>
 
-<div data-tm-id="{{taskId}}" data-tm-log="error" data-tm-callback="updateStatus"></div>
+<div data-tm-id="{{id}}" data-tm-log="error" data-tm-callback="updateStatus"></div>
 
 <script type="application/javascript">
 	statusStrings = {
@@ -41,11 +46,12 @@
 	function updateStatus(task) {
 		if (!task || !task.data || !task.data.clientStatus)
 			return;
+		stillActive = true;
 		var clientStatus = task.data.clientStatus;
 		for (var uuid in clientStatus) {
 			if (!clientStatus.hasOwnProperty(uuid))
 				continue;
-			var $s = $("#status-" + uuid);
+			var $s = $("#text-" + uuid);
 			var status = clientStatus[uuid];
 			if ($s.data('state') === status)
 				continue;

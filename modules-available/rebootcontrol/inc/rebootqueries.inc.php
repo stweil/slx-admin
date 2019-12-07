@@ -3,56 +3,27 @@
 class RebootQueries
 {
 
-	// Get Client+IP+CurrentVM+CurrentUser+Location to fill the table
-	public static function getMachineTable($locationId) {
-		$queryArgs = array('cutoff' => strtotime('-30 days'));
-		if ($locationId === 0) {
-			$where = 'machine.locationid IS NULL';
-		} else {
-			$where = 'machine.locationid = :locationid';
-			$queryArgs['locationid'] = $locationId;
-		}
-		$leftJoin = '';
-		$sessionField = 'machine.currentsession';
-		if (Module::get('dozmod') !== false) {
-			// SELECT lectureid, displayname FROM sat.lecture WHERE lectureid = :lectureid
-			$leftJoin = 'LEFT JOIN sat.lecture ON (lecture.lectureid = machine.currentsession)';
-			$sessionField = 'IFNULL(lecture.displayname, machine.currentsession) AS currentsession';
-		}
-		$res = Database::simpleQuery("
-			SELECT machine.machineuuid, machine.hostname, machine.clientip,
-				machine.lastboot, machine.lastseen, machine.logintime, machine.state,
-				$sessionField, machine.currentuser, machine.locationid
-			FROM machine 
-			$leftJoin
-			WHERE $where AND machine.lastseen > :cutoff", $queryArgs);
-		$ret = $res->fetchAll(PDO::FETCH_ASSOC);
-		foreach ($ret as &$row) {
-			if ($row['state'] === 'IDLE' || $row['state'] === 'OCCUPIED') {
-				$row['status'] = 1;
-			} else {
-				$row['status'] = 0;
-			}
-			if ($row['state'] !== 'OCCUPIED') {
-				$row['currentuser'] = '';
-				$row['currentsession'] = '';
-			}
-		}
-		return $ret;
-	}
-
 	/**
 	 * Get machines by list of UUIDs
 	 * @param string[] $list list of system UUIDs
 	 * @return array list of machines with machineuuid, hostname, clientip, state and locationid
 	 */
-	public static function getMachinesByUuid($list)
+	public static function getMachinesByUuid($list, $assoc = false, $columns = ['machineuuid', 'hostname', 'clientip', 'state', 'locationid'])
 	{
 		if (empty($list))
 			return array();
-		$res = Database::simpleQuery("SELECT machineuuid, hostname, clientip, state, locationid FROM machine
+		if (is_array($columns)) {
+			$columns = implode(',', $columns);
+		}
+		$res = Database::simpleQuery("SELECT $columns FROM machine
 				WHERE machineuuid IN (:list)", compact('list'));
-		return $res->fetchAll(PDO::FETCH_ASSOC);
+		if (!$assoc)
+			return $res->fetchAll(PDO::FETCH_ASSOC);
+		$ret = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$ret[$row['machineuuid']] = $row;
+		}
+		return $ret;
 	}
 
 }

@@ -59,6 +59,7 @@ class SubPage
 		$deleteAllowedLocations = User::getAllowedLocations("machine.delete");
 		$rebootAllowedLocations = User::getAllowedLocations('.rebootcontrol.action.reboot');
 		$shutdownAllowedLocations = User::getAllowedLocations('.rebootcontrol.action.reboot');
+		$wolAllowedLocations = User::getAllowedLocations('.rebootcontrol.action.wol');
 		// Only make client clickable if user is allowed to view details page
 		$detailsAllowedLocations = User::getAllowedLocations("machine.view-details");
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -123,6 +124,7 @@ class SubPage
 			'canReboot' => !empty($rebootAllowedLocations),
 			'canShutdown' => !empty($shutdownAllowedLocations),
 			'canDelete' => !empty($deleteAllowedLocations),
+			'canWol' => !empty($wolAllowedLocations),
 		);
 		Render::addTemplate('clientlist', $data);
 	}

@@ -43,11 +43,23 @@ class Page_RebootControl extends Page
 
 			if ($action === 'reboot' || $action === 'shutdown') {
 				$this->execRebootShutdown($action);
+			} elseif ($action === 'toggle-wol') {
+				User::assertPermission('woldiscover');
+				$enabled = Request::post('enabled', false);
+				Property::set(RebootControl::KEY_AUTOSCAN_DISABLED, !$enabled);
+				if ($enabled) {
+					Message::addInfo('woldiscover-enabled');
+				} else {
+					Message::addInfo('woldiscover-disabled');
+				}
+				$section = 'subnet'; // For redirect below
 			}
 		}
 
 		if (Request::isPost()) {
 			Util::redirect('?do=rebootcontrol' . ($section ? '&show=' . $section : ''));
+		} elseif ($section === false) {
+			Util::redirect('?do=rebootcontrol&show=task');
 		}
 	}
 
@@ -70,8 +82,6 @@ class Page_RebootControl extends Page
 			if (!User::hasPermission('action.' . $action, $actualClients[$idx]['locationid'])) {
 				Message::addWarning('locations.no-permission-location', $actualClients[$idx]['locationid']);
 				unset($actualClients[$idx]);
-			} else {
-				$locationId = $actualClients[$idx]['locationid'];
 			}
 		}
 		// See if anything is left
@@ -96,7 +106,7 @@ class Page_RebootControl extends Page
 			$mode = 'REBOOT';
 			$minutes = Request::post('r-minutes', 0, 'int');
 		}
-		$task = RebootControl::execute($actualClients, $mode, $minutes, $locationId);
+		$task = RebootControl::execute($actualClients, $mode, $minutes);
 		if (Taskmanager::isTask($task)) {
 			Util::redirect("?do=rebootcontrol&show=task&what=task&taskid=" . $task["id"]);
 		}
@@ -110,8 +120,11 @@ class Page_RebootControl extends Page
 	protected function doRender()
 	{
 		// Always show public key (it's public, isn't it?)
-		$data = ['pubkey' => SSHKey::getPublicKey()];
-		Permission::addGlobalTags($data['perms'], null, ['newkeypair']);
+		$data = [
+			'pubkey' => SSHKey::getPublicKey(),
+			'wol_auto_checked' => Property::get(RebootControl::KEY_AUTOSCAN_DISABLED) ? '' : 'checked',
+		];
+		Permission::addGlobalTags($data['perms'], null, ['newkeypair', 'woldiscover']);
 		Render::addTemplate('header', $data);
 
 		if ($this->haveSubpage) {
@@ -127,6 +140,25 @@ class Page_RebootControl extends Page
 			User::assertPermission("newkeypair");
 			Property::set("rebootcontrol-private-key", false);
 			echo SSHKey::getPublicKey();
+		} elseif ($action === 'clientstatus') {
+			$clients = Request::post('clients');
+			if (is_array($clients)) {
+				// XXX No permission check here, should we consider this as leaking sensitive information?
+				$machines = RebootQueries::getMachinesByUuid(array_values($clients), false, ['machineuuid', 'state']);
+				$ret = [];
+				foreach ($machines as $machine) {
+					switch ($machine['state']) {
+					case 'OFFLINE': $val = 'glyphicon-off'; break;
+					case 'IDLE': $val = 'glyphicon-ok green'; break;
+					case 'OCCUPIED': $val = 'glyphicon-user red'; break;
+					case 'STANDBY': $val = 'glyphicon-off green'; break;
+					default: $val = 'glyphicon-question-sign'; break;
+					}
+					$ret[$machine['machineuuid']] = $val;
+				}
+				Header('Content-Type: application/json; charset=utf-8');
+				echo json_encode($ret);
+			}
 		} else {
 			echo 'Invalid action.';
 		}

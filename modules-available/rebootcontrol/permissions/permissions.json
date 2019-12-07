@@ -2,6 +2,9 @@
     "newkeypair": {
         "location-aware": false
     },
+    "woldiscover": {
+        "location-aware": false
+    },
     "subnet.view": {
         "location-aware": false
     },
@@ -27,6 +30,9 @@
         "location-aware": true
     },
     "action.wol": {
+        "location-aware": true
+    },
+    "action.exec": {
         "location-aware": true
     }
 }

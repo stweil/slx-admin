@@ -1,0 +1,52 @@
+{{#locations}}
+<div class="loc">{{name}}</div>
+{{/locations}}
+<div class="clearfix slx-space"></div>
+
+{{#tasks}}
+<div data-tm-id="{{id}}" data-tm-callback="wolCallback">{{lang_aWolJob}}</div>
+{{/tasks}}
+{{^tasks}}
+<div class="alert alert-warning">
+	<span class="glyphicon glyphicon-exclamation-sign"></span>
+	{{lang_noTasksForJob}}
+</div>
+{{/tasks}}
+
+<pre>{{log}}</pre>
+
+<table class="table table-hover stupidtable" id="dataTable">
+	<thead>
+	<tr>
+		<th data-sort="string">{{lang_client}}</th>
+		<th data-sort="ipv4">{{lang_ip}}</th>
+		<th data-sort="string">
+			{{lang_status}}
+		</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	{{#clients}}
+	<tr>
+		<td>{{hostname}}{{^hostname}}{{machineuuid}}{{^machineuuid}}{{clientip}}{{/machineuuid}}{{/hostname}}</td>
+		<td>{{clientip}}</td>
+		{{#machineuuid}}
+		<td>
+			<span id="status-{{machineuuid}}" class="machineuuid" data-uuid="{{machineuuid}}"></span>
+			<span id="spinner-{{machineuuid}}" class="glyphicon glyphicon-refresh slx-rotation">
+		</td>
+		{{/machineuuid}}
+		{{^machineuuid}}
+		<td></td>
+		{{/machineuuid}}
+	</tr>
+	{{/clients}}
+	</tbody>
+</table>
+
+<script><!--
+function wolCallback(task) {
+	stillActive = true;
+}
+//--></script>

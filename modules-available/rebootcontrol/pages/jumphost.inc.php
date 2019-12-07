@@ -30,15 +30,9 @@ class SubPage
 	private static function execCheckConnection($hostid)
 	{
 		$host = self::getJumpHost($hostid);
-		$script = str_replace(['%IP%', '%MACS%'], ['255.255.255.255', '00:11:22:33:44:55'], $host['script']);
-		$task = RebootControl::runScript([[
-			'clientip' => $host['host'],
-			'port' => $host['port'],
-			'username' => $host['username'],
-		]], $script, 5, $host['sshkey']);
+		$task = RebootControl::wakeViaJumpHost($host, '255.255.255.255', [['macaddr' => '00:11:22:33:44:55']]);
 		if (!Taskmanager::isTask($task))
 			return;
-		TaskmanagerCallback::addCallback($task, 'rbcConnCheck', $hostid);
 		Util::redirect('?do=rebootcontrol&show=task&type=checkhost&what=task&taskid=' . $task['id']);
 	}
 

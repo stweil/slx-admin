@@ -114,6 +114,7 @@
     "lang_usageState": "State",
     "lang_uuid": "UUID",
     "lang_virtualCores": "Virtual cores",
+    "lang_wakeOnLan": "WakeOnLan",
     "lang_when": "When",
     "lang_withBadSectors": "Clients with potentially bad HDDs (more than 10 reallocated sectors)"
 }

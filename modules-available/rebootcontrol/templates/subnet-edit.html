@@ -6,7 +6,7 @@
 	<input type="hidden" name="id" value="{{subnetid}}">
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			{{lang_editSubnet}}: <b>{{start_s}} - {{end_s}}</b>
+			{{lang_editSubnet}}: <b>{{cidr}}</b> ({{start_s}}&thinsp;-&thinsp;{{end_s}})
 		</div>
 		<div class="list-group">
 			<div class="list-group-item">
@@ -38,6 +38,12 @@
 					</div>
 				</div>
 				{{/jumpHosts}}
+			</div>
+			<div class="list-group-item">
+				<label>{{lang_reachableFrom}}</label>
+				{{#sourceNets}}
+				<div>{{cidr}}</div>
+				{{/sourceNets}}
 			</div>
 		</div>
 		<div class="panel-footer text-right">

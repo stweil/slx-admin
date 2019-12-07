@@ -114,6 +114,7 @@
     "lang_usageState": "Zustand",
     "lang_uuid": "UUID",
     "lang_virtualCores": "Virtuelle Kerne",
+    "lang_wakeOnLan": "WakeOnLan",
     "lang_when": "Wann",
     "lang_withBadSectors": "Clients mit potentiell defekten Festplatten (mehr als 10 defekte Sektoren)"
 }

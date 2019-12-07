@@ -72,11 +72,30 @@ class Page_Statistics extends Page
 			$this->rebootControl(true);
 		} elseif ($action === 'shutdownmachines') {
 			$this->rebootControl(false);
+		} elseif ($action === 'wol') {
+			$this->wol();
 		}
 
 		// Make sure we don't render any content for POST requests - should be handled above and then
 		// redirected properly
 		Util::redirect('?do=statistics');
+	}
+
+	private function wol()
+	{
+		if (!Module::isAvailable('rebootcontrol'))
+			return;
+		$ids = Request::post('uuid', [], 'array');
+		$ids = array_values($ids);
+		if (empty($ids)) {
+			Message::addError('main.parameter-empty', 'uuid');
+			return;
+		}
+		$this->getAllowedMachines(".rebootcontrol.action.wol", $ids, $allowedMachines);
+		if (empty($allowedMachines))
+			return;
+		$taskid = RebootControl::wakeMachines($allowedMachines);
+		Util::redirect('?do=rebootcontrol&show=task&what=task&taskid=' . $taskid);
 	}
 
 	/**
@@ -92,12 +111,31 @@ class Page_Statistics extends Page
 			Message::addError('main.parameter-empty', 'uuid');
 			return;
 		}
-		$allowedLocations = User::getAllowedLocations(".rebootcontrol.action." . ($reboot ? 'reboot' : 'shutdown'));
+		$this->getAllowedMachines(".rebootcontrol.action." . ($reboot ? 'reboot' : 'shutdown'), $ids, $allowedMachines);
+		if (empty($allowedMachines))
+			return;
+		if ($reboot && Request::post('kexec', false)) {
+			$action = RebootControl::KEXEC_REBOOT;
+		} elseif ($reboot) {
+			$action = RebootControl::REBOOT;
+		} else {
+			$action = RebootControl::SHUTDOWN;
+		}
+		$task = RebootControl::execute($allowedMachines, $action, 0);
+		if (Taskmanager::isTask($task)) {
+			Util::redirect("?do=rebootcontrol&show=task&what=task&taskid=" . $task["id"]);
+		}
+	}
+
+	private function getAllowedMachines($permission, $ids, &$allowedMachines)
+	{
+		$allowedLocations = User::getAllowedLocations($permission);
 		if (empty($allowedLocations)) {
 			Message::addError('main.no-permission');
 			Util::redirect('?do=statistics');
 		}
-		$res = Database::simpleQuery('SELECT machineuuid, clientip, locationid FROM machine WHERE machineuuid IN (:ids)', compact('ids'));
+		$res = Database::simpleQuery('SELECT machineuuid, clientip, macaddr, locationid FROM machine
+				WHERE machineuuid IN (:ids)', compact('ids'));
 		$ids = array_flip($ids);
 		$allowedMachines = [];
 		$seenLocations = [];
@@ -113,24 +151,6 @@ class Page_Statistics extends Page
 		}
 		if (!empty($ids)) {
 			Message::addWarning('unknown-machine', implode(', ', array_keys($ids)));
-		}
-		if (!empty($allowedMachines)) {
-			if (count($seenLocations) === 1) {
-				$locactionId = (int)array_keys($seenLocations)[0];
-			} else {
-				$locactionId = 0;
-			}
-			if ($reboot && Request::post('kexec', false)) {
-				$action = RebootControl::KEXEC_REBOOT;
-			} elseif ($reboot) {
-				$action = RebootControl::REBOOT;
-			} else {
-				$action = RebootControl::SHUTDOWN;
-			}
-			$task = RebootControl::execute($allowedMachines, $action, 0, $locactionId);
-			if (Taskmanager::isTask($task)) {
-				Util::redirect("?do=rebootcontrol&what=task&taskid=" . $task["id"]);
-			}
 		}
 	}
 
