@@ -1,0 +1,28 @@
+<h2>{{lang_jumpHost}} {{host}} - {{lang_assignedSubnets}}</h2>
+
+<form method="post" action="?do=rebootcontrol">
+	<input type="hidden" name="token" value="{{token}}">
+	<input type="hidden" name="show" value="jumphost">
+	<input type="hidden" name="action" value="assign">
+	<input type="hidden" name="hostid" value="{{hostid}}">
+	<div class="list-group">
+		<div class="list-group-item">
+			{{#list}}
+			<div class="row">
+				<div class="col-md-12">
+					<div class="checkbox">
+						<input id="check-{{subnetid}}" type="checkbox" name="subnet[{{subnetid}}]" {{checked}}>
+						<label for="check-{{subnetid}}">{{cidr}}</label>
+					</div>
+				</div>
+			</div>
+			{{/list}}
+			<div class="text-right">
+				<button type="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+					{{lang_save}}
+				</button>
+			</div>
+		</div>
+	</div>
+</form>

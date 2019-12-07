@@ -1,13 +1,14 @@
 {
+    "action.exec": "Befehle als root auf laufenden Clients ausf\u00fchren.",
     "action.reboot": "Client neustarten.",
     "action.shutdown": "Client herunterfahren.",
     "action.wol": "Client per WOL starten.",
-    "jumphost.assign-subnet": "Einem Sprung-Host ein Subnet zuweisen.",
+    "jumphost.assign-subnet": "Einem Sprung-Host ein Subnetz zuweisen.",
     "jumphost.edit": "Einen Sprung-Host bearbeiten.",
     "jumphost.view": "Liste der Sprung-Hosts sehen.",
     "newkeypair": "Neues Schl\u00fcsselpaar generieren.",
-    "subnet.edit": "Subnets hinzuf\u00fcgen\/entfernen.",
-    "subnet.flag": "Eigenschaften eines Subnets bearbeiten.",
-    "subnet.view": "Liste der Subnets sehen.",
-    "woldiscover": "Automatische Ermittlung von subnet\u00fcbergreifender WOL-F\u00e4higkeit."
+    "subnet.edit": "Subnetze hinzuf\u00fcgen\/entfernen.",
+    "subnet.flag": "Eigenschaften eines Subnetzs bearbeiten.",
+    "subnet.view": "Liste der Subnetzs sehen.",
+    "woldiscover": "Automatische Ermittlung von subnetz\u00fcbergreifender WOL-F\u00e4higkeit."
 }

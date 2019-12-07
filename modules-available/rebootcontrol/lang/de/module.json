@@ -1,4 +1,6 @@
 {
+    "jumphosts": "Sprung-Hosts",
     "module_name": "WakeOnLAN",
-    "page_title": "WakeOnLAN"
+    "page_title": "WakeOnLAN",
+    "subnets": "Subnetze"
 }

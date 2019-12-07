@@ -8,6 +8,8 @@ class SubPage
 		$action = Request::post('action', false, 'string');
 		if ($action === 'save') {
 			self::saveJumpHost();
+		} elseif ($action === 'assign') {
+			self::saveSubnetAssignment();
 		} elseif ($action === 'list') {
 			self::listAction();
 		}
@@ -22,6 +24,7 @@ class SubPage
 		$id = Request::post('checkid', false, 'int');
 		if ($id !== false) {
 			// Check connectivity
+			User::assertPermission('jumphost.edit');
 			self::execCheckConnection($id);
 			return;
 		}
@@ -65,11 +68,31 @@ class SubPage
 			}
 		}
 		if ($ret > 0) {
-			Message::addSuccess('jumphost-saved', $id);
+			Message::addSuccess('jumphost-saved', $host);
 			self::execCheckConnection($id);
 		} else {
 			Message::addError('no-such-jumphost', $id);
 		}
+	}
+
+	private static function saveSubnetAssignment()
+	{
+		User::assertPermission('jumphost.edit');
+		$id = Request::post('hostid', Request::REQUIRED, 'string');
+		$host = self::getJumpHost($id);
+		$nets = Request::post('subnet', [], 'array');
+		if (empty($nets)) {
+			Database::exec('DELETE FROM reboot_jumphost_x_subnet WHERE hostid = :id', ['id' => $id]);
+		} else {
+			$nets = array_keys($nets);
+			Database::exec('DELETE FROM reboot_jumphost_x_subnet WHERE hostid = :id AND subnetid NOT IN (:nets)',
+				['id' => $id, 'nets' => $nets]);
+			$nets = array_map(function($item) use ($id) {
+				return [$id, $item];
+			}, $nets);
+			Database::exec('INSERT IGNORE INTO reboot_jumphost_x_subnet (hostid, subnetid) VALUES :nets', ['nets' => $nets]);
+		}
+		Message::addSuccess('jumphost-saved', $host['host']);
 	}
 
 	/*
@@ -78,9 +101,11 @@ class SubPage
 
 	public static function doRender()
 	{
-		$id = Request::get('id', false, 'string');
-		if ($id !== false) {
-			self::showJumpHost($id);
+		$what = Request::get('what', 'list', 'string');
+		if ($what === 'edit') {
+			self::showJumpHost();
+		} elseif ($what === 'assign') {
+			self::showAssignSubnets();
 		} else {
 			self::showJumpHosts();
 		}
@@ -105,9 +130,10 @@ class SubPage
 		Render::addTemplate('jumphost-list', $data);
 	}
 
-	private static function showJumpHost($id)
+	private static function showJumpHost()
 	{
 		User::assertPermission('jumphost.edit');
+		$id = Request::get('id', Request::REQUIRED, 'string');
 		if ($id === 'new') {
 			$host = ['hostid' => 'new', 'port' => 22, 'script' => "# Assume bash\n"
 				. "MACS='%MACS%'\n"
@@ -135,6 +161,27 @@ class SubPage
 			$host = self::getJumpHost($id);
 		}
 		Render::addTemplate('jumphost-edit', $host);
+	}
+
+	private static function showAssignSubnets()
+	{
+		User::assertPermission('jumphost.assign-subnet');
+		$id = Request::get('id', Request::REQUIRED, 'int');
+		$host = self::getJumpHost($id);
+		$res = Database::simpleQuery('SELECT s.subnetid, s.start, s.end, jxs.hostid FROM reboot_subnet s
+				LEFT JOIN reboot_jumphost_x_subnet jxs ON (s.subnetid = jxs.subnetid AND jxs.hostid = :id)
+				ORDER BY start ASC',
+			['id' => $id]);
+		$list = [];
+		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+			$row['cidr'] = IpUtil::rangeToCidr($row['start'], $row['end']);
+			if ($row['hostid'] !== null) {
+				$row['checked'] = 'checked';
+			}
+			$list[] = $row;
+		}
+		$host['list'] = $list;
+		Render::addTemplate('jumphost-subnets', $host);
 	}
 
 	public static function doAjax()

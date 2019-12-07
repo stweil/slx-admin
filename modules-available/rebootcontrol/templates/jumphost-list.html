@@ -12,7 +12,7 @@
 		<thead>
 		<tr>
 			<th>{{lang_host}}</th>
-			<th class="slx-smallcol">{{lang_assignedSubnets}}</th>
+			<th class="slx-smallcol">{{lang_numAssignedSubnets}}</th>
 			<th class="slx-smallcol">{{lang_reachable}}</th>
 			<th class="slx-smallcol"></th>
 		</tr>
@@ -22,11 +22,11 @@
 		<tr>
 			<td>{{host}}:{{port}}</td>
 			<td class="text-nowrap text-right">
-				{{subnetCount}}
 				<a class="btn btn-xs btn-default {{perms.jumphost.assign-subnet.disabled}}"
-					href="?do=rebootcontrol&amp;show=jumphost-assign&amp;id={{hostid}}">
-					<span class="glyphicon glyphicon-edit"></span>
+					href="?do=rebootcontrol&amp;show=jumphost&amp;what=assign&amp;id={{hostid}}">
+					<span class="glyphicon glyphicon-tasks"></span>
 				</a>
+				<span class="badge">{{subnetCount}}</span>
 			</td>
 			<td class="text-nowrap text-center">
 				{{#reachable}}
@@ -42,7 +42,7 @@
 			</td>
 			<td class="text-nowrap text-center">
 				<a class="btn btn-xs btn-default {{perms.jumphost.edit.disabled}}"
-					href="?do=rebootcontrol&amp;show=jumphost&amp;id={{hostid}}">
+					href="?do=rebootcontrol&amp;show=jumphost&amp;what=edit&amp;id={{hostid}}">
 					<span class="glyphicon glyphicon-edit"></span>
 				</a>
 				<button type="submit" name="deleteid" value="{{hostid}}" class="btn btn-xs btn-danger"
@@ -56,7 +56,7 @@
 	</table>
 </form>
 <div class="buttonbar text-right">
-	<a class="btn btn-success" href="?do=rebootcontrol&amp;show=jumphost&amp;id=new">
+	<a class="btn btn-success" href="?do=rebootcontrol&amp;show=jumphost&amp;what=edit&amp;id=new">
 		<span class="glyphicon glyphicon-plus"></span>
 		{{lang_new}}
 	</a>
