@@ -62,9 +62,25 @@ function getJobStatus($id)
 }
 
 // Hooks by other modules
-function handleModule($file)
+/**
+ * @param Hook $hook
+ */
+function handleModule($hook)
 {
-	include_once $file;
+	global $cron_log_text;
+	$cron_log_text = '';
+	include_once $hook->file;
+	if (!empty($cron_log_text)) {
+		EventLog::info('CronJob ' . $hook->moduleId . ' finished.', $cron_log_text);
+	}
+}
+
+$cron_log_text = '';
+function cron_log($text)
+{
+	// XXX: Enable this code for debugging -- make this configurable some day
+	//global $cron_log_text;
+	//$cron_log_text .= $text . "\n";
 }
 
 $blocked = Property::getList(CRON_KEY_BLOCKED);
@@ -93,7 +109,7 @@ foreach (Hook::load('cron') as $hook) {
 	$value = $hook->moduleId . '|' . time();
 	Property::addToList(CRON_KEY_STATUS, $value, 30);
 	try {
-		handleModule($hook->file);
+		handleModule($hook);
 	} catch (Exception $e) {
 		// Logging
 		EventLog::failure('Cronjob for module ' . $hook->moduleId . ' has crashed. Check the php or web server error log.', $e->getMessage());
