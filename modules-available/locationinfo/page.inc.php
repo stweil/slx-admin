@@ -417,6 +417,7 @@ class Page_LocationInfo extends Page
 		$bookmarkUrls = Request::post('bookmarkUrls', [], 'array');
 		$bookmarkString = '';
 		for ($i = 0; $i < count($bookmarkNames); $i++) {
+			if ($bookmarkNames[$i] == '' || $bookmarkUrls[$i] == '') continue;
 			$bookmarkString .= rawurlencode($bookmarkNames[$i]);
 			$bookmarkString .= ",";
 			$bookmarkString .= rawurlencode($bookmarkUrls[$i]);
@@ -433,7 +434,7 @@ class Page_LocationInfo extends Page
 			'split-login' => Request::post('split-login', 0, 'bool'),
 			'browser' => Request::post('browser', 'slx-browser', 'string'),
 			'interactive' => Request::post('interactive', '0', 'bool'),
-			'bookmarks' => $bookmarkString,
+			'bookmarks' => $bookmarkString ? $bookmarkString : '',
 		);
 		return array('config' => $conf, 'locationids' => []);
 	}
@@ -1026,6 +1027,21 @@ class Page_LocationInfo extends Page
 				'overrides' => json_encode($config['overrides']),
 			));
 		} elseif ($panel['paneltype'] === 'URL') {
+
+			$bookmarksArray = [];
+			if ($config['bookmarks'] !== '') {
+				$bookmarksConfig = explode(' ', $config['bookmarks']);
+				foreach ($bookmarksConfig AS $bookmark) {
+					$bookmark = explode(',', $bookmark);
+					$name = rawurldecode($bookmark[0]);
+					$url = rawurldecode($bookmark[1]);
+					$bookmarksArray[] = [
+						'name' => $name,
+						'url' => $url,
+					];
+				}
+			}
+
 			Render::addTemplate('page-config-panel-url', array(
 				'new' => $id === 'new',
 				'uuid' => $id,
@@ -1038,7 +1054,7 @@ class Page_LocationInfo extends Page
 				'split-login_checked' => $config['split-login'] ? 'checked' : '',
 				'browser' => $config['browser'],
 				'interactive_checked' => $config['interactive'] ? 'checked' : '',
-				'bookmarks' => $config['bookmarks'],
+				'bookmarks' => $bookmarksArray,
 			));
 		} else {
 			Render::addTemplate('page-config-panel-summary', array(

@@ -135,9 +135,8 @@ class ConfigTgz
 	{
 		if ($this->configId === 0)
 			Util::traceError('ConfigTgz::delete called with invalid config id!');
-		$ret = Database::exec("DELETE FROM configtgz WHERE configid = :configid LIMIT 1", array(
-				'configid' => $this->configId
-			), true) !== false;
+		$ret = Database::exec("DELETE FROM configtgz WHERE configid = :configid LIMIT 1",
+				['configid' => $this->configId], true);
 		if ($ret !== false) {
 			if ($this->file !== false)
 				Taskmanager::submit('DeleteFile', array('file' => $this->file), true);
@@ -145,7 +144,7 @@ class ConfigTgz
 			$this->modules = false;
 			$this->file = false;
 		}
-		return $ret;
+		return $ret !== false;
 	}
 	
 	public function markOutdated()

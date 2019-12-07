@@ -71,11 +71,9 @@ class MiniLinux
 			WHERE sourceid = :sourceid AND taskid = :taskid",
 			['sourceid' => $sourceid, 'taskid' => $taskId]);
 		// Clean up -- delete orphaned versions that are not installed
-		$orphaned = Database::queryColumnArray('SELECT versionid FROM minilinux_version WHERE orphan > 4 AND installed = 0');
-		if (!empty($orphaned)) {
-			Database::exec('DELETE FROM minilinux_version WHERE versionid IN (:list)', ['list' => $orphaned]);
-		}
-		Database::exec('DELETE FROM minilinux_branch', [], true);
+		Database::exec('DELETE FROM minilinux_version WHERE orphan > 4 AND installed = 0');
+		// FKC makes sure we only delete orphaned ones
+		Database::exec('DELETE IGNORE FROM minilinux_branch WHERE 1', [], true);
 	}
 
 	private static function addBranches($sourceid, $systems)
