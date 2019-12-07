@@ -1,6 +1,19 @@
 <?php
 
-if (/* mt_rand(1, 2) !== 1 || */ Property::get(RebootControl::KEY_AUTOSCAN_DISABLED))
+/*
+ * JumpHost availability test, 5 times a day...
+ */
+if (in_array((int)date('G'), [6, 7, 9, 12, 15]) && in_array(date('i'), ['00', '01', '02', '03'])) {
+	$res = Database::simpleQuery('SELECT hostid, host, port, username, sshkey, script FROM reboot_jumphost');
+	while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+		RebootControl::wakeViaJumpHost($row, '255.255.255.255', [['macaddr' => '00:11:22:33:44:55']]);
+	}
+}
+
+/*
+ * Client reachability test -- can be disabled
+ */
+if (mt_rand(1, 2) !== 1 || Property::get(RebootControl::KEY_AUTOSCAN_DISABLED))
 	return;
 
 class Stuff
