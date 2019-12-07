@@ -1,5 +1,5 @@
 {
-    "config-activated": "Konfiguration {{0}} wurde aktiviert",
+    "config-delete-error": "Datenbankfehler: {{0}}",
     "config-deleted": "Konfiguration {{0}} wurde gel\u00f6scht",
     "config-invalid": "Konfiguration mit ID {{0}} existiert nicht",
     "could-not-determine-binddn": "Konnte Bind-DN nicht ermitteln ({{0}})",
@@ -9,7 +9,6 @@
     "module-added": "Modul erfolgreich hinzugef\u00fcgt",
     "module-deleted": "Modul {{0}} wurde gel\u00f6scht",
     "module-edited": "Modul wurde aktualisiert",
-    "module-in-use": "Modul {{0}} wird noch durch Konfiguration {{1}} verwendet",
     "module-rebuild-failed": "Neubau des Moduls fehlgeschlagen",
     "module-rebuilding": "Modul wird neu generiert",
     "module-rebuilt": "Modul wurde neu generiert",

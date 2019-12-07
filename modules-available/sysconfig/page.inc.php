@@ -481,7 +481,9 @@ class Page_SysConfig extends Page
 			Message::addError('config-invalid', $configid);
 			Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
 		}
-		if ($config->delete() !== false) {
+		if ($config->delete() === false) {
+			Message::addError('config-delete-error', Database::lastError());
+		} else {
 			Message::addSuccess('config-deleted', $config->title());
 		}
 		Util::redirect('?do=sysconfig&locationid=' . $this->currentLoc);
