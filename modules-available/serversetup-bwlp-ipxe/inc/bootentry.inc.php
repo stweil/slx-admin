@@ -308,13 +308,17 @@ class StandardBootEntry extends BootEntry
 			$script .= "-r ";
 		}
 		$script .= $entry->executable;
-		if (empty($initrds)) {
-			$rdBase = '';
-		} else {
-			$rdBase = " initrd=" . implode(',', $initrds);
+		if (!empty($initrds)) {
+			if ($mode === BootEntry::BIOS) {
+				$script .= " initrd=" . implode(',', $initrds);
+			} else {
+				foreach ($initrds as $initrd) {
+					$script .= " initrd=$initrd";
+				}
+			}
 		}
 		if (!empty($entry->commandLine)) {
-			$script .= "$rdBase {$entry->commandLine}";
+			$script .= ' ' . $entry->commandLine;
 		}
 		$script .= " || goto $failLabel\n";
 		if ($entry->resetConsole) {
