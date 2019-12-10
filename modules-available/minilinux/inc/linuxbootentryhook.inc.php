@@ -154,6 +154,8 @@ class LinuxBootEntryHook extends BootEntryHook
 
 	public function isValidId($id)
 	{
+		if ($id === 'default')
+			return true; // Meta-version that links to whatever the default is set to
 		$res = Database::queryFirst('SELECT installed FROM minilinux_version WHERE versionid = :id', ['id' => $id]);
 		return $res !== false && $res['installed'];
 	}

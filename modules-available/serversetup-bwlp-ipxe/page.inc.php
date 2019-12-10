@@ -527,7 +527,7 @@ class Page_ServerSetup extends Page
 						if ($he->moduleId === $row['module']) {
 							$he->setSelected($row['data']);
 							$he->checked = 'checked';
-							if ($he->getBootEntry($row['data']) === null) {
+							if (!$he->isValidId($he->getSelected())) {
 								Message::addError('invalid-custom-entry-id', $row['module'], $row['data']);
 							}
 							break;
@@ -848,8 +848,7 @@ class Page_ServerSetup extends Page
 			/** @var BootEntryHook $module */
 			$module = $hook->run();
 			$id = Request::post('selection-' . $type, false, 'string');
-			$entry = $module->isValidId($id);
-			if ($entry === null) {
+			if (!$module->isValidId($id)) {
 				Message::addError('invalid-custom-entry-id', $type, $id);
 				return;
 			}
