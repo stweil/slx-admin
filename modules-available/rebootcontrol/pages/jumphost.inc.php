@@ -137,7 +137,7 @@ class SubPage
 		if ($id === 'new') {
 			$host = ['hostid' => 'new', 'port' => 22, 'script' => "# Assume bash\n"
 				. "MACS='%MACS%'\n"
-				. "IP='%IP'\n"
+				. "IP='%IP%'\n"
 				. "EW=false\n"
 				. "WOL=false\n"
 				. "command -v etherwake > /dev/null && ( [ \"\$(id -u)\" = 0 ] || [ -u \"\$(which etherwake)\" ] ) && EW=true\n"
