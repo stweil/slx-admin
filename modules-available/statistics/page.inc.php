@@ -74,6 +74,10 @@ class Page_Statistics extends Page
 			$this->rebootControl(false);
 		} elseif ($action === 'wol') {
 			$this->wol();
+		} elseif ($action === 'prepare-exec') {
+			if (Module::isAvailable('rebootcontrol')) {
+				RebootControl::prepareExec();
+			}
 		}
 
 		// Make sure we don't render any content for POST requests - should be handled above and then

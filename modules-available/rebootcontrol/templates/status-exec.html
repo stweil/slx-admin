@@ -1,0 +1,55 @@
+
+<div data-tm-id="{{id}}" data-tm-log="error" data-tm-callback="updateStatus">{{lang_executingRemotely}}</div>
+
+<div class="slx-space"></div>
+
+<div class="row">
+	<div class="col-md-5 slx-bold">{{lang_host}}</div>
+	<div class="col-md-5 slx-bold">{{lang_status}}</div>
+	<div class="col-md-2 slx-bold text-right">{{lang_exitCode}}</div>
+</div>
+
+{{#clients}}
+<div class="slx-space" id="client-{{machineuuid}}">
+	<div class="row">
+		<div class="col-md-5 slx-bold">{{hostname}}{{^hostname}}{{clientip}}{{/hostname}}</div>
+		<div class="col-md-5 state"></div>
+		<div class="col-md-2 text-right exitCode"></div>
+	</div>
+	<i>{{lang_stdout}}</i>
+	<pre class="stdout"></pre>
+	<i>{{lang_stderr}}</i>
+	<pre class="stderr"></pre>
+</div>
+<hr>
+{{/clients}}
+
+<script><!--
+
+var ingoreHosts = {};
+
+function updateStatus(task) {
+	if (!task || !task.data || !task.data.result)
+		return;
+	for (var host in task.data.result) {
+		if (ingoreHosts[host] || !task.data.result.hasOwnProperty(host))
+			continue;
+		updateStatusClient(host, task.data.result[host]);
+	}
+}
+function updateStatusClient(id, status) {
+	var $p = $('#client-' + id);
+	if ($p.length === 0)
+		return;
+	$p.find('.state').text(status.state);
+	$p.find('.stdout').text(status.stdout);
+	$p.find('.stderr').text(status.stderr);
+	if (status.state === 'DONE' || status.state === 'ERROR' || status.state === 'TIMEOUT') {
+		$p.find('.state').addClass((status.state === 'DONE') ? 'text-success' : 'text-danger');
+		if (status.exitCode >= 0) {
+			$p.find('.exitCode').text(status.exitCode).addClass((status.exitCode === 0 ? 'text-success' : 'text-danger'));
+		}
+		ingoreHosts[id] = true;
+	}
+}
+//--></script>

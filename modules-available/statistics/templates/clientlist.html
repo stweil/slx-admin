@@ -178,6 +178,12 @@
 			{{lang_wakeOnLan}}
 		</button>
 		{{/canWol}}
+		{{#canExec}}
+		<button type="submit" name="action" value="prepare-exec" class="btn btn-primary btn-machine-action">
+			<span class="glyphicon glyphicon-play"></span>
+			{{lang_remoteExec}}
+		</button>
+		{{/canExec}}
 		{{/rebootcontrol}}
 		{{#canDelete}}
 			<button type="submit" name="action" value="delmachines" class="btn btn-danger btn-machine-action"

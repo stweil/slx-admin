@@ -82,9 +82,9 @@ class SubPage
 
 		// Output
 		if ($type === RebootControl::TASK_REBOOTCTL) {
-			$job['clients'] = RebootQueries::getMachinesByUuid(ArrayUtil::flattenByKey($job['clients'], 'machineuuid'));
+			$job['clients'] = RebootUtils::getMachinesByUuid(ArrayUtil::flattenByKey($job['clients'], 'machineuuid'));
 		} elseif ($type === RebootControl::TASK_EXEC) {
-			$details = RebootQueries::getMachinesByUuid(ArrayUtil::flattenByKey($job['clients'], 'machineuuid'), true);
+			$details = RebootUtils::getMachinesByUuid(ArrayUtil::flattenByKey($job['clients'], 'machineuuid'), true);
 			foreach ($job['clients'] as &$client) {
 				if (isset($client['machineuuid']) && isset($details[$client['machineuuid']])) {
 					$client += $details[$client['machineuuid']];

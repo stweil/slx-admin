@@ -21,7 +21,7 @@ class RebootControl
 	 */
 	public static function reboot($uuids, $kexec = false)
 	{
-		$list = RebootQueries::getMachinesByUuid($uuids);
+		$list = RebootUtils::getMachinesByUuid($uuids);
 		if (empty($list))
 			return false;
 		return self::execute($list, $kexec ? RebootControl::KEXEC_REBOOT : RebootControl::REBOOT, 0);
@@ -499,6 +499,20 @@ class RebootControl
 			LIMIT 20", ['subnetid' => $subnet['subnetid'], 'cutoff' => $cutoff]);
 		shuffle($subnet['iclients']);
 		$subnet['iclients'] = array_slice($subnet['iclients'], 0, 3);
+	}
+
+	public static function prepareExec()
+	{
+		User::assertPermission('action.exec');
+		$uuids = array_values(Request::post('uuid', Request::REQUIRED, 'array'));
+		$machines = RebootUtils::getFilteredMachineList($uuids, 'action.exec');
+		if ($machines === false)
+			return;
+		RebootUtils::sortRunningFirst($machines);
+		$id = mt_rand();
+		Session::set('exec-' . $id, $machines, 60);
+		Session::save();
+		Util::redirect('?do=rebootcontrol&show=exec&what=prepare&id=' . $id);
 	}
 
 }

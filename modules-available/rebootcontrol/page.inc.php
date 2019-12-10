@@ -71,31 +71,10 @@ class Page_RebootControl extends Page
 			return;
 		}
 
-		$actualClients = RebootQueries::getMachinesByUuid($requestedClients);
-		if (count($actualClients) !== count($requestedClients)) {
-			// We could go ahead an see which ones were not found in DB but this should not happen anyways unless the
-			// user manipulated the request
-			Message::addWarning('some-machine-not-found');
-		}
-		// Filter ones with no permission
-		foreach (array_keys($actualClients) as $idx) {
-			if (!User::hasPermission('action.' . $action, $actualClients[$idx]['locationid'])) {
-				Message::addWarning('locations.no-permission-location', $actualClients[$idx]['locationid']);
-				unset($actualClients[$idx]);
-			}
-		}
-		// See if anything is left
-		if (!is_array($actualClients) || empty($actualClients)) {
-			Message::addError('no-clients-selected');
+		$actualClients = RebootUtils::getFilteredMachineList($requestedClients, 'action.' . $action);
+		if ($actualClients === false)
 			return;
-		}
-		usort($actualClients, function($a, $b) {
-			$a = ($a['state'] === 'IDLE' || $a['state'] === 'OCCUPIED');
-			$b = ($b['state'] === 'IDLE' || $b['state'] === 'OCCUPIED');
-			if ($a === $b)
-				return 0;
-			return $a ? -1 : 1;
-		});
+		RebootUtils::sortRunningFirst($actualClients);
 		if ($action === 'shutdown') {
 			$mode = 'SHUTDOWN';
 			$minutes = Request::post('s-minutes', 0, 'int');
@@ -144,7 +123,7 @@ class Page_RebootControl extends Page
 			$clients = Request::post('clients');
 			if (is_array($clients)) {
 				// XXX No permission check here, should we consider this as leaking sensitive information?
-				$machines = RebootQueries::getMachinesByUuid(array_values($clients), false, ['machineuuid', 'state']);
+				$machines = RebootUtils::getMachinesByUuid(array_values($clients), false, ['machineuuid', 'state']);
 				$ret = [];
 				foreach ($machines as $machine) {
 					switch ($machine['state']) {
