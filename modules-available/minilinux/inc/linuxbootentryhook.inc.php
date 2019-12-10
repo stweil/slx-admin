@@ -20,10 +20,12 @@ class LinuxBootEntryHook extends BootEntryHook
 		/* For translate module:
 		 * Dictionary::translate('ipxe-kcl-extra');
 		 * Dictionary::translate('ipxe-debug');
+		 * Dictionary::translate('ipxe-insecure-cpu');
 		 */
 		return [
 			new HookExtraField('kcl-extra', 'string', ''),
 			new HookExtraField('debug', 'bool', false),
+			new HookExtraField('insecure-cpu', 'bool', false),
 		];
 	}
 
@@ -123,14 +125,20 @@ class LinuxBootEntryHook extends BootEntryHook
 			}
 		}
 		// KCL hacks
-		if (isset($localData['debug']) && $localData['debug']) {
+		if (!empty($localData['debug'])) {
+			// Debug boot enabled
 			$exec->commandLine = IPxe::modifyCommandLine($exec->commandLine,
 				isset($remoteData['debugCommandLineModifier'])
 					? $remoteData['debugCommandLineModifier']
 					: '-vga -quiet -splash -loglevel loglevel=7'
 			);
 		}
-		if (isset($localData['kcl-extra'])) {
+		// disable all CPU sidechannel attack mitigations etc.
+		if (!empty($localData['insecure-cpu'])) {
+			$exec->commandLine = IPxe::modifyCommandLine($exec->commandLine,
+				'noibrs noibpb nopti nospectre_v2 nospectre_v1 l1tf=off nospec_store_bypass_disable no_stf_barrier mds=off mitigations=off');
+		}
+		if (!empty($localData['kcl-extra'])) {
 			$exec->commandLine = IPxe::modifyCommandLine($exec->commandLine, $localData['kcl-extra']);
 		}
 		$exec->commandLine = str_replace('%ID%', $effectiveId, $exec->commandLine);
