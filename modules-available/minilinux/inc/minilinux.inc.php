@@ -23,7 +23,6 @@ class MiniLinux
 	{
 		$stamp = time();
 		$last = Property::get(self::PROPERTY_KEY_FETCHTIME);
-		error_log('Last: ' . $last);
 		if ($last !== false && $last + 10 > $stamp)
 			return 0; // In progress...
 		Property::set(self::PROPERTY_KEY_FETCHTIME, $stamp, 1);
