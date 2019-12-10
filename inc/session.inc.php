@@ -46,17 +46,22 @@ class Session
 
 	public static function get($key)
 	{
-		if (!isset(self::$data[$key])) return false;
-		return self::$data[$key];
+		if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) return false;
+		return self::$data[$key][0];
 	}
 
-	public static function set($key, $value)
+	/**
+	 * @param string $key key of entry
+	 * @param mixed $value data to store for key, false = delete
+	 * @param int|false $validMinutes validity in minutes, or false = forever
+	 */
+	public static function set($key, $value, $validMinutes = false)
 	{
 		if (self::$data === false) Util::traceError('Tried to set session data with no active session');
 		if ($value === false) {
 			unset(self::$data[$key]);
 		} else {
-			self::$data[$key] = $value;
+			self::$data[$key] = [$value, $validMinutes === false ? false : time() + $validMinutes * 60];
 		}
 	}
 	
@@ -99,7 +104,19 @@ class Session
 			return false;
 		}	
 		self::$data = @unserialize(@file_get_contents($sessionfile));
-		if (self::$data === false) return false;
+		if (self::$data === false)
+			return false;
+		$now = time();
+		$save = false;
+		foreach (array_keys(self::$data) as $key) {
+			if (self::$data[$key][1] !== false && self::$data[$key][1] < $now) {
+				unset(self::$data[$key]);
+				$save = true;
+			}
+		}
+		if ($save) {
+			self::save();
+		}
 		return true;
 	}
 	
