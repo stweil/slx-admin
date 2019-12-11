@@ -508,7 +508,6 @@ class RebootControl
 		$machines = RebootUtils::getFilteredMachineList($uuids, 'action.exec');
 		if ($machines === false)
 			return;
-		RebootUtils::sortRunningFirst($machines);
 		$id = mt_rand();
 		Session::set('exec-' . $id, $machines, 60);
 		Session::save();

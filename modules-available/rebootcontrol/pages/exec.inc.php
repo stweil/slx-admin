@@ -13,12 +13,11 @@ class SubPage
 
 	private static function execExec()
 	{
-		$id = Request::post('id', Request::REQUIRED, 'int');
-		$machines = Session::get('exec-' . $id);
-		if (!is_array($machines)) {
-			Message::addError('unknown-exec-job', $id);
+		$uuids = array_values(Request::post('uuid', Request::REQUIRED, 'array'));
+		$machines = RebootUtils::getFilteredMachineList($uuids, 'action.exec');
+		if (empty($machines))
 			return;
-		}
+		RebootUtils::sortRunningFirst($machines);
 		$script = preg_replace('/\r\n?/', "\n", Request::post('script', Request::REQUIRED, 'string'));
 		$task = RebootControl::runScript($machines, $script);
 		if (Taskmanager::isTask($task)) {
@@ -46,6 +45,8 @@ class SubPage
 			Message::addError('unknown-exec-job', $id);
 			return;
 		}
+		Session::set('exec-' . $id, false);
+		Session::save();
 		Render::addTemplate('exec-enter-command', ['clients' => $machines, 'id' => $id]);
 	}
 
