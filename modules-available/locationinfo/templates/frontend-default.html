@@ -747,14 +747,31 @@ optional:
 	}
 
 	/**
+	 *  Calculate the correct start date based on the number of days shown in the calendar
+	 *  @param startDay Start week day (0 = current day, 1 = Monday, 7 = Sunday)
+	 *  @param daysToShow Number of days to show in the calendar
+	 *  @return {Date} Start date
+	 */
+	function getStartDate(startDay, daysToShow) {
+		var now = new Date();
+		var startDate = new Date(now.getTime());
+		if (startDay > 0) {
+			startDate.setDate(startDate.getDate() - startDate.getDay() + (startDay % 7));
+			if (startDate > now) startDate.setDate(startDate.getDate() - 7);
+			var endDayDate = new Date(startDate.getTime());
+			endDayDate.setDate(endDayDate.getDate() + daysToShow);
+			if (endDayDate <= now) startDate.setDate(startDate.getDate() + 7);
+		}
+		return startDate;
+	}
+
+	/**
 	 *  inilizes the Calendar for an room
 	 *  @param room Room Object
 	 */
 	function setUpCalendar(room) {
 		var daysToShow = room.config.daystoshow;
-		var startDay = room.config.startday;
-		var startDayDate = new Date();
-		if (startDay > 0) startDayDate.setDate((startDayDate.getDate() - (startDayDate.getDay() + 6) % 7) + (startDay - 1));
+		var startDate = getStartDate(room.config.startday, daysToShow);
 		generateCalendarDiv(room);
 		room.$.calendar.weekCalendar({
 			timeslotsPerHour: 1,
@@ -782,7 +799,7 @@ optional:
 					$event.find(".time").css({"backgroundColor": "#25B002", "border": "1px solid #888"});
 				}
 			},
-			date: startDayDate,
+			date: startDate,
 			dateFormat: "j.n",
 			timeFormat: "G:i",
 			scrollToHourMillis: 500,
@@ -1043,6 +1060,7 @@ optional:
 			result = Math.min(Math.max(Math.abs(result), 1), 7);
 			if (result !== $cal.weekCalendar("option", "daysToShow")) {
 				$cal.weekCalendar("option", "daysToShow", result);
+				$cal.weekCalendar("gotoDate", getStartDate(room.config.startday, result));
 				columnWidth = $cal.find(".wc-day-1").width();
 			}
 		}
