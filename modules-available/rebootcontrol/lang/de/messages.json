@@ -1,6 +1,5 @@
 {
     "invalid-cidr": "Ung\u00fcltige CIDR-Angabe: {{0}}",
-    "invalid-ip-address": "Ung\u00fcltige IP-Adresse: {{0}}",
     "invalid-port": "Ung\u00fcltiger Port: {{0}}",
     "invalid-subnet": "Ung\u00fcltiges Subnetz: {{0}}",
     "jumphost-saved": "Sprung-Host {{0}} gespeichert",
@@ -12,6 +11,7 @@
     "subnet-already-exists": "Subnetz existiert bereits",
     "subnet-created": "Subnetz angelegt",
     "subnet-updated": "Subnetz aktualisiert",
+    "unknown-exec-job": "Unbekannte Job-ID",
     "unknown-task-type": "Unbekannter Task-Typ",
     "woldiscover-disabled": "Automatische WOL-Ermittlung deaktiviert",
     "woldiscover-enabled": "Automatische WOL-Ermittlung aktiviert"
