@@ -1,5 +1,7 @@
 {
+    "db-error": "Datenbankfehler",
     "invalid-tutor-uuid": "Ung\u00fcltige ID f\u00fcr den Tutor festgelegt",
     "json-data-invalid": "\u00dcbermittelte Daten sind kein g\u00fcltiges JSON",
+    "leaf-mode-mismatch": "Falscher Raumtyp: Versuche zusammengesetzten Raum als normalen Raum zu speichern, oder umgekehrt!",
     "need-locationid": "Keine locationid angegeben"
 }
