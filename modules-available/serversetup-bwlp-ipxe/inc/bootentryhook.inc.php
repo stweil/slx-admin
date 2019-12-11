@@ -26,6 +26,10 @@ abstract class BootEntryHook
 	 */
 	public abstract function extraFields();
 
+	/**
+	 * @param string $id
+	 * @return bool
+	 */
 	public abstract function isValidId($id);
 
 	/**
@@ -63,14 +67,28 @@ abstract class BootEntryHook
 		return $this->getBootEntryInternal($data);
 	}
 
-	public function setSelected($id)
+	/**
+	 * @param string $mixed either the plain ID if the entry to be marked as selected, or the JSON string representing
+	 *          the entire entry, which must have a key called 'id' that will be used as the ID then.
+	 */
+	public function setSelected($mixed)
 	{
-		$json = @json_decode($id, true);
+		$json = @json_decode($mixed, true);
 		if (is_array($json)) {
 			$id = $json['id'];
 			$this->data = $json;
+		} else {
+			$id = $mixed;
 		}
 		$this->selectedId = $id;
+	}
+
+	/**
+	 * @return string ID of entry that was marked as selected by setSelected()
+	 */
+	public function getSelected()
+	{
+		return $this->selectedId;
 	}
 
 	public function renderExtraFields()

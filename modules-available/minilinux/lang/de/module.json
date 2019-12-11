@@ -6,6 +6,7 @@
     "file-ok": "OK",
     "file-size-mismatch": "Dateigr\u00f6\u00dfe stimmt nicht",
     "ipxe-debug": "Debug-Ausgaben statt Bootlogo",
+    "ipxe-insecure-cpu": "Alle Mitigations for CPU-Sicherheitsl\u00fccken deaktivieren",
     "ipxe-kcl-extra": "Modifikation der Kernel-Command-Line",
     "menu-sources": "Update-Quellen",
     "menu-versions": "Verf\u00fcgbare Versionen",
