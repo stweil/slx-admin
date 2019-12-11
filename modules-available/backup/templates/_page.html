@@ -1,6 +1,6 @@
 <h1>{{lang_backupRestore}}</h1>
 
-<form action="?do=Backup" method="post">
+<form action="?do=Backup" method="post" onsubmit="$('#b-btn').prop('disabled', true).find('span').removeClass('glyphicon-save').addClass('glyphicon-refresh slx-rotation')">
 	<input type="hidden" name="token" value="{{token}}">
 	<input type="hidden" name="action" value="backup">
 	<div class="panel panel-default">
@@ -12,7 +12,9 @@
 				{{^last_backup}}{{lang_unknown}}{{/last_backup}}
 				{{last_backup}}
 			</p>
-			<button {{perms.create.disabled}} class="btn btn-primary pull-right" type="submit"><span class="glyphicon glyphicon-save"></span> {{lang_download}}</button>
+			<button id="b-btn" {{perms.create.disabled}} class="btn btn-primary pull-right" type="submit">
+				<span class="glyphicon glyphicon-save"></span> {{lang_download}}
+			</button>
 		</div>
 	</div>
 </form>

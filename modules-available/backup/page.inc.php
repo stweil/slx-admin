@@ -63,7 +63,7 @@ class Page_Backup extends Page
 			Util::redirect('?do=Backup');
 		}
 		Header('Content-Type: application/octet-stream', true);
-		Header('Content-Disposition: attachment; filename=' . 'satellite-backup_v16_' . date('Y.m.d-H.i.s') . '.tgz');
+		Header('Content-Disposition: attachment; filename=' . 'satellite-backup_' . Property::getServerIp() . '_' . date('Y.m.d-H.i.s') . '.tgz');
 		Header('Content-Length: ' . @filesize($task['data']['backupFile']));
 		while (!feof($fh)) {
 			$data = fread($fh, 16000);
