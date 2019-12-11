@@ -19,7 +19,7 @@ class SubPage
 			Message::addError('unknown-exec-job', $id);
 			return;
 		}
-		$script = Request::post('script', Request::REQUIRED, 'string');
+		$script = preg_replace('/\r\n?/', "\n", Request::post('script', Request::REQUIRED, 'string'));
 		$task = RebootControl::runScript($machines, $script);
 		if (Taskmanager::isTask($task)) {
 			Util::redirect("?do=rebootcontrol&show=task&what=task&taskid=" . $task["id"]);
