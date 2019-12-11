@@ -4,8 +4,8 @@
 	<th class="slx-smallcol">{{lang_releaseDate}}</th>
 	<th>{{lang_title}}</th>
 	<th class="slx-smallcol"></th>
-	<th class="slx-smallcol"></th>
-	<th class="slx-smallcol"></th>
+	<th class="slx-smallcol" style="width:100px">{{lang_default}}</th>
+	<th class="slx-smallcol" style="width:150px">{{lang_download}}</th>
 </tr>
 {{#versions}}
 <tr>
@@ -19,7 +19,7 @@
 	<td>{{title}}</td>
 	<td class="text-nowrap">
 		{{#orphan}}
-		<span title="{{lang_orphanedVersionToolTip}}">{{lang_orphanedVersion}}</span>
+		<span class="label label-danger" title="{{lang_orphanedVersionToolTip}}">{{lang_orphanedVersion}}</span>
 		{{/orphan}}
 	</td>
 	<td class="text-nowrap text-center {{default_class}}">
@@ -38,7 +38,7 @@
 	</td>
 	<td class="text-nowrap text-center">
 		{{#installed}}
-		<span class="btn btn-default btn-xs disabled">{{lang_installed}}</span>
+		<span class="label label-info">{{lang_installed}}</span>
 		{{/installed}}
 		{{^installed}}
 		{{^downloading}}
