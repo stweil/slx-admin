@@ -55,12 +55,22 @@ class StatisticsFilter
 	/* returns a where clause and adds needed operators to the passed array */
 	public function whereClause(&$args, &$joins)
 	{
-		$key = StatisticsFilter::getNewKey($this->column);
+		$key = self::getNewKey($this->column);
 		$addendum = '';
 
 		/* check if we have to do some parsing*/
 		if (self::$columns[$this->column]['type'] === 'date') {
 			$args[$key] = strtotime($this->argument);
+			if ($this->operator === '=' || $this->operator === '!=') {
+				$key2 = self::getNewKey($this->column);
+				$args[$key2] = strtotime(' +1 day', $args[$key]);
+				return ($this->operator === '=' ? '' : 'NOT ') . 'm.' . $this->column . " BETWEEN :$key AND :$key2";
+			}
+			if ($this->operator === '>') {
+				$args[$key] = strtotime('+1 day', $args[$key]);
+			} elseif ($this->operator === '<') {
+				$args[$key] = strtotime('-1 day', $args[$key]);
+			}
 		} else {
 			$args[$key] = $this->argument;
 			if ($this->operator === '~' || $this->operator === '!~') {
