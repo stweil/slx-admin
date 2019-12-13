@@ -230,6 +230,11 @@ class Render
 		$params['password_type'] = Property::getPasswordFieldType();
 		// Branding
 		$params['product_name'] = defined('CONFIG_PRODUCT_NAME') ? CONFIG_PRODUCT_NAME : 'OpenSLX';
+		// Query string
+		if (strpos($_SERVER['QUERY_STRING'], 'message[]=') !== false) {
+			$_SERVER['QUERY_STRING'] = preg_replace('/message\[\]=[^&]+(&|$)/', '', $_SERVER['QUERY_STRING']);
+		}
+		$params['qstr_urlencode'] = rawurlencode('?' . $_SERVER['QUERY_STRING']);
 		// Return rendered html
 		return self::$mustache->render($html, $params);
 	}

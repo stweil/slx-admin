@@ -156,13 +156,13 @@ SADFACE;
 	public static function redirect($location = false, $preferRedirectPost = false)
 	{
 		if ($location === false) {
-			$location = preg_replace('/(&|\?)message\[\]\=[^&]*/', '\1', $_SERVER['REQUEST_URI']);
+			$location = preg_replace('/([&?])message\[\]\=[^&]*/', '\1', $_SERVER['REQUEST_URI']);
 		}
 		Session::save();
 		$messages = Message::toRequest();
 		if ($preferRedirectPost
 			&& ($redirect = Request::post('redirect', false, 'string')) !== false
-			&& !preg_match(',^(\w+\:|//),', $redirect) /* no uri scheme, no server */) {
+			&& !preg_match(',^([0-9a-zA-Z_+\-]+:|//),', $redirect) /* no uri scheme, no server */) {
 			$location = $redirect;
 		}
 		if (!empty($messages)) {
