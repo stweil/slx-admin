@@ -46,7 +46,7 @@
 	function updateStatus(task) {
 		if (!task || !task.data || !task.data.clientStatus)
 			return;
-		stillActive = true;
+		stillActive = 25;
 		var clientStatus = task.data.clientStatus;
 		for (var uuid in clientStatus) {
 			if (!clientStatus.hasOwnProperty(uuid))

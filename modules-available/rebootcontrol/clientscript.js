@@ -1,13 +1,13 @@
-var stillActive = true;
+var stillActive = 10;
 document.addEventListener('DOMContentLoaded', function() {
 	var clients = [];
 	$('.machineuuid').each(function() { clients.push($(this).data('uuid')); });
 	if (clients.length === 0)
 		return;
 	function updateClientStatus() {
-		if (!stillActive) return;
-		stillActive = false;
-		setTimeout(updateClientStatus, 5000);
+		if (stillActive <= 0) return;
+		stillActive--;
+		setTimeout(updateClientStatus, Math.max(1, 30 - stillActive) * 1000);
 		$.ajax({
 			url: "?do=rebootcontrol",
 			method: "POST",
@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				return;
 			for (var e in data) {
 				$('#status-' + e).prop('class', 'glyphicon ' + data[e]);
-				if (!stillActive) $('#spinner-' + e).remove();
+				if (stillActive <= 0) $('#spinner-' + e).remove();
 			}
 		});
 	}
-	setTimeout(updateClientStatus, 1000);
+	setTimeout(updateClientStatus, 10);
 });
