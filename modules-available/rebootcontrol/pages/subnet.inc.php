@@ -59,7 +59,7 @@ class SubPage
 		if (User::hasPermission('jumphost.assign-subnet')) {
 			$hosts = Request::post('jumphost', [], 'array');
 			if (empty($hosts)) {
-				Database::exec('DELETE FROM reboot_jumphost_x_subnet WHERE subnetid = :id AND', ['id' => $id]);
+				Database::exec('DELETE FROM reboot_jumphost_x_subnet WHERE subnetid = :id', ['id' => $id]);
 			} else {
 				$hosts = array_keys($hosts);
 				Database::exec('DELETE FROM reboot_jumphost_x_subnet WHERE subnetid = :id AND hostid NOT IN (:hosts)',
