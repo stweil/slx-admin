@@ -44,6 +44,7 @@ class LocationInfoHooks
 			} else { // Automatic login
 				RunMode::updateClientFlag($machineUuid, 'locationinfo', false);
 				ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
+				ConfigHolder::add('SLX_ADDONS', '', 1000);
 			}
 			if (isset($data['interactive']) && $data['interactive']) {
 				ConfigHolder::add('SLX_BROWSER_INTERACTIVE', '1', 1000);
@@ -64,8 +65,8 @@ class LocationInfoHooks
 			ConfigHolder::add('SLX_BROWSER_URL', 'http://' . $_SERVER['SERVER_ADDR'] . '/panel/' . $panelUuid);
 			ConfigHolder::add('SLX_BROWSER_INSECURE', '1'); // TODO: Sat server might redirect to HTTPS, which in turn could have a self-signed cert - push to client
 			ConfigHolder::add('SLX_AUTOLOGIN', '1', 1000);
+			ConfigHolder::add('SLX_ADDONS', '', 1000);
 		}
-		ConfigHolder::add('SLX_ADDONS', '', 1000);
 		ConfigHolder::add('SLX_LOGOUT_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SCREEN_STANDBY_TIMEOUT', '', 1000);
 		ConfigHolder::add('SLX_SYSTEM_STANDBY_TIMEOUT', '', 1000);
