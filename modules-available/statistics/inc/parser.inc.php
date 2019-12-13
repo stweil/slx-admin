@@ -348,7 +348,11 @@ class Parser {
 				continue;
 			}
 			if (preg_match('/^([A-Z][^:]+):\s*(.*)$/', $line, $out)) {
-				$dev['s_' . preg_replace('/\s|-|_/', '', $out[1])] = $out[2];
+				$key = preg_replace('/\s|-|_/', '', $out[1]);
+				if ($key === 'ModelNumber') {
+					$key = 'DeviceModel';
+				}
+				$dev['s_' . $key] = $out[2];
 			} elseif (preg_match('/^\s*\d+\s+(\S+)\s+\S+\s+\d+\s+\d+\s+\S+\s+\S+\s+(\d+)(\s|$)/', $line, $out)) {
 				$dev['s_' . preg_replace('/\s|-|_/', '', $out[1])] = $out[2];
 			}
@@ -357,7 +361,7 @@ class Parser {
 		foreach ($hdds as &$hdd) {
 			if (isset($hdd['s_PowerOnHours'])) {
 				$hdd['PowerOnTime'] = '';
-				$val = (int)$hdd['s_PowerOnHours'];
+				$val = (int)str_replace('.', '', $hdd['s_PowerOnHours']);
 				if ($val > 8760) {
 					$hdd['PowerOnTime'] .= floor($val / 8760) . 'Y, ';
 					$val %= 8760;
