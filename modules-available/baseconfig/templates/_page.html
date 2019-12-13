@@ -6,6 +6,9 @@
 <p>{{lang_clientRelatedConfig}}</p>
 <form action="?do=BaseConfig" method="post">
 	<input type="hidden" name="token" value="{{token}}">
+	{{#redirect}}
+	<input type="hidden" name="redirect" value="{{redirect}}">
+	{{/redirect}}
 	{{#override}}
 	<input name="module" type="hidden" value="{{target_module}}">
 	<input name="{{field}}" type="hidden" value="{{field_value}}">

@@ -86,11 +86,11 @@ class Page_BaseConfig extends Page
 			}
 			Message::addSuccess('settings-updated');
 			if ($this->targetModule === false) {
-				Util::redirect('?do=BaseConfig');
+				Util::redirect('?do=BaseConfig', true);
 			} elseif (empty($this->qry_extra['field'])) {
-				Util::redirect('?do=BaseConfig&module=' . $this->targetModule);
+				Util::redirect('?do=BaseConfig&module=' . $this->targetModule, true);
 			} else {
-				Util::redirect('?do=BaseConfig&module=' . $this->targetModule . '&' . $this->qry_extra['field'] . '=' . $this->qry_extra['field_value']);
+				Util::redirect('?do=BaseConfig&module=' . $this->targetModule . '&' . $this->qry_extra['field'] . '=' . $this->qry_extra['field_value'], true);
 			}
 		}
 		// Load categories so we can define them as sub menu items
@@ -189,6 +189,7 @@ class Page_BaseConfig extends Page
 			'categories'  => array_values($settings),
 			'target_module' => $this->targetModule,
 			'edit_disabled' => $editForbidden ? 'disabled' : '',
+			'redirect' => Request::get('redirect'),
 		) + $this->qry_extra);
 	}
 
