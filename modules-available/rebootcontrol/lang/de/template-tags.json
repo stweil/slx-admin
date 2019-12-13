@@ -35,7 +35,7 @@
     "lang_keypairConfirmCheck": "Ich bin sicher",
     "lang_lastseen": "Zuletzt gesehen",
     "lang_location": "Standort",
-    "lang_moduleHeading": "WakeOnLAN",
+    "lang_moduleHeading": "Fernsteuerung \/ WakeOnLAN",
     "lang_new": "Neu",
     "lang_newKeypairExplanation": "Sie k\u00f6nnen ein neues Schl\u00fcsselpaar erzeugen lassen. In diesem Fall wird das alte Schl\u00fcsselpaar verworfen, sodass alle zum jetzigen Zeitpunkt bereits gestarteten Rechner nicht mehr aus der Ferne bedient werden k\u00f6nnen, bis diese manuell neugestartet wurden.",
     "lang_noTasksForJob": "Keine Tasks f\u00fcr diesen Job",
