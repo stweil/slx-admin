@@ -20,5 +20,5 @@
     "lang_translation": "Translation",
     "lang_translationHeading": "Translation Management",
     "lang_unused": "Unused",
-    "lang_unusedUnreliableHint": "Detection of unused tags only includes currently activated modules. It's possible that a tag marked \"unused\" is actually refered to in a module not activated."
+    "lang_unusedUnreliableHint": "Detection of unused tags only includes currently activated modules. It's possible that a tag marked \"unused\" is actually referred to in a module not activated."
 }

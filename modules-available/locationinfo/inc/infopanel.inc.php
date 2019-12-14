@@ -212,7 +212,7 @@ class InfoPanel
 
 	/**
 	 * Format the openingtime in the frontend needed format.
-	 * One key per week day, wich contains an array of {
+	 * One key per week day, which contains an array of {
 	 * 'HourOpen' => hh, 'MinutesOpen' => mm,
 	 * 'HourClose' => hh, 'MinutesClose' => mm }
 	 *

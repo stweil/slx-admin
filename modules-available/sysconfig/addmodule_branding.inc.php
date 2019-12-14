@@ -93,7 +93,7 @@ class Branding_ProcessFile extends AddModule_Base
 	 *
 	 * @param string $svgName file to download to
 	 * @param string $url url to download from
-	 * @return boolean true of download succeded, false on download error (also returns true if downloaded file doesn't
+	 * @return boolean true of download succeeded, false on download error (also returns true if downloaded file doesn't
 	 * 		seem to be svg!)
 	 */
 	private function downloadSvg($svgName, $url, &$title)

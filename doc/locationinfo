@@ -64,7 +64,7 @@ optional:
     daystoshow:[1,2,3,4,5,6,7] sets how many days the calendar shows
     scale:[10-90] scales the calendar and Roomplan in mode 1
     switchtime:[1-120] sets the time between switchen in mode 4  (in seconds)
-    calupdate: Time the calender querys for updates,in minutes.
+    calupdate: Time the calendar queries for updates,in minutes.
     roomupdate: Time the PCs in the room gets updated,in seconds.
     rotation:[0-3] rotation of the roomplan
     vertical:[true] only mode 1, sets the calendar above the roomplan
@@ -80,7 +80,7 @@ overwrite it for all rooms.
 First you need an Image(svg,png,jpg), add it to ./locationinfo/frontend/img/overlay.
 You can add your own css class if you want. To do so create an css  calss named .overlay-YOUR_IMAGE_NAME in the doorsign.html.
 You can find an example in the doorsign.html called ".overlay-rollstuhl".
-The backend functionaltiy is right now not implemented since it relays on the roominfo module.
+The backend functionality is right now not implemented since it relays on the roominfo module.
 But you can add it manually.
 You need to add the image name (without ending) in the machine database on the position column with the key overlays in an array.
 

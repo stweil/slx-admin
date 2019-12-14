@@ -95,7 +95,7 @@
     "lang_rebuild": "Rebuild",
     "lang_rebuildLong": "Rebuild module or configuration.",
     "lang_rebuildOutdatedLong": "Rebuild module or configuration. The module\/configuration is outdated or missing and should be regenerated.",
-    "lang_redirectionWarning": "WARNING: This feature is experimental. It remaps the selected folders after the VM booted (via openslx.exe) to the logged in user's home drive. This might cause problems with applications that start before the pathes are patched, as they will see the old unpatched settings. Please note that this is usign undocumented or unsupported techniques to achieve this goal. It is not guaranteed that this method will work in future versions or updates of Windows. If you want to reliably remap these directories, you might want to change their locations in the VM before uploading it.",
+    "lang_redirectionWarning": "WARNING: This feature is experimental. It remaps the selected folders after the VM booted (via openslx.exe) to the logged in user's home drive. This might cause problems with applications that start before the paths are patched, as they will see the old unpatched settings. Please note that this is usign undocumented or unsupported techniques to achieve this goal. It is not guaranteed that this method will work in future versions or updates of Windows. If you want to reliably remap these directories, you might want to change their locations in the VM before uploading it.",
     "lang_restartWizard": "Restart wizard",
     "lang_rootKey": "root pubkey",
     "lang_rootKeyInfo": "Here you can add the public key of a keypair that you want to use for authentication as root-user. Leave this field blank to disable the feature.",

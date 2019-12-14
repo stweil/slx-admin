@@ -41,7 +41,7 @@ function finalResponse($status, $message = '')
 define('UPDATE_DONE', 'UPDATE_DONE'); // Process completed successfully. This is a success return code.
 define('UPDATE_NOOP', 'UPDATE_NOOP'); // Nothing had to be done, everything is up to date. This is also a success code.
 define('UPDATE_RETRY', 'UPDATE_RETRY'); // Install/update process failed, but should be retried later.
-define('UPDATE_FAILED', 'UPDATE_FAILED'); // Fatal error occured, retry will not resolve the issue.
+define('UPDATE_FAILED', 'UPDATE_FAILED'); // Fatal error occurred, retry will not resolve the issue.
 
 /*
  * Helper functions for dealing with the database

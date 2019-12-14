@@ -15,7 +15,7 @@ Button colors:
     speciel actions (e.g. send test mail) = yellow (btn-warning)
     Secondary action (e.g. cancel) = white (btn-default)
     
-Prefered glyphicons:
+Preferred glyphicons:
     add (create) = glyphicon-plus
     add (assign) = glyphicon-share-alt
     delete = glyphicon-trash

@@ -8,7 +8,7 @@ class Util
 	 * Displays an error message and stops script execution.
 	 * If CONFIG_DEBUG is true, it will also dump a stack trace
 	 * and all globally defined variables.
-	 * (As this might reveal sensistive data you should never enable it in production)
+	 * (As this might reveal sensitive data you should never enable it in production)
 	 */
 	public static function traceError($message)
 	{

@@ -61,7 +61,7 @@ abstract class AddModule_Base
 
 	/**
 	 * Called before any HTML rendering happens, so you can
-	 * pepare stuff, validate input, and optionally redirect
+	 * prepare stuff, validate input, and optionally redirect
 	 * early if something is wrong, or you received post
 	 * data etc.
 	 */

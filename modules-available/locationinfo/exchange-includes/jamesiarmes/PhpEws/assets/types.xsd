@@ -2242,7 +2242,7 @@
             </xs:restriction>
         </xs:complexContent>
     </xs:complexType>
-    <!-- Smart reponses: ReplyToItem, ReplyAllToItem, ForwardItem-->
+    <!-- Smart responses: ReplyToItem, ReplyAllToItem, ForwardItem-->
     <xs:complexType name="SmartResponseBaseType">
         <xs:complexContent>
             <xs:restriction base="t:ResponseObjectType">

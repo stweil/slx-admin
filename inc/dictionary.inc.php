@@ -240,7 +240,7 @@ class Dictionary
 	 *
 	 * @param $caption bool with caption next to <img>
 	 * @param $langCC string Language cc to get flag code for - defaults to current language
-	 * @retrun string html code of img tag for language
+	 * @return string html code of img tag for language
 	 */
 	public static function getFlagHtml($caption = false, $langCC = false)
 	{

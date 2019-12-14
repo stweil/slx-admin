@@ -35,7 +35,7 @@ class Taskmanager
 	 * @param string $task name of task to start
 	 * @param array $data data to pass to the task. the structure depends on the task.
 	 * @param boolean $async if true, the function will not wait for the reply of the taskmanager, which means
-	 * 		the return value is just true (and you won't know if the task could acutally be started)
+	 * 		the return value is just true (and you won't know if the task could actually be started)
 	 * @return array|false struct representing the task status (as a result of submit); false on communication error
 	 */
 	public static function submit($task, $data = false, $async = false)

@@ -257,7 +257,7 @@ class Render
 	}
 
 	/**
-	 * Close the given tag. Will check if it maches the tag last opened
+	 * Close the given tag. Will check if it matches the tag last opened
 	 */
 	public static function closeTag($tag)
 	{

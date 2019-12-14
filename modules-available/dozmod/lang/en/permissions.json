@@ -15,7 +15,7 @@
     "templates.save": "Save email templates.",
     "users.setlogin": "Enable\/Disable Login.",
     "users.setmail": "Enable\/Disable Email Notification.",
-    "users.setorglogin": "Enalbe\/Disable Login for Users from certain organisations.",
+    "users.setorglogin": "Enable\/Disable Login for Users from certain organisations.",
     "users.setsu": "Set User to superuser.",
     "users.view": "View user list."
 }

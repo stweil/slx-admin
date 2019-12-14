@@ -75,7 +75,7 @@ if (!tableHasColumn('callback', 'args')) {
 
 // #######################
 // ##### 2018-03-19
-// In preparation for LDAP/AD auth: Column to rembember origin server
+// In preparation for LDAP/AD auth: Column to remember origin server
 if (!tableHasColumn('user', 'serverid')) {
 	Database::exec("ALTER TABLE `user` ADD `serverid` int(10) unsigned NULL DEFAULT NULL");
 }

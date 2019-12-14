@@ -8,7 +8,7 @@ namespace jamesiarmes\PhpEws\Type;
 use \jamesiarmes\PhpEws\Type;
 
 /**
- * Base class fot meeting request replies.
+ * Base class for meeting request replies.
  *
  * @package php-ews\Type
  */

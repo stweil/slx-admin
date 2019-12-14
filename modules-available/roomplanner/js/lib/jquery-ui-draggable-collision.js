@@ -377,7 +377,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	//     that the jquery-collision plugin takes into account during the calculations
 	//   * Also, the Coords() values get populated with these offsets at various times, so that they reflect "intended position"
 	//
-	// Note also that the collider, obstacle, and direction data fields are temporarily overriden (because we need them here,
+	// Note also that the collider, obstacle, and direction data fields are temporarily overridden (because we need them here,
 	//   and the user may not have asked for them), and then erased and placed where the user wants them, right before
 	//   sending out the collision events
 	//
@@ -385,7 +385,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	// something relative, it has to get translated right before sending out the events...
 	function handleCollide( event, ui )
 	{
-		// Note that $(this) is the draggable that's moving - it has a ui.position that moves acording to where
+		// Note that $(this) is the draggable that's moving - it has a ui.position that moves according to where
 		// the draggable is "about to move". However, our "collidable" objects might not be the same as $(this) -
 		// they might be child elements. So we need to keep track of recent and present position so we can apply the
 		// "intended" dx and dy to all the moving elements:

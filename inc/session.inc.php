@@ -37,7 +37,7 @@ class Session
 	{
 		// Try to load session id from cookie
 		if (!self::loadSessionId()) return false;
-		// Succeded, now try to load session data. If successful, job is done
+		// Succeeded, now try to load session data. If successful, job is done
 		if (self::readSessionData()) return true;
 		// Loading session data failed
 		self::delete();

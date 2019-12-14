@@ -193,7 +193,7 @@ function MyDate() {
         },
         /**
          * reads the id(s) of user(s) for who the event should be displayed.
-         * @param {Object} calEvent the calEvent to read informations from.
+         * @param {Object} calEvent the calEvent to read information from.
          * @param {jQuery} calendar the calendar object.
          * @return {number|String|Array} the user id(s) to appened events for.
          */
@@ -202,7 +202,7 @@ function MyDate() {
         },
         /**
          * sets user id(s) to the calEvent
-         * @param {Object} calEvent the calEvent to set informations to.
+         * @param {Object} calEvent the calEvent to set information to.
          * @param {jQuery} calendar the calendar object.
          * @return {Object} the calEvent with modified user id.
          */
@@ -218,7 +218,7 @@ function MyDate() {
         displayFreeBusys: false,
         /**
          * read the id(s) for who the freebusy is available
-         * @param {Object} calEvent the calEvent to read informations from.
+         * @param {Object} calEvent the calEvent to read information from.
          * @param {jQuery} calendar the calendar object.
          * @return {number|String|Array} the user id(s) to appened events for.
          */
@@ -277,7 +277,7 @@ function MyDate() {
         title: '%start% - %end%',
         /**
          * default options to pass to callback
-         * you can pass a function returning an object or a litteral object
+         * you can pass a function returning an object or a literal object
          * @type {object|function(#calendar)}
          */
         jsonOptions: {},
@@ -352,7 +352,7 @@ function MyDate() {
        * Go to the previous week relative to the currently displayed week
        */
       prevWeek: function() {
-        //minus more than 1 day to be sure we're in previous week - account for daylight savings or other anomolies
+        //minus more than 1 day to be sure we're in previous week - account for daylight savings or other anomalies
         var newDate = new Date(this.element.data('startDate').getTime() - (MILLIS_IN_WEEK / 6));
         this._clearCalendar();
         this._loadCalEvents(newDate);
@@ -362,7 +362,7 @@ function MyDate() {
         * Go to the next week relative to the currently displayed week
         */
       nextWeek: function() {
-          //add 8 days to be sure of being in prev week - allows for daylight savings or other anomolies
+          //add 8 days to be sure of being in prev week - allows for daylight savings or other anomalies
           var newDate = new Date(this.element.data('startDate').getTime() + MILLIS_IN_WEEK + MILLIS_IN_DAY);
           this._clearCalendar();
           this._loadCalEvents(newDate);
@@ -1827,7 +1827,7 @@ function MyDate() {
       },
 
       /*
-        * Add droppable capabilites to weekdays to allow dropping of calEvents only
+        * Add droppable capabilities to weekdays to allow dropping of calEvents only
         */
       _addDroppableToWeekDay: function($weekDay) {
           var self = this;
@@ -2464,14 +2464,14 @@ function MyDate() {
               end = (options.businessHours.limitDisplay ? options.businessHours.end : 24);
 
           $freeBusyPlaceholders.each(function() {
-              var $placehoder = $(this);
-              var s = self._cloneDate($placehoder.data('startDate')),
+              var $placeholder = $(this);
+              var s = self._cloneDate($placeholder.data('startDate')),
                   e = self._cloneDate(s);
               s.setHours(start);
               e.setHours(end);
-              $placehoder.find('.wc-freebusy').remove();
-              $.each($placehoder.data('wcFreeBusyManager').getFreeBusys(s, e), function() {
-                  self._renderFreeBusy(this, $placehoder);
+              $placeholder.find('.wc-freebusy').remove();
+              $.each($placeholder.data('wcFreeBusyManager').getFreeBusys(s, e), function() {
+                  self._renderFreeBusy(this, $placeholder);
                 });
             });
         }
@@ -2537,7 +2537,7 @@ function MyDate() {
       },
 
       /**
-        * retrives the first freebusy manager matching demand.
+        * retrieves the first freebusy manager matching demand.
         */
       getFreeBusyManagersFor: function(date, users) {
         var calEvent = {
@@ -2548,21 +2548,21 @@ function MyDate() {
         return this.getFreeBusyManagerForEvent(calEvent);
       },
       /**
-        * retrives the first freebusy manager for given event.
+        * retrieves the first freebusy manager for given event.
         */
       getFreeBusyManagerForEvent: function(newCalEvent) {
         var self = this,
             options = this.options,
             freeBusyManager;
         if (options.displayFreeBusys) {
-          var $freeBusyPlaceHoders = self.element.find('.wc-grid-row-freebusy .wc-column-freebusy'),
+          var $freeBusyPlaceHolders = self.element.find('.wc-grid-row-freebusy .wc-column-freebusy'),
               freeBusy = new FreeBusy({start: newCalEvent.start, end: newCalEvent.end}),
               showAsSeparatedUser = options.showAsSeparateUsers && options.users && options.users.length,
               userId = showAsSeparatedUser ? self._getEventUserId(newCalEvent) : null;
           if (!$.isArray(userId)) {
             userId = [userId];
           }
-          $freeBusyPlaceHoders.each(function() {
+          $freeBusyPlaceHolders.each(function() {
             var manager = $(this).data('wcFreeBusyManager'),
                 has_overlap = manager.isWithin(freeBusy.getEnd()) ||
                                 manager.isWithin(freeBusy.getEnd()) ||
@@ -2585,12 +2585,12 @@ function MyDate() {
             options = this.options;
         if (options.displayFreeBusys) {
           var $toRender,
-              $freeBusyPlaceHoders = self.element.find('.wc-grid-row-freebusy .wc-column-freebusy'),
+              $freeBusyPlaceHolders = self.element.find('.wc-grid-row-freebusy .wc-column-freebusy'),
               _freeBusys = self._cleanFreeBusys(freeBusys);
 
           $.each(_freeBusys, function(index, _freeBusy) {
 
-            var $weekdays = self._findWeekDaysForFreeBusy(_freeBusy, $freeBusyPlaceHoders);
+            var $weekdays = self._findWeekDaysForFreeBusy(_freeBusy, $freeBusyPlaceHolders);
             //if freebusy has a placeholder
             if ($weekdays && $weekdays.length) {
               $weekdays.each(function(index, day) {
@@ -2751,8 +2751,8 @@ function MyDate() {
         * if you do not pass any argument, returns all freebusys.
         * if you only pass a start date, only matchinf freebusy will be returned.
         * if you pass 2 arguments, then all freebusys available within the time period will be returned
-        * @param {Date} start [optionnal] if you do not pass end date, will return the freeBusy within which this date falls.
-        * @param {Date} end [optionnal] the date where to stop the search.
+        * @param {Date} start [optional] if you do not pass end date, will return the freeBusy within which this date falls.
+        * @param {Date} end [optional] the date where to stop the search.
         * @return {Array} an array of FreeBusy matching arguments.
         */
       getFreeBusys: function() {
@@ -2826,7 +2826,7 @@ function MyDate() {
           $.each(this.freeBusys, function(index) {
             //within the loop, we have following vars:
             // curFreeBusyItem: the current iteration freeBusy, part of manager freeBusys list
-            // start: the insterted freeBusy start
+            // start: the inserted freeBusy start
             // end: the inserted freebusy end
             var curFreeBusyItem = this;
             if (curFreeBusyItem.isWithin(start) && curFreeBusyItem.isWithin(end)) {

@@ -150,7 +150,7 @@
 			if ($table.stupidtable.settings.will_manually_build_table) $table.stupidtable_build();
 		}
 
-		// Run sorting asynchronously on a timout to force browser redraw after
+		// Run sorting asynchronously on a timeout to force browser redraw after
 		// `beforetablesort` callback. Also avoids locking up the browser too much.
 		setTimeout(function() {
 			if(!$table.stupidtable.settings.will_manually_build_table){

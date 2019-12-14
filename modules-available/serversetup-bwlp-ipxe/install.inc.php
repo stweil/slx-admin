@@ -111,7 +111,7 @@ if (Module::get('location') !== false) {
 	}
 }
 
-// 2019-09-21 Add modue column to bootentry
+// 2019-09-21 Add module column to bootentry
 if (!tableHasColumn('serversetup_bootentry', 'module')) {
 	if (Database::exec("ALTER TABLE serversetup_bootentry
 	ADD COLUMN `module` varchar(30) CHARACTER SET ascii DEFAULT NULL AFTER `builtin`") !== false) {

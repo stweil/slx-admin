@@ -259,7 +259,7 @@ class MiniLinux
 	 */
 
 	/**
-	 * Geenrate messages regarding setup und update availability.
+	 * Generate messages regarding setup und update availability.
 	 * @return bool true if severe problems were found, false otherwise
 	 */
 	public static function generateUpdateNotice()

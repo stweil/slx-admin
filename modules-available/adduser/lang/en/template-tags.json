@@ -1,7 +1,7 @@
 {
     "lang_addUser": "Add user",
     "lang_assignRoles": "Assign roles",
-    "lang_changeLoginHint": "You can change the login identifier used for logging in. This is only enabled for local acounts that are not linked to LDAP\/AD servers.",
+    "lang_changeLoginHint": "You can change the login identifier used for logging in. This is only enabled for local accounts that are not linked to LDAP\/AD servers.",
     "lang_changeOwnPasswordHint": "You can change your own password by clicking the \"change password\" button in the menu.",
     "lang_changePassword": "Change password",
     "lang_confirmation": "Confirm Password",

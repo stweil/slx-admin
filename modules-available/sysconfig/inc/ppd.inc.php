@@ -134,7 +134,7 @@ class Ppd
 		'JCLEnd' => '.*',
 		// TODO: The above three need to be either completely absent, or all three must be defined
 		/*
-		 * Resolution and Appearence Control, section 5.9
+		 * Resolution and Appearance Control, section 5.9
 		 */
 		/*
 		 * Gray Levels and Halftoning, section 5.10
@@ -417,7 +417,7 @@ class Ppd
 					$valueTranslation = $value;
 				}
 				// Key-value-pair parsed, now the fun part
-				// Special cases for openening closing certain groups
+				// Special cases for opening closing certain groups
 				if ($mainKeyword === 'OpenGroup') {
 					if ($currentBlock !== false) {
 						$this->error = 'Line ' . $no . ': OpenGroup while other block (type=' . $currentBlock->type
@@ -433,7 +433,7 @@ class Ppd
 					continue;
 				} elseif ($mainKeyword === 'OpenSubGroup') {
 					if ($currentBlock === false || $currentBlock->type !== 'Group') {
-						$this->error = 'Line ' . $no . ': OpenSubGroup with no preceeding OpenGroup';
+						$this->error = 'Line ' . $no . ': OpenSubGroup with no preceding OpenGroup';
 						return;
 					}
 					// TODO: Check unique

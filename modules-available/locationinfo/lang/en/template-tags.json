@@ -10,7 +10,7 @@
     "lang_browserTooltip": "Which browser shall be used",
     "lang_calendar": "Calendar",
     "lang_calendarUpdate": "Calendar Update",
-    "lang_calupdateTooltip": "Time the calender querys for updates (in minutes)",
+    "lang_calupdateTooltip": "Time the calendar queries for updates (in minutes)",
     "lang_checkConnection": "Check connection",
     "lang_chromium": "Chromium",
     "lang_closed": "Closed",

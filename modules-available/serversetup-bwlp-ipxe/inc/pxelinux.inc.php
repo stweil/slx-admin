@@ -224,7 +224,7 @@ class PxeSection
 	 */
 	public $ipAppend;
 	/**
-	 * @var string Password protecting the entry. This is most likely in crypted form.
+	 * @var string Password protecting the entry. This is most likely in encrypted form.
 	 */
 	public $passwd;
 	/**

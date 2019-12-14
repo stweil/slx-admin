@@ -19,7 +19,7 @@ abstract class CourseBackend
 	 */
 	protected $error = false;
 	/**
-	 * @var array list of errors that occured, fill using addError()
+	 * @var array list of errors that occurred, fill using addError()
 	 */
 	private $errors;
 	/**
@@ -300,7 +300,7 @@ abstract class CourseBackend
 	}
 
 	/**
-	 * @return array list of errors that occured during processing.
+	 * @return array list of errors that occurred during processing.
 	 */
 	public final function getErrors()
 	{

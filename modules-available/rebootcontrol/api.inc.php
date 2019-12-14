@@ -12,7 +12,7 @@ if (Request::any('action') === 'rebuild' && isLocalExecution()) {
 }
 /*
 	Needed POST-Parameters:
-		'token' -- for authentification
+		'token' -- for authentication
 		'action' -- which action should be performed (shutdown or reboot)
 		'clients' -- which are to reboot/shutdown (json encoded array!)
 		'timer' -- (optional) when to perform action in minutes (default value is 0)
