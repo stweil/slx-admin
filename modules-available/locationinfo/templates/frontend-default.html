@@ -15,7 +15,7 @@ optional:
     daystoshow:[1,2,3,4,5,6,7] sets how many days the calendar shows
     scale:[10-90] scales the calendar and Roomplan in mode 1
     switchtime:[1-120] sets the time between switchen in mode 4  (in seconds)
-    calupdate: Time the calender querys for updates,in minutes.
+    calupdate: Time the calendar queries for updates,in minutes.
     roomupdate: Time the PCs in the room gets updated,in seconds.
     rotation:[0-3] rotation of the roomplan
     vertical:[true] only mode 1, sets the calendar above the roomplan
@@ -936,7 +936,7 @@ optional:
 	}
 
 	/**
-	 * querys the Calendar data
+	 * queries the Calendar data
 	 */
 	function queryCalendars() {
 		if (!panelUuid) return;
@@ -1016,7 +1016,7 @@ optional:
 			room.state = null;
 			UpdateRoomHeader(room);
 		} catch (e) {
-			console.log("Error: Couldnt add calendar data");
+			console.log("Error: Couldn't add calendar data");
 			console.log(e);
 		}
 	}
@@ -1511,7 +1511,7 @@ optional:
 			timeout: 5000,
 			success: function (result) {
 				if (!result || !result.ts) {
-					console.log('Warning: get=timestamp didnt return json with ts field');
+					console.log("Warning: get=timestamp didn't return json with ts field");
 					return;
 				}
 				if (globalConfig.ts && globalConfig.ts !== result.ts) {
@@ -1534,7 +1534,7 @@ optional:
 			timeout: 30000,
 			success: function (result) {
 				if (!result || result.constructor !== Array) {
-					console.log('Warning: get=machines didnt return array');
+					console.log("Warning: get=machines didn't return array");
 					return;
 				}
 				for (var i = 0; i < result.length; i++) {

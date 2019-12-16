@@ -1,5 +1,5 @@
 {
 	"action.shutdown": "Shutdown Client.",
 	"action.reboot": "Reboot Client.",
-	"newkeypair": "Generate new Keypair."
+	"newkeypair": "Generate new Key pair."
 }

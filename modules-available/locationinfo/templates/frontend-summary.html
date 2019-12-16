@@ -244,7 +244,7 @@
 		}
 
 		/**
-		 * Querys Pc states
+		 * Queries Pc states
 		 * Room are queried with the {{uuid}} of the panel.
 		 */
 		function queryRooms() {
@@ -483,7 +483,7 @@
 		}
 
 		/**
-		 * Retruns next Opening
+		 * Returns next Opening
 		 * @param room Room Object
 		 * @returns bestdate Date Object of next opening
 		 */
@@ -691,14 +691,14 @@
 
 
 		/**
-		 * querys the Calendar data
-		 * Calender is queried with the {{uuid}} of the panel.
+		 * queries the Calendar data
+		 * Calendar is queried with the {{uuid}} of the panel.
 		 * api.inc.php / page.inc.php is getting the ids with the panel uuid.
 		 */
 		function queryCalendars() {
 			var url = "{{dirprefix}}api.php?do=locationinfo&get=calendar&uuid={{uuid}}";
 
-			// Todo reimplement Frontend methode if needed
+			// Todo reimplement Frontend method if needed
 			/*
 			 if(!(room.config.calendarqueryurl === undefined)) {
 			 url = room.config.calendarqueryurl;
@@ -729,7 +729,7 @@
 				timeout: 5000,
 				success: function (result) {
 					if (!result || !result.ts) {
-						console.log('Warning: get=timestamp didnt return json with ts field');
+						console.log("Warning: get=timestamp didn't return json with ts field");
 						return;
 					}
 					if (config.ts && config.ts !== result.ts) {

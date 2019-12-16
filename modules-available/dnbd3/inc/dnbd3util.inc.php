@@ -57,7 +57,7 @@ class Dnbd3Util {
 		if (!$hasSelf) {
 			Database::exec("INSERT IGNORE INTO dnbd3_server (fixedip) VALUES ('<self>')");
 		}
-		// Delete orphaned entires with machineuuid from dnbd3_server where we don't have a runmode entry
+		// Delete orphaned entries with machineuuid from dnbd3_server where we don't have a runmode entry
 		Database::exec('DELETE s FROM dnbd3_server s
 				LEFT JOIN runmode r USING (machineuuid)
 				WHERE s.machineuuid IS NOT NULL AND r.module IS NULL');

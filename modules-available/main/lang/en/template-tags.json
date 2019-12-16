@@ -4,7 +4,7 @@
     "lang_clockDriftWarn": "The local system's\/browser's time doesn't match the server's time. Please make sure the server's clock is running correctly, otherwise time sensitive settings or tasks might not work properly.",
     "lang_goTo": "Go to",
     "lang_intro": "This is the bwLehrpool configuration interface.",
-    "lang_introGuest": "This is the administration interface of the local bwLehrpool intallation. Please authenticate yourself to adjust settings.",
+    "lang_introGuest": "This is the administration interface of the local bwLehrpool installation. Please authenticate yourself to adjust settings.",
     "lang_language": "Language",
     "lang_loggedInPrefix": "Logged in as",
     "lang_loggedInSuffix": " ",
